@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_QuickStart_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="installation">
+   <title>Installation</title>
+   <para>This section describes how to install HornetQ. </para>
+   <section id="installation.prerequisites">
+      <title>Prerequisites</title>
+      <note>
+         <para>HornetQ only runs on Java 7 or later.</para>
+      </note>
+      <para>By default, HornetQ server runs with 1GiB of memory. If your computer has less memory,
+         or you want to run it with more available RAM, modify the value in <literal
+            >bin/run.sh</literal> accordingly.</para>
+      <para>For persistence, HornetQ uses its own fast journal, which you can configure to use
+         libaio (which is the default when running on Linux) or Java NIO. In order to use the libaio
+         module on Linux, you'll need to install libaio, if it's not already installed.</para>
+      <para>If you're not running on Linux then you don't need to worry about this.</para>
+      <para>You can install libaio using the following steps as the root user:</para>
+      <para>Using yum, (e.g. on Fedora or Red Hat Enterprise Linux):</para>
+      <programlisting>yum install libaio</programlisting>
+      <para>Using aptitude, (e.g. on Ubuntu or Debian system):</para>
+      <programlisting>apt-get install libaio</programlisting>
+   </section>
+   <section id="installation.standalone">
+      <title>Stand-alone HornetQ Server</title>
+      <para>After downloading the distribution, unzip it into your chosen directory. At this point
+         it should be possible to <link linkend="running.standalone">run straight out of the
+            box</link>, the following describes the directory structure: </para>
+      <programlisting>
+         |___ bin
+         |
+         |___ config
+         |      |___ jboss-as-4
+         |      |___ jboss-as-5
+         |      |___ stand-alone
+         |
+         |___ docs
+         |      |___ api
+         |      |___ quickstart-guide
+         |      |___ user-manual
+         |
+         |___ examples
+         |      |___ core
+         |      |___ javaee
+         |      |___ jms
+         |
+         |___ lib
+         |
+         |___ licenses
+         |
+         |___ schemas
+      </programlisting>
+      <itemizedlist>
+         <listitem>
+            <para><literal>bin</literal> -- binaries and scripts needed to run HornetQ.</para>
+         </listitem>
+         <listitem>
+            <para><literal>config</literal> -- configuration files needed to configure HornetQ. This
+               contains configurations to run HornetQ either in stand-alone or inside JBoss AS 4 and 5.
+               Please refer to the reference guide for details on configuration. </para>
+         </listitem>
+         <listitem>
+            <para><literal>docs</literal> -- guides and javadocs for HornetQ </para>
+         </listitem>
+         <listitem>
+            <para><literal>examples</literal> -- JMS and Java EE examples. Please refer to the
+               'running examples' chapter for details on how to run them. </para>
+         </listitem>
+         <listitem>
+            <para><literal>lib</literal> -- jars and libraries needed to run HornetQ </para>
+         </listitem>
+         <listitem>
+            <para><literal>licenses</literal> -- licenses for HornetQ </para>
+         </listitem>
+         <listitem>
+            <para><literal>schemas</literal> -- XML Schemas used to validate HornetQ configuration
+               files</para>
+         </listitem>
+      </itemizedlist>
+   </section>
+</chapter>

@@ -1,0 +1,25 @@
+<configuration xmlns="urn:hornetq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-users.xsd">
+   
+   <user name="bill" password="hornetq">
+      <role name="user"/>
+   </user>
+  
+   <user name="andrew" password="hornetq1">
+      <role name="europe-user"/>
+      <role name="user"/>
+   </user>
+   
+   <user name="frank" password="hornetq2">
+      <role name="us-user"/>
+      <role name="news-user"/>
+      <role name="user"/>
+   </user>
+   
+   <user name="sam" password="hornetq3">
+      <role name="news-user"/>
+      <role name="user"/>
+   </user>
+
+</configuration>
+

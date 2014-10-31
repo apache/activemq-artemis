@@ -1,0 +1,188 @@
+<html>
+  <head>
+    <title>HornetQ Clustering with JGroups Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>HornetQ Clustering with JGroups Example</h1>
+
+     <p>This example demonstrates the working of a two node cluster using JGroups as the underlying topology broadcasting/discovery 
+     technique.</p>
+     <p>We deploy a queue on to the cluster, then create a consumer on the queue on each node, and we create a producer on only one of the nodes.</p>
+     <p>We then send some messages via the producer, and we verify that <b>both</b> consumers receive the sent messages
+     in a round-robin fashion.</p>
+     <p>This example uses JNDI to lookup the JMS Queue and ConnectionFactory objects. If you prefer not to use
+     JNDI, these could be instantiated directly.</p>
+     <p>To enable HornetQ to use JGroups you need to configure JGroups configuration file and make sure it is on the classpath
+         by placing in the configuration directory, the file test-jgroups-file_ping.xml is the configuration used in this
+     exaample</p>
+     <p>You then configure the jgroups file used by the broadcast and discovery groups in the configuration along with the
+         channel name which you want this cluster to share.</p>
+     <pre class="prettyprint">
+     <code>
+   &lt;broadcast-groups&gt;
+      &lt;broadcast-group name="my-broadcast-group">
+         &lt;broadcast-period>5000&lt;/broadcast-period>
+         &lt;jgroups-file>test-jgroups-file_ping.xml&lt;/jgroups-file>
+         &lt;jgroups-channel>hornetq_broadcast_channel&lt;/jgroups-channel>
+         &lt;connector-ref>netty-connector&lt;/connector-ref>
+      &lt;/broadcast-group>
+   &lt;/broadcast-groups&gt;
+
+   &lt;discovery-groups&gt;
+      &lt;discovery-group name="my-discovery-group">
+         &lt;jgroups-file>test-jgroups-file_ping.xml&lt;/jgroups-file>
+         &lt;jgroups-channel>hornetq_broadcast_channel&lt;/jgroups-channel>
+         &lt;refresh-timeout>10000&lt;/refresh-timeout>
+      &lt;/discovery-group>
+   &lt;/discovery-groups&gt;
+     </code>
+     </pre>    
+     <p>For more information on HornetQ clustering in general, please see the clustering
+     section of the user manual.</p>      
+     <h2>Example step-by-step</h2>
+     <p><i>To run the example, simply type <code>./build.sh</code> (or <code>build.bat</code> on windows) from this directory</i></p>
+
+     <ol>
+        <li> Get an initial context for looking up JNDI from server 0.</li>
+        <pre class="prettyprint">
+           <code>
+   ic0 = getContext(0);
+   </code>
+        </pre>
+
+        <li>Look-up the JMS Queue object from JNDI</li>
+        <pre class="prettyprint">
+           <code>Queue queue = (Queue)ic0.lookup("/queue/exampleQueue");</code>
+        </pre>
+
+        <li>Look-up a JMS Connection Factory object from JNDI on server 0</li>
+        <pre class="prettyprint">
+           <code>ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("/ConnectionFactory");</code>
+        </pre>
+
+        <li>Get an initial context for looking up JNDI from server 1.</li>
+        <pre class="prettyprint">
+           <code>ic1 = getContext(1);</code>
+        </pre>
+
+        <li>Look-up a JMS Connection Factory object from JNDI on server 1</li>
+        <pre class="prettyprint">
+           <code>ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("/ConnectionFactory");
+           </code>
+        </pre>
+
+        <li>We create a JMS Connection connection0 which is a connection to server 0</li>
+        <pre class="prettyprint">
+          <code>
+   connection0 = cf0.createConnection();
+          </code>
+        </pre>
+        
+        <li>We create a JMS Connection connection1 which is a connection to server 1</li>
+        <pre class="prettyprint">
+          <code>
+   connection1 = cf1.createConnection();
+          </code>
+        </pre>
+
+        <li>We create a JMS Session on server 0</li>
+        <pre class="prettyprint">
+           <code>
+   Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
+           </code>
+        </pre>
+        
+        <li>We create a JMS Session on server 1</li>
+        <pre class="prettyprint">
+           <code>
+   Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            </code>
+        </pre>
+
+        <li>We start the connections to ensure delivery occurs on them</li>
+        <pre class="prettyprint">
+           <code>
+   connection0.start();
+
+   connection1.start();
+           </code>
+        </pre>
+
+        <li>We create JMS MessageConsumer objects on server 0 and server 1</li>
+        <pre class="prettyprint">
+           <code>
+   MessageConsumer consumer0 = session0.createConsumer(queue);
+
+   MessageConsumer consumer1 = session1.createConsumer(queue);
+           </code>
+        </pre>
+
+        <li>We create a JMS MessageProducer object on server 0.</li>
+        <pre class="prettyprint">
+           <code>
+   MessageProducer producer = session0.createProducer(queue);</code>
+        </pre>
+
+        <li>We send some messages to server 0.</li>
+        <pre class="prettyprint">
+           <code>
+	final int numMessages = 10;
+
+	for (int i = 0; i < numMessages; i++)
+	{
+	   TextMessage message = session0.createTextMessage("This is text message " + i);
+	      
+	   producer.send(message);
+	
+	   System.out.println("Sent message: " + message.getText());
+	}
+           </code>
+        </pre>
+        
+        <li>We now consume those messages on *both* server 0 and server 1.
+         We note the messages have been distributed between servers in a round robin fashion.
+         HornetQ has <b>load balanced</b> the messages between the available consumers on the different nodes.
+         HornetQ can be configured to always load balance messages to all nodes, or to only balance messages
+         to nodes which have consumers with no or matching selectors. See the user manual for more details.</li>
+         JMS Queues implement point-to-point message where each message is only ever consumed by a
+         maximum of one consumer.
+        <pre class="prettyprint">
+           <code>
+	for (int i = 0; i < numMessages; i += 2)
+	{
+	   TextMessage message0 = (TextMessage)consumer0.receive(5000);
+	
+	   System.out.println("Got message: " + message0.getText() + " from node 0");
+	
+	   TextMessage message1 = (TextMessage)consumer1.receive(5000);
+	
+	   System.out.println("Got message: " + message1.getText() + " from node 1");
+	}
+           </code>
+        </pre> 
+
+        <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
+
+        <pre class="prettyprint">
+           <code>
+	finally
+	{
+	   if (connection0 != null)
+	   {
+	      connection0.close();
+	   }
+	      
+	   if (connection1 != null)
+	   {
+	      connection1.close();
+	   }
+	}
+           </code>
+        </pre>
+
+     </ol>
+  </body>
+</html>

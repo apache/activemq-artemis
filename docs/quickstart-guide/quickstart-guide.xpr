@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <meta>
+        <filters directoryPatterns="" filePatterns=""
+            positiveFilePatterns="" showHiddenFiles="false"/>
+        <options/>
+    </meta>
+    <projectTree name="quickstart-guide.xpr">
+        <folder name="en">
+            <folder name="images"/>
+            <file name="en/about.xml"/>
+            <file name="en/download.xml"/>
+            <file name="en/examples.xml"/>
+            <file name="en/installation.xml"/>
+            <file name="en/introduction.xml"/>
+            <file name="en/master.xml"/>
+            <file name="en/notice.xml"/>
+            <file name="en/running.xml"/>
+        </folder>
+    </projectTree>
+</project>

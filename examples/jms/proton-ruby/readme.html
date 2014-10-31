@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>HornetQ Proton Ruby Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>Proton Ruby Example</h1>
+
+     <p>HornetQ can be configured to accept requests from any AMQP client that supports the 1.0 version of the protocol.
+     This example shows a simply proton ruby client that sends and receives messages</p>
+     <p>To run the example you will need the following packages installed, alsa-lib.i686 libXv.i686 libXScrnSaver.i686 qt.i686 qt-x11.i686 qtwebkit-2.2.2-2.fc18.i686, gcc, ruby</p>
+     <p>On fedora you can install these via the <literal>yum install alsa-lib.i686 libXv.i686 libXScrnSaver.i686 qt.i686 qt-x11.i686 qtwebkit-2.2.2-2.fc18.i686, gcc, ruby</literal>
+     command</p>
+     <p>you will also need the qpid-proton libraries installed, again <literal>yum install qpid-proton</literal></p>
+     <p>lastly you wull have to create the gems <literal>gem install qpid_proton</literal></p>
+
+     <p>To configure HornetQ to accept AMQP client connections you need to add an Acceptor like so:</p>
+     <pre class="prettyprint">
+     <code>
+     &lt;acceptor name="proton-acceptor"&gt;
+        &lt;factory-class&gt;org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
+        &lt;param key="protocol" value="AMQP"/&gt;
+        &lt;param key="port" value="5672"/&gt;
+     &lt;/acceptor&gt;
+     </code>
+     </pre>
+     <h2>Example step-by-step</h2>
+     <p>Firstly start the server by running the command <literal>mvn verify</literal></p>
+     <p>Then in a separate window you can run the send ruby script by running the command <literal>ruby src/main/scripts/send.rb</literal></p>
+     <p>You can then receive the message via the receive ruby script by running <literal>ruby src/main/scripts/receive.rb</literal></p>
+
+  </body>
+</html>

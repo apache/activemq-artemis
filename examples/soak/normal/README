@@ -1,0 +1,77 @@
+****************************************************
+* Soak Test For Manual Reconnection of JMS Clients *
+****************************************************
+
+Run The Server
+==============
+
+To run server using the default configuration (server0, using localhost):
+   $ ant runServer
+
+To run multiple servers, you can specify the server configuration directory using server.dir 
+system property (which defaults to server0). To run a 2nd server with a configuration stored in server1:
+
+   $ ant -Dserver.dir=server1 
+
+server1 dir contains a copy of server0 with different settings.
+
+To run a server with the same configuration but on a different host, change:
+* hornetq.remoting.netty.host property in hornetq-configuration.xml
+* bindAddress and rmiBindAddress properties in hornetq-beans.xml
+
+Configure Server Dump
+=====================
+
+The server can "dump" info at regular interval. In hornetq-configuration.xml, set
+
+   <server-dump-interval>10000</server-dump-interval>
+
+to have infos every 10s:
+
+**** Server Dump ****
+date:            Mon Aug 17 18:19:07 CEST 2009
+free memory:      500,79 MiB
+max memory:       1,95 GiB
+total memory:     507,13 MiB
+available memory: 99,68%
+total paging memory:   0,00 B
+# of thread:     19
+# of conns:      0
+********************
+
+Run The Client
+==============
+
+Senders (resp. receivers) are run with "ant runSender" (resp. "ant runReceiver").
+Parameters are specified in soak.properties. 
+The duration of the tests is configured by duration-in-minutes (defaults to 2 minutes, set to 
+-1 to run the test indefinitely).
+
+To configure the soak properties to run the client, use the system property soak.props.
+To specify the JNDI server to connect to, use the system property jndi.address
+(defaults to localhost) and jndi.port (defaults to 1099)
+
+To run a receiver connected to the local server with soak.properties
+  $  ant runReceiver
+
+To run a sender connected to another server using settings in paging-soak.properties:
+  $ ant runSender -Djndi.address=172.16.8.10 -Djndi.port=2099 -Dsoak.props=paging-soak.properties
+
+Every 1000th message, the clients will display their recent activity:
+
+INFO: received 10000 messages in 5,71s (total: 55s)
+
+At the end of the run, the sender and receiver will sum up their activity:
+
+INFO: Received 223364 messages in 2,01 minutes
+
+Kill The Server And Check Manual Reconnection
+==============================================
+
+You can kill the server (ctl+c or kill -9), the clients are configured to reconnect
+indefinitely to the same single server (even in case of clean shutdown)
+Once the server restarts, all the clients will resume their activities after reconnecting
+to the server.
+
+
+

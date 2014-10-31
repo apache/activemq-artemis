@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="wildcard-routing">
+    <title>Routing Messages With Wild Cards</title>
+    <para>HornetQ allows the routing of messages via wildcard addresses.</para>
+    <para>If a queue is created with an address of say <literal>queue.news.#</literal> then it
+        will receive any messages sent to addresses that match this, for instance <literal
+            >queue.news.europe</literal> or <literal>queue.news.usa</literal> or <literal
+            >queue.news.usa.sport</literal>. If you create a consumer on this queue, this allows a consumer to consume messages which are
+        sent to a <emphasis>hierarchy</emphasis> of addresses.</para>
+    <note>
+        <para>In JMS terminology this allows "topic hierarchies" to be created.</para>
+    </note>
+    <para>To enable this functionality set the property <literal>wild-card-routing-enabled</literal>
+        in the <literal>hornetq-configuration.xml</literal> file to <literal>true</literal>. This is
+            <literal>true</literal> by default.</para>
+    <para>For more information on the wild card syntax take a look at <xref
+            linkend="wildcard-syntax" /> chapter, also see <xref
+            linkend="topic-hierarchy-example" />.</para>
+</chapter>

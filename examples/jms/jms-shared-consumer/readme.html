@@ -1,0 +1,99 @@
+<html>
+  <head>
+    <title>HornetQ JMS Shared Consumer Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>JMS Shared Consumer Example</h1>
+
+     <p>This example shows you how can use shared consumers to share a subscription on a topic. In JMS 1.1 this was not allowed
+     and so caused a scalability issue. In JMS 2 this restriction has been lifted so you can share the load across different
+         threads and connections.</p>
+
+     <h2>Example step-by-step</h2>
+     <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
+
+     <ol>
+        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
+        <pre class="prettyprint">
+           <code>InitialContext initialContext = getContext();</code>
+        </pre>
+
+        <li>We look-up the JMS topic object from JNDI</li>
+        <pre class="prettyprint">
+           <code>Topic topic = (Topic) initialContext.lookup("/topic/exampleTopic");</code>
+        </pre>
+
+        <li>We look-up the JMS connection factory object from JNDI</li>
+        <pre class="prettyprint">
+           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
+        </pre>
+
+        <li>We create a JMS context</li>
+        <pre class="prettyprint">
+           <code>jmsContext = cf.createContext();</code>
+        </pre>
+
+        <li>We create a JMS Producer.</li>
+        <pre class="prettyprint">
+           <code>JMSProducer producer = jmsContext.createProducer();</code>
+        </pre>
+
+        <li>We create a shared consumer using the subscription name <literal>sc1</literal></li>
+        <pre class="prettyprint">
+          <code>JMSConsumer jmsConsumer = jmsContext.createSharedConsumer(topic, "sc1");</code>
+       </pre>
+
+        <li>We then create a second JMS context for a second shared consumer</li>
+        <pre class="prettyprint">
+           <code>jmsContext2 = cf.createContext();</code>
+        </pre>
+
+         <li>we then create the second shared consumer using the same subscription name</li>
+        <pre class="prettyprint">
+           <code>JMSConsumer jmsConsumer2 = jmsContext2.createSharedConsumer(topic, "sc1");</code>
+        </pre>
+
+         <li>we then send 2 messages</li>
+        <pre class="prettyprint">
+           <code>
+           producer.send(topic, "this is a String!");
+
+           producer.send(topic, "this is a second String!") ;</code>
+        </pre>
+
+         <li>we then receive the 2 messages using both shared consumers</li>
+        <pre class="prettyprint">
+           <code>
+           String body = jmsConsumer.receiveBody(String.class, 5000);
+
+           body = jmsConsumer2.receiveBody(String.class, 5000);</code>
+        </pre>
+
+        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
+
+        <pre class="prettyprint">
+           <code>finally
+           {
+              if (initialContext != null)
+              {
+                 initialContext.close();
+              }
+              if (jmsContext != null)
+              {
+                 jmsContext.close();
+              }
+               if (jmsContext2 != null)
+               {
+               jmsContext2.close();
+               }
+           }</code>
+        </pre>
+
+
+
+     </ol>
+  </body>
+</html>

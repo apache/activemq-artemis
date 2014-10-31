@@ -1,0 +1,121 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.hornetq.examples</groupId>
+      <artifactId>hornetq-examples</artifactId>
+      <version>2.5.0-SNAPSHOT</version>
+   </parent>
+
+   <groupId>org.hornetq.examples.jms</groupId>
+   <artifactId>jms-examples</artifactId>
+   <packaging>pom</packaging>
+   <name>HornetQ JMS Examples</name>
+
+   <properties>
+      <udp-address>231.7.7.7</udp-address>
+   </properties>
+
+   <profiles>
+      <profile>
+         <id>maven-release</id>
+         <modules>
+            <module>hornetq-jms-examples-common</module>
+         </modules>
+      </profile>
+      <profile>
+         <id>examples</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
+         <modules>
+            <module>hornetq-jms-examples-common</module>
+            <!--this needs to be run standalone-->
+            <!--<module>applet</module>-->
+            <module>application-layer-failover</module>
+            <module>bridge</module>
+            <module>browser</module>
+            <module>client-kickoff</module>
+            <module>client-side-load-balancing</module>
+            <module>client-side-failoverlistener</module>
+            <module>clustered-durable-subscription</module>
+            <module>clustered-grouping</module>
+            <module>clustered-queue</module>
+            <module>clustered-standalone</module>
+            <module>clustered-static-oneway</module>
+            <module>clustered-static-discovery</module>
+            <module>clustered-topic</module>
+            <module>consumer-rate-limit</module>
+            <module>dead-letter</module>
+            <module>delayed-redelivery</module>
+            <module>divert</module>
+            <module>durable-subscription</module>
+            <module>embedded</module>
+            <module>embedded-simple</module>
+            <module>expiry</module>
+            <module>http-transport</module>
+            <module>interceptor</module>
+            <module>instantiate-connection-factory</module>
+            <!--todo reenable once the HQ plugin v1.1.0 is available-->
+            <!--<module>jaas</module>-->
+            <module>jms-bridge</module>
+            <module>jmx</module>
+            <module>large-message</module>
+            <module>last-value-queue</module>
+            <module>management</module>
+            <module>management-notifications</module>
+            <module>message-counters</module>
+            <module>message-group</module>
+            <module>message-group2</module>
+            <module>message-priority</module>
+            <module>multiple-failover</module>
+            <module>multiple-failover-failback</module>
+            <module>no-consumer-buffering</module>
+            <module>non-transaction-failover</module>
+            <module>paging</module>
+            <!--run this standalone-->
+            <!--<module>perf</module>-->
+            <module>producer-rate-limit</module>
+            <module>queue</module>
+            <module>queue-message-redistribution</module>
+            <module>queue-requestor</module>
+            <module>queue-selector</module>
+            <module>reattach-node</module>
+            <module>replicated-multiple-failover</module>
+            <module>replicated-transaction-failover</module>
+            <module>request-reply</module>
+            <module>scheduled-message</module>
+            <module>security</module>
+            <module>send-acknowledgements</module>
+            <module>spring-integration</module>
+            <module>ssl-enabled</module>
+            <module>stomp</module>
+            <!--this should be run standalone-->
+            <!--<module>stomp-websockets</module>-->
+            <module>stomp1.1</module>
+            <!--this needs to be run standalone as it needs manual intervention-->
+            <!--<module>stop-server-failover</module>-->
+            <module>symmetric-cluster</module>
+            <module>temp-queue</module>
+            <module>topic</module>
+            <module>topic-hierarchies</module>
+            <module>topic-selector-example1</module>
+            <module>topic-selector-example2</module>
+            <module>transactional</module>
+            <module>transaction-failover</module>
+            <module>xa-heuristic</module>
+            <module>xa-receive</module>
+            <module>xa-send</module>
+            <module>xa-with-jta</module>
+         </modules>
+      </profile>
+      <profile>
+         <id>release</id>
+         <modules>
+            <module>hornetq-jms-examples-common</module>
+         </modules>
+      </profile>
+   </profiles>
+
+</project>

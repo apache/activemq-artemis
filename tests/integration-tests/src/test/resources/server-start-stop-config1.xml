@@ -1,0 +1,33 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
+
+   <connectors>
+      <connector name="netty-connector">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+      </connector>
+   </connectors>
+   
+   <journal-directory>/tmp/hornetq-unit-test/start-stop-data</journal-directory>
+   
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>        
+      </acceptor>
+   </acceptors>
+
+   <security-enabled>false</security-enabled>
+   
+   <queues>
+	   <queue name="myQueue">
+	   	<address>myAddress</address>
+	   </queue>
+	   
+	   <!--  temporary fix until I investigate the cause of a failure
+	   <queue name="jms.queue.myJMSQueue">
+	   	<address>jms.queue.myJMSAddress</address>
+	   </queue>
+	    -->
+   </queues>
+
+</configuration>

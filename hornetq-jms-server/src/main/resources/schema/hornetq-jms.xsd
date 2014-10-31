@@ -1,0 +1,267 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="urn:hornetq"
+            xmlns="urn:hornetq"
+            xmlns:hq="urn:org.hornetq"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+            version="1.0">
+
+   <xsd:element name="configuration" hq:schema="hornetq-jms-configuration">
+   	<xsd:complexType>
+   	  <xsd:sequence>
+            <xsd:element name="jmx-domain" type="xsd:string" default="org.hornetq"
+                         minOccurs="0" maxOccurs="1"/>
+   	    <xsd:element ref="connection-factory" maxOccurs="unbounded" minOccurs="0"/>
+   	    <xsd:choice maxOccurs="unbounded" minOccurs="0">
+   	      <xsd:element ref="queue" maxOccurs="1" minOccurs="1"/>
+              <xsd:element ref="topic" maxOccurs="1" minOccurs="1"/>
+            </xsd:choice>
+          </xsd:sequence>
+   	</xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="connection-factory">
+        <xsd:annotation hq:linkend="using-jms.server.configuration">
+          <xsd:documentation>a list of connection factories to create and add to
+          JNDI</xsd:documentation>
+        </xsd:annotation>
+   	<xsd:complexType>
+          <xsd:all>
+            <xsd:element name="xa" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:linkend="using-jms.configure.factory.types"
+                              hq:id="configuration.connection-factory.signature.xa">
+                <xsd:documentation>Whether this is an XA connection factory</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="discovery-group-ref" type="discovery-group-refType" maxOccurs="1" minOccurs="0">
+            </xsd:element>
+
+            <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:linkend="clusters">
+                <xsd:documentation>A sequence of connectors used by the connection factory
+                </xsd:documentation>
+              </xsd:annotation>
+            <xsd:complexType>
+                <xsd:sequence>
+                  <xsd:element name="connector-ref" maxOccurs="unbounded" minOccurs="1">
+                    <xsd:annotation>
+                      <xsd:documentation>A connector reference
+                      </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                      <xsd:attribute name="connector-name" type="xsd:string" use="required">
+                        <xsd:annotation>
+                          <xsd:documentation>Name of the connector to connect to the live server
+                          </xsd:documentation>
+                        </xsd:annotation>
+                      </xsd:attribute>
+                    </xsd:complexType>
+                  </xsd:element>
+                </xsd:sequence>
+              </xsd:complexType>
+              </xsd:element>
+
+            <xsd:element name="entries" maxOccurs="1" minOccurs="0">
+              <xsd:complexType>
+                <xsd:sequence>
+                  <xsd:element name="entry" type="entryType" maxOccurs="unbounded" minOccurs="1">
+                  </xsd:element>
+                </xsd:sequence>
+              </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="client-failure-check-period" type="xsd:long" default="30000"
+                         maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:id="configuration.connection-factory.client-failure-check-period"
+                              hq:linkend="dead.connections" hq:default="(ms)">
+                <xsd:documentation>
+                  the period (in ms) after which the client will consider the connection failed
+                  after not receiving packets from the server. -1 disables this setting.
+                </xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="connection-ttl" type="xsd:long" maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:id="configuration.connection-factory.connection-ttl"
+                              hq:linkend="dead.connections">
+                <xsd:documentation>the time to live (in ms) for connections
+                </xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="call-timeout" type="xsd:long" default="30000"
+                         maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:id="configuration.connection-factory.call-timeout">
+                <xsd:documentation>
+                  the timeout (in ms) for remote calls
+                </xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+   			 <xsd:element name="call-failover-timeout" type="xsd:long"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="consumer-window-size" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="consumer-max-rate" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="confirmation-window-size" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="producer-window-size" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="producer-max-rate" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="cache-large-message-client" type="xsd:boolean"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="min-large-message-size" type="xsd:long"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="compress-large-messages" type="xsd:boolean"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+
+            <xsd:element name="client-id" type="xsd:string" maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:id="configuration.connection-factory.client-id"
+                              hq:linkend="using-jms.clientid">
+                <xsd:documentation>
+                  the pre-configured client ID for the connection factory
+                </xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="dups-ok-batch-size" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="transaction-batch-size" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+         <xsd:element name="block-on-acknowledge" type="xsd:boolean" default="false"
+                      maxOccurs="1" minOccurs="0">
+           <xsd:annotation hq:linkend="send-guarantees.nontrans.acks"
+                           hq:id="configuration.connection-factory.block-on-acknowledge">
+             <xsd:documentation>
+               whether or not messages are acknowledged synchronously
+             </xsd:documentation>
+           </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="block-on-non-durable-send" type="xsd:boolean" default="false"
+                      maxOccurs="1" minOccurs="0">
+           <xsd:annotation hq:id="configuration.connection-factory.block-on-non-durable-send"
+                           hq:linkend="non-transactional-sends">
+             <xsd:documentation>
+               whether or not non-durable messages are sent synchronously
+             </xsd:documentation>
+           </xsd:annotation>
+         </xsd:element>
+            <xsd:element name="block-on-durable-send" type="xsd:boolean" default="true"
+                         maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:id="configuration.connection-factory.block-on-durable-send"
+                              hq:linkend="non-transactional-sends">
+                <xsd:documentation>
+                  whether or not durable messages are sent synchronously
+                </xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="auto-group" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+              <xsd:annotation hq:id="configuration.connection-factory.auto-group"
+                              hq:linkend="message-grouping.jmsconfigure">
+                <xsd:documentation>whether or not message grouping is automatically used
+                </xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="pre-acknowledge" type="xsd:boolean"
+   				maxOccurs="1" minOccurs="0">
+   			</xsd:element>
+            <xsd:element name="retry-interval" type="xsd:long"
+   				maxOccurs="1" minOccurs="0">
+   			</xsd:element>
+   			<xsd:element name="retry-interval-multiplier" type="xsd:float"
+   				maxOccurs="1" minOccurs="0">
+   			</xsd:element>
+   			<xsd:element name="max-retry-interval" type="xsd:long"
+   				maxOccurs="1" minOccurs="0">
+   			</xsd:element>
+            <xsd:element name="reconnect-attempts" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="failover-on-initial-connection" type="xsd:boolean"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="failover-on-server-shutdown" type="xsd:boolean"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="connection-load-balancing-policy-class-name" type="xsd:string"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="use-global-pools" type="xsd:boolean"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="scheduled-thread-pool-max-size" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="thread-pool-max-size" type="xsd:int"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="group-id" type="xsd:string"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+            <xsd:element name="ha" type="xsd:boolean"
+                maxOccurs="1" minOccurs="0">
+            </xsd:element>
+   		</xsd:all>
+   		<xsd:attribute name="name" type="xsd:string"></xsd:attribute>
+   		<xsd:attribute name="signature" type="xsd:string">
+                  <xsd:annotation hq:id="configuration.connection-factory.signature"
+                                  hq:linkend="using-jms.configure.factory.types"
+                                  hq:default="generic"> <!-- XXX -->
+                    <xsd:documentation>Type of connection factory</xsd:documentation>
+                  </xsd:annotation>
+                </xsd:attribute>
+   	</xsd:complexType>
+   </xsd:element>
+
+    <xsd:complexType name="entryType">
+    	<xsd:attribute name="name" type="xsd:string" use="required"></xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="discovery-group-refType">
+    	<xsd:attribute name="discovery-group-name" type="xsd:string" use="required">
+          <xsd:annotation>
+          <xsd:documentation>
+            Name of discovery group used by this connection factory
+          </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:element name="queue" type="queueType"></xsd:element>
+
+    <xsd:element name="topic" type="topicType"></xsd:element>
+
+   <xsd:complexType name="queueType">
+    	<xsd:sequence>
+    		<xsd:element name="entry" type="entryType" maxOccurs="unbounded" minOccurs="1"></xsd:element>
+          <xsd:element name="selector" maxOccurs="1" minOccurs="0">
+                <xsd:complexType>
+                   <xsd:attribute name="string" type="xsd:string" use="required"></xsd:attribute>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="durable" type="xsd:boolean" maxOccurs="1" minOccurs="0"></xsd:element>
+    	</xsd:sequence>
+    	<xsd:attribute name="name" type="xsd:string" use="required"></xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="topicType">
+    	<xsd:sequence>
+    		<xsd:element name="entry" type="entryType" maxOccurs="unbounded" minOccurs="1"></xsd:element>
+    	</xsd:sequence>
+    	<xsd:attribute name="name" type="xsd:string" use="required"></xsd:attribute>
+    </xsd:complexType>
+</xsd:schema>

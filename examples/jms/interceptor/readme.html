@@ -1,0 +1,157 @@
+<html>
+  <head>
+    <title>HornetQ JMS Interceptor Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>JMS Interceptor Example</h1>
+
+     <p>This example shows you how to implement and configure a simple incoming, server-side interceptor with HornetQ.</p>
+     
+     <p>HornetQ allows an application to use an interceptor to hook into the messaging system. All that needs to do is to implement the
+     Interceptor interface, as defined below: </p>
+     <pre class="prettyprint">
+     <code>
+         public interface Interceptor
+         {   
+            boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException;
+         }
+     </code>
+     </pre>
+     <p>Once you have your own interceptor class, add it to the hornetq-configuration.xml, as follows:</p>
+     <pre class="prettyprint">
+     <code>
+        &lt;configuration&gt;
+        ...
+           &lt;remoting-incoming-interceptors&gt;
+              &lt;class-name&gt;org.hornetq.jms.example.SimpleInterceptor&lt;/class-name&gt;
+           &lt;/remoting-incoming-interceptors&gt;
+        ...
+        &lt;/configuration&gt;
+     </code>
+     </pre>
+     
+     <p>With interceptor, you can handle various events in message processing. In this example, a simple interceptor, SimpleInterceptor, is implemented and configured. 
+     When the example is running, the interceptor will print out each events that are passed in the interceptor. And it will add a string property to the message being 
+     delivered. You can see that after the message is received, there will be a new string property appears in the received message.</p>
+     
+     <p>With our interceptor we always return <code>true</code> from the <code>intercept</code> method. If we were
+     to return <code>false</code> that signifies that no more interceptors are to run or the target
+     is not to be called. Return <code>false</code> to abort processing of the packet.</p>
+     
+     <h2>Example step-by-step</h2>
+     <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
+
+     <ol>
+        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
+        <pre class="prettyprint">
+           <code>InitialContext initialContext = getContext(0);</code>
+        </pre>
+
+        <li>We look-up the JMS queue object from JNDI</li>
+        <pre class="prettyprint">
+           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
+        </pre>
+
+        <li>We look-up the JMS connection factory object from JNDI</li>
+        <pre class="prettyprint">
+           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
+        </pre>
+
+        <li>We create a JMS connection</li>
+        <pre class="prettyprint">
+           <code>connection = cf.createConnection();</code>
+        </pre>
+
+        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
+        <pre class="prettyprint">
+           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
+        </pre>
+
+        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
+        <pre class="prettyprint">
+          <code>MessageProducer messageProducer = session.createProducer(topic);</code>
+       </pre>
+
+        <li>We create a JMS text message that we are going to send.</li>
+        <pre class="prettyprint">
+           <code>TextMessage message = session.createTextMessage("This is a text message");</code>
+        </pre>
+
+        <li>We send message to the queue</li>
+        <pre class="prettyprint">
+           <code>messageProducer.send(message);</code>
+        </pre>
+
+        <li>We create a JMS Message Consumer to receive the message.</li>
+          <pre class="prettyprint">
+           <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
+        </pre>
+
+        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
+        <pre class="prettyprint">
+           <code>connection.start();</code>
+        </pre>
+
+        <li>The message arrives at the consumer. In this case we use a timeout of 5000 milliseconds but we could use a blocking 'receive()'</li>
+        <pre class="prettyprint">
+           <code>TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);</code>
+        </pre>
+
+        <li>We print out the message and the new property that has been added by the interceptor</li>
+        <pre class="prettyprint">
+           <code>System.out.println("Received message [" + messageReceived.getText() + "] with String property: " + messageReceived.getStringProperty("newproperty"));</code>
+        </pre>
+
+        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
+
+        <pre class="prettyprint">
+           <code>
+           finally
+           {
+              if (initialContext != null)
+              {
+                initialContext.close();
+              }
+              if (connection != null)
+              {
+                 connection.close();
+              }
+           }
+           </code>
+        </pre>
+     </ol>
+     <ol>
+        <li>The SimpleInterceptor:</li>
+        <pre class="prettyprint">
+           <code>
+           public class SimpleInterceptor implements Interceptor
+           {
+              public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+              {
+                 System.out.println("SimpleInterceptor gets called!");
+                 System.out.println("Packet: " + packet.getClass().getName());
+                 System.out.println("RemotingConnection: " + connection.getRemoteAddress());
+
+                 if (packet instanceof SessionSendMessage)
+                 {
+                    SessionSendMessage realPacket = (SessionSendMessage)packet;
+                    Message msg = realPacket.getServerMessage();
+                    msg.putStringProperty(new SimpleString("newproperty"), new SimpleString("Hello from interceptor!"));
+                 }
+                 return true;
+              }
+           }
+           </code>
+        </pre>
+     </ol>
+  </body>
+</html>
+
+
+
+
+
+

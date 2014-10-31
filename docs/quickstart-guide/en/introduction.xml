@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_QuickStart_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="introduction">
+    <title>Getting Started</title>
+    <para>This short guide explains how to download, install and quickly get started with
+        HornetQ.</para>
+    <para>After downloading and installing we highly recommend you run the examples to get
+        acquainted with HornetQ. We ship with over 70 examples demonstrating most of the
+        features.</para>
+    <para>This guide is not intended to be a replacement for the user manual. The user manual goes
+        into much more depth, so please consult that for further information.</para>
+</chapter>

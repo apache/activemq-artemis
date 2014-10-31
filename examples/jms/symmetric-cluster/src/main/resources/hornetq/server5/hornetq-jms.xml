@@ -1,0 +1,22 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+
+   <!--This connection factory is not actually used in the example, but we keep it here for good
+   measure -->
+   <connection-factory name="ConnectionFactory">
+      <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      <entries>
+         <entry name="ConnectionFactory"/>
+      </entries>
+   </connection-factory>
+
+   <queue name="exampleQueue">
+      <entry name="/queue/exampleQueue"/>
+   </queue>
+   
+   <topic name="exampleTopic">
+      <entry name="/topic/exampleTopic"/>
+   </topic>
+
+</configuration>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="scheduled-messages">
+   <title>Scheduled Messages</title>
+   <para>Scheduled messages differ from normal messages in that they won't be delivered until a
+      specified time in the future, at the earliest.</para>
+   <para>To do this, a special property is set on the message before sending it.</para>
+   <section>
+      <title>Scheduled Delivery Property</title>
+      <para>The property name used to identify a scheduled message is <literal
+            >"_HQ_SCHED_DELIVERY"</literal> (or the constant <literal
+            >Message.HDR_SCHEDULED_DELIVERY_TIME</literal>).</para>
+      <para>The specified value must be a positive <literal>long</literal> corresponding to the time the
+         message must be delivered (in milliseconds). An example of sending a scheduled message
+         using the JMS API is as follows.</para>
+      <programlisting>
+TextMessage message = session.createTextMessage("This is a scheduled message message which will be delivered in 5 sec.");
+message.setLongProperty("_HQ_SCHED_DELIVERY", System.currentTimeMillis() + 5000);
+producer.send(message);
+
+...
+
+// message will not be received immediately but 5 seconds later
+TextMessage messageReceived = (TextMessage) consumer.receive();</programlisting>
+      <para>Scheduled messages can also be sent using the core API, by setting the same property on
+         the core message before sending.</para>
+   </section>
+   <section>
+      <title>Example</title>
+      <para>See <xref linkend="examples.scheduled-message"/> for an example which shows how
+         scheduled messages can be used with JMS.</para>
+   </section>
+</chapter>

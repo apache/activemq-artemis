@@ -1,0 +1,52 @@
+<html>
+   <head>
+      <title>HornetQ Embedded JMS Server Example</title>
+      <link rel="stylesheet" type="text/css" href="../common/common.css" />
+      <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+      <script type="text/javascript" src="../common/prettify.js"></script>
+   </head>
+   <body onload="prettyPrint()">
+      <h1>Embedded JMS Server Example</h1>
+      
+      <p>This examples shows how to setup and run an embedded JMS server using HornetQ along with HornetQ configuration files.</p>
+     
+      <h2>Example step-by-step</h2>     
+      <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
+
+      <ol>
+         <li>Create HornetQ core configuration files and make sure they are within your classpath.  By default, HornetQ
+             expects the classnames to be "hornetq-configuration.xml", "hornetq-jms.xml", and "hornetq-users.xml".</li>
+         <li>Create and start HornetQ JMS server</li>
+         <pre class="prettyprint">
+            <code>EmbeddedJMS jmsServer = new EmbeddedJMS();
+            jmsServer.start();</code>
+         </pre>
+        
+         <p>At this point the JMS server is started and any JMS clients can look up JMS resources from the JNDI to send/receive 
+            messages from the server. To keep the example simple, we will send and receive a JMS message from the same JVM 
+            used to run the JMS server.</p>
+              
+         <li>Lookup JMS resources defined in the configuration </li>
+         <pre class="prettyprint">
+            <code>ConnectionFactory cf = (ConnectionFactory)context.lookup("/cf");
+            Queue queue = (Queue)context.lookup("/queue/queue1");</code>
+         </pre>
+         
+         <li>Send and receive a message using JMS API</li>
+         <p>See the <a href="../../queue/readme.html">Queue Example</a> for detailed steps to send and receive a JMS message</p>
+           
+         <p>Finally, we stop the JMS server and its associated resources.</p>
+        
+         <li>Stop the JMS server</li>
+         <pre class="prettyprint">
+            <code>jmsServer.stop();</code>
+         </pre>
+        
+         <li>Stop the JNDI server</li>
+         <pre class="prettyprint">
+            <code>naming.stop();
+            jndiServer.stop();</code>
+         </pre>
+      </ol>
+   </body>
+</html>

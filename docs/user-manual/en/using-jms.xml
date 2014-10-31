@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="using-jms">
+    <title>Using JMS</title>
+    <para>Although HornetQ provides a JMS agnostic messaging API, many users will be more
+        comfortable using JMS.</para>
+    <para>JMS is a very popular API standard for messaging, and most messaging systems provide a JMS
+        API. If you are completely new to JMS we suggest you follow the<ulink
+            url="http://docs.oracle.com/javaee/1.3/jms/tutorial"> Sun
+            JMS tutorial</ulink> - a full JMS tutorial is out of scope for this guide.</para>
+    <para>HornetQ also ships with a wide range of examples, many of which demonstrate JMS API usage.
+        A good place to start would be to play around with the simple JMS Queue and Topic example,
+        but we also provide examples for many other parts of the JMS API. A full description of the
+        examples is available in <xref linkend="examples"/>.</para>
+    <para>In this section we'll go through the main steps in configuring the server for JMS and
+        creating a simple JMS program. We'll also show how to configure and use JNDI, and also how
+        to use JMS with HornetQ without using any JNDI.</para>
+    <section>
+        <title>A simple ordering system</title>
+        <para>For this chapter we're going to use a very simple ordering system as our example. It is
+            a somewhat contrived example because of its extreme simplicity, but it serves to
+            demonstrate the very basics of setting up and using JMS.</para>
+        <para>We will have a single JMS Queue called <literal>OrderQueue</literal>, and we will have
+            a single <literal>MessageProducer</literal> sending an order message to the queue and a
+            single <literal>MessageConsumer</literal> consuming the order message from the
+            queue.</para>
+        <para>The queue will be a <literal>durable</literal> queue, i.e. it will survive a server
+            restart or crash. We also want to pre-deploy the queue, i.e. specify the queue in the
+            server JMS configuration so it is created automatically without us having to explicitly
+            create it from the client.</para>
+    </section>
+    <section id="using-jms.server.configuration">
+        <title>JMS Server Configuration</title>
+        <para>The file <literal>hornetq-jms.xml</literal> on the server classpath contains any JMS
+            Queue, Topic and ConnectionFactory instances that we wish to create and make available
+            to lookup via the JNDI.</para>
+        <para>A JMS ConnectionFactory object is used by the client to make connections to the
+            server. It knows the location of the server it is connecting to, as well as many other
+            configuration parameters. In most cases the defaults will be acceptable.</para>
+        <para>We'll deploy a single JMS Queue and a single JMS Connection Factory instance on the
+            server for this example but there are no limits to the number of Queues, Topics and
+            Connection Factory instances you can deploy from the file. Here's our
+            configuration:</para>
+        <programlisting>
+&lt;configuration xmlns="urn:hornetq" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
+    
+   &lt;connection-factory name="ConnectionFactory">
+      &lt;connectors>
+         &lt;connector-ref connector-name="netty"/>
+      &lt;/connectors>
+      &lt;entries>
+         &lt;entry name="ConnectionFactory"/>
+      &lt;/entries>
+   &lt;/connection-factory>
+
+   &lt;queue name="OrderQueue">
+      &lt;entry name="queues/OrderQueue"/>
+   &lt;/queue>
+&lt;/configuration></programlisting>
+        <para>We deploy one ConnectionFactory called <literal>ConnectionFactory</literal> and bind
+            it in just one place in JNDI as given by the <literal>entry</literal> element.
+            ConnectionFactory instances can be bound in many places in JNDI if you require. </para>
+        <note>
+            <para>The JMS connection factory references a <literal>connector</literal> called
+                    <literal>netty</literal>. This is a reference to a connector object deployed in
+                the main core configuration file <literal>hornetq-configuration.xml</literal> which
+                defines the transport and parameters used to actually connect to the server.</para>
+        </note>
+    </section>
+    <section id="using-jms.configure.factory.types">
+        <title>Connection Factory Types</title>
+        <para>The JMS API doc provides several connection factories for applications. HornetQ JMS users
+              can choose to configure the types for their connection factories. Each connection factory
+              has a <literal>signature</literal> attribute and a <literal>xa</literal> parameter, the
+              combination of which determines the type of the factory. Attribute <literal>signature</literal>
+              has three possible string values, i.e. <emphasis>generic</emphasis>, 
+              <emphasis>queue</emphasis> and <emphasis>topic</emphasis>; <literal>xa</literal> is a boolean
+              type parameter. The following table gives their configuration values for different 
+              connection factory interfaces.</para>
+        <table frame="topbot" id="using-jms.table.configure.factory.types">
+                <title>Configuration for Connection Factory Types</title>
+                <tgroup cols="3">
+                    <colspec colname="signature" colnum="1"/>
+                    <colspec colname="xa" colnum="2"/>
+                    <colspec colname="cftype" colnum="3"/>
+                    <thead>
+                        <row>
+                            <entry>signature</entry>
+                            <entry>xa</entry>
+                            <entry>Connection Factory Type</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>generic (default)</entry>
+                            <entry>false (default)</entry>
+                            <entry>javax.jms.ConnectionFactory</entry>
+                        </row>
+                        <row>
+                            <entry>generic</entry>
+                            <entry>true</entry>
+                            <entry>javax.jms.XAConnectionFactory</entry>
+                        </row>
+                        <row>
+                            <entry>queue</entry>
+                            <entry>false</entry>
+                            <entry>javax.jms.QueueConnectionFactory</entry>
+                        </row>
+                        <row>
+                            <entry>queue</entry>
+                            <entry>true</entry>
+                            <entry>javax.jms.XAQueueConnectionFactory</entry>
+                        </row>
+                        <row>
+                            <entry>topic</entry>
+                            <entry>false</entry>
+                            <entry>javax.jms.TopicConnectionFactory</entry>
+                        </row>
+                        <row>
+                            <entry>topic</entry>
+                            <entry>true</entry>
+                            <entry>javax.jms.XATopicConnectionFactory</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <para>As an example, the following configures an XAQueueConnectionFactory:</para>
+        <programlisting>
+&lt;configuration xmlns="urn:hornetq" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
+
+   &lt;connection-factory name="ConnectionFactory" signature="queue">
+      &lt;xa>true&lt;/xa>
+      &lt;connectors>
+         &lt;connector-ref connector-name="netty"/>
+      &lt;/connectors>
+      &lt;entries>
+         &lt;entry name="ConnectionFactory"/>
+      &lt;/entries>
+   &lt;/connection-factory>
+&lt;/configuration></programlisting>
+
+    </section>
+    <section>
+        <title>JNDI configuration</title>
+        <para>When using JNDI from the client side you need to specify a set of JNDI properties
+            which tell the JNDI client where to locate the JNDI server, amongst other things. These
+            are often specified in a file called <literal>jndi.properties</literal> on the client
+            classpath, or you can specify them directly when creating the JNDI initial context. A
+            full JNDI tutorial is outside the scope of this document, please see the <ulink
+                url="http://docs.oracle.com/javase/jndi/tutorial">Sun JNDI tutorial</ulink>
+            for more information on how to use JNDI.</para>
+        <para>For talking to the JBoss JNDI Server, the jndi properties will look something like
+            this:</para>
+        <programlisting>
+java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
+java.naming.provider.url=jnp://myhost:1099
+java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting>
+        <para>Where <literal>myhost</literal> is the hostname or IP address of the JNDI server. 1099
+            is the port used by the JNDI server and may vary depending on how you have configured
+            your JNDI server.</para>
+        <para>In the default standalone configuration, JNDI server ports are configured in the file
+                <literal>hornetq-beans.xml</literal> by setting properties on the <literal
+                >JNDIServer</literal> bean:</para>
+        <programlisting>
+&lt;bean name="StandaloneServer" class="org.hornetq.jms.server.impl.StandaloneNamingServer">
+   &lt;constructor>
+      &lt;parameter>
+         &lt;inject bean="HornetQServer"/>
+      &lt;/parameter>
+   &lt;/constructor>
+   &lt;property name="port">${jnp.port:1099}&lt;/property>
+   &lt;property name="bindAddress">${jnp.host:localhost}&lt;/property>
+   &lt;property name="rmiPort">${jnp.rmiPort:1098}&lt;/property>
+   &lt;property name="rmiBindAddress">${jnp.host:localhost}&lt;/property>
+&lt;/bean></programlisting>
+        <note>
+            <para>If you want your JNDI server to be available to non local clients make sure you
+                change its bind address to something other than <literal
+                >localhost</literal>!</para>
+        </note>
+        <note>
+            <para>The JNDIServer bean must be defined <emphasis>only when HornetQ is running in
+                    stand-alone mode</emphasis>. When HornetQ is integrated to JBoss Application
+                Server, JBoss AS will provide a ready-to-use JNDI server without any additional
+                configuration.</para>
+        </note>
+    </section>
+    <section>
+        <title>The code</title>
+        <para>Here's the code for the example:</para>
+        <para>First we'll create a JNDI initial context from which to lookup our JMS objects:</para>
+        <programlisting>InitialContext ic = new InitialContext();</programlisting>
+        <para>Now we'll look up the connection factory:</para>
+        <programlisting>ConnectionFactory cf = (ConnectionFactory)ic.lookup("/ConnectionFactory");</programlisting>
+        <para>And look up the Queue:</para>
+        <programlisting>Queue orderQueue = (Queue)ic.lookup("/queues/OrderQueue");</programlisting>
+        <para>Next we create a JMS connection using the connection factory:</para>
+        <programlisting>Connection connection = cf.createConnection();</programlisting>
+        <para>And we create a non transacted JMS Session, with AUTO_ACKNOWLEDGE acknowledge
+            mode:</para>
+        <programlisting>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</programlisting>
+        <para>We create a MessageProducer that will send orders to the queue:</para>
+        <programlisting>MessageProducer producer = session.createProducer(orderQueue);</programlisting>
+        <para>And we create a MessageConsumer which will consume orders from the queue:</para>
+        <programlisting>MessageConsumer consumer = session.createConsumer(orderQueue);</programlisting>
+        <para>We make sure we start the connection, or delivery won't occur on it:</para>
+        <programlisting>connection.start();</programlisting>
+        <para>We create a simple TextMessage and send it:</para>
+        <programlisting>TextMessage message = session.createTextMessage("This is an order");
+producer.send(message);</programlisting>
+        <para>And we consume the message:</para>
+        <programlisting>TextMessage receivedMessage = (TextMessage)consumer.receive();
+System.out.println("Got order: " + receivedMessage.getText());</programlisting>
+        <para>It is as simple as that. For a wide range of working JMS examples please see the
+            examples directory in the distribution.</para>
+        <warning>
+            <para>Please note that JMS connections, sessions, producers and consumers are
+                    <emphasis>designed to be re-used</emphasis>.</para>
+            <para>It is an anti-pattern to create new connections, sessions, producers and consumers
+                for each message you produce or consume. If you do this, your application will
+                perform very poorly. This is discussed further in the section on performance tuning
+                    <xref linkend="perf-tuning"/>.</para>
+        </warning>
+    </section>
+    <section>
+        <title>Directly instantiating JMS Resources without using JNDI</title>
+        <para>Although it is a very common JMS usage pattern to lookup JMS <emphasis>Administered
+                Objects</emphasis> (that's JMS Queue, Topic and ConnectionFactory instances) from
+            JNDI, in some cases a JNDI server is not available and you still want to use JMS, or you
+            just think "Why do I need JNDI? Why can't I just instantiate these objects
+            directly?"</para>
+        <para>With HornetQ you can do exactly that. HornetQ supports the direct instantiation of JMS
+            Queue, Topic and ConnectionFactory instances, so you don't have to use JNDI at
+            all.</para>
+        <para>For a full working example of direct instantiation please see the JMS examples in
+                <xref linkend="examples"/>.</para>
+        <para>Here's our simple example, rewritten to not use JNDI at all:</para>
+        <para>We create the JMS ConnectionFactory object via the HornetQJMSClient Utility class,
+            note we need to provide connection parameters and specify which transport we are using,
+            for more information on connectors please see <xref linkend="configuring-transports"
+            />.</para>
+        <programlisting>              
+TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName());
+ConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,transportConfiguration);</programlisting>
+        <para>We also create the JMS Queue object via the HornetQJMSClient Utility class:</para>
+        <programlisting>Queue orderQueue = HornetQJMSClient.createQueue("OrderQueue");</programlisting>
+        <para>Next we create a JMS connection using the connection factory:</para>
+        <programlisting>Connection connection = cf.createConnection();</programlisting>
+        <para>And we create a non transacted JMS Session, with AUTO_ACKNOWLEDGE acknowledge
+            mode:</para>
+        <programlisting>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</programlisting>
+        <para>We create a MessageProducer that will send orders to the queue:</para>
+        <programlisting>MessageProducer producer = session.createProducer(orderQueue);</programlisting>
+        <para>And we create a MessageConsumer which will consume orders from the queue:</para>
+        <programlisting>MessageConsumer consumer = session.createConsumer(orderQueue);</programlisting>
+        <para>We make sure we start the connection, or delivery won't occur on it:</para>
+        <programlisting>connection.start();</programlisting>
+        <para>We create a simple TextMessage and send it:</para>
+        <programlisting>TextMessage message = session.createTextMessage("This is an order");
+producer.send(message);</programlisting>
+        <para>And we consume the message:</para>
+        <programlisting>TextMessage receivedMessage = (TextMessage)consumer.receive();
+System.out.println("Got order: " + receivedMessage.getText());</programlisting>
+    </section>
+    <section id="using-jms.clientid">
+        <title>Setting The Client ID</title>
+        <para>This represents the client id for a JMS client and is needed for creating durable
+            subscriptions. It is possible to configure this on the connection factory and can be set
+            via the <literal>client-id</literal> element. Any connection created by this connection
+            factory will have this set as its client id.</para>
+    </section>
+    <section id="using-jms.dupsokbatchsize">
+        <title>Setting The Batch Size for DUPS_OK </title>
+        <para>When the JMS acknowledge mode is set to <literal>DUPS_OK</literal> it is possible to
+            configure the consumer so that it sends acknowledgements in batches rather that one at a
+            time, saving valuable bandwidth. This can be configured via the connection factory via
+            the <literal>dups-ok-batch-size</literal> element and is set in bytes. The default is
+            1024 * 1024 bytes = 1 MiB.</para>
+    </section>
+    <section id="using-jms.txbatchsize">
+        <title>Setting The Transaction Batch Size</title>
+        <para>When receiving messages in a transaction it is possible to configure the consumer to
+            send acknowledgements in batches rather than individually saving valuable bandwidth.
+            This can be configured on the connection factory via the <literal
+                >transaction-batch-size</literal> element and is set in bytes. The default is 1024 *
+            1024.</para>
+    </section>
+</chapter>

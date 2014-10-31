@@ -1,0 +1,75 @@
+<html>
+<head>
+    <title>HornetQ QPID java example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+</head>
+<body onload="prettyPrint()">
+<h1>Proton qpid java example</h1>
+
+<p>HornetQ can be configured to accept requests from any AMQP client that supports the 1.0 version of the protocol.
+    This example shows a simply qpid java 1.0 client example</p>
+<p>To run the example simply run the command <literal>mvn verify</literal></p>
+
+<p>To configure HornetQ to accept AMQP client connections you need to add an Acceptor like so:</p>
+     <pre class="prettyprint">
+     <code>
+         &lt;acceptor name="proton-acceptor"&gt;
+         &lt;factory-class&gt;org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
+         &lt;param key="protocol" value="AMQP"/&gt;
+         &lt;param key="port" value="5672"/&gt;
+         &lt;/acceptor&gt;
+     </code>
+     </pre>
+<h2>Example step-by-step</h2>
+<ol>
+    <li> Create an amqp qpid 1.0 connection.</li>
+        <pre class="prettyprint">
+           <code>connection= new Connection("localhost", 5672, null, null);</code>
+        </pre>
+
+    <li>Create a session</li>
+        <pre class="prettyprint">
+           <code>Session session = connection.createSession();</code>
+        </pre>
+
+    <li>Create a sender</li>
+        <pre class="prettyprint">
+           <code>Sender sender = session.createSender("testQueue");</code>
+        </pre>
+
+    <li>send a simple message</li>
+        <pre class="prettyprint">
+           <code>sender.send(new Message("I am an amqp message"));</code>
+        </pre>
+
+    <li>create a moving receiver, this means the message will be removed from the queue</li>
+        <pre class="prettyprint">
+           <code>Receiver rec = session.createMovingReceiver("testQueue");</code>
+        </pre>
+
+    <li>set some credit so we can receive</li>
+        <pre class="prettyprint">
+          <code>rec.setCredit(UnsignedInteger.valueOf(1), false);</code>
+        </pre>
+
+    <li>receive the simple message</li>
+        <pre class="prettyprint">
+          <code>Message m = rec.receive(5000);
+                System.out.println("message = " + m.getPayload());</code>
+        </pre>
+
+    <li>acknowledge the message</li>
+        <pre class="prettyprint">
+          <code>rec.acknowledge(m);</code>
+        </pre>
+
+    <li>close the connection</li>
+        <pre class="prettyprint">
+          <code>connection.close();</code>
+        </pre>
+</ol>
+
+</body>
+</html>

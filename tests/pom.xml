@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <parent>
+      <groupId>org.hornetq</groupId>
+      <artifactId>hornetq-pom</artifactId>
+      <version>2.5.0-SNAPSHOT</version>
+   </parent>
+   <name>HornetQ Tests POM</name>
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>org.hornetq.tests</groupId>
+   <artifactId>hornetq-tests-pom</artifactId>
+   <packaging>pom</packaging>
+
+   <properties>
+      <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+   </properties>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+               <skip>true</skip>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <skipTests>${skipUnitTests}</skipTests>
+               <argLine>${hornetq-surefire-argline}</argLine>
+               <excludes>
+                  <!--todo this test is dependent on the jar so needs to be run post package as an integration test-->
+                  <exclude>**/ManifestTest.java</exclude>
+               </excludes>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <modules>
+      <module>unit-tests</module>
+      <module>jms-tests</module>
+      <module>joram-tests</module>
+      <module>soak-tests</module>
+      <module>stress-tests</module>
+      <module>timing-tests</module>
+      <module>concurrent-tests</module>
+      <module>performance-tests</module>
+      <module>integration-tests</module>
+      <module>byteman-tests</module>
+   </modules>
+</project>

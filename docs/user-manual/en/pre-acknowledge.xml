@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+        <!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+        %BOOK_ENTITIES;
+        ]>
+<chapter id="pre-acknowledge">
+    <title>Extra Acknowledge Modes</title>
+    <para>JMS specifies 3 acknowledgement modes:</para>
+    <itemizedlist>
+        <listitem>
+            <para><literal>AUTO_ACKNOWLEDGE</literal></para>
+        </listitem>
+        <listitem>
+            <para><literal>CLIENT_ACKNOWLEDGE</literal></para>
+        </listitem>
+        <listitem>
+            <para><literal>DUPS_OK_ACKNOWLEDGE</literal></para>
+        </listitem>
+    </itemizedlist>
+    <para>HornetQ supports two additional modes: <literal>PRE_ACKNOWLEDGE</literal> and <literal>INDIVIDUAL_ACKNOWLEDGE</literal></para>
+    <para>In some cases you can afford
+        to lose messages in event of failure, so it would make sense to acknowledge the message on the
+        server <emphasis>before</emphasis> delivering it to the client.</para>
+    <para>This extra mode is supported by HornetQ and will call it
+        <emphasis>pre-acknowledge</emphasis> mode.</para>
+    <para>The disadvantage of acknowledging on the server before delivery is that the message will be
+        lost if the system crashes <emphasis>after</emphasis> acknowledging the message on the server
+        but <emphasis>before</emphasis> it is delivered to the client. In that case, the message is
+        lost and will not be recovered when the system restart.</para>
+    <para>Depending on your messaging case, <literal>pre-acknowledgement</literal> mode can avoid
+        extra network traffic and CPU at the cost of coping with message loss.</para>
+    <para>An example of a use case for pre-acknowledgement is for stock price update messages. With
+        these messages it might be reasonable to lose a message in event of crash, since the next
+        price update message will arrive soon, overriding the previous price. </para>
+    <note>
+        <para>Please note, that if you use pre-acknowledge mode, then you will lose transactional
+            semantics for messages being consumed, since clearly they are being acknowledged first on
+            the server, not when you commit the transaction. This may be stating the obvious but we
+            like to be clear on these things to avoid confusion!</para>
+    </note>
+    <section id="pre-acknowledge.configure">
+        <title>Using PRE_ACKNOWLEDGE</title>
+        <para>This can be configured in the <literal>hornetq-jms.xml</literal> file on the <literal
+                >connection factory</literal> like this:</para>
+        <programlisting>
+&lt;connection-factory name="ConnectionFactory">
+   &lt;connectors>
+      &lt;connector-ref connector-name="netty-connector"/>
+   &lt;/connectors>
+   &lt;entries>
+      &lt;entry name="ConnectionFactory"/>
+   &lt;/entries>
+   &lt;pre-acknowledge>true&lt;/pre-acknowledge>
+&lt;/connection-factory></programlisting>
+        <para>Alternatively, to use pre-acknowledgement mode using the JMS API, create a JMS Session
+            with the <literal>HornetQSession.PRE_ACKNOWLEDGE</literal> constant.</para>
+        <programlisting>
+// messages will be acknowledge on the server *before* being delivered to the client
+Session session = connection.createSession(false, HornetQJMSConstants.PRE_ACKNOWLEDGE);</programlisting>
+        <para>Or you can set pre-acknowledge directly on the <literal
+                >HornetQConnectionFactory</literal> instance using the setter method.</para>
+        <para>To use pre-acknowledgement mode using the core API you can set it directly on the
+            <literal>ClientSessionFactory</literal> instance using the setter method.</para>
+    </section>
+    <section id="individual-ack">
+        <title>Individual Acknowledge</title>
+        <para>A valid use-case for individual acknowledgement would be when you need to have your own scheduling and you don't know when your message processing will be finished. You should prefer having one consumer per thread worker
+            but this is not possible in some circumstances depending on how complex is your processing. For that you can use the individual Acknowledgement. </para>
+        <para>You basically setup Individual ACK by creating a session with the acknowledge mode with <literal>HornetQJMSConstants.INDIVIDUAL_ACKNOWLEDGE</literal>. Individual ACK inherits all the semantics from Client Acknowledge,
+            with the exception the message is individually acked.</para>
+        <note>
+            <para>Please note, that to avoid confusion on MDB processing, Individual ACKNOWLEDGE is not supported through MDBs (or the inbound resource adapter). this is because you have to finish the process of your message inside the MDB.
+            </para>
+        </note>
+    </section>
+    <section>
+        <title>Example</title>
+        <para>See <xref linkend="examples.pre-acknowledge"/> for an example which shows how to use
+            pre-acknowledgement mode with JMS.</para>
+    </section>
+</chapter>

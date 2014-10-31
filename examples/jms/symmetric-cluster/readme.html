@@ -1,0 +1,257 @@
+<html>
+  <head>
+    <title>HornetQ JMS Symmetric Cluster Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>JMS Symmetric Cluster Example</h1>
+
+     <p>This examples demonstrates a <b>symmetric cluster</b> set-up with HornetQ.</p>
+     <p>HornetQ has extremely flexible clustering which allows you to set-up servers in
+     many different topologies.</p>
+     <p>The most common topology that you'll perhaps be familiar with if you are used to application
+     server clustering is a <b>symmetric cluster</b>.</p>
+     <p>With a symmetric cluster, the cluster is homogeneous, i.e. each node is configured the same
+     as every other node, and every node is connected to every other node in the cluster.</p>
+     <p>By connecting node in such a way, we can, from a JMS point of view, give the impression of distributed
+     JMS queues and topics.</p>
+     <p>The configuration used in this example is very similar to the configuration used by HornetQ
+     when installed as a clustered profile in JBoss Application Server.</p>
+     <p>To set up HornetQ to form a symmetric cluster we simply need to mark each server as <code>clustered</code>
+     and we need to define a <code>cluster-connection</code> in <code>hornetq-configuration.xml</code>.</p>
+     <p>The <code>cluster-connection</code> tells the nodes what other nodes to make connections to.
+     With a <code>cluster-connection</code> each node that we connect to can either be specified
+     indivually, or we can use UDP discovery to find out what other nodes are in the cluster.</p>
+     <p>Using UDP discovery makes configuration simpler since we don't have to know what nodes are
+     available at any one time.</p>
+     <p>Here's the relevant snippet from the server configuration, which tells the server to form a cluster
+     with the other nodes:</p>     
+     <pre class="prettyprint">
+     <code>
+   &lt;cluster-connection name="my-cluster"&gt;
+      &lt;address&gt;jms&lt;/address&gt;
+      &lt;connector-ref>netty-connector&lt;/connector-ref>
+	   &lt;retry-interval&gt;500&lt;/retry-interval&gt;
+	   &lt;use-duplicate-detection&gt;true&lt;/use-duplicate-detection&gt;
+	   &lt;forward-when-no-consumers&gt;true&lt;/forward-when-no-consumers&gt;
+	   &lt;max-hops&gt;1&lt;/max-hops&gt;
+	   &lt;discovery-group-ref discovery-group-name="my-discovery-group"/&gt;
+   &lt;/cluster-connection&gt;
+   </code>
+     </pre>    
+     <p>In this example we create a symmetric cluster of six live nodes, and we also pair each live node
+     with it's own backup node. (A backup node is not strictly necessary for a symmetric cluster).</p>
+    <p>In this example will we will demonstrate this by deploying a JMS topic and Queue on all nodes of the cluster
+     , sending messages to the queue and topic from different nodes, and verifying messages are received correctly
+     by consumers on different nodes.</p>
+    <p>For more information on configuring HornetQ clustering in general, please see the clustering
+     section of the user manual.</p>      
+     <h2>Example step-by-step</h2>
+     <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
+
+     <ol>
+        <li>We instantiate a connection factory directly, specifying the UDP address and port for discovering
+         the list of servers in the cluster.
+         We could use JNDI to look-up a connection factory, but we'd need to know the JNDI server host and port for the
+         specific server to do that, and that server might not be available at the time. By creating the
+         connection factory directly we avoid having to worry about a JNDI look-up.
+         In an app server environment you could use HA-JNDI to lookup from the clustered JNDI servers without
+         having to know about a specific one.        
+        </li>
+        
+        <pre class="prettyprint">
+           <code>
+   ConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithHA("231.7.7.7", 9876); 
+   </code>
+        </pre>
+
+        <li>Directly instantiate JMS Queue and Topic objects</li>
+        <pre class="prettyprint">
+           <code>
+   Queue queue = new HornetQQueue("exampleQueue");
+         
+   Topic topic = HornetQJMSClient.createHornetQTopic("exampleTopic");           
+           </code>
+        </pre>
+
+        <li>We create six connections, they should be to different nodes of the cluster in a round-robin fashion
+         and start them.</li>
+        <pre class="prettyprint">
+           <code>
+   connection0 = cf.createConnection();
+
+     connection1 = cf.createConnection();
+
+     connection2 = cf.createConnection();
+
+     connection3 = cf.createConnection();
+
+     connection4 = cf.createConnection();
+
+     connection5 = cf.createConnection();
+
+     connection0.start();
+
+     connection1.start();
+
+     connection2.start();
+
+     connection3.start();
+
+     connection4.start();
+
+     connection5.start();
+           </code>
+        </pre>
+
+        <li>We create a session on each connection.</li>
+        <pre class="prettyprint">
+           <code>
+     Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+     Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+     Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+     Session session3 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+     Session session4 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+     Session session5 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+           </code>
+        </pre>
+
+        <li>We create a topic subscriber on each server.</li>
+        <pre class="prettyprint">
+           <code>
+         MessageConsumer subscriber0 = session0.createConsumer(topic);
+
+         MessageConsumer subscriber1 = session1.createConsumer(topic);
+
+         MessageConsumer subscriber2 = session2.createConsumer(topic);
+
+         MessageConsumer subscriber3 = session3.createConsumer(topic);
+
+         MessageConsumer subscriber4 = session4.createConsumer(topic);
+
+         MessageConsumer subscriber5 = session5.createConsumer(topic);
+           </code>
+        </pre>
+
+        <li>We create a queue consumer on server 0.</li>
+        <pre class="prettyprint">
+          <code>
+   MessageConsumer consumer0 = session0.createConsumer(queue);
+          </code>
+        </pre>
+        
+        <li>We create an anonymous message producer on server 2.</li>
+        <pre class="prettyprint">
+          <code>
+   MessageProducer producer2 = session2.createProducer(null);
+          </code>
+        </pre>
+
+        <li>We send 500 messages each to the queue and topic.</li>
+        <pre class="prettyprint">
+           <code>
+   final int numMessages = 500;
+                  
+   for (int i = 0; i < numMessages; i++)
+   {
+      TextMessage message1 = session2.createTextMessage("Topic message 1");
+   
+      producer2.send(topic, message1);
+      
+      TextMessage message2 = session2.createTextMessage("Queue message 1");
+      
+      producer2.send(queue, message2);
+   }
+           </code>
+       </pre>
+        <li>Verify all subscribers and consumer receive the messages.</li>
+        <pre class="prettyprint">
+           <code>
+   for (int i = 0; i < numMessages; i++)
+     {
+        TextMessage received0 = (TextMessage)subscriber0.receive(5000);
+
+        if (received0 == null)
+        {
+           return false;
+        }
+
+        TextMessage received1 = (TextMessage)subscriber1.receive(5000);
+
+        if (received1 == null)
+        {
+           return false;
+        }
+
+        TextMessage received2 = (TextMessage)subscriber2.receive(5000);
+
+        if (received2 == null)
+        {
+           return false;
+        }
+
+        TextMessage received3 = (TextMessage)subscriber3.receive(5000);
+
+        if (received3 == null)
+        {
+           return false;
+        }
+
+        TextMessage received4 = (TextMessage)subscriber4.receive(5000);
+
+        if (received4 == null)
+        {
+           return false;
+        }
+
+        TextMessage received5 = (TextMessage)subscriber5.receive(5000);
+
+        if (received5 == null)
+        {
+           return false;
+        }
+
+        TextMessage received6 = (TextMessage)consumer0.receive(5000);
+
+        if (received6 == null)
+        {
+           return false;
+        }
+     }
+           </code>
+        </pre>
+
+        <li>Be sure to close our resources!</li>
+
+        <pre class="prettyprint">
+           <code>
+   finally
+   {
+      if (connection0 != null)
+      {
+         connection0.close();
+      }
+
+      if (connection1 != null)
+      {
+         connection1.close();
+      }
+      
+      if (connection2 != null)
+      {
+         connection2.close();
+      }
+   }
+           </code>
+        </pre>
+
+     </ol>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
+
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>    
+         <param key="tcp-no-delay" value="false"/>
+         <param key="tcp-send-buffer-size" value="1048576"/>
+         <param key="tcp-receive-buffer-size" value="1048576"/>
+         <param key="host" value="172.16.8.10"/>
+      </acceptor>
+   </acceptors>
+   
+   <security-enabled>false</security-enabled>
+   
+   <persistence-enabled>true</persistence-enabled>
+
+   <large-messages-directory>/hornetq-data/large-messages</large-messages-directory>
+   <bindings-directory>/hornetq-data/bindings</bindings-directory>
+   <journal-directory>/hornetq-data/journal</journal-directory>
+   <paging-directory>/hornetq-data/paging</paging-directory> 
+   
+   <queues>
+	   <queue name="perfQueue">
+	   	<address>perfAddress</address>
+	   </queue>
+   </queues>
+
+</configuration>

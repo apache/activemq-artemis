@@ -1,0 +1,25 @@
+grant {
+        // --------------------------------------------------------------------------------
+        // SEE http://docs.oracle.com/javase/1.4.2/docs/guide/security/permissions.html
+        // --------------------------------------------------------------------------------
+
+
+        // allow to connect to localhost
+        permission java.net.SocketPermission "*:1024-", "connect";
+        // Note1: normally, we don't need this permission since the applet allows reading jars loaded by the applet
+        // Note2: Which of the following two java.io.FilePermission is necessary depends on the exact Maven command
+        permission java.io.FilePermission "${user.dir}/hornetq-core-client/target/classes/-", "read";
+        permission java.io.FilePermission "${user.dir}/hornetq-core-client/target/hornetq-core-client-${project.version}.jar", "read";
+        permission java.util.PropertyPermission "hornetq.version.property.filename", "read";
+        permission java.util.PropertyPermission "io.netty.eventLoopThreads", "read";
+        permission java.util.PropertyPermission "io.netty.noUnsafe", "read";
+        permission java.util.PropertyPermission "io.netty.tryUnsafe", "read";
+        permission java.util.PropertyPermission "org.jboss.netty.tryUnsafe", "read";
+        permission java.util.PropertyPermission "io.netty.noJavassist", "read";
+        permission java.util.PropertyPermission "io.netty.noKeySetOptimization", "read";
+        permission java.util.PropertyPermission "io.netty.selectorAutoRebuildThreshold", "read";
+        permission java.util.PropertyPermission "io.netty.initialSeedUniquifier", "read";
+        permission java.util.PropertyPermission "io.netty.noResourceLeakDetection", "read";
+        permission java.lang.RuntimePermission "setContextClassLoader";
+        permission java.lang.RuntimePermission "accessDeclaredMembers";
+};

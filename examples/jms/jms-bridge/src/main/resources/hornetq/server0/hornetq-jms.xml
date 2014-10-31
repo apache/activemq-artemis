@@ -1,0 +1,27 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+
+   <connection-factory name="ConnectionFactory">
+      <xa>true</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/source/ConnectionFactory"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="ClientConnectionFactory">
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/client/ConnectionFactory"/>
+      </entries>
+   </connection-factory>
+
+   <topic name="topic">
+      <entry name="/source/topic"/>
+   </topic>
+</configuration>

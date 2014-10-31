@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3CR3//EN"
+"../../../lib/docbook-support/support/docbook-dtd/docbookx.dtd"> -->
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="spring.integration">
+  <title>Spring Integration</title>
+
+  <para>HornetQ provides a simple bootstrap class,
+  <literal>org.hornetq.integration.spring.SpringJmsBootstrap</literal>, for
+  integration with Spring. To use it, you configure HornetQ as you always
+  would, through its various configuration files like
+  <literal>hornetq-configuration.xml</literal>,
+  <literal>hornetq-jms.xml</literal>, and
+  <literal>hornetq-users.xml</literal>. The Spring helper class starts the
+  HornetQ server and adds any factories or destinations configured within
+  <literal>hornetq-jms.xml</literal> directly into the namespace of the Spring
+  context. Let's take this <literal>hornetq-jms.xml</literal> file for
+  instance: </para>
+    <programlisting>
+&lt;configuration xmlns="urn:hornetq"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+   &lt;!--the connection factory used by the example-->
+   &lt;connection-factory name="ConnectionFactory">
+      &lt;connectors>
+         &lt;connector-ref connector-name="in-vm"/>
+      &lt;/connectors>
+      &lt;entries>
+         &lt;entry name="ConnectionFactory"/>
+      &lt;/entries>
+   &lt;/connection-factory>
+
+   &lt;!--the queue used by the example-->
+   &lt;queue name="exampleQueue">
+      &lt;entry name="/queue/exampleQueue"/>
+   &lt;/queue>
+&lt;/configuration></programlisting>
+    <para>Here we've specified a
+  <literal>javax.jms.ConnectionFactory</literal> we want bound to a
+  <literal>ConnectionFactory</literal> entry as well as a queue destination
+  bound to a <literal>/queue/exampleQueue</literal> entry. Using the
+  <literal>SpringJmsBootStrap</literal> bean will automatically populate the
+  Spring context with references to those beans so that you can use them.
+  Below is an example Spring JMS bean file taking advantage of this
+  feature:</para>
+    <programlisting>
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+   &lt;bean id="EmbeddedJms" class="org.hornetq.integration.spring.SpringJmsBootstrap" init-method="start"/>
+
+   &lt;bean id="listener" class="org.hornetq.tests.integration.spring.ExampleListener"/>
+    
+   &lt;bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+      &lt;property name="connectionFactory" ref="ConnectionFactory"/>
+      &lt;property name="destination" ref="/queue/exampleQueue"/>
+      &lt;property name="messageListener" ref="listener"/>
+   &lt;/bean>
+&lt;/beans></programlisting>
+    <para>As you can see, the
+  <literal>listenerContainer</literal> bean references the components defined
+  in the <literal>hornetq-jms.xml</literal> file. The
+  <literal>SpringJmsBootstrap</literal> class extends the EmbeddedJMS class
+  talked about in <xref
+  linkend="simple.embedded.jms" /> and the same defaults and
+  configuration options apply. Also notice that an
+  <literal>init-method</literal> must be declared with a start value so that
+  the bean's lifecycle is executed. See the javadocs for more details on other
+  properties of the bean class.</para>
+</chapter>

@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <title>HornetQ JMS Instantiate Connection Factory Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>JMS Instantiate Connection Factory Example</h1>
+     
+     <p>Usually, JMS Objects such as ConnectionFactories, Queue and Topic instances are looked up from JNDI
+     before being used by the client code. This objects are called "administered objects" in JMS specification
+     terminology.</p>
+     <p>However, in some cases a JNDI server may not be available or desired. To come to the rescue HornetQ
+     also supports the direct instantiation of these administered objects on the client side.</p>
+     <p>This allows the full set of JMS functionality to be available without requiring a JNDI server!</p>
+     <p>This example is very simple and based on the simple Queue example, however in this example we
+     instantiate the JMS Queue and ConnectionFactory objects directly.</p>
+     <p>A wide variety of methods are available for instantiating ConnectionFactory objects. In this example
+     we use a simple method which just takes the server connection details so it knows where to make the
+     connection to.</p>
+     <p>Other methods are available so all the connection factory parameters can be specified
+     including specifying UDP discovery so the client does not need hard-wired knowledge of where the servers
+     are that it wishes to connect to, or for specifying live-backup pairs of servers for failover.</p>
+     <p>For more information on instantiating ConnectionFactories directly please consult the user manual and
+     javadoc.</p>
+     
+     <h2>Example step-by-step</h2>
+     <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
+
+     <ol>
+        <li>Instead of looking it up from JNDI we directly instantiate the JMS Queue object. We
+        pass in the name of the JMS Queue in the constructor. The actual JMS Queue must already be deployed on
+        the server.</li>
+        <pre class="prettyprint">
+           <code>
+     Queue queue = new HornetQQueue("exampleQueue");</code>
+        </pre>
+
+        <li>Instantiate the TransportConfiguration object. The TransportConfiguration instance encapsulates
+        the connection details of the server we're connecting to. In this case we're using Netty as a transport, and
+        we're specifying to connect on port 5446.</li>
+        <pre class="prettyprint">
+           <code>
+     Map<String, Object> connectionParams = new HashMap<String, Object>();
+
+     connectionParams.put(PORT_PROP_NAME, 5446);
+
+     TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(),
+                                                                                connectionParams);
+           
+           </code>
+        </pre>
+
+        <li>Directly instantiate the JMS ConnectionFactory object using that TransportConfiguration.</li>
+        <pre class="prettyprint">
+           <code>
+     ConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(transportConfiguration);
+           </code>
+        </pre>
+
+        <li>We create a JMS connection</li>
+        <pre class="prettyprint">
+           <code>connection = cf.createConnection();</code>
+        </pre>
+
+        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
+        <pre class="prettyprint">
+           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
+        </pre>
+
+        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
+        <pre class="prettyprint">
+          <code>MessageProducer messageProducer = session.createProducer(topic);</code>
+       </pre>
+
+        <li>We create a JMS text message that we are going to send.</li>
+        <pre class="prettyprint">
+           <code>TextMessage message = session.createTextMessage("This is a text message");</code>
+        </pre>
+
+        <li>We send message to the queue</li>
+        <pre class="prettyprint">
+           <code>messageProducer.send(message);</code>
+        </pre>
+
+        <li>We create a JMS Message Consumer to receive the message.</li>
+          <pre class="prettyprint">
+           <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
+        </pre>
+
+        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
+        <pre class="prettyprint">
+           <code>connection.start();</code>
+        </pre>
+
+        <li>The message arrives at the consumer. In this case we use a timeout of 5000 milliseconds but we could use a blocking 'receive()'</li>
+        <pre class="prettyprint">
+           <code>TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);</code>
+        </pre>
+
+        <li>And finally, <b>always</b> remember to close your resources after use, in a <code>finally</code> block.</li>
+
+        <pre class="prettyprint">
+           <code>finally
+           {
+              if (connection != null)
+              {
+                 connection.close();
+              }
+           }</code>
+        </pre>
+
+
+
+     </ol>
+  </body>
+</html>

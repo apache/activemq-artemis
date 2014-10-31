@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+   <bean id="EmbeddedJms" class="org.hornetq.integration.spring.SpringJmsBootstrap" init-method="start" destroy-method="stop">
+   </bean>
+
+    <bean id="listener" class="org.hornetq.jms.example.ExampleListener"/>
+    
+    <bean id="MessageSender" class="org.hornetq.jms.example.MessageSender">
+        <property name="connectionFactory" ref="ConnectionFactory"/>
+        <property name="destination" ref="/queue/exampleQueue"/>
+    </bean>
+
+    <bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="ConnectionFactory"/>
+        <property name="destination" ref="/queue/exampleQueue"/>
+        <property name="messageListener" ref="listener"/>
+    </bean>
+    
+
+</beans>
+    

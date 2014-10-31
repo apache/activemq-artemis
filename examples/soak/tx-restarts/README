@@ -1,0 +1,29 @@
+****************************************************
+* Soak Test For TX survival over restarts
+****************************************************
+
+Run The Test
+==============
+
+To run the test simply use ./build.sh
+
+It's important that you always clean the data directory before starting the test, as it will validate for sequences generated.
+
+The test will start and stop a server multiple times.
+
+
+Run the server remotely
+=======================
+
+You can start the server directly if you want, you can just start the server as:
+
+./run.sh PATH_TO_HORNETQ/examples/soak/tx-restarts/server0
+
+
+Then you can run the test as:
+
+./build.sh runRemote
+
+
+And you can now kill and restart the server manually as many times as you want.
+

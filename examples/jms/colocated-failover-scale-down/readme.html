@@ -1,0 +1,160 @@
+<html>
+  <head>
+    <title>HornetQ JMS Colocated Failover Scale Down Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>JMS Colocated Failover Recover Only Example</h1>
+
+     <p>This example demonstrates how you can colocate live and backup servers in the same VM. We do this by creating an
+         HA Policy that is colocated. colocated means that backup servers can be created and maintained by live servers on behalf
+         of other requesting live servers. In this example we create a colocated shared store server that will scale down.
+         That is it will not become live but scale down the journal to the colocated live server.
+     <p>This example starts 2 live servers each with a backup server that backs up the other live server.</p>
+     <p>The first live server will be killed and the backup in the second will recover the journal and recreate its state
+         in the live server it shares its VM with.</p>
+     <p>The following shows how to configure the backup, the backup strategy is set to <b>SCALE_DOWN</b> which means
+         that the backup server will not fully start on fail over, instead it will just recover the journal and write it
+     to its parent live server. Also notice we have over ridden some of the configuration since we want it to use the same
+     journal as server1 since it is using shared store.</p>
+     <pre class="prettyprint">
+     <code>&lt;ha-policy template="COLOCATED_SHARED_STORE"/>
+     </code>
+     </pre>
+     <p>note that for this HA policy we use a template that will use some sensibe settings, in this case this includes
+     setting scale down to true. Also note that since we dont specify a scale down connector it will use most appropriate
+     from the list of available connectors which in  this case is the first INVM connector</p>
+     <p> One other thing to notice is that the cluster connection has its reconnect attempts set to 5, this is so it will
+         disconnect instead of trying to reconnect to a backup that doesn't exist.</p>
+     <h2>Example step-by-step</h2>
+     <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
+
+     <ol>
+        <li> Get an initial context for looking up JNDI for both servers</li>
+        <pre class="prettyprint">
+           <code>
+    initialContext1 = getContext(1);
+    initialContext = getContext(0);
+   </code>
+        </pre>
+
+        <li>Look up the JMS resources from JNDI</li>
+        <pre class="prettyprint">
+           <code>
+    Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+    ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+    ConnectionFactory connectionFactory1 = (ConnectionFactory)initialContext1.lookup("/ConnectionFactory");
+           </code>
+        </pre>
+
+        <li>Create a JMS Connections</li>
+        <pre class="prettyprint">
+           <code>
+    connection = connectionFactory.createConnection();
+    connection1 = connectionFactory1.createConnection();
+           </code>
+        </pre>
+
+        <li>Create a *non-transacted* JMS Session with client acknowledgement</li>
+        <pre class="prettyprint">
+           <code>
+    Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+    Session session1 = connection1.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+           </code>
+        </pre>
+
+        <li>Create a JMS MessageProducer</li>
+        <pre class="prettyprint">
+           <code>
+    MessageProducer producer = session.createProducer(queue);
+    MessageProducer producer1 = session1.createProducer(queue);
+           </code>
+        </pre>
+
+        <li>Send some messages to both servers</li>
+        <pre class="prettyprint">
+          <code>
+    for (int i = 0; i < numMessages; i++)
+    {
+      TextMessage message = session.createTextMessage("This is text message " + i);
+      producer.send(message);
+      System.out.println("Sent message: " + message.getText());
+      message = session1.createTextMessage("This is another text message " + i);
+      producer1.send(message);
+      System.out.println("Sent message: " + message.getText());
+    }
+          </code>
+        </pre>
+        
+        <li>Crash server #0, the live server</li>
+        <pre class="prettyprint">
+          <code>
+    killServer(0);
+          </code>
+        </pre>
+
+        <li>start the connection ready to receive messages</li>
+        <pre class="prettyprint">
+           <code>
+    connection1.start();
+           </code>
+        </pre>
+        
+        <li>create a consumer</li>
+        <pre class="prettyprint">
+           <code>
+    MessageConsumer consumer = session1.createConsumer(queue);
+            </code>
+        </pre>
+
+        <li>Receive and acknowledge all of the sent messages, notice that they will be out of order, this is
+             because they were initially round robined to both nodes then when the server failed were reloaded into the
+             live server.</li>
+        <pre class="prettyprint">
+           <code>
+    TextMessage message0 = null;
+    for (int i = 0; i < numMessages * 2; i++)
+    {
+       message0 = (TextMessage)consumer.receive(5000);
+       System.out.println("Got message: " + message0.getText());
+    }
+    message0.acknowledge();
+           </code>
+        </pre>
+
+
+        </pre> 
+
+        <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
+
+        <pre class="prettyprint">
+           <code>
+    finally
+    {
+       if (connection != null)
+       {
+       connection.close();
+       }
+
+       if (initialContext != null)
+       {
+       initialContext.close();
+       }
+       if (connection1 != null)
+       {
+       connection1.close();
+       }
+
+       if (initialContext1 != null)
+       {
+       initialContext1.close();
+       }
+    }
+           </code>
+        </pre>
+
+     </ol>
+  </body>
+</html>

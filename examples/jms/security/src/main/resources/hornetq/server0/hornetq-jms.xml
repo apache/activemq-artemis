@@ -1,0 +1,28 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+   <!--the connection factory used by the example-->
+   <connection-factory name="ConnectionFactory">
+      <connectors>
+         <connector-ref connector-name="netty-connector"/>
+      </connectors>
+      <block-on-durable-send>true</block-on-durable-send>
+      <block-on-non-durable-send>true</block-on-non-durable-send>
+      <entries>
+         <entry name="ConnectionFactory"/>
+      </entries>
+   </connection-factory>
+
+   <topic name="genericTopic">
+      <entry name="/topic/genericTopic"/>
+   </topic>
+
+   <topic name="news.europe.europeTopic">
+      <entry name="/topic/europeTopic"/>
+   </topic>
+
+   <topic name="news.us.usTopic">
+      <entry name="/topic/usTopic"/>
+   </topic>
+
+</configuration>

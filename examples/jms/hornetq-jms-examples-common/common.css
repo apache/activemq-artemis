@@ -1,0 +1,29 @@
+body {
+  background: url(images/hornetQ-banner_final.png) top left no-repeat;
+}
+
+h1 {
+  margin-top: 110px;
+  font-size: 250%;
+}
+
+code {
+  background-color: lightgrey;
+  color:#333;
+}
+
+pre {
+  background-color: lightgrey;
+  display:block;     
+  overflow:auto; 
+  border: dotted grey 1px;
+}
+
+abbr {
+  border-bottom: 1px dotted #333; cursor: help;
+}
+
+.missing-doc {
+  background-color: red;
+  border: dotted black 1px;
+}

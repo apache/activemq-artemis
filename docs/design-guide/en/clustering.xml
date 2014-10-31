@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_Design_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="introduction">
+    <title>Getting Started</title>
+    <para>This chapter discusses the architecture behind clustering</para>
+    <section>
+       <title>Discovery</title>
+       <para>Discovery is done in 2 steps, initial discovery where the server locates another node in the cluster and 
+       topology discovery where the node finds out about all other nodes in the cluster</para>
+       <section>
+          <title>Initial Discovery</title>
+          <para>blah blah blah, UDP, static connectors etc etc</para>
+       </section>
+       <section>
+          <title>Topology Discovery</title>
+          <para>blah blah blah, topology etc</para>
+         <para>
+            <graphic fileref="images/topology-update.jpg" align="center" format="JPEG" scale="30"/>
+         </para>
+       </section>
+    </section>
+</chapter>

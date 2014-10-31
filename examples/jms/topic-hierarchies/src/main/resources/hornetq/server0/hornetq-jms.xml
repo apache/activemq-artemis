@@ -1,0 +1,40 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+   <!--the connection factory used by the example-->
+   <connection-factory name="ConnectionFactory">
+      <connectors>
+         <connector-ref connector-name="netty-connector"/>
+      </connectors>
+      <entries>
+         <entry name="ConnectionFactory"/>
+      </entries>
+   </connection-factory>
+
+   <!--the topics used by the example-->
+   
+   <topic name="news">
+      <entry name="/topic/news"/>
+   </topic>
+   
+   <topic name="news.usa">
+      <entry name="/topic/news.usa"/>
+   </topic>
+   
+   <topic name="news.usa.wrestling">
+      <entry name="/topic/news.wrestling"/>
+   </topic>
+   
+   <topic name="news.europe">
+      <entry name="/topic/news.europe"/>
+   </topic>
+   
+   <topic name="news.europe.sport">
+      <entry name="/topic/news.europe.sport"/>
+   </topic>
+   
+   <topic name="news.europe.entertainment">
+      <entry name="/topic/news.europe.entertainment"/>
+   </topic>
+
+</configuration>

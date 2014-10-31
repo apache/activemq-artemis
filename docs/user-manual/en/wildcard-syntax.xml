@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="wildcard-syntax">
+    <title>Understanding the HornetQ Wildcard Syntax</title>
+    <para>HornetQ uses a specific syntax for representing wildcards in security settings,
+        address settings and when creating consumers.</para>
+    <para>The syntax is similar to that used by <ulink url="http://www.amqp.org">AMQP</ulink>.</para>
+    <para>A HornetQ wildcard expression contains words delimited by the character '<literal
+            >.</literal>' (full stop).</para>
+    <para>The special characters '<literal>#</literal>' and '<literal>*</literal>' also have special
+        meaning and can take the place of a word.</para>
+    <para>The character '<literal>#</literal>' means 'match any sequence of zero or more
+        words'.</para>
+    <para>The character '<literal>*</literal>' means 'match a single word'.</para>
+    <para>So the wildcard 'news.europe.#' would match 'news.europe', 'news.europe.sport',
+        'news.europe.politics', and 'news.europe.politics.regional' but would not match 'news.usa',
+        'news.usa.sport' nor 'entertainment'.</para>
+    <para>The wildcard 'news.*' would match 'news.europe', but not 'news.europe.sport'.</para>
+    <para>The wildcard 'news.*.sport' would match 'news.europe.sport' and also 'news.usa.sport', but
+        not 'news.europe.politics'.</para>
+</chapter>

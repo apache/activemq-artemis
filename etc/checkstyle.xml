@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<!-- See http://checkstyle.sourceforge.net/availablechecks.html for documentation on available checks -->
+<module name="Checker">
+   <!-- Checks to see if a file contains a tab character. -->
+   <module name="FileTabCharacter">
+      <property name="eachLine" value="true"/>
+   </module>
+
+   <!-- Checks for trailing whitespace. -->
+   <module name="RegexpSingleline">
+      <!-- \s matches whitespace character, $ matches end of line. -->
+      <property name="format" value="\s+$"/>
+      <property name="message" value="Line has trailing spaces."/>
+   </module>
+
+   <module name="TreeWalker">
+
+      <!-- Checks for imports -->
+      <module name="AvoidStarImport"/>
+      <module name="RedundantImport"/>
+      <module name="UnusedImports"/>
+
+      <!-- Modifier Checks -->
+      <module name="ModifierOrder"/>
+      <module name="RedundantModifier"/>
+
+      <!-- Checks for common coding problems -->
+      <module name="EmptyStatement"/>
+      <!-- Checks that classes that override equals() also override hashCode(). -->
+      <module name="EqualsHashCode"/>
+      <!-- Checks for illegal instantiations where a factory method is preferred. -->
+      <module name="IllegalInstantiation"/>
+      <!-- Checks for redundant exceptions declared in throws clause such as duplicates, unchecked exceptions or subclasses of another declared exception. -->
+      <module name="RedundantThrows">
+         <property name="allowUnchecked" value="true"/>
+      </module>
+
+      <!-- Checks that long constants are defined with an upper ell. -->
+      <module name="UpperEll"/>
+      <!-- This check makes sure that all package annotations are in the package-info.java file. -->
+      <module name="PackageAnnotation"/>
+      <!-- Checks that if a class defines a covariant method equals, then it defines method equals(java.lang.Object). -->
+      <module name="CovariantEquals"/>
+      <!-- Checks the style of array type definitions. -->
+      <module name="ArrayTypeStyle"/>
+      <!-- Make sure left curly braces are on a new line. Note, this is not the recommendation from Sun. It is a legacy preference. -->
+      <module name="LeftCurly">
+         <property name="option" value="nl"/>
+      </module>
+      <!-- Make sure right curly braces are on a new line by itself. Note, this is not the recommendation from Sun. It is a legacy preference. -->
+      <module name="RightCurly">
+         <property name="option" value="alone"/>
+      </module>
+      <!-- Checks that there is no whitespace after certain tokens; e.g. "." and "!". -->
+      <module name="NoWhitespaceAfter"/>
+      <!-- Checks that there is no whitespace before certain tokens; e.g. "++" and ";". -->
+      <module name="NoWhitespaceBefore"/>
+      <!-- Checks that most tokens are surrounded by whitespace. RCURLY is omitted so we can do stuff like "new Thread(){...}.start()". -->
+      <module name="WhitespaceAround">
+         <property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAND, LCURLY, LE, LITERAL_ASSERT, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, SL, SLIST, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN, TYPE_EXTENSION_AND"/>
+      </module>
+      <!-- Ensure there is no space between the identifier of a method definition, constructor definition, method call, or constructor invocation and the left parenthesis of the parameter list. -->
+      <module name="MethodParamPad"/>
+      <!-- Ensure proper indentation. -->
+      <module name="Indentation">
+         <property name="basicOffset" value="3"/>
+         <property name="caseIndent" value="3"/>
+         <property name="throwsIndent" value="3"/>
+      </module>
+   </module>
+</module>

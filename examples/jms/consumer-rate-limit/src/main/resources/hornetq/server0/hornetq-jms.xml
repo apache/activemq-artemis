@@ -1,0 +1,24 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+   <!--the connection factory used by the example-->
+   <connection-factory name="ConnectionFactory">
+      <connectors>
+         <connector-ref connector-name="netty-connector"/>
+      </connectors>
+      <entries>
+         <entry name="ConnectionFactory"/>       
+      </entries>
+      
+      <!-- We limit consumers created on this connection factory to consume messages at a maximum rate
+      of 10 messages per sec -->
+      <consumer-max-rate>10</consumer-max-rate>
+      
+   </connection-factory>
+
+   <!--the queue used by the example-->
+   <queue name="exampleQueue">
+      <entry name="/queue/exampleQueue"/>
+   </queue>
+
+</configuration>

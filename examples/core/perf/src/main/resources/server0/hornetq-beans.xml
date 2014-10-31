@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+      
+   <!-- The core configuration -->
+   <bean name="Configuration" class="org.hornetq.core.config.impl.FileConfiguration"/>   
+
+   <!-- The core server -->
+   <bean name="HornetQServer" class="org.hornetq.core.server.impl.HornetQServerImpl">
+      <constructor>
+         <parameter>
+            <inject bean="Configuration"/>
+         </parameter>         
+      </constructor>
+   </bean>
+   
+</deployment>

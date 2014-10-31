@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [
+      <!ENTITY libraries SYSTEM "../../../thirdparty/libraries.ent">
+      ]>
+
+<!--
+Copyright 2009 Red Hat, Inc.
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+   http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+  -->
+
+<project name="HornetQ JMS Soak Example">
+
+	<import file="../../common/build.xml" />
+
+    <property name="server.dir" value="server0" />
+    <property name="jndi.address" value="localhost" />
+    <property name="jndi.port" value="1099" />
+    <property name="soak.props" value="soak.properties" />
+	
+	<path id="extra.classpath">
+		<path location="${server.dir}" />
+		<fileset dir="extra-libs">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<path id="the.classpath">
+		<path refid="client.classpath" />
+		<path location="." />
+	</path>
+
+	<target name="runSender" depends="compile">
+	    <property name="jndi.url" value="jnp://${jndi.address}:${jndi.port}" />
+		<java classname="org.hornetq.jms.soak.example.SoakSender" fork="true" resultproperty="example-result">
+			<jvmarg value="-Xms512M" />
+			<jvmarg value="-Xmx512M" />
+			<jvmarg value="-XX:+UseParallelGC" />
+			<jvmarg value="-XX:+AggressiveOpts" />
+			<jvmarg value="-Dcom.sun.management.jmxremote" />
+			<jvmarg value="-XX:+UseFastAccessorMethods" />
+			<!--
+                 <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
+             -->
+			<jvmarg value="-Djava.util.logging.config.file=${config.dir}/logging.properties" />
+			<classpath refid="the.classpath" />
+			<arg line="${jndi.url} ${soak.props}" />
+		</java>
+	</target>
+
+	<target name="runReceiver" depends="compile">
+	    <property name="jndi.url" value="jnp://${jndi.address}:${jndi.port}" />
+		<java classname="org.hornetq.jms.soak.example.SoakReceiver" fork="true" resultproperty="example-result">
+			<jvmarg value="-Xms512M" />
+			<jvmarg value="-Xmx512M" />
+			<jvmarg value="-XX:+UseParallelGC" />
+			<jvmarg value="-XX:+AggressiveOpts" />
+			<jvmarg value="-Dcom.sun.management.jmxremote" />
+			<jvmarg value="-XX:+UseFastAccessorMethods" />
+			<!--
+                 <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
+             -->
+			<jvmarg value="-Djava.util.logging.config.file=${config.dir}/logging.properties" />
+			<classpath refid="the.classpath" />
+			<arg line="${jndi.url} ${soak.props}" />
+		</java>
+	</target>
+
+	<target name="runServer" depends="compile">
+	    <echo message="Using server configuration from server.dir: ${server.dir}" />
+		<java classname="org.hornetq.common.example.SpawnedHornetQServer" fork="true" clonevm="true" resultproperty="example-result">
+			<jvmarg value="-Xms2048M" />
+			<jvmarg value="-Xmx2048M" />
+			<jvmarg value="-XX:+UseParallelGC" />
+			<sysproperty key="java.library.path" value="${java.library.path}${path.separator}${aio.library.path}" />
+			<jvmarg value="-XX:+AggressiveOpts" />
+			<jvmarg value="-XX:+UseFastAccessorMethods" />
+			<jvmarg value="-Djava.util.logging.config.file=${config.dir}/logging.properties" />
+			<jvmarg value="-Dcom.sun.management.jmxremote" />
+			<arg line="hornetq-beans.xml" />
+			<classpath refid="extra.classpath" />
+			<classpath refid="server.classpath" />
+		</java>
+	</target>
+</project>

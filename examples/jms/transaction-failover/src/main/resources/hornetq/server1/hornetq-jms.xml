@@ -1,0 +1,31 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+   <!--the connection factory used by the example-->
+   <connection-factory name="ConnectionFactory">
+      <connectors>
+         <connector-ref connector-name="netty-connector"/>
+      </connectors>
+      <entries>
+         <entry name="ConnectionFactory"/>
+      </entries>
+
+       <ha>true</ha>
+      <!-- Pause 1 second between connect attempts -->
+      <retry-interval>1000</retry-interval>
+
+      <!-- Multiply subsequent reconnect pauses by this multiplier. This can be used to
+      implement an exponential back-off. For our purposes we just set to 1.0 so each reconnect
+      pause is the same length -->
+      <retry-interval-multiplier>1.0</retry-interval-multiplier>
+
+      <!-- Try reconnecting an unlimited number of times (-1 means "unlimited") -->
+      <reconnect-attempts>-1</reconnect-attempts>
+   </connection-factory>
+
+   <!--the queue used by the example-->
+   <queue name="exampleQueue">
+      <entry name="/queue/exampleQueue"/>
+   </queue>
+
+</configuration>

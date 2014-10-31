@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="libaio">
+    <title>Libaio Native Libraries</title>
+    <para>HornetQ distributes a native library, used as a bridge between HornetQ and Linux
+        libaio.</para>
+    <para><literal>libaio</literal> is a library, developed as part of the Linux kernel project.
+        With <literal>libaio</literal> we submit writes to the operating system where they are
+        processed asynchronously. Some time later the OS will call our code back when they have been
+        processed.</para>
+    <para>We use this in our high performance journal if configured to do so, please see <xref
+            linkend="persistence"/>.</para>
+    <para>These are the native libraries distributed by HornetQ:</para>
+    <itemizedlist>
+        <listitem>
+            <para>libHornetQAIO32.so - x86 32 bits</para>
+        </listitem>
+        <listitem>
+            <para>libHornetQAIO64.so - x86 64 bits</para>
+        </listitem>
+    </itemizedlist>
+    <para>When using libaio, HornetQ will always try loading these files as long as they are on the
+            <link linkend="using-server.library.path">library path</link>.</para>
+    <section>
+        <title>Compiling the native libraries</title>
+        <para>In the case that you are using Linux on a platform other than x86_32 or x86_64
+            (for example Itanium 64 bits or IBM Power) you may need to compile the native library, since we
+            do not distribute binaries for those platforms with the release.</para>
+        <section>
+            <title>Install requirements</title>
+            <note>
+                <para>At the moment the native layer is only available on Linux. If you are in a
+                    platform other than Linux the native compilation will not work</para>
+            </note>
+            <para>The native library uses <ulink url="http://en.wikipedia.org/wiki/Autoconf"
+                    >autoconf</ulink> what makes the compilation process easy, however you need to
+                install extra packages as a requirement for compilation:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>gcc - C Compiler</para>
+                </listitem>
+                <listitem>
+                    <para>gcc-c++ or g++ - Extension to gcc with support for C++</para>
+                </listitem>
+                <listitem>
+                    <para>autoconf - Tool for automating native build process</para>
+                </listitem>
+                <listitem>
+                    <para>make - Plain old make</para>
+                </listitem>
+                <listitem>
+                    <para>automake - Tool for automating make generation</para>
+                </listitem>
+                <listitem>
+                    <para>libtool - Tool for link editing native libraries</para>
+                </listitem>
+                <listitem>
+                    <para>libaio - library to disk asynchronous IO kernel functions</para>
+                </listitem>
+                <listitem>
+                    <para>libaio-dev - Compilation support for libaio</para>
+                </listitem>
+                <listitem>
+                    <para>A full JDK installed with the environment variable JAVA_HOME set to its
+                        location</para>
+                </listitem>
+            </itemizedlist>
+            <para>To perform this installation on RHEL or Fedora, you can simply type this at a
+                command line:</para>
+            <programlisting>sudo yum install automake libtool autoconf gcc-c++ gcc libaio libaio-devel make</programlisting>
+            <para>Or on Debian systems:</para>
+            <programlisting>sudo apt-get install automake libtool autoconf gcc-g++ gcc libaio libaio-dev make</programlisting>
+            <note>
+                <para>You could find a slight variation of the package names depending on the
+                    version and Linux distribution. (for example gcc-c++ on Fedora versus g++ on
+                    Debian systems)</para>
+            </note>
+        </section>
+        <section>
+            <title>Invoking the compilation</title>
+            <para>In the distribution, in the <literal>native-src</literal> directory, execute the
+                shell script <literal>bootstrap</literal>. This script will invoke <literal
+                    >automake</literal> and <literal>make</literal> what will create all the make
+                files and the native library.</para>
+            <programlisting>someUser@someBox:/messaging-distribution/native-src$ ./bootstrap 
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /bin/mkdir -p
+
+...
+
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating ./src/Makefile
+config.status: creating config.h
+config.status: config.h is unchanged
+config.status: executing depfiles commands
+config.status: executing libtool commands
+
+...</programlisting>
+            <para>The produced library will be at <literal
+                    >./native-src/src/.libs/libHornetQAIO.so</literal>. Simply move that file over
+                    <literal>bin</literal> on the distribution or the place you have chosen on the
+                    <link linkend="using-server.library.path">library path</link>.</para>
+            <para>If you want to perform changes on the HornetQ libaio code, you could just call
+                make directly at the <literal>native-src</literal> directory.</para>
+        </section>
+    </section>
+</chapter>

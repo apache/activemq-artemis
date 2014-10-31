@@ -1,0 +1,51 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
+            
+   <!--the connection factories used by the example-->
+   
+   <connection-factory name="ConnectionFactory">
+      <connectors>
+         <connector-ref connector-name="netty-connector"/>
+      </connectors>
+      <entries>
+         <entry name="ConnectionFactory"/>
+      </entries>
+               
+      <!-- Pause 1 second between connect attempts -->
+      <retry-interval>1000</retry-interval>
+      
+      <!-- Multiply subsequent reconnect pauses by this multiplier. This can be used to 
+      implement an exponential back-off. For our purposes we just set to 1.0 so each reconnect
+      pause is the same length -->
+      <retry-interval-multiplier>1.0</retry-interval-multiplier>
+      
+      <!-- Try reconnecting an unlimited number of times (-1 means "unlimited") -->
+      <reconnect-attempts>-1</reconnect-attempts>
+      
+      <!-- When the server is cleanly shutdown we don't want to give up, we want to continue
+      to try to reconnect -->
+      <failover-on-server-shutdown>true</failover-on-server-shutdown>
+      
+      <!-- We need to specify a confirmation-window-size to enable re-attachment, default is -1 which
+      means no re-attachment -->
+      <confirmation-window-size>1048576</confirmation-window-size>
+      
+   </connection-factory>
+   
+   <!-- This is used by the example to send the management operations, it's not central to the example -->
+   <connection-factory name="ConnectionFactory2">
+      <connectors>
+         <connector-ref connector-name="netty-connector2"/>
+      </connectors>
+      <entries>
+         <entry name="ConnectionFactory2"/>                     
+      </entries>
+   </connection-factory>
+
+   <!--the queue used by the example-->
+   <queue name="exampleQueue">
+      <entry name="/queue/exampleQueue"/>
+   </queue>
+
+</configuration>

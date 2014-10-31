@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>HornetQ Applet Example</title>
+  </head>
+  <body>
+     <h1>HornetQ Applet Example</h1>
+     
+     <p>The Applet will connect to HornetQ server running on localhost and
+     publishes messages on a topic <code>exampleTopic</code> when "Send" is pressed.</p>
+     <p>The Applet is also a MessageListener and will display messages received from the topic</p>
+     
+     <applet code="org.hornetq.jms.example.AppletExample.class"
+             codebase="build/classes/"
+             archive="hornetq-core-client.jar,hornetq-jms-client.jar,jboss-jms-api.jar,netty.jar"
+             width="640" height="480"></applet>
+  </body>
+</html>

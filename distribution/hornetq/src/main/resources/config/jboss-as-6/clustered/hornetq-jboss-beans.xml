@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+   <!-- MBean server -->
+   <bean name="MBeanServer" class="javax.management.MBeanServer">
+      <constructor factoryClass="org.jboss.mx.util.MBeanServerLocator"
+                   factoryMethod="locateJBoss"/>
+   </bean>
+
+   <!-- The core configuration -->
+   <bean name="Configuration" class="org.hornetq.core.config.impl.FileConfiguration">
+      <property name="configurationUrl">${jboss.server.home.url}/deploy/hornetq/hornetq-configuration.xml</property>
+   </bean>
+
+	<!-- The security manager -->
+   <bean name="HornetQSecurityManager" class="org.hornetq.integration.jboss.security.JBossASSecurityManager">
+      <start ignored="true"/>
+      <stop ignored="true"/>
+      <depends>JBossSecurityJNDIContextEstablishment</depends>
+      <property name="allowClientLogin">false</property>
+      <property name="authoriseOnClientLogin">false</property>
+   </bean>
+
+	<!-- The core server -->
+   <bean name="HornetQServer" class="org.hornetq.core.server.impl.HornetQServerImpl">
+      <constructor>
+         <parameter>
+            <inject bean="Configuration"/>
+         </parameter>
+         <parameter>
+            <inject bean="MBeanServer"/>
+         </parameter>
+         <parameter>
+            <inject bean="HornetQSecurityManager"/>
+         </parameter>        
+      </constructor>
+      <start ignored="true"/>
+      <stop ignored="true"/>   
+   </bean>
+   
+   <!-- The JMS server -->
+   <bean name="JMSServerManager" class="org.hornetq.jms.server.impl.JMSServerManagerImpl">
+      <constructor>         
+         <parameter>
+            <inject bean="HornetQServer"/>
+         </parameter>         
+      </constructor>
+   </bean>
+
+   <!-- POJO which ensures HornetQ Resource Adapter is stopped before HornetQServer -->
+   <bean name="HornetQRAService" class="org.hornetq.ra.HornetQRAService">
+      <constructor>
+         <parameter>
+            <inject bean="MBeanServer"/>
+         </parameter>
+         <parameter>jboss.jca:name='jms-ra.rar',service=RARDeployment</parameter>
+      </constructor>
+      <depends>HornetQServer</depends>
+   </bean>
+
+</deployment>

@@ -1,0 +1,26 @@
+<connection-factories>
+   <!--
+    JMS Stuff
+   -->
+
+   <mbean code="org.jboss.jms.jndi.JMSProviderLoader" name="hornetq:service=JMSProviderLoader,name=JMSProvider">
+      <attribute name="ProviderName">DefaultJMSProvider</attribute>
+      <attribute name="ProviderAdapterClass">org.jboss.jms.jndi.JNDIProviderAdapter</attribute>
+      <attribute name="FactoryRef">java:/XAConnectionFactory</attribute>
+      <attribute name="QueueFactoryRef">java:/XAConnectionFactory</attribute>
+      <attribute name="TopicFactoryRef">java:/XAConnectionFactory</attribute>
+   </mbean>
+   <!--
+    JMS XA Resource adapter, use this to get transacted JMS in beans
+   -->
+   <tx-connection-factory>
+      <jndi-name>JmsXA</jndi-name>
+      <xa-transaction/>
+      <rar-name>jms-ra.rar</rar-name>
+      <connection-definition>org.hornetq.ra.HornetQRAConnectionFactory</connection-definition>
+      <config-property name="SessionDefaultType" type="java.lang.String">javax.jms.Topic</config-property>
+      <config-property name="JmsProviderAdapterJNDI" type="java.lang.String">java:/DefaultJMSProvider</config-property>
+      <max-pool-size>20</max-pool-size>
+      <security-domain-and-application>JmsXARealm</security-domain-and-application>
+   </tx-connection-factory>
+</connection-factories>

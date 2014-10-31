@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="transaction-config">
+    <title>Resource Manager Configuration</title>
+    <para>HornetQ has its own Resource Manager for handling the lifespan of JTA transactions. When a
+        transaction is started the resource manager is notified and keeps a record of the
+        transaction and its current state. It is possible in some cases for a transaction to be
+        started but then forgotten about. Maybe the client died and never came back. If this happens
+        then the transaction will just sit there indefinitely.</para>
+    <para>To cope with this HornetQ can, if configured, scan for old transactions and rollback any
+        it finds. The default for this is 3000000 milliseconds (5 minutes), i.e. any transactions older
+        than 5 minutes are removed. This timeout can be changed by editing the <literal
+            >transaction-timeout</literal> property in <literal>hornetq-configuration.xml</literal> (value must be in milliseconds).
+        The property <literal>transaction-timeout-scan-period</literal> configures how often, in
+        milliseconds, to scan for old transactions.</para>
+    <para>Please note that HornetQ will not unilaterally rollback any XA transactions in a prepared state - this must be heuristically rolled
+    back via the management API if you are sure they will never be resolved by the transaction manager.</para>
+</chapter>

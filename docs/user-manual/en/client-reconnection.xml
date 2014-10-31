@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="client-reconnection">
+    <title>Client Reconnection and Session Reattachment</title>
+    <para>HornetQ clients can be configured to automatically reconnect or re-attach to the server in
+        the event that a failure is detected in the connection between the client and the server. </para>
+    <section>
+        <title>100% Transparent session re-attachment</title>
+        <para>If the failure was due to some transient failure such as a temporary network failure,
+            and the target server was not restarted, then the sessions will still be existent on the
+            server, assuming the client hasn't been disconnected for more than connection-ttl <xref
+                linkend="connection-ttl"/>.</para>
+        <para>In this scenario, HornetQ will automatically re-attach the client sessions to the
+            server sessions when the connection reconnects. This is done 100% transparently and the
+            client can continue exactly as if nothing had happened.</para>
+        <para>The way this works is as follows:</para>
+        <para>As HornetQ clients send commands to their servers they store each sent command in an
+            in-memory buffer. In the case that connection failure occurs and the client subsequently
+            reattaches to the same server, as part of the reattachment protocol the server informs
+            the client during reattachment with the id of the last command it successfully received
+            from that client.</para>
+        <para>If the client has sent more commands than were received before failover it can replay
+            any sent commands from its buffer so that the client and server can reconcile their
+            states.</para>
+        <para>The size of this buffer is configured by the <literal>ConfirmationWindowSize</literal>
+            parameter, when the server has received <literal>ConfirmationWindowSize</literal> bytes
+            of commands and processed them it will send back a command confirmation to the client,
+            and the client can then free up space in the buffer.</para>
+        <para>If you are using JMS and you're using the JMS service on the server to load your JMS
+            connection factory instances into JNDI then this parameter can be configured in <literal
+                >hornetq-jms.xml</literal> using the element <literal
+                >confirmation-window-size</literal> a. If you're using JMS but not using JNDI then
+            you can set these values directly on the <literal>HornetQConnectionFactory</literal>
+            instance using the appropriate setter method.</para>
+        <para>If you're using the core API you can set these values directly on the <literal
+                >ServerLocator</literal> instance using the appropriate setter method.</para>
+        <para>The window is specified in bytes.</para>
+        <para>Setting this parameter to <literal>-1</literal> disables any buffering and prevents
+            any re-attachment from occurring, forcing reconnect instead. The default value for this
+            parameter is <literal>-1</literal>. (Which means by default no auto re-attachment will occur)</para>
+    </section>
+    <section>
+        <title>Session reconnection</title>
+        <para>Alternatively, the server might have actually been restarted after crashing or being
+            stopped. In this case any sessions will no longer be existent on the server and it won't
+            be possible to 100% transparently re-attach to them.</para>
+        <para>In this case, HornetQ will automatically reconnect the connection and <emphasis
+                role="italic">recreate</emphasis> any sessions and consumers on the server
+            corresponding to the sessions and consumers on the client. This process is exactly the
+            same as what happens during failover onto a backup server.</para>
+        <para>Client reconnection is also used internally by components such as core bridges to
+            allow them to reconnect to their target servers.</para>
+        <para>Please see the section on failover <xref linkend="ha.automatic.failover"/> to get a
+            full understanding of how transacted and non-transacted sessions are reconnected during
+            failover/reconnect and what you need to do to maintain <emphasis role="italic">once and
+                only once </emphasis>delivery guarantees.</para>
+    </section>
+    <section>
+        <title>Configuring reconnection/reattachment attributes</title>
+        <para>Client reconnection is configured using the following parameters:</para>
+        <itemizedlist>
+            <listitem>
+                <para><literal>retry-interval</literal>. This optional parameter determines the
+                    period in milliseconds between subsequent reconnection attempts, if the
+                    connection to the target server has failed. The default value is <literal
+                        >2000</literal> milliseconds.</para>
+            </listitem>
+            <listitem>
+                <para><literal>retry-interval-multiplier</literal>. This optional parameter
+                    determines determines a multiplier to apply to the time since the last retry to
+                    compute the time to the next retry.</para>
+                <para>This allows you to implement an <emphasis>exponential backoff</emphasis>
+                    between retry attempts.</para>
+                <para>Let's take an example:</para>
+                <para>If we set <literal>retry-interval</literal> to <literal>1000</literal> ms and
+                    we set <literal>retry-interval-multiplier</literal> to <literal>2.0</literal>,
+                    then, if the first reconnect attempt fails, we will wait <literal>1000</literal>
+                    ms then <literal>2000</literal> ms then <literal>4000</literal> ms between
+                    subsequent reconnection attempts.</para>
+                <para>The default value is <literal>1.0</literal> meaning each reconnect attempt is
+                    spaced at equal intervals.</para>
+            </listitem>
+            <listitem>
+                <para><literal>max-retry-interval</literal>. This optional parameter determines the
+                    maximum retry interval that will be used. When setting <literal
+                        >retry-interval-multiplier</literal> it would otherwise be possible that
+                    subsequent retries exponentially increase to ridiculously large values. By
+                    setting this parameter you can set an upper limit on that value. The default
+                    value is <literal>2000</literal> milliseconds.</para>
+            </listitem>
+            <listitem>
+                <para><literal>reconnect-attempts</literal>. This optional parameter determines the
+                    total number of reconnect attempts to make before giving up and shutting down. A
+                    value of <literal>-1</literal> signifies an unlimited number of attempts. The
+                    default value is <literal>0</literal>.</para>
+            </listitem>
+        </itemizedlist>
+        <para>If you're using JMS, and you're using the JMS Service on the server to load your JMS
+            connection factory instances directly into JNDI, then you can specify these parameters
+            in the xml configuration in <literal>hornetq-jms.xml</literal>, for example:</para>
+        <programlisting>
+&lt;connection-factory name="ConnectionFactory">
+   &lt;connectors>
+      &lt;connector-ref connector-name="netty"/>
+   &lt;/connectors>
+   &lt;entries>
+      &lt;entry name="ConnectionFactory"/>
+      &lt;entry name="XAConnectionFactory"/>
+   &lt;/entries>
+   &lt;retry-interval>1000&lt;/retry-interval>
+   &lt;retry-interval-multiplier>1.5&lt;/retry-interval-multiplier>
+   &lt;max-retry-interval>60000&lt;/max-retry-interval>
+   &lt;reconnect-attempts>1000&lt;/reconnect-attempts>
+&lt;/connection-factory></programlisting>
+        <para>If you're using JMS, but instantiating your JMS connection factory directly, you can
+            specify the parameters using the appropriate setter methods on the <literal
+                >HornetQConnectionFactory</literal> immediately after creating it.</para>
+        <para>If you're using the core API and instantiating the <literal
+                >ServerLocator</literal> instance directly you can also specify the
+            parameters using the appropriate setter methods on the <literal
+                >ServerLocator</literal> immediately after creating it.</para>
+        <para>If your client does manage to reconnect but the session is no longer available on the
+            server, for instance if the server has been restarted or it has timed out, then the
+            client won't be able to re-attach, and any <literal>ExceptionListener</literal> or
+                <literal>FailureListener</literal> instances registered on the connection or session
+            will be called.</para>
+    </section>
+    <section id="client-reconnection.exceptionlistener">
+        <title>ExceptionListeners and SessionFailureListeners</title>
+        <para>Please note, that when a client reconnects or re-attaches, any registered JMS <literal
+                >ExceptionListener</literal> or core API <literal>SessionFailureListener</literal>
+            will be called.</para>
+    </section>
+</chapter>

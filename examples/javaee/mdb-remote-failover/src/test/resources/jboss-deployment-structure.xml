@@ -1,0 +1,7 @@
+<jboss-deployment-structure>
+   <deployment>
+      <dependencies>
+         <module name="org.hornetq"/>
+      </dependencies>
+   </deployment>
+</jboss-deployment-structure>

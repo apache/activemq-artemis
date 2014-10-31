@@ -1,0 +1,65 @@
+<configuration xmlns="urn:hornetq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
+
+
+   <journal-file-size>102400</journal-file-size>
+
+   <!-- Connectors -->
+   <connectors>
+      <connector name="netty-connector">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>         
+      </connector>
+   </connectors>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>         
+      </acceptor>
+   </acceptors>
+
+   <address-settings>
+       <address-setting match="jms.queue.#">
+          <max-delivery-attempts>-1</max-delivery-attempts>
+          <!-- <max-size-bytes>335544320000</max-size-bytes> -->
+          <max-size-bytes>33554432</max-size-bytes>
+          <page-size-bytes>16777216</page-size-bytes>
+          <address-full-policy>PAGE</address-full-policy>
+       </address-setting>
+
+   </address-settings>
+
+
+   <diverts>
+      <divert name="div1">
+         <address>jms.queue.inputQueue</address>
+         <forwarding-address>jms.queue.diverted1</forwarding-address>
+         <exclusive>true</exclusive>
+      </divert>
+
+      <divert name="div2">
+         <address>jms.queue.inputQueue</address>
+         <forwarding-address>jms.queue.diverted2</forwarding-address>
+         <exclusive>true</exclusive>
+      </divert>
+   </diverts>
+
+
+
+
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="jms.queue.#">
+         <permission type="createDurableQueue" roles="guest"/>
+         <permission type="deleteDurableQueue" roles="guest"/>
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+</configuration>

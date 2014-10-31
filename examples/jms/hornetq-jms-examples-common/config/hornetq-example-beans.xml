@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+   <bean name="Naming" class="org.jnp.server.NamingBeanImpl"/>
+
+   <!-- JNDI server. Disable this if you don't want JNDI -->
+   <bean name="JNDIServer" class="org.jnp.server.Main">
+      <property name="namingInfo">
+         <inject bean="Naming"/>
+      </property>
+      <property name="port">1099</property>
+      <property name="bindAddress">localhost</property>
+      <property name="rmiPort">1098</property>
+      <property name="rmiBindAddress">localhost</property>
+   </bean>
+
+   <bean name="DeploymentManager" class="org.hornetq.core.deployers.impl.FileDeploymentManager">
+      <constructor>
+         <!-- The scan time in milliseconds -->
+         <parameter>5000</parameter>
+      </constructor>
+   </bean>
+   
+   <bean name="Configuration" class="org.hornetq.core.config.impl.FileConfiguration"/>
+
+   <!--<bean name="HornetQSecurityManager" class="org.hornetq.core.security.impl.JBossASSecurityManager"/>-->
+
+   <bean name="HornetQSecurityManager" class="org.hornetq.spi.core.security.HornetQSecurityManagerImpl">
+   </bean>
+
+   <bean name="BasicSecurityDeployer" class="org.hornetq.core.deployers.impl.BasicUserCredentialsDeployer">
+      <constructor>
+         <parameter>
+            <inject bean="DeploymentManager"/>
+         </parameter>
+      </constructor>
+      <property name="hornetQSecurityManager">
+         <inject bean="HornetQSecurityManager"/>
+      </property>
+   </bean>
+
+   <bean name="HornetQServer" class="org.hornetq.core.server.impl.HornetQServerImpl">
+      <depends>AddressSettingsDeployer</depends>
+      <depends>QueueDeployer</depends>
+      
+      <property name="storageManager">
+         <inject bean="StorageManager"/>
+      </property>
+      <property name="remotingService">
+         <inject bean="RemotingService"/>
+      </property>
+      <property name="configuration">
+         <inject bean="Configuration"/>
+      </property>
+      <property name="securityManager">
+         <inject bean="HornetQSecurityManager"/>
+      </property>
+      <property name="managementService">
+         <inject bean="ManagementService"/>
+      </property>      
+   </bean>
+
+   <bean name="StorageManager" class="org.hornetq.core.persistence.impl.journal.JournalStorageManager">
+      <constructor>
+         <parameter>
+            <inject bean="Configuration"/>
+         </parameter>
+      </constructor>
+   </bean>
+
+   <bean name="RemotingService" class="org.hornetq.core.remoting.server.impl.RemotingServiceImpl">
+      <constructor>
+         <parameter>
+            <inject bean="Configuration"/>
+         </parameter>
+      </constructor>
+      <property name="managementService">
+         <inject bean="ManagementService"/>
+      </property>
+   </bean>
+   
+   <bean name="JMSServerManager" class="org.hornetq.jms.server.impl.JMSServerManagerImpl">
+      <constructor>
+         <parameter>
+            <inject bean="HornetQServer" property="serverManagement"/>
+         </parameter>
+         <parameter>
+            <inject bean="JMSManagementService"/>
+         </parameter>
+      </constructor>
+   </bean>
+
+   <bean name="JMSServerDeployer" class="org.hornetq.api.jms.server.impl.JMSServerDeployer">
+      <constructor>
+         <parameter>
+            <inject bean="DeploymentManager"/>
+         </parameter>
+          <parameter>
+            <inject bean="Configuration"/>
+         </parameter>
+      </constructor>
+      <property name="jmsServerManager">
+         <inject bean="JMSServerManager"/>
+      </property>
+   </bean>
+
+   <bean name="AddressSettingsDeployer" class="org.hornetq.core.deployers.impl.AddressSettingsDeployer">
+      <constructor>
+         <parameter>
+            <inject bean="DeploymentManager"/>
+         </parameter>
+         <parameter>
+            <inject bean="HornetQServer" property="addressSettingsRepository" state="Configured"/>
+         </parameter>
+      </constructor>
+   </bean>
+
+   <bean name="QueueDeployer" class="org.hornetq.core.deployers.impl.QueueDeployer">
+      <constructor>
+         <parameter>
+            <inject bean="DeploymentManager"/>
+         </parameter>
+         <parameter>
+            <inject bean="Configuration"/>
+         </parameter>
+      </constructor>
+   </bean>
+   
+   <bean name="SecurityDeployer" class="org.hornetq.core.deployers.impl.SecurityDeployer">
+      <constructor>
+         <parameter>
+            <inject bean="DeploymentManager"/>
+         </parameter>
+         <parameter>
+            <inject bean="HornetQServer" property="securityRepository"/>
+         </parameter>
+      </constructor>
+   </bean>
+
+   <bean name="ManagementService" class="org.hornetq.core.server.management.impl.ManagementServiceImpl">
+      <constructor>
+         <parameter>
+            <inject bean="MBeanServer"/>
+         </parameter>
+         <parameter>
+            <inject bean="Configuration" property="JMXManagementEnabled" />
+         </parameter>
+      </constructor>
+   </bean>
+   
+   <bean name="JMSManagementService" class="org.hornetq.api.jms.server.management.impl.JMSManagementServiceImpl">
+      <constructor>
+         <parameter>
+            <inject bean="ManagementService"/>
+         </parameter>
+      </constructor>
+   </bean>
+   
+   <bean name="MBeanServer" class="javax.management.MBeanServer">
+      <constructor factoryClass="java.lang.management.ManagementFactory"
+                   factoryMethod="getPlatformMBeanServer"/>
+   </bean> 
+   
+</deployment>

@@ -1,0 +1,150 @@
+<html>
+  <head>
+    <title>HornetQ JMS Scale Down Example</title>
+    <link rel="stylesheet" type="text/css" href="../common/common.css" />
+    <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
+    <script type="text/javascript" src="../common/prettify.js"></script>
+  </head>
+  <body onload="prettyPrint()">
+     <h1>JMS Colocated Failover Shared Store Example</h1>
+
+     <p>This example demonstrates how you can configure a live server to scale down messages to another live server on shutdown.
+     <p>This example starts 2 live servers each one with a connector configured for the other live server.</p>
+     <p>The second live server is killed and its messages are scaled down to the first server on shutdown.</p>
+     <p>The following shows how to configure the live servers to scale down to one another.</p>
+     <pre class="prettyprint">
+     <code>&lt;ha-policy template="NONE">
+         &lt;scale-down>true&lt;/scale-down>
+         &lt;scale-down-connectors>
+         &lt;connector-ref>server1-connector&lt;/connector-ref>
+         &lt;/scale-down-connectors>
+     </ha-policy>
+     </code>
+     </pre>
+     <p>notice that we have used a template to set some sensible defaults but overridden the backup strategy so back ups
+     are full servers</p>
+     <h2>Example step-by-step</h2>
+     <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
+
+     <ol>
+        <li> Get an initial context for looking up JNDI for both servers</li>
+        <pre class="prettyprint">
+           <code>
+    initialContext1 = getContext(1);
+    initialContext = getContext(0);
+   </code>
+        </pre>
+
+        <li>Look up the JMS resources from JNDI</li>
+        <pre class="prettyprint">
+           <code>
+    Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+    ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+    ConnectionFactory connectionFactory1 = (ConnectionFactory)initialContext1.lookup("/ConnectionFactory");
+           </code>
+        </pre>
+
+        <li>Create a JMS Connections</li>
+        <pre class="prettyprint">
+           <code>
+    connection = connectionFactory.createConnection();
+    connection1 = connectionFactory1.createConnection();
+           </code>
+        </pre>
+
+        <li>Create a *non-transacted* JMS Session with client acknowledgement</li>
+        <pre class="prettyprint">
+           <code>
+    Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+    Session session1 = connection1.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+           </code>
+        </pre>
+
+        <li>Create a JMS MessageProducer</li>
+        <pre class="prettyprint">
+           <code>
+    MessageProducer producer = session.createProducer(queue);
+    MessageProducer producer1 = session1.createProducer(queue);
+           </code>
+        </pre>
+
+        <li>Send some messages to both servers</li>
+        <pre class="prettyprint">
+          <code>
+    for (int i = 0; i < numMessages; i++)
+    {
+      TextMessage message = session.createTextMessage("This is text message " + i);
+      producer.send(message);
+      System.out.println("Sent message: " + message.getText());
+      message = session1.createTextMessage("This is another text message " + i);
+      producer1.send(message);
+      System.out.println("Sent message: " + message.getText());
+    }
+          </code>
+        </pre>
+        
+        <li>Crash server #0, the live server</li>
+        <pre class="prettyprint">
+          <code>
+    killServer(0);
+          </code>
+        </pre>
+
+        <li>start the connection ready to receive messages</li>
+        <pre class="prettyprint">
+           <code>
+    connection.start();
+           </code>
+        </pre>
+        
+        <li>create a consumer</li>
+        <pre class="prettyprint">
+           <code>
+    MessageConsumer consumer = session.createConsumer(queue);
+            </code>
+        </pre>
+
+        <li>Receive and acknowledge all of the sent messages, you will notice that messages from both servers are received</li>
+        <pre class="prettyprint">
+           <code>
+    TextMessage message0 = null;
+    for (int i = 0; i < numMessages; i++)
+    {
+       message0 = (TextMessage)consumer.receive(5000);
+       System.out.println("Got message: " + message0.getText());
+    }
+    message0.acknowledge();
+           </code>
+        </pre>
+
+        <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
+
+        <pre class="prettyprint">
+           <code>
+    finally
+    {
+       if (connection != null)
+       {
+       connection.close();
+       }
+
+       if (initialContext != null)
+       {
+       initialContext.close();
+       }
+       if (connection1 != null)
+       {
+       connection1.close();
+       }
+
+       if (initialContext1 != null)
+       {
+       initialContext1.close();
+       }
+    }
+           </code>
+        </pre>
+
+     </ol>
+  </body>
+</html>
