@@ -20,7 +20,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
 import org.hornetq.core.client.HornetQClientLogger;
@@ -37,23 +36,16 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
 {
    private static final long serialVersionUID = 1052413739064253955L;
 
-   private final transient String localBindAddress;
+   private transient String localBindAddress = null;
 
-   private final transient int localBindPort;
+   private transient int localBindPort = -1;
 
-   private final String groupAddress;
+   private String groupAddress = null;
 
-   private final int groupPort;
+   private int groupPort = -1;
 
-   public UDPBroadcastGroupConfiguration(final String groupAddress,
-                                         final int groupPort,
-                                         final String localBindAddress,
-                                         final int localBindPort)
+   public UDPBroadcastGroupConfiguration()
    {
-      this.groupAddress = groupAddress;
-      this.groupPort = groupPort;
-      this.localBindAddress = localBindAddress;
-      this.localBindPort = localBindPort;
    }
 
    public BroadcastEndpointFactory createBroadcastEndpointFactory()
@@ -63,10 +55,11 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
          @Override
          public BroadcastEndpoint createBroadcastEndpoint() throws Exception
          {
-            return new UDPBroadcastEndpoint(groupAddress != null ? InetAddress.getByName(groupAddress) : null,
-                                            groupPort,
-                                            localBindAddress != null ? InetAddress.getByName(localBindAddress) : null,
-                                            localBindPort);
+            return new UDPBroadcastEndpoint()
+               .setGroupAddress(groupAddress != null ? InetAddress.getByName(groupAddress) : null)
+               .setGroupPort(groupPort)
+               .setLocalBindAddress(localBindAddress != null ? InetAddress.getByName(localBindAddress) : null)
+               .setLocalBindPort(localBindPort);
          }
       };
    }
@@ -76,9 +69,21 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
       return groupAddress;
    }
 
+   public UDPBroadcastGroupConfiguration setGroupAddress(String groupAddress)
+   {
+      this.groupAddress = groupAddress;
+      return this;
+   }
+
    public int getGroupPort()
    {
       return groupPort;
+   }
+
+   public UDPBroadcastGroupConfiguration setGroupPort(int groupPort)
+   {
+      this.groupPort = groupPort;
+      return this;
    }
 
    public int getLocalBindPort()
@@ -86,9 +91,21 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
       return localBindPort;
    }
 
+   public UDPBroadcastGroupConfiguration setLocalBindPort(int localBindPort)
+   {
+      this.localBindPort = localBindPort;
+      return this;
+   }
+
    public String getLocalBindAddress()
    {
       return localBindAddress;
+   }
+
+   public UDPBroadcastGroupConfiguration setLocalBindAddress(String localBindAddress)
+   {
+      this.localBindAddress = localBindAddress;
+      return this;
    }
 
    /**
@@ -103,13 +120,13 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
    {
       private static final int SOCKET_TIMEOUT = 500;
 
-      private final InetAddress localAddress;
+      private InetAddress localAddress;
 
-      private final int localBindPort;
+      private int localBindPort;
 
-      private final InetAddress groupAddress;
+      private InetAddress groupAddress;
 
-      private final int groupPort;
+      private int groupPort;
 
       private DatagramSocket broadcastingSocket;
 
@@ -117,15 +134,32 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
 
       private volatile boolean open;
 
-      public UDPBroadcastEndpoint(final InetAddress groupAddress,
-                                  final int groupPort,
-                                  final InetAddress localBindAddress,
-                                  final int localBindPort) throws UnknownHostException
+      public UDPBroadcastEndpoint()
+      {
+      }
+
+      public UDPBroadcastEndpoint setGroupAddress(InetAddress groupAddress)
       {
          this.groupAddress = groupAddress;
+         return this;
+      }
+
+      public UDPBroadcastEndpoint setGroupPort(int groupPort)
+      {
          this.groupPort = groupPort;
-         this.localAddress = localBindAddress;
+         return this;
+      }
+
+      public UDPBroadcastEndpoint setLocalBindAddress(InetAddress localAddress)
+      {
+         this.localAddress = localAddress;
+         return this;
+      }
+
+      public UDPBroadcastEndpoint setLocalBindPort(int localBindPort)
+      {
          this.localBindPort = localBindPort;
+         return this;
       }
 
 

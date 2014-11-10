@@ -38,6 +38,7 @@ import org.hornetq.core.client.impl.ClientConsumerImpl;
 import org.hornetq.core.client.impl.ClientConsumerInternal;
 import org.hornetq.core.client.impl.ClientLargeMessageInternal;
 import org.hornetq.core.client.impl.ClientMessageInternal;
+import org.hornetq.core.client.impl.ClientProducerCreditsImpl;
 import org.hornetq.core.client.impl.ClientSessionImpl;
 import org.hornetq.core.message.impl.MessageInternal;
 import org.hornetq.core.protocol.core.Channel;
@@ -111,12 +112,14 @@ public class HornetQSessionContext extends SessionContext
    private final Channel sessionChannel;
    private final int serverVersion;
    private int confirmationWindow;
+   private final String name;
 
 
    public HornetQSessionContext(String name, RemotingConnection remotingConnection, Channel sessionChannel, int serverVersion, int confirmationWindow)
    {
-      super(name, remotingConnection);
+      super(remotingConnection);
 
+      this.name = name;
       this.sessionChannel = sessionChannel;
       this.serverVersion = serverVersion;
       this.confirmationWindow = confirmationWindow;
@@ -169,9 +172,9 @@ public class HornetQSessionContext extends SessionContext
    // Failover utility methods
 
    @Override
-   public void returnBlocking()
+   public void returnBlocking(HornetQException cause)
    {
-      sessionChannel.returnBlocking();
+      sessionChannel.returnBlocking(cause);
    }
 
    @Override
@@ -194,6 +197,12 @@ public class HornetQSessionContext extends SessionContext
       // if the server is sending a disconnect
       // any pending blocked operation could hang without this
       sessionChannel.returnBlocking();
+   }
+
+   @Override
+   public void linkFlowControl(SimpleString address, ClientProducerCreditsImpl clientProducerCredits)
+   {
+      // nothing to be done here... Flow control here is done on the core side
    }
 
 
@@ -232,6 +241,8 @@ public class HornetQSessionContext extends SessionContext
    {
       long consumerID = idGenerator.generateID();
 
+      HornetQConsumerContext consumerContext = new HornetQConsumerContext(consumerID);
+
       SessionCreateConsumerMessage request = new SessionCreateConsumerMessage(consumerID,
                                                                               queueName,
                                                                               filterString,
@@ -245,7 +256,7 @@ public class HornetQSessionContext extends SessionContext
       // The value we send is just a hint
 
       return new ClientConsumerImpl(session,
-                                    consumerID,
+                                    consumerContext,
                                     queueName,
                                     filterString,
                                     browseOnly,
@@ -279,17 +290,17 @@ public class HornetQSessionContext extends SessionContext
    @Override
    public void closeConsumer(final ClientConsumer consumer) throws HornetQException
    {
-      sessionChannel.sendBlocking(new SessionConsumerCloseMessage((long) consumer.getId()), PacketImpl.NULL_RESPONSE);
+      sessionChannel.sendBlocking(new SessionConsumerCloseMessage(getConsumerID(consumer)), PacketImpl.NULL_RESPONSE);
    }
 
    public void sendConsumerCredits(final ClientConsumer consumer, final int credits)
    {
-      sessionChannel.send(new SessionConsumerFlowCreditMessage((long) consumer.getId(), credits));
+      sessionChannel.send(new SessionConsumerFlowCreditMessage(getConsumerID(consumer), credits));
    }
 
    public void forceDelivery(final ClientConsumer consumer, final long sequence) throws HornetQException
    {
-      SessionForceConsumerDelivery request = new SessionForceConsumerDelivery((long) consumer.getId(), sequence);
+      SessionForceConsumerDelivery request = new SessionForceConsumerDelivery(getConsumerID(consumer), sequence);
       sessionChannel.send(request);
    }
 
@@ -390,7 +401,7 @@ public class HornetQSessionContext extends SessionContext
       return msgI.getEncodeSize();
    }
 
-   public void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler) throws HornetQException
+   public void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler, SimpleString defaultAddress) throws HornetQException
    {
       SessionSendMessage packet = new SessionSendMessage(msgI, sendBlocking, handler);
 
@@ -440,11 +451,11 @@ public class HornetQSessionContext extends SessionContext
       PacketImpl messagePacket;
       if (individual)
       {
-         messagePacket = new SessionIndividualAcknowledgeMessage((long) consumer.getId(), message.getMessageID(), block);
+         messagePacket = new SessionIndividualAcknowledgeMessage(getConsumerID(consumer), message.getMessageID(), block);
       }
       else
       {
-         messagePacket = new SessionAcknowledgeMessage((long) consumer.getId(), message.getMessageID(), block);
+         messagePacket = new SessionAcknowledgeMessage(getConsumerID(consumer), message.getMessageID(), block);
       }
 
       if (block)
@@ -459,7 +470,7 @@ public class HornetQSessionContext extends SessionContext
 
    public void expireMessage(final ClientConsumer consumer, Message message) throws HornetQException
    {
-      SessionExpireMessage messagePacket = new SessionExpireMessage((long) consumer.getId(), message.getMessageID());
+      SessionExpireMessage messagePacket = new SessionExpireMessage(getConsumerID(consumer), message.getMessageID());
 
       sessionChannel.send(messagePacket);
    }
@@ -682,7 +693,7 @@ public class HornetQSessionContext extends SessionContext
          sendPacketWithoutLock(sessionChannel, createQueueRequest);
       }
 
-      SessionCreateConsumerMessage createConsumerRequest = new SessionCreateConsumerMessage(consumerInternal.getID(),
+      SessionCreateConsumerMessage createConsumerRequest = new SessionCreateConsumerMessage(getConsumerID(consumerInternal),
                                                                                             consumerInternal.getQueueName(),
                                                                                             consumerInternal.getFilterString(),
                                                                                             consumerInternal.isBrowseOnly(),
@@ -694,7 +705,7 @@ public class HornetQSessionContext extends SessionContext
 
       if (clientWindowSize != 0)
       {
-         SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage((long) consumerInternal.getId(),
+         SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage(getConsumerID(consumerInternal),
                                                                                         clientWindowSize);
 
          sendPacketWithoutLock(sessionChannel, packet);
@@ -702,7 +713,7 @@ public class HornetQSessionContext extends SessionContext
       else
       {
          // https://jira.jboss.org/browse/HORNETQ-522
-         SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage((long) consumerInternal.getId(),
+         SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage(getConsumerID(consumerInternal),
                                                                                         1);
          sendPacketWithoutLock(sessionChannel, packet);
       }
@@ -748,7 +759,8 @@ public class HornetQSessionContext extends SessionContext
    private void handleConsumerDisconnected(DisconnectConsumerMessage packet) throws HornetQException
    {
       DisconnectConsumerMessage message = packet;
-      session.handleConsumerDisconnect(message.getConsumerId());
+
+      session.handleConsumerDisconnect(new HornetQConsumerContext(message.getConsumerId()));
    }
 
    private void handleReceivedMessagePacket(SessionReceiveMessage messagePacket) throws Exception
@@ -759,7 +771,7 @@ public class HornetQSessionContext extends SessionContext
 
       msgi.setFlowControlSize(messagePacket.getPacketSize());
 
-      handleReceiveMessage(messagePacket.getConsumerID(), msgi);
+      handleReceiveMessage(new HornetQConsumerContext(messagePacket.getConsumerID()), msgi);
    }
 
    private void handleReceiveLargeMessage(SessionReceiveLargeMessage serverPacket) throws Exception
@@ -770,13 +782,13 @@ public class HornetQSessionContext extends SessionContext
 
       clientLargeMessage.setDeliveryCount(serverPacket.getDeliveryCount());
 
-      handleReceiveLargeMessage(serverPacket.getConsumerID(), clientLargeMessage, serverPacket.getLargeMessageSize());
+      handleReceiveLargeMessage(new HornetQConsumerContext(serverPacket.getConsumerID()), clientLargeMessage, serverPacket.getLargeMessageSize());
    }
 
 
    private void handleReceiveContinuation(SessionReceiveContinuationMessage continuationPacket) throws Exception
    {
-      handleReceiveContinuation(continuationPacket.getConsumerID(), continuationPacket.getBody(), continuationPacket.getPacketSize(),
+      handleReceiveContinuation(new HornetQConsumerContext(continuationPacket.getConsumerID()), continuationPacket.getBody(), continuationPacket.getPacketSize(),
                                 continuationPacket.isContinues());
    }
 
@@ -861,6 +873,11 @@ public class HornetQSessionContext extends SessionContext
 
          sessionChannel.confirm(packet);
       }
+   }
+
+   private long getConsumerID(ClientConsumer consumer)
+   {
+      return ((HornetQConsumerContext)consumer.getConsumerContext()).getId();
    }
 
    private ClassLoader lookupTCCL()

@@ -12,7 +12,7 @@
  */
 package org.hornetq.tests.integration.cluster.distribution;
 
-import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.tests.integration.IntegrationTestLogger;
 import org.hornetq.tests.util.UnitTestCase;
 import org.junit.Test;
@@ -539,11 +539,11 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
       setupBackupServer(9, 4, isFileStorage(), true, isNetty());
 
       // The lives
-      setupLiveServer(0, isFileStorage(), true, isNetty());
-      setupLiveServer(1, isFileStorage(), true, isNetty());
-      setupLiveServer(2, isFileStorage(), true, isNetty());
-      setupLiveServer(3, isFileStorage(), true, isNetty());
-      setupLiveServer(4, isFileStorage(), true, isNetty());
+      setupLiveServer(0, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(1, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(2, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(3, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(4, isFileStorage(), true, isNetty(), false);
    }
 
    @Override
@@ -551,11 +551,11 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
    {
       // Need to set backup, since when restarting backup after it has failed over, backup will have been set to false
 
-      getServer(5).getConfiguration().getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      getServer(6).getConfiguration().getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      getServer(7).getConfiguration().getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      getServer(8).getConfiguration().getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      getServer(9).getConfiguration().getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
+      getServer(5).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+      getServer(6).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+      getServer(7).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+      getServer(8).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+      getServer(9).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
 
       startServers(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
    }

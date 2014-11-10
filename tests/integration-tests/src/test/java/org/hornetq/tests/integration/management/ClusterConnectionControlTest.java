@@ -13,7 +13,6 @@
 package org.hornetq.tests.integration.management;
 import org.junit.Before;
 import org.junit.After;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -25,13 +24,12 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
 import org.junit.Assert;
-
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
 import org.hornetq.api.core.management.ClusterConnectionControl;
-import org.hornetq.api.core.management.NotificationType;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.ObjectNameBuilder;
 import org.hornetq.core.config.ClusterConnectionConfiguration;
 import org.hornetq.core.config.Configuration;
@@ -167,8 +165,8 @@ public class ClusterConnectionControlTest extends ManagementTestBase
       clusterConnectionControl.stop();
 
       Assert.assertTrue(notifListener.getNotifications().size() > 0);
-      Notification notif = notifListener.getNotifications().get(0);
-      Assert.assertEquals(NotificationType.CLUSTER_CONNECTION_STOPPED, notif.getType());
+      Notification notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED);
+      Assert.assertNotNull(notif);
       Assert.assertEquals(clusterConnectionControl.getName(), notif.getProperties()
                                                                    .getSimpleStringProperty(new SimpleString("name"))
                                                                    .toString());
@@ -176,11 +174,29 @@ public class ClusterConnectionControlTest extends ManagementTestBase
       clusterConnectionControl.start();
 
       Assert.assertTrue(notifListener.getNotifications().size() > 0);
-      notif = notifListener.getNotifications().get(1);
-      Assert.assertEquals(NotificationType.CLUSTER_CONNECTION_STARTED, notif.getType());
+      notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STARTED);
+      Assert.assertNotNull(notif);
       Assert.assertEquals(clusterConnectionControl.getName(), notif.getProperties()
                                                                    .getSimpleStringProperty(new SimpleString("name"))
                                                                    .toString());
+   }
+
+   private Notification getFirstNotificationOfType(List<Notification> notifications, CoreNotificationType type)
+   {
+      Notification result = null;
+
+      // the notifications can change while we're looping
+      List<Notification> notificationsClone = new ArrayList<>(notifications);
+
+      for (Notification notification : notificationsClone)
+      {
+         if (notification.getType().equals(type))
+         {
+            result = notification;
+         }
+      }
+
+      return result;
    }
 
    // Package protected ---------------------------------------------
@@ -203,46 +219,55 @@ public class ClusterConnectionControlTest extends ManagementTestBase
                                                                           acceptorParams,
                                                                           RandomUtil.randomString());
 
-      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration(RandomUtil.randomString(),
-                                                              RandomUtil.randomString(),
-                                                              null,
-                                                              false);
+      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
+         .setAddress(RandomUtil.randomString())
+         .setName(RandomUtil.randomString())
+         .setDurable(false);
       List<String> connectors = new ArrayList<String>();
       connectors.add(connectorConfig.getName());
 
 
       String discoveryGroupName = RandomUtil.randomString();
-      DiscoveryGroupConfiguration discoveryGroupConfig =
-               new DiscoveryGroupConfiguration(discoveryGroupName, 500, 0,
-                     new UDPBroadcastGroupConfiguration("230.1.2.3", 6745, null, -1));
+      DiscoveryGroupConfiguration discoveryGroupConfig = new DiscoveryGroupConfiguration()
+         .setName(discoveryGroupName)
+         .setRefreshTimeout(500)
+         .setDiscoveryInitialWaitTimeout(0)
+         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+                                                      .setGroupAddress("230.1.2.3")
+                                                      .setGroupPort(6745));
 
-      Configuration conf_1 = createBasicConfig();
-      conf_1.setSecurityEnabled(false);
-      conf_1.setJMXManagementEnabled(true);
-      conf_1.getAcceptorConfigurations().add(acceptorConfig);
-      conf_1.getQueueConfigurations().add(queueConfig);
+      Configuration conf_1 = createBasicConfig()
+         .addAcceptorConfiguration(acceptorConfig)
+         .addQueueConfiguration(queueConfig);
 
-      Configuration conf_0 = createBasicConfig();
-      clusterConnectionConfig1 =
-               new ClusterConnectionConfiguration(RandomUtil.randomString(), queueConfig.getAddress(),
-                                                  connectorConfig.getName(), RandomUtil.randomPositiveLong(),
-                                                  RandomUtil.randomBoolean(), RandomUtil.randomBoolean(),
-                                                  RandomUtil.randomPositiveInt(), RandomUtil.randomPositiveInt(),
-                                                  connectors, false);
-      clusterConnectionConfig2 =
-               new ClusterConnectionConfiguration(RandomUtil.randomString(), queueConfig.getAddress(),
-                                                  connectorConfig.getName(), RandomUtil.randomPositiveLong(),
-                                                  RandomUtil.randomBoolean(), RandomUtil.randomBoolean(),
-                                                  RandomUtil.randomPositiveInt(), RandomUtil.randomPositiveInt(),
-                                                  discoveryGroupName);
+      clusterConnectionConfig1 = new ClusterConnectionConfiguration()
+         .setName(RandomUtil.randomString())
+         .setAddress(queueConfig.getAddress())
+         .setConnectorName(connectorConfig.getName())
+         .setRetryInterval(RandomUtil.randomPositiveLong())
+         .setDuplicateDetection(RandomUtil.randomBoolean())
+         .setForwardWhenNoConsumers(RandomUtil.randomBoolean())
+         .setMaxHops(RandomUtil.randomPositiveInt())
+         .setConfirmationWindowSize(RandomUtil.randomPositiveInt())
+         .setStaticConnectors(connectors);
 
-      conf_0.setSecurityEnabled(false);
-      conf_0.setJMXManagementEnabled(true);
-      conf_0.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      conf_0.getConnectorConfigurations().put(connectorConfig.getName(), connectorConfig);
-      conf_0.getClusterConfigurations().add(clusterConnectionConfig1);
-      conf_0.getClusterConfigurations().add(clusterConnectionConfig2);
-      conf_0.getDiscoveryGroupConfigurations().put(discoveryGroupName, discoveryGroupConfig);
+      clusterConnectionConfig2 = new ClusterConnectionConfiguration()
+         .setName(RandomUtil.randomString())
+         .setAddress(queueConfig.getAddress())
+         .setConnectorName(connectorConfig.getName())
+         .setRetryInterval(RandomUtil.randomPositiveLong())
+         .setDuplicateDetection(RandomUtil.randomBoolean())
+         .setForwardWhenNoConsumers(RandomUtil.randomBoolean())
+         .setMaxHops(RandomUtil.randomPositiveInt())
+         .setConfirmationWindowSize(RandomUtil.randomPositiveInt())
+         .setDiscoveryGroupName(discoveryGroupName);
+
+      Configuration conf_0 = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig)
+         .addClusterConfiguration(clusterConnectionConfig1)
+         .addClusterConfiguration(clusterConnectionConfig2)
+         .addDiscoveryGroupConfiguration(discoveryGroupName, discoveryGroupConfig);
 
       mbeanServer_1 = MBeanServerFactory.createMBeanServer();
       server_1 = addServer(HornetQServers.newHornetQServer(conf_1, mbeanServer_1, false));

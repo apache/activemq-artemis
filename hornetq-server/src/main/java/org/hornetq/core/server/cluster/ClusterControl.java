@@ -92,10 +92,10 @@ public class ClusterControl implements AutoCloseable
     *                           server.
     * @throws org.hornetq.api.core.HornetQException
     */
-   public void announceReplicatingBackupToLive(final boolean attemptingFailBack) throws HornetQException
+   public void announceReplicatingBackupToLive(final boolean attemptingFailBack, String replicationClusterName) throws HornetQException
    {
 
-      ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(server.getConfiguration());
+      ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(server.getConfiguration(), replicationClusterName);
       if (config == null)
       {
          HornetQServerLogger.LOGGER.announceBackupNoClusterConnections();

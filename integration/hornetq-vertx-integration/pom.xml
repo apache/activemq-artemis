@@ -37,15 +37,15 @@
     <mods.directory>target/mods</mods.directory>
 
     <!--Dependency versions-->
-    <vertx.version>2.1.1</vertx.version>
-    <vertx.testtools.version>2.0.2-final</vertx.testtools.version>
+    <vertx.version>2.1.2</vertx.version>
+    <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
     <junit.version>4.11</junit.version>
 
     <!--Plugin versions-->
     <maven.compiler.plugin.version>3.0</maven.compiler.plugin.version>
     <maven.resources.plugin.version>2.6</maven.resources.plugin.version>
     <maven.clean.plugin.version>2.5</maven.clean.plugin.version>
-    <maven.vertx.plugin.version>2.0.1-final</maven.vertx.plugin.version>
+    <maven.vertx.plugin.version>2.0.8-final</maven.vertx.plugin.version>
     <maven.surefire.plugin.version>2.14</maven.surefire.plugin.version>
     <maven.failsafe.plugin.version>2.14</maven.failsafe.plugin.version>
     <maven.surefire.report.plugin.version>2.14</maven.surefire.report.plugin.version>

@@ -60,11 +60,17 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       final String queueName3 = "queue3";
 
-      CoreQueueConfiguration queue1 = new CoreQueueConfiguration(testAddress, queueName1, null, true);
+      CoreQueueConfiguration queue1 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName1);
 
-      CoreQueueConfiguration queue2 = new CoreQueueConfiguration(testAddress, queueName2, null, true);
+      CoreQueueConfiguration queue2 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName2);
 
-      CoreQueueConfiguration queue3 = new CoreQueueConfiguration(testAddress, queueName3, null, true);
+      CoreQueueConfiguration queue3 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName3);
 
       List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
 
@@ -147,17 +153,18 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       final String queueName2 = "queue2";
 
-      CoreQueueConfiguration queue1 = new CoreQueueConfiguration(testAddress, queueName1, null, true);
+      CoreQueueConfiguration queue1 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName1);
 
-      CoreQueueConfiguration queue2 = new CoreQueueConfiguration(testAddress, queueName1, null, true);
-
-      CoreQueueConfiguration queue3 = new CoreQueueConfiguration(testAddress, queueName2, null, true);
+      CoreQueueConfiguration queue2 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName2);
 
       List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
 
       queueConfs.add(queue1);
       queueConfs.add(queue2);
-      queueConfs.add(queue3);
 
       conf.setQueueConfigurations(queueConfs);
 
@@ -165,9 +172,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       server.start();
 
-      Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(testAddress));
+      Bindings bindings = server.getPostOffice()
+         .getBindingsForAddress(new SimpleString(testAddress));
 
-      Assert.assertEquals(2, bindings.getBindings().size());
+      Assert.assertEquals(2, bindings.getBindings()
+         .size());
 
       ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
 
@@ -256,11 +265,17 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       server.stop();
 
-      CoreQueueConfiguration queue1 = new CoreQueueConfiguration(testAddress, queueName1, null, true);
+      CoreQueueConfiguration queue1 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName1);
 
-      CoreQueueConfiguration queue2 = new CoreQueueConfiguration(testAddress, queueName2, null, true);
+      CoreQueueConfiguration queue2 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName2);
 
-      CoreQueueConfiguration queue3 = new CoreQueueConfiguration(testAddress, queueName3, null, true);
+      CoreQueueConfiguration queue3 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName3);
 
       List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
 
@@ -341,9 +356,14 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       final String queueName2 = "queue2";
 
-      CoreQueueConfiguration queue1 = new CoreQueueConfiguration(testAddress, queueName1, null, false);
+      CoreQueueConfiguration queue1 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName1)
+         .setDurable(false);
 
-      CoreQueueConfiguration queue2 = new CoreQueueConfiguration(testAddress, queueName2, null, true);
+      CoreQueueConfiguration queue2 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName2);
 
       List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
 
@@ -434,7 +454,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       final String filter = "cheese='camembert'";
 
-      CoreQueueConfiguration queue1 = new CoreQueueConfiguration(testAddress, queueName1, filter, false);
+      CoreQueueConfiguration queue1 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName1)
+         .setFilterString(filter)
+         .setDurable(false);
 
       List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
 

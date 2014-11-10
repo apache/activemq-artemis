@@ -15,9 +15,19 @@
      <p>The first live server will be killed and the backup in the second will become live</p>
      <p>The following shows how to configure the live servers to request and allow backups to be deployed</p>
      <pre class="prettyprint">
-     <code>&lt;ha-policy template="COLOCATED_SHARED_STORE">
-         &ltbackup-strategy>FULL&lt/backup-strategy>
-         &lt/ha-policy>
+     <code>&lt;ha-policy>
+         &lt;shared-store>
+             &lt;colocated>
+                 &lt;backup-port-offset>100&lt;/backup-port-offset>
+                 &lt;backup-request-retries>-1&lt;/backup-request-retries>
+                 &lt;backup-request-retry-interval>2000&lt;/backup-request-retry-interval>
+                 &lt;max-backups>1&lt;/max-backups>
+                 &lt;request-backup>true&lt;/request-backup>
+                 &lt;master/>
+                 &lt;slave/>
+             &lt;/colocated>
+         &lt;/shared-store>
+     &lt;/ha-policy>
      </code>
      </pre>
      <p>notice that we have used a template to set some sensible defaults but overridden the backup strategy so back ups

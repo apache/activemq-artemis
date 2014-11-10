@@ -1,8 +1,12 @@
 <configuration xmlns="urn:hornetq"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="urn:hornetq ../../../src/schema/hornetq-configuration.xsd">
+         xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 
-   <ha-policy template="BACKUP_SHARED_STORE"/>
+   <ha-policy>
+      <shared-store>
+         <slave/>
+      </shared-store>
+   </ha-policy>
     
    <!-- Connectors -->
 

@@ -83,11 +83,9 @@ public class XaTimeoutTest extends UnitTestCase
       super.setUp();
 
       addressSettings.clear();
-      configuration = createBasicConfig();
-      configuration.setSecurityEnabled(false);
-      configuration.setTransactionTimeoutScanPeriod(500);
-      TransportConfiguration transportConfig = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY);
-      configuration.getAcceptorConfigurations().add(transportConfig);
+      configuration = createBasicConfig()
+         .setTransactionTimeoutScanPeriod(500)
+         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
       messagingService = addServer(HornetQServers.newHornetQServer(configuration, false));
       // start the server
       messagingService.start();

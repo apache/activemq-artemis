@@ -61,9 +61,9 @@ public class DelayedMessageTest extends ServiceTestBase
     */
    protected void initServer() throws Exception
    {
-      configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
-      configuration.setJournalMinFiles(2);
+      configuration = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .setJournalMinFiles(2);
       server = createServer(true, configuration);
       server.start();
 

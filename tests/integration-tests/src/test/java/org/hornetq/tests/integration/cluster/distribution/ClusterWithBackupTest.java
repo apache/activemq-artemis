@@ -117,9 +117,9 @@ public class ClusterWithBackupTest extends ClusterTestBase
       setupBackupServer(2, 5, isFileStorage(), true, isNetty());
 
       // The lives
-      setupLiveServer(3, isFileStorage(), true, isNetty());
-      setupLiveServer(4, isFileStorage(), true, isNetty());
-      setupLiveServer(5, isFileStorage(), true, isNetty());
+      setupLiveServer(3, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(4, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(5, isFileStorage(), true, isNetty(), false);
 
    }
 }

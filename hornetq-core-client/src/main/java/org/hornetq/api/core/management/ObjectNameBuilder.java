@@ -23,6 +23,7 @@ import org.hornetq.api.core.SimpleString;
  */
 public final class ObjectNameBuilder
 {
+
    // Constants -----------------------------------------------------
 
    /**
@@ -30,14 +31,13 @@ public final class ObjectNameBuilder
     */
    public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(HornetQDefaultConfiguration.getDefaultJmxDomain());
 
-   static final String DEFAULT_SUBSYSTEM = "messaging";
-   static final String DEFAULT_SERVER = "default";
+   static final String JMS_MODULE = "JMS";
+
+   static final String CORE_MODULE = "Core";
 
    // Attributes ----------------------------------------------------
 
    private final String domain;
-   private final String subsystem;
-   private final String serverName;
 
    // Static --------------------------------------------------------
 
@@ -58,8 +58,6 @@ public final class ObjectNameBuilder
    private ObjectNameBuilder(final String domain)
    {
       this.domain = domain;
-      this.subsystem = DEFAULT_SUBSYSTEM;
-      this.serverName = DEFAULT_SERVER;
    }
 
    // Public --------------------------------------------------------
@@ -69,9 +67,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getHornetQServerObjectName() throws Exception
    {
-      String value = String.format("%s:subsystem=%s,hornetq-server=%s",
-            domain, subsystem, serverName);
-      return ObjectName.getInstance(value);
+      return ObjectName.getInstance(domain + ":module=Core,type=Server");
    }
 
    /**
@@ -81,7 +77,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getAddressObjectName(final SimpleString address) throws Exception
    {
-      return createObjectName("core-address", address.toString());
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Address", address.toString());
    }
 
    /**
@@ -91,11 +87,12 @@ public final class ObjectNameBuilder
     */
    public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception
    {
-      ObjectProperty[] props = new ObjectProperty[] {
-         new ObjectProperty("address", address.toString()),
-         new ObjectProperty("runtime-queue", name.toString())
-      };
-      return this.createObjectName(props);
+      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,address=%s,name=%s",
+                                                  domain,
+                                                  ObjectNameBuilder.CORE_MODULE,
+                                                  "Queue",
+                                                  ObjectName.quote(address.toString()),
+                                                  ObjectName.quote(name.toString())));
    }
 
    /**
@@ -105,7 +102,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getDivertObjectName(final String name) throws Exception
    {
-      return createObjectName("divert", name.toString());
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Divert", name.toString());
    }
 
    /**
@@ -115,7 +112,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getAcceptorObjectName(final String name) throws Exception
    {
-      return createObjectName("remote-acceptor", name);
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Acceptor", name);
    }
 
    /**
@@ -125,7 +122,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getBroadcastGroupObjectName(final String name) throws Exception
    {
-      return createObjectName("broadcast-group", name);
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "BroadcastGroup", name);
    }
 
    /**
@@ -135,7 +132,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getBridgeObjectName(final String name) throws Exception
    {
-      return createObjectName("bridge", name);
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Bridge", name);
    }
 
    /**
@@ -145,7 +142,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getClusterConnectionObjectName(final String name) throws Exception
    {
-      return createObjectName("cluster-connection", name);
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "ClusterConnection", name);
    }
 
    /**
@@ -155,7 +152,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getDiscoveryGroupObjectName(final String name) throws Exception
    {
-      return createObjectName("discovery-group", name);
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "DiscoveryGroup", name);
    }
 
    /**
@@ -164,9 +161,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getJMSServerObjectName() throws Exception
    {
-      String value = String.format("%s:subsystem=%s,hornetq-server=%s",
-            domain, subsystem, serverName);
-      return ObjectName.getInstance(value);
+      return ObjectName.getInstance(domain + ":module=JMS,type=Server");
    }
 
    /**
@@ -175,7 +170,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getJMSQueueObjectName(final String name) throws Exception
    {
-      return createObjectName("jms-queue", name);
+      return createObjectName(ObjectNameBuilder.JMS_MODULE, "Queue", name);
    }
 
    /**
@@ -185,7 +180,7 @@ public final class ObjectNameBuilder
     */
    public ObjectName getJMSTopicObjectName(final String name) throws Exception
    {
-      return createObjectName("jms-topic", name);
+      return createObjectName(ObjectNameBuilder.JMS_MODULE, "Topic", name);
    }
 
    /**
@@ -194,38 +189,15 @@ public final class ObjectNameBuilder
     */
    public ObjectName getConnectionFactoryObjectName(final String name) throws Exception
    {
-      return createObjectName("connection-factory", name);
+      return createObjectName(ObjectNameBuilder.JMS_MODULE, "ConnectionFactory", name);
    }
 
-   private ObjectName createObjectName(String beanType, String beanName) throws Exception
+   private ObjectName createObjectName(final String module, final String type, final String name) throws Exception
    {
-      return this.createObjectName(new ObjectProperty[] {new ObjectProperty(beanType, beanName)});
-   }
-
-   private ObjectName createObjectName(ObjectProperty[] props) throws Exception
-   {
-      String baseValue = String.format("%s:subsystem=%s,hornetq-server=%s",
-                                   domain, subsystem, serverName);
-      StringBuilder builder = new StringBuilder(baseValue);
-      for (ObjectProperty p : props)
-      {
-         builder.append(",");
-         builder.append(p.key);
-         builder.append("=");
-         builder.append(ObjectName.quote(p.val));
-      }
-      return ObjectName.getInstance(builder.toString());
-   }
-
-   private static class ObjectProperty
-   {
-      String key;
-      String val;
-
-      public ObjectProperty(String k, String v)
-      {
-         this.key = k;
-         this.val = v;
-      }
+      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,name=%s",
+                                                  domain,
+                                                  module,
+                                                  type,
+                                                  ObjectName.quote(name)));
    }
 }

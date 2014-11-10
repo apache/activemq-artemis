@@ -156,16 +156,30 @@ Do not use the [maven-eclipse-plugin] to copy the files as it conflicts with [m2
 [maven-eclipse-plugin]: https://maven.apache.org/plugins/maven-eclipse-plugin/
 [m2e]: http://eclipse.org/m2e/
 
-## GitHub procedures
+## Committing Changes
 
-The best way to submit changes to HornetQ is through pull requests on
-GitHub. After review a pull request should either get merged or be
-rejected.
+### GitHub
 
-When a pull request needs to be reworked, say you have missed
-something, the pull request is then closed. When you finished
-addressing the required changes you should reopen your original pull
-request and it will then be re-evaluated. At that point if the request
-is approved we will then merge it.
+We follow the GitHub workflow for all code changes in HornetQ. For information on the GitHub workflow please see:
+https://guides.github.com/introduction/flow/index.html
 
-Make sure you always rebase your branch on master before submitting pull requests.
+### Commit Messages
+
+We follow the 50/72 git commit message format.  A HornetQ commit message should be formatted in the following manner:
+
+* Add the HornetQ JIRA or Bugzilla reference (if one exists) followed by a brief description of the change in the first line.
+* Insert a single blank line after the first line.
+* Provide a detailed description of the change in the following lines, breaking paragraphs where needed.
+* The first line should be limited to 50 characters
+* Subsequent lines should be wrapped at 72 characters.
+
+An example correctly formatted commit message:
+
+```
+HORNETQ-1234 Add new commit msg format to README
+
+Adds a description of the new commit message format as well as examples
+of well formatted commit messages to the README.md.  This is required 
+to enable developers to quickly identify what the commit is intended to 
+do and why the commit was added.
+```

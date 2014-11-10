@@ -43,6 +43,7 @@ import org.hornetq.api.core.client.SessionFailureListener;
 import org.hornetq.api.jms.HornetQJMSConstants;
 import org.hornetq.core.client.impl.ClientSessionInternal;
 import org.hornetq.core.version.Version;
+import org.hornetq.reader.MessageUtil;
 import org.hornetq.utils.ConcurrentHashSet;
 import org.hornetq.utils.UUIDGenerator;
 import org.hornetq.utils.VersionLoader;
@@ -70,7 +71,7 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
 
    public static final String EXCEPTION_DISCONNECT = "DISCONNECT";
 
-   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__HQ_CID");
+   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = MessageUtil.CONNECTION_ID_PROPERTY_NAME;
 
    // Static ---------------------------------------------------------------------------------------
 

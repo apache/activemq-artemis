@@ -17,6 +17,8 @@ import java.util.List;
 import javax.transaction.xa.Xid;
 
 import org.hornetq.api.core.HornetQException;
+import org.hornetq.core.server.Queue;
+import org.hornetq.core.server.impl.RefsOperation;
 
 /**
  * A HornetQ internal transaction
@@ -70,4 +72,6 @@ public interface Transaction
    void setContainsPersistent();
 
    void setTimeout(int timeout);
+
+   RefsOperation createRefsOperation(Queue queue);
 }

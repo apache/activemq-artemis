@@ -335,6 +335,7 @@ final class PageSubscriptionImpl implements PageSubscription
          }
 
          infoPG.acks.clear();
+         infoPG.removedReferences.clear();
       }
 
       tx.addOperation(new TransactionOperationAbstract()
@@ -672,7 +673,7 @@ final class PageSubscriptionImpl implements PageSubscription
     */
    public void destroy() throws Exception
    {
-      final long tx = store.generateUniqueID();
+      final long tx = store.generateID();
       try
       {
 
@@ -752,7 +753,7 @@ final class PageSubscriptionImpl implements PageSubscription
                HornetQServerLogger.LOGGER.pageNotFound(pos);
                if (txDeleteCursorOnReload == -1)
                {
-                  txDeleteCursorOnReload = store.generateUniqueID();
+                  txDeleteCursorOnReload = store.generateID();
                }
                store.deleteCursorAcknowledgeTransactional(txDeleteCursorOnReload, pos.getRecordID());
             }

@@ -24,6 +24,8 @@ import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.HornetQClient;
+import org.hornetq.core.config.ScaleDownConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.hornetq.core.persistence.impl.journal.JournalStorageManager;
 import org.hornetq.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.hornetq.core.postoffice.Binding;
@@ -45,7 +47,7 @@ public class ScaleDownTest extends ClusterTestBase
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
-   @Parameterized.Parameters
+   @Parameterized.Parameters(name = "useScaleDownGroupName={0}")
    public static Collection getParameters()
    {
       return Arrays.asList(new Object[][]{
@@ -64,18 +66,21 @@ public class ScaleDownTest extends ClusterTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      setupServer(0, isFileStorage(), isNetty());
-      setupServer(1, isFileStorage(), isNetty());
+      setupLiveServer(0, isFileStorage(), isNetty(), true);
+      setupLiveServer(1, isFileStorage(), isNetty(), true);
+      LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
+      haPolicyConfiguration0.setScaleDownConfiguration(new ScaleDownConfiguration());
+      LiveOnlyPolicyConfiguration haPolicyConfiguration1 = (LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
+      haPolicyConfiguration1.setScaleDownConfiguration(new ScaleDownConfiguration());
       if (useScaleDownGroupName)
       {
-         servers[0].getConfiguration().getHAPolicy().setScaleDownGroupName("bill");
-         servers[1].getConfiguration().getHAPolicy().setScaleDownGroupName("bill");
+         haPolicyConfiguration0.getScaleDownConfiguration().setGroupName("bill");
+         haPolicyConfiguration1.getScaleDownConfiguration().setGroupName("bill");
       }
-      servers[0].getConfiguration().getHAPolicy().setScaleDown(true);
       setupClusterConnection("cluster0", "testAddress", false, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster0", "testAddress", false, 1, isNetty(), 1, 0);
-      servers[0].getConfiguration().getHAPolicy().getScaleDownConnectors().addAll(servers[0].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
-      servers[1].getConfiguration().getHAPolicy().getScaleDownConnectors().addAll(servers[1].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
+      haPolicyConfiguration0.getScaleDownConfiguration().getConnectors().addAll(servers[0].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
+      haPolicyConfiguration1.getScaleDownConfiguration().getConnectors().addAll(servers[1].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
       startServers(0, 1);
       setupSessionFactory(0, isNetty());
       setupSessionFactory(1, isNetty());
@@ -93,8 +98,10 @@ public class ScaleDownTest extends ClusterTestBase
       closeAllConsumers();
       closeAllSessionFactories();
       closeAllServerLocatorsFactories();
-      servers[0].getConfiguration().getHAPolicy().setScaleDown(false);
-      servers[1].getConfiguration().getHAPolicy().setScaleDown(false);
+      LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
+      LiveOnlyPolicyConfiguration haPolicyConfiguration1 = (LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
+      haPolicyConfiguration0.setScaleDownConfiguration(null);
+      haPolicyConfiguration1.setScaleDownConfiguration(null);
       stopServers(0, 1);
       super.tearDown();
    }
@@ -125,8 +132,8 @@ public class ScaleDownTest extends ClusterTestBase
 //      removeConsumer(1);
 
       // at this point on node 0 there should be 2 messages in testQueue1 and 1 message in testQueue2
-      Assert.assertEquals(TEST_SIZE, ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue().getMessageCount());
-      Assert.assertEquals(TEST_SIZE - 1, ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue().getMessageCount());
+      Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
+      Assert.assertEquals(TEST_SIZE - 1, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
@@ -200,9 +207,9 @@ public class ScaleDownTest extends ClusterTestBase
       removeConsumer(1);
 
       // at this point on node 0 there should be 0 messages in testQueue and TEST_SIZE messages in the sfQueue
-      Assert.assertEquals(0, ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue().getMessageCount());
-      Assert.assertEquals(0, ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue().getMessageCount());
-      Assert.assertEquals(TEST_SIZE * 2, ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(sfQueueName))).getQueue().getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
+      Assert.assertEquals(0, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
+      Assert.assertEquals(TEST_SIZE * 2, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(sfQueueName))).getQueue()));
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();

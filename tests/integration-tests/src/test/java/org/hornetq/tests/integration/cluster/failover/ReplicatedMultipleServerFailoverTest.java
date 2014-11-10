@@ -13,17 +13,12 @@
 
 package org.hornetq.tests.integration.cluster.failover;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientConsumer;
 import org.hornetq.api.core.client.ClientMessage;
 import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
-import org.hornetq.core.config.Configuration;
 import org.hornetq.tests.integration.cluster.util.TestableServer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -184,54 +179,5 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
    public String getNodeGroupName()
    {
       return "nodeGroup";
-   }
-
-   @Override
-   /*
-   * for this test the 2 live connect to each other
-   * */
-   public void createLiveClusterConfiguration(int server, Configuration configuration, int servers)
-   {
-      TransportConfiguration livetc = getConnectorTransportConfiguration(true, server);
-      configuration.getConnectorConfigurations().put(livetc.getName(), livetc);
-      List<String> connectors = new ArrayList<String>();
-      for (int i = 0; i < servers; i++)
-      {
-         if (i != server)
-         {
-            TransportConfiguration staticTc = getConnectorTransportConfiguration(true, i);
-            configuration.getConnectorConfigurations().put(staticTc.getName(), staticTc);
-            connectors.add(staticTc.getName());
-         }
-      }
-      basicClusterConnectionConfig(configuration, livetc.getName(), connectors);
-
-   }
-
-   @Override
-   /*
-   * for this test the backups will connect to their own live server
-   * */
-   public void createBackupClusterConfiguration(int server, Configuration configuration, int servers)
-   {
-      TransportConfiguration backuptc = getConnectorTransportConfiguration(false, server);
-      configuration.getConnectorConfigurations().put(backuptc.getName(), backuptc);
-      List<String> connectors = new ArrayList<String>();
-      for (int i = 0; i < servers; i++)
-      {
-         TransportConfiguration staticTc = getConnectorTransportConfiguration(true, i);
-         configuration.getConnectorConfigurations().put(staticTc.getName(), staticTc);
-         connectors.add(staticTc.getName());
-      }
-      for (int i = 0; i < servers; i++)
-      {
-         if (i != server)
-         {
-            TransportConfiguration staticTc = getConnectorTransportConfiguration(false, i);
-            configuration.getConnectorConfigurations().put(staticTc.getName(), staticTc);
-            connectors.add(staticTc.getName());
-         }
-      }
-      basicClusterConnectionConfig(configuration, backuptc.getName(), connectors);
    }
 }

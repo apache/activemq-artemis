@@ -702,7 +702,7 @@ public class PageCursorStressTest extends ServiceTestBase
 
       StorageManager storage = this.server.getStorageManager();
 
-      long pgtxLazy = storage.generateUniqueID();
+      long pgtxLazy = storage.generateID();
 
       Transaction txLazy = pgMessages(storage, pageStore, pgtxLazy, 0, NUM_MESSAGES, messageSize);
 
@@ -885,9 +885,8 @@ public class PageCursorStressTest extends ServiceTestBase
    {
       OperationContextImpl.clearContext();
 
-      Configuration config = createDefaultConfig();
-
-      config.setJournalSyncNonTransactional(true);
+      Configuration config = createDefaultConfig()
+         .setJournalSyncNonTransactional(true);
 
       server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
@@ -911,7 +910,7 @@ public class PageCursorStressTest extends ServiceTestBase
     */
    private PageSubscription createNonPersistentCursor(Filter filter) throws Exception
    {
-      long id = server.getStorageManager().generateUniqueID();
+      long id = server.getStorageManager().generateID();
       FakeQueue queue = new FakeQueue(new SimpleString(filter.toString()), id);
       queueList.add(queue);
 
@@ -955,7 +954,7 @@ public class PageCursorStressTest extends ServiceTestBase
       for (int i = start; i < start + NUM_MESSAGES; i++)
       {
          HornetQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
-         ServerMessage msg = new ServerMessageImpl(storage.generateUniqueID(), buffer.writerIndex());
+         ServerMessage msg = new ServerMessageImpl(storage.generateID(), buffer.writerIndex());
          msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
          msg.putIntProperty("key", i);
          pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS), lock);

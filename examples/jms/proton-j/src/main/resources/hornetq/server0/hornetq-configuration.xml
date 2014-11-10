@@ -15,7 +15,6 @@
     <acceptors>
         <acceptor name="proton-acceptor">
             <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="protocol" value="AMQP"/>
             <param key="port" value="5672"/>
         </acceptor>
     </acceptors>
@@ -30,7 +29,7 @@
 
    <security-settings>
       <!--security for example queue-->
-      <security-setting match="testQueue">
+      <security-setting match="jms.queue.exampleQueue">
          <permission type="createDurableQueue" roles="guest"/>
          <permission type="deleteDurableQueue" roles="guest"/>
          <permission type="createNonDurableQueue" roles="guest"/>

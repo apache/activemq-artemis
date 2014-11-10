@@ -37,8 +37,8 @@ public abstract class ClientTestBase extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig(true);
-      config.setSecurityEnabled(false);
+      Configuration config = createDefaultConfig(true)
+         .setSecurityEnabled(false);
       server = createServer(false, config);
       server.start();
    }

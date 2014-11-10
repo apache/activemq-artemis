@@ -19,19 +19,28 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TopicSubscriber;
+import javax.management.Notification;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.hornetq.api.core.TransportConfiguration;
+import org.hornetq.api.core.management.ObjectNameBuilder;
 import org.hornetq.api.jms.HornetQJMSClient;
+import org.hornetq.api.jms.management.JMSServerControl;
 import org.hornetq.api.jms.management.SubscriptionInfo;
 import org.hornetq.api.jms.management.TopicControl;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.postoffice.Binding;
+import org.hornetq.core.postoffice.impl.LocalQueueBinding;
 import org.hornetq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServers;
 import org.hornetq.jms.client.HornetQDestination;
 import org.hornetq.jms.client.HornetQTopic;
 import org.hornetq.jms.server.impl.JMSServerManagerImpl;
+import org.hornetq.jms.server.management.JMSNotificationType;
 import org.hornetq.tests.integration.management.ManagementControlHelper;
 import org.hornetq.tests.integration.management.ManagementTestBase;
 import org.hornetq.tests.unit.util.InVMNamingContext;
@@ -201,6 +210,21 @@ public class TopicControlTest extends ManagementTestBase
    }
 
    @Test
+   public void testListSubscriptionsAsJSONWithHierarchicalTopics() throws Exception
+   {
+      serverManager.createTopic(false, "my.jms.#", "jms/all");
+      serverManager.createTopic(false, "my.jms.A", "jms/A");
+      HornetQTopic myTopic = (HornetQTopic) HornetQJMSClient.createTopic("my.jms.A");
+
+      TopicControl topicControl = ManagementControlHelper.createTopicControl(myTopic, mbeanServer);
+      String jsonString = topicControl.listDurableSubscriptionsAsJSON();
+      SubscriptionInfo[] infos = SubscriptionInfo.from(jsonString);
+      Assert.assertEquals(1, infos.length);
+      Assert.assertEquals("HornetQ", infos[0].getClientID());
+      Assert.assertEquals("HornetQ", infos[0].getName());
+   }
+
+   @Test
    public void testCountMessagesForSubscription() throws Exception
    {
       String key = "key";
@@ -215,6 +239,11 @@ public class TopicControlTest extends ManagementTestBase
       JMSUtil.sendMessageWithProperty(session, topic, key, matchingValue);
       JMSUtil.sendMessageWithProperty(session, topic, key, unmatchingValue);
       JMSUtil.sendMessageWithProperty(session, topic, key, matchingValue);
+
+      for (Binding binding : server.getPostOffice().getBindingsForAddress(topic.getSimpleAddress()).getBindings())
+      {
+         ((LocalQueueBinding)binding).getQueue().flushExecutor();
+      }
 
       TopicControl topicControl = createManagementControl();
 
@@ -517,6 +546,46 @@ public class TopicControlTest extends ManagementTestBase
       connection_3.close();
    }
 
+   //make sure notifications are always received no matter whether
+   //a Topic is created via JMSServerControl or by JMSServerManager directly.
+   @Test
+   public void testCreateTopicNotification() throws Exception
+   {
+      JMSUtil.JMXListener listener = new JMSUtil.JMXListener();
+      this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getJMSServerObjectName(), listener, null, null);
+
+      List<String> connectors = new ArrayList<String>();
+      connectors.add("invm");
+
+      String testTopicName = "newTopic";
+      serverManager.createTopic(true, testTopicName, testTopicName);
+
+      Notification notif = listener.getNotification();
+
+      assertEquals(JMSNotificationType.TOPIC_CREATED.toString(), notif.getType());
+      assertEquals(testTopicName, notif.getMessage());
+
+      this.serverManager.destroyTopic(testTopicName);
+
+      notif = listener.getNotification();
+      assertEquals(JMSNotificationType.TOPIC_DESTROYED.toString(), notif.getType());
+      assertEquals(testTopicName, notif.getMessage());
+
+      JMSServerControl control = ManagementControlHelper.createJMSServerControl(mbeanServer);
+
+      control.createTopic(testTopicName);
+
+      notif = listener.getNotification();
+      assertEquals(JMSNotificationType.TOPIC_CREATED.toString(), notif.getType());
+      assertEquals(testTopicName, notif.getMessage());
+
+      control.destroyTopic(testTopicName);
+
+      notif = listener.getNotification();
+      assertEquals(JMSNotificationType.TOPIC_DESTROYED.toString(), notif.getType());
+      assertEquals(testTopicName, notif.getMessage());
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -527,11 +596,8 @@ public class TopicControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getAcceptorConfigurations()
-         .add(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
+      Configuration conf = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
       server = HornetQServers.newHornetQServer(conf, mbeanServer, false);
       server.start();
 

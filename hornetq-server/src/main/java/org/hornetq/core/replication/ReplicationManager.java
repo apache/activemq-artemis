@@ -16,11 +16,8 @@ import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -112,8 +109,6 @@ public final class ReplicationManager implements HornetQComponent
    private volatile boolean enabled;
 
    private final Object replicationLock = new Object();
-   private final Object largeMessageSyncGuard = new Object();
-   private final HashMap<Long, Pair<String, Long>> largeMessagesToSync = new HashMap<Long, Pair<String, Long>>();
 
    private final Queue<OperationContext> pendingTokens = new ConcurrentLinkedQueue<OperationContext>();
 
@@ -506,22 +501,6 @@ public final class ReplicationManager implements HornetQComponent
       }
    }
 
-   /**
-    * @return
-    */
-   public Map.Entry<Long, Pair<String, Long>> getNextLargeMessageToSync()
-   {
-      Iterator<Entry<Long, Pair<String, Long>>> iter = largeMessagesToSync.entrySet().iterator();
-      if (!iter.hasNext())
-      {
-         return null;
-      }
-
-      Entry<Long, Pair<String, Long>> entry = iter.next();
-      iter.remove();
-      return entry;
-   }
-
    public void syncLargeMessageFile(SequentialFile file, long size, long id) throws Exception
    {
       if (enabled)
@@ -563,7 +542,10 @@ public final class ReplicationManager implements HornetQComponent
             final FileChannel channel = fis.getChannel();
             try
             {
-               final ByteBuffer buffer = ByteBuffer.allocate(1 << 17);
+               // We can afford having a single buffer here for this entire loop
+               // because sendReplicatePacket will encode the packet as a NettyBuffer
+               // through HornetQBuffer class leaving this buffer free to be reused on the next copy
+               final ByteBuffer buffer = ByteBuffer.allocate(1 << 17); // 1 << 17 == 131072 == 128 * 1024
                while (true)
                {
                   buffer.clear();
@@ -649,8 +631,7 @@ public final class ReplicationManager implements HornetQComponent
    public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages)
    {
       ArrayList<Long> idsToSend;
-      largeMessagesToSync.putAll(largeMessages);
-      idsToSend = new ArrayList<Long>(largeMessagesToSync.keySet());
+      idsToSend = new ArrayList<Long>(largeMessages.keySet());
 
       if (enabled)
          sendReplicatePacket(new ReplicationStartSyncMessage(idsToSend));

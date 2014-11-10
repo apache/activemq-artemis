@@ -38,8 +38,11 @@ import org.hornetq.core.client.impl.ClientLargeMessageInternal;
 import org.hornetq.core.client.impl.ClientMessageInternal;
 import org.hornetq.core.client.impl.ClientSessionInternal;
 import org.hornetq.core.client.impl.LargeMessageControllerImpl;
+import org.hornetq.core.protocol.core.impl.HornetQConsumerContext;
+import org.hornetq.spi.core.remoting.ConsumerContext;
 import org.hornetq.tests.util.RandomUtil;
 import org.hornetq.tests.util.UnitTestCase;
+import org.hornetq.utils.FutureLatch;
 import org.hornetq.utils.HornetQBufferInputStream;
 import org.junit.After;
 import org.junit.Assert;
@@ -770,9 +773,9 @@ public class LargeMessageBufferTest extends UnitTestCase
    static class FakeConsumerInternal implements ClientConsumerInternal
    {
 
-      public Object getId()
+      public ConsumerContext getConsumerContext()
       {
-         return this;
+         return new HornetQConsumerContext(0);
       }
 
 
@@ -810,9 +813,9 @@ public class LargeMessageBufferTest extends UnitTestCase
          return null;
       }
 
-      public void setMessageHandler(final MessageHandler handler) throws HornetQException
+      public FakeConsumerInternal setMessageHandler(final MessageHandler handler) throws HornetQException
       {
-
+         return this;
       }
 
       public void acknowledge(final ClientMessage message) throws HornetQException
@@ -926,10 +929,11 @@ public class LargeMessageBufferTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.hornetq.core.client.impl.ClientConsumerInternal#interruptHandlers()
+       * @see org.hornetq.core.client.impl.ClientConsumerInternal#prepareForClose()
        */
-      public void interruptHandlers() throws HornetQException
+      public Thread prepareForClose(FutureLatch future) throws HornetQException
       {
+         return null;
       }
    }
 

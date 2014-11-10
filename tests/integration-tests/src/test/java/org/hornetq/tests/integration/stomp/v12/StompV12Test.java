@@ -528,11 +528,11 @@ public class StompV12Test extends StompV11TestBase
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
       frame.addHeader("content-type", "application/xml");
       frame.addHeader("content-length", cLen);
-      String hKey = "\\rspecial-header\\\\\\n\\:\\r\\n";
-      String hVal = "\\:\\\\\\ngood\\n\\r";
+      String hKey = "\\rspecial-header\\\\\\n\\c\\r\\n";
+      String hVal = "\\c\\\\\\ngood\\n\\r";
       frame.addHeader(hKey, hVal);
 
-      System.out.println("key: |" + hKey + "| val: |" + hVal);
+      System.out.println("key: |" + hKey + "| val: |" + hVal + "|");
 
       frame.setBody(body);
 
@@ -2656,6 +2656,43 @@ public class StompV12Test extends StompV11TestBase
       }
    }
 
+   @Test
+   public void testSendAndReceiveWithEscapedCharactersInSenderId() throws Exception
+   {
+      connV12.connect(defUser, defPass);
+      ClientStompFrame frame = connV12.createFrame("SEND");
+      frame.addHeader("destination", getQueuePrefix() + getQueueName());
+      frame.addHeader("content-type", "text/plain");
+      frame.setBody("Hello World 1!");
+
+      ClientStompFrame response = connV12.sendFrame(frame);
+      assertNull(response);
+
+      //subscribe
+      ClientStompFrame subFrame = connV12.createFrame("SUBSCRIBE");
+      subFrame.addHeader("id", "ID\\cMYMACHINE-50616-635482262727823605-1\\c1\\c1\\c1");
+      subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
+      subFrame.addHeader("ack", "auto");
+
+      connV12.sendFrame(subFrame);
+
+      frame = connV12.receiveFrame();
+
+      System.out.println("Received: " + frame);
+
+      assertEquals("MESSAGE", frame.getCommand());
+      assertEquals("ID:MYMACHINE-50616-635482262727823605-1:1:1:1", frame.getHeader("subscription"));
+      assertNotNull(frame.getHeader("message-id"));
+      assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
+      assertEquals("Hello World 1!", frame.getBody());
+
+      //unsub
+      ClientStompFrame unsubFrame = connV12.createFrame("UNSUBSCRIBE");
+      unsubFrame.addHeader("id", "ID\\cMYMACHINE-50616-635482262727823605-1\\c1\\c1\\c1");
+      connV12.sendFrame(unsubFrame);
+
+      connV12.disconnect();
+   }
 }
 
 

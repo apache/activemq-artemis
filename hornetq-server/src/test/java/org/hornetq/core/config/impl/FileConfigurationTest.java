@@ -13,21 +13,21 @@
 package org.hornetq.core.config.impl;
 
 import java.util.Collections;
-import java.util.List;
 
 import org.hornetq.api.core.BroadcastGroupConfiguration;
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
-import org.hornetq.core.config.BackupStrategy;
 import org.hornetq.core.config.BridgeConfiguration;
 import org.hornetq.core.config.ClusterConnectionConfiguration;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.DivertConfiguration;
+import org.hornetq.core.config.HAPolicyConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.hornetq.core.security.Role;
 import org.hornetq.core.server.JournalType;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -68,8 +68,6 @@ public class FileConfigurationTest extends ConfigurationImplTest
       Assert.assertEquals(8, conf.getMessageExpiryThreadPriority());
       Assert.assertEquals(127, conf.getIDCacheSize());
       Assert.assertEquals(true, conf.isPersistIDCache());
-      Assert.assertEquals(false, conf.getHAPolicy().isBackup());
-      Assert.assertEquals(false, conf.getHAPolicy().isSharedStore());
       Assert.assertEquals(true, conf.isPersistDeliveryCountBeforeDelivery());
       Assert.assertEquals("pagingdir", conf.getPagingDirectory());
       Assert.assertEquals("somedir", conf.getBindingsDirectory());
@@ -234,32 +232,13 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(2, conf.getClusterConfigurations().size());
 
-      HAPolicy haPolicy = conf.getHAPolicy();
-      assertEquals(HAPolicy.POLICY_TYPE.COLOCATED_REPLICATED, haPolicy.getPolicyType());
-      assertEquals(true, haPolicy.isRequestBackup());
-      assertEquals(33, haPolicy.getBackupRequestRetries());
-      assertEquals(1234, haPolicy.getBackupRequestRetryInterval());
-      assertEquals(12, haPolicy.getMaxBackups());
-      assertEquals(1002, haPolicy.getBackupPortOffset());
-      assertEquals(BackupStrategy.SCALE_DOWN, haPolicy.getBackupStrategy());
-      assertEquals("wahey!", haPolicy.getScaleDownDiscoveryGroup());
-      assertEquals("boo!", haPolicy.getScaleDownGroupName());
-      List<String> scaleDownConnectors = haPolicy.getScaleDownConnectors();
-      assertEquals(2, scaleDownConnectors.size());
-      assertEquals("sd-connector1", scaleDownConnectors.get(0));
-      assertEquals("sd-connector2", scaleDownConnectors.get(1));
-      List<String> remoteConnectors = haPolicy.getRemoteConnectors();
-      assertEquals(2, remoteConnectors.size());
-      assertEquals("remote-connector1", remoteConnectors.get(0));
-      assertEquals("remote-connector2", remoteConnectors.get(1));
-      assertEquals(true, haPolicy.isCheckForLiveServer());
-      assertEquals(false, haPolicy.isAllowAutoFailBack());
-      assertEquals(10000, haPolicy.getFailbackDelay());
-      assertEquals(true, haPolicy.isFailoverOnServerShutdown());
-      assertEquals("replicationClustername", haPolicy.getReplicationClustername());
-      assertEquals("scaleDownClustername", haPolicy.getScaleDownClustername());
-      assertEquals(3, haPolicy.getMaxSavedReplicatedJournalsSize());
-      assertEquals(true, haPolicy.isScaleDown());
+      HAPolicyConfiguration pc = conf.getHAPolicyConfiguration();
+      assertNotNull(pc);
+      assertTrue(pc instanceof LiveOnlyPolicyConfiguration);
+      LiveOnlyPolicyConfiguration lopc = (LiveOnlyPolicyConfiguration) pc;
+      assertNotNull(lopc.getScaleDownConfiguration());
+      assertEquals(lopc.getScaleDownConfiguration().getGroupName(), "boo!");
+      assertEquals(lopc.getScaleDownConfiguration().getDiscoveryGroup(), "wahey");
 
       for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations())
       {
@@ -311,6 +290,9 @@ public class FileConfigurationTest extends ConfigurationImplTest
       assertEquals(81738173872337L, conf.getAddressesSettings().get("a1").getPageSizeBytes());
       assertEquals(10, conf.getAddressesSettings().get("a1").getPageCacheMaxSize());
       assertEquals(4, conf.getAddressesSettings().get("a1").getMessageCounterHistoryDayLimit());
+      assertEquals(10, conf.getAddressesSettings().get("a1").getSlowConsumerThreshold());
+      assertEquals(5, conf.getAddressesSettings().get("a1").getSlowConsumerCheckPeriod());
+      assertEquals(SlowConsumerPolicy.NOTIFY, conf.getAddressesSettings().get("a1").getSlowConsumerPolicy());
 
       assertEquals("a2.1", conf.getAddressesSettings().get("a2").getDeadLetterAddress().toString());
       assertEquals("a2.2", conf.getAddressesSettings().get("a2").getExpiryAddress().toString());
@@ -319,6 +301,9 @@ public class FileConfigurationTest extends ConfigurationImplTest
       assertEquals(7126716262626L, conf.getAddressesSettings().get("a2").getPageSizeBytes());
       assertEquals(20, conf.getAddressesSettings().get("a2").getPageCacheMaxSize());
       assertEquals(8, conf.getAddressesSettings().get("a2").getMessageCounterHistoryDayLimit());
+      assertEquals(20, conf.getAddressesSettings().get("a2").getSlowConsumerThreshold());
+      assertEquals(15, conf.getAddressesSettings().get("a2").getSlowConsumerCheckPeriod());
+      assertEquals(SlowConsumerPolicy.KILL, conf.getAddressesSettings().get("a2").getSlowConsumerPolicy());
 
 
       assertEquals(2, conf.getQueueConfigurations().size());

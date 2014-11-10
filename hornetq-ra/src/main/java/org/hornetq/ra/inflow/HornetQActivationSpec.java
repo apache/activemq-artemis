@@ -12,13 +12,20 @@
  */
 package org.hornetq.ra.inflow;
 
+import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.Topic;
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.InvalidPropertyException;
 import javax.resource.spi.ResourceAdapter;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 import org.hornetq.ra.ConnectionFactoryProperties;
 import org.hornetq.ra.HornetQRALogger;
@@ -773,9 +780,47 @@ public class HornetQActivationSpec extends ConnectionFactoryProperties implement
          HornetQRALogger.LOGGER.trace("validate()");
       }
 
-      if (destination == null || destination.trim().equals(""))
+      List<String> errorMessages = new ArrayList<String>();
+      List<PropertyDescriptor> propsNotSet = new ArrayList<PropertyDescriptor>();
+
+      try
       {
-         throw new InvalidPropertyException("Destination is mandatory");
+         if (destination == null || destination.trim().equals(""))
+         {
+            propsNotSet.add(new PropertyDescriptor("destination", HornetQActivationSpec.class));
+            errorMessages.add("Destination is mandatory.");
+         }
+
+         if (destinationType != null && !Topic.class.getName().equals(destinationType) && !Queue.class.getName().equals(destinationType))
+         {
+            propsNotSet.add(new PropertyDescriptor("destinationType", HornetQActivationSpec.class));
+            errorMessages.add("If set, the destinationType must be either 'javax.jms.Topic' or 'javax.jms.Queue'.");
+         }
+
+         if ((destinationType == null || destinationType.length() == 0 || Topic.class.getName().equals(destinationType)) && isSubscriptionDurable() && (subscriptionName == null || subscriptionName.length() == 0))
+         {
+            propsNotSet.add(new PropertyDescriptor("subscriptionName", HornetQActivationSpec.class));
+            errorMessages.add("If subscription is durable then subscription name must be specified.");
+         }
+      }
+      catch (IntrospectionException e)
+      {
+         e.printStackTrace();
+      }
+
+      if (propsNotSet.size() > 0)
+      {
+         StringBuffer b = new StringBuffer();
+         b.append("Invalid settings:");
+         for (Iterator<String> iter = errorMessages.iterator(); iter.hasNext();)
+         {
+            b.append(" ");
+            b.append(iter.next());
+         }
+         InvalidPropertyException e = new InvalidPropertyException(b.toString());
+         final PropertyDescriptor[] descriptors = propsNotSet.toArray(new PropertyDescriptor[propsNotSet.size()]);
+         e.setInvalidPropertyDescriptors(descriptors);
+         throw e;
       }
    }
 

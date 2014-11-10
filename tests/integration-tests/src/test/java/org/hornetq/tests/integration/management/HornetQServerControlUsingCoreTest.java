@@ -96,6 +96,17 @@ public class HornetQServerControlUsingCoreTest extends HornetQServerControlTest
 
    }
 
+   // the core messaging proxy doesn't work when the server is stopped so we cant run these 2 tests
+   @Override
+   public void testScaleDownWithOutConnector() throws Exception
+   {
+   }
+
+   @Override
+   public void testScaleDownWithConnector() throws Exception
+   {
+   }
+
    @Override
    protected HornetQServerControl createManagementControl() throws Exception
    {
@@ -105,6 +116,12 @@ public class HornetQServerControlUsingCoreTest extends HornetQServerControlTest
          public void updateDuplicateIdCache(String address, Object[] ids)
          {
 
+         }
+
+         @Override
+         public void scaleDown(String connector) throws Exception
+         {
+            throw new UnsupportedOperationException();
          }
 
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_SERVER);
@@ -117,6 +134,16 @@ public class HornetQServerControlUsingCoreTest extends HornetQServerControlTest
          public boolean closeConnectionsForAddress(final String ipAddress) throws Exception
          {
             return (Boolean) proxy.invokeOperation("closeConnectionsForAddress", ipAddress);
+         }
+
+         public boolean closeConsumerConnectionsForAddress(final String address) throws Exception
+         {
+            return (Boolean) proxy.invokeOperation("closeConsumerConnectionsForAddress", address);
+         }
+
+         public boolean closeConnectionsForUser(final String userName) throws Exception
+         {
+            return (Boolean) proxy.invokeOperation("closeConnectionsForUser", userName);
          }
 
          public boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception
@@ -356,7 +383,7 @@ public class HornetQServerControlUsingCoreTest extends HornetQServerControlTest
 
          public void setScaleDown(boolean scaleDown) throws Exception
          {
-            proxy.invokeOperation("setScaleDown", scaleDown);
+            proxy.invokeOperation("setEnabled", scaleDown);
          }
 
          public boolean isScaleDown()
@@ -548,7 +575,10 @@ public class HornetQServerControlUsingCoreTest extends HornetQServerControlTest
                                         @Parameter(desc = "the maximum redelivery delay", name = "maxRedeliveryDelay") long maxRedeliveryDelay,
                                         @Parameter(desc = "the redistribution delay", name = "redistributionDelay") long redistributionDelay,
                                         @Parameter(desc = "do we send to the DLA when there is no where to route the message", name = "sendToDLAOnNoRoute") boolean sendToDLAOnNoRoute,
-                                        @Parameter(desc = "the policy to use when the address is full", name = "addressFullMessagePolicy") String addressFullMessagePolicy) throws Exception
+                                        @Parameter(desc = "the policy to use when the address is full", name = "addressFullMessagePolicy") String addressFullMessagePolicy,
+                                        @Parameter(desc = "when a consumer falls below this threshold in terms of messages consumed per second it will be considered 'slow'", name = "slowConsumerThreshold") long slowConsumerThreshold,
+                                        @Parameter(desc = "how often (in seconds) to check for slow consumers", name = "slowConsumerCheckPeriod") long slowConsumerCheckPeriod,
+                                        @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy) throws Exception
          {
             proxy.invokeOperation("addAddressSettings",
                                   addressMatch,
@@ -565,7 +595,10 @@ public class HornetQServerControlUsingCoreTest extends HornetQServerControlTest
                                   maxRedeliveryDelay,
                                   redistributionDelay,
                                   sendToDLAOnNoRoute,
-                                  addressFullMessagePolicy);
+                                  addressFullMessagePolicy,
+                                  slowConsumerThreshold,
+                                  slowConsumerCheckPeriod,
+                                  slowConsumerPolicy);
          }
 
          public void removeAddressSettings(String addressMatch) throws Exception

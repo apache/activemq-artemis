@@ -255,7 +255,7 @@ public class ReceiveImmediateTest extends ServiceTestBase
       Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
       int messagesOnServer = browser ? numMessages : 0;
       Assert.assertEquals(messagesOnServer,
-                          ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+                          getMessageCount(((Queue)server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       consumer.close();
 

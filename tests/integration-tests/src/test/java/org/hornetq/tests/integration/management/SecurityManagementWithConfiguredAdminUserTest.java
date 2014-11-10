@@ -88,9 +88,9 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    @Override
    protected HornetQServer setupAndStartHornetQServer() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(true);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration conf = createBasicConfig()
+         .setSecurityEnabled(true)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       HornetQServer server = addServer(HornetQServers.newHornetQServer(conf, false));
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();

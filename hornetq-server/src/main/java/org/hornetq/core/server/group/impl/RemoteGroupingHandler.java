@@ -23,8 +23,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.hornetq.api.core.SimpleString;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.ManagementHelper;
-import org.hornetq.api.core.management.NotificationType;
 import org.hornetq.core.postoffice.BindingType;
 import org.hornetq.core.server.HornetQMessageBundle;
 import org.hornetq.core.server.HornetQServerLogger;
@@ -229,7 +229,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract
 
       props.putIntProperty(ManagementHelper.HDR_DISTANCE, 0);
 
-      return new Notification(null, NotificationType.PROPOSAL, props);
+      return new Notification(null, CoreNotificationType.PROPOSAL, props);
    }
 
    public Response getProposal(final SimpleString fullID, boolean touchTime)
@@ -294,7 +294,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract
       props.putIntProperty(ManagementHelper.HDR_BINDING_TYPE, BindingType.LOCAL_QUEUE_INDEX);
       props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, address);
       props.putIntProperty(ManagementHelper.HDR_DISTANCE, distance);
-      Notification notification = new Notification(null, NotificationType.PROPOSAL, props);
+      Notification notification = new Notification(null, CoreNotificationType.PROPOSAL, props);
       managementService.sendNotification(notification);
       return null;
    }
@@ -311,8 +311,9 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract
 
    public void onNotification(final Notification notification)
    {
+      if (!(notification.getType() instanceof CoreNotificationType)) return;
       // removing the groupid if the binding has been removed
-      if (notification.getType() == NotificationType.BINDING_REMOVED)
+      if (notification.getType() == CoreNotificationType.BINDING_REMOVED)
       {
          SimpleString clusterName = notification.getProperties()
             .getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);

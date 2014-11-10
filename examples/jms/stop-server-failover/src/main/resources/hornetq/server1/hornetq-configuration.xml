@@ -10,7 +10,11 @@
 
    <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
-   <ha-policy template="BACKUP_SHARED_STORE"/>
+   <ha-policy>
+      <shared-store>
+         <slave/>
+      </shared-store>
+   </ha-policy>
     
    <!-- Connectors -->
    <connectors>

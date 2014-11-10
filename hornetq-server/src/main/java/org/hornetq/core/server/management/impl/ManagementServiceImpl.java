@@ -392,7 +392,7 @@ public class ManagementServiceImpl implements ManagementService
    public ServerMessage handleMessage(final ServerMessage message) throws Exception
    {
       // a reply message is sent with the result stored in the message body.
-      ServerMessage reply = new ServerMessageImpl(storageManager.generateUniqueID(), 512);
+      ServerMessage reply = new ServerMessageImpl(storageManager.generateID(), 512);
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
       if (HornetQServerLogger.LOGGER.isDebugEnabled())
@@ -700,7 +700,7 @@ public class ManagementServiceImpl implements ManagementService
                   return;
                }
 
-               long messageID = storageManager.generateUniqueID();
+               long messageID = storageManager.generateID();
 
                ServerMessage notificationMessage = new ServerMessageImpl(messageID, 512);
 

@@ -347,20 +347,16 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
       }
       if (server == null)
       {
-         Configuration config = createDefaultConfig(true);
-         config.setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize());
-
-         config.setJournalType(journalType);
-         config.setJMXManagementEnabled(false);
-
-         config.setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize());
-         config.setJournalMinFiles(HornetQDefaultConfiguration.getDefaultJournalMinFiles());
-
-         config.setJournalCompactMinFiles(HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles());
-         config.setJournalCompactPercentage(HornetQDefaultConfiguration.getDefaultJournalCompactPercentage());
-
-         // This test is supposed to not sync.. All the ACKs are async, and it was supposed to not sync
-         config.setJournalSyncNonTransactional(false);
+         Configuration config = createDefaultConfig(true)
+            .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
+            .setJournalType(journalType)
+            .setJMXManagementEnabled(false)
+            .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
+            .setJournalMinFiles(HornetQDefaultConfiguration.getDefaultJournalMinFiles())
+            .setJournalCompactMinFiles(HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles())
+            .setJournalCompactPercentage(HornetQDefaultConfiguration.getDefaultJournalCompactPercentage())
+            // This test is supposed to not sync.. All the ACKs are async, and it was supposed to not sync
+            .setJournalSyncNonTransactional(false);
 
          // config.setJournalCompactMinFiles(0);
          // config.setJournalCompactPercentage(0);

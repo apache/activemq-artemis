@@ -36,6 +36,12 @@ public class ReplicatedWithDelayFailoverTest extends ReplicatedFailoverTest
    }
 
    @Override
+   protected void beforeWaitForRemoteBackupSynchronization()
+   {
+      syncDelay.deliverUpToDateMsg();
+   }
+
+   @Override
    protected void crash(ClientSession... sessions) throws Exception
    {
       syncDelay.deliverUpToDateMsg();

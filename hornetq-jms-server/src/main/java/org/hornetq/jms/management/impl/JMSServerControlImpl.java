@@ -21,6 +21,7 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.api.core.management.Parameter;
 import org.hornetq.api.jms.JMSFactoryType;
 import org.hornetq.api.jms.management.ConnectionFactoryControl;
@@ -46,7 +46,9 @@ import org.hornetq.jms.server.HornetQJMSServerLogger;
 import org.hornetq.jms.server.JMSServerManager;
 import org.hornetq.jms.server.config.ConnectionFactoryConfiguration;
 import org.hornetq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.hornetq.jms.server.management.JMSNotificationType;
 import org.hornetq.spi.core.protocol.RemotingConnection;
+import org.hornetq.utils.TypedProperties;
 import org.hornetq.utils.json.JSONArray;
 import org.hornetq.utils.json.JSONObject;
 
@@ -54,7 +56,8 @@ import org.hornetq.utils.json.JSONObject;
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter
+public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter,
+                                                                     org.hornetq.core.server.management.NotificationListener
 {
 
    // Constants -----------------------------------------------------
@@ -129,7 +132,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public static MBeanNotificationInfo[] getNotificationInfos()
    {
-      NotificationType[] values = NotificationType.values();
+      JMSNotificationType[] values = JMSNotificationType.values();
       String[] names = new String[values.length];
       for (int i = 0; i < values.length; i++)
       {
@@ -147,6 +150,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       super(JMSServerControl.class, server.getHornetQServer().getStorageManager());
       this.server = server;
       broadcaster = new NotificationBroadcasterSupport();
+      server.getHornetQServer().getManagementService().addNotificationListener(this);
    }
 
    // Public --------------------------------------------------------
@@ -196,8 +200,6 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                                            connectorList,
                                            JMSServerControlImpl.convert(bindings));
          }
-
-         sendNotification(NotificationType.CONNECTION_FACTORY_CREATED, name);
       }
       finally
       {
@@ -322,7 +324,39 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl(name, ha, bindings);
+         ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
+            .setName(name)
+            .setHA(ha)
+            .setBindings(bindings)
+            .setFactoryType(JMSFactoryType.valueOf(cfType))
+            .setClientID(clientID)
+            .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+            .setConnectionTTL(connectionTTL)
+            .setCallTimeout(callTimeout)
+            .setCallFailoverTimeout(callFailoverTimeout)
+            .setMinLargeMessageSize(minLargeMessageSize)
+            .setCompressLargeMessages(compressLargeMessages)
+            .setConsumerWindowSize(consumerWindowSize)
+            .setConsumerMaxRate(consumerMaxRate)
+            .setConfirmationWindowSize(confirmationWindowSize)
+            .setProducerWindowSize(producerWindowSize)
+            .setProducerMaxRate(producerMaxRate)
+            .setBlockOnAcknowledge(blockOnAcknowledge)
+            .setBlockOnDurableSend(blockOnDurableSend)
+            .setBlockOnNonDurableSend(blockOnNonDurableSend)
+            .setAutoGroup(autoGroup)
+            .setPreAcknowledge(preAcknowledge)
+            .setTransactionBatchSize(transactionBatchSize)
+            .setDupsOKBatchSize(dupsOKBatchSize)
+            .setUseGlobalPools(useGlobalPools)
+            .setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize)
+            .setThreadPoolMaxSize(threadPoolMaxSize)
+            .setRetryInterval(retryInterval)
+            .setRetryIntervalMultiplier(retryIntervalMultiplier)
+            .setMaxRetryInterval(maxRetryInterval)
+            .setReconnectAttempts(reconnectAttempts)
+            .setFailoverOnInitialConnection(failoverOnInitialConnection)
+            .setGroupID(groupId);
 
          if (useDiscovery)
          {
@@ -338,46 +372,12 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             configuration.setConnectorNames(connectorNamesList);
          }
 
-         configuration.setFactoryType(JMSFactoryType.valueOf(cfType));
-         configuration.setClientID(clientID);
-         configuration.setClientFailureCheckPeriod(clientFailureCheckPeriod);
-         configuration.setConnectionTTL(connectionTTL);
-         configuration.setCallTimeout(callTimeout);
-         configuration.setCallFailoverTimeout(callFailoverTimeout);
-         configuration.setMinLargeMessageSize(minLargeMessageSize);
-         configuration.setCompressLargeMessages(compressLargeMessages);
-         configuration.setConsumerWindowSize(consumerWindowSize);
-         configuration.setConsumerMaxRate(consumerMaxRate);
-         configuration.setConfirmationWindowSize(confirmationWindowSize);
-         configuration.setProducerWindowSize(producerWindowSize);
-         configuration.setProducerMaxRate(producerMaxRate);
-         configuration.setBlockOnAcknowledge(blockOnAcknowledge);
-         configuration.setBlockOnDurableSend(blockOnDurableSend);
-         configuration.setBlockOnNonDurableSend(blockOnNonDurableSend);
-         configuration.setAutoGroup(autoGroup);
-         configuration.setPreAcknowledge(preAcknowledge);
-
-         if (loadBalancingPolicyClassName == null || loadBalancingPolicyClassName.trim().equals(""))
+         if (loadBalancingPolicyClassName != null && !loadBalancingPolicyClassName.trim().equals(""))
          {
-            loadBalancingPolicyClassName = HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME;
+            configuration.setLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
          }
 
-         configuration.setLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
-         configuration.setTransactionBatchSize(transactionBatchSize);
-         configuration.setDupsOKBatchSize(dupsOKBatchSize);
-         configuration.setUseGlobalPools(useGlobalPools);
-         configuration.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
-         configuration.setThreadPoolMaxSize(threadPoolMaxSize);
-         configuration.setRetryInterval(retryInterval);
-         configuration.setRetryIntervalMultiplier(retryIntervalMultiplier);
-         configuration.setMaxRetryInterval(maxRetryInterval);
-         configuration.setReconnectAttempts(reconnectAttempts);
-         configuration.setFailoverOnInitialConnection(failoverOnInitialConnection);
-         configuration.setGroupID(groupId);
-
          server.createConnectionFactory(true, configuration, bindings);
-
-         sendNotification(NotificationType.CONNECTION_FACTORY_CREATED, name);
       }
       finally
       {
@@ -427,12 +427,8 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         boolean created = server.createQueue(true, name, selector, durable, JMSServerControlImpl.toArray(jndiBindings));
-         if (created)
-         {
-            sendNotification(NotificationType.QUEUE_CREATED, name);
-         }
-         return created;
+         return server.createQueue(true, name, selector, durable,
+               JMSServerControlImpl.toArray(jndiBindings));
       }
       finally
       {
@@ -453,12 +449,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         boolean destroyed = server.destroyQueue(name, removeConsumers);
-         if (destroyed)
-         {
-            sendNotification(NotificationType.QUEUE_DESTROYED, name);
-         }
-         return destroyed;
+         return server.destroyQueue(name, removeConsumers);
       }
       finally
       {
@@ -479,12 +470,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         boolean created = server.createTopic(true, topicName, JMSServerControlImpl.toArray(jndiBindings));
-         if (created)
-         {
-            sendNotification(NotificationType.TOPIC_CREATED, topicName);
-         }
-         return created;
+         return server.createTopic(true, topicName, JMSServerControlImpl.toArray(jndiBindings));
       }
       finally
       {
@@ -506,12 +492,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         boolean destroyed = server.destroyTopic(name, removeConsumers);
-         if (destroyed)
-         {
-            sendNotification(NotificationType.TOPIC_DESTROYED, name);
-         }
-         return destroyed;
+         return server.destroyTopic(name, removeConsumers);
       }
       finally
       {
@@ -527,11 +508,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         boolean destroyed = server.destroyConnectionFactory(name);
-         if (destroyed)
-         {
-            sendNotification(NotificationType.CONNECTION_FACTORY_DESTROYED, name);
-         }
+         server.destroyConnectionFactory(name);
       }
       finally
       {
@@ -689,6 +666,38 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       try
       {
          return server.closeConnectionsForAddress(ipAddress);
+      }
+      finally
+      {
+         blockOnIO();
+      }
+   }
+
+   public boolean closeConsumerConnectionsForAddress(final String address) throws Exception
+   {
+      checkStarted();
+
+      clearIO();
+
+      try
+      {
+         return server.closeConsumerConnectionsForAddress(address);
+      }
+      finally
+      {
+         blockOnIO();
+      }
+   }
+
+   public boolean closeConnectionsForUser(final String userName) throws Exception
+   {
+      checkStarted();
+
+      clearIO();
+
+      try
+      {
+         return server.closeConnectionsForUser(userName);
       }
       finally
       {
@@ -889,12 +898,6 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    // Private -------------------------------------------------------
 
-   private void sendNotification(final NotificationType type, final String message)
-   {
-      Notification notif = new Notification(type.toString(), this, notifSeq.incrementAndGet(), message);
-      broadcaster.sendNotification(notif);
-   }
-
    private void checkStarted()
    {
       if (!server.isStarted())
@@ -904,16 +907,6 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    }
 
    // Inner classes -------------------------------------------------
-
-   public static enum NotificationType
-   {
-      QUEUE_CREATED,
-      QUEUE_DESTROYED,
-      TOPIC_CREATED,
-      TOPIC_DESTROYED,
-      CONNECTION_FACTORY_CREATED,
-      CONNECTION_FACTORY_DESTROYED;
-   }
 
    public String[] listTargetDestinations(String sessionID) throws Exception
    {
@@ -1041,4 +1034,16 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       return obj;
    }
+
+   @Override
+   public void onNotification(org.hornetq.core.server.management.Notification notification)
+   {
+      if (!(notification.getType() instanceof JMSNotificationType)) return;
+      JMSNotificationType type = (JMSNotificationType) notification.getType();
+      TypedProperties prop = notification.getProperties();
+
+      this.broadcaster.sendNotification(new Notification(type.toString(), this,
+            notifSeq.incrementAndGet(), prop.getSimpleStringProperty(JMSNotificationType.MESSAGE).toString()));
+   }
+
 }

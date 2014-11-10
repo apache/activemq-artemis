@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xml:lang="en" xmlns="http://usefulinc.com/ns/doap#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <Project rdf:about="">
+    <name></name>
+    <homepage rdf:resource="" />
+    <shortdesc></shortdesc>
+    <description></description>
+    
+    <maintainer>
+      <foaf:Person>
+        <foaf:name>Clebert Suconic</foaf:name>
+        <foaf:status>Project Lead</foaf:status>
+        <foaf:firstName>Clebert</foaf:firstName>
+        <foaf:lastName>Suconic</foaf:lastName>
+      </foaf:Person>
+    </maintainer>
+    <developer>
+      <foaf:Person>
+        <foaf:name>Andy Taylor</foaf:name>
+        <foaf:firstName>Andy</foaf:firstName>
+        <foaf:lastName>Taylor</foaf:lastName>
+      </foaf:Person>
+    </developer>
+    <developer>
+      <foaf:Person>
+        <foaf:name>Howard Gao</foaf:name>
+        <foaf:firstName>Howard</foaf:firstName>
+        <foaf:lastName>Gao</foaf:lastName>
+      </foaf:Person>
+    </developer>
+    <developer>
+      <foaf:Person>
+        <foaf:name>Justin Bertram</foaf:name>
+        <foaf:firstName>Justin</foaf:firstName>
+        <foaf:lastName>Bertram</foaf:lastName>
+      </foaf:Person>
+    </developer>
+    <developer>
+      <foaf:Person>
+        <foaf:name>Martyn Taylor</foaf:name>
+        <foaf:firstName>Martyn</foaf:firstName>
+        <foaf:lastName>Taylor</foaf:lastName>
+      </foaf:Person>
+    </developer>
+    
+    <release>
+      <Version>
+        <name>2.4.0</name>
+        <revision>2.4.0.final</revision>
+        <created>2013-16-12</created>
+      </Version>
+    </release>
+    <license rdf:resource="" />
+    
+    
+    <programming-language>Java</programming-language>
+    <programming-language>C/C++</programming-language>
+    <vendor>Red Hat</vendor>
+    <implements>
+      <Specification>
+        <name>JMS 2.0</name>
+        <description></description>
+        <rdfs:seeAlso rdf:resource="" />
+      </Specification>
+    </implements>
+    <foaf:logo rdf:resource="" />
+    <foaf:account>
+      <foaf:OnlineAccount>
+        <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/OnlineChatAccount" />
+        <foaf:accountServiceHomepage rdf:resource="http://twitter.com/" />
+        <foaf:accountName>hornetq</foaf:accountName>
+      </foaf:OnlineAccount>
+    </foaf:account>
+  </Project>
+</rdf:RDF>
+

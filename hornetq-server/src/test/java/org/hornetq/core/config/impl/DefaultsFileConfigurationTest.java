@@ -12,11 +12,9 @@
  */
 package org.hornetq.core.config.impl;
 
-import org.hornetq.core.config.BackupStrategy;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 
 import org.junit.Assert;
@@ -39,9 +37,6 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
    @Test
    public void testDefaults()
    {
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultBackup(), conf.getHAPolicy().isBackup());
-
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultSharedStore(), conf.getHAPolicy().isSharedStore());
 
       Assert.assertEquals(HornetQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(),
                           conf.getScheduledThreadPoolMaxSize());
@@ -142,28 +137,8 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(HornetQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(),
                           conf.getMessageExpiryThreadPriority());
-      Assert.assertEquals("replication cluster name", null, conf.getHAPolicy().getReplicationClustername());
-      Assert.assertEquals("scale-down cluster name", null, conf.getHAPolicy().getScaleDownClustername());
-      Assert.assertEquals("ha-policy type", HAPolicy.POLICY_TYPE.valueOf(HornetQDefaultConfiguration.getDefaultHapolicyType()), conf.getHAPolicy().getPolicyType());
-      Assert.assertEquals("check-for-live-server", HornetQDefaultConfiguration.isDefaultCheckForLiveServer(), conf.getHAPolicy().isCheckForLiveServer());
-      Assert.assertEquals("scale-down", HornetQDefaultConfiguration.isDefaultScaleDown(), conf.getHAPolicy().isScaleDown());
-      Assert.assertEquals("max-saved-replicated-journals-size", HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize(), conf.getHAPolicy().getMaxSavedReplicatedJournalsSize());
-      Assert.assertEquals("failover-on-shutdown", HornetQDefaultConfiguration.isDefaultFailoverOnServerShutdown(), conf.getHAPolicy().isFailoverOnServerShutdown());
-      Assert.assertEquals("backup-group-name", null, conf.getHAPolicy().getBackupGroupName());
-      Assert.assertEquals("backup-port-offset", HornetQDefaultConfiguration.getDefaultHapolicyBackupPortOffset(), conf.getHAPolicy().getBackupPortOffset());
-      Assert.assertEquals("backup-request-retries", HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetries(), conf.getHAPolicy().getBackupRequestRetries());
-      Assert.assertEquals("backup-request-retry-interval", HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetryInterval(), conf.getHAPolicy().getBackupRequestRetryInterval());
-      Assert.assertEquals("backup-strategy", BackupStrategy.valueOf(HornetQDefaultConfiguration.getDefaultHapolicyBackupStrategy()), conf.getHAPolicy().getBackupStrategy());
-      Assert.assertEquals("failback-delay", HornetQDefaultConfiguration.getDefaultFailbackDelay(), conf.getHAPolicy().getFailbackDelay());
-      Assert.assertEquals("max-backups", HornetQDefaultConfiguration.getDefaultHapolicyMaxBackups(), conf.getHAPolicy().getMaxBackups());
-      Assert.assertEquals("remote-connectors for ha-policy", new ArrayList<>(), conf.getHAPolicy().getRemoteConnectors());
-      Assert.assertEquals("scale-down-connectors for ha-policy", new ArrayList<>(), conf.getHAPolicy().getScaleDownConnectors());
-      Assert.assertEquals("scale-down-discovery-group", null, conf.getHAPolicy().getScaleDownDiscoveryGroup());
-      Assert.assertEquals("scale-down-group-name", null, conf.getHAPolicy().getScaleDownGroupName());
-      Assert.assertEquals("allow-failback", HornetQDefaultConfiguration.isDefaultAllowAutoFailback(), conf.getHAPolicy().isAllowAutoFailBack());
-      Assert.assertEquals("backup", false, conf.getHAPolicy().isBackup());
-      Assert.assertEquals("request-backup", HornetQDefaultConfiguration.isDefaultHapolicyRequestBackup(), conf.getHAPolicy().isRequestBackup());
-      Assert.assertEquals("shared-store", false, conf.getHAPolicy().isSharedStore());
+
+      Assert.assertTrue(conf.getHAPolicyConfiguration() instanceof LiveOnlyPolicyConfiguration);
    }
 
    // Protected ---------------------------------------------------------------------------------------------

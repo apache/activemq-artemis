@@ -39,7 +39,6 @@ public abstract class NodeManager implements HornetQComponent
    private final Object nodeIDGuard = new Object();
    private SimpleString nodeID;
    private UUID uuid;
-   private String nodeGroupName;
    private boolean isStarted = false;
 
    protected FileChannel channel;
@@ -120,16 +119,6 @@ public abstract class NodeManager implements HornetQComponent
          uuid = generateUUID;
          nodeID = new SimpleString(uuid.toString());
       }
-   }
-
-   public void setNodeGroupName(String nodeGroupName)
-   {
-      this.nodeGroupName = nodeGroupName;
-   }
-
-   public String getNodeGroupName()
-   {
-      return nodeGroupName;
    }
 
    public abstract boolean isAwaitingFailback() throws Exception;

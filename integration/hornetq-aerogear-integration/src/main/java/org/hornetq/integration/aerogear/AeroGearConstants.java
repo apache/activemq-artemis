@@ -29,6 +29,8 @@ public class AeroGearConstants
    public static final String TTL_NAME = "ttl";
    public static final String BADGE_NAME = "badge";
    public static final String SOUND_NAME = "sound";
+   public static final String CONTENT_AVAILABLE_NAME = "content-available";
+   public static final String ACTION_CATEGORY_NAME = "action-category";
    public static final String FILTER_NAME = "filter";
    public static final String RETRY_INTERVAL_NAME = "retry-interval";
    public static final String RETRY_ATTEMPTS_NAME = "retry-attempts";
@@ -39,6 +41,8 @@ public class AeroGearConstants
 
    public static final SimpleString AEROGEAR_ALERT = new SimpleString("AEROGEAR_ALERT");
    public static final SimpleString AEROGEAR_SOUND = new SimpleString("AEROGEAR_SOUND");
+   public static final SimpleString AEROGEAR_CONTENT_AVAILABLE = new SimpleString("AEROGEAR_CONTENT_AVAILABLE");
+   public static final SimpleString AEROGEAR_ACTION_CATEGORY = new SimpleString("AEROGEAR_ACTION_CATEGORY");
    public static final SimpleString AEROGEAR_BADGE = new SimpleString("AEROGEAR_BADGE");
    public static final SimpleString AEROGEAR_TTL = new SimpleString("AEROGEAR_TTL");
    public static final SimpleString AEROGEAR_VARIANTS = new SimpleString("AEROGEAR_VARIANTS");
@@ -59,6 +63,8 @@ public class AeroGearConstants
       ALLOWABLE_PROPERTIES.add(TTL_NAME);
       ALLOWABLE_PROPERTIES.add(BADGE_NAME);
       ALLOWABLE_PROPERTIES.add(SOUND_NAME);
+      ALLOWABLE_PROPERTIES.add(CONTENT_AVAILABLE_NAME);
+      ALLOWABLE_PROPERTIES.add(ACTION_CATEGORY_NAME);
       ALLOWABLE_PROPERTIES.add(FILTER_NAME);
       ALLOWABLE_PROPERTIES.add(RETRY_INTERVAL_NAME);
       ALLOWABLE_PROPERTIES.add(RETRY_ATTEMPTS_NAME);

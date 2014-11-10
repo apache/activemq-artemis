@@ -284,29 +284,43 @@ public abstract class UnaryExpression implements Expression
    }
 
    /**
-    * TODO: more efficient hashCode()
-    *
     * @see java.lang.Object#hashCode()
     */
    public int hashCode()
    {
-      return toString().hashCode();
+      int result = right.hashCode();
+      result = 31 * result + getExpressionSymbol().hashCode();
+      return result;
    }
 
    /**
-    * TODO: more efficient hashCode()
-    *
     * @see java.lang.Object#equals(java.lang.Object)
     */
    public boolean equals(Object o)
    {
+      if (this == o)
+      {
+         return true;
+      }
 
-      if (o == null || !this.getClass().equals(o.getClass()))
+      if (o == null || getClass() != o.getClass())
       {
          return false;
       }
-      return toString().equals(o.toString());
 
+      final BinaryExpression that = (BinaryExpression)o;
+
+      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol()))
+      {
+         return false;
+      }
+
+      if (right != null && !right.equals(that.right))
+      {
+         return false;
+      }
+
+      return true;
    }
 
    /**

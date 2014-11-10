@@ -31,9 +31,9 @@ public class ValidateAIOTest extends ServiceTestBase
    @Test
    public void testValidateAIO() throws Exception
    {
-      Configuration config = createDefaultConfig(false);
-      // This will force AsyncIO
-      config.setJournalType(JournalType.ASYNCIO);
+      Configuration config = createDefaultConfig(false)
+         // This will force AsyncIO
+         .setJournalType(JournalType.ASYNCIO);
       HornetQServer server = HornetQServers.newHornetQServer(config, true);
       try
       {

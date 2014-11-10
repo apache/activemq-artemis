@@ -157,7 +157,7 @@ public class MessageExpirationTest extends ServiceTestBase
       Thread.sleep(500);
 
       Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(queue).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(queue).getBindable())));
 
       ClientMessage message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
@@ -188,7 +188,7 @@ public class MessageExpirationTest extends ServiceTestBase
       Assert.assertNull(message2);
 
       Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(queue).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(queue).getBindable())));
 
       consumer.close();
       session.deleteQueue(queue);

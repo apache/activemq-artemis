@@ -41,6 +41,7 @@ import org.junit.Test;
  * This test covers the API for ClientSession although XA tests are tested separately.
  *
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class SessionTest extends ServiceTestBase
 {
@@ -205,12 +206,22 @@ public class SessionTest extends ServiceTestBase
       ClientProducer cp = clientSession.createProducer("a1");
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
+
+      flushQueue();
+
       QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
       Assert.assertEquals(new SimpleString("a1"), resp.getAddress());
       Assert.assertEquals(2, resp.getConsumerCount());
       Assert.assertEquals(2, resp.getMessageCount());
       Assert.assertEquals(null, resp.getFilterString());
       clientSession.close();
+   }
+
+   private void flushQueue() throws Exception
+   {
+      Queue queue = server.locateQueue(SimpleString.toSimpleString(queueName));
+      assertNotNull(queue);
+      queue.flushExecutor();
    }
 
    @Test
@@ -221,6 +232,7 @@ public class SessionTest extends ServiceTestBase
       clientSession.createQueue("a1", queueName, "foo=bar", false);
       clientSession.createConsumer(queueName);
       clientSession.createConsumer(queueName);
+
       QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
       Assert.assertEquals(new SimpleString("a1"), resp.getAddress());
       Assert.assertEquals(2, resp.getConsumerCount());
@@ -349,9 +361,9 @@ public class SessionTest extends ServiceTestBase
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(0, q.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(q));
       clientSession.commit();
-      Assert.assertEquals(10, q.getMessageCount());
+      Assert.assertEquals(10, getMessageCount(q));
       clientSession.close();
    }
 
@@ -373,12 +385,12 @@ public class SessionTest extends ServiceTestBase
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(0, q.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(q));
       clientSession.rollback();
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       clientSession.commit();
-      Assert.assertEquals(2, q.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(q));
       clientSession.close();
    }
 
@@ -403,7 +415,7 @@ public class SessionTest extends ServiceTestBase
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(10, q.getMessageCount());
+      Assert.assertEquals(10, getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();
       ClientMessage m = cc.receive(5000);
@@ -437,7 +449,7 @@ public class SessionTest extends ServiceTestBase
       Assert.assertNotNull(m);
       m.acknowledge();
       clientSession.commit();
-      Assert.assertEquals(0, q.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(q));
       clientSession.close();
       sendSession.close();
    }
@@ -463,7 +475,7 @@ public class SessionTest extends ServiceTestBase
       cp.send(clientSession.createMessage(false));
       cp.send(clientSession.createMessage(false));
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(queueName)).getBindable();
-      Assert.assertEquals(10, q.getMessageCount());
+      Assert.assertEquals(10, getMessageCount(q));
       ClientConsumer cc = clientSession.createConsumer(queueName);
       clientSession.start();
       ClientMessage m = cc.receive(5000);
@@ -497,8 +509,17 @@ public class SessionTest extends ServiceTestBase
       Assert.assertNotNull(m);
       m.acknowledge();
       clientSession.rollback();
-      Assert.assertEquals(10, q.getMessageCount());
+      Assert.assertEquals(10, getMessageCount(q));
       clientSession.close();
       sendSession.close();
+   }
+
+   @Test
+   public void testGetNodeId() throws Exception
+   {
+      cf = createSessionFactory(locator);
+      ClientSession clientSession = addClientSession(cf.createSession(false, true, true));
+      String nodeId = ((ClientSessionInternal) clientSession).getNodeId();
+      assertNotNull(nodeId);
    }
 }

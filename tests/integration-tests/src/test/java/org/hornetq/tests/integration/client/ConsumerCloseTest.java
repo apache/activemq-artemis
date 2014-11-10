@@ -303,9 +303,9 @@ public class ConsumerCloseTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig();
-      config.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()));
-      config.setSecurityEnabled(false);
+      Configuration config = createDefaultConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
+         .setSecurityEnabled(false);
 
       server = addServer(HornetQServers.newHornetQServer(config, false));
       server.start();

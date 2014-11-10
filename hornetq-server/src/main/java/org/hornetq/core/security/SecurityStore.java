@@ -26,5 +26,7 @@ public interface SecurityStore
 
    void check(SimpleString address, CheckType checkType, ServerSession session) throws Exception;
 
+   boolean isSecurityEnabled();
+
    void stop();
 }

@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.hornetq.api.core.SimpleString;
+import org.hornetq.spi.core.remoting.SessionContext;
 
 /**
  * A ProducerCreditManager
@@ -42,7 +43,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       this.windowSize = windowSize;
    }
 
-   public synchronized ClientProducerCredits getCredits(final SimpleString address, final boolean anon)
+   public synchronized ClientProducerCredits getCredits(final SimpleString address, final boolean anon, SessionContext context)
    {
       if (windowSize == -1)
       {
@@ -84,7 +85,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
          // while this is still sending requests causing a dead lock
          if (needInit)
          {
-            credits.init();
+            credits.init(context);
          }
 
          return credits;
@@ -202,7 +203,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
          return false;
       }
 
-      public void init()
+      public void init(SessionContext ctx)
       {
       }
 

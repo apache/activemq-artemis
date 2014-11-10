@@ -218,25 +218,32 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       }
    }
 
-   protected static final void basicClusterConnectionConfig(Configuration mainConfig, String connectorName,
-                                                            String... connectors)
+   protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName,
+                                                                                      String... connectors)
    {
       ArrayList<String> connectors0 = new ArrayList<String>();
       for (String c : connectors)
       {
          connectors0.add(c);
       }
-      basicClusterConnectionConfig(mainConfig, connectorName, connectors0);
+      return basicClusterConnectionConfig(connectorName, connectors0);
    }
 
-   protected static final void basicClusterConnectionConfig(Configuration mainConfig,
-                                                            String connectorName,
-                                                            List<String> connectors)
+   protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName,
+                                                                                      List<String> connectors)
    {
-      ClusterConnectionConfiguration ccc =
-         new ClusterConnectionConfiguration("cluster1", "jms", connectorName, 10, false, true, 1, 1, connectors,
-                                            false);
-      mainConfig.getClusterConfigurations().add(ccc);
+      ClusterConnectionConfiguration ccc = new ClusterConnectionConfiguration()
+         .setName("cluster1")
+         .setAddress("jms")
+         .setConnectorName(connectorName)
+         .setRetryInterval(1000)
+         .setDuplicateDetection(false)
+         .setForwardWhenNoConsumers(true)
+         .setMaxHops(1)
+         .setConfirmationWindowSize(1)
+         .setStaticConnectors(connectors);
+
+      return ccc;
    }
 
    protected Configuration createDefaultConfig(final int index,
@@ -275,72 +282,65 @@ public abstract class UnitTestCase extends CoreUnitTestCase
     */
    protected final ConfigurationImpl createBasicConfig(final int serverID)
    {
-      ConfigurationImpl configuration = new ConfigurationImpl();
-      configuration.setSecurityEnabled(false);
-      configuration.setJournalMinFiles(2);
-      configuration.setJournalFileSize(100 * 1024);
+      ConfigurationImpl configuration = new ConfigurationImpl()
+         .setSecurityEnabled(false)
+         .setJournalMinFiles(2)
+         .setJournalFileSize(100 * 1024)
+         .setJournalType(getDefaultJournalType())
+         .setJournalDirectory(getJournalDir(serverID, false))
+         .setBindingsDirectory(getBindingsDir(serverID, false))
+         .setPagingDirectory(getPageDir(serverID, false))
+         .setLargeMessagesDirectory(getLargeMessagesDir(serverID, false))
+         .setJournalCompactMinFiles(0)
+         .setJournalCompactPercentage(0)
+         .setClusterPassword(CLUSTER_PASSWORD);
 
-      configuration.setJournalType(getDefaultJournalType());
-
-      configuration.setJournalDirectory(getJournalDir(serverID, false));
-      configuration.setBindingsDirectory(getBindingsDir(serverID, false));
-      configuration.setPagingDirectory(getPageDir(serverID, false));
-      configuration.setLargeMessagesDirectory(getLargeMessagesDir(serverID, false));
-
-      configuration.setJournalCompactMinFiles(0);
-      configuration.setJournalCompactPercentage(0);
-      configuration.setClusterPassword(CLUSTER_PASSWORD);
       return configuration;
    }
 
    public static final ConfigurationImpl createBasicConfig(final String testDir, final int serverID)
    {
-      ConfigurationImpl configuration = new ConfigurationImpl();
-      configuration.setSecurityEnabled(false);
-      configuration.setJournalMinFiles(2);
-      configuration.setJournalFileSize(100 * 1024);
+      ConfigurationImpl configuration = new ConfigurationImpl()
+         .setSecurityEnabled(false)
+         .setJournalMinFiles(2)
+         .setJournalFileSize(100 * 1024)
+         .setJournalType(getDefaultJournalType())
+         .setJournalDirectory(getJournalDir(testDir, serverID, false))
+         .setBindingsDirectory(getBindingsDir(testDir, serverID, false))
+         .setPagingDirectory(getPageDir(testDir, serverID, false))
+         .setLargeMessagesDirectory(getLargeMessagesDir(testDir, serverID, false))
+         .setJournalCompactMinFiles(0)
+         .setJournalCompactPercentage(0)
+         .setClusterPassword(CLUSTER_PASSWORD);
 
-      configuration.setJournalType(getDefaultJournalType());
-
-      configuration.setJournalDirectory(getJournalDir(testDir, serverID, false));
-      configuration.setBindingsDirectory(getBindingsDir(testDir, serverID, false));
-      configuration.setPagingDirectory(getPageDir(testDir, serverID, false));
-      configuration.setLargeMessagesDirectory(getLargeMessagesDir(testDir, serverID, false));
-
-      configuration.setJournalCompactMinFiles(0);
-      configuration.setJournalCompactPercentage(0);
-      configuration.setClusterPassword(CLUSTER_PASSWORD);
       return configuration;
    }
 
    public static final ConfigurationImpl createBasicConfigNoDataFolder()
    {
-      ConfigurationImpl configuration = new ConfigurationImpl();
-      configuration.setSecurityEnabled(false);
+      ConfigurationImpl configuration = new ConfigurationImpl()
+         .setSecurityEnabled(false)
+         .setJournalType(getDefaultJournalType())
+         .setJournalCompactMinFiles(0)
+         .setJournalCompactPercentage(0)
+         .setClusterPassword(CLUSTER_PASSWORD);
 
-      configuration.setJournalType(getDefaultJournalType());
-
-      configuration.setJournalCompactMinFiles(0);
-      configuration.setJournalCompactPercentage(0);
-      configuration.setClusterPassword(CLUSTER_PASSWORD);
       return configuration;
    }
 
-   protected Configuration
-   createDefaultConfig(final Map<String, Object> params, final String... acceptors) throws Exception
+   protected Configuration createDefaultConfig(final Map<String, Object> params, final String... acceptors) throws Exception
    {
-      ConfigurationImpl configuration = createBasicConfig(-1);
-
-      configuration.setFileDeploymentEnabled(false);
-      configuration.setJMXManagementEnabled(false);
-
-      configuration.getAcceptorConfigurations().clear();
+      ConfigurationImpl configuration = createBasicConfig(-1)
+         .setFileDeploymentEnabled(false)
+         .setJMXManagementEnabled(false)
+         .clearAcceptorConfigurations();
 
       for (String acceptor : acceptors)
       {
          TransportConfiguration transportConfig = new TransportConfiguration(acceptor, params);
-         configuration.getAcceptorConfigurations().add(transportConfig);
+         configuration.addAcceptorConfiguration(transportConfig);
       }
+
       return configuration;
    }
 
@@ -1180,6 +1180,12 @@ public abstract class UnitTestCase extends CoreUnitTestCase
             checkThread = true;
          }
 
+         if (Thread.currentThread().getContextClassLoader() == null)
+         {
+            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            fail("Thread Context ClassLoader was set to null at some point before this test. We will set to this.getClass().getClassLoader(), but you are supposed to fix your tests");
+         }
+
          checkFilesUsage();
       }
    }
@@ -1311,7 +1317,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       {
          return true;
       }
-      else if (isSystemThread && threadName.equals("process reaper"))
+      else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper"))
       {
          return true;
       }
@@ -1659,10 +1665,23 @@ public abstract class UnitTestCase extends CoreUnitTestCase
 
       for (QueueBinding qBinding : bindings)
       {
-         messageCount += qBinding.getQueue().getMessageCount();
+         qBinding.getQueue().flushExecutor();
+         messageCount += getMessageCount(qBinding.getQueue());
       }
 
       return messageCount;
+   }
+
+   protected int getMessageCount(final Queue queue)
+   {
+      queue.flushExecutor();
+      return (int)queue.getMessageCount();
+   }
+
+   protected int getMessagesAdded(final Queue queue)
+   {
+      queue.flushExecutor();
+      return (int)queue.getMessagesAdded();
    }
 
    protected List<QueueBinding> getLocalQueueBindings(final PostOffice postOffice, final String address) throws Exception
@@ -1748,11 +1767,21 @@ public abstract class UnitTestCase extends CoreUnitTestCase
 
    protected final ServerLocator createNonHALocator(final boolean isNetty)
    {
-      ServerLocator locatorWithoutHA =
-         isNetty
-            ? HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
-            : HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ServerLocator locatorWithoutHA = internalCreateNonHALocator(isNetty);
       return addServerLocator(locatorWithoutHA);
+   }
+
+   /**
+    * Creates the Locator without adding it to the list where the tearDown will take place
+    * This is because we don't want it closed in certain tests where we are issuing failures
+    * @param isNetty
+    * @return
+    */
+   protected ServerLocator internalCreateNonHALocator(boolean isNetty)
+   {
+      return isNetty
+         ? HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
+         : HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
    protected static final void stopComponent(HornetQComponent component)
@@ -2006,7 +2035,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
    }
 
    // This can be used to interrupt a thread if it takes more than timeoutMilliseconds
-   public void runWithTimeout(final RunnerWithEX runner, final long timeoutMilliseconds) throws Throwable
+   public boolean runWithTimeout(final RunnerWithEX runner, final long timeoutMilliseconds) throws Throwable
    {
 
       class ThreadRunner extends Thread
@@ -2044,6 +2073,11 @@ public abstract class UnitTestCase extends CoreUnitTestCase
          runnerThread.join(timeoutMilliseconds);
          if (runnerThread.isAlive())
          {
+            System.err.println("Thread still running, interrupting it now:");
+            for (Object t : runnerThread.getStackTrace())
+            {
+               System.err.println(t);
+            }
             hadToInterrupt = true;
             runnerThread.interrupt();
          }
@@ -2051,13 +2085,13 @@ public abstract class UnitTestCase extends CoreUnitTestCase
 
       if (runnerThread.t != null)
       {
+         runnerThread.t.printStackTrace();
          throw runnerThread.t;
       }
 
-      if (hadToInterrupt)
-      {
-         fail("Test would have hung. We had to issue an interrupt!");
-      }
+      // we are returning true if it ran ok.
+      // had to Interrupt is exactly the opposite of what we are returning
+      return !hadToInterrupt;
    }
 
 

@@ -2,22 +2,35 @@
 * Soak Test For Manual Reconnection of JMS Clients *
 ****************************************************
 
-Run The Server
-==============
+Running the Soak Tests
+=======================
+
+The default soak tests with start a HornetQ instance, 1 producer and 1 consumer.  To run the default suite.
+
+  $mvn verify
+
+Run The Server Standalone
+==========================
+
+If would like to run a number of servers or run the server on a different machine:
 
 To run server using the default configuration (server0, using localhost):
-   $ ant runServer
+   $ mvn verify -Pserver
 
 To run multiple servers, you can specify the server configuration directory using server.dir 
 system property (which defaults to server0). To run a 2nd server with a configuration stored in server1:
 
-   $ ant -Dserver.dir=server1 
+   $ mvn verify -Pserver -Dserver.dir=server1
 
-server1 dir contains a copy of server0 with different settings.
+server1 should contain a copy of configuration equivilent to that found under the server0 director with different
+settings.
 
-To run a server with the same configuration but on a different host, change:
+To run a server with the same configuration but on a different host.  Check out this source on the host machine and
+change:
 * hornetq.remoting.netty.host property in hornetq-configuration.xml
 * bindAddress and rmiBindAddress properties in hornetq-beans.xml
+
+  $ mvn verify -P server
 
 Configure Server Dump
 =====================
@@ -39,23 +52,22 @@ total paging memory:   0,00 B
 # of conns:      0
 ********************
 
-Run The Client
-==============
+Run The Clients
+===============
 
-Senders (resp. receivers) are run with "ant runSender" (resp. "ant runReceiver").
-Parameters are specified in soak.properties. 
+The clients can be run separate from the server using:
+
+  $ mvn verify -Premote
+
+Parameters are specified in soak.properties.
+
 The duration of the tests is configured by duration-in-minutes (defaults to 2 minutes, set to 
 -1 to run the test indefinitely).
 
-To configure the soak properties to run the client, use the system property soak.props.
+To configure the soak properties different to the defaults for the clients, use the system property
 To specify the JNDI server to connect to, use the system property jndi.address
-(defaults to localhost) and jndi.port (defaults to 1099)
 
-To run a receiver connected to the local server with soak.properties
-  $  ant runReceiver
-
-To run a sender connected to another server using settings in paging-soak.properties:
-  $ ant runSender -Djndi.address=172.16.8.10 -Djndi.port=2099 -Dsoak.props=paging-soak.properties
+  $ mvn verify -Premote -Dsoak.props=<path to properties> -Pjndi.address=jnp:remote.host:1099
 
 Every 1000th message, the clients will display their recent activity:
 
@@ -72,6 +84,3 @@ You can kill the server (ctl+c or kill -9), the clients are configured to reconn
 indefinitely to the same single server (even in case of clean shutdown)
 Once the server restarts, all the clients will resume their activities after reconnecting
 to the server.
-
-
-

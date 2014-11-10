@@ -45,8 +45,8 @@ public abstract class SingleServerTestBase extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
+      Configuration configuration = createDefaultConfig()
+         .setSecurityEnabled(false);
       server = createServer(false, configuration);
       server.start();
 

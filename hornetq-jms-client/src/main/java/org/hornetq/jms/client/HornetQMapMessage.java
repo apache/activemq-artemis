@@ -28,6 +28,10 @@ import org.hornetq.api.core.client.ClientMessage;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.utils.TypedProperties;
 
+
+import static org.hornetq.reader.MapMessageUtil.writeBodyMap;
+import static org.hornetq.reader.MapMessageUtil.readBodyMap;
+
 /**
  * HornetQ implementation of a JMS MapMessage.
  *
@@ -46,7 +50,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
 
    // Attributes ----------------------------------------------------
 
-   private TypedProperties map = new TypedProperties();
+   private final TypedProperties map = new TypedProperties();
 
    private boolean invalid;
 
@@ -60,8 +64,6 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
    protected HornetQMapMessage(final ClientSession session)
    {
       super(HornetQMapMessage.TYPE, session);
-
-      map = new TypedProperties();
 
       invalid = true;
    }
@@ -368,7 +370,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
    // HornetQRAMessage overrides ----------------------------------------
 
    @Override
-   public void clearBody()
+   public void clearBody() throws JMSException
    {
       super.clearBody();
 
@@ -382,10 +384,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
    {
       if (invalid)
       {
-         message.getBodyBuffer().resetWriterIndex();
-
-         map.encode(message.getBodyBuffer());
-
+         writeBodyMap(message, map);
          invalid = false;
       }
 
@@ -397,7 +396,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
    {
       super.doBeforeReceive();
 
-      map.decode(message.getBodyBuffer());
+      readBodyMap(message, map);
    }
 
    // Package protected ---------------------------------------------

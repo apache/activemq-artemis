@@ -56,7 +56,10 @@ public class JMSDynamicConfigTest extends JMSTestBase
 
       connectors.add("invm");
 
-      ConnectionFactoryConfiguration cfg = new ConnectionFactoryConfigurationImpl("tst", false, connectors, "tt");
+      ConnectionFactoryConfiguration cfg = new ConnectionFactoryConfigurationImpl()
+         .setName("tst")
+         .setConnectorNames(connectors)
+         .setBindings("tt");
       jmsServer.createConnectionFactory(true, cfg, "tst");
 
       assertNotNull(namingContext.lookup("tst"));

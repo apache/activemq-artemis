@@ -12,13 +12,24 @@
  */
 package org.hornetq.tests.integration.cluster.failover;
 
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+
 public class ReplicatedFailoverUsingNodeGroupNameTest extends ReplicatedFailoverTest
 {
    @Override
    protected void createReplicatedConfigs() throws Exception
    {
       super.createReplicatedConfigs();
-      liveConfig.getHAPolicy().setBackupGroupName("liveNodeGroup1");
-      backupConfig.getHAPolicy().setBackupGroupName("liveNodeGroup1");
+      ((ReplicatedPolicyConfiguration)liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicaPolicyConfiguration)backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+   }
+
+   @Override
+   protected void setupHAPolicyConfiguration()
+   {
+      super.setupHAPolicyConfiguration();
+      ((ReplicatedPolicyConfiguration)liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicaPolicyConfiguration)backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
    }
 }

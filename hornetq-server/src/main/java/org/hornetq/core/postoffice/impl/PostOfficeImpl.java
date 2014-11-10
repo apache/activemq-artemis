@@ -34,6 +34,7 @@ import org.hornetq.api.core.HornetQNonExistentQueueException;
 import org.hornetq.api.core.Message;
 import org.hornetq.api.core.Pair;
 import org.hornetq.api.core.SimpleString;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.ManagementHelper;
 import org.hornetq.api.core.management.NotificationType;
 import org.hornetq.core.filter.Filter;
@@ -218,13 +219,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    public void onNotification(final Notification notification)
    {
+      if (!(notification.getType() instanceof CoreNotificationType)) return;
+
       if (isTrace)
       {
          HornetQServerLogger.LOGGER.trace("Receiving notification : " + notification + " on server " + this.server);
       }
       synchronized (notificationLock)
       {
-         NotificationType type = notification.getType();
+         CoreNotificationType type = (CoreNotificationType) notification.getType();
 
          switch (type)
          {
@@ -446,7 +449,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    // PostOffice implementation -----------------------------------------------
 
-   // TODO - needs to be synchronized to prevent happening concurrently with activate().
+   // TODO - needs to be synchronized to prevent happening concurrently with activate()
    // (and possible removeBinding and other methods)
    // Otherwise can have situation where createQueue comes in before failover, then failover occurs
    // and post office is activated but queue remains unactivated after failover so delivery never occurs
@@ -483,7 +486,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          HornetQServerLogger.LOGGER.debug("ClusterCommunication::Sending notification for addBinding " + binding + " from server " + server);
       }
 
-      managementService.sendNotification(new Notification(uid, NotificationType.BINDING_ADDED, props));
+      managementService.sendNotification(new Notification(uid, CoreNotificationType.BINDING_ADDED, props));
    }
 
    public synchronized Binding removeBinding(final SimpleString uniqueName, Transaction tx) throws Exception
@@ -539,7 +542,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, binding.getFilter().getFilterString());
          }
 
-         managementService.sendNotification(new Notification(null, NotificationType.BINDING_REMOVED, props));
+         managementService.sendNotification(new Notification(null, CoreNotificationType.BINDING_REMOVED, props));
       }
 
       binding.close();
@@ -550,6 +553,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    private void deleteDuplicateCache(SimpleString address) throws Exception
    {
       DuplicateIDCache cache = duplicateIDCaches.remove(address);
+
+      if (cache != null)
+      {
+         cache.clear();
+      }
+
+      cache = duplicateIDCaches.remove(BRIDGE_CACHE_STR.concat(address));
 
       if (cache != null)
       {
@@ -799,7 +809,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       // We have to copy the message and store it separately, otherwise we may lose remote bindings in case of restart before the message
       // arrived the target node
       // as described on https://issues.jboss.org/browse/JBPAPP-6130
-      ServerMessage copyRedistribute = message.copy(storageManager.generateUniqueID());
+      ServerMessage copyRedistribute = message.copy(storageManager.generateID());
 
       Bindings bindings = addressManager.getBindingsForRoutingAddress(message.getAddress());
 
@@ -871,7 +881,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       {
          // First send a reset message
 
-         ServerMessage message = new ServerMessageImpl(storageManager.generateUniqueID(), 50);
+         ServerMessage message = new ServerMessageImpl(storageManager.generateID(), 50);
 
          message.setAddress(queueName);
          message.putBooleanProperty(PostOfficeImpl.HDR_RESET_QUEUE_DATA, true);
@@ -883,9 +893,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             {
                HornetQServerLogger.LOGGER.trace("QueueInfo on sendQueueInfoToQueue = " + info);
             }
-            if (info.getAddress().startsWith(address))
+            if (info.matchesAddress(address))
             {
-               message = createQueueInfoMessage(NotificationType.BINDING_ADDED, queueName);
+               message = createQueueInfoMessage(CoreNotificationType.BINDING_ADDED, queueName);
 
                message.putStringProperty(ManagementHelper.HDR_ADDRESS, info.getAddress());
                message.putStringProperty(ManagementHelper.HDR_CLUSTER_NAME, info.getClusterName());
@@ -900,7 +910,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                for (int i = 0; i < info.getNumberOfConsumers() - consumersWithFilters; i++)
                {
-                  message = createQueueInfoMessage(NotificationType.CONSUMER_CREATED, queueName);
+                  message = createQueueInfoMessage(CoreNotificationType.CONSUMER_CREATED, queueName);
 
                   message.putStringProperty(ManagementHelper.HDR_ADDRESS, info.getAddress());
                   message.putStringProperty(ManagementHelper.HDR_CLUSTER_NAME, info.getClusterName());
@@ -914,7 +924,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                {
                   for (SimpleString filterString : info.getFilterStrings())
                   {
-                     message = createQueueInfoMessage(NotificationType.CONSUMER_CREATED, queueName);
+                     message = createQueueInfoMessage(CoreNotificationType.CONSUMER_CREATED, queueName);
 
                      message.putStringProperty(ManagementHelper.HDR_ADDRESS, info.getAddress());
                      message.putStringProperty(ManagementHelper.HDR_CLUSTER_NAME, info.getClusterName());
@@ -927,7 +937,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                }
             }
          }
-         ServerMessage completeMessage = new ServerMessageImpl(storageManager.generateUniqueID(), 50);
+         ServerMessage completeMessage = new ServerMessageImpl(storageManager.generateID(), 50);
 
          completeMessage.setAddress(queueName);
          completeMessage.putBooleanProperty(PostOfficeImpl.HDR_RESET_QUEUE_DATA_COMPLETE, true);
@@ -960,7 +970,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // We use properties to establish routing context on clustering.
          // However if the client resends the message after receiving, it needs to be removed
          if ((name.startsWith(MessageImpl.HDR_ROUTE_TO_IDS) && !name.equals(MessageImpl.HDR_ROUTE_TO_IDS)) ||
-            name.equals(MessageImpl.HDR_ROUTE_TO_ACK_IDS))
+               (name.startsWith(MessageImpl.HDR_ROUTE_TO_ACK_IDS) && !name.equals(MessageImpl.HDR_ROUTE_TO_ACK_IDS)))
          {
             if (valuesToRemove == null)
             {
@@ -1360,7 +1370,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private ServerMessage createQueueInfoMessage(final NotificationType type, final SimpleString queueName)
    {
-      ServerMessage message = new ServerMessageImpl(storageManager.generateUniqueID(), 50);
+      ServerMessage message = new ServerMessageImpl(storageManager.generateID(), 50);
 
       message.setAddress(queueName);
 
@@ -1512,5 +1522,16 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          groupingHandler.addListener(bindings);
       }
       return bindings;
+   }
+
+   // For tests only
+   public AddressManager getAddressManager()
+   {
+      return addressManager;
+   }
+
+   public HornetQServer getServer()
+   {
+      return server;
    }
 }

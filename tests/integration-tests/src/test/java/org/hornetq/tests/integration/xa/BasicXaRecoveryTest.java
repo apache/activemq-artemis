@@ -80,11 +80,11 @@ public class BasicXaRecoveryTest extends ServiceTestBase
       super.setUp();
 
       addressSettings.clear();
-      configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
-      configuration.setJournalMinFiles(2);
-      configuration.setPagingDirectory(getPageDir());
-      configuration.setJMXManagementEnabled(true);
+      configuration = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .setJournalMinFiles(2)
+         .setPagingDirectory(getPageDir())
+         .setJMXManagementEnabled(true);
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 

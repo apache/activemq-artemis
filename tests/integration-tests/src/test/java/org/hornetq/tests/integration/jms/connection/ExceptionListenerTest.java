@@ -65,11 +65,8 @@ public class ExceptionListenerTest extends UnitTestCase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getAcceptorConfigurations()
-          .add(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
+      Configuration conf = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
       server = addServer(HornetQServers.newHornetQServer(conf, false));
       jmsServer = new JMSServerManagerImpl(server);
       jmsServer.setContext(new NullInitialContext());

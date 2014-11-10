@@ -607,11 +607,9 @@ public class JMSBridgeImplTest extends UnitTestCase
    {
       super.setUp();
 
-      Configuration config = createBasicConfig();
-      config.setJMXManagementEnabled(true);
-      config.setFileDeploymentEnabled(false);
-      config.setSecurityEnabled(false);
-      config.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration config = createBasicConfig()
+         .setFileDeploymentEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       InVMNamingContext context = new InVMNamingContext();
       jmsServer = new JMSServerManagerImpl(HornetQServers.newHornetQServer(config, false));
       jmsServer.setContext(context);

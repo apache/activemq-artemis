@@ -31,7 +31,7 @@ public class QuorumVoteServerConnectTest extends UnitTestCase
    private final int size;
    private final int trueVotes;
 
-   @Parameterized.Parameters
+   @Parameterized.Parameters(name = "size={0} trueVotes={1}")
    public static Collection primeNumbers()
    {
       return Arrays.asList(new Object[][]

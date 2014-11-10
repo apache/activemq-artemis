@@ -29,7 +29,7 @@ import org.hornetq.api.core.client.ClientMessage;
 import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
-import org.hornetq.api.core.management.NotificationType;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.core.postoffice.impl.BindingsImpl;
 import org.hornetq.core.server.group.GroupingHandler;
 import org.hornetq.core.server.group.UnproposalListener;
@@ -98,7 +98,8 @@ public class ClusteredGroupingTest extends ClusterTestBase
          @Override
          public void onNotification(Notification notification)
          {
-            if (notification.getType() == NotificationType.UNPROPOSAL)
+            if (!(notification.getType() instanceof CoreNotificationType)) return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
             {
                latch.countDown();
             }
@@ -109,7 +110,8 @@ public class ClusteredGroupingTest extends ClusterTestBase
          @Override
          public void onNotification(Notification notification)
          {
-            if (notification.getType() == NotificationType.UNPROPOSAL)
+            if (!(notification.getType() instanceof CoreNotificationType)) return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
             {
                latch.countDown();
             }
@@ -205,7 +207,8 @@ public class ClusteredGroupingTest extends ClusterTestBase
          @Override
          public void onNotification(Notification notification)
          {
-            if (notification.getType() == NotificationType.UNPROPOSAL)
+            if (!(notification.getType() instanceof CoreNotificationType)) return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
             {
                latch.countDown();
             }
@@ -216,7 +219,8 @@ public class ClusteredGroupingTest extends ClusterTestBase
          @Override
          public void onNotification(Notification notification)
          {
-            if (notification.getType() == NotificationType.UNPROPOSAL)
+            if (!(notification.getType() instanceof CoreNotificationType)) return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
             {
                latch.countDown();
             }

@@ -67,9 +67,8 @@ public class SimpleSendReceiveSoakTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig(SimpleSendReceiveSoakTest.IS_NETTY);
-
-      config.setJournalFileSize(10 * 1024 * 1024);
+      Configuration config = createDefaultConfig(SimpleSendReceiveSoakTest.IS_NETTY)
+         .setJournalFileSize(10 * 1024 * 1024);
 
       server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
 

@@ -148,15 +148,16 @@
                         >core.server</literal>).</para>
                </listitem>
                <listitem>
-                   <para>It is possible to stop the server and force failover to occur with any currently attached clients.</para>
-                   <para>to do this use the <literal>forceFailover()</literal> on the <literal
+                  <para>It is possible to stop the server and force failover to occur with any currently attached clients.</para>
+                  <para>to do this use the <literal>forceFailover()</literal> on the <literal
                         >HornetQServerControl</literal> (with the ObjectName <literal
                         >org.hornetq:module=Core,type=Server</literal> or the resource name <literal
                         >core.server</literal>) </para>
-                   <para>
-                       <note>Since this method actually stops the server you will probably receive some sort of error
-                       depending on which management service you use to call it.</note>
-                   </para>
+                  <note>
+                     <para>Since this method actually stops the server you will probably receive some sort of error
+                        depending on which management service you use to call it.
+                     </para>
+                  </note>
                </listitem>
             </itemizedlist>
          </section>
@@ -834,7 +835,7 @@ notificationConsumer.setMessageListener(new MessageListener()
                how to use a JMS <literal>MessageListener</literal> to receive management notifications
                from HornetQ server.</para>
        </section>
-       <section>
+       <section id="notification.types.and.headers">
            <title>Notification Types and Headers</title>
            <para>Below is a list of all the different kinds of notifications as well as which headers are
                 on the messages.  Every notification has a <literal>_HQ_NotifType</literal> (value noted in parentheses)
@@ -965,6 +966,14 @@ notificationConsumer.setMessageListener(new MessageListener()
                        <literal>_JBM_ProposalAltValue</literal>, <literal>_HQ_Binding_Type</literal>,
                        <literal>_HQ_Address</literal>, <literal>_HQ_Distance</literal></para>
                </listitem>
+           </itemizedlist>
+           <itemizedlist>
+               <listitem>
+                   <para><literal>CONSUMER_SLOW</literal> (21)</para>
+                   <para><literal>_HQ_Address</literal>, <literal>_HQ_ConsumerCount</literal>,
+                       <literal>_HQ_RemoteAddress</literal>, <literal>_HQ_ConnectionName</literal>,
+                       <literal>_HQ_ConsumerName</literal>, <literal>_HQ_SessionName</literal></para>
+                </listitem>
            </itemizedlist>
        </section>
    </section>

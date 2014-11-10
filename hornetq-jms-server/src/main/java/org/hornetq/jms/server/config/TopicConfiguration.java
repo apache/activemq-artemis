@@ -21,5 +21,9 @@ public interface TopicConfiguration
 {
    String getName();
 
+   TopicConfiguration setName(String name);
+
    String[] getBindings();
+
+   TopicConfiguration setBindings(String... bindings);
 }

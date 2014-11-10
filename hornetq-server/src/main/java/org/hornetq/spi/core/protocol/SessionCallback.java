@@ -13,6 +13,7 @@
 package org.hornetq.spi.core.protocol;
 
 import org.hornetq.api.core.SimpleString;
+import org.hornetq.core.server.ServerConsumer;
 import org.hornetq.core.server.ServerMessage;
 import org.hornetq.spi.core.remoting.ReadyListener;
 
@@ -25,15 +26,18 @@ import org.hornetq.spi.core.remoting.ReadyListener;
  */
 public interface SessionCallback
 {
+   /** This one gives a chance for Proton to have its own flow control. */
+   boolean hasCredits(ServerConsumer consumerID);
+
    void sendProducerCreditsMessage(int credits, SimpleString address);
 
    void sendProducerCreditsFailMessage(int credits, SimpleString address);
 
-   int sendMessage(ServerMessage message, long consumerID, int deliveryCount);
+   int sendMessage(ServerMessage message, ServerConsumer consumerID, int deliveryCount);
 
-   int sendLargeMessage(ServerMessage message, long consumerID, long bodySize, int deliveryCount);
+   int sendLargeMessage(ServerMessage message, ServerConsumer consumerID, long bodySize, int deliveryCount);
 
-   int sendLargeMessageContinuation(long consumerID, byte[] body, boolean continues, boolean requiresResponse);
+   int sendLargeMessageContinuation(ServerConsumer consumerID, byte[] body, boolean continues, boolean requiresResponse);
 
    void closed();
 
@@ -41,5 +45,5 @@ public interface SessionCallback
 
    void removeReadyListener(ReadyListener listener);
 
-   void disconnect(long consumerId, String queueName);
+   void disconnect(ServerConsumer consumerId, String queueName);
 }

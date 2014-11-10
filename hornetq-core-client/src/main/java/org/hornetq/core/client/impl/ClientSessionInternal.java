@@ -19,6 +19,7 @@ import org.hornetq.api.core.client.ClientConsumer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.SendAcknowledgementHandler;
 import org.hornetq.spi.core.protocol.RemotingConnection;
+import org.hornetq.spi.core.remoting.ConsumerContext;
 
 /**
  * A ClientSessionInternal
@@ -49,17 +50,17 @@ public interface ClientSessionInternal extends ClientSession
 
    void removeProducer(ClientProducerInternal producer);
 
-   void handleReceiveMessage(long consumerID, ClientMessageInternal message) throws Exception;
+   void handleReceiveMessage(ConsumerContext consumerID, ClientMessageInternal message) throws Exception;
 
-   void handleReceiveLargeMessage(long consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception;
+   void handleReceiveLargeMessage(ConsumerContext consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception;
 
-   void handleReceiveContinuation(long consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception;
+   void handleReceiveContinuation(ConsumerContext consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception;
 
-   void handleConsumerDisconnect(long consumerID) throws HornetQException;
+   void handleConsumerDisconnect(ConsumerContext consumerContext) throws HornetQException;
 
    void preHandleFailover(RemotingConnection connection);
 
-   void handleFailover(RemotingConnection backupConnection);
+   void handleFailover(RemotingConnection backupConnection, HornetQException cause);
 
    RemotingConnection getConnection();
 
@@ -116,4 +117,5 @@ public interface ClientSessionInternal extends ClientSession
 
    boolean isClosing();
 
+   String getNodeId();
 }

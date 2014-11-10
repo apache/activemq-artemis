@@ -59,11 +59,11 @@ public class JournalCrashTest extends ServiceTestBase
 
    protected void startServer() throws Exception
    {
-      Configuration config = createDefaultConfig();
-      config.setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize());
-      config.setJournalCompactMinFiles(HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles());
-      config.setJournalCompactPercentage(HornetQDefaultConfiguration.getDefaultJournalCompactPercentage());
-      config.setJournalMinFiles(2);
+      Configuration config = createDefaultConfig()
+         .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
+         .setJournalCompactMinFiles(HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles())
+         .setJournalCompactPercentage(HornetQDefaultConfiguration.getDefaultJournalCompactPercentage())
+         .setJournalMinFiles(2);
 
       server = super.createServer(true, config);
 

@@ -1305,8 +1305,9 @@ public class MessageHeaderTest extends MessageHeaderTestBase
          return message;
       }
 
-      public void start() throws HornetQException
+      public FakeSession start() throws HornetQException
       {
+         return this;
       }
 
       public void stop() throws HornetQException
@@ -1336,8 +1337,9 @@ public class MessageHeaderTest extends MessageHeaderTestBase
          return 0;
       }
 
-      public void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler)
+      public FakeSession setSendAcknowledgementHandler(final SendAcknowledgementHandler handler)
       {
+         return this;
       }
 
       public void commit(final Xid xid, final boolean b) throws XAException

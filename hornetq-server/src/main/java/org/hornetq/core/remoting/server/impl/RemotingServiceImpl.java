@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,6 +49,7 @@ import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServerLogger;
 import org.hornetq.core.server.cluster.ClusterConnection;
 import org.hornetq.core.server.cluster.ClusterManager;
+import org.hornetq.core.server.impl.ServiceRegistry;
 import org.hornetq.core.server.impl.ServerSessionImpl;
 import org.hornetq.core.server.management.ManagementService;
 import org.hornetq.spi.core.protocol.ConnectionEntry;
@@ -67,6 +69,7 @@ import org.hornetq.utils.HornetQThreadFactory;
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener
 {
@@ -96,6 +99,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private ExecutorService threadPool;
 
+   private final Executor flushExecutor;
+
    private final ScheduledExecutorService scheduledThreadPool;
 
    private FailureCheckAndFlushThread failureCheckAndFlushThread;
@@ -106,6 +111,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private HornetQPrincipal defaultInvmSecurityPrincipal;
 
+   private ServiceRegistry serviceRegistry;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -114,43 +121,29 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                               final Configuration config,
                               final HornetQServer server,
                               final ManagementService managementService,
-                              final ScheduledExecutorService scheduledThreadPool, List<ProtocolManagerFactory> protocolManagerFactories)
+                              final ScheduledExecutorService scheduledThreadPool,
+                              List<ProtocolManagerFactory> protocolManagerFactories,
+                              final Executor flushExecutor,
+                              final ServiceRegistry serviceRegistry)
    {
+      this.serviceRegistry = serviceRegistry;
+
       acceptorsConfig = config.getAcceptorConfigurations();
 
       this.server = server;
 
       this.clusterManager = clusterManager;
 
-      for (String interceptorClass : config.getIncomingInterceptorClassNames())
-      {
-         try
-         {
-            incomingInterceptors.add((Interceptor) safeInitNewInstance(interceptorClass));
-         }
-         catch (Exception e)
-         {
-            HornetQServerLogger.LOGGER.errorCreatingRemotingInterceptor(e, interceptorClass);
-         }
-      }
+      setInterceptors(config);
 
-      for (String interceptorClass : config.getOutgoingInterceptorClassNames())
-      {
-         try
-         {
-            outgoingInterceptors.add((Interceptor) safeInitNewInstance(interceptorClass));
-         }
-         catch (Exception e)
-         {
-            HornetQServerLogger.LOGGER.errorCreatingRemotingInterceptor(e, interceptorClass);
-         }
-      }
       this.managementService = managementService;
 
       this.scheduledThreadPool = scheduledThreadPool;
 
       CoreProtocolManagerFactory coreProtocolManagerFactory = new CoreProtocolManagerFactory();
       //i know there is only 1
+      this.flushExecutor = flushExecutor;
+
       HornetQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0]);
       this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0],
                            coreProtocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
@@ -187,6 +180,23 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    // RemotingService implementation -------------------------------
+
+   private void setInterceptors(Configuration configuration)
+   {
+      addReflectivelyInstantiatedInterceptors(configuration.getIncomingInterceptorClassNames(), incomingInterceptors);
+      addReflectivelyInstantiatedInterceptors(configuration.getOutgoingInterceptorClassNames(), outgoingInterceptors);
+      incomingInterceptors.addAll(serviceRegistry.getIncomingInterceptors());
+      outgoingInterceptors.addAll(serviceRegistry.getOutgoingInterceptors());
+   }
+
+   private void addReflectivelyInstantiatedInterceptors(List<String> classNames, List<Interceptor> interceptors)
+   {
+      for (String className : classNames)
+      {
+         Interceptor interceptor = ((Interceptor) safeInitNewInstance(className));
+         interceptors.add(interceptor);
+      }
+   }
 
    public synchronized void start() throws Exception
    {
@@ -463,6 +473,23 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       return started;
    }
 
+
+   private RemotingConnection getConnection(final Object remotingConnectionID)
+   {
+      ConnectionEntry entry = connections.get(remotingConnectionID);
+
+      if (entry != null)
+      {
+         return entry.connection;
+      }
+      else
+      {
+         HornetQServerLogger.LOGGER.errorRemovingConnection();
+
+         return null;
+      }
+   }
+
    public RemotingConnection removeConnection(final Object remotingConnectionID)
    {
       ConnectionEntry entry = connections.remove(remotingConnectionID);
@@ -689,7 +716,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
                for (ConnectionEntry entry : connections.values())
                {
-                  RemotingConnection conn = entry.connection;
+                  final RemotingConnection conn = entry.connection;
 
                   boolean flush = true;
 
@@ -712,16 +739,34 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
                   if (flush)
                   {
-                     conn.flush();
+                     flushExecutor.execute(new Runnable()
+                     {
+                        public void run()
+                        {
+                           try
+                           {
+                              // this is using a different thread
+                              // as if anything wrong happens on flush
+                              // failure detection could be affected
+                              conn.flush();
+                           }
+                           catch (Throwable e)
+                           {
+                              HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+                           }
+
+                        }
+                     });
                   }
                }
 
                for (Object id : idsToRemove)
                {
-                  RemotingConnection conn = removeConnection(id);
+                  RemotingConnection conn = getConnection(id);
                   if (conn != null)
                   {
                      conn.fail(HornetQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
+                     removeConnection(id);
                   }
                }
 

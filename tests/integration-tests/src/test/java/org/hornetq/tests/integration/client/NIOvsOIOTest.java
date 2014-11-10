@@ -153,9 +153,8 @@ public class NIOvsOIOTest extends UnitTestCase
    {
       String acceptorFactoryClassName = "org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory";
 
-      Configuration conf = createDefaultConfig();
-
-      conf.setSecurityEnabled(false);
+      Configuration conf = createDefaultConfig()
+         .setSecurityEnabled(false);
 
       Map<String, Object> params = new HashMap<String, Object>();
 

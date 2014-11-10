@@ -13,11 +13,12 @@
 package org.hornetq.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.BroadcastGroupConfiguration;
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.api.core.SimpleString;
@@ -40,20 +41,42 @@ import org.hornetq.core.server.cluster.Bridge;
 import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * A BridgeWithDiscoveryGroupStartTest
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
+@RunWith(value = Parameterized.class)
 public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
 {
+
+   @Parameterized.Parameters(name = "isNetty={0}")
+   public static Collection getParameters()
+   {
+      return Arrays.asList(new Object[][]{
+         {true},
+         {false}
+      });
+   }
+
+   public BridgeWithDiscoveryGroupStartTest(boolean netty)
+   {
+      this.netty = netty;
+   }
+
+
+   private final boolean netty;
+
+
 
    private static final int TIMEOUT = 2000;
 
    protected boolean isNetty()
    {
-      return false;
+      return netty;
    }
 
    @Test
@@ -94,16 +117,21 @@ public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
          ArrayList<String> list = new ArrayList<String>();
          list.add(server1tc.getName());
 
-         UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration(groupAddress, port, null, -1);
+         UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration().setGroupAddress(groupAddress).setGroupPort(port);
 
-         BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration("bg1",
-                                                                                250,
-                                                                                list,
-                                                                                endpoint);
+         BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration()
+            .setName("bg1")
+            .setBroadcastPeriod(250)
+            .setConnectorInfos(list)
+            .setEndpointFactoryConfiguration(endpoint);
 
          server0.getConfiguration().getBroadcastGroupConfigurations().add(bcConfig);
 
-         DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration("dg1", 5000, 5000, endpoint);
+         DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration()
+            .setName("dg1")
+            .setRefreshTimeout(5000)
+            .setDiscoveryInitialWaitTimeout(5000)
+            .setBroadcastEndpointFactoryConfiguration(endpoint);
 
          server0.getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
 
@@ -111,37 +139,30 @@ public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
 
          ArrayList<String> staticConnectors = new ArrayList<String>();
          staticConnectors.add(server1tc.getName());
-         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration(bridgeName,
-                                                                           queueName0,
-                                                                           forwardAddress,
-                                                                           null,
-                                                                           null,
-                                                                           HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                                           HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                                                           HornetQClient.DEFAULT_CONNECTION_TTL,
-                                                                           1000,
-                                                                           HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                                                           1d,
-                                                                           -1,
-                                                                           0,
-                                                                           0,
-                                                                           true,
-                                                                           1024,
-                                                                           staticConnectors,
-                                                                           false,
-                                                                           HornetQDefaultConfiguration.getDefaultClusterUser(),
-                                                                           HornetQDefaultConfiguration.getDefaultClusterPassword());
+         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
+            .setName(bridgeName)
+            .setQueueName(queueName0)
+            .setForwardingAddress(forwardAddress)
+            .setRetryInterval(1000)
+            .setReconnectAttempts(0)
+            .setReconnectAttemptsOnSameNode(0)
+            .setConfirmationWindowSize(1024)
+            .setStaticConnectors(staticConnectors);
 
          List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration(testAddress, queueName0, null, true);
+         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration()
+            .setAddress(testAddress)
+            .setName(queueName0);
          List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration(forwardAddress, queueName1, null, true);
+         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration()
+            .setAddress(forwardAddress)
+            .setName(queueName1);
          List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);

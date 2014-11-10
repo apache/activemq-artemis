@@ -15,12 +15,15 @@ package org.hornetq.jms.client;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.Message;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.client.ClientMessage;
 import org.hornetq.api.core.client.ClientSession;
+
+import static org.hornetq.reader.TextMessageUtil.readBodyText;
+import static org.hornetq.reader.TextMessageUtil.writeBodyText;
+
 
 /**
  * HornetQ implementation of a JMS TextMessage.
@@ -85,10 +88,6 @@ public class HornetQTextMessage extends HornetQMessage implements TextMessage
    {
       checkWrite();
 
-      HornetQBuffer buff = message.getBodyBuffer();
-
-      buff.clear();
-
       if (text != null)
       {
          this.text = new SimpleString(text);
@@ -98,7 +97,7 @@ public class HornetQTextMessage extends HornetQMessage implements TextMessage
          this.text = null;
       }
 
-      buff.writeNullableSimpleString(this.text);
+      writeBodyText(message, this.text);
    }
 
    public String getText()
@@ -114,7 +113,7 @@ public class HornetQTextMessage extends HornetQMessage implements TextMessage
    }
 
    @Override
-   public void clearBody()
+   public void clearBody() throws JMSException
    {
       super.clearBody();
 
@@ -128,7 +127,7 @@ public class HornetQTextMessage extends HornetQMessage implements TextMessage
    {
       super.doBeforeReceive();
 
-      text = message.getBodyBuffer().readNullableSimpleString();
+      text = readBodyText(message);
    }
 
    @Override

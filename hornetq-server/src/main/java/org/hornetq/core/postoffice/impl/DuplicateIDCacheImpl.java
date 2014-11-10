@@ -93,7 +93,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
             // cache size has been reduced in config - delete the extra records
             if (txID == -1)
             {
-               txID = storageManager.generateUniqueID();
+               txID = storageManager.generateID();
             }
 
             storageManager.deleteDuplicateIDTransactional(txID, id.getB());
@@ -156,7 +156,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
       {
          if (persist)
          {
-            recordID = storageManager.generateUniqueID();
+            recordID = storageManager.generateID();
             storageManager.storeDuplicateID(address, duplID, recordID);
          }
 
@@ -166,7 +166,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
       {
          if (persist)
          {
-            recordID = storageManager.generateUniqueID();
+            recordID = storageManager.generateID();
             storageManager.storeDuplicateIDTransactional(tx.getID(), address, duplID, recordID);
 
             tx.setContainsPersistent();
@@ -245,12 +245,15 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
    {
       synchronized (this)
       {
-         long tx = storageManager.generateUniqueID();
-         for (Pair<ByteArrayHolder, Long> id : ids)
+         if (ids.size() > 0)
          {
-            storageManager.deleteDuplicateIDTransactional(tx, id.getB());
+            long tx = storageManager.generateID();
+            for (Pair<ByteArrayHolder, Long> id : ids)
+            {
+               storageManager.deleteDuplicateIDTransactional(tx, id.getB());
+            }
+            storageManager.commit(tx);
          }
-         storageManager.commit(tx);
 
          ids.clear();
          cache.clear();

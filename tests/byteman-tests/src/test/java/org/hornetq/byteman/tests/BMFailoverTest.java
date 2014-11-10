@@ -19,6 +19,7 @@ import javax.transaction.xa.Xid;
 
 import org.hornetq.api.core.HornetQTransactionOutcomeUnknownException;
 import org.hornetq.api.core.HornetQTransactionRolledBackException;
+import org.hornetq.api.core.HornetQUnBlockedException;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientConsumer;
@@ -27,6 +28,7 @@ import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
+import org.hornetq.core.client.HornetQClientMessageBundle;
 import org.hornetq.core.client.impl.ClientMessageImpl;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
 import org.hornetq.core.client.impl.ClientSessionInternal;
@@ -35,11 +37,13 @@ import org.hornetq.core.server.Queue;
 import org.hornetq.core.transaction.impl.XidImpl;
 import org.hornetq.tests.integration.cluster.failover.FailoverTestBase;
 import org.hornetq.tests.integration.cluster.util.TestableServer;
+import org.hornetq.tests.util.RandomUtil;
 import org.hornetq.utils.UUIDGenerator;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +65,7 @@ public class BMFailoverTest extends FailoverTestBase
    public void setUp() throws Exception
    {
       super.setUp();
+      stopped = false;
       locator = getServerLocator();
    }
 
@@ -69,6 +74,122 @@ public class BMFailoverTest extends FailoverTestBase
    public void tearDown() throws Exception
    {
       super.tearDown();
+   }
+
+   private static boolean stopped = false;
+   public static void stopAndThrow() throws HornetQUnBlockedException
+   {
+      if (!stopped)
+      {
+         try
+         {
+            serverToStop.getServer().stop(true);
+         }
+         catch (Exception e)
+         {
+            e.printStackTrace();
+         }
+         try
+         {
+            Thread.sleep(2000);
+         }
+         catch (InterruptedException e)
+         {
+            e.printStackTrace();
+         }
+         stopped = true;
+         throw HornetQClientMessageBundle.BUNDLE.unblockingACall(null);
+      }
+   }
+   @Test
+   @BMRules
+   (
+         rules =
+               {
+                     @BMRule
+                           (
+                                 name = "trace HornetQSessionContext xaEnd",
+                                 targetClass = "org.hornetq.core.protocol.core.impl.HornetQSessionContext",
+                                 targetMethod = "xaEnd",
+                                 targetLocation = "AT EXIT",
+                                 action = "org.hornetq.byteman.tests.BMFailoverTest.stopAndThrow()"
+                           )
+               }
+   )
+   //https://bugzilla.redhat.com/show_bug.cgi?id=1152410
+   public void testFailOnEndAndRetry() throws Exception
+   {
+      serverToStop = liveServer;
+
+      createSessionFactory();
+
+      ClientSession session = createSession(sf, true, false, false);
+
+      session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+
+      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+
+      for (int i = 0; i < 100; i++)
+      {
+         producer.send(createMessage(session, i, true));
+      }
+
+      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+
+      Xid xid = RandomUtil.randomXid();
+
+      session.start(xid, XAResource.TMNOFLAGS);
+      session.start();
+      // Receive MSGs but don't ack!
+      for (int i = 0; i < 100; i++)
+      {
+         ClientMessage message = consumer.receive(1000);
+
+         Assert.assertNotNull(message);
+
+         assertMessageBody(i, message);
+
+         Assert.assertEquals(i, message.getIntProperty("counter").intValue());
+      }
+      try
+      {
+         //top level prepare
+         session.end(xid, XAResource.TMSUCCESS);
+      }
+      catch (XAException e)
+      {
+         try
+         {
+            //top level abort
+            session.end(xid, XAResource.TMFAIL);
+         }
+         catch (XAException e1)
+         {
+            try
+            {
+               //rollback
+               session.rollback(xid);
+            }
+            catch (XAException e2)
+            {
+            }
+         }
+      }
+      xid = RandomUtil.randomXid();
+      session.start(xid, XAResource.TMNOFLAGS);
+
+      for (int i = 0; i < 50; i++)
+      {
+         ClientMessage message = consumer.receive(1000);
+
+         Assert.assertNotNull(message);
+
+         assertMessageBody(i, message);
+
+         Assert.assertEquals(i, message.getIntProperty("counter").intValue());
+      }
+      session.end(xid, XAResource.TMSUCCESS);
+      session.commit(xid, true);
    }
 
    @Test
@@ -170,7 +291,7 @@ public class BMFailoverTest extends FailoverTestBase
       //let's close the consumer so anything pending is handled
       consumer.close();
 
-      assertTrue("actual message count=" + inQ.getMessageCount(), inQ.getMessageCount() == 1);
+      assertEquals(1, getMessageCount(inQ));
    }
 
 
@@ -212,7 +333,7 @@ public class BMFailoverTest extends FailoverTestBase
       sendMessages(session, producer, 10);
       session.commit();
       Queue bindable = (Queue) backupServer.getServer().getPostOffice().getBinding(FailoverTestBase.ADDRESS).getBindable();
-      assertTrue(bindable.getMessageCount() == 10);
+      assertEquals(10, getMessageCount(bindable));
    }
 
    @Test
@@ -266,7 +387,8 @@ public class BMFailoverTest extends FailoverTestBase
          //pass
       }
       Queue bindable = (Queue) backupServer.getServer().getPostOffice().getBinding(FailoverTestBase.ADDRESS).getBindable();
-      assertTrue("messager count = " + bindable.getMessageCount(), bindable.getMessageCount() == 10);
+      assertEquals(10, getMessageCount(bindable));
+
    }
 
    @Override
@@ -302,6 +424,13 @@ public class BMFailoverTest extends FailoverTestBase
    {
       return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks));
    }
+
+   protected ClientSession
+   createSession(ClientSessionFactory sf1, boolean xa, boolean autoCommitSends,   boolean autoCommitAcks) throws Exception
+   {
+      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
+   }
+
 
    private void createSessionFactory() throws Exception
    {

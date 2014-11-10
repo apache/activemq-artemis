@@ -254,6 +254,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
       }
    }
 
+   public long getMessagesAcknowledged()
+   {
+      checkStarted();
+
+      clearIO();
+      try
+      {
+         return queue.getMessagesAcknowledged();
+      }
+      finally
+      {
+         blockOnIO();
+      }
+   }
+
    public long getID()
    {
       checkStarted();
@@ -926,6 +941,22 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
       }
    }
 
+
+   public void flushExecutor()
+   {
+      checkStarted();
+
+      clearIO();
+      try
+      {
+         queue.flushExecutor();
+      }
+      finally
+      {
+         blockOnIO();
+      }
+   }
+
    @Override
    public String listConsumersAsJSON() throws Exception
    {
@@ -979,6 +1010,22 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
       try
       {
          queue.resetMessagesAdded();
+      }
+      finally
+      {
+         blockOnIO();
+      }
+
+   }
+
+   public void resetMessagesAcknowledged() throws Exception
+   {
+      checkStarted();
+
+      clearIO();
+      try
+      {
+         queue.resetMessagesAcknowledged();
       }
       finally
       {

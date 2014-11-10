@@ -122,7 +122,7 @@ public class PostOfficeJournalLoader implements JournalLoader
 
             if (isTopicIdentification)
             {
-               long tx = storageManager.generateUniqueID();
+               long tx = storageManager.generateID();
                storageManager.deleteQueueBinding(tx, queueBindingInfo.getId());
                storageManager.commitBindings(tx);
                continue;

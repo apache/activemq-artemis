@@ -18,6 +18,21 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.hornetq</groupId>
+         <artifactId>hornetq-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.hornetq</groupId>
+         <artifactId>hornetq-jms-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.hornetq</groupId>
+         <artifactId>hornetq-dto</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>
       </dependency>
@@ -26,9 +41,28 @@
          <artifactId>jboss-logging</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.jboss.microcontainer</groupId>
-         <artifactId>jboss-kernel</artifactId>
+         <groupId>io.airlift</groupId>
+         <artifactId>airline</artifactId>
       </dependency>
    </dependencies>
+
+   <build>
+     <resources>
+       <resource>
+         <directory>${project.basedir}/src/main/resources</directory>
+         <includes>
+           <include>**/*</include>
+         </includes>
+       </resource>
+       <resource>
+         <directory>${project.basedir}/src/main/filtered-resources</directory>
+         <filtering>true</filtering>
+         <includes>
+           <include>**/*</include>
+         </includes>
+       </resource>
+     </resources>
+   </build>
+
 
 </project>

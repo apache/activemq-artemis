@@ -139,36 +139,39 @@ public class ConstantExpression implements Expression
    }
 
    /**
-    * TODO: more efficient hashCode()
-    *
     * @see java.lang.Object#hashCode()
     */
    public int hashCode()
    {
-      return toString().hashCode();
+      return value != null ? value.hashCode() : 0;
    }
 
    /**
-    * TODO: more efficient hashCode()
-    *
-    * @see java.lang.Object#equals(java.lang.Object)
+    * @see java.lang.Object#equals(Object)
     */
-   public boolean equals(Object o)
+   public boolean equals(final Object o)
    {
-
-      if (o == null || !this.getClass().equals(o.getClass()))
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
       {
          return false;
       }
-      return toString().equals(o.toString());
-
+      final ConstantExpression that = (ConstantExpression)o;
+      if (value != null && !value.equals(that.value))
+      {
+         return false;
+      }
+      return true;
    }
 
    /**
     * Encodes the value of string so that it looks like it would look like when
     * it was provided in a selector.
     *
-    * @param string
+    * @param s
     * @return
     */
    public static String encodeString(String s)

@@ -67,8 +67,8 @@ public class HeuristicXATest extends ServiceTestBase
    @Test
    public void testInvalidCall() throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-      configuration.setJMXManagementEnabled(true);
+      Configuration configuration = createDefaultConfig()
+         .setJMXManagementEnabled(true);
 
       HornetQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
@@ -92,8 +92,8 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void internalTest(final boolean isCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-      configuration.setJMXManagementEnabled(true);
+      Configuration configuration = createDefaultConfig()
+         .setJMXManagementEnabled(true);
 
       HornetQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
@@ -155,7 +155,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       if (isCommit)
       {
-         Assert.assertEquals(1, ((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+         Assert.assertEquals(1, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
          session = sf.createSession(false, false, false);
 
@@ -170,7 +170,7 @@ public class HeuristicXATest extends ServiceTestBase
          session.close();
       }
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
    }
 
    @Test
@@ -187,8 +187,8 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void doHeuristicCompletionWithRestart(final boolean isCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-      configuration.setJMXManagementEnabled(true);
+      Configuration configuration = createDefaultConfig()
+         .setJMXManagementEnabled(true);
 
       HornetQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
@@ -237,7 +237,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       if (isCommit)
       {
-         Assert.assertEquals(1, ((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+         Assert.assertEquals(1, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
          session = sf.createSession(false, false, false);
 
@@ -252,7 +252,7 @@ public class HeuristicXATest extends ServiceTestBase
          session.close();
       }
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       server.stop();
 
@@ -287,8 +287,8 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void doRecoverHeuristicCompletedTxWithRestart(final boolean heuristicCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-      configuration.setJMXManagementEnabled(true);
+      Configuration configuration = createDefaultConfig()
+         .setJMXManagementEnabled(true);
 
       HornetQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
@@ -337,7 +337,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       if (heuristicCommit)
       {
-         Assert.assertEquals(1, ((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+         Assert.assertEquals(1, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
          session = sf.createSession(false, false, false);
 
@@ -352,7 +352,7 @@ public class HeuristicXATest extends ServiceTestBase
          session.close();
       }
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       server.stop();
 
@@ -396,8 +396,8 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void doForgetHeuristicCompletedTxAndRestart(final boolean heuristicCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-      configuration.setJMXManagementEnabled(true);
+      Configuration configuration = createDefaultConfig()
+         .setJMXManagementEnabled(true);
 
       HornetQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();

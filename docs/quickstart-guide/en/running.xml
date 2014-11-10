@@ -26,21 +26,21 @@
    <section id="running.standalone">
       <title>Standalone HornetQ</title>
       <para>To run a stand-alone server, open up a shell or command prompt and navigate into the
-            <literal>bin</literal> directory. Then execute <literal>./run.sh</literal> (or <literal
-            >run.bat</literal> on Windows) and you should see the following output </para>
+            <literal>bin</literal> directory. Then execute <literal>./hornetq run</literal> (or <literal
+            >./hornetq.cmd run</literal> on Windows) and you should see the following output </para>
       <programlisting>
-         bin$ ./run.sh
-         
-         15:05:54,108 INFO  @main [HornetQBootstrapServer] Starting HornetQ server
+         bin$ ./hornetq run
+
+         11:05:06,589 INFO  [org.hornetq.integration.bootstrap] HQ101000: Starting HornetQ Server
          ...
-         15:06:02,566 INFO  @main [HornetQServerImpl] HornetQ Server version 
-         2.0.0.CR3 (yellowjacket, 111) started
+         11:05:10,848 INFO  [org.hornetq.core.server] HQ221001: HornetQ Server version 2.5.0.SNAPSHOT (Wild Hornet, 125) [e32ae252-52ee-11e4-a716-7785dc3013a3]
       </programlisting>
       <para>HornetQ is now running.</para>
       <para>Both the run and the stop scripts use the config under <literal
-            >config/stand-alone/non-clustered</literal> by default. The configuration can be changed
-         by running <literal>./run.sh ../config/stand-alone/clustered</literal> or another config of
-         your choosing. This is the same for the stop script and the windows bat files.</para>
+            >config/non-clustered</literal> by default. The configuration can be changed
+         by running <literal>./hornetq run xml:../config/non-clustered/bootstrap.xml</literal> or another config of
+         your choosing.</para>
+      <para>The server can be stopped by running <literal>./hornetq stop</literal></para>
    </section>
    <section id="running.jboss.Wildfly">
       <title>HornetQ In Wildfly</title>

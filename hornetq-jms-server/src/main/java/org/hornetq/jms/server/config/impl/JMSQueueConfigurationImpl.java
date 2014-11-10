@@ -29,28 +29,20 @@ public class JMSQueueConfigurationImpl implements JMSQueueConfiguration
 
    // Attributes ----------------------------------------------------
 
-   private final String name;
+   private String name = null;
 
-   private final String selector;
+   private String selector = null;
 
-   private final boolean durable;
+   private boolean durable = true;
 
-   private final String[] bindings;
+   private String[] bindings = null;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public JMSQueueConfigurationImpl(final String name,
-                                 final String selector,
-                                 final boolean durable,
-                                 final String... bindings)
+   public JMSQueueConfigurationImpl()
    {
-      this.name = name;
-      this.selector = selector;
-      this.durable = durable;
-      this.bindings = new String[bindings.length];
-      System.arraycopy(bindings, 0, this.bindings, 0, bindings.length);
    }
 
    // QueueConfiguration implementation -----------------------------
@@ -60,9 +52,21 @@ public class JMSQueueConfigurationImpl implements JMSQueueConfiguration
       return bindings;
    }
 
+   public JMSQueueConfigurationImpl setBindings(String... bindings)
+   {
+      this.bindings = bindings;
+      return this;
+   }
+
    public String getName()
    {
       return name;
+   }
+
+   public JMSQueueConfigurationImpl setName(String name)
+   {
+      this.name = name;
+      return this;
    }
 
    public String getSelector()
@@ -70,9 +74,21 @@ public class JMSQueueConfigurationImpl implements JMSQueueConfiguration
       return selector;
    }
 
+   public JMSQueueConfigurationImpl setSelector(String selector)
+   {
+      this.selector = selector;
+      return this;
+   }
+
    public boolean isDurable()
    {
       return durable;
+   }
+
+   public JMSQueueConfigurationImpl setDurable(boolean durable)
+   {
+      this.durable = durable;
+      return this;
    }
 
    // Public --------------------------------------------------------

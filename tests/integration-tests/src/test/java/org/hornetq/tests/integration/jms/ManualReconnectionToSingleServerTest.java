@@ -148,25 +148,25 @@ public class ManualReconnectionToSingleServerTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+      context = new InVMNamingContext();
+
+      Configuration conf = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+
       server = createServer(false, conf);
 
       JMSConfiguration configuration = new JMSConfigurationImpl();
-      context = new InVMNamingContext();
       configuration.setContext(context);
-      configuration.getQueueConfigurations().add(new JMSQueueConfigurationImpl(QUEUE_NAME, null, true, QUEUE_NAME));
+      configuration.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(QUEUE_NAME).setBindings(QUEUE_NAME));
 
       ArrayList<TransportConfiguration> configs = new ArrayList<TransportConfiguration>();
       configs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl("cf",
-            false,
-            registerConnectors(server, configs), "/cf");
-      cfConfig.setRetryInterval(1000);
-      cfConfig.setRetryIntervalMultiplier(1.0);
-      cfConfig.setReconnectAttempts(-1);
+      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
+         .setName("cf")
+         .setConnectorNames(registerConnectors(server, configs))
+         .setBindings("/cf")
+         .setRetryInterval(1000)
+         .setReconnectAttempts(-1);
       configuration.getConnectionFactoryConfigurations().add(cfConfig);
       serverManager = new JMSServerManagerImpl(server, configuration);
       serverManager.start();

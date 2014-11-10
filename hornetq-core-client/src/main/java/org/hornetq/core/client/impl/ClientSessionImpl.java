@@ -40,6 +40,7 @@ import org.hornetq.core.client.HornetQClientLogger;
 import org.hornetq.core.client.HornetQClientMessageBundle;
 import org.hornetq.core.remoting.FailureListener;
 import org.hornetq.spi.core.protocol.RemotingConnection;
+import org.hornetq.spi.core.remoting.ConsumerContext;
 import org.hornetq.spi.core.remoting.SessionContext;
 import org.hornetq.utils.ConfirmationWindowWarning;
 import org.hornetq.utils.TokenBucketLimiterImpl;
@@ -51,6 +52,7 @@ import org.hornetq.utils.XidCodecSupport;
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public final class ClientSessionImpl implements ClientSessionInternal, FailureListener
 {
@@ -77,7 +79,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    private final Set<ClientProducerInternal> producers = new HashSet<ClientProducerInternal>();
 
    // Consumers must be an ordered map so if we fail we recreate them in the same order with the same ids
-   private final Map<Long, ClientConsumerInternal> consumers = new LinkedHashMap<Long, ClientConsumerInternal>();
+   private final Map<ConsumerContext, ClientConsumerInternal> consumers = new LinkedHashMap<ConsumerContext, ClientConsumerInternal>();
 
    private volatile boolean closed;
 
@@ -222,6 +224,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       producerCreditManager = new ClientProducerCreditManagerImpl(this, producerWindowSize);
 
       this.sessionContext = sessionContext;
+
+      sessionContext.setSession(this);
 
       confirmationWindowWarning = sessionFactory.getConfirmationWindowWarning();
    }
@@ -652,7 +656,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void start() throws HornetQException
+   public ClientSessionImpl start() throws HornetQException
    {
       checkClosed();
 
@@ -667,6 +671,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
          started = true;
       }
+
+      return this;
    }
 
    public void stop() throws HornetQException
@@ -719,6 +725,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public boolean isClosing()
    {
       return inClose;
+   }
+
+   @Override
+   public String getNodeId()
+   {
+      return sessionFactory.getLiveNodeId();
    }
 
    // ClientSessionInternal implementation
@@ -812,7 +824,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       synchronized (consumers)
       {
-         consumers.put(consumer.getID(), consumer);
+         consumers.put(consumer.getConsumerContext(), consumer);
       }
    }
 
@@ -828,7 +840,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       synchronized (consumers)
       {
-         consumers.remove(consumer.getID());
+         consumers.remove(consumer.getConsumerContext());
       }
    }
 
@@ -840,7 +852,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void handleReceiveMessage(final long consumerID, final ClientMessageInternal message) throws Exception
+   public void handleReceiveMessage(final ConsumerContext consumerID, final ClientMessageInternal message) throws Exception
    {
       ClientConsumerInternal consumer = getConsumer(consumerID);
 
@@ -850,7 +862,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void handleReceiveLargeMessage(final long consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
+   public void handleReceiveLargeMessage(final ConsumerContext consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
    {
       ClientConsumerInternal consumer = getConsumer(consumerID);
 
@@ -860,7 +872,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void handleReceiveContinuation(final long consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception
+   public void handleReceiveContinuation(final ConsumerContext consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception
    {
       ClientConsumerInternal consumer = getConsumer(consumerID);
 
@@ -871,9 +883,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
-   public void handleConsumerDisconnect(long consumerID) throws HornetQException
+   public void handleConsumerDisconnect(ConsumerContext context) throws HornetQException
    {
-      final ClientConsumerInternal consumer = getConsumer(consumerID);
+      final ClientConsumerInternal consumer = getConsumer(context);
 
       if (consumer != null)
       {
@@ -944,9 +956,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       doCleanup(failingOver);
    }
 
-   public void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler)
+   public ClientSessionImpl setSendAcknowledgementHandler(final SendAcknowledgementHandler handler)
    {
       sessionContext.setSendAcknowledgementHandler(handler);
+      return this;
    }
 
    public void preHandleFailover(RemotingConnection connection)
@@ -959,7 +972,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // Needs to be synchronized to prevent issues with occurring concurrently with close()
 
-   public void handleFailover(final RemotingConnection backupConnection)
+   public void handleFailover(final RemotingConnection backupConnection, HornetQException cause)
    {
       synchronized (this)
       {
@@ -1008,7 +1021,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                  minLargeMessageSize, xa, autoCommitSends,
                                                  autoCommitAcks, preAcknowledge, defaultAddress);
 
-                  for (Map.Entry<Long, ClientConsumerInternal> entryx : consumers.entrySet())
+                  for (Map.Entry<ConsumerContext, ClientConsumerInternal> entryx : consumers.entrySet())
                   {
 
                      ClientConsumerInternal consumerInternal = entryx.getValue();
@@ -1043,7 +1056,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                   resetCreditManager = true;
                }
 
-               sessionContext.returnBlocking();
+               sessionContext.returnBlocking(cause);
             }
          }
          catch (Throwable t)
@@ -1137,7 +1150,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    public synchronized ClientProducerCredits getCredits(final SimpleString address, final boolean anon)
    {
-      return producerCreditManager.getCredits(address, anon);
+      ClientProducerCredits credits = producerCreditManager.getCredits(address, anon, sessionContext);
+
+      return credits;
    }
 
    public void returnCredits(final SimpleString address)
@@ -1343,19 +1358,45 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       checkXA();
 
-      if (!(xares instanceof ClientSessionInternal))
-      {
-         return false;
-      }
-
       if (forceNotSameRM)
       {
          return false;
       }
 
-      ClientSessionInternal other = (ClientSessionInternal) xares;
+      ClientSessionInternal other = getSessionInternalFromXAResource(xares);
 
+      if (other == null)
+      {
+         return false;
+      }
+
+      String liveNodeId = sessionFactory.getLiveNodeId();
+      String otherLiveNodeId = ((ClientSessionFactoryInternal) other.getSessionFactory()).getLiveNodeId();
+
+      if (liveNodeId != null && otherLiveNodeId != null)
+      {
+         return liveNodeId.equals(otherLiveNodeId);
+      }
+
+      //we shouldn't get here, live node id should always be set
       return sessionFactory == other.getSessionFactory();
+   }
+
+   private ClientSessionInternal getSessionInternalFromXAResource(final XAResource xares)
+   {
+      if (xares == null)
+      {
+         return null;
+      }
+      if (xares instanceof ClientSessionInternal)
+      {
+         return (ClientSessionInternal) xares;
+      }
+      else if (xares instanceof HornetQXAResource)
+      {
+         return getSessionInternalFromXAResource(((HornetQXAResource)xares).getResource());
+      }
+      return null;
    }
 
    public int prepare(final Xid xid) throws XAException
@@ -1732,15 +1773,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   /**
-    * @param consumerID
-    * @return
-    */
-   private ClientConsumerInternal getConsumer(final long consumerID)
+   private ClientConsumerInternal getConsumer(final ConsumerContext consumerContext)
    {
       synchronized (consumers)
       {
-         ClientConsumerInternal consumer = consumers.get(consumerID);
+         ClientConsumerInternal consumer = consumers.get(consumerContext);
          return consumer;
       }
    }

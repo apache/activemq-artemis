@@ -179,9 +179,9 @@ public class NettyConnectorTest extends UnitTestCase
             Executors.newScheduledThreadPool(5));
 
 
-      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-side.keystore");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "client-side.truststore");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
       System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
 
       connector.start();
@@ -235,9 +235,9 @@ public class NettyConnectorTest extends UnitTestCase
       System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "bad path");
       System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
 
-      System.setProperty(NettyConnector.HORNETQ_KEYSTORE_PATH_PROP_NAME, "client-side.keystore");
+      System.setProperty(NettyConnector.HORNETQ_KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
       System.setProperty(NettyConnector.HORNETQ_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.HORNETQ_TRUSTSTORE_PATH_PROP_NAME, "client-side.truststore");
+      System.setProperty(NettyConnector.HORNETQ_TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
       System.setProperty(NettyConnector.HORNETQ_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
 
 

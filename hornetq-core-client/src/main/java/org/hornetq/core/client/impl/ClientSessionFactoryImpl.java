@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -45,8 +44,6 @@ import org.hornetq.api.core.client.SessionFailureListener;
 import org.hornetq.core.client.HornetQClientLogger;
 import org.hornetq.core.client.HornetQClientMessageBundle;
 import org.hornetq.core.protocol.core.CoreRemotingConnection;
-import org.hornetq.core.protocol.core.impl.HornetQClientProtocolManager;
-import org.hornetq.core.protocol.core.impl.PacketDecoder;
 import org.hornetq.core.remoting.FailureListener;
 import org.hornetq.core.server.HornetQComponent;
 import org.hornetq.spi.core.protocol.RemotingConnection;
@@ -56,7 +53,7 @@ import org.hornetq.spi.core.remoting.Connection;
 import org.hornetq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.hornetq.spi.core.remoting.Connector;
 import org.hornetq.spi.core.remoting.ConnectorFactory;
-import org.hornetq.spi.core.remoting.ProtocolResponseHandler;
+import org.hornetq.spi.core.remoting.TopologyResponseHandler;
 import org.hornetq.spi.core.remoting.SessionContext;
 import org.hornetq.utils.ClassloadingUtil;
 import org.hornetq.utils.ConcurrentHashSet;
@@ -69,15 +66,11 @@ import org.hornetq.utils.UUIDGenerator;
 /**
  * @author Tim Fox
  * @author Clebert Suconic
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ConnectionLifeCycleListener
 {
-
-
-   // TODO use the factory here
-   protected ClientProtocolManager clientProtocolManager = new HornetQClientProtocolManager(this);
-
    // Constants
    // ------------------------------------------------------------------------------------
 
@@ -89,6 +82,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    // -----------------------------------------------------------------------------------
 
    private final ServerLocatorInternal serverLocator;
+
+   private final ClientProtocolManager clientProtocolManager;
 
    private TransportConfiguration connectorConfig;
 
@@ -159,7 +154,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private String liveNodeID;
 
-
    public ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
                                    final TransportConfiguration connectorConfig,
                                    final long callTimeout,
@@ -173,18 +167,21 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    final Executor threadPool,
                                    final ScheduledExecutorService scheduledThreadPool,
                                    final List<Interceptor> incomingInterceptors,
-                                   final List<Interceptor> outgoingInterceptors,
-                                   PacketDecoder packetDecoder)
+                                   final List<Interceptor> outgoingInterceptors)
    {
       createTrace = new Exception();
 
       this.serverLocator = serverLocator;
 
+      this.clientProtocolManager = serverLocator.newProtocolManager();
+
+      this.clientProtocolManager.setSessionFactory(this);
+
       this.connectorConfig = connectorConfig;
 
       connectorFactory = instantiateConnectorFactory(connectorConfig.getFactoryClassName());
 
-      checkTransportKeys(connectorFactory, connectorConfig.getParams());
+      checkTransportKeys(connectorFactory, connectorConfig);
 
       this.callTimeout = callTimeout;
 
@@ -226,10 +223,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       this.outgoingInterceptors = outgoingInterceptors;
 
       confirmationWindowWarning = new ConfirmationWindowWarning(serverLocator.getConfirmationWindowSize() < 0);
-
-
-      // TODO : Get rid of this / encapsulate it through the ClientProtocolManager (create a ExchangeServerProtocol for instance)
-      ((HornetQClientProtocolManager) clientProtocolManager).replacePacketDecoder(packetDecoder);
 
    }
 
@@ -281,7 +274,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                                            this,
                                                            closeExecutor,
                                                            threadPool,
-                                                           scheduledThreadPool);
+                                                           scheduledThreadPool,
+                                                           clientProtocolManager);
       }
 
       if (localConnector.isEquivalent(live.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams()))
@@ -472,9 +466,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return listeners.remove(listener);
    }
 
-   public void addFailoverListener(FailoverEventListener listener)
+   public ClientSessionFactoryImpl addFailoverListener(FailoverEventListener listener)
    {
       failoverListeners.add(listener);
+      return this;
    }
 
    public boolean removeFailoverListener(FailoverEventListener listener)
@@ -645,7 +640,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          {
 
 
-            if (clientProtocolManager.cleanupBeforeFailover())
+            if (clientProtocolManager.cleanupBeforeFailover(me))
             {
 
 
@@ -677,7 +672,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                connector = null;
 
-               reconnectSessions(oldConnection, reconnectAttempts);
+               reconnectSessions(oldConnection, reconnectAttempts, me);
 
                if (oldConnection != null)
                {
@@ -785,8 +780,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                                             orderedExecutorFactory.getExecutor(),
                                                             orderedExecutorFactory.getExecutor());
 
-      context.setSession(session);
-
       synchronized (sessions)
       {
          if (closed || !clientProtocolManager.isAlive())
@@ -859,7 +852,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    /*
     * Re-attach sessions all pre-existing sessions to the new remoting connection
     */
-   private void reconnectSessions(final RemotingConnection oldConnection, final int reconnectAttempts)
+   private void reconnectSessions(final RemotingConnection oldConnection, final int reconnectAttempts, final HornetQException cause)
    {
       HashSet<ClientSessionInternal> sessionsToFailover;
       synchronized (sessions)
@@ -906,7 +899,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       for (ClientSessionInternal session : sessionsToFailover)
       {
-         session.handleFailover(connection);
+         session.handleFailover(connection, cause);
       }
    }
 
@@ -1111,25 +1104,26 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    protected void schedulePing()
    {
-      if (clientFailureCheckPeriod != -1)
+      if (pingerFuture == null)
       {
-         if (pingerFuture == null)
-         {
-            pingRunnable = new ClientSessionFactoryImpl.PingRunnable();
+         pingRunnable = new ClientSessionFactoryImpl.PingRunnable();
 
+         if (clientFailureCheckPeriod != -1)
+         {
             pingerFuture = scheduledThreadPool.scheduleWithFixedDelay(new ClientSessionFactoryImpl.ActualScheduledPinger(pingRunnable),
                                                                       0,
                                                                       clientFailureCheckPeriod,
                                                                       TimeUnit.MILLISECONDS);
-            // To make sure the first ping will be sent
-            pingRunnable.send();
          }
-         // send a ping every time we create a new remoting connection
-         // to set up its TTL on the server side
-         else
-         {
-            pingRunnable.run();
-         }
+
+         // To make sure the first ping will be sent
+         pingRunnable.send();
+      }
+      // send a ping every time we create a new remoting connection
+      // to set up its TTL on the server side
+      else
+      {
+         pingRunnable.run();
       }
    }
 
@@ -1262,14 +1256,15 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                               this,
                                               closeExecutor,
                                               threadPool,
-                                              scheduledThreadPool);
+                                              scheduledThreadPool,
+                                              clientProtocolManager);
    }
 
-   private void checkTransportKeys(final ConnectorFactory factory, final Map<String, Object> params)
+   private void checkTransportKeys(final ConnectorFactory factory, final TransportConfiguration tc)
    {
-      if (params != null)
+      if (tc.getParams() != null)
       {
-         Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), params.keySet());
+         Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), tc.getParams().keySet());
 
          if (!invalid.isEmpty())
          {
@@ -1281,7 +1276,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          }
       }
    }
-
 
    /**
     * It will connect to either live or backup accordingly to the current configurations
@@ -1535,7 +1529,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       RemotingConnection newConnection = clientProtocolManager.connect(transportConnection, callTimeout,
                                                                        callFailoverTimeout, incomingInterceptors,
                                                                        outgoingInterceptors,
-                                                                       new SessionFactoryProtocolHandler());
+                                                                       new SessionFactoryTopologyHandler());
 
       newConnection.addFailureListener(new DelegatingFailureListener(newConnection.getID()));
 
@@ -1566,8 +1560,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
+   @Override
+   public String getLiveNodeId()
+   {
+      return liveNodeID;
+   }
 
-   class SessionFactoryProtocolHandler implements ProtocolResponseHandler
+   class SessionFactoryTopologyHandler implements TopologyResponseHandler
    {
 
       @Override
@@ -1607,5 +1606,4 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          serverLocator.notifyNodeDown(eventTime, nodeID);
       }
    }
-
 }

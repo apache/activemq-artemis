@@ -53,9 +53,8 @@ public class PagingSyncTest extends ServiceTestBase
    {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultConfig();
-
-      config.setJournalSyncNonTransactional(false);
+      Configuration config = createDefaultConfig()
+         .setJournalSyncNonTransactional(false);
 
       HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 

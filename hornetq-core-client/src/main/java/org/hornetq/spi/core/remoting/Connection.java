@@ -12,14 +12,17 @@
  */
 package org.hornetq.spi.core.remoting;
 
+import io.netty.channel.ChannelFutureListener;
 import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.core.security.HornetQPrincipal;
+import org.hornetq.spi.core.protocol.RemotingConnection;
 
 /**
  * The connection used by a channel to write data to.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author Clebert Suconic
  */
 public interface Connection
 {
@@ -30,6 +33,11 @@ public interface Connection
     * @return the new buffer.
     */
    HornetQBuffer createBuffer(int size);
+
+
+   RemotingConnection getProtocolConnection();
+
+   void setProtocolConnection(RemotingConnection connection);
 
    /**
     * returns the unique id of this wire.
@@ -48,11 +56,28 @@ public interface Connection
    void write(HornetQBuffer buffer, boolean flush, boolean batched);
 
    /**
+    * writes the buffer to the connection and if flush is true returns only when the buffer has been physically written to the connection.
+    *
+    * @param buffer the buffer to write
+    * @param flush  whether to flush the buffers onto the wire
+    * @param batched whether the packet is allowed to batched for better performance
+    */
+   void write(HornetQBuffer buffer, boolean flush, boolean batched, ChannelFutureListener futureListener);
+
+   /**
     * writes the buffer to the connection with no flushing or batching
     *
     * @param buffer the buffer to write
     */
    void write(HornetQBuffer buffer);
+
+
+   /**
+    * This should close the internal channel without calling any listeners.
+    * This is to avoid a situation where the broker is busy writing on an internal thread.
+    * This should close the socket releasing any pending threads.
+    */
+   void forceClose();
 
    /**
     * Closes the connection.
@@ -77,9 +102,16 @@ public interface Connection
    /**
     * Generates a {@link TransportConfiguration} to be used to connect to the same target this is
     * connected to.
-    * @return TranportConfiguration
+    * @return TransportConfiguration
     */
    TransportConfiguration getConnectorConfig();
 
    HornetQPrincipal getDefaultHornetQPrincipal();
+
+   /**
+    * the InVM Connection has some special handling as it doesn't use Netty ProtocolChannel
+    * we will use this method Instead of using instanceof
+    * @return
+    */
+   boolean isUsingProtocolHandling();
 }

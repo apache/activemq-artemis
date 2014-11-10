@@ -1,0 +1,15 @@
+<configuration
+      xmlns="urn:hornetq"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/hornetq-configuration.xsd">
+   <ha-policy>
+      <shared-store>
+         <slave>
+            <failback-delay>5678</failback-delay>
+            <failover-on-shutdown>true</failover-on-shutdown>
+            <restart-backup>true</restart-backup>
+         </slave>
+      </shared-store>
+   </ha-policy>
+
+</configuration>

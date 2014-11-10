@@ -13,6 +13,7 @@
 package org.hornetq.core.client.impl;
 
 import org.hornetq.api.core.HornetQException;
+import org.hornetq.spi.core.remoting.SessionContext;
 
 /**
  * A ClientProducerCredits
@@ -31,7 +32,7 @@ public interface ClientProducerCredits
 
    boolean isBlocked();
 
-   void init();
+   void init(SessionContext sessionContext);
 
    void reset();
 

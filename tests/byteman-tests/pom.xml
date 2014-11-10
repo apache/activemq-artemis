@@ -13,7 +13,7 @@
 
    <properties>
       <tools.jar>${java.home}/../lib/tools.jar</tools.jar>
-      <byteman.version>2.1.4.1</byteman.version>
+      <byteman.version>2.2.0</byteman.version>
       <hornetq.basedir>${project.basedir}/../..</hornetq.basedir>
    </properties>
 
@@ -132,7 +132,7 @@
       </dependency>
       <dependency>
          <groupId>org.jboss.spec.javax.transaction</groupId>
-         <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+         <artifactId>jboss-transaction-api_1.2_spec</artifactId>
       </dependency>
       <!--this specifically for the JMS Bridge -->
       <dependency>

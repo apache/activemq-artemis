@@ -36,7 +36,7 @@ public interface Server extends Remote
     * @param attrOverrides - server attribute overrides that will take precedence over values
     *                      read from configuration files.
     */
-   void start(String[] containerConfig, HashMap<String, Object> configuration, boolean clearDatabase) throws Exception;
+   void start(HashMap<String, Object> configuration, boolean clearDatabase) throws Exception;
 
    /**
     * @return true if the server was stopped indeed, or false if the server was stopped already

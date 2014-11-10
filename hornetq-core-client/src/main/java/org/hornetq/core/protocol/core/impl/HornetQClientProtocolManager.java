@@ -18,6 +18,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
+import io.netty.channel.ChannelPipeline;
+import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.HornetQExceptionType;
 import org.hornetq.api.core.HornetQInterruptedException;
@@ -25,6 +27,8 @@ import org.hornetq.api.core.Interceptor;
 import org.hornetq.api.core.Pair;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
+import org.hornetq.api.core.client.ClientSessionFactory;
+import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.core.client.HornetQClientLogger;
 import org.hornetq.core.client.HornetQClientMessageBundle;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
@@ -44,11 +48,12 @@ import org.hornetq.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.hornetq.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
 import org.hornetq.core.protocol.core.impl.wireformat.Ping;
 import org.hornetq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
+import org.hornetq.core.remoting.impl.netty.HornetQFrameDecoder2;
 import org.hornetq.core.version.Version;
 import org.hornetq.spi.core.protocol.RemotingConnection;
 import org.hornetq.spi.core.remoting.ClientProtocolManager;
 import org.hornetq.spi.core.remoting.Connection;
-import org.hornetq.spi.core.remoting.ProtocolResponseHandler;
+import org.hornetq.spi.core.remoting.TopologyResponseHandler;
 import org.hornetq.spi.core.remoting.SessionContext;
 import org.hornetq.utils.VersionLoader;
 
@@ -70,7 +75,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
 {
    private final int versionID = VersionLoader.getVersion().getIncrementingVersion();
 
-   private final ClientSessionFactoryInternal factoryInternal;
+   private ClientSessionFactoryInternal factoryInternal;
 
    /**
     * Guards assignments to {@link #inCreateSession} and {@link #inCreateSessionLatch}
@@ -87,12 +92,9 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
     */
    private CountDownLatch inCreateSessionLatch;
 
-
-   protected PacketDecoder packetDecoder = ClientPacketDecoder.INSTANCE;
-
    protected volatile RemotingConnectionImpl connection;
 
-   protected ProtocolResponseHandler callbackHandler;
+   protected TopologyResponseHandler topologyResponseHandler;
 
    /**
     * Flag that signals that the communication is closing. Causes many processes to exit.
@@ -102,15 +104,29 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
    private final CountDownLatch waitLatch = new CountDownLatch(1);
 
 
-   public HornetQClientProtocolManager(ClientSessionFactoryInternal factory)
+   public HornetQClientProtocolManager()
    {
-      this.factoryInternal = factory;
    }
 
-
-   public void replacePacketDecoder(PacketDecoder decoder)
+   public String getName()
    {
-      this.packetDecoder = decoder;
+      return HornetQClient.DEFAULT_CORE_PROTOCOL;
+   }
+
+   public void setSessionFactory(ClientSessionFactory factory)
+   {
+      this.factoryInternal = (ClientSessionFactoryInternal)factory;
+   }
+
+   public ClientSessionFactory getSessionFactory()
+   {
+      return this.factoryInternal;
+   }
+
+   @Override
+   public void addChannelHandlers(ChannelPipeline pipeline)
+   {
+      pipeline.addLast("hornetq-decoder", new HornetQFrameDecoder2());
    }
 
    public boolean waitOnLatch(long milliseconds) throws InterruptedException
@@ -193,7 +209,6 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
          if (inCreateSessionLatch != null)
             inCreateSessionLatch.countDown();
       }
-      forceReturnChannel1();
 
 
       Channel channel1 = getChannel1();
@@ -212,16 +227,6 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
    }
 
 
-   public void setConnection(RemotingConnection connection)
-   {
-      this.connection = (RemotingConnectionImpl) connection;
-   }
-
-   @Override
-   public void shakeHands()
-   {
-   }
-
    @Override
    public void ping(long connectionTTL)
    {
@@ -233,14 +238,6 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
 
       connection.flush();
    }
-
-   public void setResponseHandler(ProtocolResponseHandler handler)
-   {
-      this.callbackHandler = handler;
-
-      getChannel0().setHandler(new Channel0Handler(connection));
-   }
-
 
    @Override
    public void sendSubscribeTopology(final boolean isServer)
@@ -395,7 +392,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
 
    }
 
-   public boolean cleanupBeforeFailover()
+   public boolean cleanupBeforeFailover(HornetQException cause)
    {
 
       boolean needToInterrupt;
@@ -423,7 +420,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
 
       if (needToInterrupt)
       {
-         forceReturnChannel1();
+         forceReturnChannel1(cause);
 
          // Now we need to make sure that the thread has actually exited and returned it's
          // connections
@@ -460,15 +457,32 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
 
    public RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout,
                                      List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors,
-                                     ProtocolResponseHandler protocolResponseHandler)
+                                     TopologyResponseHandler topologyResponseHandler)
    {
-      RemotingConnectionImpl remotingConnection = new RemotingConnectionImpl(packetDecoder, transportConnection,
+      this.connection = new RemotingConnectionImpl(getPacketDecoder(), transportConnection,
                                                                              callTimeout, callFailoverTimeout,
                                                                              incomingInterceptors, outgoingInterceptors);
-      setConnection(remotingConnection);
-      this.setResponseHandler(protocolResponseHandler);
 
-      return remotingConnection;
+      this.topologyResponseHandler = topologyResponseHandler;
+
+      getChannel0().setHandler(new Channel0Handler(connection));
+
+
+      sendHandshake(transportConnection);
+
+      return connection;
+   }
+
+   private void sendHandshake(Connection transportConnection)
+   {
+      if (transportConnection.isUsingProtocolHandling())
+      {
+         // no need to send handshake on inVM as inVM is not using the NettyProtocolHandling
+         String handshake = "HORNETQ";
+         HornetQBuffer hqbuffer = connection.createBuffer(handshake.length());
+         hqbuffer.writeBytes(handshake.getBytes());
+         transportConnection.write(hqbuffer);
+      }
    }
 
 
@@ -498,8 +512,18 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
                scaleDownTargetNodeID = msg_v2.getScaleDownNodeID() == null ? null : msg_v2.getScaleDownNodeID().toString();
             }
 
-            if (callbackHandler != null)
-               callbackHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
+            if (topologyResponseHandler != null)
+               topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
+         }
+         else if (type == PacketImpl.CLUSTER_TOPOLOGY)
+         {
+            ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
+            notifyTopologyChange(topMessage);
+         }
+         else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2)
+         {
+            ClusterTopologyChangeMessage_V2 topMessage = (ClusterTopologyChangeMessage_V2) packet;
+            notifyTopologyChange(topMessage);
          }
          else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3)
          {
@@ -546,8 +570,10 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
                HornetQClientLogger.LOGGER.debug("Notifying " + topMessage.getNodeID() + " going down");
             }
 
-            if (callbackHandler != null)
-               callbackHandler.notifyNodeDown(eventUID, topMessage.getNodeID());
+            if (topologyResponseHandler != null)
+            {
+               topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID());
+            }
          }
          else
          {
@@ -559,13 +585,20 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
                                             null);
             }
 
-            if (callbackHandler != null)
-               callbackHandler.notifyNodeUp(eventUID, topMessage.getNodeID(), backupGroupName, scaleDownGroupName, transportConfig, topMessage.isLast());
+            if (topologyResponseHandler != null)
+            {
+               topologyResponseHandler.notifyNodeUp(eventUID, topMessage.getNodeID(), backupGroupName, scaleDownGroupName, transportConfig, topMessage.isLast());
+            }
          }
       }
    }
 
-   private void forceReturnChannel1()
+   protected PacketDecoder getPacketDecoder()
+   {
+      return ClientPacketDecoder.INSTANCE;
+   }
+
+   private void forceReturnChannel1(HornetQException cause)
    {
       if (connection != null)
       {
@@ -573,7 +606,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
 
          if (channel1 != null)
          {
-            channel1.returnBlocking();
+            channel1.returnBlocking(cause);
          }
       }
    }

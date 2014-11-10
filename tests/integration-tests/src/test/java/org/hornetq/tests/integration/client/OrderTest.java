@@ -12,6 +12,9 @@
  */
 package org.hornetq.tests.integration.client;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.hornetq.api.core.client.ClientConsumer;
 import org.hornetq.api.core.client.ClientMessage;
 import org.hornetq.api.core.client.ClientProducer;
@@ -24,18 +27,37 @@ import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * A OrderTest
  *
  * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
+@RunWith(Parameterized.class)
 public class OrderTest extends ServiceTestBase
 {
+
+   private boolean persistent;
 
    private HornetQServer server;
 
    private ServerLocator locator;
+
+   public OrderTest(boolean persistent)
+   {
+      this.persistent = persistent;
+   }
+   @Parameterized.Parameters(name = "persistent={0}")
+   public static Collection<Object[]> getParams()
+   {
+      return Arrays.asList(new Object[][]{
+         {true},
+         {false}
+      });
+   }
+
 
    @Override
    @Before
@@ -53,18 +75,7 @@ public class OrderTest extends ServiceTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSimpleOrderNoStorage() throws Exception
-   {
-      doTestSimpleOrder(false);
-   }
-
-   @Test
-   public void testSimpleOrderPersistence() throws Exception
-   {
-      doTestSimpleOrder(true);
-   }
-
-   public void doTestSimpleOrder(final boolean persistent) throws Exception
+   public void testSimpleStorage() throws Exception
    {
       server = createServer(persistent, true);
       server.start();
@@ -138,18 +149,7 @@ public class OrderTest extends ServiceTestBase
    }
 
    @Test
-   public void testOrderOverSessionClosePersistent() throws Exception
-   {
-      doTestOverCancel(true);
-   }
-
-   @Test
-   public void testOrderOverSessionCloseNonPersistent() throws Exception
-   {
-      doTestOverCancel(false);
-   }
-
-   public void doTestOverCancel(final boolean persistent) throws Exception
+   public void testOrderOverSessionClose() throws Exception
    {
       server = createServer(persistent, true);
 
@@ -210,19 +210,7 @@ public class OrderTest extends ServiceTestBase
    }
 
    @Test
-   public void testOrderOverSessionClosePersistentWithRedeliveryDelay() throws Exception
-   {
-      doTestOverCancelWithRedelivery(true);
-   }
-
-   @Test
-   public void testOrderOverSessionCloseNonPersistentWithRedeliveryDelay() throws Exception
-   {
-      doTestOverCancelWithRedelivery(false);
-   }
-
-
-   public void doTestOverCancelWithRedelivery(final boolean persistent) throws Exception
+   public void testOrderOverSessionCloseWithRedeliveryDelay() throws Exception
    {
       server = createServer(persistent, true);
 

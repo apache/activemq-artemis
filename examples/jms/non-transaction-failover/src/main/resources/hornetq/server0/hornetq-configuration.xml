@@ -2,7 +2,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 
-   <ha-policy template="SHARED_STORE"/>
+   <ha-policy>
+      <shared-store>
+         <master/>
+      </shared-store>
+   </ha-policy>
 
    <!-- Connectors -->
 

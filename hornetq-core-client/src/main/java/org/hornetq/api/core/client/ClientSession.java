@@ -113,7 +113,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @throws HornetQException if an exception occurs while starting the session
     */
-   void start() throws HornetQException;
+   ClientSession start() throws HornetQException;
 
    /**
     * Stops the session.
@@ -642,8 +642,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Sets a <code>SendAcknowledgementHandler</code> for this session.
     *
     * @param handler a SendAcknowledgementHandler
+    * @return this ClientSession
     */
-   void setSendAcknowledgementHandler(SendAcknowledgementHandler handler);
+   ClientSession setSendAcknowledgementHandler(SendAcknowledgementHandler handler);
 
    /**
     * Attach any metadata to the session.

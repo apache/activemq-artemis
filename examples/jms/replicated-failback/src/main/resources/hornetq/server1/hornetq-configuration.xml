@@ -14,8 +14,12 @@
 
    <cluster-password>secret</cluster-password>
 
-   <ha-policy template="BACKUP_REPLICATED">
-      <allow-failback>true</allow-failback>
+   <ha-policy>
+      <replication>
+         <slave>
+            <allow-failback>true</allow-failback>
+         </slave>
+      </replication>
    </ha-policy>
 
    <!-- Connectors -->

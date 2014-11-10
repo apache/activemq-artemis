@@ -59,8 +59,18 @@
    </cluster-connections>
 
    <!-- a colocated server that will allow shared store full backups to be requested-->
-   <ha-policy template="COLOCATED_SHARED_STORE">
-      <backup-strategy>FULL</backup-strategy>
+   <ha-policy>
+      <shared-store>
+         <colocated>
+            <backup-port-offset>100</backup-port-offset>
+            <backup-request-retries>-1</backup-request-retries>
+            <backup-request-retry-interval>2000</backup-request-retry-interval>
+            <max-backups>1</max-backups>
+            <request-backup>true</request-backup>
+            <master/>
+            <slave/>
+         </colocated>
+      </shared-store>
    </ha-policy>
    
    <!-- Other config -->

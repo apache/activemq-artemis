@@ -329,8 +329,9 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setMessageID(long id)
+      public FakeMessage setMessageID(long id)
       {
+         return this;
       }
 
       @Override
@@ -574,9 +575,9 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setUserID(UUID userID)
+      public FakeMessage setUserID(UUID userID)
       {
-
+         return this;
       }
 
       @Override
@@ -604,9 +605,9 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setDurable(boolean durable)
+      public FakeMessage setDurable(boolean durable)
       {
-
+         return this;
       }
 
       @Override
@@ -622,9 +623,9 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setExpiration(long expiration)
+      public FakeMessage setExpiration(long expiration)
       {
-
+         return this;
       }
 
       @Override
@@ -634,9 +635,9 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setTimestamp(long timestamp)
+      public FakeMessage setTimestamp(long timestamp)
       {
-
+         return this;
       }
 
       @Override
@@ -646,9 +647,9 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setPriority(byte priority)
+      public FakeMessage setPriority(byte priority)
       {
-
+         return this;
       }
 
       @Override
@@ -974,6 +975,18 @@ public class ScheduledDeliveryHandlerTest extends Assert
       {
          return null;
       }
+
+      @Override
+      public FakeMessage writeBodyBufferBytes(byte[] bytes)
+      {
+         return this;
+      }
+
+      @Override
+      public FakeMessage writeBodyBufferString(String string)
+      {
+         return this;
+      }
    }
 
 
@@ -1178,18 +1191,6 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public long getMessageCount(long timeout)
-      {
-         return 0;
-      }
-
-      @Override
-      public long getInstantMessageCount()
-      {
-         return 0;
-      }
-
-      @Override
       public int getDeliveringCount()
       {
          return 0;
@@ -1226,13 +1227,7 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public long getMessagesAdded(long timeout)
-      {
-         return 0;
-      }
-
-      @Override
-      public long getInstantMessagesAdded()
+      public long getMessagesAcknowledged()
       {
          return 0;
       }
@@ -1472,6 +1467,12 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
+      public void resetMessagesAcknowledged()
+      {
+
+      }
+
+      @Override
       public void incrementMesssagesAdded()
       {
 
@@ -1493,6 +1494,18 @@ public class ScheduledDeliveryHandlerTest extends Assert
       public void routeWithAck(ServerMessage message, RoutingContext context)
       {
 
+      }
+
+      @Override
+      public void postAcknowledge(MessageReference ref)
+      {
+
+      }
+
+      @Override
+      public float getRate()
+      {
+         return 0.0f;
       }
    }
 }

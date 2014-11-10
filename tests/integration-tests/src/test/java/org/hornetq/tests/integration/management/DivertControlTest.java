@@ -87,31 +87,28 @@ public class DivertControlTest extends ManagementTestBase
 
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName());
 
-      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration(RandomUtil.randomString(),
-                                                              RandomUtil.randomString(),
-                                                              null,
-                                                              false);
-      CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration(RandomUtil.randomString(),
-                                                                    RandomUtil.randomString(),
-                                                                    null,
-                                                                    false);
+      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
+         .setAddress(RandomUtil.randomString())
+         .setName(RandomUtil.randomString())
+         .setDurable(false);
+      CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration()
+         .setAddress(RandomUtil.randomString())
+         .setName(RandomUtil.randomString())
+         .setDurable(false);
 
-      divertConfig = new DivertConfiguration(RandomUtil.randomString(),
-                                             RandomUtil.randomString(),
-                                             queueConfig.getAddress(),
-                                             forwardQueueConfig.getAddress(),
-                                             RandomUtil.randomBoolean(),
-                                             null,
-                                             null);
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getQueueConfigurations().add(queueConfig);
-      conf.getQueueConfigurations().add(forwardQueueConfig);
-      conf.getDivertConfigurations().add(divertConfig);
+      divertConfig = new DivertConfiguration()
+         .setName(RandomUtil.randomString())
+         .setRoutingName(RandomUtil.randomString())
+         .setAddress(queueConfig.getAddress())
+         .setForwardingAddress(forwardQueueConfig.getAddress())
+         .setExclusive(RandomUtil.randomBoolean());
 
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      conf.getConnectorConfigurations().put(connectorConfig.getName(), connectorConfig);
+      Configuration conf = createBasicConfig()
+         .addQueueConfiguration(queueConfig)
+         .addQueueConfiguration(forwardQueueConfig)
+         .addDivertConfiguration(divertConfig)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
 
       service = HornetQServers.newHornetQServer(conf, mbeanServer, false);
       service.start();

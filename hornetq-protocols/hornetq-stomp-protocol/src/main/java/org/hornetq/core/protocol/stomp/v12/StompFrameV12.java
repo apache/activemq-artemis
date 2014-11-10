@@ -62,9 +62,9 @@ public class StompFrameV12 extends StompFrame
          // Output the headers.
          for (Header h : allHeaders)
          {
-            head.append(h.getEscapedKey());
+            head.append(h.getEncodedKey());
             head.append(Stomp.Headers.SEPARATOR);
-            head.append(h.getEscapedValue());
+            head.append(h.getEncodedValue());
             head.append(Stomp.NEWLINE);
          }
 
@@ -104,49 +104,4 @@ public class StompFrameV12 extends StompFrame
          allHeaders.add(new Header(key, val));
       }
    }
-
-   @Override
-   public String escape(String str)
-   {
-      int len = str.length();
-
-      char[] buffer = new char[2 * len];
-      int iBuffer = 0;
-      for (int i = 0; i < len; i++)
-      {
-         char c = str.charAt(i);
-         if (c == '\r')
-         {
-            buffer[iBuffer++] = '\\';
-            buffer[iBuffer] = 'r';
-         }
-         else if (c == '\n')
-         {
-            buffer[iBuffer++] = '\\';
-            buffer[iBuffer] = 'n';
-         }
-         else if (c == '\\')
-         {
-            buffer[iBuffer++] = '\\';
-            buffer[iBuffer] = '\\';
-         }
-         else if (c == ':')
-         {
-            buffer[iBuffer++] = '\\';
-            buffer[iBuffer] = ':';
-         }
-         else
-         {
-            buffer[iBuffer] = c;
-         }
-         iBuffer++;
-      }
-
-      char[] total = new char[iBuffer];
-      System.arraycopy(buffer, 0, total, 0, iBuffer);
-
-      return new String(total);
-   }
-
-
 }

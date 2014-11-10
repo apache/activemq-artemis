@@ -15,6 +15,8 @@ package org.hornetq.api.core;
 import java.io.Serializable;
 import java.util.List;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
+
 
 /**
  * The basic configuration used to determine how the server will broadcast members
@@ -28,23 +30,16 @@ public final class BroadcastGroupConfiguration implements Serializable
 {
    private static final long serialVersionUID = 2335634694112319124L;
 
-   private String name;
+   private String name = null;
 
-   private long broadcastPeriod;
+   private long broadcastPeriod = HornetQDefaultConfiguration.getDefaultBroadcastPeriod();
 
-   private final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration;
+   private BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = null;
 
-   private List<String> connectorInfos;
+   private List<String> connectorInfos = null;
 
-   public BroadcastGroupConfiguration(final String name,
-                                      final long broadcastPeriod,
-                                      final List<String> connectorInfos,
-                                      final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration)
+   public BroadcastGroupConfiguration()
    {
-      this.name = name;
-      this.broadcastPeriod = broadcastPeriod;
-      this.connectorInfos = connectorInfos;
-      this.endpointFactoryConfiguration = endpointFactoryConfiguration;
    }
 
    public String getName()
@@ -62,24 +57,33 @@ public final class BroadcastGroupConfiguration implements Serializable
       return connectorInfos;
    }
 
-   public void setName(final String name)
+   public BroadcastGroupConfiguration setName(final String name)
    {
       this.name = name;
+      return this;
    }
 
-   public void setBroadcastPeriod(final long broadcastPeriod)
+   public BroadcastGroupConfiguration setBroadcastPeriod(final long broadcastPeriod)
    {
       this.broadcastPeriod = broadcastPeriod;
+      return this;
    }
 
-   public void setConnectorInfos(final List<String> connectorInfos)
+   public BroadcastGroupConfiguration setConnectorInfos(final List<String> connectorInfos)
    {
       this.connectorInfos = connectorInfos;
+      return this;
    }
 
    public BroadcastEndpointFactoryConfiguration getEndpointFactoryConfiguration()
    {
       return endpointFactoryConfiguration;
+   }
+
+   public BroadcastGroupConfiguration setEndpointFactoryConfiguration(BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration)
+   {
+      this.endpointFactoryConfiguration = endpointFactoryConfiguration;
+      return this;
    }
 
    @Override

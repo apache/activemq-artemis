@@ -13,6 +13,8 @@
 package org.hornetq.core.transaction.impl;
 
 import org.hornetq.core.persistence.StorageManager;
+import org.hornetq.core.server.Queue;
+import org.hornetq.core.server.impl.RefsOperation;
 
 /**
  * A BindingsTransactionImpl
@@ -48,4 +50,9 @@ public class BindingsTransactionImpl extends TransactionImpl
       }
    }
 
+   @Override
+   public RefsOperation createRefsOperation(Queue queue)
+   {
+      return null;
+   }
 }

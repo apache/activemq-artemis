@@ -27,7 +27,7 @@ import org.hornetq.core.paging.PagingStore;
  */
 public interface ServerMessage extends MessageInternal, EncodingSupport
 {
-   void setMessageID(long id);
+   ServerMessage setMessageID(long id);
 
    MessageReference createReference(Queue queue);
 

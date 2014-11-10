@@ -8,16 +8,17 @@
 <body onload="prettyPrint()">
 <h1>Proton qpid java example</h1>
 
-<p>HornetQ can be configured to accept requests from any AMQP client that supports the 1.0 version of the protocol.
-    This example shows a simply qpid java 1.0 client example</p>
-<p>To run the example simply run the command <literal>mvn verify</literal></p>
+<<p>HornetQ is a multi protocol broker. It will inspect the initial handshake of clients to determine what protocol to use.</p>
+<p>All you need to do is to connect a client into hornetq's configured port and you should be able connect.</p>
+<p>To run this example simply run the command <literal>mvn verify</literal>, execute the compile.sh script and start the executable called ./hello</p>
 
-<p>To configure HornetQ to accept AMQP client connections you need to add an Acceptor like so:</p>
+<p>You don't need to do anything special to configure the HornetQ server to accept AMQP clients. </p>
+<p>Just for the sake of documentation though we are setting the port of HornetQ on this example as 5672 which is the port qpid have by default. </p>
+<p>This is totally optional and you don't need to follow this convention. You can use any port you chose including HornetQ's 5445 default port</p>
      <pre class="prettyprint">
      <code>
          &lt;acceptor name="proton-acceptor"&gt;
          &lt;factory-class&gt;org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
-         &lt;param key="protocol" value="AMQP"/&gt;
          &lt;param key="port" value="5672"/&gt;
          &lt;/acceptor&gt;
      </code>

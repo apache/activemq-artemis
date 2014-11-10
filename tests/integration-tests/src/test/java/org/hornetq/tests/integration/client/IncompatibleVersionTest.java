@@ -252,9 +252,9 @@ public class IncompatibleVersionTest extends ServiceTestBase
    {
       public void perform(String startedString) throws Exception
       {
-         Configuration conf = new ConfigurationImpl();
-         conf.setSecurityEnabled(false);
-         conf.getAcceptorConfigurations().add(new TransportConfiguration("org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory"));
+         Configuration conf = new ConfigurationImpl()
+            .setSecurityEnabled(false)
+            .addAcceptorConfiguration(new TransportConfiguration("org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory"));
          HornetQServer server = HornetQServers.newHornetQServer(conf, false);
          server.start();
 

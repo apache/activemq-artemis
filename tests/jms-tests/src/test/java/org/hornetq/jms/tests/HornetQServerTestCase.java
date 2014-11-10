@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
+import org.hornetq.api.core.SimpleString;
+import org.hornetq.core.postoffice.Binding;
+import org.hornetq.core.postoffice.impl.LocalQueueBinding;
 import org.hornetq.core.security.Role;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.jms.server.JMSServerManager;
@@ -136,7 +139,7 @@ public abstract class HornetQServerTestCase
          // start the servers if needed
          if (!HornetQServerTestCase.servers.get(0).isStarted())
          {
-            HornetQServerTestCase.servers.get(0).start(getContainerConfig(), getConfiguration(), true);
+            HornetQServerTestCase.servers.get(0).start(getConfiguration(), true);
          }
          // deploy the objects for this test
          deployAdministeredObjects();
@@ -191,13 +194,13 @@ public abstract class HornetQServerTestCase
    public void start() throws Exception
    {
       System.setProperty("java.naming.factory.initial", getContextFactory());
-      HornetQServerTestCase.servers.get(0).start(getContainerConfig(), getConfiguration(), false);
+      HornetQServerTestCase.servers.get(0).start(getConfiguration(), false);
    }
 
    public void startNoDelete() throws Exception
    {
       System.setProperty("java.naming.factory.initial", getContextFactory());
-      HornetQServerTestCase.servers.get(0).start(getContainerConfig(), getConfiguration(), false);
+      HornetQServerTestCase.servers.get(0).start(getConfiguration(), false);
    }
 
    public void stopServerPeer() throws Exception
@@ -286,12 +289,6 @@ public abstract class HornetQServerTestCase
          }
       }
       servers.clear();
-   }
-
-   // FIXME https://jira.jboss.org/jira/browse/JBMESSAGING-1606
-   public String[] getContainerConfig()
-   {
-      return new String[]{"test-beans.xml"};
    }
 
    protected HornetQServer getJmsServer() throws Exception
@@ -441,7 +438,13 @@ public abstract class HornetQServerTestCase
 
    protected boolean assertRemainingMessages(final int expected) throws Exception
    {
-      Long messageCount = HornetQServerTestCase.servers.get(0).getMessageCountForQueue("Queue1");
+      String queueName = "Queue1";
+      Binding binding = servers.get(0).getHornetQServer().getPostOffice().getBinding(SimpleString.toSimpleString("jms.queue." + queueName));
+      if (binding != null && binding instanceof LocalQueueBinding)
+      {
+         ((LocalQueueBinding)binding).getQueue().flushExecutor();
+      }
+      Long messageCount = HornetQServerTestCase.servers.get(0).getMessageCountForQueue(queueName);
 
       ProxyAssertSupport.assertEquals(expected, messageCount.intValue());
       return expected == messageCount.intValue();

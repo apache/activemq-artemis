@@ -10,7 +10,11 @@
 
    <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
-   <ha-policy template="SHARED_STORE"/>
+   <ha-policy>
+      <shared-store>
+         <master/>
+      </shared-store>
+   </ha-policy>
     
    <!-- Connectors -->
 

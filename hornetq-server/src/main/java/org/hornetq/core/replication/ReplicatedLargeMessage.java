@@ -15,32 +15,34 @@
  */
 package org.hornetq.core.replication;
 
+import org.hornetq.api.core.Message;
+
 /**
- * {@link LargeServerMessage} methods used by the {@link ReplicationEndpoint}.
+ * {@link org.hornetq.core.server.LargeServerMessage} methods used by the {@link ReplicationEndpoint}.
  * <p/>
- * In practice a subset of the methods necessary to have a {@link LargeServerMessage}
+ * In practice a subset of the methods necessary to have a {@link org.hornetq.core.server.LargeServerMessage}
  *
- * @see LargeServerMessageInSync
+ * @see org.hornetq.core.persistence.impl.journal.LargeServerMessageInSync
  */
 public interface ReplicatedLargeMessage
 {
    /**
-    * @see LargeServerMessage#setDurable(boolean)
+    * @see org.hornetq.core.server.LargeServerMessage#setDurable(boolean)
     */
-   void setDurable(boolean b);
+   Message setDurable(boolean b);
 
    /**
-    * @see LargeServerMessage#setMessageID(long)
+    * @see org.hornetq.core.server.LargeServerMessage#setMessageID(long)
     */
-   void setMessageID(long id);
+   Message setMessageID(long id);
 
    /**
-    * @see LargeServerMessage#releaseResources()
+    * @see org.hornetq.core.server.LargeServerMessage#releaseResources()
     */
    void releaseResources();
 
    /**
-    * @see LargeServerMessage#deleteFile()
+    * @see org.hornetq.core.server.LargeServerMessage#deleteFile()
     */
    void deleteFile() throws Exception;
 

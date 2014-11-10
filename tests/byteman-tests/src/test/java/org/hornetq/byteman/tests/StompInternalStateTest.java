@@ -20,7 +20,7 @@ import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
-import org.hornetq.api.core.management.NotificationType;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.protocol.stomp.StompProtocolManagerFactory;
 import org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -88,12 +88,12 @@ public class StompInternalStateTest extends ServiceTestBase
    @Override
    protected Configuration createDefaultConfig(final boolean netty) throws Exception
    {
-      Configuration config = super.createDefaultConfig(netty);
-      config.setSecurityEnabled(false);
-      config.setPersistenceEnabled(false);
+      Configuration config = super.createDefaultConfig(netty)
+         .setSecurityEnabled(false)
+         .setPersistenceEnabled(false);
 
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put(TransportConstants.PROTOCOL_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
+      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
@@ -107,14 +107,14 @@ public class StompInternalStateTest extends ServiceTestBase
    public void verifyBindingAddRemove(Notification noti, Object obj)
    {
       Set<String> destinations = (Set<String>)obj;
-      if (noti.getType() == NotificationType.BINDING_ADDED)
+      if (noti.getType() == CoreNotificationType.BINDING_ADDED)
       {
          if (!destinations.contains(STOMP_QUEUE_NAME))
          {
             resultTestStompProtocolManagerLeak += "didn't save the queue when binding added " + destinations;
          }
       }
-      else if (noti.getType() == NotificationType.BINDING_REMOVED)
+      else if (noti.getType() == CoreNotificationType.BINDING_REMOVED)
       {
          if (destinations.contains(STOMP_QUEUE_NAME))
          {

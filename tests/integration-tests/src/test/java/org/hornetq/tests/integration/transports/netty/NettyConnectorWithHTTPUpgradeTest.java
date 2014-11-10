@@ -29,6 +29,9 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import org.hornetq.api.core.HornetQException;
+import org.hornetq.api.core.HornetQExceptionType;
+import org.hornetq.api.core.HornetQNotConnectedException;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientConsumer;
@@ -84,20 +87,22 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
    public void setUp() throws Exception
    {
       super.setUp();
-      conf = createDefaultConfig();
-
-      acceptorName = randomString();
-      conf.setSecurityEnabled(false);
-      HashMap<String, Object> params = new HashMap<String, Object>();
+      HashMap<String, Object> httpParams = new HashMap<String, Object>();
       // This prop controls the usage of HTTP Get + Upgrade from Netty connector
-      params.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, acceptorName));
+      httpParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
+      httpParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
+      acceptorName = randomString();
+      HashMap<String, Object> emptyParams = new HashMap<>();
+
+      conf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpParams, acceptorName))
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, emptyParams, randomString()));
 
       server = addServer(HornetQServers.newHornetQServer(conf, false));
 
       server.start();
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
+      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, httpParams));
       addServerLocator(locator);
 
       // THe web server owns the HTTP port, not HornetQ.
@@ -149,6 +154,38 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
       }
 
       session.close();
+   }
+
+   @Test
+   public void HTTPUpgradeConnectorUsingNormalAcceptor() throws Exception
+   {
+      HashMap<String, Object> params = new HashMap<>();
+
+      // create a new locator that points an HTTP-upgrade connector to the normal acceptor
+      params.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
+
+      long start = System.currentTimeMillis();
+      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
+
+      Exception e = null;
+
+      try
+      {
+         createSessionFactory(locator);
+
+         // we shouldn't ever get here
+         fail();
+      }
+      catch (Exception x)
+      {
+         e = x;
+      }
+
+      // make sure we failed *before* the HTTP hand-shake timeout elapsed (which is hard-coded to 30 seconds, see org.hornetq.core.remoting.impl.netty.NettyConnector.HttpUpgradeHandler.awaitHandshake())
+      assertTrue((System.currentTimeMillis() - start) < 30000);
+      assertNotNull(e);
+      assertTrue(e instanceof HornetQNotConnectedException);
+      assertTrue(((HornetQException) e).getType() == HornetQExceptionType.NOT_CONNECTED);
    }
 
    private void startWebServer(int port) throws InterruptedException

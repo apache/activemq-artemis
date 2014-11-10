@@ -28,8 +28,8 @@ import org.hornetq.api.core.HornetQExceptionType;
 import org.hornetq.api.core.Interceptor;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.client.HornetQClient;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.ManagementHelper;
-import org.hornetq.api.core.management.NotificationType;
 import org.hornetq.core.journal.IOAsyncTask;
 import org.hornetq.core.postoffice.BindingType;
 import org.hornetq.core.remoting.impl.netty.NettyServerConnection;
@@ -42,6 +42,7 @@ import org.hornetq.core.server.management.ManagementService;
 import org.hornetq.core.server.management.Notification;
 import org.hornetq.core.server.management.NotificationListener;
 import org.hornetq.spi.core.protocol.ConnectionEntry;
+import org.hornetq.spi.core.protocol.MessageConverter;
 import org.hornetq.spi.core.protocol.ProtocolManager;
 import org.hornetq.spi.core.protocol.RemotingConnection;
 import org.hornetq.spi.core.remoting.Acceptor;
@@ -90,6 +91,12 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
          destinations.add(service.getManagementAddress().toString());
          service.addNotificationListener(this);
       }
+   }
+
+   @Override
+   public MessageConverter getConverter()
+   {
+      return null;
    }
 
    // ProtocolManager implementation --------------------------------
@@ -236,7 +243,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
                                                       false,
                                                       false,
                                                       null,
-                                                      stompSession);
+                                                      stompSession, null);
          stompSession.setServerSession(session);
          sessions.put(connection.getID(), stompSession);
       }
@@ -261,7 +268,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
                                                       false,
                                                       false,
                                                       null,
-                                                      stompSession);
+                                                      stompSession, null);
          stompSession.setServerSession(session);
          transactedSessions.put(txID, stompSession);
       }
@@ -365,7 +372,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
 
    public ServerMessageImpl createServerMessage()
    {
-      return new ServerMessageImpl(server.getStorageManager().generateUniqueID(), 512);
+      return new ServerMessageImpl(server.getStorageManager().generateID(), 512);
    }
 
    public void commitTransaction(StompConnection connection, String txID) throws Exception
@@ -402,7 +409,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
          throw new HornetQStompException("There already is a subscription for: " + subscriptionID +
                                             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
-      long consumerID = server.getStorageManager().generateUniqueID();
+      long consumerID = server.getStorageManager().generateID();
       String clientID = (connection.getClientID() != null) ? connection.getClientID() : null;
       stompSession.addSubscription(consumerID,
                                    subscriptionID,
@@ -450,7 +457,10 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
    @Override
    public void onNotification(Notification notification)
    {
-      NotificationType type = notification.getType();
+      if (!(notification.getType() instanceof CoreNotificationType)) return;
+
+      CoreNotificationType type = (CoreNotificationType) notification.getType();
+
       TypedProperties props = notification.getProperties();
 
       switch (type)

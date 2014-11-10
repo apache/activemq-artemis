@@ -20,8 +20,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
-
 import org.hornetq.api.core.BroadcastGroupConfiguration;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
@@ -56,6 +54,7 @@ import org.hornetq.spi.core.remoting.Acceptor;
 import org.hornetq.tests.util.UnitTestCase;
 import org.hornetq.utils.ConcurrentHashSet;
 import org.hornetq.utils.ReusableLatch;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

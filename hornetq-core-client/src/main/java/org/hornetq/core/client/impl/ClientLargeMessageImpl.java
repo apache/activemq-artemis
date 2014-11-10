@@ -131,7 +131,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    }
 
    @Override
-   public void setOutputStream(final OutputStream out) throws HornetQException
+   public ClientLargeMessageImpl setOutputStream(final OutputStream out) throws HornetQException
    {
       if (bodyBuffer != null)
       {
@@ -141,6 +141,8 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       {
          largeMessageController.setOutputStream(out);
       }
+
+      return this;
    }
 
    @Override

@@ -51,7 +51,7 @@ public class StompFrameFactoryV11 implements StompFrameFactory
       while (tokenizer.hasMoreTokens())
       {
          String header = tokenizer.nextToken();
-         String[] fields = splitHeader(header);
+         String[] fields = splitAndDecodeHeader(header);
          frame.addHeader(fields[0], fields[1]);
       }
 
@@ -63,105 +63,74 @@ public class StompFrameFactoryV11 implements StompFrameFactory
       return frame;
    }
 
-   private String[] splitHeader(String header)
+   private String[] splitAndDecodeHeader(String header)
    {
-      StringBuffer sbKey = new StringBuffer();
-      StringBuffer sbVal = new StringBuffer();
-      boolean isEsc = false;
-      boolean isKey = true;
+      // split the header into the key and value at the ":" since there shouldn't be any unescaped colons in the header
+      // except for the one separating the key and value
+      String[] result = header.split(":");
 
-      for (int i = 0; i < header.length(); i++)
+      for (int j = 0; j < result.length; j++)
       {
-         char b = header.charAt(i);
+         StringBuffer decodedHeader = new StringBuffer();
+         boolean isEsc = false;
 
-         switch (b)
+         for (int i = 0; i < result[j].length(); i++)
          {
-            //escaping
-            case '\\':
+            char b = result[j].charAt(i);
+
+            switch (b)
             {
-               if (isEsc)
+               //escaping
+               case '\\':
                {
-                  //this is a backslash
-                  if (isKey)
+                  if (isEsc)
                   {
-                     sbKey.append(b);
+                     //this is a backslash
+                     decodedHeader.append(b);
+                     isEsc = false;
                   }
                   else
                   {
-                     sbVal.append(b);
+                     //begin escaping
+                     isEsc = true;
                   }
-                  isEsc = false;
+                  break;
                }
-               else
+               case 'c':
                {
-                  //begin escaping
-                  isEsc = true;
-               }
-               break;
-            }
-            case ':':
-            {
-               if (isEsc)
-               {
-                  if (isKey)
+                  if (isEsc)
                   {
-                     sbKey.append(b);
+                     decodedHeader.append(":");
+                     isEsc = false;
                   }
                   else
                   {
-                     sbVal.append(b);
+                     decodedHeader.append(b);
                   }
-                  isEsc = false;
+                  break;
                }
-               else
+               case 'n':
                {
-                  isKey = false;
-               }
-               break;
-            }
-            case 'n':
-            {
-               if (isEsc)
-               {
-                  if (isKey)
+                  if (isEsc)
                   {
-                     sbKey.append('\n');
+                     decodedHeader.append('\n');
+                     isEsc = false;
                   }
                   else
                   {
-                     sbVal.append('\n');
+                     decodedHeader.append(b);
                   }
-                  isEsc = false;
+                  break;
                }
-               else
+               default:
                {
-                  if (isKey)
-                  {
-                     sbKey.append(b);
-                  }
-                  else
-                  {
-                     sbVal.append(b);
-                  }
-               }
-               break;
-            }
-            default:
-            {
-               if (isKey)
-               {
-                  sbKey.append(b);
-               }
-               else
-               {
-                  sbVal.append(b);
+                  decodedHeader.append(b);
                }
             }
          }
+
+         result[j] = decodedHeader.toString();
       }
-      String[] result = new String[2];
-      result[0] = sbKey.toString();
-      result[1] = sbVal.toString();
 
       return result;
    }

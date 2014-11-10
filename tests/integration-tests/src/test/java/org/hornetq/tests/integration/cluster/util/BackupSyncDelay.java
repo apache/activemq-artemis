@@ -29,6 +29,7 @@ import org.hornetq.core.protocol.core.impl.wireformat.ReplicationResponseMessage
 import org.hornetq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.hornetq.core.replication.ReplicationEndpoint;
 import org.hornetq.core.server.HornetQServer;
+import org.hornetq.core.server.impl.SharedNothingBackupActivation;
 import org.hornetq.spi.core.protocol.RemotingConnection;
 
 /**
@@ -75,8 +76,6 @@ public class BackupSyncDelay implements Interceptor
     */
    public BackupSyncDelay(HornetQServer backup, HornetQServer live, byte packetCode)
    {
-      assert backup.getConfiguration().getHAPolicy().isBackup();
-      assert !live.getConfiguration().getHAPolicy().isBackup();
       this.backup = backup;
       this.live = live;
       live.getRemotingService().addIncomingInterceptor(this);
@@ -99,7 +98,8 @@ public class BackupSyncDelay implements Interceptor
       {
          try
          {
-            ReplicationEndpoint repEnd = backup.getReplicationEndpoint();
+            SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backup.getActivation();
+            ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
             handler.addSubHandler(repEnd);
             Channel repChannel = repEnd.getChannel();
             repChannel.setHandler(handler);
@@ -308,6 +308,12 @@ public class BackupSyncDelay implements Interceptor
 
       @Override
       public void returnBlocking()
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void returnBlocking(Throwable cause)
       {
          throw new UnsupportedOperationException();
       }

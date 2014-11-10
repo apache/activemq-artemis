@@ -31,6 +31,8 @@ import java.util.Random;
 import java.util.Set;
 
 import org.hornetq.api.core.TransportConfiguration;
+import org.hornetq.api.core.management.QueueControl;
+import org.hornetq.api.jms.management.JMSQueueControl;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServers;
@@ -106,6 +108,20 @@ public class JMSTestBase extends ServiceTestBase
       return createTopic(false, topicName);
    }
 
+
+   protected long getMessageCount(JMSQueueControl control) throws Exception
+   {
+      control.flushExecutor();
+      return control.getMessageCount();
+   }
+
+
+   protected long getMessageCount(QueueControl control) throws Exception
+   {
+      control.flushExecutor();
+      return control.getMessageCount();
+   }
+
    /**
     * @throws Exception
     */
@@ -131,9 +147,9 @@ public class JMSTestBase extends ServiceTestBase
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
-      Configuration conf = createDefaultConfig(true);
-      conf.setSecurityEnabled(useSecurity());
-      conf.getConnectorConfigurations().put("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration conf = createDefaultConfig(true)
+         .setSecurityEnabled(useSecurity())
+         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       server = HornetQServers.newHornetQServer(conf, mbeanServer, usePersistence());
       addServer(server);
@@ -148,10 +164,9 @@ public class JMSTestBase extends ServiceTestBase
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception
    {
-      Configuration conf = super.createDefaultConfig(netty);
-
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
+      Configuration conf = super.createDefaultConfig(netty)
+         .setSecurityEnabled(false)
+         .setJMXManagementEnabled(true);
 
       return conf;
    }
@@ -231,18 +246,13 @@ public class JMSTestBase extends ServiceTestBase
     */
    protected void createCF(final List<TransportConfiguration> connectorConfigs, final String... jndiBindings) throws Exception
    {
-      final int retryInterval = 1000;
-      final double retryIntervalMultiplier = 1.0;
-      final int reconnectAttempts = -1;
-      final int callTimeout = 30000;
-      final boolean ha = false;
       List<String> connectorNames = registerConnectors(server, connectorConfigs);
 
-      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl(name.getMethodName(), ha, connectorNames);
-      configuration.setRetryInterval(retryInterval);
-      configuration.setRetryIntervalMultiplier(retryIntervalMultiplier);
-      configuration.setCallTimeout(callTimeout);
-      configuration.setReconnectAttempts(reconnectAttempts);
+      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
+         .setName(name.getMethodName())
+         .setConnectorNames(connectorNames)
+         .setRetryInterval(1000)
+         .setReconnectAttempts(-1);
       testCaseCfExtraConfig(configuration);
       jmsServer.createConnectionFactory(false, configuration, jndiBindings);
    }

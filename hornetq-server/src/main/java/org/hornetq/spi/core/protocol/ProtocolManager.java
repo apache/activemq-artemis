@@ -35,5 +35,12 @@ public interface ProtocolManager
 
    boolean isProtocol(byte[] array);
 
+   /**
+    * Gets the Message Converter towards HornetQ.
+    * Notice this being null means no need to convert
+    * @return
+    */
+   MessageConverter getConverter();
+
    void handshake(NettyServerConnection connection, HornetQBuffer buffer);
 }

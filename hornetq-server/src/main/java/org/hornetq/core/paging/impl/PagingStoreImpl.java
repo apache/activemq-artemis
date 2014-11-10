@@ -926,7 +926,7 @@ public class PagingStoreImpl implements PagingStore
 
             currentPage.write(pagedMessage);
 
-            if (tx == null && syncNonTransactional)
+            if (tx == null && syncNonTransactional && message.isDurable())
             {
                sync();
             }
@@ -1197,7 +1197,7 @@ public class PagingStoreImpl implements PagingStore
    }
 
    // To be used on isDropMessagesWhenFull
-   private boolean isFull()
+   public boolean isFull()
    {
       return maxSize > 0 && getAddressSize() > maxSize;
    }

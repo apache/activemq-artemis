@@ -181,29 +181,40 @@
     <section>
         <title>A simple example of using Core</title>
         <para>Here's a very simple program using the core messaging API to send and receive a
-            message:</para>
+            message. Logically it's comprised of two sections: firstly setting up the producer to 
+            write a message to an <emphasis>addresss</emphasis>, and secondly, creating a 
+            <emphasis>queue</emphasis> for the consumer, creating the consumer and 
+            <emphasis>starting</emphasis> it.</para>
         <programlisting>
 ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
                                            InVMConnectorFactory.class.getName()));
 
-ClientSessionFactory factory =  locator.createClientSessionFactory();
+// In this simple example, we just use one session for both producing and receiving
 
+ClientSessionFactory factory =  locator.createClientSessionFactory();
 ClientSession session = factory.createSession();
+
+// A producer is associated with an address ...
+
+ClientProducer producer = session.createProducer("example");
+ClientMessage message = session.createMessage(true);
+message.getBodyBuffer().writeString("Hello");
+
+// We need a queue attached to the address ...
 
 session.createQueue("example", "example", true);
 
-ClientProducer producer = session.createProducer("example");
-
-ClientMessage message = session.createMessage(true);
-
-message.getBodyBuffer().writeString("Hello");
-
-producer.send(message);
-
-session.start();
+// And a consumer attached to the queue ...
 
 ClientConsumer consumer = session.createConsumer("example");
 
+// Once we have a queue, we can send the message ...
+
+producer.send(message);
+
+// We need to start the session before we can -receive- messages ...
+
+session.start();
 ClientMessage msgReceived = consumer.receive();
 
 System.out.println("message = " + msgReceived.getBodyBuffer().readString());

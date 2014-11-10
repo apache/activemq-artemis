@@ -24,7 +24,6 @@ import javax.management.MBeanServerFactory;
 
 import org.junit.Assert;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
@@ -133,50 +132,38 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase
                                                                           acceptorParams,
                                                                           RandomUtil.randomString());
 
-      CoreQueueConfiguration sourceQueueConfig = new CoreQueueConfiguration(RandomUtil.randomString(),
-                                                                    RandomUtil.randomString(),
-                                                                    null,
-                                                                    false);
-      CoreQueueConfiguration targetQueueConfig = new CoreQueueConfiguration(RandomUtil.randomString(),
-                                                                    RandomUtil.randomString(),
-                                                                    null,
-                                                                    false);
+      CoreQueueConfiguration sourceQueueConfig = new CoreQueueConfiguration()
+         .setAddress(RandomUtil.randomString())
+         .setName(RandomUtil.randomString())
+         .setDurable(false);
+      CoreQueueConfiguration targetQueueConfig = new CoreQueueConfiguration()
+         .setAddress(RandomUtil.randomString())
+         .setName(RandomUtil.randomString())
+         .setDurable(false);
       List<String> connectors = new ArrayList<String>();
       connectors.add(connectorConfig.getName());
-      bridgeConfig = new BridgeConfiguration(RandomUtil.randomString(),
-                                             sourceQueueConfig.getName(),
-                                             targetQueueConfig.getAddress(),
-                                             null,
-                                             null,
-                                             HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                             HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                             HornetQClient.DEFAULT_CONNECTION_TTL,
-                                             RandomUtil.randomPositiveLong(),
-                                             HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                             RandomUtil.randomDouble(),
-                                             RandomUtil.randomPositiveInt(),
-                                             RandomUtil.randomPositiveInt(),
-                                             RandomUtil.randomPositiveInt(),
-                                             RandomUtil.randomBoolean(),
-                                             RandomUtil.randomPositiveInt(),
-                                             connectors,
-                                             false,
-                                             HornetQDefaultConfiguration.getDefaultClusterUser(),
-                                             HornetQDefaultConfiguration.getDefaultClusterPassword());
+      bridgeConfig = new BridgeConfiguration()
+         .setName(RandomUtil.randomString())
+         .setQueueName(sourceQueueConfig.getName())
+         .setForwardingAddress(targetQueueConfig.getAddress())
+         .setRetryInterval(RandomUtil.randomPositiveLong())
+         .setRetryIntervalMultiplier(RandomUtil.randomDouble())
+         .setInitialConnectAttempts(RandomUtil.randomPositiveInt())
+         .setReconnectAttempts(RandomUtil.randomPositiveInt())
+         .setReconnectAttemptsOnSameNode(RandomUtil.randomPositiveInt())
+         .setUseDuplicateDetection(RandomUtil.randomBoolean())
+         .setConfirmationWindowSize(RandomUtil.randomPositiveInt())
+         .setStaticConnectors(connectors);
 
-      Configuration conf_1 = createBasicConfig();
-      conf_1.setSecurityEnabled(false);
-      conf_1.setJMXManagementEnabled(true);
-      conf_1.getAcceptorConfigurations().add(acceptorConfig);
-      conf_1.getQueueConfigurations().add(targetQueueConfig);
+      Configuration conf_1 = createBasicConfig()
+         .addAcceptorConfiguration(acceptorConfig)
+         .addQueueConfiguration(targetQueueConfig);
 
-      Configuration conf_0 = createBasicConfig();
-      conf_0.setSecurityEnabled(false);
-      conf_0.setJMXManagementEnabled(true);
-      conf_0.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      conf_0.getConnectorConfigurations().put(connectorConfig.getName(), connectorConfig);
-      conf_0.getQueueConfigurations().add(sourceQueueConfig);
-      conf_0.getBridgeConfigurations().add(bridgeConfig);
+      Configuration conf_0 = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig)
+         .addQueueConfiguration(sourceQueueConfig)
+         .addBridgeConfiguration(bridgeConfig);
 
       server_1 = addServer(HornetQServers.newHornetQServer(conf_1, MBeanServerFactory.createMBeanServer(), false));
       server_1.start();

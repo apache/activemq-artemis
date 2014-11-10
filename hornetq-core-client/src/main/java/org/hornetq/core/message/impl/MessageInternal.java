@@ -26,8 +26,6 @@ import org.hornetq.utils.TypedProperties;
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
- * TODO - this can be refactored further to separate out large message specific stuff
- *
  *
  */
 public interface MessageInternal extends Message

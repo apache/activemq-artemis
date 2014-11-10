@@ -13,11 +13,32 @@
 package org.hornetq.tests.integration.cluster.failover;
 
 import org.hornetq.api.core.client.ClientSession;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.hornetq.core.server.cluster.ha.ReplicatedPolicy;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 public class ReplicatedFailoverTest extends FailoverTest
 {
+   boolean isReplicatedFailbackTest = false;
+   @Rule
+   public TestRule watcher = new TestWatcher()
+   {
+      @Override
+      protected void starting(Description description)
+      {
+         isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback");
+      }
 
+   };
+
+   protected void beforeWaitForRemoteBackupSynchronization()
+   {
+   }
    @Test
    /*
    * default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after this
@@ -28,8 +49,10 @@ public class ReplicatedFailoverTest extends FailoverTest
    {
       try
       {
-         backupServer.getServer().getConfiguration().getHAPolicy().setFailbackDelay(2000);
-         backupServer.getServer().getConfiguration().setMaxSavedReplicatedJournalSize(2);
+         beforeWaitForRemoteBackupSynchronization();
+
+         waitForRemoteBackupSynchronization(backupServer.getServer());
+
          createSessionFactory();
 
          ClientSession session = createSession(sf, true, true);
@@ -38,7 +61,9 @@ public class ReplicatedFailoverTest extends FailoverTest
 
          crash(session);
 
-         liveServer.getServer().getConfiguration().setCheckForLiveServer(true);
+         ReplicatedPolicy haPolicy = (ReplicatedPolicy) liveServer.getServer().getHAPolicy();
+
+         haPolicy.setCheckForLiveServer(true);
 
          liveServer.start();
 
@@ -80,11 +105,14 @@ public class ReplicatedFailoverTest extends FailoverTest
          assertFalse(backupServer.getServer().isStarted());
 
          //the server wouldnt have reset to backup
-         assertFalse(backupServer.getServer().getConfiguration().getHAPolicy().isBackup());
+         assertFalse(backupServer.getServer().getHAPolicy().isBackup());
       }
       finally
       {
-         sf.close();
+         if (sf != null)
+         {
+            sf.close();
+         }
       }
    }
 
@@ -92,6 +120,24 @@ public class ReplicatedFailoverTest extends FailoverTest
    protected void createConfigs() throws Exception
    {
       createReplicatedConfigs();
+   }
+
+   @Override
+   protected void setupHAPolicyConfiguration()
+   {
+      if (isReplicatedFailbackTest)
+      {
+         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration())
+            .setCheckForLiveServer(true);
+         ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
+            .setMaxSavedReplicatedJournalsSize(2)
+            .setAllowFailBack(true)
+            .setFailbackDelay(2000);
+      }
+      else
+      {
+         super.setupHAPolicyConfiguration();
+      }
    }
 
    @Override

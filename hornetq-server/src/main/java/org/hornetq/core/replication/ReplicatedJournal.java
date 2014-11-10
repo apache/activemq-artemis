@@ -30,12 +30,12 @@ import org.hornetq.core.persistence.OperationContext;
 import org.hornetq.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 
 /**
- * Used by the {@link JournalStorageManager} to replicate journal calls.
+ * Used by the {@link org.hornetq.core.persistence.impl.journal.JournalStorageManager} to replicate journal calls.
  * <p>
  * This class wraps a {@link ReplicationManager} and the local {@link Journal}. Every call will be
  * relayed to both instances.
  * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @see JournalStorageManager
+ * @see org.hornetq.core.persistence.impl.journal.JournalStorageManager
  */
 public class ReplicatedJournal implements Journal
 {

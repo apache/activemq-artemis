@@ -62,9 +62,9 @@ public class FailureDeadlockTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createDefaultConfig();
-      conf.setSecurityEnabled(false);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration conf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       server = createServer(false, conf);
       jmsServer = new JMSServerManagerImpl(server);
       jmsServer.setContext(new NullInitialContext());

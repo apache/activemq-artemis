@@ -76,9 +76,9 @@ public class TopicCleanupTest extends JMSTestBase
 
          for (int i = 0; i < 100; i++)
          {
-            long txid = storage.generateUniqueID();
+            long txid = storage.generateID();
 
-            final Queue queue = new QueueImpl(storage.generateUniqueID(), SimpleString.toSimpleString("jms.topic.topic"), SimpleString.toSimpleString("jms.topic.topic"), FilterImpl.createFilter(HornetQServerImpl.GENERIC_IGNORED_FILTER), true, false, server.getScheduledPool(), server.getPostOffice(),
+            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("jms.topic.topic"), SimpleString.toSimpleString("jms.topic.topic"), FilterImpl.createFilter(HornetQServerImpl.GENERIC_IGNORED_FILTER), true, false, server.getScheduledPool(), server.getPostOffice(),
                                               storage, server.getAddressSettingsRepository(), server.getExecutorFactory().getExecutor());
 
             LocalQueueBinding binding = new LocalQueueBinding(queue.getAddress(), queue, server.getNodeID());

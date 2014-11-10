@@ -327,12 +327,12 @@ public class DeadLetterAddressTest extends ServiceTestBase
       long timeout = System.currentTimeMillis() + 5000;
 
       // DLA transfer is asynchronous fired on the rollback
-      while (System.currentTimeMillis() < timeout && ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getMessageCount() != 0)
+      while (System.currentTimeMillis() < timeout && getMessageCount(((Queue)server.getPostOffice().getBinding(qName).getBindable())) != 0)
       {
          Thread.sleep(1);
       }
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(qName).getBindable())));
       ClientMessage m = clientConsumer.receiveImmediate();
       Assert.assertNull(m);
       // All the messages should now be in the DLQ
@@ -511,11 +511,11 @@ public class DeadLetterAddressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
       TransportConfiguration transportConfig = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY);
-      configuration.getAcceptorConfigurations().add(transportConfig);
+
+      Configuration configuration = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(transportConfig);
       server = addServer(HornetQServers.newHornetQServer(configuration, false));
       // start the server
       server.start();

@@ -29,19 +29,16 @@ public class TopicConfigurationImpl implements TopicConfiguration
 
    // Attributes ----------------------------------------------------
 
-   private final String name;
+   private String name;
 
-   private final String[] bindings;
+   private String[] bindings;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public TopicConfigurationImpl(final String name, final String... bindings)
+   public TopicConfigurationImpl()
    {
-      this.name = name;
-      this.bindings = new String[bindings.length];
-      System.arraycopy(bindings, 0, this.bindings, 0, bindings.length);
    }
 
    // TopicConfiguration implementation -----------------------------
@@ -51,9 +48,21 @@ public class TopicConfigurationImpl implements TopicConfiguration
       return bindings;
    }
 
+   public TopicConfigurationImpl setBindings(String... bindings)
+   {
+      this.bindings = bindings;
+      return this;
+   }
+
    public String getName()
    {
       return name;
+   }
+
+   public TopicConfigurationImpl setName(String name)
+   {
+      this.name = name;
+      return this;
    }
 
    // Public --------------------------------------------------------

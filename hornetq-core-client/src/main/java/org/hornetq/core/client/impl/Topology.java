@@ -156,8 +156,11 @@ public final class Topology implements Serializable
          TopologyMemberImpl currentMember = getMember(nodeId);
          if (currentMember == null)
          {
-            HornetQClientLogger.LOGGER.debug("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput,
-                     new Exception("trace"));
+            if (HornetQClientLogger.LOGGER.isTraceEnabled())
+            {
+               HornetQClientLogger.LOGGER.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput,
+                                                new Exception("trace"));
+            }
 
             currentMember = memberInput;
             topology.put(nodeId, currentMember);

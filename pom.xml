@@ -7,6 +7,7 @@
    <version>2.5.0-SNAPSHOT</version>
    <modules>
       <module>hornetq-protocols</module>
+     <module>hornetq-dto</module>
    </modules>
 
    <name>HornetQ Parent</name>
@@ -45,7 +46,8 @@
          ${hornetq.version.majorVersion}.${hornetq.version.minorVersion}.${hornetq.version.microVersion}.${hornetq.version.versionSuffix}
          (${hornetq.version.versionName}, ${hornetq.version.incrementingVersion})
       </HornetQ-Version>
-      <resteasy.version>3.0.4.Final</resteasy.version>
+      <resteasy.version>3.0.9.Final</resteasy.version>
+      <jackson-databind.version>2.3.1</jackson-databind.version>
       <skipUnitTests>true</skipUnitTests>
       <skipJmsTests>true</skipJmsTests>
       <skipBytemanTests>true</skipBytemanTests>
@@ -209,10 +211,9 @@
          </dependency>
          <dependency>
             <groupId>org.jboss.spec.javax.transaction</groupId>
-            <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+            <artifactId>jboss-transaction-api_1.2_spec</artifactId>
             <version>1.0.0.Final</version>
          </dependency>
-
          <!--this specifically for the JMS Bridge-->
          <dependency>
             <groupId>org.jboss</groupId>
@@ -231,6 +232,12 @@
             <artifactId>jbossjts-jacorb</artifactId>
             <version>4.17.13.Final</version>
          </dependency>
+         <!-- this for Ironjacamar SPI XAResourceWrapper implementation -->
+         <dependency>
+            <groupId>org.jboss.ironjacamar</groupId>
+            <artifactId>ironjacamar-core-api</artifactId>
+            <version>1.2.0.Beta2</version>
+         </dependency>
          <!--needed to compile security-->
          <dependency>
             <groupId>org.jboss.security</groupId>
@@ -244,58 +251,15 @@
          </dependency>
          <!--needed to compile the bootstrap jar-->
          <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-kernel</artifactId>
-            <version>2.0.6.GA</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>org.jboss.logging</groupId>
-                  <artifactId>jboss-logging-spi</artifactId>
-               </exclusion>
-            </exclusions>
-         </dependency>
-         <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jboss-common-core</artifactId>
-            <version>2.2.14.GA</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>org.jboss.logging</groupId>
-                  <artifactId>jboss-logging-spi</artifactId>
-               </exclusion>
-            </exclusions>
-         </dependency>
-         <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
             <version>3.3.4.Final</version>
          </dependency>
-         <!--needed for microntainer deps in distro-->
-         <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-dependency</artifactId>
-            <version>2.0.6.GA</version>
-         </dependency>
-         <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jboss-reflect</artifactId>
-            <version>2.0.2.GA</version>
-         </dependency>
-         <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jboss-mdr</artifactId>
-            <version>2.0.1.GA</version>
-         </dependency>
-         <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jbossxb</artifactId>
-            <version>2.0.1.GA</version>
-         </dependency>
-         <dependency>
-            <groupId>sun-jaxb</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.1.9</version>
-         </dependency>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>airline</artifactId>
+            <version>0.6</version>
+        </dependency>
          <!--needed to compile transport jar-->
          <dependency>
             <groupId>io.netty</groupId>
@@ -324,19 +288,25 @@
 
          <dependency>
             <groupId>org.apache.qpid</groupId>
-            <artifactId>proton-api</artifactId>
-            <version>0.5</version>
-         </dependency>
-         <dependency>
-            <groupId>org.apache.qpid</groupId>
-            <artifactId>proton-j-impl</artifactId>
-            <version>0.5</version>
+            <artifactId>proton-j</artifactId>
+            <version>0.8</version>
          </dependency>
          <dependency>
             <groupId>org.apache.qpid</groupId>
             <artifactId>proton-jms</artifactId>
-            <version>0.5</version>
+            <version>0.8</version>
          </dependency>
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.10.0</version>
+         </dependency>
+         <dependency>
+           <groupId>org.slf4j</groupId>
+           <artifactId>slf4j-api</artifactId>
+           <version>1.7.5</version>
+         </dependency>
+
          <!--needed to compile the spring support-->
          <dependency>
             <groupId>org.springframework</groupId>
@@ -397,7 +367,6 @@
             <artifactId>jboss-jaspi-api</artifactId>
             <version>1.0.0.GA</version>
          </dependency>
-
          <!--needed to run the jms tests -->
          <dependency>
             <groupId>org.jboss.naming</groupId>
@@ -432,6 +401,12 @@
             <groupId>org.jboss.javaee</groupId>
             <artifactId>jboss-jca-api</artifactId>
             <version>1.5.0.GA</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>org.jboss.logging</groupId>
+                  <artifactId>jboss-logging-spi</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
 
          <!-- needed for javadoc graphics-->
@@ -457,6 +432,25 @@
          <name>JBoss releases</name>
          <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       </repository>
+      <!--
+	This is a repository for intermediate releases from Proton.
+        In case there's an API broken, we will release an intermediate release here, on that case we will uncomment this and
+        use this repository again
+
+      <repository>
+         <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+         </snapshots>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>interval:10080</updatePolicy>
+         </releases>
+         <id>fuse.release</id>
+         <name>Fuse releases</name>
+         <url>https://repository.jboss.org/nexus/content/repositories/fs-releases/</url>
+      </repository>
+      -->
    </repositories>
    <pluginRepositories>
       <pluginRepository>
@@ -482,6 +476,7 @@
             <activeByDefault>true</activeByDefault>
          </activation>
          <modules>
+            <module>hornetq-dto</module>
             <module>hornetq-bootstrap</module>
             <module>hornetq-commons</module>
             <module>hornetq-selector</module>
@@ -506,6 +501,7 @@
       <profile>
          <id>maven-release</id>
          <modules>
+            <module>hornetq-dto</module>
             <module>hornetq-bootstrap</module>
             <module>hornetq-commons</module>
             <module>hornetq-selector</module>
@@ -530,6 +526,7 @@
       <profile>
          <id>release</id>
          <modules>
+            <module>hornetq-dto</module>
             <module>hornetq-bootstrap</module>
             <module>hornetq-commons</module>
             <module>hornetq-selector</module>
@@ -556,6 +553,7 @@
       <profile>
          <id>hudson-tests</id>
          <modules>
+            <module>hornetq-dto</module>
             <module>hornetq-bootstrap</module>
             <module>hornetq-commons</module>
             <module>hornetq-selector</module>
@@ -593,6 +591,7 @@
       <profile>
          <id>jenkins-fast-tests</id>
          <modules>
+            <module>hornetq-dto</module>
             <module>hornetq-bootstrap</module>
             <module>hornetq-commons</module>
             <module>hornetq-selector</module>
@@ -626,6 +625,7 @@
       <profile>
          <id>examples</id>
          <modules>
+            <module>hornetq-dto</module>
             <module>hornetq-bootstrap</module>
             <module>hornetq-commons</module>
             <module>hornetq-selector</module>
@@ -847,6 +847,15 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>2.12</version>
+            <dependencies>
+               <!-- This was initially done to enforce name on Parameter annotation
+                    I've developed a customized check and I needed this jar to deploy the specialized checkstyle -->
+               <dependency>
+                  <groupId>org.hornetq</groupId>
+                  <artifactId>hornetq-checkstyle-checks</artifactId>
+                  <version>0.2</version>
+               </dependency>
+            </dependencies>
             <configuration>
                <skip>${skipStyleCheck}</skip>
                <configLocation>${hornetq.basedir}/etc/checkstyle.xml</configLocation>

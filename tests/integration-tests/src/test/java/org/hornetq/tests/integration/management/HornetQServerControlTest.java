@@ -40,6 +40,7 @@ import org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.hornetq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServers;
+import org.hornetq.core.settings.impl.SlowConsumerPolicy;
 import org.hornetq.core.transaction.impl.XidImpl;
 import org.hornetq.tests.util.RandomUtil;
 import org.hornetq.tests.util.UnitTestCase;
@@ -101,8 +102,6 @@ public class HornetQServerControlTest extends ManagementTestBase
       Assert.assertEquals(conf.isClustered(), serverControl.isClustered());
       Assert.assertEquals(conf.isPersistDeliveryCountBeforeDelivery(),
                           serverControl.isPersistDeliveryCountBeforeDelivery());
-      Assert.assertEquals(conf.getHAPolicy().isBackup(), serverControl.isBackup());
-      Assert.assertEquals(conf.getHAPolicy().isSharedStore(), serverControl.isSharedStore());
       Assert.assertEquals(conf.getScheduledThreadPoolMaxSize(), serverControl.getScheduledThreadPoolMaxSize());
       Assert.assertEquals(conf.getThreadPoolMaxSize(), serverControl.getThreadPoolMaxSize());
       Assert.assertEquals(conf.getSecurityInvalidationInterval(), serverControl.getSecurityInvalidationInterval());
@@ -144,7 +143,6 @@ public class HornetQServerControlTest extends ManagementTestBase
       Assert.assertEquals(conf.getJournalCompactMinFiles(), serverControl.getJournalCompactMinFiles());
       Assert.assertEquals(conf.getJournalCompactPercentage(), serverControl.getJournalCompactPercentage());
       Assert.assertEquals(conf.isPersistenceEnabled(), serverControl.isPersistenceEnabled());
-      Assert.assertEquals(conf.getHAPolicy().isFailoverOnServerShutdown(), serverControl.isFailoverOnServerShutdown());
    }
 
    @Test
@@ -502,6 +500,9 @@ public class HornetQServerControlTest extends ManagementTestBase
       long redistributionDelay = 5;
       boolean sendToDLAOnNoRoute = true;
       String addressFullMessagePolicy = "PAGE";
+      long slowConsumerThreshold = 5;
+      long slowConsumerCheckPeriod = 10;
+      String slowConsumerPolicy = SlowConsumerPolicy.KILL.toString();
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -517,7 +518,10 @@ public class HornetQServerControlTest extends ManagementTestBase
                                        maxRedeliveryDelay,
                                        redistributionDelay,
                                        sendToDLAOnNoRoute,
-                                       addressFullMessagePolicy);
+                                       addressFullMessagePolicy,
+                                       slowConsumerThreshold,
+                                       slowConsumerCheckPeriod,
+                                       slowConsumerPolicy);
 
 
       boolean ex = false;
@@ -537,7 +541,10 @@ public class HornetQServerControlTest extends ManagementTestBase
                                           maxRedeliveryDelay,
                                           redistributionDelay,
                                           sendToDLAOnNoRoute,
-                                          addressFullMessagePolicy);
+                                          addressFullMessagePolicy,
+                                          slowConsumerThreshold,
+                                          slowConsumerCheckPeriod,
+                                          slowConsumerPolicy);
       }
       catch (Exception expected)
       {
@@ -564,6 +571,9 @@ public class HornetQServerControlTest extends ManagementTestBase
       assertEquals(redistributionDelay, info.getRedistributionDelay());
       assertEquals(sendToDLAOnNoRoute, info.isSendToDLAOnNoRoute());
       assertEquals(addressFullMessagePolicy, info.getAddressFullMessagePolicy());
+      assertEquals(slowConsumerThreshold, info.getSlowConsumerThreshold());
+      assertEquals(slowConsumerCheckPeriod, info.getSlowConsumerCheckPeriod());
+      assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -579,7 +589,10 @@ public class HornetQServerControlTest extends ManagementTestBase
                                        maxRedeliveryDelay,
                                        redistributionDelay,
                                        sendToDLAOnNoRoute,
-                                       addressFullMessagePolicy);
+                                       addressFullMessagePolicy,
+                                       slowConsumerThreshold,
+                                       slowConsumerCheckPeriod,
+                                       slowConsumerPolicy);
 
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
@@ -598,6 +611,9 @@ public class HornetQServerControlTest extends ManagementTestBase
       assertEquals(redistributionDelay, info.getRedistributionDelay());
       assertEquals(sendToDLAOnNoRoute, info.isSendToDLAOnNoRoute());
       assertEquals(addressFullMessagePolicy, info.getAddressFullMessagePolicy());
+      assertEquals(slowConsumerThreshold, info.getSlowConsumerThreshold());
+      assertEquals(slowConsumerCheckPeriod, info.getSlowConsumerCheckPeriod());
+      assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
 
 
       ex = false;
@@ -617,7 +633,10 @@ public class HornetQServerControlTest extends ManagementTestBase
                                           maxRedeliveryDelay,
                                           redistributionDelay,
                                           sendToDLAOnNoRoute,
-                                          addressFullMessagePolicy);
+                                          addressFullMessagePolicy,
+                                          slowConsumerThreshold,
+                                          slowConsumerCheckPeriod,
+                                          slowConsumerPolicy);
       }
       catch (Exception e)
       {
@@ -948,8 +967,85 @@ public class HornetQServerControlTest extends ManagementTestBase
 
       System.out.println("HornetQServerControlTest.testCommitPreparedTransactions");
    }
-   // Package protected ---------------------------------------------
 
+   @Test
+   public void testScaleDownWithConnector() throws Exception
+   {
+      scaleDown(new ScaleDownHandler()
+      {
+         @Override
+         public void scaleDown(HornetQServerControl control) throws Exception
+         {
+            control.scaleDown("server2-connector");
+         }
+      });
+   }
+
+   @Test
+   public void testScaleDownWithOutConnector() throws Exception
+   {
+      scaleDown(new ScaleDownHandler()
+      {
+         @Override
+         public void scaleDown(HornetQServerControl control) throws Exception
+         {
+            control.scaleDown(null);
+         }
+      });
+   }
+
+   protected void scaleDown(ScaleDownHandler handler) throws Exception
+   {
+      SimpleString address = new SimpleString("testQueue");
+      Configuration conf = createDefaultConfig(false, 2);
+      conf.setSecurityEnabled(false);
+      conf.getAcceptorConfigurations().clear();
+      HashMap<String, Object> params = new HashMap<String, Object>();
+      params.put("server-id", "2");
+      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
+      HornetQServer server2 = HornetQServers.newHornetQServer(conf, null, true);
+      this.conf.getConnectorConfigurations().clear();
+      this.conf.getConnectorConfigurations().put("server2-connector", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, params));
+      try
+      {
+         server2.start();
+         server.createQueue(address, address, null, true, false);
+         server2.createQueue(address, address, null, true, false);
+         ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+         ClientSessionFactory csf = createSessionFactory(locator);
+         ClientSession session = csf.createSession();
+         ClientProducer producer = session.createProducer(address);
+         for (int i = 0; i < 100; i++)
+         {
+            ClientMessage message = session.createMessage(true);
+            message.getBodyBuffer().writeString("m" + i);
+            producer.send(message);
+         }
+
+         HornetQServerControl managementControl = createManagementControl();
+         handler.scaleDown(managementControl);
+         locator.close();
+         locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, params));
+         csf = createSessionFactory(locator);
+         session = csf.createSession();
+         session.start();
+         ClientConsumer consumer = session.createConsumer(address);
+         for (int i = 0; i < 100; i++)
+         {
+            ClientMessage m = consumer.receive(5000);
+            assertNotNull(m);
+         }
+      }
+      finally
+      {
+         server2.stop();
+      }
+   }
+   // Package protected ---------------------------------------------
+   interface ScaleDownHandler
+   {
+      void scaleDown(HornetQServerControl control) throws Exception;
+   }
    // Protected -----------------------------------------------------
 
    @Override
@@ -964,13 +1060,13 @@ public class HornetQServerControlTest extends ManagementTestBase
                                                    params,
                                                    RandomUtil.randomString());
 
-      conf = createDefaultConfig(false);
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getAcceptorConfigurations().clear();
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      conf = createDefaultConfig(false)
+         .setSecurityEnabled(false)
+         .setJMXManagementEnabled(true)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
       server = HornetQServers.newHornetQServer(conf, mbeanServer, true);
-      conf.getConnectorConfigurations().put(connectorConfig.getName(), connectorConfig);
       server.start();
    }
 

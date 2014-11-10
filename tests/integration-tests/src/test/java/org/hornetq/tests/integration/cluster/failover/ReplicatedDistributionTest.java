@@ -190,8 +190,8 @@ public class ReplicatedDistributionTest extends ClusterTestBase
    {
       super.setUp();
 
-      setupLiveServer(1, true, isSharedStore(), true);
-      setupLiveServer(3, true, isSharedStore(), true);
+      setupLiveServer(1, true, isSharedStore(), true, false);
+      setupLiveServer(3, true, isSharedStore(), true, false);
       setupBackupServer(2, 3, true, isSharedStore(), true);
 
       final String address = ReplicatedDistributionTest.ADDRESS.toString();

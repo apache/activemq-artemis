@@ -1768,14 +1768,12 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    @Test
    public void testStressDeletesNoSync() throws Exception
    {
-      Configuration config = createBasicConfig();
-      config.setJournalFileSize(100 * 1024);
-      config.setJournalSyncNonTransactional(false);
-      config.setJournalSyncTransactional(false);
-//      config.setJournalBufferTimeout_NIO(2000000000);
-//      config.setJournalBufferTimeout_AIO(2000000000);
-      config.setJournalCompactMinFiles(0);
-      config.setJournalCompactPercentage(0);
+      Configuration config = createBasicConfig()
+         .setJournalFileSize(100 * 1024)
+         .setJournalSyncNonTransactional(false)
+         .setJournalSyncTransactional(false)
+         .setJournalCompactMinFiles(0)
+         .setJournalCompactPercentage(0);
 
       final AtomicInteger errors = new AtomicInteger(0);
 

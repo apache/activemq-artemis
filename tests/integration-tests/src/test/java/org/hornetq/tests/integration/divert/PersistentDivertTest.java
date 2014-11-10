@@ -71,29 +71,23 @@ public class PersistentDivertTest extends ServiceTestBase
 
       final String forwardAddress3 = "forwardAddress3";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration("divert1",
-                                                                "divert1",
-                                                                testAddress,
-                                                                forwardAddress1,
-                                                                false,
-                                                                null,
-                                                                null);
+      DivertConfiguration divertConf1 = new DivertConfiguration()
+         .setName("divert1")
+         .setRoutingName("divert1")
+         .setAddress(testAddress)
+         .setForwardingAddress(forwardAddress1);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration("divert2",
-                                                                "divert2",
-                                                                testAddress,
-                                                                forwardAddress2,
-                                                                false,
-                                                                null,
-                                                                null);
+      DivertConfiguration divertConf2 = new DivertConfiguration()
+         .setName("divert2")
+         .setRoutingName("divert2")
+         .setAddress(testAddress)
+         .setForwardingAddress(forwardAddress2);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration("divert3",
-                                                                "divert3",
-                                                                testAddress,
-                                                                forwardAddress3,
-                                                                false,
-                                                                null,
-                                                                null);
+      DivertConfiguration divertConf3 = new DivertConfiguration()
+         .setName("divert3")
+         .setRoutingName("divert3")
+         .setAddress(testAddress)
+         .setForwardingAddress(forwardAddress3);
 
       List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
 
@@ -274,29 +268,23 @@ public class PersistentDivertTest extends ServiceTestBase
 
       final String forwardAddress3 = "forwardAddress3";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration("divert1",
-                                                                "divert1",
-                                                                testAddress,
-                                                                forwardAddress1,
-                                                                false,
-                                                                null,
-                                                                null);
+      DivertConfiguration divertConf1 = new DivertConfiguration()
+         .setName("divert1")
+         .setRoutingName("divert1")
+         .setAddress(testAddress)
+         .setForwardingAddress(forwardAddress1);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration("divert2",
-                                                                "divert2",
-                                                                testAddress,
-                                                                forwardAddress2,
-                                                                false,
-                                                                null,
-                                                                null);
+      DivertConfiguration divertConf2 = new DivertConfiguration()
+         .setName("divert2")
+         .setRoutingName("divert2")
+         .setAddress(testAddress)
+         .setForwardingAddress(forwardAddress2);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration("divert3",
-                                                                "divert3",
-                                                                testAddress,
-                                                                forwardAddress3,
-                                                                false,
-                                                                null,
-                                                                null);
+      DivertConfiguration divertConf3 = new DivertConfiguration()
+         .setName("divert3")
+         .setRoutingName("divert3")
+         .setAddress(testAddress)
+         .setForwardingAddress(forwardAddress3);
 
       List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
 

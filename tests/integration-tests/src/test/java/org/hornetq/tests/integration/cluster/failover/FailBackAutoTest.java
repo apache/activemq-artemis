@@ -25,7 +25,9 @@ import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
 import org.hornetq.core.client.impl.ServerLocatorInternal;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.hornetq.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.hornetq.core.server.impl.InVMNodeManager;
 import org.hornetq.jms.client.HornetQTextMessage;
 import org.hornetq.tests.integration.IntegrationTestLogger;
@@ -56,6 +58,7 @@ public class FailBackAutoTest extends FailoverTestBase
    @Test
    public void testAutoFailback() throws Exception
    {
+      ((SharedStoreSlavePolicy)backupServer.getServer().getHAPolicy()).setRestartBackup(false);
       createSessionFactory();
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -163,7 +166,6 @@ public class FailBackAutoTest extends FailoverTestBase
       listener = new CountDownSessionFailureListener(session);
 
       session.addFailureListener(listener);
-
       log.info("restarting live node now");
       liveServer.start();
 
@@ -202,6 +204,7 @@ public class FailBackAutoTest extends FailoverTestBase
    @Test
    public void testFailBack() throws Exception
    {
+      ((SharedStoreSlavePolicy)backupServer.getServer().getHAPolicy()).setRestartBackup(false);
       createSessionFactory();
       ClientSession session = sendAndConsume(sf, true);
 
@@ -218,8 +221,8 @@ public class FailBackAutoTest extends FailoverTestBase
       producer = session.createProducer(FailoverTestBase.ADDRESS);
       sendMessages(session, producer, 2 * NUM_MESSAGES);
       session.commit();
-      assertFalse("must NOT be a backup", liveServer.getServer().getConfiguration().getHAPolicy().isBackup());
-      adaptLiveConfigForReplicatedFailBack(liveServer.getServer().getConfiguration());
+      assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
+      adaptLiveConfigForReplicatedFailBack(liveServer);
 
       CountDownSessionFailureListener listener = new CountDownSessionFailureListener(session);
       session.addFailureListener(listener);
@@ -254,28 +257,32 @@ public class FailBackAutoTest extends FailoverTestBase
    {
       nodeManager = new InVMNodeManager(false);
 
-      backupConfig = super.createDefaultConfig();
-      backupConfig.getAcceptorConfigurations().clear();
-      backupConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(false));
-      backupConfig.setSecurityEnabled(false);
-      backupConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      backupConfig.getHAPolicy().setFailbackDelay(1000);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
-      backupConfig.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-      backupConfig.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
-      basicClusterConnectionConfig(backupConfig, backupConnector.getName(), liveConnector.getName());
+
+      backupConfig = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
+         .setSecurityEnabled(false)
+         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
+                                      .setFailbackDelay(1000)
+                                      .setRestartBackup(true))
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
+         .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultConfig();
-      liveConfig.getAcceptorConfigurations().clear();
-      liveConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(true));
-      liveConfig.setSecurityEnabled(false);
-      liveConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      liveConfig.getHAPolicy().setFailbackDelay(1000);
-      basicClusterConnectionConfig(liveConfig, liveConnector.getName(), backupConnector.getName());
-      liveConfig.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-      liveConfig.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
+      liveConfig = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
+         .setSecurityEnabled(false)
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()
+                                      .setFailbackDelay(100))
+         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()))
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+         .addConnectorConfiguration(backupConnector.getName(), backupConnector);
+
       liveServer = createTestableServer(liveConfig);
    }
 

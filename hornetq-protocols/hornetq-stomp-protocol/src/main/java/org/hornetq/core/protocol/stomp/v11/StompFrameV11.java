@@ -62,9 +62,9 @@ public class StompFrameV11 extends StompFrame
          // Output the headers.
          for (Header h : allHeaders)
          {
-            head.append(h.getEscapedKey());
+            head.append(h.getEncodedKey());
             head.append(Stomp.Headers.SEPARATOR);
-            head.append(h.getEscapedValue());
+            head.append(h.getEncodedValue());
             head.append(Stomp.NEWLINE);
          }
          // Add a newline to separate the headers from the content.

@@ -16,6 +16,7 @@ import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.api.core.Interceptor;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.core.client.impl.Topology;
+import org.hornetq.spi.core.remoting.ClientProtocolManagerFactory;
 
 /**
  * The serverLocator locates a server, but beyond that it locates a server based on a list.
@@ -24,7 +25,7 @@ import org.hornetq.core.client.impl.Topology;
  * HA, the locator will always get an updated list of members to the server, the server will send
  * the updated list to the client.
  * <p>
- * If you use UDP or JGroups (exclusively JGropus or UDP), the initial discovery is done by the
+ * If you use UDP or JGroups (exclusively JGroups or UDP), the initial discovery is done by the
  * grouping finder, after the initial connection is made the server will always send updates to the
  * client. But the listeners will listen for updates on grouping.
  *
@@ -114,8 +115,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be -1 (to disable) or greater than 0.
     *
     * @param clientFailureCheckPeriod the period to check failure
+    * @return this ServerLocator
     */
-   void setClientFailureCheckPeriod(long clientFailureCheckPeriod);
+   ServerLocator setClientFailureCheckPeriod(long clientFailureCheckPeriod);
 
    /**
     * When <code>true</code>, consumers created through this factory will create temporary files to
@@ -134,8 +136,9 @@ public interface ServerLocator extends AutoCloseable
     * Sets whether large messages received by consumers created through this factory will be cached in temporary files or not.
     *
     * @param cached <code>true</code> to cache large messages in temporary files, <code>false</code> else
+    * @return this ServerLocator
     */
-   void setCacheLargeMessagesClient(boolean cached);
+   ServerLocator setCacheLargeMessagesClient(boolean cached);
 
    /**
     * Returns the connection <em>time-to-live</em>.
@@ -154,14 +157,15 @@ public interface ServerLocator extends AutoCloseable
     * Value must be -1 (to disable) or greater or equals to 0.
     *
     * @param connectionTTL period in milliseconds
+    * @return this ServerLocator
     */
-   void setConnectionTTL(long connectionTTL);
+   ServerLocator setConnectionTTL(long connectionTTL);
 
    /**
     * Returns the blocking calls timeout.
     * <p>
     * If client's blocking calls to the server take more than this timeout, the call will throw a
-    * {@link HornetQException} with the code {@link HornetQExceptionType#CONNECTION_TIMEDOUT}. Value
+    * {@link org.hornetq.api.core.HornetQException} with the code {@link org.hornetq.api.core.HornetQExceptionType#CONNECTION_TIMEDOUT}. Value
     * is in milliseconds, default value is {@link HornetQClient#DEFAULT_CALL_TIMEOUT}.
     *
     * @return the blocking calls timeout
@@ -174,8 +178,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be greater or equals to 0
     *
     * @param callTimeout blocking call timeout in milliseconds
+    * @return this ServerLocator
     */
-   void setCallTimeout(long callTimeout);
+   ServerLocator setCallTimeout(long callTimeout);
 
 
    /**
@@ -197,8 +202,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be greater or equals to -1, -1 means forever
     *
     * @param callFailoverTimeout blocking call timeout in milliseconds
+    * @return this ServerLocator
     */
-   void setCallFailoverTimeout(long callFailoverTimeout);
+   ServerLocator setCallFailoverTimeout(long callFailoverTimeout);
 
    /**
     * Returns the large message size threshold.
@@ -216,8 +222,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be greater than 0.
     *
     * @param minLargeMessageSize large message size threshold in bytes
+    * @return this ServerLocator
     */
-   void setMinLargeMessageSize(int minLargeMessageSize);
+   ServerLocator setMinLargeMessageSize(int minLargeMessageSize);
 
    /**
     * Returns the window size for flow control of the consumers created through this factory.
@@ -235,8 +242,9 @@ public interface ServerLocator extends AutoCloseable
     * (to set the maximum size of the buffer)
     *
     * @param consumerWindowSize window size (in bytes) used for consumer flow control
+    * @return this ServerLocator
     */
-   void setConsumerWindowSize(int consumerWindowSize);
+   ServerLocator setConsumerWindowSize(int consumerWindowSize);
 
    /**
     * Returns the maximum rate of message consumption for consumers created through this factory.
@@ -256,8 +264,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate specified in units of messages per second.
     *
     * @param consumerMaxRate maximum rate of message consumption (in messages per seconds)
+    * @return this ServerLocator
     */
-   void setConsumerMaxRate(int consumerMaxRate);
+   ServerLocator setConsumerMaxRate(int consumerMaxRate);
 
    /**
     * Returns the size for the confirmation window of clients using this factory.
@@ -275,8 +284,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be -1 (to disable the window) or greater than 0.
     *
     * @param confirmationWindowSize size of the confirmation window (in bytes)
+    * @return this ServerLocator
     */
-   void setConfirmationWindowSize(int confirmationWindowSize);
+   ServerLocator setConfirmationWindowSize(int confirmationWindowSize);
 
    /**
     * Returns the window size for flow control of the producers created through this factory.
@@ -294,8 +304,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be -1 (to disable flow control) or greater than 0.
     *
     * @param producerWindowSize window size (in bytest) for flow control of the producers created through this factory.
+    * @return this ServerLocator
     */
-   void setProducerWindowSize(int producerWindowSize);
+   ServerLocator setProducerWindowSize(int producerWindowSize);
 
    /**
     * Returns the maximum rate of message production for producers created through this factory.
@@ -315,8 +326,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message production rate specified in units of messages per second.
     *
     * @param producerMaxRate maximum rate of message production (in messages per seconds)
+    * @return this ServerLocator
     */
-   void setProducerMaxRate(int producerMaxRate);
+   ServerLocator setProducerMaxRate(int producerMaxRate);
 
    /**
     * Returns whether consumers created through this factory will block while
@@ -336,8 +348,9 @@ public interface ServerLocator extends AutoCloseable
     * @param blockOnAcknowledge <code>true</code> to block when sending message
     *                           acknowledgments or <code>false</code> to send them
     *                           asynchronously
+    * @return this ServerLocator
     */
-   void setBlockOnAcknowledge(boolean blockOnAcknowledge);
+   ServerLocator setBlockOnAcknowledge(boolean blockOnAcknowledge);
 
    /**
     * Returns whether producers created through this factory will block while sending <em>durable</em> messages or do it asynchronously.
@@ -355,8 +368,9 @@ public interface ServerLocator extends AutoCloseable
     * Sets whether producers created through this factory will block while sending <em>durable</em> messages or do it asynchronously.
     *
     * @param blockOnDurableSend <code>true</code> to block when sending durable messages or <code>false</code> to send them asynchronously
+    * @return this ServerLocator
     */
-   void setBlockOnDurableSend(boolean blockOnDurableSend);
+   ServerLocator setBlockOnDurableSend(boolean blockOnDurableSend);
 
    /**
     * Returns whether producers created through this factory will block while sending <em>non-durable</em> messages or do it asynchronously.
@@ -374,8 +388,9 @@ public interface ServerLocator extends AutoCloseable
     * Sets whether producers created through this factory will block while sending <em>non-durable</em> messages or do it asynchronously.
     *
     * @param blockOnNonDurableSend <code>true</code> to block when sending non-durable messages or <code>false</code> to send them asynchronously
+    * @return this ServerLocator
     */
-   void setBlockOnNonDurableSend(boolean blockOnNonDurableSend);
+   ServerLocator setBlockOnNonDurableSend(boolean blockOnNonDurableSend);
 
    /**
     * Returns whether producers created through this factory will automatically
@@ -394,8 +409,9 @@ public interface ServerLocator extends AutoCloseable
     * assign a group ID to the messages they sent.
     *
     * @param autoGroup <code>true</code> to automatically assign a group ID to each messages sent through this factory, <code>false</code> else
+    * @return this ServerLocator
     */
-   void setAutoGroup(boolean autoGroup);
+   ServerLocator setAutoGroup(boolean autoGroup);
 
    /**
     * Returns the group ID that will be eventually set on each message for the property {@link org.hornetq.api.core.Message#HDR_GROUP_ID}.
@@ -410,8 +426,9 @@ public interface ServerLocator extends AutoCloseable
     * Sets the group ID that will be  set on each message sent through this factory.
     *
     * @param groupID the group ID to use
+    * @return this ServerLocator
     */
-   void setGroupID(String groupID);
+   ServerLocator setGroupID(String groupID);
 
    /**
     * Returns whether messages will pre-acknowledged on the server before they are sent to the consumers or not.
@@ -427,8 +444,9 @@ public interface ServerLocator extends AutoCloseable
     *
     * @param preAcknowledge <code>true</code> to enable pre-acknowledgment,
     *                       <code>false</code> else
+    * @return this ServerLocator
     */
-   void setPreAcknowledge(boolean preAcknowledge);
+   ServerLocator setPreAcknowledge(boolean preAcknowledge);
 
    /**
     * Returns the acknowledgments batch size.
@@ -445,8 +463,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be equal or greater than 0.
     *
     * @param ackBatchSize acknowledgments batch size
+    * @return this ServerLocator
     */
-   void setAckBatchSize(int ackBatchSize);
+   ServerLocator setAckBatchSize(int ackBatchSize);
 
    /**
     * Returns an array of TransportConfigurations representing the static list of live servers used
@@ -476,8 +495,9 @@ public interface ServerLocator extends AutoCloseable
     * or its own pools.
     *
     * @param useGlobalPools <code>true</code> to let this factory uses global thread pools, <code>false</code> else
+    * @return this ServerLocator
     */
-   void setUseGlobalPools(boolean useGlobalPools);
+   ServerLocator setUseGlobalPools(boolean useGlobalPools);
 
    /**
     * Returns the maximum size of the scheduled thread pool.
@@ -495,8 +515,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be greater than 0.
     *
     * @param scheduledThreadPoolMaxSize maximum size of the scheduled thread pool.
+    * @return this ServerLocator
     */
-   void setScheduledThreadPoolMaxSize(int scheduledThreadPoolMaxSize);
+   ServerLocator setScheduledThreadPoolMaxSize(int scheduledThreadPoolMaxSize);
 
    /**
     * Returns the maximum size of the thread pool.
@@ -514,8 +535,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be -1 (for unlimited thread pool) or greater than 0.
     *
     * @param threadPoolMaxSize maximum size of the thread pool.
+    * @return this ServerLocator
     */
-   void setThreadPoolMaxSize(int threadPoolMaxSize);
+   ServerLocator setThreadPoolMaxSize(int threadPoolMaxSize);
 
    /**
     * Returns the time to retry connections created by this factory after failure.
@@ -532,8 +554,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be greater than 0.
     *
     * @param retryInterval time (in milliseconds) to retry connections created by this factory after failure
+    * @return this ServerLocator
     */
-   void setRetryInterval(long retryInterval);
+   ServerLocator setRetryInterval(long retryInterval);
 
    /**
     * Returns the multiplier to apply to successive retry intervals.
@@ -550,8 +573,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be positive.
     *
     * @param retryIntervalMultiplier multiplier to apply to successive retry intervals
+    * @return this ServerLocator
     */
-   void setRetryIntervalMultiplier(double retryIntervalMultiplier);
+   ServerLocator setRetryIntervalMultiplier(double retryIntervalMultiplier);
 
    /**
     * Returns the maximum retry interval (in the case a retry interval multiplier has been specified).
@@ -569,8 +593,9 @@ public interface ServerLocator extends AutoCloseable
     *
     * @param maxRetryInterval maximum retry interval to apply in the case a retry interval multiplier
     *                         has been specified
+    * @return this ServerLocator
     */
-   void setMaxRetryInterval(long maxRetryInterval);
+   ServerLocator setMaxRetryInterval(long maxRetryInterval);
 
    /**
     * Returns the maximum number of attempts to retry connection in case of failure.
@@ -587,8 +612,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be -1 (to retry infinitely), 0 (to never retry connection) or greater than 0.
     *
     * @param reconnectAttempts maximum number of attempts to retry connection in case of failure
+    * @return this ServerLocator
     */
-   void setReconnectAttempts(int reconnectAttempts);
+   ServerLocator setReconnectAttempts(int reconnectAttempts);
 
    /**
     * Sets the maximum number of attempts to establish an initial connection.
@@ -596,8 +622,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be -1 (to retry infinitely), 0 (to never retry connection) or greater than 0.
     *
     * @param reconnectAttempts maximum number of attempts for the initial connection
+    * @return this ServerLocator
     */
-   void setInitialConnectAttempts(int reconnectAttempts);
+   ServerLocator setInitialConnectAttempts(int reconnectAttempts);
 
    /**
     * @return the number of attempts to be made for first initial connection.
@@ -616,8 +643,9 @@ public interface ServerLocator extends AutoCloseable
     * Sets the value for FailoverOnInitialReconnection
     *
     * @param failover
+    * @return this ServerLocator
     */
-   void setFailoverOnInitialConnection(boolean failover);
+   ServerLocator setFailoverOnInitialConnection(boolean failover);
 
    /**
     * Returns the class name of the connection load balancing policy.
@@ -631,11 +659,12 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Sets the class name of the connection load balancing policy.
     * <p>
-    * Value must be the name of a class implementing {@link ConnectionLoadBalancingPolicy}.
+    * Value must be the name of a class implementing {@link org.hornetq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy}.
     *
     * @param loadBalancingPolicyClassName class name of the connection load balancing policy
+    * @return this ServerLocator
     */
-   void setConnectionLoadBalancingPolicyClassName(String loadBalancingPolicyClassName);
+   ServerLocator setConnectionLoadBalancingPolicyClassName(String loadBalancingPolicyClassName);
 
    /**
     * Returns the initial size of messages created through this factory.
@@ -652,8 +681,9 @@ public interface ServerLocator extends AutoCloseable
     * Value must be greater than 0.
     *
     * @param size initial size of messages created through this factory.
+    * @return this ServerLocator
     */
-   void setInitialMessagePacketSize(int size);
+   ServerLocator setInitialMessagePacketSize(int size);
 
    /**
     * Adds an interceptor which will be executed <em>after packets are received from the server</em>. Invoking this
@@ -671,15 +701,17 @@ public interface ServerLocator extends AutoCloseable
     * Adds an interceptor which will be executed <em>after packets are received from the server</em>.
     *
     * @param interceptor an Interceptor
+    * @return this ServerLocator
     */
-   void addIncomingInterceptor(Interceptor interceptor);
+   ServerLocator addIncomingInterceptor(Interceptor interceptor);
 
    /**
     * Adds an interceptor which will be executed <em>before packets are sent to the server</em>.
     *
     * @param interceptor an Interceptor
+    * @return this ServerLocator
     */
-   void addOutgoingInterceptor(Interceptor interceptor);
+   ServerLocator addOutgoingInterceptor(Interceptor interceptor);
 
    /**
     * Removes an interceptor. Invoking this method is the same as invoking
@@ -741,12 +773,18 @@ public interface ServerLocator extends AutoCloseable
     * Sets whether to compress or not large messages.
     *
     * @param compressLargeMessages
+    * @return this ServerLocator
     */
-   void setCompressLargeMessage(boolean compressLargeMessages);
+   ServerLocator setCompressLargeMessage(boolean compressLargeMessages);
 
    // XXX No javadocs
-   void addClusterTopologyListener(ClusterTopologyListener listener);
+   ServerLocator addClusterTopologyListener(ClusterTopologyListener listener);
 
    // XXX No javadocs
    void removeClusterTopologyListener(ClusterTopologyListener listener);
+
+   ClientProtocolManagerFactory getProtocolManagerFactory();
+
+   void setProtocolManagerFactory(ClientProtocolManagerFactory protocolManager);
+
 }

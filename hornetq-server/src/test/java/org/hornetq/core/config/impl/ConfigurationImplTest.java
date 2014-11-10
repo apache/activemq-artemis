@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.hornetq.core.config.impl;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -45,7 +45,6 @@ public class ConfigurationImplTest extends UnitTestCase
    @Test
    public void testDefaults()
    {
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultSharedStore(), conf.getHAPolicy().isSharedStore());
       Assert.assertEquals(HornetQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(),
                           conf.getScheduledThreadPoolMaxSize());
       Assert.assertEquals(HornetQDefaultConfiguration.getDefaultSecurityInvalidationInterval(),
@@ -110,10 +109,6 @@ public class ConfigurationImplTest extends UnitTestCase
    {
       for (int j = 0; j < 100; j++)
       {
-         HAPolicy.POLICY_TYPE p = HAPolicy.POLICY_TYPE.SHARED_STORE;
-         conf.getHAPolicy().setPolicyType(p);
-         Assert.assertEquals(p, conf.getHAPolicy().getPolicyType());
-
          int i = RandomUtil.randomInt();
          conf.setScheduledThreadPoolMaxSize(i);
          Assert.assertEquals(i, conf.getScheduledThreadPoolMaxSize());
@@ -324,7 +319,7 @@ public class ConfigurationImplTest extends UnitTestCase
    {
       boolean b = RandomUtil.randomBoolean();
 
-      conf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
+      conf.setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
 
       int i = RandomUtil.randomInt();
       conf.setScheduledThreadPoolMaxSize(i);

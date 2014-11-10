@@ -25,8 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-
 import org.hornetq.api.core.Message;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.client.ClientConsumer;
@@ -44,7 +42,6 @@ import org.hornetq.tools.XmlDataImporter;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.settings.impl.AddressSettings;
 import org.hornetq.tests.util.ServiceTestBase;
-import org.hornetq.tests.util.UnitTestCase;
 import org.hornetq.utils.UUIDGenerator;
 
 import javax.jms.Connection;
@@ -98,10 +95,14 @@ public class XmlImportExportTest extends ServiceTestBase
          msg.putIntProperty("myIntProperty", i);
          msg.putLongProperty("myLongProperty", Long.MAX_VALUE - i);
          msg.putObjectProperty("myObjectProperty", i);
+         msg.putObjectProperty("myNullObjectProperty", null);
          msg.putShortProperty("myShortProperty", new Integer(i).shortValue());
          msg.putStringProperty("myStringProperty", "myStringPropertyValue_" + i);
+         msg.putStringProperty("myNullStringProperty", null);
          msg.putStringProperty("myNonAsciiStringProperty", international.toString());
          msg.putStringProperty("mySpecialCharacters", special);
+         msg.putStringProperty(new SimpleString("mySimpleStringProperty"), new SimpleString("mySimpleStringPropertyValue_" + i));
+         msg.putStringProperty(new SimpleString("myNullSimpleStringProperty"), null);
          producer.send(msg);
       }
 
@@ -131,23 +132,27 @@ public class XmlImportExportTest extends ServiceTestBase
          ClientMessage msg = consumer.receive(CONSUMER_TIMEOUT);
          byte[] body = new byte[msg.getBodySize()];
          msg.getBodyBuffer().readBytes(body);
-         Assert.assertTrue(new String(body).contains("Bob the giant pig " + i));
-         Assert.assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
-         Assert.assertEquals(msg.getByteProperty("myByteProperty"), new Byte("0"));
+         assertTrue(new String(body).contains("Bob the giant pig " + i));
+         assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
+         assertEquals(msg.getByteProperty("myByteProperty"), new Byte("0"));
          byte[] bytes = msg.getBytesProperty("myBytesProperty");
          for (int j = 0; j < 5; j++)
          {
-            Assert.assertEquals(j, bytes[j]);
+            assertEquals(j, bytes[j]);
          }
-         Assert.assertEquals(i * 1.6, msg.getDoubleProperty("myDoubleProperty"), 0.000001);
-         Assert.assertEquals(i * 2.5F, msg.getFloatProperty("myFloatProperty"), 0.000001);
-         Assert.assertEquals(i, msg.getIntProperty("myIntProperty").intValue());
-         Assert.assertEquals(Long.MAX_VALUE - i, msg.getLongProperty("myLongProperty").longValue());
-         Assert.assertEquals(i, msg.getObjectProperty("myObjectProperty"));
-         Assert.assertEquals(new Integer(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
-         Assert.assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
-         Assert.assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
-         Assert.assertEquals(special, msg.getStringProperty("mySpecialCharacters"));
+         assertEquals(i * 1.6, msg.getDoubleProperty("myDoubleProperty"), 0.000001);
+         assertEquals(i * 2.5F, msg.getFloatProperty("myFloatProperty"), 0.000001);
+         assertEquals(i, msg.getIntProperty("myIntProperty").intValue());
+         assertEquals(Long.MAX_VALUE - i, msg.getLongProperty("myLongProperty").longValue());
+         assertEquals(i, msg.getObjectProperty("myObjectProperty"));
+         assertEquals(null, msg.getObjectProperty("myNullObjectProperty"));
+         assertEquals(new Integer(i).shortValue(), msg.getShortProperty("myShortProperty").shortValue());
+         assertEquals("myStringPropertyValue_" + i, msg.getStringProperty("myStringProperty"));
+         assertEquals(null, msg.getStringProperty("myNullStringProperty"));
+         assertEquals(international.toString(), msg.getStringProperty("myNonAsciiStringProperty"));
+         assertEquals(special, msg.getStringProperty("mySpecialCharacters"));
+         assertEquals(new SimpleString("mySimpleStringPropertyValue_" + i), msg.getSimpleStringProperty(new SimpleString("mySimpleStringProperty")));
+         assertEquals(null, msg.getSimpleStringProperty(new SimpleString("myNullSimpleStringProperty")));
       }
    }
 
@@ -218,19 +223,19 @@ public class XmlImportExportTest extends ServiceTestBase
       session.start();
 
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Message.BYTES_TYPE, msg.getType());
+      assertEquals(Message.BYTES_TYPE, msg.getType());
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Message.DEFAULT_TYPE, msg.getType());
+      assertEquals(Message.DEFAULT_TYPE, msg.getType());
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Message.MAP_TYPE, msg.getType());
+      assertEquals(Message.MAP_TYPE, msg.getType());
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Message.OBJECT_TYPE, msg.getType());
+      assertEquals(Message.OBJECT_TYPE, msg.getType());
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Message.STREAM_TYPE, msg.getType());
+      assertEquals(Message.STREAM_TYPE, msg.getType());
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Message.TEXT_TYPE, msg.getType());
+      assertEquals(Message.TEXT_TYPE, msg.getType());
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Message.DEFAULT_TYPE, msg.getType());
+      assertEquals(Message.DEFAULT_TYPE, msg.getType());
    }
 
    @Test
@@ -272,10 +277,10 @@ public class XmlImportExportTest extends ServiceTestBase
       session.start();
 
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertEquals(Long.MAX_VALUE, msg.getExpiration());
-      Assert.assertEquals((byte) 0, msg.getPriority());
-      Assert.assertEquals(Long.MAX_VALUE - 1, msg.getTimestamp());
-      Assert.assertNotNull(msg.getUserID());
+      assertEquals(Long.MAX_VALUE, msg.getExpiration());
+      assertEquals((byte) 0, msg.getPriority());
+      assertEquals(Long.MAX_VALUE - 1, msg.getTimestamp());
+      assertNotNull(msg.getUserID());
    }
 
    @Test
@@ -307,14 +312,14 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString("queueName1"));
 
-      Assert.assertEquals("addressName1", queueQuery.getAddress().toString());
-      Assert.assertNull(queueQuery.getFilterString());
+      assertEquals("addressName1", queueQuery.getAddress().toString());
+      assertNull(queueQuery.getFilterString());
 
       queueQuery = session.queueQuery(new SimpleString("queueName2"));
 
-      Assert.assertEquals("addressName1", queueQuery.getAddress().toString());
-      Assert.assertEquals("bob", queueQuery.getFilterString().toString());
-      Assert.assertEquals(true, queueQuery.isDurable());
+      assertEquals("addressName1", queueQuery.getAddress().toString());
+      assertEquals("bob", queueQuery.getFilterString().toString());
+      assertEquals(true, queueQuery.isDurable());
    }
 
    @Test
@@ -418,44 +423,44 @@ public class XmlImportExportTest extends ServiceTestBase
       xmlDataImporter.processXml();
 
       ConnectionFactory cf1 = (ConnectionFactory) namingContext.lookup(jndi_binding1);
-      Assert.assertNotNull(cf1);
+      assertNotNull(cf1);
       HornetQConnectionFactory hcf1 = (HornetQConnectionFactory) cf1;
-      Assert.assertEquals(ha, hcf1.isHA());
-      Assert.assertEquals(type.intValue(), hcf1.getFactoryType());
-      Assert.assertEquals(clientId, hcf1.getClientID());
-      Assert.assertEquals(clientFailureCheckPeriod, hcf1.getClientFailureCheckPeriod());
-      Assert.assertEquals(connectionTTl, hcf1.getConnectionTTL());
-      Assert.assertEquals(callTimeout, hcf1.getCallTimeout());
+      assertEquals(ha, hcf1.isHA());
+      assertEquals(type.intValue(), hcf1.getFactoryType());
+      assertEquals(clientId, hcf1.getClientID());
+      assertEquals(clientFailureCheckPeriod, hcf1.getClientFailureCheckPeriod());
+      assertEquals(connectionTTl, hcf1.getConnectionTTL());
+      assertEquals(callTimeout, hcf1.getCallTimeout());
 //      Assert.assertEquals(callFailoverTimeout, hcf1.getCallFailoverTimeout());  // this value isn't currently persisted by org.hornetq.jms.server.config.impl.ConnectionFactoryConfigurationImpl.encode()
 //      Assert.assertEquals(cacheLargeMessagesClient, hcf1.isCacheLargeMessagesClient()); // this value isn't currently supported by org.hornetq.api.jms.management.JMSServerControl.createConnectionFactory(java.lang.String, boolean, boolean, int, java.lang.String, java.lang.String, java.lang.String, long, long, long, long, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String)
-      Assert.assertEquals(minLargeMessageSize, hcf1.getMinLargeMessageSize());
+      assertEquals(minLargeMessageSize, hcf1.getMinLargeMessageSize());
 //      Assert.assertEquals(compressLargeMessages, hcf1.isCompressLargeMessage());  // this value isn't currently handled properly by org.hornetq.jms.server.impl.JMSServerManagerImpl.createConnectionFactory(java.lang.String, boolean, org.hornetq.api.jms.JMSFactoryType, java.util.List<java.lang.String>, java.lang.String, long, long, long, long, boolean, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String, java.lang.String...)()
-      Assert.assertEquals(consumerWindowSize, hcf1.getConsumerWindowSize());
-      Assert.assertEquals(consumerMaxRate, hcf1.getConsumerMaxRate());
-      Assert.assertEquals(confirmationWindowSize, hcf1.getConfirmationWindowSize());
-      Assert.assertEquals(producerWindowSize, hcf1.getProducerWindowSize());
-      Assert.assertEquals(producerMaxrate, hcf1.getProducerMaxRate());
-      Assert.assertEquals(blockOnAcknowledge, hcf1.isBlockOnAcknowledge());
-      Assert.assertEquals(blockOnDurableSend, hcf1.isBlockOnDurableSend());
-      Assert.assertEquals(blockOnNonDurableSend, hcf1.isBlockOnNonDurableSend());
-      Assert.assertEquals(autoGroup, hcf1.isAutoGroup());
-      Assert.assertEquals(preacknowledge, hcf1.isPreAcknowledge());
-      Assert.assertEquals(loadBalancingPolicyClassName, hcf1.getConnectionLoadBalancingPolicyClassName());
-      Assert.assertEquals(transactionBatchSize, hcf1.getTransactionBatchSize());
-      Assert.assertEquals(dupsOKBatchSize, hcf1.getDupsOKBatchSize());
-      Assert.assertEquals(useGlobalPools, hcf1.isUseGlobalPools());
-      Assert.assertEquals(scheduledThreadPoolMaxSize, hcf1.getScheduledThreadPoolMaxSize());
-      Assert.assertEquals(threadPoolMaxSize, hcf1.getThreadPoolMaxSize());
-      Assert.assertEquals(retryInterval, hcf1.getRetryInterval());
-      Assert.assertEquals(retryIntervalMultiplier, hcf1.getRetryIntervalMultiplier(), 0);
-      Assert.assertEquals(maxRetryInterval, hcf1.getMaxRetryInterval());
-      Assert.assertEquals(reconnectAttempts, hcf1.getReconnectAttempts());
-      Assert.assertEquals(failoverOnInitialConnection, hcf1.isFailoverOnInitialConnection());
-      Assert.assertEquals(groupId, hcf1.getGroupID());
+      assertEquals(consumerWindowSize, hcf1.getConsumerWindowSize());
+      assertEquals(consumerMaxRate, hcf1.getConsumerMaxRate());
+      assertEquals(confirmationWindowSize, hcf1.getConfirmationWindowSize());
+      assertEquals(producerWindowSize, hcf1.getProducerWindowSize());
+      assertEquals(producerMaxrate, hcf1.getProducerMaxRate());
+      assertEquals(blockOnAcknowledge, hcf1.isBlockOnAcknowledge());
+      assertEquals(blockOnDurableSend, hcf1.isBlockOnDurableSend());
+      assertEquals(blockOnNonDurableSend, hcf1.isBlockOnNonDurableSend());
+      assertEquals(autoGroup, hcf1.isAutoGroup());
+      assertEquals(preacknowledge, hcf1.isPreAcknowledge());
+      assertEquals(loadBalancingPolicyClassName, hcf1.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(transactionBatchSize, hcf1.getTransactionBatchSize());
+      assertEquals(dupsOKBatchSize, hcf1.getDupsOKBatchSize());
+      assertEquals(useGlobalPools, hcf1.isUseGlobalPools());
+      assertEquals(scheduledThreadPoolMaxSize, hcf1.getScheduledThreadPoolMaxSize());
+      assertEquals(threadPoolMaxSize, hcf1.getThreadPoolMaxSize());
+      assertEquals(retryInterval, hcf1.getRetryInterval());
+      assertEquals(retryIntervalMultiplier, hcf1.getRetryIntervalMultiplier(), 0);
+      assertEquals(maxRetryInterval, hcf1.getMaxRetryInterval());
+      assertEquals(reconnectAttempts, hcf1.getReconnectAttempts());
+      assertEquals(failoverOnInitialConnection, hcf1.isFailoverOnInitialConnection());
+      assertEquals(groupId, hcf1.getGroupID());
 
-      Assert.assertNotNull(namingContext.lookup(jndi_binding2));
-      Assert.assertNotNull(namingContext.lookup("mySecondConnectionFactoryName1"));
-      Assert.assertNotNull(namingContext.lookup("mySecondConnectionFactoryName2"));
+      assertNotNull(namingContext.lookup(jndi_binding2));
+      assertNotNull(namingContext.lookup("mySecondConnectionFactoryName1"));
+      assertNotNull(namingContext.lookup("mySecondConnectionFactoryName2"));
    }
 
    @Test
@@ -486,10 +491,10 @@ public class XmlImportExportTest extends ServiceTestBase
       xmlDataImporter.processXml();
 
 
-      Assert.assertNotNull(namingContext.lookup("myQueueJndiBinding1"));
-      Assert.assertNotNull(namingContext.lookup("myQueueJndiBinding2"));
-      Assert.assertNotNull(namingContext.lookup("myTopicJndiBinding1"));
-      Assert.assertNotNull(namingContext.lookup("myTopicJndiBinding2"));
+      assertNotNull(namingContext.lookup("myQueueJndiBinding1"));
+      assertNotNull(namingContext.lookup("myQueueJndiBinding2"));
+      assertNotNull(namingContext.lookup("myTopicJndiBinding1"));
+      assertNotNull(namingContext.lookup("myTopicJndiBinding2"));
 
       jmsServer.createConnectionFactory("test-cf", false, JMSFactoryType.CF, Arrays.asList("in-vm1"), "test-cf");
 
@@ -500,12 +505,12 @@ public class XmlImportExportTest extends ServiceTestBase
       producer.send(jmsSession.createTextMessage());
       MessageConsumer consumer = jmsSession.createConsumer((Destination) namingContext.lookup("myQueueJndiBinding2"));
       connection.start();
-      Assert.assertNotNull(consumer.receive(3000));
+      assertNotNull(consumer.receive(3000));
 
       consumer = jmsSession.createConsumer((Destination) namingContext.lookup("myTopicJndiBinding1"));
       producer = jmsSession.createProducer((Destination) namingContext.lookup("myTopicJndiBinding2"));
       producer.send(jmsSession.createTextMessage());
-      Assert.assertNotNull(consumer.receive(3000));
+      assertNotNull(consumer.receive(3000));
 
       connection.close();
    }
@@ -534,14 +539,14 @@ public class XmlImportExportTest extends ServiceTestBase
       XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session, true);
       xmlDataImporter.processXml();
 
-      Assert.assertNotNull(namingContext.lookup("myQueueJndiBinding1"));
-      Assert.assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding1"));
-      Assert.assertNotNull(namingContext.lookup("myQueueJndiBinding2"));
-      Assert.assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding2"));
-      Assert.assertNotNull(namingContext.lookup("myTopicJndiBinding1"));
-      Assert.assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding1"));
-      Assert.assertNotNull(namingContext.lookup("myTopicJndiBinding2"));
-      Assert.assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding2"));
+      assertNotNull(namingContext.lookup("myQueueJndiBinding1"));
+      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding1"));
+      assertNotNull(namingContext.lookup("myQueueJndiBinding2"));
+      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding2"));
+      assertNotNull(namingContext.lookup("myTopicJndiBinding1"));
+      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding1"));
+      assertNotNull(namingContext.lookup("myTopicJndiBinding2"));
+      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding2"));
 
       jmsServer.createConnectionFactory("test-cf", false, JMSFactoryType.CF, Arrays.asList("in-vm1"), "test-cf");
 
@@ -552,12 +557,12 @@ public class XmlImportExportTest extends ServiceTestBase
       producer.send(jmsSession.createTextMessage());
       MessageConsumer consumer = jmsSession.createConsumer((Destination) namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding1"));
       connection.start();
-      Assert.assertNotNull(consumer.receive(3000));
+      assertNotNull(consumer.receive(3000));
 
       consumer = jmsSession.createConsumer((Destination) namingContext.lookup("myTopicJndiBinding1"));
       producer = jmsSession.createProducer((Destination) namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding1"));
       producer.send(jmsSession.createTextMessage());
-      Assert.assertNotNull(consumer.receive(3000));
+      assertNotNull(consumer.receive(3000));
 
       connection.close();
    }
@@ -578,7 +583,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
-         fileMessage.addBytes(new byte[]{UnitTestCase.getSamplebyte(i)});
+         fileMessage.addBytes(new byte[]{getSamplebyte(i)});
       }
 
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -621,13 +626,13 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ClientMessage msg = cons.receive(CONSUMER_TIMEOUT);
 
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
-      Assert.assertEquals(2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+      assertEquals(2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
       for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
-         Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
 
       msg.acknowledge();
@@ -650,7 +655,7 @@ public class XmlImportExportTest extends ServiceTestBase
       ClientConsumer consumer = session.createConsumer("myQueue1");
       session.start();
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       msg.acknowledge();
       consumer.close();
 
@@ -675,12 +680,12 @@ public class XmlImportExportTest extends ServiceTestBase
       consumer = session.createConsumer("myQueue1");
       session.start();
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertNull(msg);
+      assertNull(msg);
       consumer.close();
 
       consumer = session.createConsumer("myQueue2");
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
    }
 
    @Test
@@ -750,7 +755,7 @@ public class XmlImportExportTest extends ServiceTestBase
       {
          message = consumer.receive(CONSUMER_TIMEOUT);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
       }
 
       session.close();
@@ -821,7 +826,7 @@ public class XmlImportExportTest extends ServiceTestBase
       {
          message = consumer.receive(CONSUMER_TIMEOUT);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
       }
    }
 
@@ -868,7 +873,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
-         fileMessage.addBytes(new byte[]{UnitTestCase.getSamplebyte(i)});
+         fileMessage.addBytes(new byte[]{getSamplebyte(i)});
       }
 
       fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -906,18 +911,18 @@ public class XmlImportExportTest extends ServiceTestBase
       {
          message = consumer.receive(CONSUMER_TIMEOUT);
 
-         Assert.assertNotNull(message);
+         assertNotNull(message);
       }
 
       ClientMessage msg = consumer.receive(CONSUMER_TIMEOUT);
 
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
 
-      Assert.assertEquals(2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+      assertEquals(2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
       for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
-         Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
 
       session.close();
@@ -961,7 +966,7 @@ public class XmlImportExportTest extends ServiceTestBase
       session.start();
 
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
    }
 
    @Test
@@ -1005,8 +1010,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session.start();
 
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertNotNull(msg);
-      Assert.assertEquals("bob123", msg.getBodyBuffer().readString());
+      assertNotNull(msg);
+      assertEquals("bob123", msg.getBodyBuffer().readString());
 
       session.close();
       locator.close();
@@ -1060,7 +1065,7 @@ public class XmlImportExportTest extends ServiceTestBase
       session.start();
 
       msg = consumer.receive(CONSUMER_TIMEOUT);
-      Assert.assertNotNull(msg);
+      assertNotNull(msg);
       assertEquals(msg.getBodySize(), bodyTst.length);
       byte[] bodyRead = new byte[bodyTst.length];
       msg.getBodyBuffer().readBytes(bodyRead);

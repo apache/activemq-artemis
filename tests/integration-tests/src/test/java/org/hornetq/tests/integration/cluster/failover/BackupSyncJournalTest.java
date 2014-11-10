@@ -41,6 +41,7 @@ import org.hornetq.tests.integration.cluster.util.BackupSyncDelay;
 import org.hornetq.tests.integration.cluster.util.TestableServer;
 import org.hornetq.tests.util.TransportConfigurationUtils;
 import org.hornetq.utils.UUID;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,6 +80,27 @@ public class BackupSyncJournalTest extends FailoverTestBase
       sessionFactory = createSessionFactoryAndWaitForTopology(locator, 1);
       syncDelay = new BackupSyncDelay(backupServer, liveServer);
 
+   }
+
+   @Override
+   @After
+   public void tearDown() throws Exception
+   {
+      try
+      {
+         File dir = new File(backupServer.getServer()
+                                .getConfiguration()
+                                .getLargeMessagesDirectory());
+         deleteDirectory(dir);
+         dir = new File(liveServer.getServer()
+                           .getConfiguration()
+                           .getLargeMessagesDirectory());
+         deleteDirectory(dir);
+      }
+      finally
+      {
+         super.tearDown();
+      }
    }
 
    @Test
@@ -246,8 +268,8 @@ public class BackupSyncJournalTest extends FailoverTestBase
    }
 
    /**
-    * @throws FileNotFoundException
-    * @throws IOException
+    * @throws java.io.FileNotFoundException
+    * @throws java.io.IOException
     * @throws InterruptedException
     */
    private void assertNodeIdWasSaved() throws Exception
@@ -309,14 +331,14 @@ public class BackupSyncJournalTest extends FailoverTestBase
       assertNoMoreMessages();
 
       sendMessages(session, producer, 2 * n_msgs);
-      assertFalse("must NOT be a backup", liveServer.getServer().getConfiguration().getHAPolicy().isBackup());
-      adaptLiveConfigForReplicatedFailBack(liveServer.getServer().getConfiguration());
+      assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
+      adaptLiveConfigForReplicatedFailBack(liveServer);
       liveServer.start();
       waitForServer(liveServer.getServer());
-      assertTrue("must have become a backup", liveServer.getServer().getConfiguration().getHAPolicy().isBackup());
+      assertTrue("must have become a backup", liveServer.getServer().getHAPolicy().isBackup());
 
       assertTrue("Fail-back must initialize live!", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
-      assertFalse("must be LIVE!", liveServer.getServer().getConfiguration().getHAPolicy().isBackup());
+      assertFalse("must be LIVE!", liveServer.getServer().getHAPolicy().isBackup());
       int i = 0;
       while (backupServer.isStarted() && i++ < 100)
       {

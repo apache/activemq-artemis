@@ -32,13 +32,17 @@ import org.hornetq.api.core.management.ResourceNames;
 import org.hornetq.api.jms.JMSFactoryType;
 import org.hornetq.api.jms.management.JMSQueueControl;
 import org.hornetq.api.jms.management.TopicControl;
+import org.hornetq.core.config.impl.FileConfiguration;
 import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.hornetq.core.security.Role;
 import org.hornetq.core.server.HornetQServer;
-import org.hornetq.integration.bootstrap.HornetQBootstrapServer;
+import org.hornetq.core.server.impl.HornetQServerImpl;
 import org.hornetq.jms.server.JMSServerManager;
+import org.hornetq.jms.server.impl.JMSServerManagerImpl;
 import org.hornetq.jms.tests.JmsTestLogger;
-import org.jboss.kernel.plugins.config.property.PropertyKernelConfig;
+import org.hornetq.spi.core.security.HornetQSecurityManagerImpl;
+import org.jnp.server.Main;
+import org.jnp.server.NamingBeanImpl;
 
 /**
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
@@ -54,6 +58,8 @@ public class LocalTestServer implements Server, Runnable
    private boolean started = false;
 
    private final HashMap<String, List<String>> allBindings = new HashMap<String, List<String>>();
+   private Main jndiServer;
+   private JMSServerManagerImpl jmsServerManager;
 
    // Static ---------------------------------------------------------------------------------------
 
@@ -71,8 +77,6 @@ public class LocalTestServer implements Server, Runnable
 
    private final int serverIndex;
 
-   private HornetQBootstrapServer bootstrap;
-
    // Constructors ---------------------------------------------------------------------------------
 
    public LocalTestServer()
@@ -89,8 +93,7 @@ public class LocalTestServer implements Server, Runnable
       return serverIndex;
    }
 
-   public synchronized void start(final String[] containerConfig,
-                                  final HashMap<String, Object> configuration,
+   public synchronized void start(final HashMap<String, Object> configuration,
                                   final boolean clearJournal) throws Exception
    {
       if (isStarted())
@@ -109,10 +112,25 @@ public class LocalTestServer implements Server, Runnable
          JmsTestLogger.LOGGER.info("Deleted dir: " + dir.getAbsolutePath() + " deleted: " + deleted);
       }
 
-      PropertyKernelConfig propertyKernelConfig = new PropertyKernelConfig(System.getProperties());
-      bootstrap = new HornetQBootstrapServer(propertyKernelConfig, containerConfig);
+      org.jnp.server.NamingBeanImpl namingBean = new NamingBeanImpl();
+      jndiServer = new Main();
+      jndiServer.setNamingInfo(namingBean);
+      jndiServer.setPort(1099);
+      jndiServer.setBindAddress("localhost");
+      jndiServer.setRmiPort(1098);
+      jndiServer.setRmiBindAddress("localhost");
+
+      javax.management.MBeanServer beanServer = java.lang.management.ManagementFactory.getPlatformMBeanServer();
+      FileConfiguration fileConfiguration = new FileConfiguration();
+      HornetQSecurityManagerImpl securityManager = new HornetQSecurityManagerImpl();
+      HornetQServerImpl hornetQServer = new HornetQServerImpl(fileConfiguration, beanServer, securityManager);
+      jmsServerManager = new JMSServerManagerImpl(hornetQServer);
       System.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
-      bootstrap.run();
+
+      namingBean.start();
+      jndiServer.start();
+      fileConfiguration.start();
+      jmsServerManager.start();
       started = true;
 
    }
@@ -137,10 +155,12 @@ public class LocalTestServer implements Server, Runnable
 
    public synchronized boolean stop() throws Exception
    {
-      bootstrap.shutDown();
+      jmsServerManager.stop();
+      jndiServer.stop();
       started = false;
       unbindAll();
-      bootstrap = null;
+      jmsServerManager = null;
+      jndiServer.stop();
       return true;
    }
 
@@ -354,12 +374,12 @@ public class LocalTestServer implements Server, Runnable
 
    public HornetQServer getHornetQServer()
    {
-      return (HornetQServer)bootstrap.getKernel().getRegistry().getEntry("HornetQServer").getTarget();
+      return jmsServerManager.getHornetQServer();
    }
 
    public JMSServerManager getJMSServerManager()
    {
-      return (JMSServerManager)bootstrap.getKernel().getRegistry().getEntry("JMSServerManager").getTarget();
+      return jmsServerManager;
    }
 
    public InitialContext getInitialContext() throws Exception
@@ -374,7 +394,7 @@ public class LocalTestServer implements Server, Runnable
 
    public void run()
    {
-      bootstrap.run();
+    //  bootstrap.run();
 
       started = true;
 
@@ -400,6 +420,7 @@ public class LocalTestServer implements Server, Runnable
                                                                  .getResource(ResourceNames.JMS_QUEUE + queueName);
       if (queue != null)
       {
+         queue.flushExecutor();
          return queue.getMessageCount();
       }
       else

@@ -164,7 +164,7 @@ public class HornetQObjectMessage extends HornetQMessage implements ObjectMessag
    }
 
    @Override
-   public void clearBody()
+   public void clearBody() throws JMSException
    {
       super.clearBody();
 

@@ -13,6 +13,8 @@
 package org.hornetq.byteman.tests;
 
 import org.hornetq.api.core.client.ClientMessage;
+import org.hornetq.core.config.ScaleDownConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.hornetq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -30,14 +32,15 @@ public class ScaleDownFailureTest extends ClusterTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      setupServer(0, isFileStorage(), isNetty());
-      setupServer(1, isFileStorage(), isNetty());
+      setupLiveServer(0, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(1, isFileStorage(), false, isNetty(), true);
       if (isGrouped())
       {
-         servers[0].getConfiguration().getHAPolicy().setScaleDownGroupName("bill");
-         servers[1].getConfiguration().getHAPolicy().setScaleDownGroupName("bill");
+         ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
+         scaleDownConfiguration.setGroupName("bill");
+         ((LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration);
+         ((LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration);
       }
-      servers[0].getConfiguration().getHAPolicy().setScaleDown(true);
       setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster1", "queues", false, 1, isNetty(), 1, 0);
       startServers(0, 1);
@@ -62,7 +65,7 @@ public class ScaleDownFailureTest extends ClusterTestBase
       closeAllConsumers();
       closeAllSessionFactories();
       closeAllServerLocatorsFactories();
-      servers[0].getConfiguration().getHAPolicy().setScaleDown(false);
+      ((LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(null);
       stopServers(0, 1);
       super.tearDown();
    }

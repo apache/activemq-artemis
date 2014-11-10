@@ -29,10 +29,10 @@ import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.hornetq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.tests.util.RandomUtil;
 import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -47,9 +47,10 @@ import org.junit.Test;
  */
 public class SessionFactoryTest extends ServiceTestBase
 {
-   private final DiscoveryGroupConfiguration groupConfiguration =
-      new DiscoveryGroupConfiguration(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-                                      new UDPBroadcastGroupConfiguration(getUDPDiscoveryAddress(), getUDPDiscoveryPort(), null, -1));
+   private final DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
+      .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+         .setGroupAddress(getUDPDiscoveryAddress())
+         .setGroupPort(getUDPDiscoveryPort()));
 
    private HornetQServer liveService;
 
@@ -559,12 +560,7 @@ public class SessionFactoryTest extends ServiceTestBase
 
    private void startServer() throws Exception
    {
-      Configuration liveConf = createDefaultConfig();
-      liveConf.setSecurityEnabled(false);
       liveTC = new TransportConfiguration(InVMConnectorFactory.class.getName());
-      liveConf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      liveConf.getConnectorConfigurations().put(liveTC.getName(), liveTC);
-      liveConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
 
       final long broadcastPeriod = 250;
 
@@ -572,18 +568,24 @@ public class SessionFactoryTest extends ServiceTestBase
 
       final int localBindPort = 5432;
 
-      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration(bcGroupName,
-                                                                              broadcastPeriod,
-                                                                              Arrays.asList(liveTC.getName()),
-                                                                              new UDPBroadcastGroupConfiguration(
-                                                                                 getUDPDiscoveryAddress(),
-                                                                                 getUDPDiscoveryPort(),
-                                                                                 null,
-                                                                                 localBindPort));
+      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration()
+         .setName(bcGroupName)
+         .setBroadcastPeriod(broadcastPeriod)
+         .setConnectorInfos(Arrays.asList(liveTC.getName()))
+         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(getUDPDiscoveryAddress())
+            .setGroupPort(getUDPDiscoveryPort())
+            .setLocalBindPort(localBindPort));
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
       bcConfigs1.add(bcConfig1);
-      liveConf.setBroadcastGroupConfigurations(bcConfigs1);
+
+      Configuration liveConf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+         .addConnectorConfiguration(liveTC.getName(), liveTC)
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
+         .setBroadcastGroupConfigurations(bcConfigs1);
 
       liveService = createServer(false, liveConf);
       liveService.start();

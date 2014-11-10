@@ -105,8 +105,8 @@ public class SecurityTest extends ServiceTestBase
     */
    private HornetQServer createServer() throws Exception
    {
-      configuration = createDefaultConfig(false);
-      configuration.setSecurityEnabled(true);
+      configuration = createDefaultConfig(false)
+         .setSecurityEnabled(true);
       HornetQServer server = createServer(false, configuration);
       return server;
    }
@@ -507,7 +507,7 @@ public class SecurityTest extends ServiceTestBase
       session.close();
 
       Queue binding = (Queue) server.getPostOffice().getBinding(new SimpleString(SecurityTest.queueA)).getBindable();
-      Assert.assertEquals(0, binding.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(binding));
    }
 
    @Test
@@ -582,9 +582,9 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateRoleCached() throws Exception
    {
-      Configuration configuration = createDefaultConfig(false);
-      configuration.setSecurityEnabled(true);
-      configuration.setSecurityInvalidationInterval(10000);
+      Configuration configuration = createDefaultConfig(false)
+         .setSecurityEnabled(true)
+         .setSecurityInvalidationInterval(10000);
       HornetQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -638,9 +638,9 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateRoleCached2() throws Exception
    {
-      Configuration configuration = createDefaultConfig(false);
-      configuration.setSecurityEnabled(true);
-      configuration.setSecurityInvalidationInterval(0);
+      Configuration configuration = createDefaultConfig(false)
+         .setSecurityEnabled(true)
+         .setSecurityInvalidationInterval(0);
       HornetQServer server = createServer(false, configuration);
 
       server.start();
@@ -708,9 +708,9 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateSender() throws Exception
    {
-      Configuration configuration = createDefaultConfig(false);
-      configuration.setSecurityEnabled(true);
-      configuration.setSecurityInvalidationInterval(-1);
+      Configuration configuration = createDefaultConfig(false)
+         .setSecurityEnabled(true)
+         .setSecurityInvalidationInterval(-1);
       HornetQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -886,7 +886,7 @@ public class SecurityTest extends ServiceTestBase
       session.close();
 
       Queue binding = (Queue) server.getPostOffice().getBinding(new SimpleString(SecurityTest.queueA)).getBindable();
-      Assert.assertEquals(0, binding.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(binding));
 
    }
 
@@ -898,8 +898,8 @@ public class SecurityTest extends ServiceTestBase
    public void testJaasCreateSessionSucceeds() throws Exception
    {
       String domainName = SimpleLogingModule.class.getName();
-      Configuration configuration = createDefaultConfig(false);
-      configuration.setSecurityEnabled(true);
+      Configuration configuration = createDefaultConfig(false)
+         .setSecurityEnabled(true);
       JAASSecurityManager securityManager = new JAASSecurityManager();
       HornetQServer server = createServer(false, configuration, securityManager);
 
@@ -934,8 +934,8 @@ public class SecurityTest extends ServiceTestBase
    public void testJaasCreateSessionFails() throws Exception
    {
       String domainName = SimpleLogingModule.class.getName();
-      Configuration configuration = createDefaultConfig(false);
-      configuration.setSecurityEnabled(true);
+      Configuration configuration = createDefaultConfig(false)
+         .setSecurityEnabled(true);
       JAASSecurityManager securityManager = new JAASSecurityManager();
       HornetQServer server = createServer(false, configuration, securityManager);
 

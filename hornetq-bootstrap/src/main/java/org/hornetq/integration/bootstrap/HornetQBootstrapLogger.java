@@ -53,6 +53,10 @@ public interface HornetQBootstrapLogger extends BasicLogger
    @Message(id = 101001, value = "Stopping HornetQ Server", format = Message.Format.MESSAGE_FORMAT)
    void serverStopping();
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 101002, value = "Starting Naming server on {0}:{1,number,#} (rmi {2}:{3,number,#})", format = Message.Format.MESSAGE_FORMAT)
+   void startedNamingService(String bindAddress, int port, String rmiBindAddress, int rmiPort);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 102000, value = "Error during undeployment: {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorDuringUndeployment(@Cause Throwable t, String name);

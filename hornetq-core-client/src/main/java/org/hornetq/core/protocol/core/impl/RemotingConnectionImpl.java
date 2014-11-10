@@ -12,31 +12,26 @@
  */
 package org.hornetq.core.protocol.core.impl;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.HornetQException;
-import org.hornetq.api.core.HornetQInterruptedException;
 import org.hornetq.api.core.Interceptor;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.core.client.HornetQClientLogger;
-import org.hornetq.core.client.HornetQClientMessageBundle;
 import org.hornetq.core.protocol.core.Channel;
 import org.hornetq.core.protocol.core.CoreRemotingConnection;
 import org.hornetq.core.protocol.core.Packet;
 import org.hornetq.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
 import org.hornetq.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.hornetq.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
-import org.hornetq.core.remoting.CloseListener;
-import org.hornetq.core.remoting.FailureListener;
 import org.hornetq.core.security.HornetQPrincipal;
+import org.hornetq.spi.core.protocol.AbstractRemotingConnection;
 import org.hornetq.spi.core.remoting.Connection;
 import org.hornetq.utils.SimpleIDGenerator;
 
@@ -44,7 +39,7 @@ import org.hornetq.utils.SimpleIDGenerator;
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class RemotingConnectionImpl implements CoreRemotingConnection
+public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection
 {
    // Constants
    // ------------------------------------------------------------------------------------
@@ -58,13 +53,7 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
    // -----------------------------------------------------------------------------------
    private final PacketDecoder packetDecoder;
 
-   private final Connection transportConnection;
-
    private final Map<Long, Channel> channels = new ConcurrentHashMap<Long, Channel>();
-
-   private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<FailureListener>();
-
-   private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<CloseListener>();
 
    private final long blockingCallTimeout;
 
@@ -88,15 +77,9 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
 
    private final Object failLock = new Object();
 
-   private volatile boolean dataReceived;
-
-   private final Executor executor;
-
    private volatile boolean executing;
 
    private final SimpleString nodeID;
-
-   private final long creationTime;
 
    private String clientID;
 
@@ -141,9 +124,9 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
                                   final SimpleString nodeID)
 
    {
-      this.packetDecoder = packetDecoder;
+      super(transportConnection, executor);
 
-      this.transportConnection = transportConnection;
+      this.packetDecoder = packetDecoder;
 
       this.blockingCallTimeout = blockingCallTimeout;
 
@@ -155,11 +138,9 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
 
       this.client = client;
 
-      this.executor = executor;
-
       this.nodeID = nodeID;
 
-      this.creationTime = System.currentTimeMillis();
+      transportConnection.setProtocolConnection(this);
    }
 
 
@@ -173,25 +154,8 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
          ", nodeID=" +
          nodeID +
          ", transportConnection=" +
-         transportConnection +
+         getTransportConnection() +
          "]";
-   }
-
-   public Connection getTransportConnection()
-   {
-      return transportConnection;
-   }
-
-   public List<FailureListener> getFailureListeners()
-   {
-      return new ArrayList<FailureListener>(failureListeners);
-   }
-
-   public void setFailureListeners(final List<FailureListener> listeners)
-   {
-      failureListeners.clear();
-
-      failureListeners.addAll(listeners);
    }
 
    /**
@@ -208,21 +172,6 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
    public void setClientVersion(int clientVersion)
    {
       this.clientVersion = clientVersion;
-   }
-
-   public Object getID()
-   {
-      return transportConnection.getID();
-   }
-
-   public String getRemoteAddress()
-   {
-      return transportConnection.getRemoteAddress();
-   }
-
-   public long getCreationTime()
-   {
-      return creationTime;
    }
 
    public synchronized Channel getChannel(final long channelID, final int confWindowSize)
@@ -249,83 +198,6 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
       channels.put(channelID, channel);
    }
 
-   public void addFailureListener(final FailureListener listener)
-   {
-      if (listener == null)
-      {
-         throw HornetQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
-      }
-      failureListeners.add(listener);
-   }
-
-   public boolean removeFailureListener(final FailureListener listener)
-   {
-      if (listener == null)
-      {
-         throw HornetQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
-      }
-
-      return failureListeners.remove(listener);
-   }
-
-   public void addCloseListener(final CloseListener listener)
-   {
-      if (listener == null)
-      {
-         throw HornetQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
-      }
-
-      closeListeners.add(listener);
-   }
-
-   public boolean removeCloseListener(final CloseListener listener)
-   {
-      if (listener == null)
-      {
-         throw HornetQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
-      }
-
-      return closeListeners.remove(listener);
-   }
-
-   public List<CloseListener> removeCloseListeners()
-   {
-      List<CloseListener> ret = new ArrayList<CloseListener>(closeListeners);
-
-      closeListeners.clear();
-
-      return ret;
-   }
-
-   public List<FailureListener> removeFailureListeners()
-   {
-      List<FailureListener> ret = new ArrayList<FailureListener>(failureListeners);
-
-      failureListeners.clear();
-
-      return ret;
-   }
-
-   public void setCloseListeners(List<CloseListener> listeners)
-   {
-      closeListeners.clear();
-
-      closeListeners.addAll(listeners);
-   }
-
-   public HornetQBuffer createBuffer(final int size)
-   {
-      return transportConnection.createBuffer(size);
-   }
-
-   /*
-    * This can be called concurrently by more than one thread so needs to be locked
-    */
-   public void fail(final HornetQException me)
-   {
-      fail(me, null);
-   }
-
    public void fail(final HornetQException me, String scaleDownTargetNodeID)
    {
       synchronized (failLock)
@@ -340,6 +212,16 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
 
       HornetQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
 
+
+      try
+      {
+         transportConnection.forceClose();
+      }
+      catch (Throwable e)
+      {
+         HornetQClientLogger.LOGGER.warn(e.getMessage(), e);
+      }
+
       // Then call the listeners
       callFailureListeners(me, scaleDownTargetNodeID);
 
@@ -349,7 +231,7 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
 
       for (Channel channel : channels.values())
       {
-         channel.returnBlocking();
+         channel.returnBlocking(me);
       }
    }
 
@@ -464,15 +346,6 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
       return blockingCallFailoverTimeout;
    }
 
-   public boolean checkDataReceived()
-   {
-      boolean res = dataReceived;
-
-      dataReceived = false;
-
-      return res;
-   }
-
    //We flush any confirmations on the connection - this prevents idle bridges for example
    //sitting there with many unacked messages
    public void flush()
@@ -488,12 +361,11 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
 
    public HornetQPrincipal getDefaultHornetQPrincipal()
    {
-      return transportConnection.getDefaultHornetQPrincipal();
+      return getTransportConnection().getDefaultHornetQPrincipal();
    }
 
    // Buffer Handler implementation
    // ----------------------------------------------------
-
    public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
    {
       try
@@ -539,7 +411,7 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
             doBufferReceived(packet);
          }
 
-         dataReceived = true;
+         super.bufferReceived(connectionID, buffer);
       }
       catch (Exception e)
       {
@@ -565,7 +437,7 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
       }
    }
 
-   private void removeAllChannels()
+   protected void removeAllChannels()
    {
       // We get the transfer lock first - this ensures no packets are being processed AND
       // it's guaranteed no more packets will be processed once this method is complete
@@ -575,55 +447,10 @@ public class RemotingConnectionImpl implements CoreRemotingConnection
       }
    }
 
-   private void callFailureListeners(final HornetQException me, String scaleDownTargetNodeID)
-   {
-      final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
-
-      for (final FailureListener listener : listenersClone)
-      {
-         try
-         {
-            listener.connectionFailed(me, false, scaleDownTargetNodeID);
-         }
-         catch (HornetQInterruptedException interrupted)
-         {
-            // this is an expected behaviour.. no warn or error here
-            HornetQClientLogger.LOGGER.debug("thread interrupted", interrupted);
-         }
-         catch (final Throwable t)
-         {
-            // Failure of one listener to execute shouldn't prevent others
-            // from
-            // executing
-            HornetQClientLogger.LOGGER.errorCallingFailureListener(t);
-         }
-      }
-   }
-
-   private void callClosingListeners()
-   {
-      final List<CloseListener> listenersClone = new ArrayList<CloseListener>(closeListeners);
-
-      for (final CloseListener listener : listenersClone)
-      {
-         try
-         {
-            listener.connectionClosed();
-         }
-         catch (final Throwable t)
-         {
-            // Failure of one listener to execute shouldn't prevent others
-            // from
-            // executing
-            HornetQClientLogger.LOGGER.errorCallingFailureListener(t);
-         }
-      }
-   }
-
    private void internalClose()
    {
       // We close the underlying transport connection
-      transportConnection.close();
+      getTransportConnection().close();
 
       for (Channel channel : channels.values())
       {

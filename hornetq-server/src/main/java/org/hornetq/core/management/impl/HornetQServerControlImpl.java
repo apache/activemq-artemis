@@ -24,25 +24,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
+import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.transaction.xa.Xid;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.api.core.management.AddressControl;
 import org.hornetq.api.core.management.BridgeControl;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.DivertControl;
 import org.hornetq.api.core.management.HornetQServerControl;
-import org.hornetq.api.core.management.NotificationType;
 import org.hornetq.api.core.management.QueueControl;
 import org.hornetq.core.config.BridgeConfiguration;
 import org.hornetq.core.config.Configuration;
@@ -52,18 +52,29 @@ import org.hornetq.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.hornetq.core.persistence.StorageManager;
 import org.hornetq.core.persistence.config.PersistedAddressSetting;
 import org.hornetq.core.persistence.config.PersistedRoles;
+import org.hornetq.core.postoffice.Binding;
 import org.hornetq.core.postoffice.DuplicateIDCache;
 import org.hornetq.core.postoffice.PostOffice;
+import org.hornetq.core.postoffice.impl.LocalQueueBinding;
 import org.hornetq.core.remoting.server.RemotingService;
 import org.hornetq.core.security.CheckType;
 import org.hornetq.core.security.Role;
+import org.hornetq.core.server.Consumer;
 import org.hornetq.core.server.HornetQMessageBundle;
 import org.hornetq.core.server.HornetQServer;
+import org.hornetq.core.server.HornetQServerLogger;
 import org.hornetq.core.server.JournalType;
+import org.hornetq.core.server.Queue;
+import org.hornetq.core.server.ServerConsumer;
 import org.hornetq.core.server.ServerSession;
+import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.server.cluster.ha.LiveOnlyPolicy;
+import org.hornetq.core.server.cluster.ha.ScaleDownPolicy;
+import org.hornetq.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.hornetq.core.server.group.GroupingHandler;
 import org.hornetq.core.settings.impl.AddressFullMessagePolicy;
 import org.hornetq.core.settings.impl.AddressSettings;
+import org.hornetq.core.settings.impl.SlowConsumerPolicy;
 import org.hornetq.core.transaction.ResourceManager;
 import org.hornetq.core.transaction.Transaction;
 import org.hornetq.core.transaction.TransactionDetail;
@@ -71,6 +82,7 @@ import org.hornetq.core.transaction.impl.CoreTransactionDetail;
 import org.hornetq.core.transaction.impl.XidImpl;
 import org.hornetq.spi.core.protocol.RemotingConnection;
 import org.hornetq.utils.SecurityFormatter;
+import org.hornetq.utils.TypedProperties;
 import org.hornetq.utils.json.JSONArray;
 import org.hornetq.utils.json.JSONObject;
 
@@ -79,7 +91,8 @@ import org.hornetq.utils.json.JSONObject;
  *
  *
  */
-public class HornetQServerControlImpl extends AbstractControl implements HornetQServerControl, NotificationEmitter
+public class HornetQServerControlImpl extends AbstractControl implements HornetQServerControl, NotificationEmitter,
+                                                                         org.hornetq.core.server.management.NotificationListener
 {
    // Constants -----------------------------------------------------
 
@@ -99,6 +112,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
 
    private final NotificationBroadcasterSupport broadcaster;
 
+   private final AtomicLong notifSeq = new AtomicLong(0);
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -120,6 +134,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
       server = messagingServer;
       this.messageCounterManager = messageCounterManager;
       this.broadcaster = broadcaster;
+      server.getManagementService().addNotificationListener(this);
    }
 
    // HornetQServerControlMBean implementation --------------------
@@ -159,7 +174,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
       clearIO();
       try
       {
-         return configuration.getHAPolicy().isBackup();
+         return server.getHAPolicy().isBackup();
       }
       finally
       {
@@ -174,7 +189,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
       clearIO();
       try
       {
-         return configuration.getHAPolicy().isSharedStore();
+         return server.getHAPolicy().isSharedStore();
       }
       finally
       {
@@ -284,7 +299,11 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
       clearIO();
       try
       {
-         configuration.getHAPolicy().setFailoverOnServerShutdown(failoverOnServerShutdown);
+         HAPolicy haPolicy = server.getHAPolicy();
+         if (haPolicy instanceof SharedStoreSlavePolicy)
+         {
+            ((SharedStoreSlavePolicy) haPolicy).setFailoverOnServerShutdown(failoverOnServerShutdown);
+         }
       }
       finally
       {
@@ -300,7 +319,15 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
       clearIO();
       try
       {
-         return configuration.getHAPolicy().isFailoverOnServerShutdown();
+         HAPolicy haPolicy = server.getHAPolicy();
+         if (haPolicy instanceof SharedStoreSlavePolicy)
+         {
+            return ((SharedStoreSlavePolicy) haPolicy).isFailoverOnServerShutdown();
+         }
+         else
+         {
+            return false;
+         }
       }
       finally
       {
@@ -1238,8 +1265,8 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
             String remoteAddress = connection.getRemoteAddress();
             if (remoteAddress.contains(ipAddress))
             {
-               remotingService.removeConnection(connection.getID());
                connection.fail(HornetQMessageBundle.BUNDLE.connectionsClosedByManagement(ipAddress));
+               remotingService.removeConnection(connection.getID());
                closed = true;
             }
          }
@@ -1251,6 +1278,94 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
          blockOnIO();
       }
 
+   }
+
+   public synchronized boolean closeConsumerConnectionsForAddress(final String address)
+   {
+      boolean closed = false;
+      checkStarted();
+
+      clearIO();
+      try
+      {
+         for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address)).getBindings())
+         {
+            if (binding instanceof LocalQueueBinding)
+            {
+               Queue queue = ((LocalQueueBinding) binding).getQueue();
+               for (Consumer consumer : queue.getConsumers())
+               {
+                  if (consumer instanceof ServerConsumer)
+                  {
+                     ServerConsumer serverConsumer = (ServerConsumer) consumer;
+                     RemotingConnection connection = null;
+
+                     for (RemotingConnection potentialConnection : remotingService.getConnections())
+                     {
+                        if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID()))
+                        {
+                           connection = potentialConnection;
+                        }
+                     }
+
+                     if (connection != null)
+                     {
+                        remotingService.removeConnection(connection.getID());
+                        connection.fail(HornetQMessageBundle.BUNDLE.consumerConnectionsClosedByManagement(address));
+                        closed = true;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      catch (Exception e)
+      {
+         HornetQServerLogger.LOGGER.failedToCloseConsumerConnectionsForAddress(address, e);
+      }
+      finally
+      {
+         blockOnIO();
+      }
+      return closed;
+   }
+
+   public synchronized boolean closeConnectionsForUser(final String userName)
+   {
+      boolean closed = false;
+      checkStarted();
+
+      clearIO();
+      try
+      {
+         for (ServerSession serverSession : server.getSessions())
+         {
+            if (serverSession.getUsername() != null && serverSession.getUsername().equals(userName))
+            {
+               RemotingConnection connection = null;
+
+               for (RemotingConnection potentialConnection : remotingService.getConnections())
+               {
+                  if (potentialConnection.getID().toString().equals(serverSession.getConnectionID().toString()))
+                  {
+                     connection = potentialConnection;
+                  }
+               }
+
+               if (connection != null)
+               {
+                  remotingService.removeConnection(connection.getID());
+                  connection.fail(HornetQMessageBundle.BUNDLE.connectionsForUserClosedByManagement(userName));
+                  closed = true;
+               }
+            }
+         }
+      }
+      finally
+      {
+         blockOnIO();
+      }
+      return closed;
    }
 
    public String[] listConnectionIDs()
@@ -1511,6 +1626,11 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
             : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.DROP ? "DROP"
             : "FAIL";
       settings.put("addressFullMessagePolicy", policy);
+      settings.put("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold());
+      settings.put("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod());
+      policy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY"
+         : "KILL";
+      settings.put("slowConsumerPolicy", policy);
 
       JSONObject jsonObject = new JSONObject(settings);
       return jsonObject.toString();
@@ -1531,7 +1651,10 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
                                   final long maxRedeliveryDelay,
                                   final long redistributionDelay,
                                   final boolean sendToDLAOnNoRoute,
-                                  final String addressFullMessagePolicy) throws Exception
+                                  final String addressFullMessagePolicy,
+                                  final long slowConsumerThreshold,
+                                  final long slowConsumerCheckPeriod,
+                                  final String slowConsumerPolicy) throws Exception
    {
       checkStarted();
 
@@ -1579,6 +1702,20 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
       else if (addressFullMessagePolicy.equalsIgnoreCase("FAIL"))
       {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+      }
+      addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
+      addressSettings.setSlowConsumerCheckPeriod(slowConsumerCheckPeriod);
+      if (slowConsumerPolicy == null)
+      {
+         addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
+      }
+      else if (slowConsumerPolicy.equalsIgnoreCase("NOTIFY"))
+      {
+         addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
+      }
+      else if (slowConsumerPolicy.equalsIgnoreCase("KILL"))
+      {
+         addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
       }
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
@@ -1652,13 +1789,14 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
       clearIO();
       try
       {
-         DivertConfiguration config = new DivertConfiguration(name,
-               routingName,
-               address,
-               forwardingAddress,
-               exclusive,
-               filterString,
-               transformerClassName);
+         DivertConfiguration config = new DivertConfiguration()
+            .setName(name)
+            .setRoutingName(routingName)
+            .setAddress(address)
+            .setForwardingAddress(forwardingAddress)
+            .setExclusive(exclusive)
+            .setFilterString(filterString)
+            .setTransformerClassName(transformerClassName);
          server.deployDivert(config);
       }
       finally
@@ -1717,7 +1855,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
                             final boolean useDuplicateDetection,
                             final int confirmationWindowSize,
                             final long clientFailureCheckPeriod,
-                            final String connectorNames,
+                            final String staticConnectorsOrDiscoveryGroup,
                             boolean useDiscoveryGroup,
                             final boolean ha,
                             final String user,
@@ -1727,57 +1865,34 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
 
       clearIO();
 
-
       try
       {
-         BridgeConfiguration config = null;
+         BridgeConfiguration config = new BridgeConfiguration()
+               .setName(name)
+               .setQueueName(queueName)
+               .setForwardingAddress(forwardingAddress)
+               .setFilterString(filterString)
+               .setTransformerClassName(transformerClassName)
+               .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+               .setRetryInterval(retryInterval)
+               .setRetryIntervalMultiplier(retryIntervalMultiplier)
+               .setInitialConnectAttempts(initialConnectAttempts)
+               .setReconnectAttempts(reconnectAttempts)
+               .setUseDuplicateDetection(useDuplicateDetection)
+               .setConfirmationWindowSize(confirmationWindowSize)
+               .setHA(ha)
+               .setUser(user)
+               .setPassword(password);
+
          if (useDiscoveryGroup)
          {
-            config = new BridgeConfiguration(name,
-                  queueName,
-                  forwardingAddress,
-                  filterString,
-                  transformerClassName,
-                  HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                  clientFailureCheckPeriod,
-                  HornetQClient.DEFAULT_CONNECTION_TTL,
-                  retryInterval,
-                  HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                  retryIntervalMultiplier,
-                  initialConnectAttempts,
-                  reconnectAttempts,
-                  HornetQDefaultConfiguration.getDefaultBridgeConnectSameNode(),
-                  useDuplicateDetection,
-                  confirmationWindowSize,
-                  connectorNames,
-                  ha,
-                  user,
-                  password);
+            config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
          }
          else
          {
-            List<String> connectors = toList(connectorNames);
-            config = new BridgeConfiguration(name,
-                  queueName,
-                  forwardingAddress,
-                  filterString,
-                  transformerClassName,
-                  HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                  clientFailureCheckPeriod,
-                  HornetQClient.DEFAULT_CONNECTION_TTL,
-                  retryInterval,
-                  HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                  retryIntervalMultiplier,
-                  initialConnectAttempts,
-                  reconnectAttempts,
-                  HornetQDefaultConfiguration.getDefaultBridgeConnectSameNode(),
-                  useDuplicateDetection,
-                  confirmationWindowSize,
-                  connectors,
-                  ha,
-                  user,
-                  password);
+            config.setStaticConnectors(toList(staticConnectorsOrDiscoveryGroup));
          }
+
          server.deployBridge(config);
       }
       finally
@@ -1835,6 +1950,35 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
          blockOnIO();
       }
    }
+
+   @Override
+   public void scaleDown(String connector) throws Exception
+   {
+      checkStarted();
+
+      clearIO();
+      HAPolicy haPolicy = server.getHAPolicy();
+      if (haPolicy instanceof LiveOnlyPolicy)
+      {
+         LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
+
+         if (liveOnlyPolicy.getScaleDownPolicy() == null)
+         {
+            liveOnlyPolicy.setScaleDownPolicy(new ScaleDownPolicy());
+         }
+
+         liveOnlyPolicy.getScaleDownPolicy().setEnabled(true);
+
+         if (connector != null)
+         {
+            liveOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
+         }
+
+         server.stop(true);
+      }
+
+   }
+
    // NotificationEmitter implementation ----------------------------
 
    public void removeNotificationListener(final NotificationListener listener,
@@ -1882,7 +2026,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
 
    public MBeanNotificationInfo[] getNotificationInfo()
    {
-      NotificationType[] values = NotificationType.values();
+      CoreNotificationType[] values = CoreNotificationType.values();
       String[] names = new String[values.length];
       for (int i = 0; i < values.length; i++)
       {
@@ -2026,6 +2170,17 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
          list.add(value.trim());
       }
       return list;
+   }
+
+   @Override
+   public void onNotification(org.hornetq.core.server.management.Notification notification)
+   {
+      if (!(notification.getType() instanceof CoreNotificationType)) return;
+      CoreNotificationType type = (CoreNotificationType) notification.getType();
+      TypedProperties prop = notification.getProperties();
+
+      this.broadcaster.sendNotification(new Notification(type.toString(), this,
+            notifSeq.incrementAndGet(), notification.toString()));
    }
 
 }

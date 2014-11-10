@@ -49,12 +49,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
+import org.hornetq.jms.client.HornetQSession;
+
 
 /**
  * A joint interface for JMS sessions
  *
  * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
  * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public final class HornetQRASession implements QueueSession, TopicSession, XAQueueSession, XATopicSession
 {
@@ -1270,6 +1274,18 @@ public final class HornetQRASession implements QueueSession, TopicSession, XAQue
       {
          unlock();
       }
+   }
+
+   /**
+    * Returns the ID of the Node that this session is associated with.
+    *
+    * @return Node ID
+    */
+   public String getNodeId() throws JMSException
+   {
+      HornetQSession session = (HornetQSession) getSessionInternal();
+      ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) session.getCoreSession().getSessionFactory();
+      return factory.getLiveNodeId();
    }
 
    /**

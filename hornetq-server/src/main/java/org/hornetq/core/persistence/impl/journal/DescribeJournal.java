@@ -14,17 +14,14 @@ package org.hornetq.core.persistence.impl.journal;
 
 import javax.transaction.xa.Xid;
 import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.HornetQBuffers;
 import org.hornetq.api.core.Message;
-import org.hornetq.api.core.SimpleString;
 import org.hornetq.core.config.impl.ConfigurationImpl;
 import org.hornetq.core.journal.EncodingSupport;
 import org.hornetq.core.journal.PreparedTransactionInfo;
@@ -667,29 +664,8 @@ public final class DescribeJournal
          {
             buffer.append(";userMessageID=" + msg.getUserID().toString());
          }
-         buffer.append(";properties=[");
 
-         Set<SimpleString> properties = msg.getPropertyNames();
-
-         for (SimpleString prop : properties)
-         {
-            Object value = msg.getObjectProperty(prop);
-            if (value instanceof byte[])
-            {
-               buffer.append(prop + "=" + Arrays.toString((byte[])value) + ",");
-
-            }
-            else
-            {
-               buffer.append(prop + "=" + value + ",");
-            }
-         }
-
-         buffer.append("#properties = " + properties.size());
-
-         buffer.append("]");
-
-         buffer.append(" - " + msg.toString());
+         buffer.append(";msg=" + msg.toString());
 
          return buffer.toString();
       }

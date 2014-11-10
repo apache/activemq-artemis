@@ -28,10 +28,14 @@ import org.hornetq.api.core.client.ClientSession.QueueQuery;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.MessageHandler;
 import org.hornetq.core.client.impl.ClientConsumerInternal;
+import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
 import org.hornetq.core.client.impl.ClientSessionInternal;
 import org.hornetq.jms.client.HornetQDestination;
 import org.hornetq.jms.client.HornetQMessage;
 import org.hornetq.ra.HornetQRALogger;
+import org.hornetq.ra.HornetQResourceAdapter;
+import org.hornetq.ra.HornetQXAResourceWrapper;
+import org.hornetq.utils.FutureLatch;
 
 /**
  * The message handler
@@ -39,6 +43,7 @@ import org.hornetq.ra.HornetQRALogger;
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class HornetQMessageHandler implements MessageHandler
 {
@@ -99,11 +104,9 @@ public class HornetQMessageHandler implements MessageHandler
       SimpleString selectorString = selector == null || selector.trim().equals("") ? null : new SimpleString(selector);
       if (activation.isTopic() && spec.isSubscriptionDurable())
       {
-         String subscriptionName = spec.getSubscriptionName();
-         String clientID = spec.getClientID();
-
-         SimpleString queueName = new SimpleString(HornetQDestination.createQueueNameForDurableSubscription(true, clientID,
-                                                                                                            subscriptionName));
+         SimpleString queueName = new SimpleString(HornetQDestination.createQueueNameForDurableSubscription(true,
+                                                                                                            spec.getClientID(),
+                                                                                                            spec.getSubscriptionName()));
 
          QueueQuery subResponse = session.queueQuery(queueName);
 
@@ -188,7 +191,10 @@ public class HornetQMessageHandler implements MessageHandler
       transacted = activation.isDeliveryTransacted();
       if (activation.isDeliveryTransacted() && !activation.getActivationSpec().isUseLocalTx())
       {
-         endpoint = endpointFactory.createEndpoint(session);
+         XAResource xaResource = new HornetQXAResourceWrapper(session,
+                                                     ((HornetQResourceAdapter) spec.getResourceAdapter()).getJndiName(),
+                                                     ((ClientSessionFactoryInternal) cf).getLiveNodeId());
+         endpoint = endpointFactory.createEndpoint(xaResource);
          useXA = true;
       }
       else
@@ -204,19 +210,20 @@ public class HornetQMessageHandler implements MessageHandler
       return useXA ? session : null;
    }
 
-   public void interruptConsumer()
+   public Thread interruptConsumer(FutureLatch future)
    {
       try
       {
          if (consumer != null)
          {
-            consumer.interruptHandlers();
+            return consumer.prepareForClose(future);
          }
       }
       catch (Throwable e)
       {
          HornetQRALogger.LOGGER.warn("Error interrupting handler on endpoint " + endpoint + " handler=" + consumer);
       }
+      return null;
    }
 
    /**

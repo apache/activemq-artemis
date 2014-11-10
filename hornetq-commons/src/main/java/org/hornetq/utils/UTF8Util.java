@@ -167,7 +167,7 @@ public final class UTF8Util
 
    }
 
-   private static StringUtilBuffer getThreadLocalBuffer()
+   public static StringUtilBuffer getThreadLocalBuffer()
    {
       SoftReference<StringUtilBuffer> softReference = UTF8Util.currenBuffer.get();
       StringUtilBuffer value;
@@ -234,7 +234,7 @@ public final class UTF8Util
       return calculatedLen;
    }
 
-   private static class StringUtilBuffer
+   public static class StringUtilBuffer
    {
 
       public char[] charBuffer;

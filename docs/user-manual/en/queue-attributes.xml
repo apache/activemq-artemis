@@ -109,6 +109,9 @@
       &lt;redistribution-delay>0&lt;/redistribution-delay>
       &lt;send-to-dla-on-no-route>true&lt;/send-to-dla-on-no-route>
       &lt;address-full-policy>PAGE&lt;/address-full-policy>
+      &lt;slow-consumer-threshold>-1&lt;/slow-consumer-threshold>
+      &lt;slow-consumer-policy>NOTIFY&lt;/slow-consumer-policy>
+      &lt;slow-consumer-check-period>5&lt;/slow-consumer-check-period>
    &lt;/address-setting>
 &lt;/address-settings></programlisting>
         <para>The idea with address settings, is you can provide a block of settings which will be
@@ -154,7 +157,16 @@
         
         See the following chapters for more info <xref linkend="flow-control"/>, <xref linkend="paging"/>.
         </para>
-        
-   
+       <para><literal>slow-consumer-threshold</literal>. The minimum rate of message consumption allowed before a
+          consumer is considered "slow." Measured in messages-per-second. Default is -1 (i.e. disabled); any other valid
+          value must be greater than 0.</para>
+       <para><literal>slow-consumer-policy</literal>. What should happen when a slow consumer is detected.
+          <literal>KILL</literal> will kill the consumer's connection (which will obviously impact any other client
+          threads using that same connection). <literal>NOTIFY</literal> will send a CONSUMER_SLOW management
+          notification which an application could receive and take action with. See
+          <xref linkend="notification.types.and.headers"/> for more details on this notification.</para>
+       <para><literal>slow-consumer-check-period</literal>. How often to check for slow consumers on a particular queue.
+          Measured in minutes. Default is 5. See <xref linkend="slow-consumers"/> for more information about slow
+          consumer detection.</para>
     </section>
 </chapter>

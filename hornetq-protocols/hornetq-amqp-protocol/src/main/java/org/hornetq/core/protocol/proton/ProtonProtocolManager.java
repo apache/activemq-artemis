@@ -13,46 +13,25 @@
 
 package org.hornetq.core.protocol.proton;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.EnumSet;
+import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.qpid.proton.amqp.Binary;
-import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.transaction.Coordinator;
-import org.apache.qpid.proton.amqp.transaction.Declare;
-import org.apache.qpid.proton.amqp.transaction.Declared;
-import org.apache.qpid.proton.amqp.transaction.Discharge;
-import org.apache.qpid.proton.amqp.transport.AmqpError;
-import org.apache.qpid.proton.amqp.transport.ErrorCondition;
-import org.apache.qpid.proton.engine.Delivery;
-import org.apache.qpid.proton.engine.EndpointState;
-import org.apache.qpid.proton.engine.Link;
-import org.apache.qpid.proton.engine.Receiver;
-import org.apache.qpid.proton.engine.Sender;
-import org.apache.qpid.proton.engine.impl.LinkImpl;
-import org.apache.qpid.proton.engine.impl.TransportImpl;
-import org.apache.qpid.proton.jms.EncodedMessage;
-import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.hornetq.api.core.HornetQBuffer;
-import org.hornetq.api.core.SimpleString;
-import org.hornetq.core.journal.IOAsyncTask;
-import org.hornetq.core.protocol.proton.exceptions.HornetQAMQPException;
-import org.hornetq.core.protocol.proton.exceptions.HornetQAMQPIllegalStateException;
+import org.hornetq.api.core.client.HornetQClient;
+import org.hornetq.core.protocol.proton.converter.ProtonMessageConverter;
+import org.hornetq.core.protocol.proton.plug.HornetQProtonConnectionCallback;
 import org.hornetq.core.remoting.impl.netty.NettyServerConnection;
 import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.ServerMessage;
-import org.hornetq.core.server.impl.ServerMessageImpl;
 import org.hornetq.core.server.management.Notification;
 import org.hornetq.core.server.management.NotificationListener;
-import org.hornetq.core.transaction.Transaction;
 import org.hornetq.spi.core.protocol.ConnectionEntry;
+import org.hornetq.spi.core.protocol.MessageConverter;
 import org.hornetq.spi.core.protocol.ProtocolManager;
 import org.hornetq.spi.core.protocol.RemotingConnection;
 import org.hornetq.spi.core.remoting.Acceptor;
 import org.hornetq.spi.core.remoting.Connection;
-import org.hornetq.utils.UUIDGenerator;
+import org.proton.plug.AMQPServerConnectionContext;
+import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to HornetQ resources
@@ -61,272 +40,83 @@ import org.hornetq.utils.UUIDGenerator;
  */
 public class ProtonProtocolManager implements ProtocolManager, NotificationListener
 {
-   public static final EnumSet<EndpointState> UNINITIALIZED = EnumSet.of(EndpointState.UNINITIALIZED);
-
-   public static final EnumSet<EndpointState> INITIALIZED = EnumSet.complementOf(UNINITIALIZED);
-
-   public static final EnumSet<EndpointState> ACTIVE = EnumSet.of(EndpointState.ACTIVE);
-
-   public static final EnumSet<EndpointState> CLOSED = EnumSet.of(EndpointState.CLOSED);
-
-   public static final EnumSet<EndpointState> ANY_ENDPOINT_STATE = EnumSet.of(EndpointState.CLOSED, EndpointState.ACTIVE, EndpointState.UNINITIALIZED);
-
    private final HornetQServer server;
+
+   private MessageConverter protonConverter;
 
    public ProtonProtocolManager(HornetQServer server)
    {
       this.server = server;
+      this.protonConverter = new ProtonMessageConverter(server.getStorageManager());
    }
 
-   @Override
-   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection)
+   public HornetQServer getServer()
    {
-      ProtonRemotingConnection conn = new ProtonRemotingConnection(acceptorUsed, connection, this);
-      //todo do we have a ttl?
-      return new ConnectionEntry(conn, null, System.currentTimeMillis(), 1 * 60 * 1000);
+      return server;
    }
 
-   @Override
-   public void removeHandler(String name)
-   {
-   }
 
    @Override
-   public void handleBuffer(RemotingConnection connection, HornetQBuffer buffer)
+   public MessageConverter getConverter()
    {
-      ProtonRemotingConnection protonRemotingConnection = (ProtonRemotingConnection) connection;
-      protonRemotingConnection.setDataReceived();
-      byte[] frame = new byte[buffer.readableBytes()];
-      buffer.readBytes(frame);
-
-      protonRemotingConnection.handleFrame(frame);
-   }
-
-   @Override
-   public void addChannelHandlers(ChannelPipeline pipeliner)
-   {
-      //we don't need any we do our own decoding
-   }
-
-   @Override
-   public boolean isProtocol(byte[] array)
-   {
-      String startFrame = new String(array, StandardCharsets.US_ASCII);
-      return startFrame.startsWith("AMQP");
-   }
-
-   @Override
-   public void handshake(NettyServerConnection connection, HornetQBuffer buffer)
-   {
-      //todo move handshake to here
+      return protonConverter;
    }
 
    @Override
    public void onNotification(Notification notification)
    {
-      //noop
+
    }
 
-   public ServerMessageImpl createServerMessage()
+   @Override
+   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection)
    {
-      return new ServerMessageImpl(server.getStorageManager().generateUniqueID(), 512);
+      HornetQProtonConnectionCallback connectionCallback = new HornetQProtonConnectionCallback(this, remotingConnection);
+
+      AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().createConnection(connectionCallback);
+
+      Executor executor = server.getExecutorFactory().getExecutor();
+
+      HornetQProtonRemotingConnection delegate = new HornetQProtonRemotingConnection(this, amqpConnection, remotingConnection, executor);
+
+      connectionCallback.setProtonConnectionDelegate(delegate);
+
+      ConnectionEntry entry = new ConnectionEntry(delegate, executor,
+                                                  System.currentTimeMillis(), HornetQClient.DEFAULT_CONNECTION_TTL);
+
+      return entry;
    }
 
-   public void handleMessage(final Receiver receiver, HornetQBuffer buffer, final Delivery delivery,
-                             final ProtonRemotingConnection connection, ProtonSession protonSession,
-                             String address) throws Exception
+   @Override
+   public void removeHandler(String name)
    {
-      synchronized (connection.getDeliveryLock())
-      {
-         int count;
-         byte[] data = new byte[1024];
-         //todo an optimisation here would be to only use the buffer if we need more that one recv
-         while ((count = receiver.recv(data, 0, data.length)) > 0)
-         {
-            buffer.writeBytes(data, 0, count);
-         }
 
-         // we keep reading until we get end of messages, i.e. -1
-         if (count == 0)
-         {
-            return;
-         }
-         receiver.advance();
-         byte[] bytes = new byte[buffer.readableBytes()];
-         buffer.readBytes(bytes);
-         buffer.clear();
-         EncodedMessage encodedMessage = new EncodedMessage(delivery.getMessageFormat(), bytes, 0, bytes.length);
-         ServerMessage message = ProtonUtils.INBOUND.transform(connection, encodedMessage);
-         //use the address on the receiver if not null, if null let's hope it was set correctly on the message
-         if (address != null)
-         {
-            message.setAddress(new SimpleString(address));
-         }
-         //todo decide on whether to deliver direct
-         protonSession.getServerSession().send(message, true);
-         server.getStorageManager().afterCompleteOperations(new IOAsyncTask()
-         {
-            @Override
-            public void done()
-            {
-               synchronized (connection.getDeliveryLock())
-               {
-                  receiver.flow(1);
-                  delivery.settle();
-               }
-            }
-
-            @Override
-            public void onError(int errorCode, String errorMessage)
-            {
-               receiver.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
-            }
-         });
-      }
    }
 
-   public void handleDelivery(final Sender sender, byte[] tag, EncodedMessage encodedMessage, ServerMessage message, ProtonRemotingConnection connection, final boolean preSettle)
+   @Override
+   public void handleBuffer(RemotingConnection connection, HornetQBuffer buffer)
    {
-      synchronized (connection.getDeliveryLock())
-      {
-         final Delivery delivery;
-         delivery = sender.delivery(tag, 0, tag.length);
-         delivery.setContext(message);
-         sender.send(encodedMessage.getArray(), 0, encodedMessage.getLength());
-         server.getStorageManager().afterCompleteOperations(new IOAsyncTask()
-         {
-            @Override
-            public void done()
-            {
-               if (preSettle)
-               {
-                  delivery.settle();
-                  ((LinkImpl) sender).addCredit(1);
-               }
-               else
-               {
-                  sender.advance();
-               }
-            }
+      HornetQProtonRemotingConnection protonConnection = (HornetQProtonRemotingConnection)connection;
 
-            @Override
-            public void onError(int errorCode, String errorMessage)
-            {
-               sender.setCondition(new ErrorCondition(AmqpError.ILLEGAL_STATE, errorCode + ":" + errorMessage));
-            }
-         });
-      }
-      connection.write();
+      protonConnection.bufferReceived(protonConnection.getID(), buffer);
    }
 
-   void handleNewLink(Link link, ProtonSession protonSession) throws HornetQAMQPException
+   @Override
+   public void addChannelHandlers(ChannelPipeline pipeline)
    {
-      link.setSource(link.getRemoteSource());
-      link.setTarget(link.getRemoteTarget());
-      if (link instanceof Receiver)
-      {
-         Receiver receiver = (Receiver) link;
-         if (link.getRemoteTarget() instanceof Coordinator)
-         {
-            protonSession.initialise(true);
-            Coordinator coordinator = (Coordinator) link.getRemoteTarget();
-            protonSession.addTransactionHandler(coordinator, receiver);
-         }
-         else
-         {
-            protonSession.initialise(false);
-            protonSession.addProducer(receiver);
-            //todo do this using the server session flow control
-            receiver.flow(100);
-         }
-      }
-      else
-      {
-         protonSession.initialise(false);
-         Sender sender = (Sender) link;
-         protonSession.addConsumer(sender);
-         sender.offer(1);
-      }
+
    }
 
-   public ProtonSession createSession(ProtonRemotingConnection protonConnection, TransportImpl protonTransport) throws HornetQAMQPException
+   @Override
+   public boolean isProtocol(byte[] array)
    {
-      String name = UUIDGenerator.getInstance().generateStringUUID();
-      return new ProtonSession(name, protonConnection, this, server.getStorageManager()
-         .newContext(server.getExecutorFactory().getExecutor()), server, protonTransport);
+      return array.length >= 4 && array[0] == (byte) 'A' && array[1] == (byte) 'M' && array[2] == (byte) 'Q' && array[3] == (byte) 'P';
    }
 
-   void handleActiveLink(Link link) throws HornetQAMQPException
+   @Override
+   public void handshake(NettyServerConnection connection, HornetQBuffer buffer)
    {
-      link.setSource(link.getRemoteSource());
-      link.setTarget(link.getRemoteTarget());
-      ProtonDeliveryHandler handler = (ProtonDeliveryHandler) link.getContext();
-      handler.checkState();
    }
 
-   public void handleTransaction(Receiver receiver, HornetQBuffer buffer, Delivery delivery, ProtonSession protonSession) throws HornetQAMQPIllegalStateException
-   {
-      int count;
-      byte[] data = new byte[1024];
-      //todo an optimisation here would be to only use the buffer if we need more that one recv
-      while ((count = receiver.recv(data, 0, data.length)) > 0)
-      {
-         buffer.writeBytes(data, 0, count);
-      }
 
-      // we keep reading until we get end of messages, i.e. -1
-      if (count == 0)
-      {
-         return;
-      }
-      receiver.advance();
-      byte[] bytes = new byte[buffer.readableBytes()];
-      buffer.readBytes(bytes);
-      buffer.clear();
-      MessageImpl msg = new MessageImpl();
-      msg.decode(bytes, 0, bytes.length);
-      Object action = ((AmqpValue) msg.getBody()).getValue();
-      if (action instanceof Declare)
-      {
-         Transaction tx = protonSession.getServerSession().getCurrentTransaction();
-         Declared declared = new Declared();
-         declared.setTxnId(new Binary(longToBytes(tx.getID())));
-         delivery.disposition(declared);
-         delivery.settle();
-      }
-      else if (action instanceof Discharge)
-      {
-         Discharge discharge = (Discharge) action;
-         if (discharge.getFail())
-         {
-            try
-            {
-               protonSession.getServerSession().rollback(false);
-            }
-            catch (Exception e)
-            {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());
-            }
-         }
-         else
-         {
-            try
-            {
-               protonSession.getServerSession().commit();
-            }
-            catch (Exception e)
-            {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorCommittingCoordinator(e.getMessage());
-            }
-         }
-         delivery.settle();
-      }
-   }
-
-   public byte[] longToBytes(long x)
-   {
-      ByteBuffer buffer = ByteBuffer.allocate(8);
-      buffer.putLong(x);
-      return buffer.array();
-   }
 }

@@ -13,6 +13,23 @@
 package org.hornetq.core.config;
 
 import org.hornetq.api.core.HornetQIllegalStateException;
+import org.hornetq.core.config.ha.ColocatedPolicyConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.hornetq.core.server.HornetQMessageBundle;
+import org.hornetq.core.server.cluster.ha.BackupPolicy;
+import org.hornetq.core.server.cluster.ha.ColocatedPolicy;
+import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.server.cluster.ha.LiveOnlyPolicy;
+import org.hornetq.core.server.cluster.ha.ReplicaPolicy;
+import org.hornetq.core.server.cluster.ha.ReplicatedPolicy;
+import org.hornetq.core.server.cluster.ha.ScaleDownPolicy;
+import org.hornetq.core.server.cluster.ha.SharedStoreMasterPolicy;
+import org.hornetq.core.server.cluster.ha.SharedStoreSlavePolicy;
+
 public final class ConfigurationUtils
 {
 
@@ -21,9 +38,8 @@ public final class ConfigurationUtils
       // Utility class
    }
 
-   public static ClusterConnectionConfiguration getReplicationClusterConfiguration(Configuration conf) throws HornetQIllegalStateException
+   public static ClusterConnectionConfiguration getReplicationClusterConfiguration(Configuration conf, String replicationCluster) throws HornetQIllegalStateException
    {
-      final String replicationCluster = conf.getHAPolicy().getReplicationClustername();
       if (replicationCluster == null || replicationCluster.isEmpty())
          return conf.getClusterConfigurations().get(0);
       for (ClusterConnectionConfiguration clusterConf : conf.getClusterConfigurations())
@@ -32,5 +48,95 @@ public final class ConfigurationUtils
             return clusterConf;
       }
       throw new HornetQIllegalStateException("Missing cluster-configuration for replication-clustername '" + replicationCluster + "'.");
+   }
+
+   public static HAPolicy getHAPolicy(HAPolicyConfiguration conf) throws HornetQIllegalStateException
+   {
+      if (conf == null)
+      {
+         return new LiveOnlyPolicy();
+      }
+
+      switch (conf.getType())
+      {
+         case LIVE_ONLY:
+         {
+            LiveOnlyPolicyConfiguration pc = (LiveOnlyPolicyConfiguration) conf;
+            return new LiveOnlyPolicy(getScaleDownPolicy(pc.getScaleDownConfiguration()));
+         }
+         case REPLICATED:
+         {
+            ReplicatedPolicyConfiguration pc = (ReplicatedPolicyConfiguration) conf;
+            return new ReplicatedPolicy(pc.isCheckForLiveServer(), pc.getGroupName(), pc.getClusterName());
+         }
+         case REPLICA:
+         {
+            ReplicaPolicyConfiguration pc = (ReplicaPolicyConfiguration) conf;
+            return new ReplicaPolicy(pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getGroupName(), pc.isRestartBackup(), pc.isAllowFailBack(), pc.getFailbackDelay(), getScaleDownPolicy(pc.getScaleDownConfiguration()));
+         }
+         case SHARED_STORE_MASTER:
+         {
+            SharedStoreMasterPolicyConfiguration pc = (SharedStoreMasterPolicyConfiguration) conf;
+            return new SharedStoreMasterPolicy(pc.getFailbackDelay(), pc.isFailoverOnServerShutdown());
+         }
+         case SHARED_STORE_SLAVE:
+         {
+            SharedStoreSlavePolicyConfiguration pc = (SharedStoreSlavePolicyConfiguration) conf;
+            return new SharedStoreSlavePolicy(pc.getFailbackDelay(), pc.isFailoverOnServerShutdown(), pc.isRestartBackup(), pc.isAllowFailBack(), getScaleDownPolicy(pc.getScaleDownConfiguration()));
+         }
+         case COLOCATED:
+         {
+            ColocatedPolicyConfiguration pc = (ColocatedPolicyConfiguration) conf;
+
+            HAPolicyConfiguration backupConf = pc.getBackupConfig();
+            BackupPolicy backupPolicy;
+            if (backupConf == null)
+            {
+               backupPolicy = new ReplicaPolicy();
+            }
+            else
+            {
+               backupPolicy = (BackupPolicy) getHAPolicy(backupConf);
+            }
+            HAPolicyConfiguration liveConf = pc.getLiveConfig();
+            HAPolicy livePolicy;
+            if (liveConf == null)
+            {
+               livePolicy = new ReplicatedPolicy();
+            }
+            else
+            {
+               livePolicy = getHAPolicy(liveConf);
+            }
+            return new ColocatedPolicy(pc.isRequestBackup(),
+                  pc.getBackupRequestRetries(),
+                  pc.getBackupRequestRetryInterval(),
+                  pc.getMaxBackups(),
+                  pc.getBackupPortOffset(),
+                  pc.getExcludedConnectors(),
+                  livePolicy,
+                  backupPolicy);
+         }
+
+      }
+      throw HornetQMessageBundle.BUNDLE.unsupportedHAPolicyConfiguration(conf);
+   }
+
+   public static ScaleDownPolicy getScaleDownPolicy(ScaleDownConfiguration scaleDownConfiguration)
+   {
+      if (scaleDownConfiguration != null)
+      {
+         if (scaleDownConfiguration.getDiscoveryGroup() != null)
+         {
+            return new ScaleDownPolicy(scaleDownConfiguration.getDiscoveryGroup(), scaleDownConfiguration.getGroupName(),
+                  scaleDownConfiguration.getClusterName(), scaleDownConfiguration.isEnabled());
+         }
+         else
+         {
+            return new ScaleDownPolicy(scaleDownConfiguration.getConnectors(), scaleDownConfiguration.getGroupName(),
+                  scaleDownConfiguration.getClusterName(), scaleDownConfiguration.isEnabled());
+         }
+      }
+      return null;
    }
 }

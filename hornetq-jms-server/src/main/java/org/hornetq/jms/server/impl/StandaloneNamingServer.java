@@ -157,5 +157,11 @@ public class StandaloneNamingServer implements HornetQComponent
          }
          activated = false;
       }
+
+      @Override
+      public void activationComplete()
+      {
+
+      }
    }
 }

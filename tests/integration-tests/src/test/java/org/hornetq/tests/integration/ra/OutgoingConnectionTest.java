@@ -50,12 +50,15 @@ import org.hornetq.ra.HornetQRAManagedConnectionFactory;
 import org.hornetq.ra.HornetQRASession;
 import org.hornetq.ra.HornetQResourceAdapter;
 import org.hornetq.utils.UUIDGenerator;
+import org.hornetq.ra.HornetQXAResourceWrapper;
+import org.hornetq.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  *         Created Jul 7, 2010
  */
 public class OutgoingConnectionTest extends HornetQRATestBase
@@ -90,6 +93,7 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = new HornetQResourceAdapter();
       resourceAdapter.setTransactionManagerLocatorClass(JMSContextTest.class.getName());
       resourceAdapter.setTransactionManagerLocatorMethod("getTm");
+      resourceAdapter.setEntries("[\"java://jmsXA\"]");
 
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
       MyBootstrapContext ctx = new MyBootstrapContext();
@@ -510,5 +514,20 @@ public class OutgoingConnectionTest extends HornetQRATestBase
          }
       }
 
+   }
+
+   @Test
+   public void testOutgoingXAResourceWrapper() throws Exception
+   {
+      XAQueueConnection queueConnection = qraConnectionFactory.createXAQueueConnection();
+      XASession s = queueConnection.createXASession();
+
+      XAResource resource = s.getXAResource();
+      assertTrue(resource instanceof HornetQXAResourceWrapper);
+
+      HornetQXAResourceWrapper xaResourceWrapper  = (HornetQXAResourceWrapper) resource;
+      assertTrue(xaResourceWrapper.getJndiName().equals("java://jmsXA NodeId:" + server.getNodeID()));
+      assertTrue(xaResourceWrapper.getProductVersion().equals(VersionLoader.getVersion().getFullVersion()));
+      assertTrue(xaResourceWrapper.getProductName().equals(HornetQResourceAdapter.PRODUCT_NAME));
    }
 }

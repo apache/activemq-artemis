@@ -408,4 +408,8 @@ public interface HornetQClientLogger extends BasicLogger
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214023, value = "HTTP Handshake failed, the received accept value %s does not match the expected response %s")
    void httpHandshakeFailed(String response, String expectedResponse);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 214024, value = "HTTP upgrade not supported by remote acceptor")
+   void httpUpgradeNotSupportedByRemoteAcceptor();
 }

@@ -118,44 +118,54 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
       TransportConfiguration connectorConfig_1 = new TransportConfiguration(NETTY_CONNECTOR_FACTORY, acceptorParams_1);
       TransportConfiguration connectorConfig_0 = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
 
-      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration(RandomUtil.randomString(),
-                                                              RandomUtil.randomString(),
-                                                              null,
-                                                              false);
+      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
+         .setAddress(RandomUtil.randomString())
+         .setName(RandomUtil.randomString())
+         .setDurable(false);
       List<String> connectorInfos = new ArrayList<String>();
       connectorInfos.add("netty");
-      BroadcastGroupConfiguration broadcastGroupConfig = new BroadcastGroupConfiguration(discoveryName,
-                                                                                         250,
-                                                                                         connectorInfos,
-                                             new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1));
-      DiscoveryGroupConfiguration discoveryGroupConfig = new DiscoveryGroupConfiguration(discoveryName,
-                                                                                         0,
-                                                                                         0,
-                                             new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1));
 
-      Configuration conf_1 = createBasicConfig();
-      conf_1.setSecurityEnabled(false);
-      conf_1.setJMXManagementEnabled(true);
+      BroadcastGroupConfiguration broadcastGroupConfig = new BroadcastGroupConfiguration()
+         .setName(discoveryName)
+         .setBroadcastPeriod(250)
+         .setConnectorInfos(connectorInfos)
+         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(groupAddress)
+            .setGroupPort(groupPort));
 
-      clusterConnectionConfig_0 =
-               new ClusterConnectionConfiguration(clusterName, queueConfig.getAddress(), "netty", 1000, false, false,
-                                                  1, 1024,
-                                                  discoveryName);
-      conf_1.getClusterConfigurations().add(clusterConnectionConfig_0);
-      conf_1.getAcceptorConfigurations().add(acceptorConfig_1);
-      conf_1.getConnectorConfigurations().put("netty", connectorConfig_1);
-      conf_1.getQueueConfigurations().add(queueConfig);
-      conf_1.getDiscoveryGroupConfigurations().put(discoveryName, discoveryGroupConfig);
-      conf_1.getBroadcastGroupConfigurations().add(broadcastGroupConfig);
+      DiscoveryGroupConfiguration discoveryGroupConfig = new DiscoveryGroupConfiguration()
+         .setName(discoveryName)
+         .setRefreshTimeout(0)
+         .setDiscoveryInitialWaitTimeout(0)
+         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(groupAddress)
+            .setGroupPort(groupPort));
 
-      Configuration conf_0 = createBasicConfig(1);
-      conf_0.setSecurityEnabled(false);
-      conf_0.setJMXManagementEnabled(true);
-      conf_0.getAcceptorConfigurations().add(acceptorConfig_0);
-      conf_0.getConnectorConfigurations().put("netty", connectorConfig_0);
-      conf_0.getClusterConfigurations().add(clusterConnectionConfig_0);
-      conf_0.getDiscoveryGroupConfigurations().put(discoveryName, discoveryGroupConfig);
-      conf_0.getBroadcastGroupConfigurations().add(broadcastGroupConfig);
+      clusterConnectionConfig_0 = new ClusterConnectionConfiguration()
+         .setName(clusterName)
+         .setAddress(queueConfig.getAddress())
+         .setConnectorName("netty")
+         .setRetryInterval(1000)
+         .setDuplicateDetection(false)
+         .setForwardWhenNoConsumers(false)
+         .setMaxHops(1)
+         .setConfirmationWindowSize(1024)
+         .setDiscoveryGroupName(discoveryName);
+
+      Configuration conf_1 = createBasicConfig()
+         .addClusterConfiguration(clusterConnectionConfig_0)
+         .addAcceptorConfiguration(acceptorConfig_1)
+         .addConnectorConfiguration("netty", connectorConfig_1)
+         .addQueueConfiguration(queueConfig)
+         .addDiscoveryGroupConfiguration(discoveryName, discoveryGroupConfig)
+         .addBroadcastGroupConfiguration(broadcastGroupConfig);
+
+      Configuration conf_0 = createBasicConfig(1)
+         .addClusterConfiguration(clusterConnectionConfig_0)
+         .addAcceptorConfiguration(acceptorConfig_0)
+         .addConnectorConfiguration("netty", connectorConfig_0)
+         .addDiscoveryGroupConfiguration(discoveryName, discoveryGroupConfig)
+         .addBroadcastGroupConfiguration(broadcastGroupConfig);
 
       mbeanServer_1 = MBeanServerFactory.createMBeanServer();
       server1 = addServer(HornetQServers.newHornetQServer(conf_1, mbeanServer_1, false));

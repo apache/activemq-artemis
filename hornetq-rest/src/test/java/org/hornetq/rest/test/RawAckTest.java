@@ -53,10 +53,10 @@ public class RawAckTest
    @BeforeClass
    public static void setup() throws Exception
    {
-      Configuration configuration = new ConfigurationImpl();
-      configuration.setPersistenceEnabled(false);
-      configuration.setSecurityEnabled(false);
-      configuration.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration configuration = new ConfigurationImpl()
+         .setPersistenceEnabled(false)
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       hornetqServer = HornetQServers.newHornetQServer(configuration);
       hornetqServer.start();

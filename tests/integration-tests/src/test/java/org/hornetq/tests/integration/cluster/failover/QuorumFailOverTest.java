@@ -20,6 +20,8 @@ import org.hornetq.api.core.Pair;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClusterTopologyListener;
 import org.hornetq.api.core.client.TopologyMember;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.hornetq.core.protocol.core.impl.PacketImpl;
 import org.hornetq.tests.integration.cluster.util.BackupSyncDelay;
 import org.junit.Test;
@@ -31,12 +33,12 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest
    {
       super.setupServers();
       //we need to know who is connected to who
-      servers[0].getConfiguration().getHAPolicy().setBackupGroupName("group0");
-      servers[1].getConfiguration().getHAPolicy().setBackupGroupName("group1");
-      servers[2].getConfiguration().getHAPolicy().setBackupGroupName("group2");
-      servers[3].getConfiguration().getHAPolicy().setBackupGroupName("group0");
-      servers[4].getConfiguration().getHAPolicy().setBackupGroupName("group1");
-      servers[5].getConfiguration().getHAPolicy().setBackupGroupName("group2");
+      ((ReplicatedPolicyConfiguration)servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group0");
+      ((ReplicatedPolicyConfiguration)servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      ((ReplicatedPolicyConfiguration)servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+      ((ReplicaPolicyConfiguration)servers[3].getConfiguration().getHAPolicyConfiguration()).setGroupName("group0");
+      ((ReplicaPolicyConfiguration)servers[4].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      ((ReplicaPolicyConfiguration)servers[5].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
    }
 
    @Test
@@ -75,8 +77,8 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest
 
       locators[0].addClusterTopologyListener(liveTopologyListener);
 
-      assertTrue("we assume 3 is a backup", servers[3].getConfiguration().getHAPolicy().isBackup());
-      assertFalse("no shared storage", servers[3].getConfiguration().getHAPolicy().isSharedStore());
+      assertTrue("we assume 3 is a backup", servers[3].getHAPolicy().isBackup());
+      assertFalse("no shared storage", servers[3].getHAPolicy().isSharedStore());
 
       failNode(0);
 
@@ -86,10 +88,10 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest
       waitForBindings(3, QUEUES_TESTADDRESS, 1, 1, true);
 
       assertTrue(servers[3].waitForActivation(2, TimeUnit.SECONDS));
-      assertFalse("3 should have failed over ", servers[3].getConfiguration().getHAPolicy().isBackup());
+      assertFalse("3 should have failed over ", servers[3].getHAPolicy().isBackup());
 
       failNode(1);
-      assertFalse("4 should have failed over ", servers[4].getConfiguration().getHAPolicy().isBackup());
+      assertFalse("4 should have failed over ", servers[4].getHAPolicy().isBackup());
    }
 
    @Override

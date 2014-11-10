@@ -20,7 +20,7 @@ import org.hornetq.spi.core.protocol.RemotingConnection;
  * <p>
  * To add an interceptor to HornetQ server, you have to modify the server configuration file
  * {@literal hornetq-configuration.xml}.<br>
- * To add it to a client, use {@link ServerLocator#addIncomingInterceptor(Interceptor)}
+ * To add it to a client, use {@link org.hornetq.api.core.client.ServerLocator#addIncomingInterceptor(Interceptor)}
  *
  * @author clebert.suconic@jboss.com
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

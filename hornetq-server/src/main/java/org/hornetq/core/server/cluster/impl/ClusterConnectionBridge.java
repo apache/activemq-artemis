@@ -12,7 +12,9 @@
  */
 package org.hornetq.core.server.cluster.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,8 +26,8 @@ import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientConsumer;
 import org.hornetq.api.core.client.ClientMessage;
 import org.hornetq.api.core.client.ClientProducer;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.ManagementHelper;
-import org.hornetq.api.core.management.NotificationType;
 import org.hornetq.api.core.management.ResourceNames;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
 import org.hornetq.core.client.impl.ServerLocatorInternal;
@@ -38,6 +40,7 @@ import org.hornetq.core.server.Queue;
 import org.hornetq.core.server.ServerMessage;
 import org.hornetq.core.server.cluster.ClusterConnection;
 import org.hornetq.core.server.cluster.ClusterManager;
+import org.hornetq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
 import org.hornetq.core.server.cluster.MessageFlowRecord;
 import org.hornetq.core.server.cluster.Transformer;
 import org.hornetq.utils.UUID;
@@ -50,6 +53,7 @@ import org.hornetq.utils.UUIDGenerator;
  *
  * @author tim
  * @author Clebert Suconic
+ * @author <a href="mtaylor@redhat,com">Martyn Taylor</a>
  */
 public class ClusterConnectionBridge extends BridgeImpl
 {
@@ -135,9 +139,9 @@ public class ClusterConnectionBridge extends BridgeImpl
       // we need to disable DLQ check on the clustered bridges
       queue.setInternalQueue(true);
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (HornetQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator,
+         HornetQServerLogger.LOGGER.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator,
                                           new Exception("trace"));
       }
    }
@@ -145,6 +149,7 @@ public class ClusterConnectionBridge extends BridgeImpl
    @Override
    protected ClientSessionFactoryInternal createSessionFactory() throws Exception
    {
+      serverLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
       ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) serverLocator.createSessionFactory(targetNodeID);
       setSessionFactory(factory);
 
@@ -247,28 +252,26 @@ public class ClusterConnectionBridge extends BridgeImpl
                                                    " AND " +
                                                    ManagementHelper.HDR_NOTIFICATION_TYPE +
                                                    " IN ('" +
-                                                   NotificationType.BINDING_ADDED +
+                                                   CoreNotificationType.BINDING_ADDED +
                                                    "','" +
-                                                   NotificationType.BINDING_REMOVED +
+                                                   CoreNotificationType.BINDING_REMOVED +
                                                    "','" +
-                                                   NotificationType.CONSUMER_CREATED +
+                                                   CoreNotificationType.CONSUMER_CREATED +
                                                    "','" +
-                                                   NotificationType.CONSUMER_CLOSED +
+                                                   CoreNotificationType.CONSUMER_CLOSED +
                                                    "','" +
-                                                   NotificationType.PROPOSAL +
+                                                   CoreNotificationType.PROPOSAL +
                                                    "','" +
-                                                   NotificationType.PROPOSAL_RESPONSE +
+                                                   CoreNotificationType.PROPOSAL_RESPONSE +
                                                    "','" +
-                                                   NotificationType.UNPROPOSAL +
+                                                   CoreNotificationType.UNPROPOSAL +
                                                    "') AND " +
                                                    ManagementHelper.HDR_DISTANCE +
                                                    "<" +
                                                    flowRecord.getMaxHops() +
                                                    " AND (" +
-                                                   ManagementHelper.HDR_ADDRESS +
-                                                   " LIKE '" +
-                                                   flowRecord.getAddress() +
-                                                   "%')");
+                                                   createSelectorFromAddress(flowRecord.getAddress()) +
+                                                   ")");
 
          session.createTemporaryQueue(managementNotificationAddress, notifQueueName, filter);
 
@@ -279,8 +282,10 @@ public class ClusterConnectionBridge extends BridgeImpl
          session.start();
 
          ClientMessage message = session.createMessage(false);
-
-         HornetQServerLogger.LOGGER.debug("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
+         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         {
+            HornetQServerLogger.LOGGER.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
+         }
          ManagementHelper.putOperationInvocation(message,
                                                  ResourceNames.CORE_SERVER,
                                                  "sendQueueInfoToQueue",
@@ -296,6 +301,79 @@ public class ClusterConnectionBridge extends BridgeImpl
 
          prod.send(message);
       }
+   }
+
+   /**
+    * Takes in a string of an address filter or comma separated list and generates an appropriate JMS selector for
+    * filtering queues.
+    * @param address
+    */
+   public static String createSelectorFromAddress(String address)
+   {
+      StringBuilder stringBuilder = new StringBuilder();
+
+      // Support standard address (not a list) case.
+      if (!address.contains(","))
+      {
+         if (address.startsWith("!"))
+         {
+            stringBuilder.append(ManagementHelper.HDR_ADDRESS + " NOT LIKE '" + address.substring(1, address.length()) + "%'");
+         }
+         else
+         {
+            stringBuilder.append(ManagementHelper.HDR_ADDRESS +  " LIKE '" + address + "%'");
+         }
+         return stringBuilder.toString();
+      }
+
+      // For comma separated lists build a JMS selector statement based on the list items
+      return buildSelectorFromArray(address.split(","));
+   }
+
+   public static String buildSelectorFromArray(String[] list)
+   {
+      List<String> includes = new ArrayList<String>();
+      List<String> excludes = new ArrayList<String>();
+
+      // Split the list into addresses to match and addresses to exclude.
+      for (int i = 0; i < list.length; i++)
+      {
+         if (list[i].startsWith("!"))
+         {
+            excludes.add(list[i].substring(1, list[i].length()));
+         }
+         else
+         {
+            includes.add(list[i]);
+         }
+      }
+
+      // Build the address matching part of the selector
+      StringBuilder builder = new StringBuilder("(");
+      if (includes.size() > 0)
+      {
+         if (excludes.size() > 0) builder.append("(");
+         for (int i = 0; i < includes.size(); i++)
+         {
+            builder.append("(" + ManagementHelper.HDR_ADDRESS + " LIKE '" + includes.get(i) + "%')");
+            if (i < includes.size() - 1) builder.append(" OR ");
+         }
+         if (excludes.size() > 0) builder.append(")");
+      }
+
+      // Build the address exclusion part of the selector
+      if (excludes.size() > 0)
+      {
+         if (includes.size() > 0) builder.append(" AND (");
+         for (int i = 0; i < excludes.size(); i++)
+         {
+            builder.append("(" + ManagementHelper.HDR_ADDRESS + " NOT LIKE '" + excludes.get(i) + "%')");
+            if (i < excludes.size() - 1) builder.append(" AND ");
+         }
+         if (includes.size() > 0) builder.append(")");
+      }
+      builder.append(")");
+      return builder.toString();
    }
 
    @Override

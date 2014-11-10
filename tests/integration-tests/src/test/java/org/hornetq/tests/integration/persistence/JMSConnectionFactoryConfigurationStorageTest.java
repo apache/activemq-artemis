@@ -78,7 +78,9 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
       }
 
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl("some-name", false, transportConfigs);
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
+         .setName("some-name")
+         .setConnectorNames(transportConfigs);
 
       addSetting(new PersistedConnectionFactory(config));
 
@@ -114,7 +116,10 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
          str[i] = "str" + i;
       }
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl("some-name", false, new ArrayList<String>(), "");
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
+         .setName("some-name")
+         .setConnectorNames(new ArrayList<String>())
+         .setBindings("");
 
       int size = config.getEncodeSize();
 
@@ -156,12 +161,14 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
       Map<String, Object> liveParams2 = new HashMap<String, Object>();
       liveParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl("some-name", false, connectorConfigs, str);
-      config.setConnectorNames(connectorConfigs);
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
+         .setName("some-name")
+         .setConnectorNames(connectorConfigs)
+         .setBindings(str)
+         .setCallTimeout(RandomUtil.randomPositiveLong());
       List<Pair<String, String>> connectors = new ArrayList<Pair<String, String>>();
       connectors.add(new Pair<String, String>(RandomUtil.randomString(), null));
       //config.setConnectorNames(connectors);
-      config.setCallTimeout(RandomUtil.randomPositiveLong());
 
       addSetting(new PersistedConnectionFactory(config));
 

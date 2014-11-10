@@ -30,38 +30,31 @@ import org.hornetq.jms.server.config.TopicConfiguration;
  */
 public class JMSConfigurationImpl implements JMSConfiguration
 {
+   private List<ConnectionFactoryConfiguration> connectionFactoryConfigurations = new ArrayList<ConnectionFactoryConfiguration>();
 
-   private final List<ConnectionFactoryConfiguration> connectionFactoryConfigurations = new ArrayList<ConnectionFactoryConfiguration>();
+   private List<JMSQueueConfiguration> queueConfigurations = new ArrayList<JMSQueueConfiguration>();
 
-   private final List<JMSQueueConfiguration> queueConfigurations = new ArrayList<JMSQueueConfiguration>();
+   private List<TopicConfiguration> topicConfigurations = new ArrayList<TopicConfiguration>();
 
-   private final List<TopicConfiguration> topicConfigurations = new ArrayList<TopicConfiguration>();
-
-   private final String domain;
+   private String domain = HornetQDefaultConfiguration.getDefaultJmxDomain();
 
    private Context context = null;
 
+   // JMSConfiguration implementation -------------------------------
+
    public JMSConfigurationImpl()
    {
-      domain = HornetQDefaultConfiguration.getDefaultJmxDomain();
    }
-
-   public JMSConfigurationImpl(final List<ConnectionFactoryConfiguration> connectionFactoryConfigurations,
-                               final List<JMSQueueConfiguration> queueConfigurations,
-                               final List<TopicConfiguration> topicConfigurations,
-                               final String domain)
-   {
-      this.connectionFactoryConfigurations.addAll(connectionFactoryConfigurations);
-      this.queueConfigurations.addAll(queueConfigurations);
-      this.topicConfigurations.addAll(topicConfigurations);
-      this.domain = domain != null ? domain : HornetQDefaultConfiguration.getDefaultJmxDomain();
-   }
-
-   // JMSConfiguration implementation -------------------------------
 
    public List<ConnectionFactoryConfiguration> getConnectionFactoryConfigurations()
    {
       return connectionFactoryConfigurations;
+   }
+
+   public JMSConfigurationImpl setConnectionFactoryConfigurations(List<ConnectionFactoryConfiguration> connectionFactoryConfigurations)
+   {
+      this.connectionFactoryConfigurations = connectionFactoryConfigurations;
+      return this;
    }
 
    public List<JMSQueueConfiguration> getQueueConfigurations()
@@ -69,9 +62,21 @@ public class JMSConfigurationImpl implements JMSConfiguration
       return queueConfigurations;
    }
 
+   public JMSConfigurationImpl setQueueConfigurations(List<JMSQueueConfiguration> queueConfigurations)
+   {
+      this.queueConfigurations = queueConfigurations;
+      return this;
+   }
+
    public List<TopicConfiguration> getTopicConfigurations()
    {
       return topicConfigurations;
+   }
+
+   public JMSConfigurationImpl setTopicConfigurations(List<TopicConfiguration> topicConfigurations)
+   {
+      this.topicConfigurations = topicConfigurations;
+      return this;
    }
 
    public Context getContext()
@@ -79,13 +84,20 @@ public class JMSConfigurationImpl implements JMSConfiguration
       return context;
    }
 
-   public void setContext(final Context context)
+   public JMSConfigurationImpl setContext(final Context context)
    {
       this.context = context;
+      return this;
    }
 
    public String getDomain()
    {
       return domain;
+   }
+
+   public JMSConfigurationImpl setDomain(final String domain)
+   {
+      this.domain = domain;
+      return this;
    }
 }

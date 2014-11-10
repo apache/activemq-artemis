@@ -269,8 +269,8 @@ public class RequestorTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createDefaultConfig();
-      conf.getAcceptorConfigurations().add(TransportConfigurationUtils.getInVMAcceptor(true));
+      Configuration conf = createDefaultConfig()
+         .addAcceptorConfiguration(TransportConfigurationUtils.getInVMAcceptor(true));
       service = createServer(false, conf);
       service.start();
 

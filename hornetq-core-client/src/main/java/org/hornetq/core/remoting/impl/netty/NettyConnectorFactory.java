@@ -18,6 +18,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.hornetq.spi.core.remoting.BufferHandler;
+import org.hornetq.spi.core.remoting.ClientProtocolManager;
 import org.hornetq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.hornetq.spi.core.remoting.Connector;
 import org.hornetq.spi.core.remoting.ConnectorFactory;
@@ -26,6 +27,7 @@ import org.hornetq.spi.core.remoting.ConnectorFactory;
  * A NettyConnectorFactory
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class NettyConnectorFactory implements ConnectorFactory
 {
@@ -34,7 +36,8 @@ public class NettyConnectorFactory implements ConnectorFactory
                                     final ConnectionLifeCycleListener listener,
                                     final Executor closeExecutor,
                                     final Executor threadPool,
-                                    final ScheduledExecutorService scheduledThreadPool)
+                                    final ScheduledExecutorService scheduledThreadPool,
+                                    final ClientProtocolManager protocolManager)
    {
       return new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
    }
@@ -48,5 +51,11 @@ public class NettyConnectorFactory implements ConnectorFactory
    public boolean isReliable()
    {
       return false;
+   }
+
+   @Override
+   public Map<String, Object> getDefaults()
+   {
+      return NettyConnector.DEFAULT_CONFIG;
    }
 }

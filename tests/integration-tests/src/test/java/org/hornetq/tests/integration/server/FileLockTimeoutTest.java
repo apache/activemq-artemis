@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.hornetq.core.asyncio.impl.AsynchronousFileImpl;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.JournalType;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.tests.integration.IntegrationTestLogger;
 import org.hornetq.tests.logging.AssertionLoggerHandler;
 import org.hornetq.tests.util.ServiceTestBase;
@@ -52,9 +52,9 @@ public class FileLockTimeoutTest extends ServiceTestBase
                            AsynchronousFileImpl.isLoaded()
          );
       }
-      Configuration config = super.createDefaultConfig();
-      config.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      config.getAcceptorConfigurations().clear();
+      Configuration config = super.createDefaultConfig()
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
+         .clearAcceptorConfigurations();
 
       HornetQServer server1 = createServer(true, config);
       if (useAIO)

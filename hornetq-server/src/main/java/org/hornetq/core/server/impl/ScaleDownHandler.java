@@ -80,6 +80,7 @@ public class ScaleDownHandler
       ClusterControl clusterControl = clusterController.connectToNodeInCluster((ClientSessionFactoryInternal) sessionFactory);
       clusterControl.authorize();
       long num = scaleDownMessages(sessionFactory, targetNodeId);
+      HornetQServerLogger.LOGGER.info("Scaled down " + num + " messages total.");
       scaleDownTransactions(sessionFactory, resourceManager);
       scaleDownDuplicateIDs(duplicateIDMap, sessionFactory, managementAddress);
       clusterControl.announceScaleDown(new SimpleString(this.targetNodeId), nodeManager.getNodeId());
@@ -107,11 +108,8 @@ public class ScaleDownHandler
             boolean storeAndForward = false;
             if (address.toString().startsWith("sf."))
             {
-               if (address.toString().endsWith(targetNodeId))
-               {
-                  // send messages in this queue to the original address
-                  storeAndForward = true;
-               }
+               // these get special treatment later
+               storeAndForward = true;
             }
 
             // this means we haven't inspected this address before
@@ -159,10 +157,72 @@ public class ScaleDownHandler
                      // loop through every message of this queue
                      while (bigLoopMessageIterator.hasNext())
                      {
+                        MessageReference bigLoopRef = bigLoopMessageIterator.next();
+                        Message message = bigLoopRef.getMessage().copy();
+
                         if (storeAndForward)
                         {
-                           MessageReference bigLoopRef = bigLoopMessageIterator.next();
-                           Message message = bigLoopRef.getMessage();
+                           if (address.toString().endsWith(targetNodeId))
+                           {
+                              /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
+                               * address on the scale-down target server.  However, we have to take the existing _HQ_ROUTE_TOsf.*
+                               * property and put its value into the _HQ_ROUTE_TO property so the message is routed properly.
+                               */
+
+                              byte[] oldRouteToIDs = null;
+
+                              List<SimpleString> propertiesToRemove = new ArrayList<>();
+                              message.removeProperty(MessageImpl.HDR_ROUTE_TO_IDS);
+                              for (SimpleString propName : message.getPropertyNames())
+                              {
+                                 if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
+                                 {
+                                    if (propName.toString().endsWith(targetNodeId))
+                                    {
+                                       oldRouteToIDs = message.getBytesProperty(propName);
+                                    }
+                                    propertiesToRemove.add(propName);
+                                 }
+                              }
+
+                              for (SimpleString propertyToRemove : propertiesToRemove)
+                              {
+                                 message.removeProperty(propertyToRemove);
+                              }
+
+                              message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, oldRouteToIDs);
+                           }
+                           else
+                           {
+                              /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
+                               * store-and-forward address on the scale-down target server.  In this case we use a special property
+                               * for the queue ID so that the scale-down target server can route it appropriately.
+                               */
+                              byte[] oldRouteToIDs = null;
+
+                              List<SimpleString> propertiesToRemove = new ArrayList<>();
+                              message.removeProperty(MessageImpl.HDR_ROUTE_TO_IDS);
+                              for (SimpleString propName : message.getPropertyNames())
+                              {
+                                 if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
+                                 {
+                                    if (propName.toString().endsWith(address.toString().substring(address.toString().lastIndexOf("."))))
+                                    {
+                                       oldRouteToIDs = message.getBytesProperty(propName);
+                                    }
+                                    propertiesToRemove.add(propName);
+                                 }
+                              }
+
+                              for (SimpleString propertyToRemove : propertiesToRemove)
+                              {
+                                 message.removeProperty(propertyToRemove);
+                              }
+
+                              message.putBytesProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS, oldRouteToIDs);
+                           }
+
+                           HornetQServerLogger.LOGGER.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
                            producer.send(message.getAddress(), message);
                            messageCount++;
                            bigLoopQueue.deleteReference(message.getMessageID());
@@ -171,8 +231,7 @@ public class ScaleDownHandler
                         {
                            List<Queue> queuesWithMessage = new ArrayList<>();
                            queuesWithMessage.add(bigLoopQueue);
-                           MessageReference bigLoopRef = bigLoopMessageIterator.next();
-                           long messageId = bigLoopRef.getMessage().getMessageID();
+                           long messageId = message.getMessageID();
 
                            getQueuesWithMessage(store, queues, queueIterators, checkedQueues, bigLoopQueue, queuesWithMessage, bigLoopRef, messageId);
 
@@ -200,9 +259,8 @@ public class ScaleDownHandler
                            }
 
                            logMessage.delete(logMessage.length() - 2, logMessage.length());  // trim off the trailing comma and space
-                           HornetQServerLogger.LOGGER.info(logMessage.append(" on address ").append(address));
+                           HornetQServerLogger.LOGGER.debug(logMessage.append(" on address ").append(address));
 
-                           Message message = bigLoopRef.getMessage();
                            message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
                            //we need this incase we are sending back to the source server of the message, this basically
                            //acts like the bridge and ignores dup detection
@@ -258,6 +316,7 @@ public class ScaleDownHandler
       Map<String, Long> queueIDs = new HashMap<>();
       for (Xid xid : preparedTransactions)
       {
+         HornetQServerLogger.LOGGER.debug("Scaling down transaction: " + xid);
          Transaction transaction = resourceManager.getTransaction(xid);
          session.start(xid, XAResource.TMNOFLAGS);
          List<TransactionOperation> allOperations = transaction.getAllOperations();
@@ -293,9 +352,9 @@ public class ScaleDownHandler
                   queueIds.getA().add(queueID);
                }
             }
-            else if (operation instanceof QueueImpl.RefsOperation)
+            else if (operation instanceof RefsOperation)
             {
-               QueueImpl.RefsOperation refsOperation = (QueueImpl.RefsOperation) operation;
+               RefsOperation refsOperation = (RefsOperation) operation;
                List<MessageReference> refs = refsOperation.getReferencesToAcknowledge();
                for (MessageReference ref : refs)
                {
@@ -456,6 +515,7 @@ public class ScaleDownHandler
       if (queueID == -1)
       {
          session.createQueue(addressName, queue.getName(), queue.getFilter() == null ? null : queue.getFilter().getFilterString(), queue.isDurable());
+         HornetQServerLogger.LOGGER.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
          queueID = getQueueID(session, queue.getName());
       }
 

@@ -99,27 +99,7 @@ public interface Queue extends Bindable
 
    void destroyPaging() throws Exception;
 
-   /**
-    * It will wait for up to 10 seconds for a flush on the executors and return the number of messages added.
-    * if the executor is busy for any reason (say an unbehaved consumer) we will just return the current value.
-    *
-    * @return
-    */
    long getMessageCount();
-
-   /**
-    * This method will return the messages added after waiting some time on the flush executors.
-    * If the executor couldn't be flushed within the timeout we will just return the current value without any warn
-    *
-    * @param timeout Time to wait for current executors to finish in milliseconds.
-    * @return
-    */
-   long getMessageCount(long timeout);
-
-   /**
-    * Return the current message count without waiting for scheduled executors to finish
-    */
-   long getInstantMessageCount();
 
    int getDeliveringCount();
 
@@ -137,24 +117,9 @@ public interface Queue extends Bindable
     */
    Map<String, List<MessageReference>> getDeliveringMessages();
 
-   /**
-    * It will wait for up to 10 seconds for a flush on the executors and return the number of messages added.
-    * if the executor is busy for any reason (say an unbehaved consumer) we will just return the current value.
-    *
-    * @return
-    */
    long getMessagesAdded();
 
-   /**
-    * This method will return the messages added after waiting some time on the flush executors.
-    * If the executor couldn't be flushed within the timeout we will just return the current value without any warn
-    *
-    * @param timeout Time to wait for current executors to finish in milliseconds.
-    * @return
-    */
-   long getMessagesAdded(long timeout);
-
-   long getInstantMessagesAdded();
+   long getMessagesAcknowledged();
 
    MessageReference removeReferenceWithID(long id) throws Exception;
 
@@ -255,7 +220,13 @@ public interface Queue extends Bindable
 
    void resetMessagesAdded();
 
+   void resetMessagesAcknowledged();
+
    void incrementMesssagesAdded();
 
    List<MessageReference> cancelScheduledMessages();
+
+   void postAcknowledge(MessageReference ref);
+
+   float getRate();
 }

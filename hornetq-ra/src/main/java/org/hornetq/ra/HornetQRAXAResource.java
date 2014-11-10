@@ -18,6 +18,7 @@ import javax.transaction.xa.Xid;
 
 import org.hornetq.api.core.HornetQException;
 import org.hornetq.core.client.impl.ClientSessionInternal;
+import org.hornetq.core.client.impl.HornetQXAResource;
 
 /**
  * HornetQXAResource.
@@ -25,7 +26,7 @@ import org.hornetq.core.client.impl.ClientSessionInternal;
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @author <a href="jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
-public class HornetQRAXAResource implements XAResource
+public class HornetQRAXAResource implements HornetQXAResource
 {
    /** Trace enabled */
    private static boolean trace = HornetQRALogger.LOGGER.isTraceEnabled();
@@ -246,5 +247,11 @@ public class HornetQRAXAResource implements XAResource
       }
 
       return xaResource.setTransactionTimeout(seconds);
+   }
+
+   @Override
+   public XAResource getResource()
+   {
+      return xaResource;
    }
 }

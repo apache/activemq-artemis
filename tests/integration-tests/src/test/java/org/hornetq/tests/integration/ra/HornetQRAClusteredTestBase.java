@@ -65,48 +65,35 @@ public class HornetQRAClusteredTestBase extends HornetQRATestBase
 
    protected Configuration createSecondaryDefaultConfig(boolean netty, boolean secondary) throws Exception
    {
-      ConfigurationImpl configuration = createBasicConfig(-1);
-
-      configuration.setFileDeploymentEnabled(false);
-      configuration.setJMXManagementEnabled(false);
-
-      configuration.getAcceptorConfigurations().clear();
-
       HashMap invmMap = new HashMap();
+      HashMap nettyMap = new HashMap();
+      String primaryConnectorName = "invm2";
+      String secondaryConnectorName = "invm";
+      String directoryPrefix = "first";
+
       if (secondary)
       {
          invmMap.put("server-id", "1");
-      }
-      TransportConfiguration invmTransportConfig = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap);
-      configuration.getAcceptorConfigurations().add(invmTransportConfig);
-
-      HashMap nettyMap = new HashMap();
-      if (secondary)
-      {
          nettyMap.put("port", "5545");
-      }
-      TransportConfiguration nettyTransportConfig = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap);
-      configuration.getAcceptorConfigurations().add(nettyTransportConfig);
-
-      if (secondary)
-      {
-         configuration.getConnectorConfigurations().put("invm2", secondaryConnector);
-         configuration.getConnectorConfigurations().put("invm", primaryConnector);
-         UnitTestCase.basicClusterConnectionConfig(configuration, "invm2", "invm");
-         configuration.setJournalDirectory(getTestDir() + "/secondJournal/");
-         configuration.setBindingsDirectory(getTestDir() + "/secondBind/");
-         configuration.setLargeMessagesDirectory(getTestDir() + "/secondLarge/");
-         configuration.setPagingDirectory(getTestDir() + "/secondPage/");
-      }
-      else
-      {
-         configuration.getConnectorConfigurations().put("invm", secondaryConnector);
-         configuration.getConnectorConfigurations().put("invm2", primaryConnector);
-         UnitTestCase.basicClusterConnectionConfig(configuration, "invm", "invm2");
+         primaryConnectorName = "invm";
+         secondaryConnectorName = "invm2";
+         directoryPrefix = "second";
       }
 
-      configuration.setSecurityEnabled(false);
-      configuration.setJMXManagementEnabled(true);
+      ConfigurationImpl configuration = createBasicConfig(-1)
+         .setFileDeploymentEnabled(false)
+         .setJMXManagementEnabled(false)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap))
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap))
+         .setJournalDirectory(getTestDir() + "/" + directoryPrefix + "Journal/")
+         .setBindingsDirectory(getTestDir() + "/" + directoryPrefix + "Bind/")
+         .setLargeMessagesDirectory(getTestDir() + "/" + directoryPrefix + "Large/")
+         .setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page / ")
+         .addConnectorConfiguration(secondaryConnectorName, secondaryConnector)
+         .addConnectorConfiguration(primaryConnectorName, primaryConnector)
+         .addClusterConfiguration(UnitTestCase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
+
       return configuration;
    }
 }

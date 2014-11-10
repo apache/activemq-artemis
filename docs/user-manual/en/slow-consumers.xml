@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================================================= -->
+<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!--                                                                               -->
+<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
+<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--                                                                               -->
+<!-- An explanation of CC-BY-SA is available at                                    -->
+<!--                                                                               -->
+<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
+<!--                                                                               -->
+<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
+<!-- of it, you must provide the URL for the original version.                     -->
+<!--                                                                               -->
+<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
+<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
+<!-- permitted by applicable law.                                                  -->
+<!-- ============================================================================= -->
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="slow-consumers">
+   <title>Detecting Slow Consumers</title>
+   <para>In this section we will discuss how HornetQ can be configured to deal with slow consumers. A slow consumer with
+      a server-side queue (e.g. JMS topic subscriber) can pose a significant problem for broker performance. If messages
+      build up in the consumer's server-side queue then memory will begin filling up and the broker may enter paging
+      mode which would impact performance negatively. However, criteria can be set so that consumers which don't
+      acknowledge messages quickly enough can potentially be disconnected from the broker which in the case of a
+      non-durable JMS subscriber would allow the broker to remove the subscription and all of its messages freeing up
+      valuable server resources.
+   </para>
+   <section id="slow.consumer.configuration">
+      <title>Configuration required for detecting slow consumers</title>
+      <para>By default the server will not detect slow consumers. If slow consumer detection is desired then see
+      <xref linkend="queue-attributes.address-settings"/>
+         for more details.
+      </para>
+      <para>The calculation to determine whether or not a consumer is slow only inspects the number of messages a
+         particular consumer has <emphasis>acknowledged</emphasis>. It doesn't take into account whether or not flow
+         control has been enabled on the consumer, whether or not the consumer is streaming a large message, etc. Keep
+         this in mind when configuring slow consumer detection.
+      </para>
+      <para>Please note that slow consumer checks are performed using the scheduled thread pool and that each queue on
+         the broker with slow consumer detection enabled will cause a new entry in the internal
+         <literal>java.util.concurrent.ScheduledThreadPoolExecutor</literal> instance. If there are a high number of
+         queues and the <literal>slow-consumer-check-period</literal> is relatively low then there may be delays in
+         executing some of the checks. However, this will not impact the accuracy of the calculations used by the
+         detection algorithm. See <xref linkend="server.scheduled.thread.pool"/> for more details about this pool.
+      </para>
+   </section>
+</chapter>

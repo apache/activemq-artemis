@@ -524,7 +524,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          }
 
          @Override
-         protected void postAcknowledge(final MessageReference ref)
+         public void postAcknowledge(final MessageReference ref)
          {
             System.out.println("Ignoring postACK on message " + ref);
          }

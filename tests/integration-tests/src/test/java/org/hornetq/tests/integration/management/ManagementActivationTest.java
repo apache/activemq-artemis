@@ -83,7 +83,10 @@ public class ManagementActivationTest extends FailoverTestBase
       List<String> connectorNames = new ArrayList<String>();
       connectorNames.add(connectorName);
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl("test", false, connectorNames, "/myConnectionFactory");
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
+         .setName("test")
+         .setConnectorNames(connectorNames)
+         .setBindings("/myConnectionFactory");
       backupJmsServer.createConnectionFactory(true, config, "/myConnectionFactory");
 
       boolean exception = false;

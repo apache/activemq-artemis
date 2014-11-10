@@ -527,7 +527,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
          session.close();
 
          Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
-         Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+         Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()));
 
          validateNoFilesOnLargeDir();
 

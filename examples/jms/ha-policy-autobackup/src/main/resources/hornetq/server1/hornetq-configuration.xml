@@ -38,16 +38,27 @@
    </acceptors>
    
    <!-- HA configuration -->
-   <ha-policy template="COLOCATED_REPLICATED">
-      <max-backups>1</max-backups>
-      <scale-down-connectors>
-         <connector-ref>invm-connector</connector-ref>
-      </scale-down-connectors>
-      <remote-connectors>
-         <connector-ref>invm-connector</connector-ref>
-         <connector-ref>server0-connector</connector-ref>
-         <connector-ref>netty-connector</connector-ref>
-      </remote-connectors>
+   <ha-policy>
+      <replication>
+         <colocated>
+            <max-backups>1</max-backups>
+            <request-backup>true</request-backup>
+            <backup-request-retry-interval>1000</backup-request-retry-interval>
+            <excludes>
+               <connector-ref>invm-connector</connector-ref>
+               <connector-ref>server0-connector</connector-ref>
+               <connector-ref>netty-connector</connector-ref>
+            </excludes>
+            <master/>
+            <slave>
+               <scale-down>
+                  <connectors>
+                     <connector-ref>invm-connector</connector-ref>
+                  </connectors>
+               </scale-down>
+            </slave>
+         </colocated>
+      </replication>
    </ha-policy>
 
    <cluster-connections>

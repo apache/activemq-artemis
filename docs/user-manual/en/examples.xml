@@ -401,6 +401,11 @@
                  sessions are used, once and only once message delivery is not guaranteed and it is possible
                  that some messages will be lost or delivered twice.</para>
         </section>
+        <section id="examples.openwire">
+            <title>OpenWire</title>
+            <para>The <literal>Openwire</literal> example shows how to configure a HornetQ
+            server to communicate with an ActiveMQ JMS client that uses open-wire protocol.</para>
+        </section>
         <section id="examples.paging">
             <title>Paging</title>
             <para>The <literal>paging</literal> example shows how HornetQ can support huge queues

@@ -104,7 +104,7 @@
             <dependencies>
                <dependency>
                   <groupId>org.hornetq.examples.jms</groupId>
-                  <artifactId>colocated-failover-recover-only</artifactId>
+                  <artifactId>colocated-failover-scale-down</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>

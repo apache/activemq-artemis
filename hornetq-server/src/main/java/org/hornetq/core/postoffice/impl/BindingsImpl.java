@@ -34,6 +34,7 @@ import org.hornetq.core.server.HornetQServerLogger;
 import org.hornetq.core.server.Queue;
 import org.hornetq.core.server.RoutingContext;
 import org.hornetq.core.server.ServerMessage;
+import org.hornetq.core.server.cluster.RemoteQueueBinding;
 import org.hornetq.core.server.group.GroupingHandler;
 import org.hornetq.core.server.group.impl.Proposal;
 import org.hornetq.core.server.group.impl.Response;
@@ -262,6 +263,34 @@ public final class BindingsImpl implements Bindings
 
    private void route(final ServerMessage message, final RoutingContext context, final boolean groupRouting) throws Exception
    {
+      /* This is a special treatment for scaled-down messages involving SnF queues.
+       * See org.hornetq.core.server.impl.ScaleDownHandler.scaleDownMessages() for the logic that sends messages with this property
+       */
+      if (message.containsProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS))
+      {
+         byte[] ids = (byte[]) message.removeProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS);
+
+         if (ids != null)
+         {
+            ByteBuffer buffer = ByteBuffer.wrap(ids);
+            while (buffer.hasRemaining())
+            {
+               long id = buffer.getLong();
+               for (Map.Entry<Long, Binding> entry : bindingsMap.entrySet())
+               {
+                  if (entry.getValue() instanceof RemoteQueueBinding)
+                  {
+                     RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
+                     if (remoteQueueBinding.getRemoteQueueID() == id)
+                     {
+                        message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
+                     }
+                  }
+               }
+            }
+         }
+      }
+
       boolean routed = false;
 
       if (!exclusiveBindings.isEmpty())

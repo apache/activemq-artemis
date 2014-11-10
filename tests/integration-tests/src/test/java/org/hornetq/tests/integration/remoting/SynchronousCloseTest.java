@@ -55,8 +55,8 @@ public class SynchronousCloseTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig(isNetty());
-      config.setSecurityEnabled(false);
+      Configuration config = createDefaultConfig(isNetty())
+         .setSecurityEnabled(false);
       server = createServer(false, config);
       server.start();
    }

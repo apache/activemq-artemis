@@ -26,7 +26,7 @@ import org.hornetq.api.core.HornetQBuffers;
 import org.hornetq.api.core.HornetQInterruptedException;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.api.core.management.NotificationType;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.core.client.HornetQClientLogger;
 import org.hornetq.core.server.HornetQComponent;
 import org.hornetq.core.server.management.Notification;
@@ -118,7 +118,7 @@ public final class DiscoveryGroup implements HornetQComponent
 
          props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
 
-         Notification notification = new Notification(nodeID, NotificationType.DISCOVERY_GROUP_STARTED, props);
+         Notification notification = new Notification(nodeID, CoreNotificationType.DISCOVERY_GROUP_STARTED, props);
 
          notificationService.sendNotification(notification);
       }
@@ -170,7 +170,7 @@ public final class DiscoveryGroup implements HornetQComponent
       {
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
-         Notification notification = new Notification(nodeID, NotificationType.DISCOVERY_GROUP_STOPPED, props);
+         Notification notification = new Notification(nodeID, CoreNotificationType.DISCOVERY_GROUP_STOPPED, props);
          try
          {
             notificationService.sendNotification(notification);

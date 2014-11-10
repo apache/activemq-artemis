@@ -12,6 +12,8 @@
  */
 package org.hornetq.tests.integration.client;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -38,13 +40,32 @@ import org.hornetq.utils.ConcurrentHashSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
+
+@RunWith(value = Parameterized.class)
 public class ConsumerTest extends ServiceTestBase
 {
+   @Parameterized.Parameters(name = "isNetty={0}")
+   public static Collection getParameters()
+   {
+      return Arrays.asList(new Object[][]{
+         {true},
+         {false}
+      });
+   }
+
+   public ConsumerTest(boolean netty)
+   {
+      this.netty = netty;
+   }
+
+   private final boolean netty;
    private HornetQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
@@ -53,7 +74,7 @@ public class ConsumerTest extends ServiceTestBase
 
    protected boolean isNetty()
    {
-      return false;
+      return netty;
    }
 
    @Before
@@ -114,7 +135,7 @@ public class ConsumerTest extends ServiceTestBase
       }
       // assert that all the messages are there and none have been acked
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
    }
@@ -149,7 +170,7 @@ public class ConsumerTest extends ServiceTestBase
       }
       // assert that all the messages are there and none have been acked
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
    }
@@ -188,7 +209,7 @@ public class ConsumerTest extends ServiceTestBase
       }
       // assert that all the messages are there and none have been acked
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
    }
@@ -227,12 +248,12 @@ public class ConsumerTest extends ServiceTestBase
       }
       // assert that all the messages are there and none have been acked
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
    }
 
    @Test

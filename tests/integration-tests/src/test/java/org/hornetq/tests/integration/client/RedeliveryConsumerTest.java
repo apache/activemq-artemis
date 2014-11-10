@@ -354,8 +354,8 @@ public class RedeliveryConsumerTest extends ServiceTestBase
     */
    private void setUp(final boolean persistDeliveryCountBeforeDelivery) throws Exception
    {
-      Configuration config = createDefaultConfig();
-      config.setPersistDeliveryCountBeforeDelivery(persistDeliveryCountBeforeDelivery);
+      Configuration config = createDefaultConfig()
+         .setPersistDeliveryCountBeforeDelivery(persistDeliveryCountBeforeDelivery);
 
       server = createServer(true, config);
 

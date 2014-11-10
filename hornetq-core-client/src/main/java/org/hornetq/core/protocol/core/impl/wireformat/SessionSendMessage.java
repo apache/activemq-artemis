@@ -27,12 +27,12 @@ public class SessionSendMessage extends MessagePacket
    private boolean requiresResponse;
 
    /**
-    * In case, we are using a different handler than the one set on the {@link ClientSession}
+    * In case, we are using a different handler than the one set on the {@link org.hornetq.api.core.client.ClientSession}
     * <p/>
     * This field is only used at the client side.
     *
-    * @see ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
-    * @see ClientProducer#send(SimpleString, Message, SendAcknowledgementHandler)
+    * @see org.hornetq.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
+    * @see org.hornetq.api.core.client.ClientProducer#send(org.hornetq.api.core.SimpleString, org.hornetq.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
 

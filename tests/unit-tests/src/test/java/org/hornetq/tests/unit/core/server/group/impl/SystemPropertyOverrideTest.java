@@ -36,7 +36,10 @@ public class SystemPropertyOverrideTest extends UnitTestCase
       System.setProperty(GroupingHandlerConfiguration.GROUP_TIMEOUT_PROP_NAME, groupTimeoutPropertyValue);
       System.setProperty(GroupingHandlerConfiguration.REAPER_PERIOD_PROP_NAME, reaperPeriodPropertyValue);
 
-      GroupingHandlerConfiguration groupingHandlerConfiguration = new GroupingHandlerConfiguration(new SimpleString("test"), GroupingHandlerConfiguration.TYPE.LOCAL, new SimpleString("address"));
+      GroupingHandlerConfiguration groupingHandlerConfiguration = new GroupingHandlerConfiguration()
+         .setName(new SimpleString("test"))
+         .setType(GroupingHandlerConfiguration.TYPE.LOCAL)
+         .setAddress(new SimpleString("address"));
 
       assertEquals(groupingHandlerConfiguration.getGroupTimeout(), Long.parseLong(groupTimeoutPropertyValue));
       assertEquals(groupingHandlerConfiguration.getReaperPeriod(), Long.parseLong(reaperPeriodPropertyValue));

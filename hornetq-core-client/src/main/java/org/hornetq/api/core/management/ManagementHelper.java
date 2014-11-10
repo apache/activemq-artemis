@@ -75,6 +75,10 @@ public final class ManagementHelper
 
    public static final SimpleString HDR_PROPOSAL_ALT_VALUE = new SimpleString("_JBM_ProposalAltValue");
 
+   public static final SimpleString HDR_CONSUMER_NAME = new SimpleString("_HQ_ConsumerName");
+
+   public static final SimpleString HDR_CONNECTION_NAME = new SimpleString("_HQ_ConnectionName");
+
    // Attributes ----------------------------------------------------
 
    // Static --------------------------------------------------------

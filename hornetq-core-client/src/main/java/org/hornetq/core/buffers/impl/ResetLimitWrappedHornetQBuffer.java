@@ -28,7 +28,17 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
 {
    private final int limit;
 
-   private final MessageInternal message;
+   private MessageInternal message;
+
+   /**
+    * We need to turn of notifications of body changes on reset on the server side when dealing with AMQP conversions,
+    * for that reason this method will set the message to null here
+    * @param message
+    */
+   public void setMessage(MessageInternal message)
+   {
+      this.message = message;
+   }
 
    public ResetLimitWrappedHornetQBuffer(final int limit, final HornetQBuffer buffer, final MessageInternal message)
    {

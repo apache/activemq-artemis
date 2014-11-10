@@ -47,6 +47,12 @@ import org.hornetq.core.client.impl.Topology;
 import org.hornetq.core.client.impl.TopologyMemberImpl;
 import org.hornetq.core.config.ClusterConnectionConfiguration;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.HAPolicyConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.postoffice.Binding;
 import org.hornetq.core.postoffice.Bindings;
 import org.hornetq.core.postoffice.PostOffice;
@@ -58,8 +64,8 @@ import org.hornetq.core.server.HornetQServers;
 import org.hornetq.core.server.NodeManager;
 import org.hornetq.core.server.cluster.ClusterConnection;
 import org.hornetq.core.server.cluster.ClusterManager;
+import org.hornetq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
 import org.hornetq.core.server.cluster.RemoteQueueBinding;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.cluster.impl.ClusterConnectionImpl;
 import org.hornetq.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.hornetq.core.server.group.GroupingHandler;
@@ -860,19 +866,19 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected void setUpGroupHandler(final GroupingHandlerConfiguration.TYPE type, final int node, final int timeout)
    {
-      setUpGroupHandler(type, node, timeout, -1, GroupingHandlerConfiguration.DEFAULT_REAPER_PERIOD);
+      setUpGroupHandler(type, node, timeout, -1, HornetQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod());
    }
 
    protected void setUpGroupHandler(final GroupingHandlerConfiguration.TYPE type, final int node, final int timeout, final long groupTimeout,
                                     final long reaperPeriod)
    {
-      servers[node].getConfiguration()
-         .setGroupingHandlerConfiguration(new GroupingHandlerConfiguration(new SimpleString("grouparbitrator"),
-                                                                           type,
-                                                                           new SimpleString("queues"),
-                                                                           timeout,
-                                                                           groupTimeout,
-                                                                           reaperPeriod));
+      servers[node].getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration()
+                                                                          .setName(new SimpleString("grouparbitrator"))
+                                                                          .setType(type)
+                                                                          .setAddress(new SimpleString("queues"))
+                                                                          .setTimeout(timeout)
+                                                                          .setGroupTimeout(groupTimeout)
+                                                                          .setReaperPeriod(reaperPeriod));
    }
 
    protected void setUpGroupHandler(final GroupingHandler groupingHandler, final int node)
@@ -1551,6 +1557,8 @@ public abstract class ClusterTestBase extends ServiceTestBase
          locators[node] = HornetQClient.createServerLocatorWithoutHA(serverTotc);
       }
 
+      locators[node].setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+
       locators[node].setBlockOnNonDurableSend(true);
       locators[node].setBlockOnDurableSend(true);
       addServerLocator(locators[node]);
@@ -1632,33 +1640,44 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected void setupServer(final int node, final boolean fileStorage, final boolean netty) throws Exception
    {
-      setupLiveServer(node, fileStorage, false, netty);
+      setupLiveServer(node, fileStorage, false, netty, false);
+   }
+
+   protected void setupLiveServer(final int node, final boolean fileStorage, final boolean netty, boolean isLive) throws Exception
+   {
+      setupLiveServer(node, fileStorage, false, netty, isLive);
    }
 
    protected void setupLiveServer(final int node,
                                   final boolean fileStorage,
                                   final boolean sharedStorage,
-                                  final boolean netty) throws Exception
+                                  final boolean netty,
+                                  boolean liveOnly) throws Exception
    {
       if (servers[node] != null)
       {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
-      Configuration configuration = createBasicConfig(node);
-
-      configuration.setJournalMaxIO_AIO(1000);
-
-      if (sharedStorage)
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
+      HAPolicyConfiguration haPolicyConfiguration = null;
+      if (liveOnly)
+      {
+         haPolicyConfiguration = new LiveOnlyPolicyConfiguration();
+      }
       else
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.REPLICATED);
+      {
+         if (sharedStorage)
+            haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
+         else
+            haPolicyConfiguration = new ReplicatedPolicyConfiguration();
+      }
 
-      configuration.setThreadPoolMaxSize(10);
-
-      configuration.getAcceptorConfigurations().clear();
-      configuration.getAcceptorConfigurations().add(createTransportConfiguration(netty, true,
-                                                                                 generateParams(node, netty)));
+      Configuration configuration = createBasicConfig(node)
+         .setJournalMaxIO_AIO(1000)
+         .setThreadPoolMaxSize(10)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty)))
+         .setHAPolicyConfiguration(haPolicyConfiguration);
 
       HornetQServer server;
 
@@ -1715,23 +1734,16 @@ public abstract class ClusterTestBase extends ServiceTestBase
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node);
-
-      if (sharedStorage)
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      else
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_REPLICATED);
-
-      configuration.getAcceptorConfigurations().clear();
-
-      TransportConfiguration acceptorConfig = createTransportConfiguration(netty, true, generateParams(node, netty));
-      configuration.getAcceptorConfigurations().add(acceptorConfig);
-
-      // add backup connector
       TransportConfiguration liveConfig = createTransportConfiguration(netty, false, generateParams(liveNode, netty));
-      configuration.getConnectorConfigurations().put(liveConfig.getName(), liveConfig);
       TransportConfiguration backupConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
-      configuration.getConnectorConfigurations().put(backupConfig.getName(), backupConfig);
+      TransportConfiguration acceptorConfig = createTransportConfiguration(netty, true, generateParams(node, netty));
+
+      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(acceptorConfig)
+         .addConnectorConfiguration(liveConfig.getName(), liveConfig)
+         .addConnectorConfiguration(backupConfig.getName(), backupConfig)
+         .setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration());
 
       HornetQServer server;
 
@@ -1760,41 +1772,35 @@ public abstract class ClusterTestBase extends ServiceTestBase
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
-      Configuration configuration = createBasicConfig(node);
-
-      configuration.setJournalMaxIO_AIO(1000);
-
-      if (sharedStorage)
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      else
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.REPLICATED);
-
-      configuration.getAcceptorConfigurations().clear();
-
       Map<String, Object> params = generateParams(node, netty);
 
-      configuration.getAcceptorConfigurations().add(createTransportConfiguration(netty, true, params));
-
       TransportConfiguration connector = createTransportConfiguration(netty, false, params);
-      configuration.getConnectorConfigurations().put(connector.getName(), connector);
 
       List<String> connectorPairs = new ArrayList<String>();
       connectorPairs.add(connector.getName());
 
-      UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration(groupAddress, port, null, -1);
+      UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration().setGroupAddress(groupAddress).setGroupPort(port);
 
-      BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration("bg1",
-                                                                             200,
-                                                                             connectorPairs,
-                                                                             endpoint);
+      BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration()
+         .setName("bg1")
+         .setBroadcastPeriod(200)
+         .setConnectorInfos(connectorPairs)
+         .setEndpointFactoryConfiguration(endpoint);
 
-      configuration.getBroadcastGroupConfigurations().add(bcConfig);
+      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration()
+         .setName("dg1")
+         .setRefreshTimeout(1000)
+         .setDiscoveryInitialWaitTimeout(1000)
+         .setBroadcastEndpointFactoryConfiguration(endpoint);
 
-      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration("dg1",
-                                                                             1000,
-                                                                             1000, endpoint);
-
-      configuration.getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
+      Configuration configuration = createBasicConfig(node)
+         .setJournalMaxIO_AIO(1000)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(createTransportConfiguration(netty, true, params))
+         .addConnectorConfiguration(connector.getName(), connector)
+         .addBroadcastGroupConfiguration(bcConfig)
+         .addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig)
+         .setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
       HornetQServer server;
       if (fileStorage)
@@ -1837,40 +1843,34 @@ public abstract class ClusterTestBase extends ServiceTestBase
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node);
-
-      if (sharedStorage)
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      else
-         configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_REPLICATED);
-
-      configuration.getAcceptorConfigurations().clear();
-
       Map<String, Object> params = generateParams(node, netty);
 
-      configuration.getAcceptorConfigurations().add(createTransportConfiguration(netty, true, params));
-
       TransportConfiguration connector = createTransportConfiguration(netty, false, params);
-      configuration.getConnectorConfigurations().put(connector.getName(), connector);
 
       List<String> connectorPairs = new ArrayList<String>();
       connectorPairs.add(connector.getName());
 
-      UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration(groupAddress, port, null, -1);
+      UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration().setGroupAddress(groupAddress).setGroupPort(port);
 
-      BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration("bg1",
-                                                                             1000,
-                                                                             connectorPairs,
-                                                                             endpoint);
+      BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration()
+         .setName("bg1")
+         .setBroadcastPeriod(1000)
+         .setConnectorInfos(connectorPairs)
+         .setEndpointFactoryConfiguration(endpoint);
 
-      configuration.getBroadcastGroupConfigurations().add(bcConfig);
+      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration()
+         .setName("dg1")
+         .setRefreshTimeout(5000)
+         .setDiscoveryInitialWaitTimeout(5000)
+         .setBroadcastEndpointFactoryConfiguration(endpoint);
 
-      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration("dg1",
-                                                                             5000,
-                                                                             5000,
-                                                                             endpoint);
-
-      configuration.getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
+      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(createTransportConfiguration(netty, true, params))
+         .addConnectorConfiguration(connector.getName(), connector)
+         .addBroadcastGroupConfiguration(bcConfig)
+         .addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig)
+         .setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
       HornetQServer server;
       if (sharedStorage)
@@ -1935,15 +1935,18 @@ public abstract class ClusterTestBase extends ServiceTestBase
          pairs.add(serverTotc.getName());
       }
       Configuration config = serverFrom.getConfiguration();
-      ClusterConnectionConfiguration clusterConf =
-         new ClusterConnectionConfiguration(name, address, name,
-                                            100,
-                                            true,
-                                            forwardWhenNoConsumers,
-                                            maxHops,
-                                            1024,
-                                            pairs,
-                                            allowDirectConnectionsOnly);
+
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(name)
+         .setRetryInterval(100)
+         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(pairs)
+         .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly);
+
       config.getClusterConfigurations().add(clusterConf);
    }
 
@@ -1978,16 +1981,19 @@ public abstract class ClusterTestBase extends ServiceTestBase
          pairs.add(serverTotc.getName());
       }
       Configuration config = serverFrom.getConfiguration();
-      ClusterConnectionConfiguration clusterConf =
-            new ClusterConnectionConfiguration(name, address, name,
-                  retryInterval,
-                  true,
-                  forwardWhenNoConsumers,
-                  maxHops,
-                  1024,
-                  pairs,
-                  allowDirectConnectionsOnly);
-      clusterConf.setReconnectAttempts(reconnectAttempts);
+
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(name)
+         .setReconnectAttempts(reconnectAttempts)
+         .setRetryInterval(retryInterval)
+         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(pairs)
+         .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly);
+
       config.getClusterConfigurations().add(clusterConf);
    }
 
@@ -2054,18 +2060,19 @@ public abstract class ClusterTestBase extends ServiceTestBase
          pairs.add(serverTotc.getName());
       }
       Configuration conf = serverFrom.getConfiguration();
-      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration(
-         name, address, connectorFrom.getName(),
-         HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-         HornetQDefaultConfiguration.getDefaultClusterFailureCheckPeriod(),
-         HornetQDefaultConfiguration.getDefaultClusterConnectionTtl(),
-         retryInterval,
-         HornetQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(),
-         HornetQDefaultConfiguration.getDefaultClusterMaxRetryInterval(),
-         -1, reconnectAttempts, 1000, 1000, true, forwardWhenNoConsumers, maxHops,
-         1024, pairs, false,
-         HornetQDefaultConfiguration.getDefaultClusterNotificationInterval(),
-         HornetQDefaultConfiguration.getDefaultClusterNotificationAttempts(), null);
+
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(connectorFrom.getName())
+         .setRetryInterval(retryInterval)
+         .setReconnectAttempts(reconnectAttempts)
+         .setCallTimeout(100)
+         .setCallFailoverTimeout(100)
+         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(pairs);
 
       conf.getClusterConfigurations().add(clusterConf);
    }
@@ -2074,8 +2081,15 @@ public abstract class ClusterTestBase extends ServiceTestBase
                                                               final boolean forwardWhenNoConsumers, final int maxHops,
                                                               TransportConfiguration connectorFrom, List<String> pairs)
    {
-      return new ClusterConnectionConfiguration(name, address, connectorFrom.getName(), 250, true,
-                                                forwardWhenNoConsumers, maxHops, 1024, pairs, false);
+      return new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(connectorFrom.getName())
+         .setRetryInterval(250)
+         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(pairs);
    }
 
    protected void setupClusterConnectionWithBackups(final String name,
@@ -2104,9 +2118,16 @@ public abstract class ClusterTestBase extends ServiceTestBase
          pairs.add(serverTotc.getName());
       }
       Configuration config = serverFrom.getConfiguration();
-      ClusterConnectionConfiguration clusterConf =
-         new ClusterConnectionConfiguration(name, address, name, 250, true, forwardWhenNoConsumers, maxHops,
-                                            1024, pairs, false);
+
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(name)
+         .setRetryInterval(250)
+         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(pairs);
 
       config.getClusterConfigurations().add(clusterConf);
    }
@@ -2129,13 +2150,16 @@ public abstract class ClusterTestBase extends ServiceTestBase
       TransportConfiguration connectorConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
       server.getConfiguration().getConnectorConfigurations().put(name, connectorConfig);
       Configuration conf = server.getConfiguration();
-      ClusterConnectionConfiguration clusterConf =
-         new ClusterConnectionConfiguration(name, address, name, 100,
-                                            true,
-                                            forwardWhenNoConsumers,
-                                            maxHops,
-                                            1024,
-                                            discoveryGroupName);
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(name)
+         .setRetryInterval(100)
+         .setDuplicateDetection(true)
+         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(1024)
+         .setDiscoveryGroupName(discoveryGroupName);
       List<ClusterConnectionConfiguration> clusterConfs = conf.getClusterConfigurations();
 
       clusterConfs.add(clusterConf);

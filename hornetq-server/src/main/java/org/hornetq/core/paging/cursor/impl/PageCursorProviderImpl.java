@@ -91,9 +91,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
 
    public synchronized PageSubscription createSubscription(long cursorID, Filter filter, boolean persistent)
    {
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (HornetQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.debug(this.pagingStore.getAddress() + " creating subscription " + cursorID + " with filter " + filter, new Exception("trace"));
+         HornetQServerLogger.LOGGER.trace(this.pagingStore.getAddress() + " creating subscription " + cursorID + " with filter " + filter, new Exception("trace"));
       }
 
       if (activeCursors.containsKey(cursorID))

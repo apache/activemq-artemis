@@ -89,6 +89,20 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest
 
       return new JMSQueueControl()
       {
+
+         @Override
+         public void flushExecutor()
+         {
+            try
+            {
+               proxy.invokeOperation("flushExecutor");
+            }
+            catch (Exception e)
+            {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
          public boolean changeMessagePriority(final String messageID, final int newPriority) throws Exception
          {
             return (Boolean)proxy.invokeOperation("changeMessagePriority", messageID, newPriority);

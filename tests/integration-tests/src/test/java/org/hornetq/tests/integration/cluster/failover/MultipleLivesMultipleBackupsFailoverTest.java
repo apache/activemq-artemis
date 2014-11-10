@@ -17,14 +17,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
 import org.hornetq.core.client.impl.ServerLocatorInternal;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.server.NodeManager;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.impl.InVMNodeManager;
 import org.hornetq.tests.integration.cluster.util.SameProcessHornetQServer;
 import org.hornetq.tests.integration.cluster.util.TestableServer;
@@ -151,87 +155,62 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
                                      int[] otherBackupNodes,
                                      int... otherClusterNodes) throws Exception
    {
-      Configuration config1 = super.createDefaultConfig();
-      config1.getAcceptorConfigurations().clear();
-      config1.getAcceptorConfigurations().add(createTransportConfiguration(isNetty(),
-                                                                           true,
-                                                                           generateParams(nodeid, isNetty())));
-      config1.setSecurityEnabled(false);
+      Configuration config1 = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
+         .setSecurityEnabled(false)
+         .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration())
+         .setBindingsDirectory(HornetQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
+         .setJournalDirectory(HornetQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
+         .setPagingDirectory(HornetQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(HornetQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode);
 
-      if (sharedStore)
-         config1.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      else
-         config1.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_REPLICATED);
-
-      List<String> staticConnectors = new ArrayList<String>();
       for (int node : otherBackupNodes)
       {
-         TransportConfiguration liveConnector = createTransportConfiguration(isNetty(),
-                                                                             false,
-                                                                             generateParams(node, isNetty()));
-         config1.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-         staticConnectors.add(liveConnector.getName());
+         TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false, generateParams(node, isNetty()));
+         config1.addConnectorConfiguration(liveConnector.getName(), liveConnector);
       }
-      TransportConfiguration backupConnector = createTransportConfiguration(isNetty(),
-                                                                            false,
-                                                                            generateParams(nodeid, isNetty()));
-      config1.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
+
+      TransportConfiguration backupConnector = createTransportConfiguration(isNetty(), false, generateParams(nodeid, isNetty()));
+      config1.addConnectorConfiguration(backupConnector.getName(), backupConnector);
 
       List<String> clusterNodes = new ArrayList<String>();
       for (int node : otherClusterNodes)
       {
-         TransportConfiguration connector = createTransportConfiguration(isNetty(),
-                                                                         false,
-                                                                         generateParams(node, isNetty()));
-         config1.getConnectorConfigurations().put(connector.getName(), connector);
+         TransportConfiguration connector = createTransportConfiguration(isNetty(), false, generateParams(node, isNetty()));
+         config1.addConnectorConfiguration(connector.getName(), connector);
          clusterNodes.add(connector.getName());
       }
-      basicClusterConnectionConfig(config1, backupConnector.getName(), clusterNodes);
-      config1.setBindingsDirectory(config1.getBindingsDirectory() + "_" + liveNode);
-      config1.setJournalDirectory(config1.getJournalDirectory() + "_" + liveNode);
-      config1.setPagingDirectory(config1.getPagingDirectory() + "_" + liveNode);
-      config1.setLargeMessagesDirectory(config1.getLargeMessagesDirectory() + "_" + liveNode);
+      config1.addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), clusterNodes));
 
       servers.put(nodeid, new SameProcessHornetQServer(createInVMFailoverServer(true, config1, nodeManager, liveNode)));
    }
 
    protected void createLiveConfig(NodeManager nodeManager, int liveNode, int... otherLiveNodes) throws Exception
    {
-      TransportConfiguration liveConnector = createTransportConfiguration(isNetty(),
-                                                                          false,
-                                                                          generateParams(liveNode, isNetty()));
-      Configuration config0 = super.createDefaultConfig();
-      config0.getAcceptorConfigurations().clear();
-      config0.getAcceptorConfigurations().add(createTransportConfiguration(isNetty(),
-                                                                           true,
-                                                                           generateParams(liveNode, isNetty())));
-      config0.setSecurityEnabled(false);
+      TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false,generateParams(liveNode, isNetty()));
 
-      if (sharedStore)
-         config0.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      else
-         config0.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.REPLICATED);
+      Configuration config0 = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
+         .setSecurityEnabled(false)
+         .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
+         .setBindingsDirectory(HornetQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
+         .setJournalDirectory(HornetQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
+         .setPagingDirectory(HornetQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(HornetQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode)
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
       List<String> pairs = new ArrayList<String>();
       for (int node : otherLiveNodes)
       {
-         TransportConfiguration otherLiveConnector = createTransportConfiguration(isNetty(),
-                                                                                  false,
-                                                                                  generateParams(node, isNetty()));
-         config0.getConnectorConfigurations().put(otherLiveConnector.getName(), otherLiveConnector);
+         TransportConfiguration otherLiveConnector = createTransportConfiguration(isNetty(), false, generateParams(node, isNetty()));
+         config0.addConnectorConfiguration(otherLiveConnector.getName(), otherLiveConnector);
          pairs.add(otherLiveConnector.getName());
-
       }
-      basicClusterConnectionConfig(config0, liveConnector.getName(), pairs);
-      config0.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
+      config0.addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), pairs));
 
-      config0.setBindingsDirectory(config0.getBindingsDirectory() + "_" + liveNode);
-      config0.setJournalDirectory(config0.getJournalDirectory() + "_" + liveNode);
-      config0.setPagingDirectory(config0.getPagingDirectory() + "_" + liveNode);
-      config0.setLargeMessagesDirectory(config0.getLargeMessagesDirectory() + "_" + liveNode);
-
-      servers.put(liveNode,
-                  new SameProcessHornetQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode)));
+      servers.put(liveNode, new SameProcessHornetQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode)));
    }
 
    @Override

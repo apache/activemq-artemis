@@ -32,13 +32,20 @@ import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
 import org.hornetq.api.core.client.HornetQClient;
-import org.hornetq.core.config.BackupStrategy;
 import org.hornetq.core.config.BridgeConfiguration;
 import org.hornetq.core.config.ClusterConnectionConfiguration;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.ConnectorServiceConfiguration;
 import org.hornetq.core.config.CoreQueueConfiguration;
 import org.hornetq.core.config.DivertConfiguration;
+import org.hornetq.core.config.HAPolicyConfiguration;
+import org.hornetq.core.config.ScaleDownConfiguration;
+import org.hornetq.core.config.ha.ColocatedPolicyConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.config.impl.ConfigurationImpl;
 import org.hornetq.core.config.impl.FileConfiguration;
 import org.hornetq.core.config.impl.Validators;
@@ -47,11 +54,10 @@ import org.hornetq.core.journal.impl.JournalConstants;
 import org.hornetq.core.security.Role;
 import org.hornetq.core.server.HornetQServerLogger;
 import org.hornetq.core.server.JournalType;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
-import org.hornetq.core.server.cluster.ha.HAPolicyTemplate;
 import org.hornetq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.hornetq.core.settings.impl.AddressFullMessagePolicy;
 import org.hornetq.core.settings.impl.AddressSettings;
+import org.hornetq.core.settings.impl.SlowConsumerPolicy;
 import org.hornetq.utils.DefaultSensitiveStringCodec;
 import org.hornetq.utils.PasswordMaskingUtil;
 import org.hornetq.utils.SensitiveDataCodec;
@@ -136,6 +142,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
    private static final String SEND_TO_DLA_ON_NO_ROUTE = "send-to-dla-on-no-route";
 
+   private static final String SLOW_CONSUMER_THRESHOLD_NODE_NAME = "slow-consumer-threshold";
+
+   private static final String SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME = "slow-consumer-check-period";
+
+   private static final String SLOW_CONSUMER_POLICY_NODE_NAME = "slow-consumer-policy";
+
    // Attributes ----------------------------------------------------
 
    private boolean validateAIO = false;
@@ -195,124 +207,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          HornetQServerLogger.LOGGER.deprecatedConfigurationOption("clustered");
       }
 
-      if (parameterExists(e, "check-for-live-server"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("check-for-live-server");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("check-for-live-server");
-
-            config.getHAPolicy().setCheckForLiveServer(getBoolean(e, "check-for-live-server", config.getHAPolicy().isCheckForLiveServer()));
-         }
-      }
-
-      if (parameterExists(e, "allow-failback"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("allow-failback");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("allow-failback");
-
-            config.getHAPolicy().setAllowAutoFailBack(getBoolean(e, "allow-failback", config.getHAPolicy().isAllowAutoFailBack()));
-         }
-      }
-
-      if (parameterExists(e, "backup-group-name"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("backup-group-name");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("backup-group-name");
-
-            config.getHAPolicy().setBackupGroupName(getString(e, "backup-group-name", config.getHAPolicy().getBackupGroupName(), Validators.NO_CHECK));
-         }
-      }
-
-      if (parameterExists(e, "failback-delay"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("failback-delay");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("failback-delay");
-
-            config.getHAPolicy().setFailbackDelay(getLong(e, "failback-delay", config.getHAPolicy().getFailbackDelay(), Validators.GT_ZERO));
-         }
-      }
-
-      if (parameterExists(e, "failover-on-shutdown"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("failover-on-shutdown");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("failover-on-shutdown");
-
-            config.getHAPolicy().setFailoverOnServerShutdown(getBoolean(e, "failover-on-shutdown", config.getHAPolicy().isFailoverOnServerShutdown()));
-         }
-      }
-
-      if (parameterExists(e, "replication-clustername"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("replication-clustername");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("replication-clustername");
-
-            config.getHAPolicy().setReplicationClustername(getString(e, "replication-clustername", null, Validators.NO_CHECK));
-         }
-      }
-
-      if (parameterExists(e, "scale-down-clustername"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("scale-down-clustername");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("scale-down-clustername");
-
-            config.getHAPolicy().setScaleDownClustername(getString(e, "scale-down-clustername", null, Validators.NO_CHECK));
-         }
-      }
-
-      if (parameterExists(e, "max-saved-replicated-journals-size"))
-      {
-         if (containsHAPolicy)
-         {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("max-saved-replicated-journals-size");
-         }
-         else
-         {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("max-saved-replicated-journals-size");
-
-            config.getHAPolicy().setMaxSavedReplicatedJournalSize(getInteger(e, "max-saved-replicated-journals-size",
-                                                                             config.getHAPolicy().getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
-         }
-      }
-
-      // these are combined because they are both required for setting the HAPolicy
+      // these are combined because they are both required for setting the correct HAPolicyConfiguration
       if (parameterExists(e, "backup") || parameterExists(e, "shared-store"))
       {
-         boolean backup = getBoolean(e, "backup", config.getHAPolicy().isBackup());
-         boolean sharedStore = getBoolean(e, "shared-store", config.getHAPolicy().isSharedStore());
+         boolean backup = getBoolean(e, "backup", false);
+         boolean sharedStore = getBoolean(e, "shared-store", true);
 
          if (containsHAPolicy)
          {
@@ -340,22 +239,213 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
             if (backup && sharedStore)
             {
-               config.setHAPolicy(HAPolicyTemplate.BACKUP_SHARED_STORE.getHaPolicy());
+               config.setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
             }
             else if (backup && !sharedStore)
             {
-               config.setHAPolicy(HAPolicyTemplate.BACKUP_REPLICATED.getHaPolicy());
+               config.setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
             }
             else if (!backup && sharedStore)
             {
-               config.setHAPolicy(HAPolicyTemplate.SHARED_STORE.getHaPolicy());
+               config.setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
             }
             else if (!backup && !sharedStore)
             {
-               config.setHAPolicy(HAPolicyTemplate.REPLICATED.getHaPolicy());
+               config.setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
             }
          }
       }
+
+      HAPolicyConfiguration haPolicyConfig = config.getHAPolicyConfiguration();
+
+      if (parameterExists(e, "check-for-live-server"))
+      {
+         if (containsHAPolicy)
+         {
+            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("check-for-live-server");
+         }
+         else
+         {
+            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("check-for-live-server");
+
+            if (haPolicyConfig instanceof ReplicatedPolicyConfiguration)
+            {
+               ReplicatedPolicyConfiguration hapc = (ReplicatedPolicyConfiguration) haPolicyConfig;
+               hapc.setCheckForLiveServer(getBoolean(e, "check-for-live-server", hapc.isCheckForLiveServer()));
+            }
+         }
+      }
+
+      if (parameterExists(e, "allow-failback"))
+      {
+         if (containsHAPolicy)
+         {
+            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("allow-failback");
+         }
+         else
+         {
+            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("allow-failback");
+
+            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
+            {
+               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
+               hapc.setAllowFailBack(getBoolean(e, "allow-failback", hapc.isAllowFailBack()));
+            }
+            else if (haPolicyConfig instanceof SharedStoreSlavePolicyConfiguration)
+            {
+               SharedStoreSlavePolicyConfiguration hapc = (SharedStoreSlavePolicyConfiguration) haPolicyConfig;
+               hapc.setAllowFailBack(getBoolean(e, "allow-failback", hapc.isAllowFailBack()));
+            }
+            else
+            {
+               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("check-for-live-server");
+            }
+         }
+      }
+
+      if (parameterExists(e, "backup-group-name"))
+      {
+         if (containsHAPolicy)
+         {
+            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("backup-group-name");
+         }
+         else
+         {
+            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("backup-group-name");
+
+            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
+            {
+               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
+               hapc.setGroupName(getString(e, "backup-group-name", hapc.getGroupName(), Validators.NO_CHECK));
+            }
+            else if (haPolicyConfig instanceof ReplicatedPolicyConfiguration)
+            {
+               ReplicatedPolicyConfiguration hapc = (ReplicatedPolicyConfiguration) haPolicyConfig;
+               hapc.setGroupName(getString(e, "backup-group-name", hapc.getGroupName(), Validators.NO_CHECK));
+            }
+            else
+            {
+               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("backup-group-name");
+            }
+         }
+      }
+
+      if (parameterExists(e, "failback-delay"))
+      {
+         if (containsHAPolicy)
+         {
+            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("failback-delay");
+         }
+         else
+         {
+            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("failback-delay");
+
+            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
+            {
+               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
+               hapc.setFailbackDelay(getLong(e, "failback-delay", hapc.getFailbackDelay(), Validators.GT_ZERO));
+            }
+            else if (haPolicyConfig instanceof SharedStoreMasterPolicyConfiguration)
+            {
+               SharedStoreMasterPolicyConfiguration hapc = (SharedStoreMasterPolicyConfiguration) haPolicyConfig;
+               hapc.setFailbackDelay(getLong(e, "failback-delay", hapc.getFailbackDelay(), Validators.GT_ZERO));
+            }
+            else if (haPolicyConfig instanceof SharedStoreSlavePolicyConfiguration)
+            {
+               SharedStoreSlavePolicyConfiguration hapc = (SharedStoreSlavePolicyConfiguration) haPolicyConfig;
+               hapc.setFailbackDelay(getLong(e, "failback-delay", hapc.getFailbackDelay(), Validators.GT_ZERO));
+            }
+            else
+            {
+               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failback-delay");
+            }
+         }
+      }
+
+      if (parameterExists(e, "failover-on-shutdown"))
+      {
+         if (containsHAPolicy)
+         {
+            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("failover-on-shutdown");
+         }
+         else
+         {
+            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("failover-on-shutdown");
+
+            if (haPolicyConfig instanceof SharedStoreMasterPolicyConfiguration)
+            {
+               SharedStoreMasterPolicyConfiguration hapc = (SharedStoreMasterPolicyConfiguration) haPolicyConfig;
+               hapc.setFailoverOnServerShutdown(getBoolean(e, "failover-on-shutdown", hapc.isFailoverOnServerShutdown()));
+            }
+            else if (haPolicyConfig instanceof SharedStoreSlavePolicyConfiguration)
+            {
+               SharedStoreSlavePolicyConfiguration hapc = (SharedStoreSlavePolicyConfiguration) haPolicyConfig;
+               hapc.setFailoverOnServerShutdown(getBoolean(e, "failover-on-shutdown", hapc.isFailoverOnServerShutdown()));
+            }
+            else
+            {
+               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failover-on-shutdown");
+            }
+         }
+      }
+
+      if (parameterExists(e, "replication-clustername"))
+      {
+         if (containsHAPolicy)
+         {
+            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("replication-clustername");
+         }
+         else
+         {
+            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("replication-clustername");
+
+            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
+            {
+               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
+               hapc.setClusterName(getString(e, "replication-clustername", null, Validators.NO_CHECK));
+            }
+            else if (haPolicyConfig instanceof ReplicatedPolicyConfiguration)
+            {
+               ReplicatedPolicyConfiguration hapc = (ReplicatedPolicyConfiguration) haPolicyConfig;
+               hapc.setClusterName(getString(e, "replication-clustername", null, Validators.NO_CHECK));
+            }
+            else
+            {
+               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("replication-clustername");
+            }
+         }
+      }
+
+      if (parameterExists(e, "max-saved-replicated-journals-size"))
+      {
+         if (containsHAPolicy)
+         {
+            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("max-saved-replicated-journals-size");
+         }
+         else
+         {
+            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("max-saved-replicated-journals-size");
+
+            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
+            {
+               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
+               hapc.setMaxSavedReplicatedJournalsSize(getInteger(e, "max-saved-replicated-journals-size",
+                     hapc.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
+
+            }
+            else
+            {
+               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("max-saved-replicated-journals-size");
+            }
+         }
+      }
+
+      //if we aren already set then set to default
+      if (config.getHAPolicyConfiguration() == null)
+      {
+         config.setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
+      }
+
 
       config.setResolveProtocols(getBoolean(e, "resolve-protocols", config.isResolveProtocols()));
 
@@ -1023,6 +1113,28 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          {
             addressSettings.setSendToDLAOnNoRoute(XMLUtil.parseBoolean(child));
          }
+         else if (SLOW_CONSUMER_THRESHOLD_NODE_NAME.equalsIgnoreCase(name))
+         {
+            long slowConsumerThreshold = XMLUtil.parseLong(child);
+            Validators.MINUS_ONE_OR_GT_ZERO.validate(SLOW_CONSUMER_THRESHOLD_NODE_NAME, slowConsumerThreshold);
+
+            addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
+         }
+         else if (SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME.equalsIgnoreCase(name))
+         {
+            long slowConsumerCheckPeriod = XMLUtil.parseLong(child);
+            Validators.GT_ZERO.validate(SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME, slowConsumerCheckPeriod);
+
+            addressSettings.setSlowConsumerCheckPeriod(slowConsumerCheckPeriod);
+         }
+         else if (SLOW_CONSUMER_POLICY_NODE_NAME.equalsIgnoreCase(name))
+         {
+            String value = getTrimmedTextContent(child);
+            Validators.SLOW_CONSUMER_POLICY_TYPE.validate(SLOW_CONSUMER_POLICY_NODE_NAME,
+                                                                 value);
+            SlowConsumerPolicy policy = Enum.valueOf(SlowConsumerPolicy.class, value);
+            addressSettings.setSlowConsumerPolicy(policy);
+         }
       }
       return setting;
    }
@@ -1054,7 +1166,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
 
-      return new CoreQueueConfiguration(address, name, filterString, durable);
+      return new CoreQueueConfiguration()
+         .setAddress(address)
+         .setName(name)
+         .setFilterString(filterString)
+         .setDurable(durable);
    }
 
    private TransportConfiguration parseTransportConfiguration(final Element e, final Configuration mainConfig)
@@ -1097,74 +1213,180 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       return new TransportConfiguration(clazz, params, name);
    }
 
+   private static final ArrayList<String> POLICY_LIST = new ArrayList<>();
+   static
+   {
+      POLICY_LIST.add("colocated");
+      POLICY_LIST.add("live-only");
+      POLICY_LIST.add("replicated");
+      POLICY_LIST.add("replica");
+      POLICY_LIST.add("shared-store-master");
+      POLICY_LIST.add("shared-store-slave");
+   }
+   private static final ArrayList<String> HA_LIST = new ArrayList<>();
+   static
+   {
+      HA_LIST.add("live-only");
+      HA_LIST.add("shared-store");
+      HA_LIST.add("replication");
+   }
    private void parseHAPolicyConfiguration(final Element e, final Configuration mainConfig)
    {
-      String policyTemplate = e.getAttribute("template");
-      HAPolicy policy;
-      if (policyTemplate.length() > 0)
+      for (String haType : HA_LIST)
       {
-         policy = HAPolicyTemplate.valueOf(policyTemplate).getHaPolicy();
-      }
-      else
-      {
-         policy = HAPolicyTemplate.NONE.getHaPolicy();
-      }
-      mainConfig.setHAPolicy(policy);
-
-      String policyType = getString(e, "policy-type", policy.getPolicyType().toString(), Validators.NOT_NULL_OR_EMPTY);
-
-      policy.setPolicyType(HAPolicy.POLICY_TYPE.valueOf(policyType));
-
-      boolean requestBackup = getBoolean(e, "request-backup", policy.isRequestBackup());
-
-      policy.setRequestBackup(requestBackup);
-
-      int backupRequestRetries = getInteger(e, "backup-request-retries", policy.getBackupRequestRetries(), Validators.MINUS_ONE_OR_GE_ZERO);
-
-      policy.setBackupRequestRetries(backupRequestRetries);
-
-      long backupRequestRetryInterval = getLong(e, "backup-request-retry-interval", policy.getBackupRequestRetryInterval(), Validators.GT_ZERO);
-
-      policy.setBackupRequestRetryInterval(backupRequestRetryInterval);
-
-      int maxBackups = getInteger(e, "max-backups", policy.getMaxBackups(), Validators.GE_ZERO);
-
-      policy.setMaxBackups(maxBackups);
-
-      int backupPortOffset = getInteger(e, "backup-port-offset", policy.getBackupPortOffset(), Validators.GT_ZERO);
-
-      policy.setBackupPortOffset(backupPortOffset);
-
-      String backupStrategy = getString(e, "backup-strategy", policy.getBackupStrategy().toString(), Validators.NOT_NULL_OR_EMPTY);
-
-      policy.setBackupStrategy(BackupStrategy.valueOf(backupStrategy));
-
-      String scaleDownDiscoveryGroup = getString(e, "scale-down-discovery-group", policy.getScaleDownDiscoveryGroup(), Validators.NO_CHECK);
-
-      policy.setScaleDownDiscoveryGroup(scaleDownDiscoveryGroup);
-
-      String scaleDownDiscoveryGroupName = getString(e, "scale-down-group-name", policy.getScaleDownGroupName(), Validators.NO_CHECK);
-
-      policy.setScaleDownGroupName(scaleDownDiscoveryGroupName);
-
-      NodeList scaleDownConnectorNode = e.getElementsByTagName("scale-down-connectors");
-
-      if (scaleDownConnectorNode != null && scaleDownConnectorNode.getLength() > 0)
-      {
-         NodeList scaleDownConnectors = scaleDownConnectorNode.item(0).getChildNodes();
-         for (int i = 0; i < scaleDownConnectors.getLength(); i++)
+         NodeList haNodeList = e.getElementsByTagName(haType);
+         if (haNodeList.getLength() > 0)
          {
-            Node child = scaleDownConnectors.item(i);
-            if (child.getNodeName().equals("connector-ref"))
+            Element haNode = (Element) haNodeList.item(0);
+            if (haNode.getTagName().equals("replication"))
             {
-               String connectorName = getTrimmedTextContent(child);
-
-               policy.getScaleDownConnectors().add(connectorName);
+               NodeList masterNodeList = e.getElementsByTagName("master");
+               if (masterNodeList.getLength() > 0)
+               {
+                  Element masterNode = (Element) masterNodeList.item(0);
+                  mainConfig.setHAPolicyConfiguration(createReplicatedHaPolicy(masterNode));
+               }
+               NodeList slaveNodeList = e.getElementsByTagName("slave");
+               if (slaveNodeList.getLength() > 0)
+               {
+                  Element slaveNode = (Element) slaveNodeList.item(0);
+                  mainConfig.setHAPolicyConfiguration(createReplicaHaPolicy(slaveNode));
+               }
+               NodeList colocatedNodeList = e.getElementsByTagName("colocated");
+               if (colocatedNodeList.getLength() > 0)
+               {
+                  Element colocatedNode = (Element) colocatedNodeList.item(0);
+                  mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, true));
+               }
+            }
+            else if (haNode.getTagName().equals("shared-store"))
+            {
+               NodeList masterNodeList = e.getElementsByTagName("master");
+               if (masterNodeList.getLength() > 0)
+               {
+                  Element masterNode = (Element) masterNodeList.item(0);
+                  mainConfig.setHAPolicyConfiguration(createSharedStoreMasterHaPolicy(masterNode));
+               }
+               NodeList slaveNodeList = e.getElementsByTagName("slave");
+               if (slaveNodeList.getLength() > 0)
+               {
+                  Element slaveNode = (Element) slaveNodeList.item(0);
+                  mainConfig.setHAPolicyConfiguration(createSharedStoreSlaveHaPolicy(slaveNode));
+               }
+               NodeList colocatedNodeList = e.getElementsByTagName("colocated");
+               if (colocatedNodeList.getLength() > 0)
+               {
+                  Element colocatedNode = (Element) colocatedNodeList.item(0);
+                  mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, false));
+               }
+            }
+            else if (haNode.getTagName().equals("live-only"))
+            {
+               NodeList noneNodeList = e.getElementsByTagName("live-only");
+               Element noneNode = (Element) noneNodeList.item(0);
+               mainConfig.setHAPolicyConfiguration(createLiveOnlyHaPolicy(noneNode));
             }
          }
       }
+   }
 
-      NodeList remoteConnectorNode = e.getElementsByTagName("remote-connectors");
+   private LiveOnlyPolicyConfiguration createLiveOnlyHaPolicy(Element policyNode)
+   {
+      LiveOnlyPolicyConfiguration configuration = new LiveOnlyPolicyConfiguration();
+
+      configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
+
+      return configuration;
+   }
+
+   private ReplicatedPolicyConfiguration createReplicatedHaPolicy(Element policyNode)
+   {
+      ReplicatedPolicyConfiguration configuration = new ReplicatedPolicyConfiguration();
+
+      configuration.setCheckForLiveServer(getBoolean(policyNode, "check-for-live-server", configuration.isCheckForLiveServer()));
+
+      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), Validators.NO_CHECK));
+
+      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
+
+      return configuration;
+   }
+
+   private ReplicaPolicyConfiguration createReplicaHaPolicy(Element policyNode)
+   {
+      ReplicaPolicyConfiguration configuration = new ReplicaPolicyConfiguration();
+
+      configuration.setRestartBackup(getBoolean(policyNode, "restart-backup", configuration.isRestartBackup()));
+
+      configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), Validators.NO_CHECK));
+
+      configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
+
+      configuration.setFailbackDelay(getLong(policyNode, "failback-delay", configuration.getFailbackDelay(), Validators.GT_ZERO));
+
+      configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
+
+      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size",
+            configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
+
+      configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
+
+      return configuration;
+   }
+
+   private SharedStoreMasterPolicyConfiguration createSharedStoreMasterHaPolicy(Element policyNode)
+   {
+      SharedStoreMasterPolicyConfiguration configuration = new SharedStoreMasterPolicyConfiguration();
+
+      configuration.setFailoverOnServerShutdown(getBoolean(policyNode, "failover-on-shutdown", configuration.isFailoverOnServerShutdown()));
+
+      configuration.setFailbackDelay(getLong(policyNode, "failback-delay", configuration.getFailbackDelay(), Validators.GT_ZERO));
+
+      return configuration;
+   }
+
+   private SharedStoreSlavePolicyConfiguration createSharedStoreSlaveHaPolicy(Element policyNode)
+   {
+      SharedStoreSlavePolicyConfiguration configuration = new SharedStoreSlavePolicyConfiguration();
+
+      configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
+
+      configuration.setFailoverOnServerShutdown(getBoolean(policyNode, "failover-on-shutdown", configuration.isFailoverOnServerShutdown()));
+
+      configuration.setFailbackDelay(getLong(policyNode, "failback-delay", configuration.getFailbackDelay(), Validators.GT_ZERO));
+
+      configuration.setRestartBackup(getBoolean(policyNode, "restart-backup", configuration.isRestartBackup()));
+
+      configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
+
+      return configuration;
+   }
+
+   private ColocatedPolicyConfiguration createColocatedHaPolicy(Element policyNode, boolean replicated)
+   {
+      ColocatedPolicyConfiguration configuration = new ColocatedPolicyConfiguration();
+
+      boolean requestBackup = getBoolean(policyNode, "request-backup", configuration.isRequestBackup());
+
+      configuration.setRequestBackup(requestBackup);
+
+      int backupRequestRetries = getInteger(policyNode, "backup-request-retries", configuration.getBackupRequestRetries(), Validators.MINUS_ONE_OR_GE_ZERO);
+
+      configuration.setBackupRequestRetries(backupRequestRetries);
+
+      long backupRequestRetryInterval = getLong(policyNode, "backup-request-retry-interval", configuration.getBackupRequestRetryInterval(), Validators.GT_ZERO);
+
+      configuration.setBackupRequestRetryInterval(backupRequestRetryInterval);
+
+      int maxBackups = getInteger(policyNode, "max-backups", configuration.getMaxBackups(), Validators.GE_ZERO);
+
+      configuration.setMaxBackups(maxBackups);
+
+      int backupPortOffset = getInteger(policyNode, "backup-port-offset", configuration.getBackupPortOffset(), Validators.GT_ZERO);
+
+      configuration.setBackupPortOffset(backupPortOffset);
+
+      NodeList remoteConnectorNode = policyNode.getElementsByTagName("excludes");
 
       if (remoteConnectorNode != null && remoteConnectorNode.getLength() > 0)
       {
@@ -1175,31 +1397,65 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
             if (child.getNodeName().equals("connector-ref"))
             {
                String connectorName = getTrimmedTextContent(child);
-               policy.getRemoteConnectors().add(connectorName);
+               configuration.getExcludedConnectors().add(connectorName);
             }
          }
       }
 
-      policy.setScaleDown(getBoolean(e, "scale-down", policy.isScaleDown()));
+      NodeList masterNodeList = policyNode.getElementsByTagName("master");
+      if (masterNodeList.getLength() > 0)
+      {
+         Element masterNode = (Element) masterNodeList.item(0);
+         configuration.setLiveConfig(replicated ? createReplicatedHaPolicy(masterNode) : createSharedStoreMasterHaPolicy(masterNode));
+      }
+      NodeList slaveNodeList = policyNode.getElementsByTagName("slave");
+      if (slaveNodeList.getLength() > 0)
+      {
+         Element slaveNode = (Element) slaveNodeList.item(0);
+         configuration.setBackupConfig(replicated ? createReplicaHaPolicy(slaveNode) : createSharedStoreSlaveHaPolicy(slaveNode));
+      }
 
-      policy.setScaleDownGroupName(getString(e, "scale-down-group-name", policy.getScaleDownGroupName(), Validators.NO_CHECK));
+      return configuration;
+   }
+   private ScaleDownConfiguration parseScaleDownConfig(Element policyNode)
+   {
+      NodeList scaleDownNode = policyNode.getElementsByTagName("scale-down");
 
-      policy.setCheckForLiveServer(getBoolean(e, "check-for-live-server", policy.isCheckForLiveServer()));
+      if (scaleDownNode.getLength() > 0)
+      {
+         ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
 
-      policy.setAllowAutoFailBack(getBoolean(e, "allow-failback", policy.isCheckForLiveServer()));
+         Element scaleDownElement = (Element) scaleDownNode.item(0);
 
-      policy.setFailoverOnServerShutdown(getBoolean(e, "failover-on-shutdown", policy.isFailoverOnServerShutdown()));
+         scaleDownConfiguration.setEnabled(getBoolean(scaleDownElement, "enabled", scaleDownConfiguration.isEnabled()));
 
-      policy.setBackupGroupName(getString(e, "backup-group-name", policy.getBackupGroupName(), Validators.NO_CHECK));
+         String scaleDownDiscoveryGroup = getString(scaleDownElement, "discovery-group", scaleDownConfiguration.getDiscoveryGroup(), Validators.NO_CHECK);
 
-      policy.setFailbackDelay(getLong(e, "failback-delay", policy.getFailbackDelay(), Validators.GT_ZERO));
+         scaleDownConfiguration.setDiscoveryGroup(scaleDownDiscoveryGroup);
 
-      policy.setReplicationClustername(getString(e, "replication-clustername", null, Validators.NO_CHECK));
+         String scaleDownDiscoveryGroupName = getString(scaleDownElement, "group-name", scaleDownConfiguration.getGroupName(), Validators.NO_CHECK);
 
-      policy.setScaleDownClustername(getString(e, "scale-down-clustername", null, Validators.NO_CHECK));
+         scaleDownConfiguration.setGroupName(scaleDownDiscoveryGroupName);
 
-      policy.setMaxSavedReplicatedJournalSize(getInteger(e, "max-saved-replicated-journals-size",
-                                                         policy.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
+         NodeList scaleDownConnectorNode = scaleDownElement.getElementsByTagName("connectors");
+
+         if (scaleDownConnectorNode != null && scaleDownConnectorNode.getLength() > 0)
+         {
+            NodeList scaleDownConnectors = scaleDownConnectorNode.item(0).getChildNodes();
+            for (int i = 0; i < scaleDownConnectors.getLength(); i++)
+            {
+               Node child = scaleDownConnectors.item(i);
+               if (child.getNodeName().equals("connector-ref"))
+               {
+                  String connectorName = getTrimmedTextContent(child);
+
+                  scaleDownConfiguration.getConnectors().add(connectorName);
+               }
+            }
+         }
+         return scaleDownConfiguration;
+      }
+      return null;
    }
 
    private void parseBroadcastGroupConfiguration(final Element e, final Configuration mainConfig)
@@ -1251,10 +1507,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       }
       else
       {
-         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localAddress, localBindPort);
+         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(groupAddress)
+            .setGroupPort(groupPort)
+            .setLocalBindAddress(localAddress)
+            .setLocalBindPort(localBindPort);
       }
 
-      BroadcastGroupConfiguration config = new BroadcastGroupConfiguration(name, broadcastPeriod, connectorNames, endpointFactoryConfiguration);
+      BroadcastGroupConfiguration config = new BroadcastGroupConfiguration()
+         .setName(name)
+         .setBroadcastPeriod(broadcastPeriod)
+         .setConnectorInfos(connectorNames)
+         .setEndpointFactoryConfiguration(endpointFactoryConfiguration);
 
       mainConfig.getBroadcastGroupConfigurations().add(config);
    }
@@ -1291,10 +1555,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       }
       else
       {
-         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localBindAddress, localBindPort);
+         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(groupAddress)
+            .setGroupPort(groupPort)
+            .setLocalBindAddress(localBindAddress)
+            .setLocalBindPort(localBindPort);
       }
 
-      DiscoveryGroupConfiguration config = new DiscoveryGroupConfiguration(name, refreshTimeout, discoveryInitialWaitTimeout, endpointFactoryConfiguration);
+      DiscoveryGroupConfiguration config = new DiscoveryGroupConfiguration()
+         .setName(name)
+         .setRefreshTimeout(refreshTimeout)
+         .setDiscoveryInitialWaitTimeout(discoveryInitialWaitTimeout)
+         .setBroadcastEndpointFactoryConfiguration(endpointFactoryConfiguration);
 
       if (mainConfig.getDiscoveryGroupConfigurations().containsKey(name))
       {
@@ -1357,7 +1629,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
 
       int confirmationWindowSize =
-         getInteger(e, "confirmation-window-size", FileConfiguration.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+         getInteger(e, "confirmation-window-size", HornetQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(),
                     Validators.GT_ZERO);
 
       long clusterNotificationInterval = getLong(e, "notification-interval", HornetQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
@@ -1393,44 +1665,35 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
 
-      ClusterConnectionConfiguration config;
+      ClusterConnectionConfiguration config = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(connectorName)
+         .setMinLargeMessageSize(minLargeMessageSize)
+         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+         .setConnectionTTL(connectionTTL)
+         .setRetryInterval(retryInterval)
+         .setRetryIntervalMultiplier(retryIntervalMultiplier)
+         .setMaxRetryInterval(maxRetryInterval)
+         .setInitialConnectAttempts(initialConnectAttempts)
+         .setReconnectAttempts(reconnectAttempts)
+         .setCallTimeout(callTimeout)
+         .setCallFailoverTimeout(callFailoverTimeout)
+         .setDuplicateDetection(duplicateDetection)
+         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(confirmationWindowSize)
+         .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly)
+         .setClusterNotificationInterval(clusterNotificationInterval)
+         .setClusterNotificationAttempts(clusterNotificationAttempts);
 
       if (discoveryGroupName == null)
       {
-         config =
-            new ClusterConnectionConfiguration(name, address, connectorName,
-                                               minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
-                                               retryInterval, retryIntervalMultiplier, maxRetryInterval,
-                                               initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
-                                               duplicateDetection, forwardWhenNoConsumers, maxHops,
-                                               confirmationWindowSize,
-                                               staticConnectorNames,
-                                               allowDirectConnectionsOnly,
-                                               clusterNotificationInterval,
-                                               clusterNotificationAttempts,
-                                               scaleDownConnector);
+         config.setStaticConnectors(staticConnectorNames);
       }
       else
       {
-         config =
-            new ClusterConnectionConfiguration(name, address, connectorName,
-                                               minLargeMessageSize, clientFailureCheckPeriod,
-                                               connectionTTL,
-                                               retryInterval,
-                                               retryIntervalMultiplier,
-                                               maxRetryInterval,
-                                               initialConnectAttempts,
-                                               reconnectAttempts,
-                                               callTimeout,
-                                               callFailoverTimeout,
-                                               duplicateDetection,
-                                               forwardWhenNoConsumers,
-                                               maxHops,
-                                               confirmationWindowSize,
-                                               discoveryGroupName,
-                                               clusterNotificationInterval,
-                                               clusterNotificationAttempts,
-                                               scaleDownConnector);
+         config.setDiscoveryGroupName(discoveryGroupName);
       }
 
       mainConfig.getClusterConfigurations().add(config);
@@ -1441,17 +1704,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       String name = node.getAttribute("name");
       String type = getString(node, "type", null, Validators.NOT_NULL_OR_EMPTY);
       String address = getString(node, "address", null, Validators.NOT_NULL_OR_EMPTY);
-      Integer timeout = getInteger(node, "timeout", GroupingHandlerConfiguration.DEFAULT_TIMEOUT, Validators.GT_ZERO);
-      Long groupTimeout = getLong(node, "group-timeout", GroupingHandlerConfiguration.DEFAULT_GROUP_TIMEOUT, Validators.MINUS_ONE_OR_GT_ZERO);
-      Long reaperPeriod = getLong(node, "reaper-period", GroupingHandlerConfiguration.DEFAULT_REAPER_PERIOD, Validators.GT_ZERO);
-      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration(new SimpleString(name),
-                                                                                         type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType())
-                                                                                            ? GroupingHandlerConfiguration.TYPE.LOCAL
-                                                                                            : GroupingHandlerConfiguration.TYPE.REMOTE,
-                                                                                         new SimpleString(address),
-                                                                                         timeout,
-                                                                                         groupTimeout,
-                                                                                         reaperPeriod));
+      Integer timeout = getInteger(node, "timeout", HornetQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), Validators.GT_ZERO);
+      Long groupTimeout = getLong(node, "group-timeout", HornetQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
+      Long reaperPeriod = getLong(node, "reaper-period", HornetQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), Validators.GT_ZERO);
+      mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration()
+                                                           .setName(new SimpleString(name))
+                                                           .setType(
+                                                              type.equals(GroupingHandlerConfiguration.TYPE.LOCAL.getType())
+                                                                 ? GroupingHandlerConfiguration.TYPE.LOCAL
+                                                                 : GroupingHandlerConfiguration.TYPE.REMOTE)
+                                                           .setAddress(new SimpleString(address))
+                                                           .setTimeout(timeout)
+                                                           .setGroupTimeout(groupTimeout)
+                                                           .setReaperPeriod(reaperPeriod));
    }
 
    private void parseBridgeConfiguration(final Element brNode, final Configuration mainConfig) throws Exception
@@ -1466,7 +1731,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       // Default bridge conf
       int confirmationWindowSize =
-         getInteger(brNode, "confirmation-window-size", FileConfiguration.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+         getInteger(brNode, "confirmation-window-size", HornetQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(),
                     Validators.GT_ZERO);
 
       long retryInterval = getLong(brNode, "retry-interval", HornetQClient.DEFAULT_RETRY_INTERVAL, Validators.GT_ZERO);
@@ -1561,53 +1826,34 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
 
-      BridgeConfiguration config;
+      BridgeConfiguration config = new BridgeConfiguration()
+         .setName(name)
+         .setQueueName(queueName)
+         .setForwardingAddress(forwardingAddress)
+         .setFilterString(filterString)
+         .setTransformerClassName(transformerClassName)
+         .setMinLargeMessageSize(minLargeMessageSize)
+         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+         .setConnectionTTL(connectionTTL)
+         .setRetryInterval(retryInterval)
+         .setMaxRetryInterval(maxRetryInterval)
+         .setRetryIntervalMultiplier(retryIntervalMultiplier)
+         .setInitialConnectAttempts(initialConnectAttempts)
+         .setReconnectAttempts(reconnectAttempts)
+         .setReconnectAttemptsOnSameNode(reconnectAttemptsSameNode)
+         .setUseDuplicateDetection(useDuplicateDetection)
+         .setConfirmationWindowSize(confirmationWindowSize)
+         .setHA(ha)
+         .setUser(user)
+         .setPassword(password);
 
       if (!staticConnectorNames.isEmpty())
       {
-         config = new BridgeConfiguration(name,
-                                          queueName,
-                                          forwardingAddress,
-                                          filterString,
-                                          transformerClassName,
-                                          minLargeMessageSize,
-                                          clientFailureCheckPeriod,
-                                          connectionTTL,
-                                          retryInterval,
-                                          maxRetryInterval,
-                                          retryIntervalMultiplier,
-                                          initialConnectAttempts,
-                                          reconnectAttempts,
-                                          reconnectAttemptsSameNode,
-                                          useDuplicateDetection,
-                                          confirmationWindowSize,
-                                          staticConnectorNames,
-                                          ha,
-                                          user,
-                                          password);
+         config.setStaticConnectors(staticConnectorNames);
       }
       else
       {
-         config = new BridgeConfiguration(name,
-                                          queueName,
-                                          forwardingAddress,
-                                          filterString,
-                                          transformerClassName,
-                                          minLargeMessageSize,
-                                          clientFailureCheckPeriod,
-                                          connectionTTL,
-                                          retryInterval,
-                                          maxRetryInterval,
-                                          retryIntervalMultiplier,
-                                          initialConnectAttempts,
-                                          reconnectAttempts,
-                                          reconnectAttemptsSameNode,
-                                          useDuplicateDetection,
-                                          confirmationWindowSize,
-                                          discoveryGroupName,
-                                          ha,
-                                          user,
-                                          password);
+         config.setDiscoveryGroupName(discoveryGroupName);
       }
 
       mainConfig.getBridgeConfigurations().add(config);
@@ -1655,13 +1901,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
 
-      DivertConfiguration config = new DivertConfiguration(name,
-                                                           routingName,
-                                                           address,
-                                                           forwardingAddress,
-                                                           exclusive,
-                                                           filterString,
-                                                           transformerClassName);
+      DivertConfiguration config = new DivertConfiguration()
+         .setName(name)
+         .setRoutingName(routingName)
+         .setAddress(address)
+         .setForwardingAddress(forwardingAddress)
+         .setExclusive(exclusive)
+         .setFilterString(filterString)
+         .setTransformerClassName(transformerClassName);
 
       mainConfig.getDivertConfigurations().add(config);
    }
@@ -1693,6 +1940,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          params.put(key, nValue.getTextContent());
       }
 
-      return new ConnectorServiceConfiguration(clazz, params, name);
+      return new ConnectorServiceConfiguration()
+         .setFactoryClassName(clazz)
+         .setParams(params)
+         .setName(name);
    }
 }

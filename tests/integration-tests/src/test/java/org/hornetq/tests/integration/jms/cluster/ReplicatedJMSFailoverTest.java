@@ -13,9 +13,10 @@
 package org.hornetq.tests.integration.jms.cluster;
 
 import org.hornetq.api.core.TransportConfiguration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.hornetq.core.remoting.impl.invm.TransportConstants;
 import org.hornetq.core.server.HornetQServers;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.jms.server.impl.JMSServerManagerImpl;
 
 /**
@@ -34,17 +35,18 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
    @Override
    protected void startServers() throws Exception
    {
-      backupConf = createBasicConfig();
-      backupConf.setJournalType(getDefaultJournalType());
-      backupConf.setSecurityEnabled(false);
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
-      backupConf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams));
-      backupConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_REPLICATED);
-      backupConf.setBindingsDirectory(getBindingsDir(0, true));
-      backupConf.setJournalMinFiles(2);
-      backupConf.setJournalDirectory(getJournalDir(0, true));
-      backupConf.setPagingDirectory(getPageDir(0, true));
-      backupConf.setLargeMessagesDirectory(getLargeMessagesDir(0, true));
+
+      backupConf = createBasicConfig()
+         .setJournalType(getDefaultJournalType())
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams))
+         .setBindingsDirectory(getBindingsDir(0, true))
+         .setJournalMinFiles(2)
+         .setJournalDirectory(getJournalDir(0, true))
+         .setPagingDirectory(getPageDir(0, true))
+         .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
+         .setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
+
       backupService = HornetQServers.newHornetQServer(backupConf, true);
 
       backupJMSService = new JMSServerManagerImpl(backupService);
@@ -53,23 +55,16 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
 
       backupJMSService.start();
 
-
-
-      liveConf = createBasicConfig();
-      liveConf.setSecurityEnabled(false);
-      liveConf.setJournalType(getDefaultJournalType());
-
-      liveConf.getConnectorConfigurations().put("toBackup", new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams));
-      //liveConf.setBackupConnectorName("toBackup");
-
-      liveConf.getAcceptorConfigurations()
-              .add(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
-      liveConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.REPLICATED);
-      liveConf.setBindingsDirectory(getBindingsDir(0, false));
-      liveConf.setJournalMinFiles(2);
-      liveConf.setJournalDirectory(getJournalDir(0, false));
-      liveConf.setPagingDirectory(getPageDir(0, false));
-      liveConf.setLargeMessagesDirectory(getLargeMessagesDir(0, false));
+      liveConf = createBasicConfig()
+         .setJournalType(getDefaultJournalType())
+         .addConnectorConfiguration("toBackup", new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams))
+         .addAcceptorConfiguration(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"))
+         .setBindingsDirectory(getBindingsDir(0, false))
+         .setJournalMinFiles(2)
+         .setJournalDirectory(getJournalDir(0, false))
+         .setPagingDirectory(getPageDir(0, false))
+         .setLargeMessagesDirectory(getLargeMessagesDir(0, false))
+         .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
 
       liveService = HornetQServers.newHornetQServer(liveConf, true);
 
@@ -78,7 +73,6 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
       liveJMSService.setContext(ctx1);
 
       liveJMSService.start();
-
    }
 
    // Private -------------------------------------------------------

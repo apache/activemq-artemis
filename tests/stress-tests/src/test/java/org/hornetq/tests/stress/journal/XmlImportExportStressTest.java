@@ -20,7 +20,6 @@ import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
 import org.junit.Test;
 
-import org.junit.Assert;
 import org.hornetq.tools.XmlDataExporter;
 import org.hornetq.tools.XmlDataImporter;
 import org.hornetq.core.server.HornetQServer;
@@ -66,8 +65,11 @@ public class XmlImportExportStressTest extends ServiceTestBase
       for (int i = 0; i < COUNT; i++)
       {
          producer.send(msg);
-         if (i % 500 == 0) session.commit();
-         System.out.println("Sent " + i);
+         if (i % 500 == 0)
+         {
+            System.out.println("Sent " + i);
+            session.commit();
+         }
       }
 
       session.commit();
@@ -107,8 +109,15 @@ public class XmlImportExportStressTest extends ServiceTestBase
       for (int i = 0; i < COUNT; i++)
       {
          msg = consumer.receive(CONSUMER_TIMEOUT);
-         System.out.println("Received " + i);
-         Assert.assertNotNull(msg);
+         assertNotNull(msg);
+
+         msg.acknowledge();
+         if (i % 500 == 0)
+         {
+            System.out.println("Received " + i);
+            session.commit();
+         }
+
          assertEquals(msg.getBodySize(), bodyTst.length);
          byte[] bodyRead = new byte[bodyTst.length];
          msg.getBodyBuffer().readBytes(bodyRead);

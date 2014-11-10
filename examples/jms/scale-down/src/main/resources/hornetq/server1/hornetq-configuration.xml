@@ -64,11 +64,14 @@
    </cluster-connections>
 
    <!--a live server that will scale down on server shutdown-->
-   <ha-policy template="NONE">
-      <scale-down>true</scale-down>
-      <scale-down-connectors>
-         <connector-ref>server0-connector</connector-ref>
-      </scale-down-connectors>
+   <ha-policy>
+      <live-only>
+         <scale-down>
+            <connectors>
+               <connector-ref>server0-connector</connector-ref>
+            </connectors>
+         </scale-down>
+      </live-only>
    </ha-policy>
    
    <!-- Other config -->

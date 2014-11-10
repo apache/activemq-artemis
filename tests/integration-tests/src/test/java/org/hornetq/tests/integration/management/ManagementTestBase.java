@@ -12,6 +12,7 @@
  */
 package org.hornetq.tests.integration.management;
 import org.hornetq.api.core.management.QueueControl;
+import org.hornetq.api.jms.management.JMSQueueControl;
 import org.junit.Before;
 import org.junit.After;
 
@@ -121,6 +122,29 @@ public abstract class ManagementTestBase extends ServiceTestBase
       return queueControl;
    }
 
+   protected long getMessageCount(JMSQueueControl control) throws Exception
+   {
+      control.flushExecutor();
+      return control.getMessageCount();
+   }
+
+   protected long getMessagesAdded(JMSQueueControl control) throws Exception
+   {
+      control.flushExecutor();
+      return control.getMessagesAdded();
+   }
+
+   protected long getMessageCount(QueueControl control) throws Exception
+   {
+      control.flushExecutor();
+      return control.getMessageCount();
+   }
+
+   protected long getMessagesAdded(QueueControl control) throws Exception
+   {
+      control.flushExecutor();
+      return control.getMessagesAdded();
+   }
 
    // Private -------------------------------------------------------
 

@@ -12,8 +12,11 @@
  */
 package org.hornetq.tests.integration.cluster.ha;
 
+import org.hornetq.core.config.HAPolicyConfiguration;
+import org.hornetq.core.config.ha.ColocatedPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.cluster.ha.HAPolicyTemplate;
 import org.hornetq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,16 +56,22 @@ public class HAAutomaticBackupSharedStore extends ClusterTestBase
    protected void setupServers() throws Exception
    {
       // The lives
-      setupLiveServer(0, isFileStorage(), true, isNetty());
-      setupLiveServer(1, isFileStorage(), true, isNetty());
-      setupLiveServer(2, isFileStorage(), true, isNetty());
+      setupLiveServer(0, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(1, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(2, isFileStorage(), true, isNetty(), false);
 
    }
 
    private void setUpHAPolicy(int node)
    {
       HornetQServer server = getServer(node);
-      server.getConfiguration().setHAPolicy(HAPolicyTemplate.COLOCATED_SHARED_STORE.getHaPolicy());
+      ColocatedPolicyConfiguration haPolicyConfiguration = new ColocatedPolicyConfiguration();
+      HAPolicyConfiguration liveConfiguration = new SharedStoreMasterPolicyConfiguration();
+      haPolicyConfiguration.setLiveConfig(liveConfiguration);
+
+      HAPolicyConfiguration backupConfiguration = new SharedStoreSlavePolicyConfiguration();
+      haPolicyConfiguration.setBackupConfig(backupConfiguration);
+      server.getConfiguration().setHAPolicyConfiguration(haPolicyConfiguration);
    }
 
    public boolean isNetty()

@@ -594,11 +594,13 @@ ClientSession session = factory.createSession();</programlisting>
                shows all the available configuration options</para>
             <itemizedlist>
                 <listitem id="clusters.address">
-                    <para><literal>address</literal>. Each cluster connection only applies to
-                        messages sent to an address that starts with this value. Note: this does
-                        not use wild-card matching.</para>
-                    <para>In this case, this cluster connection will load balance messages sent to
-                        address that start with <literal>jms</literal>. This cluster connection,
+                    <para><literal>address</literal> Each cluster connection only applies to addresses that match the
+                        specified address field.  An address is matched on the cluster connection when it begins with the
+                        string specified in this field.  The address field on a cluster connection also supports comma
+                        separated lists and an exclude syntax '!'.  To prevent an address from being matched on this
+                        cluster connection, prepend a cluster connection address string with '!'.</para>
+                    <para>In the case shown above the cluster connection will load balance messages sent to
+                        addresses that start with <literal>jms</literal>. This cluster connection,
                         will, in effect apply to all JMS queues and topics since they map to core
                         queues that start with the substring "jms".</para>
                     <para>The address can be any value and you can have many cluster connections
@@ -611,6 +613,24 @@ ClientSession session = factory.createSession();</programlisting>
                         values of <literal>address</literal>, e.g. "europe" and "europe.news" since
                         this could result in the same messages being distributed between more than
                         one cluster connection, possibly resulting in duplicate deliveries.</para>
+                   <para>
+                      Examples:
+                      <itemizedlist>
+                         <listitem><literal>'jms.eu'</literal> matches all addresses starting with 'jms.eu'</listitem>
+                         <listitem><literal>'!jms.eu'</literal>  matches all address except for those starting with
+                             'jms.eu'</listitem>
+                         <listitem><literal>'jms.eu.uk,jms.eu.de'</literal>  matches all addresses starting with either
+                             'jms.eu.uk' or 'jms.eu.de'</listitem>
+                         <listitem><literal>'jms.eu,!jms.eu.uk'</literal>  matches all addresses starting with 'jms.eu'
+                              but not those starting with 'jms.eu.uk'</listitem>
+                      </itemizedlist>
+                      Notes:
+                      <itemizedlist>
+                         <listitem>Address exclusion will always takes precedence over address inclusion.</listitem>
+                         <listitem>Address matching on cluster connections does not support wild-card matching.
+                         </listitem>
+                      </itemizedlist>
+                   </para>
                     <para>This parameter is mandatory.</para>
                 </listitem>
                 <listitem>

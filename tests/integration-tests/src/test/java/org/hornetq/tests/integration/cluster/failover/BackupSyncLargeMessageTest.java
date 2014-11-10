@@ -62,6 +62,8 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
    @Test
    public void testDeleteLargeMessages() throws Exception
    {
+      // 200 will increase the odds of a failure
+      setNumberOfMessages(200);
       File dir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
       assertEquals("Should not have any large messages... previous test failed to clean up?", 0,
                    getAllMessageFileIds(dir).size());

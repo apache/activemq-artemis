@@ -1495,10 +1495,9 @@ public class RandomReattachTest extends UnitTestCase
 
    private void start() throws Exception
    {
-      Configuration liveConf = createDefaultConfig();
-      liveConf.setSecurityEnabled(false);
-      liveConf.getAcceptorConfigurations()
-         .add(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
+      Configuration liveConf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
       liveService = HornetQServers.newHornetQServer(liveConf, false);
       liveService.start();
    }

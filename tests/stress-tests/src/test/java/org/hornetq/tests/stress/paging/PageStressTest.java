@@ -50,10 +50,9 @@ public class PageStressTest extends ServiceTestBase
    @Test
    public void testStopDuringDepage() throws Exception
    {
-      Configuration config = createDefaultConfig();
-
-      config.setJournalSyncNonTransactional(false);
-      config.setJournalSyncTransactional(false);
+      Configuration config = createDefaultConfig()
+         .setJournalSyncNonTransactional(false)
+         .setJournalSyncTransactional(false);
 
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
@@ -273,10 +272,9 @@ public class PageStressTest extends ServiceTestBase
    @Override
    protected Configuration createDefaultConfig() throws Exception
    {
-      Configuration config = super.createDefaultConfig();
-
-      config.setJournalFileSize(10 * 1024 * 1024);
-      config.setJournalMinFiles(5);
+      Configuration config = super.createDefaultConfig()
+         .setJournalFileSize(10 * 1024 * 1024)
+         .setJournalMinFiles(5);
 
       return config;
    }

@@ -369,10 +369,8 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
 
       if (discoveryGroupName != null)
       {
-         cfConfig = new ConnectionFactoryConfigurationImpl(name,
-                                                           ha,
-                                                           strbindings);
-         cfConfig.setDiscoveryGroupName(discoveryGroupName);
+         cfConfig = new ConnectionFactoryConfigurationImpl()
+            .setDiscoveryGroupName(discoveryGroupName);
       }
       else
       {
@@ -381,40 +379,46 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
          {
             connectors.add(connectorName);
          }
-         cfConfig = new ConnectionFactoryConfigurationImpl(name, ha, connectors, strbindings);
+         cfConfig = new ConnectionFactoryConfigurationImpl()
+            .setConnectorNames(connectors);
       }
 
-      cfConfig.setFactoryType(factType);
-      cfConfig.setClientID(clientID);
-      cfConfig.setClientFailureCheckPeriod(clientFailureCheckPeriod);
-      cfConfig.setConnectionTTL(connectionTTL);
-      cfConfig.setCallTimeout(callTimeout);
-      cfConfig.setCallFailoverTimeout(callFailoverTimeout);
-      cfConfig.setCacheLargeMessagesClient(cacheLargeMessagesClient);
-      cfConfig.setMinLargeMessageSize(minLargeMessageSize);
-      cfConfig.setCompressLargeMessages(compressLargeMessages);
-      cfConfig.setConsumerWindowSize(consumerWindowSize);
-      cfConfig.setConsumerMaxRate(consumerMaxRate);
-      cfConfig.setConfirmationWindowSize(confirmationWindowSize);
-      cfConfig.setProducerWindowSize(producerWindowSize);
-      cfConfig.setProducerMaxRate(producerMaxRate);
-      cfConfig.setBlockOnAcknowledge(blockOnAcknowledge);
-      cfConfig.setBlockOnDurableSend(blockOnDurableSend);
-      cfConfig.setBlockOnNonDurableSend(blockOnNonDurableSend);
-      cfConfig.setAutoGroup(autoGroup);
-      cfConfig.setPreAcknowledge(preAcknowledge);
-      cfConfig.setLoadBalancingPolicyClassName(connectionLoadBalancingPolicyClassName);
-      cfConfig.setTransactionBatchSize(transactionBatchSize);
-      cfConfig.setDupsOKBatchSize(dupsOKBatchSize);
-      cfConfig.setUseGlobalPools(useGlobalPools);
-      cfConfig.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
-      cfConfig.setThreadPoolMaxSize(threadPoolMaxSize);
-      cfConfig.setRetryInterval(retryInterval);
-      cfConfig.setRetryIntervalMultiplier(retryIntervalMultiplier);
-      cfConfig.setMaxRetryInterval(maxRetryInterval);
-      cfConfig.setReconnectAttempts(reconnectAttempts);
-      cfConfig.setFailoverOnInitialConnection(failoverOnInitialConnection);
-      cfConfig.setGroupID(groupid);
+      cfConfig
+         .setName(name)
+         .setHA(ha)
+         .setBindings(strbindings)
+         .setFactoryType(factType)
+         .setClientID(clientID)
+         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+         .setConnectionTTL(connectionTTL)
+         .setCallTimeout(callTimeout)
+         .setCallFailoverTimeout(callFailoverTimeout)
+         .setCacheLargeMessagesClient(cacheLargeMessagesClient)
+         .setMinLargeMessageSize(minLargeMessageSize)
+         .setCompressLargeMessages(compressLargeMessages)
+         .setConsumerWindowSize(consumerWindowSize)
+         .setConsumerMaxRate(consumerMaxRate)
+         .setConfirmationWindowSize(confirmationWindowSize)
+         .setProducerWindowSize(producerWindowSize)
+         .setProducerMaxRate(producerMaxRate)
+         .setBlockOnAcknowledge(blockOnAcknowledge)
+         .setBlockOnDurableSend(blockOnDurableSend)
+         .setBlockOnNonDurableSend(blockOnNonDurableSend)
+         .setAutoGroup(autoGroup)
+         .setPreAcknowledge(preAcknowledge)
+         .setLoadBalancingPolicyClassName(connectionLoadBalancingPolicyClassName)
+         .setTransactionBatchSize(transactionBatchSize)
+         .setDupsOKBatchSize(dupsOKBatchSize)
+         .setUseGlobalPools(useGlobalPools)
+         .setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize)
+         .setThreadPoolMaxSize(threadPoolMaxSize)
+         .setRetryInterval(retryInterval)
+         .setRetryIntervalMultiplier(retryIntervalMultiplier)
+         .setMaxRetryInterval(maxRetryInterval)
+         .setReconnectAttempts(reconnectAttempts)
+         .setFailoverOnInitialConnection(failoverOnInitialConnection)
+         .setGroupID(groupid);
+
       return cfConfig;
    }
 
@@ -466,7 +470,9 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
     */
    protected TopicConfiguration newTopic(final String topicName, final String[] strBindings)
    {
-      return new TopicConfigurationImpl(topicName, strBindings);
+      return new TopicConfigurationImpl()
+         .setName(topicName)
+         .setBindings(strBindings);
    }
 
    /**
@@ -483,7 +489,11 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
                                             final boolean durable,
                                             final String[] jndiArray)
    {
-      return new JMSQueueConfigurationImpl(queueName, selectorString, durable, jndiArray);
+      return new JMSQueueConfigurationImpl().
+         setName(queueName).
+         setSelector(selectorString).
+         setDurable(durable).
+         setBindings(jndiArray);
    }
 
    /**
@@ -499,7 +509,10 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
                                         final ArrayList<TopicConfiguration> topics,
                                         final ArrayList<ConnectionFactoryConfiguration> cfs, String domain)
    {
-      JMSConfiguration value = new JMSConfigurationImpl(cfs, queues, topics, domain);
-      return value;
+      return new JMSConfigurationImpl()
+         .setConnectionFactoryConfigurations(cfs)
+         .setQueueConfigurations(queues)
+         .setTopicConfigurations(topics)
+         .setDomain(domain);
    }
 }

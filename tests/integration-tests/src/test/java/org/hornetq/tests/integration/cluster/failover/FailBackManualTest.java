@@ -11,14 +11,8 @@
  * permissions and limitations under the License.
  */
 package org.hornetq.tests.integration.cluster.failover;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
-import org.junit.Before;
-
-import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
-
-import org.junit.Assert;
 
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
@@ -29,11 +23,16 @@ import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
 import org.hornetq.core.client.impl.ServerLocatorInternal;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.server.impl.InVMNodeManager;
 import org.hornetq.jms.client.HornetQTextMessage;
 import org.hornetq.tests.integration.cluster.util.TestableServer;
 import org.hornetq.tests.util.CountDownSessionFailureListener;
 import org.hornetq.tests.util.TransportConfigurationUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
@@ -73,7 +72,8 @@ public class FailBackManualTest extends FailoverTestBase
 
       backupServer.start();
 
-      assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS));
+      assertTrue(listener.getLatch()
+                    .await(5, TimeUnit.SECONDS));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
@@ -84,8 +84,6 @@ public class FailBackManualTest extends FailoverTestBase
       producer.send(message);
 
       session.removeFailureListener(listener);
-
-      liveConfig.setAllowAutoFailBack(false);
 
       Thread t = new Thread(new ServerStarter(liveServer));
 
@@ -113,29 +111,30 @@ public class FailBackManualTest extends FailoverTestBase
    protected void createConfigs() throws Exception
    {
       nodeManager = new InVMNodeManager(false);
-
-      backupConfig = super.createDefaultConfig();
-      backupConfig.getAcceptorConfigurations().clear();
-      backupConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(false));
-      backupConfig.setSecurityEnabled(false);
-      backupConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
-      backupConfig.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-      backupConfig.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
-      basicClusterConnectionConfig(backupConfig, backupConnector.getName(), liveConnector.getName());
-      backupConfig.getHAPolicy().setAllowAutoFailBack(false);
+
+      backupConfig = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
+         .setSecurityEnabled(false)
+         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
+                                      .setAllowFailBack(false))
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
+         .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultConfig();
-      liveConfig.getAcceptorConfigurations().clear();
-      liveConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(true));
-      liveConfig.setSecurityEnabled(false);
-      liveConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      basicClusterConnectionConfig(liveConfig, liveConnector.getName(), backupConnector.getName());
-      liveConfig.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-      liveConfig.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
-      liveConfig.setAllowAutoFailBack(false);
+      liveConfig = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
+         .setSecurityEnabled(false)
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
+         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()));
+
       liveServer = createTestableServer(liveConfig);
    }
 
@@ -168,12 +167,13 @@ public class FailBackManualTest extends FailoverTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
-               false,
-               0,
-               System.currentTimeMillis(),
-               (byte) 1);
+                                                       false,
+                                                       0,
+                                                       System.currentTimeMillis(),
+                                                       (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
-         message.getBodyBuffer().writeString("aardvarks");
+         message.getBodyBuffer()
+            .writeString("aardvarks");
          producer.send(message);
       }
 
@@ -185,7 +185,8 @@ public class FailBackManualTest extends FailoverTestBase
       {
          ClientMessage message2 = consumer.receive();
 
-         Assert.assertEquals("aardvarks", message2.getBodyBuffer().readString());
+         Assert.assertEquals("aardvarks", message2.getBodyBuffer()
+            .readString());
 
          Assert.assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
 
@@ -207,7 +208,8 @@ public class FailBackManualTest extends FailoverTestBase
    @Override
    protected void setBody(final int i, final ClientMessage message)
    {
-      message.getBodyBuffer().writeString("message" + i);
+      message.getBodyBuffer()
+         .writeString("message" + i);
    }
 
    static class ServerStarter implements Runnable

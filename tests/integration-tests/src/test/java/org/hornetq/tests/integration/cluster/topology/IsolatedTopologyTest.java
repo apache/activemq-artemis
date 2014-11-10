@@ -106,11 +106,6 @@ public class IsolatedTopologyTest extends ServiceTestBase
 
    private HornetQServer createServer1() throws Exception
    {
-      // Server1 with two acceptors, each acceptor on a different cluster connection
-      // talking to a different connector.
-      // i.e. two cluster connections isolated on the same node
-      Configuration config1 = createBasicConfig(0);
-
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
       params.put(org.hornetq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "1");
@@ -118,13 +113,6 @@ public class IsolatedTopologyTest extends ServiceTestBase
       TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc1");
-      config1.getAcceptorConfigurations().add(acceptor1VM1);
-
-      config1.getConnectorConfigurations().put("local-cc1", createInVMTransportConnectorConfig(1, "local-cc1"));
-      config1.getConnectorConfigurations().put("local-cc2", createInVMTransportConnectorConfig(2, "local-cc2"));
-
-      config1.getConnectorConfigurations().put("other-cc1", createInVMTransportConnectorConfig(3, "other-cc1"));
-      config1.getConnectorConfigurations().put("other-cc2", createInVMTransportConnectorConfig(4, "other-cc2"));
 
       params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
@@ -133,46 +121,47 @@ public class IsolatedTopologyTest extends ServiceTestBase
       TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc2");
-      config1.getAcceptorConfigurations().add(acceptor2VM1);
 
       List<String> connectTo = new ArrayList<String>();
       connectTo.add("other-cc1");
 
-      ClusterConnectionConfiguration server1CC1 =
-         new ClusterConnectionConfiguration("cc1", "jms", "local-cc1",
-                                            250,
-                                            true,
-                                            false,
-                                            1,
-                                            1024,
-                                            connectTo,
-                                            false);
-
-      config1.getClusterConfigurations().add(server1CC1);
+      ClusterConnectionConfiguration server1CC1 = new ClusterConnectionConfiguration()
+         .setName("cc1")
+         .setAddress("jms")
+         .setConnectorName("local-cc1")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo);
 
       ArrayList<String> connectTo2 = new ArrayList<String>();
       connectTo2.add("other-cc2");
 
-      ClusterConnectionConfiguration server1CC2 =
-         new ClusterConnectionConfiguration("cc2", "jms", "local-cc2", 250,
-                                            true,
-                                            false,
-                                            1,
-                                            1024,
-                                            connectTo2,
-                                            false);
+      ClusterConnectionConfiguration server1CC2 = new ClusterConnectionConfiguration()
+         .setName("cc2")
+         .setAddress("jms")
+         .setConnectorName("local-cc2")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo2);
 
-      config1.getClusterConfigurations().add(server1CC2);
+      // Server1 with two acceptors, each acceptor on a different cluster connection
+      // talking to a different connector.
+      // i.e. two cluster connections isolated on the same node
+      Configuration config1 = createBasicConfig(0)
+         .addConnectorConfiguration("local-cc1", createInVMTransportConnectorConfig(1, "local-cc1"))
+         .addConnectorConfiguration("local-cc2", createInVMTransportConnectorConfig(2, "local-cc2"))
+         .addConnectorConfiguration("other-cc1", createInVMTransportConnectorConfig(3, "other-cc1"))
+         .addConnectorConfiguration("other-cc2", createInVMTransportConnectorConfig(4, "other-cc2"))
+         .addAcceptorConfiguration(acceptor1VM1)
+         .addAcceptorConfiguration(acceptor2VM1)
+         .addClusterConfiguration(server1CC1)
+         .addClusterConfiguration(server1CC2);
 
       return createServer(false, config1);
    }
 
    private HornetQServer createServer2() throws Exception
    {
-      // Server1 with two acceptors, each acceptor on a different cluster connection
-      // talking to a different connector.
-      // i.e. two cluster connections isolated on the same node
-      Configuration config1 = createBasicConfig(3);
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
@@ -181,13 +170,6 @@ public class IsolatedTopologyTest extends ServiceTestBase
       TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc1");
-      config1.getAcceptorConfigurations().add(acceptor1VM1);
-
-      config1.getConnectorConfigurations().put("local-cc1", createInVMTransportConnectorConfig(3, "local-cc1"));
-      config1.getConnectorConfigurations().put("local-cc2", createInVMTransportConnectorConfig(4, "local-cc2"));
-
-      config1.getConnectorConfigurations().put("other-cc1", createInVMTransportConnectorConfig(1, "other-cc1"));
-      config1.getConnectorConfigurations().put("other-cc2", createInVMTransportConnectorConfig(2, "other-cc2"));
 
       params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
@@ -196,25 +178,41 @@ public class IsolatedTopologyTest extends ServiceTestBase
       TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc2");
-      config1.getAcceptorConfigurations().add(acceptor2VM1);
 
       List<String> connectTo = new ArrayList<String>();
       connectTo.add("other-cc1");
 
-      ClusterConnectionConfiguration server1CC1 =
-         new ClusterConnectionConfiguration("cc1", "jms", "local-cc1", 250, true, false, 1, 1024, connectTo,
-                                            false);
+      ClusterConnectionConfiguration server1CC1 = new ClusterConnectionConfiguration()
+         .setName("cc1")
+         .setAddress("jms")
+         .setConnectorName("local-cc1")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo);
 
-      config1.getClusterConfigurations().add(server1CC1);
-
-      ArrayList<String> connectTo2 = new ArrayList<String>();
+      List<String> connectTo2 = new ArrayList<String>();
       connectTo2.add("other-cc2");
 
-      ClusterConnectionConfiguration server1CC2 =
-         new ClusterConnectionConfiguration("cc2", "jms", "local-cc2", 250, true, false, 1, 1024, connectTo2,
-                                            false);
+      ClusterConnectionConfiguration server1CC2 = new ClusterConnectionConfiguration()
+         .setName("cc2")
+         .setAddress("jms")
+         .setConnectorName("local-cc2")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo2);
 
-      config1.getClusterConfigurations().add(server1CC2);
+      // Server1 with two acceptors, each acceptor on a different cluster connection
+      // talking to a different connector.
+      // i.e. two cluster connections isolated on the same node
+      Configuration config1 = createBasicConfig(3)
+         .addAcceptorConfiguration(acceptor1VM1)
+         .addAcceptorConfiguration(acceptor2VM1)
+         .addConnectorConfiguration("local-cc1", createInVMTransportConnectorConfig(3, "local-cc1"))
+         .addConnectorConfiguration("local-cc2", createInVMTransportConnectorConfig(4, "local-cc2"))
+         .addConnectorConfiguration("other-cc1", createInVMTransportConnectorConfig(1, "other-cc1"))
+         .addConnectorConfiguration("other-cc2", createInVMTransportConnectorConfig(2, "other-cc2"))
+         .addClusterConfiguration(server1CC1)
+         .addClusterConfiguration(server1CC2);
 
       return createServer(false, config1);
    }

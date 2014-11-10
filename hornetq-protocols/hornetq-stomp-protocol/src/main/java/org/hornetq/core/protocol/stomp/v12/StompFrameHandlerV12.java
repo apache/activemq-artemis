@@ -166,24 +166,15 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
                }
                case HEADER_SEPARATOR:
                {
-                  if (isEscaping)
+                  if (inHeaderName)
                   {
-                     //a colon
-                     holder.append(b);
-                     isEscaping = false;
-                  }
-                  else
-                  {
-                     if (inHeaderName)
-                     {
-                        headerName = holder.getString();
+                     headerName = holder.getString();
 
-                        holder.reset();
+                     holder.reset();
 
-                        inHeaderName = false;
+                     inHeaderName = false;
 
-                        headerValueWhitespace = true;
-                     }
+                     headerValueWhitespace = true;
                   }
 
                   whiteSpaceOnly = false;
@@ -223,6 +214,19 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
                      throw BUNDLE.invalidTwoCRs();
                   }
                   nextEOLChar = true;
+                  break;
+               }
+               case StompDecoder.c:
+               {
+                  if (isEscaping)
+                  {
+                     holder.append(StompDecoder.HEADER_SEPARATOR);
+                     isEscaping = false;
+                  }
+                  else
+                  {
+                     holder.append(b);
+                  }
                   break;
                }
                case NEW_LINE:

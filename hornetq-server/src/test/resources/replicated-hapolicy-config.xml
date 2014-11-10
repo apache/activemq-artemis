@@ -1,0 +1,15 @@
+<configuration
+      xmlns="urn:hornetq"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/hornetq-configuration.xsd">
+   <ha-policy>
+      <replication>
+         <master>
+            <group-name>purple</group-name>
+            <check-for-live-server>true</check-for-live-server>
+            <cluster-name>abcdefg</cluster-name>
+         </master>
+      </replication>
+   </ha-policy>
+
+</configuration>

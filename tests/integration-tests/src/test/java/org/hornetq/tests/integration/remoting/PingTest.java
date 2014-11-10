@@ -231,7 +231,8 @@ public class PingTest extends ServiceTestBase
    {
       // server should receive one and only one ping from the client so that
       // the server connection TTL is configured with the client value
-      final CountDownLatch pingOnServerLatch = new CountDownLatch(2);
+      final CountDownLatch requiredPings = new CountDownLatch(1);
+      final CountDownLatch unwantedPings = new CountDownLatch(2);
       server.getRemotingService().addIncomingInterceptor(new Interceptor()
       {
          public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
@@ -239,7 +240,8 @@ public class PingTest extends ServiceTestBase
             if (packet.getType() == PacketImpl.PING)
             {
                Assert.assertEquals(HornetQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
-               pingOnServerLatch.countDown();
+               unwantedPings.countDown();
+               requiredPings.countDown();
             }
             return true;
          }
@@ -253,7 +255,9 @@ public class PingTest extends ServiceTestBase
 
       Assert.assertEquals(1, ((ClientSessionFactoryInternal)csf).numConnections());
 
-      Assert.assertFalse("server received an unexpected ping from the client", pingOnServerLatch.await(HornetQClient.DEFAULT_CONNECTION_TTL, TimeUnit.MILLISECONDS));
+      Assert.assertTrue("server didn't received an expected ping from the client", requiredPings.await(5000, TimeUnit.MILLISECONDS));
+
+      Assert.assertFalse("server received an unexpected ping from the client", unwantedPings.await(HornetQClient.DEFAULT_CONNECTION_TTL * 2, TimeUnit.MILLISECONDS));
 
       session.close();
 

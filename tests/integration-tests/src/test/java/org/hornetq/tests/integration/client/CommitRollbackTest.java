@@ -156,9 +156,9 @@ public class CommitRollbackTest extends ServiceTestBase
       cc2.close();
       session.rollback();
       Assert.assertEquals(0, q2.getDeliveringCount());
-      Assert.assertEquals(numMessages, q.getMessageCount());
+      Assert.assertEquals(numMessages, getMessageCount(q));
       Assert.assertEquals(0, q2.getDeliveringCount());
-      Assert.assertEquals(numMessages, q.getMessageCount());
+      Assert.assertEquals(numMessages, getMessageCount(q));
       sendSession.close();
       session.close();
    }
@@ -209,10 +209,10 @@ public class CommitRollbackTest extends ServiceTestBase
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
       Assert.assertEquals(numMessages, q.getDeliveringCount());
-      Assert.assertEquals(numMessages, q.getMessageCount());
+      Assert.assertEquals(numMessages, getMessageCount(q));
       session.commit();
       Assert.assertEquals(0, q.getDeliveringCount());
-      Assert.assertEquals(0, q.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(q));
       sendSession.close();
       session.close();
 
@@ -243,11 +243,11 @@ public class CommitRollbackTest extends ServiceTestBase
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
       Assert.assertEquals(numMessages, q.getDeliveringCount());
-      Assert.assertEquals(numMessages, q.getMessageCount());
+      Assert.assertEquals(numMessages, getMessageCount(q));
       session.stop();
       session.rollback();
       Assert.assertEquals(0, q.getDeliveringCount());
-      Assert.assertEquals(numMessages, q.getMessageCount());
+      Assert.assertEquals(numMessages, getMessageCount(q));
       latch = new CountDownLatch(numMessages);
       cc.setMessageHandler(new ackHandler(session, latch));
       session.start();

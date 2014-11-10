@@ -36,6 +36,7 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="persistence.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="configuring-transports.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="connection-ttl.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="slow-consumers.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="transaction-config.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="flow-control.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="send-guarantees.xml"/>

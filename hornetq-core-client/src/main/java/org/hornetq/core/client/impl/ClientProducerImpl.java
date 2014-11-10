@@ -326,7 +326,7 @@ public class ClientProducerImpl implements ClientProducerInternal
          throw new HornetQInterruptedException(e);
       }
 
-      sessionContext.sendFullMessage(msgI, sendBlocking, handler);
+      sessionContext.sendFullMessage(msgI, sendBlocking, handler, address);
    }
 
    private void checkClosed() throws HornetQException

@@ -69,9 +69,9 @@ public class ScheduledMessageTest extends ServiceTestBase
     */
    protected void startServer() throws Exception
    {
-      configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
-      configuration.setJournalMinFiles(2);
+      configuration = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .setJournalMinFiles(2);
       server = createServer(true, configuration);
       server.start();
       locator = createInVMNonHALocator();
@@ -798,10 +798,10 @@ public class ScheduledMessageTest extends ServiceTestBase
 
       server.stop();
 
-      configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
-      configuration.setJournalMinFiles(2);
-      configuration.getAddressesSettings().put(atestq.toString(), qs);
+      configuration = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .setJournalMinFiles(2)
+         .addAddressesSetting(atestq.toString(), qs);
 
       server = createServer(true, configuration);
       server.start();

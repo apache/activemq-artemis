@@ -12,12 +12,13 @@
  */
 package org.hornetq.spi.core.remoting;
 
-import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
+import java.io.Serializable;
 
 /**
  * @author Clebert Suconic
  */
-public interface ClientProtocolManagerFactory
+public interface ClientProtocolManagerFactory extends Serializable
 {
-   ClientProtocolManager newProtocolManager(ClientSessionFactoryInternal factoryInternal);
+
+   ClientProtocolManager newProtocolManager();
 }

@@ -323,16 +323,14 @@ public class JMSReconnectTest extends UnitTestCase
    {
       super.setUp();
 
-      Configuration liveConf = createBasicConfig();
-      liveConf.setSecurityEnabled(false);
-      liveConf.setJournalType(getDefaultJournalType());
-      liveConf.getAcceptorConfigurations()
-              .add(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"));
-      liveConf.setBindingsDirectory(getBindingsDir());
-      liveConf.setJournalMinFiles(2);
-      liveConf.setJournalDirectory(getJournalDir());
-      liveConf.setPagingDirectory(getPageDir());
-      liveConf.setLargeMessagesDirectory(getLargeMessagesDir());
+      Configuration liveConf = createBasicConfig()
+         .setJournalType(getDefaultJournalType())
+         .addAcceptorConfiguration(new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory"))
+         .setBindingsDirectory(getBindingsDir())
+         .setJournalMinFiles(2)
+         .setJournalDirectory(getJournalDir())
+         .setPagingDirectory(getPageDir())
+         .setLargeMessagesDirectory(getLargeMessagesDir());
 
       liveService = HornetQServers.newHornetQServer(liveConf, true);
       liveService.start();

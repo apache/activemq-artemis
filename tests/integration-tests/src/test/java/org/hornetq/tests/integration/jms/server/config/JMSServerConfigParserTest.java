@@ -51,10 +51,9 @@ public class JMSServerConfigParserTest extends ServiceTestBase
    @Test
    public void testParsing() throws Exception
    {
-      Configuration config = createDefaultConfig();
-
-      // anything so the parsing will work
-      config.getConnectorConfigurations().put("netty", new TransportConfiguration());
+      Configuration config = createDefaultConfig()
+         // anything so the parsing will work
+         .addConnectorConfiguration("netty", new TransportConfiguration());
 
       JMSServerConfigParser parser = new JMSServerConfigParserImpl();
 

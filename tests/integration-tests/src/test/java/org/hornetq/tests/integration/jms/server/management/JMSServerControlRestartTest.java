@@ -146,12 +146,12 @@ public class JMSServerControlRestartTest extends ManagementTestBase
 
    private JMSServerManager createJMSServer() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.setPersistenceEnabled(true);
-      conf.setJournalType(JournalType.NIO);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration conf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .setJMXManagementEnabled(true)
+         .setPersistenceEnabled(true)
+         .setJournalType(JournalType.NIO)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       HornetQServer server = HornetQServers.newHornetQServer(conf, mbeanServer);
 
       context = new InVMNamingContext();

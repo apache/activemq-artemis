@@ -15,6 +15,7 @@ package org.hornetq.core.config.impl;
 import org.hornetq.core.server.HornetQMessageBundle;
 import org.hornetq.core.server.JournalType;
 import org.hornetq.core.settings.impl.AddressFullMessagePolicy;
+import org.hornetq.core.settings.impl.SlowConsumerPolicy;
 
 /**
  * A Validators.
@@ -163,6 +164,19 @@ public final class Validators
                !val.equals(AddressFullMessagePolicy.FAIL.toString()))
          {
             throw HornetQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
+         }
+      }
+   };
+
+   public static final Validator SLOW_CONSUMER_POLICY_TYPE = new Validator()
+   {
+      public void validate(final String name, final Object value)
+      {
+         String val = (String) value;
+         if (val == null || !val.equals(SlowConsumerPolicy.KILL.toString()) &&
+            !val.equals(SlowConsumerPolicy.NOTIFY.toString()))
+         {
+            throw HornetQMessageBundle.BUNDLE.invalidSlowConsumerPolicyType(val);
          }
       }
    };

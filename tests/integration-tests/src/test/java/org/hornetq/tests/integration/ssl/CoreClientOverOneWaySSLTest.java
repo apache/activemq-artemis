@@ -14,6 +14,8 @@ package org.hornetq.tests.integration.ssl;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,20 +42,50 @@ import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @version <tt>$Revision: 3716 $</tt>
+ * @author Justin Bertram
  */
+@RunWith(value = Parameterized.class)
 public class CoreClientOverOneWaySSLTest extends ServiceTestBase
 {
-   // Constants -----------------------------------------------------
+   @Parameterized.Parameters(name = "storeType={0}")
+   public static Collection getParameters()
+   {
+      return Arrays.asList(new Object[][]{
+         {"JCEKS"},
+         {"JKS"}
+      });
+   }
+
+   public CoreClientOverOneWaySSLTest(String storeType)
+   {
+      this.storeType = storeType;
+      SERVER_SIDE_KEYSTORE = "server-side-keystore." + storeType.toLowerCase();
+      CLIENT_SIDE_TRUSTSTORE = "client-side-truststore." + storeType.toLowerCase();
+   }
 
    public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
 
-   public static final String SERVER_SIDE_KEYSTORE = "server-side.keystore";
-   public static final String CLIENT_SIDE_TRUSTSTORE = "client-side.truststore";
-   public static final String PASSWORD = "secureexample";
+   /** These artifacts are required for testing 1-way SSL
+    *
+    * Commands to create the JKS artifacts:
+    * keytool -genkey -keystore server-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
+    * keytool -export -keystore server-side-keystore.jks -file hornetq-jks.cer -storepass secureexample
+    * keytool -import -keystore client-side-truststore.jks -file hornetq-jks.cer -storepass secureexample -keypass secureexample -noprompt
+    *
+    * Commands to create the JCEKS artifacts:
+    * keytool -genkey -keystore server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
+    * keytool -export -keystore server-side-keystore.jceks -file hornetq-jceks.cer -storetype jceks -storepass secureexample
+    * keytool -import -keystore client-side-truststore.jceks -storetype JCEKS -file hornetq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
+    */
+   private static String storeType;
+   private static String SERVER_SIDE_KEYSTORE;
+   private static String CLIENT_SIDE_TRUSTSTORE;
+   private static final String PASSWORD = "secureexample";
 
    private HornetQServer server;
 
@@ -66,6 +98,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
@@ -91,6 +124,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
@@ -112,6 +146,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    {
       createCustomSslServer("myBadCipherSuite", null);
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
@@ -132,6 +167,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    {
       createCustomSslServer(getEnabledCipherSuites()[0], "TLSv1.2");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, getEnabledCipherSuites()[1]);
@@ -154,6 +190,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
@@ -175,6 +212,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    {
       createCustomSslServer(null, "myBadProtocol");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
@@ -195,6 +233,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    {
       createCustomSslServer(null, "TLSv1");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
@@ -212,12 +251,13 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    }
 
    @Test
-   public void disabled_testOneWaySSLWithGoodClientCipherSuite() throws Exception
+   public void testOneWaySSLWithGoodClientCipherSuite() throws Exception
    {
       createCustomSslServer();
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, getSuitableCipherSuite());
@@ -250,12 +290,13 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    }
 
    @Test
-   public void disabled_testOneWaySSLWithGoodServerCipherSuite() throws Exception
+   public void testOneWaySSLWithGoodServerCipherSuite() throws Exception
    {
       createCustomSslServer(getSuitableCipherSuite(), null);
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
@@ -293,6 +334,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1");
@@ -331,6 +373,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
@@ -367,16 +410,23 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
 
       String[] suites = getEnabledCipherSuites();
 
-      // The certs are generated using Java keytool using RSA and not ECDSA but the JVM prefers ECDSA over RSA so we have
-      // to look through the cipher suites until we find one that's suitable for us.
-      // If the JVM running this test is version 7 from Oracle then this cipher suite will will almost certainly require
-      // TLSv1.2 (which is not enabled on the client by default).
-      // See http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider for the
-      // preferred cipher suites.
+      /** The JKS certs are generated using Java keytool using RSA and not ECDSA but the JVM prefers ECDSA over RSA so we have
+       * to look through the cipher suites until we find one that's suitable for us.
+       * If the JVM running this test is version 7 from Oracle then this cipher suite will will almost certainly require
+       * TLSv1.2 (which is not enabled on the client by default).
+       * See http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider for the
+       * preferred cipher suites.
+       */
+
+      /** JCEKS is much more sensitive to the cipher suite for some reason. I have only gotten it to work with:
+       * TLS_DHE_DSS_WITH_AES_128_CBC_SHA256
+       * TLS_DHE_DSS_WITH_AES_128_CBC_SHA
+       * SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA
+       */
       for (int i = 0; i < suites.length; i++)
       {
          String suite = suites[i];
-         if (!suite.contains("ECDSA") && suite.contains("RSA"))
+         if ((storeType.equals("JCEKS") && suite.contains("DHE_DSS_WITH")) || (!storeType.equals("JCEKS") && !suite.contains("ECDSA") && suite.contains("RSA")))
          {
             result = suite;
             break;
@@ -389,7 +439,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
 
    public static String[] getEnabledCipherSuites() throws Exception
    {
-      SSLContext context = SSLSupport.createContext("JKS", SERVER_SIDE_KEYSTORE, PASSWORD, "JKS", CLIENT_SIDE_TRUSTSTORE, PASSWORD);
+      SSLContext context = SSLSupport.createContext(storeType, SERVER_SIDE_KEYSTORE, PASSWORD, storeType, CLIENT_SIDE_TRUSTSTORE, PASSWORD);
       SSLEngine engine = context.createSSLEngine();
       return engine.getEnabledCipherSuites();
    }
@@ -421,6 +471,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "invalid password");
 
@@ -508,10 +559,9 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
 
    private void createCustomSslServer(String cipherSuites, String protocols) throws Exception
    {
-      ConfigurationImpl config = createBasicConfig();
-      config.setSecurityEnabled(false);
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
@@ -525,7 +575,8 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, protocols);
       }
 
-      config.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      ConfigurationImpl config = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server = createServer(false, config);
       server.start();
       waitForServer(server);

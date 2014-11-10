@@ -66,21 +66,25 @@ public class JMSConfigurationTest extends ServiceTestBase
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName());
       List<TransportConfiguration> transportConfigs = new ArrayList<TransportConfiguration>();
       transportConfigs.add(connectorConfig);
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl(RandomUtil.randomString(),
-                                                                                       false,
-                                                                                       registerConnectors(coreServer, transportConfigs),
-                                                                                       "/cf/binding1",
-                                                                                       "/cf/binding2");
+
+      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
+         .setName(RandomUtil.randomString())
+         .setConnectorNames(registerConnectors(coreServer, transportConfigs))
+         .setBindings("/cf/binding1", "/cf/binding2");
+
       jmsConfiguration.getConnectionFactoryConfigurations().add(cfConfig);
-      JMSQueueConfigurationImpl queueConfig = new JMSQueueConfigurationImpl(RandomUtil.randomString(),
-                                                                      null,
-                                                                      false,
-                                                                      "/queue/binding1",
-                                                                      "/queue/binding2");
+      JMSQueueConfigurationImpl queueConfig = new JMSQueueConfigurationImpl()
+         .setName(RandomUtil.randomString())
+         .setDurable(false)
+         .setBindings(
+            "/queue/binding1",
+            "/queue/binding2");
       jmsConfiguration.getQueueConfigurations().add(queueConfig);
-      TopicConfiguration topicConfig = new TopicConfigurationImpl(RandomUtil.randomString(),
-                                                                  "/topic/binding1",
-                                                                  "/topic/binding2");
+      TopicConfiguration topicConfig = new TopicConfigurationImpl()
+         .setName(RandomUtil.randomString())
+         .setBindings(
+            "/topic/binding1",
+            "/topic/binding2");
       jmsConfiguration.getTopicConfigurations().add(topicConfig);
 
       JMSServerManager server = new JMSServerManagerImpl(coreServer, jmsConfiguration);

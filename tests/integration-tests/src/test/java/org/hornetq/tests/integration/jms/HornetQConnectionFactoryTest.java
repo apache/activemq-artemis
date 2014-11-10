@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.hornetq.tests.integration.jms;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -164,8 +164,10 @@ public class HornetQConnectionFactoryTest extends UnitTestCase
    @Test
    public void testDiscoveryConstructor() throws Exception
    {
-      DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-            new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1));
+      DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
+         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+                                                      .setGroupAddress(groupAddress)
+                                                      .setGroupPort(groupPort));
       HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.CF);
       assertFactoryParams(cf,
                           null,
@@ -707,16 +709,16 @@ public class HornetQConnectionFactoryTest extends UnitTestCase
 
    private void startServer() throws Exception
    {
-      Configuration liveConf = createBasicConfig();
-      liveConf.setSecurityEnabled(false);
       liveTC = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      liveConf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
       connectors.put(liveTC.getName(), liveTC);
-      liveConf.setConnectorConfigurations(connectors);
-      liveConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
       List<String> connectorNames = new ArrayList<String>();
       connectorNames.add(liveTC.getName());
+
+      Configuration liveConf = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .setConnectorConfigurations(connectors)
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
 
       final long broadcastPeriod = 250;
 
@@ -724,10 +726,14 @@ public class HornetQConnectionFactoryTest extends UnitTestCase
 
       final int localBindPort = 5432;
 
-      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration(bcGroupName,
-                                                                              broadcastPeriod,
-                                                                              connectorNames,
-                                              new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, localBindPort));
+      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration()
+         .setName(bcGroupName)
+         .setBroadcastPeriod(broadcastPeriod)
+         .setConnectorInfos(connectorNames)
+         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+                                             .setGroupAddress(groupAddress)
+                                             .setGroupPort(groupPort)
+                                             .setLocalBindPort(localBindPort));
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
       bcConfigs1.add(bcConfig1);

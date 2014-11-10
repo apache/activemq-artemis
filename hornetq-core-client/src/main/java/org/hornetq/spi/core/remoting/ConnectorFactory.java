@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.hornetq.api.core.TransportConfigurationHelper;
+
 /**
  * A ConnectorFactory is used by the client for creating connectors.
  * <p>
@@ -24,7 +26,7 @@ import java.util.concurrent.ScheduledExecutorService;
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public interface ConnectorFactory
+public interface ConnectorFactory extends TransportConfigurationHelper
 {
    /**
     * creates a new instance of a connector.
@@ -42,7 +44,8 @@ public interface ConnectorFactory
                              ConnectionLifeCycleListener listener,
                              Executor closeExecutor,
                              Executor threadPool,
-                             ScheduledExecutorService scheduledThreadPool);
+                             ScheduledExecutorService scheduledThreadPool,
+                             ClientProtocolManager protocolManager);
 
    /**
     * Returns the allowable properties for this connector.

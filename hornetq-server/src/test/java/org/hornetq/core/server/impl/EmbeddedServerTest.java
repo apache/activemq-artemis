@@ -38,11 +38,11 @@ public class EmbeddedServerTest
    @Before
    public void setup()
    {
-      configuration = new ConfigurationImpl();
-      configuration.setJournalDirectory(SERVER_JOURNAL_DIR);
-      configuration.setPersistenceEnabled(false);
-      configuration.setSecurityEnabled(false);
-      configuration.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      configuration = new ConfigurationImpl()
+         .setJournalDirectory(SERVER_JOURNAL_DIR)
+         .setPersistenceEnabled(false)
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       server = HornetQServers.newHornetQServer(configuration);
       try

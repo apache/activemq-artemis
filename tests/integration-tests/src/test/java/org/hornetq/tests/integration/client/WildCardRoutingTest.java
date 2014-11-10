@@ -783,13 +783,14 @@ public class WildCardRoutingTest extends UnitTestCase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration configuration = createDefaultConfig();
-      configuration.setWildcardRoutingEnabled(true);
-      configuration.setSecurityEnabled(false);
-      configuration.setTransactionTimeoutScanPeriod(500);
       TransportConfiguration transportConfig = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY);
-      configuration.getAcceptorConfigurations().add(transportConfig);
+
+      Configuration configuration = createDefaultConfig()
+         .setWildcardRoutingEnabled(true)
+         .setSecurityEnabled(false)
+         .setTransactionTimeoutScanPeriod(500)
+         .addAcceptorConfiguration(transportConfig);
+
       server = HornetQServers.newHornetQServer(configuration, false);
       // start the server
       server.start();

@@ -24,7 +24,7 @@ import org.hornetq.jms.client.HornetQTextMessage;
 import org.hornetq.tests.util.RandomUtil;
 
 /**
- * Code to be run in an external VM, via main().
+ * Code to be run in an external VM, via main()
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */

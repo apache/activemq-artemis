@@ -363,6 +363,112 @@ public class JMSServerControlTest extends ManagementTestBase
       }
    }
 
+   @Test
+   public void testDestroyQueueWithConsumersWithoutForcingTheConsumersToClose() throws Exception
+   {
+      String queueJNDIBinding = RandomUtil.randomString();
+      String queueName = RandomUtil.randomString();
+
+      UnitTestCase.checkNoBinding(context, queueJNDIBinding);
+      checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
+
+      JMSServerControl control = createManagementControl();
+      control.createQueue(queueName, queueJNDIBinding);
+
+      UnitTestCase.checkBinding(context, queueJNDIBinding);
+      checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
+
+      HornetQConnectionFactory cf = new HornetQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      HornetQConnection connection = (HornetQConnection) cf.createConnection();
+      connection.start();
+      try
+      {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(HornetQJMSClient.createQueue(queueName));
+         producer.send(session.createTextMessage());
+         // create a consumer will create a Core queue bound to the topic address
+         HornetQMessageConsumer cons = (HornetQMessageConsumer) session.createConsumer(HornetQJMSClient.createQueue(queueName));
+
+         try
+         {
+            control.destroyQueue(queueName, false);
+            fail();
+         }
+         catch (Exception e)
+         {
+            assertTrue(e.getMessage().startsWith("HQ119025"));
+         }
+
+         UnitTestCase.checkBinding(context, queueJNDIBinding);
+         checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
+
+         Assert.assertNotNull(fakeJMSStorageManager.destinationMap.get(queueName));
+
+         assertFalse(cons.isClosed());
+
+         assertNotNull(cons.receive(5000));
+      }
+      finally
+      {
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+   }
+
+
+   @Test
+   public void testDestroyTopicWithConsumersWithoutForcingTheConsumersToClose() throws Exception
+   {
+      String topicJNDIBinding = RandomUtil.randomString();
+      String topicName = RandomUtil.randomString();
+
+      UnitTestCase.checkNoBinding(context, topicJNDIBinding);
+      checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
+
+      JMSServerControl control = createManagementControl();
+      control.createTopic(topicName, topicJNDIBinding);
+
+      UnitTestCase.checkBinding(context, topicJNDIBinding);
+      checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
+
+      HornetQConnectionFactory cf = new HornetQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      HornetQConnection connection = (HornetQConnection) cf.createConnection();
+      connection.start();
+      try
+      {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         // create a consumer will create a Core queue bound to the topic address
+         HornetQMessageConsumer cons = (HornetQMessageConsumer) session.createConsumer(HornetQJMSClient.createTopic(topicName));
+         MessageProducer producer = session.createProducer(HornetQJMSClient.createTopic(topicName));
+         producer.send(session.createTextMessage());
+
+         try
+         {
+            control.destroyTopic(topicName, false);
+            fail();
+         }
+         catch (Exception e)
+         {
+            assertTrue(e.getMessage().startsWith("HQ119025"));
+         }
+
+         UnitTestCase.checkBinding(context, topicJNDIBinding);
+         checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
+         assertFalse(cons.isClosed());
+
+         assertNotNull(cons.receive(5000));
+      }
+      finally
+      {
+         if (connection != null)
+         {
+            connection.close();
+         }
+      }
+   }
+
 
    @Test
    public void testDestroyTopicWithConsumers() throws Exception
@@ -791,6 +897,23 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
+   public void testDestroyConnectionFactoryWithNullBindings() throws Exception
+   {
+      // Create Connection Factory with Null Bindings
+      JMSServerControl control = createManagementControl();
+      control.createConnectionFactory("test-cf", // Name
+                                      false,     // HA
+                                      false,     // Use Discovery?
+                                      1,         // ConnectionFactory Type
+                                      "invm",    // Connector Names
+                                      null);     // JNDI Bindings
+
+      control.destroyConnectionFactory("test-cf");
+
+      assertTrue(control.getConnectionFactoryNames().length == 0);
+   }
+
+   @Test
    public void testListPreparedTransactionDetails() throws Exception
    {
       Xid xid = newXID();
@@ -935,15 +1058,12 @@ public class JMSServerControlTest extends ManagementTestBase
     */
    protected void startServer() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.setPersistenceEnabled(true);
-
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      conf.getConnectorConfigurations().put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
-      conf.getConnectorConfigurations().put("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration conf = createBasicConfig()
+         .setPersistenceEnabled(true)
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .addConnectorConfiguration("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
+         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       server = addServer(HornetQServers.newHornetQServer(conf, mbeanServer, true));
 

@@ -18,6 +18,7 @@ package org.hornetq.core.persistence.impl.journal;
 import java.nio.ByteBuffer;
 
 import org.hornetq.api.core.HornetQException;
+import org.hornetq.api.core.Message;
 import org.hornetq.core.journal.SequentialFile;
 import org.hornetq.core.persistence.StorageManager;
 import org.hornetq.core.persistence.StorageManager.LargeMessageExtension;
@@ -77,15 +78,17 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
    }
 
    @Override
-   public void setDurable(boolean durable)
+   public Message setDurable(boolean durable)
    {
       mainLM.setDurable(durable);
+      return mainLM;
    }
 
    @Override
-   public synchronized void setMessageID(long id)
+   public synchronized Message setMessageID(long id)
    {
       mainLM.setMessageID(id);
+      return mainLM;
    }
 
    @Override

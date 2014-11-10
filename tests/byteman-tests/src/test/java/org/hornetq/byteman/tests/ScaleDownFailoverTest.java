@@ -14,6 +14,8 @@ package org.hornetq.byteman.tests;
 
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientMessage;
+import org.hornetq.core.config.ScaleDownConfiguration;
+import org.hornetq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.hornetq.core.remoting.impl.netty.TransportConstants;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.tests.integration.cluster.distribution.ClusterTestBase;
@@ -37,23 +39,30 @@ public class ScaleDownFailoverTest extends ClusterTestBase
    {
       super.setUp();
       stopCount = 0;
-      setupServer(0, isFileStorage(), isNetty());
-      setupServer(1, isFileStorage(), isNetty());
-      setupServer(2, isFileStorage(), isNetty());
+      setupLiveServer(0, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(1, isFileStorage(), false, isNetty(), true);
+      setupLiveServer(2, isFileStorage(), false, isNetty(), true);
+      ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
+      ScaleDownConfiguration scaleDownConfiguration2 = new ScaleDownConfiguration();
+      scaleDownConfiguration2.setEnabled(false);
+      ScaleDownConfiguration scaleDownConfiguration3 = new ScaleDownConfiguration();
+      scaleDownConfiguration3.setEnabled(false);
+      ((LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration);
+      ((LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration2);
+      ((LiveOnlyPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration3);
       if (isGrouped())
       {
-         servers[0].getConfiguration().getHAPolicy().setScaleDownGroupName("bill");
-         servers[1].getConfiguration().getHAPolicy().setScaleDownGroupName("bill");
-         servers[2].getConfiguration().getHAPolicy().setScaleDownGroupName("bill");
+         scaleDownConfiguration.setGroupName("bill");
+         scaleDownConfiguration2.setGroupName("bill");
+         scaleDownConfiguration3.setGroupName("bill");
       }
-      servers[0].getConfiguration().getHAPolicy().setScaleDown(true);
       staticServers = servers;
       setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 1, 2);
       setupClusterConnection("cluster1", "queues", false, 1, isNetty(), 1, 0, 2);
       setupClusterConnection("cluster2", "queues", false, 1, isNetty(), 2, 0, 1);
-      servers[0].getConfiguration().getHAPolicy().getScaleDownConnectors().addAll(servers[0].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
-      servers[1].getConfiguration().getHAPolicy().getScaleDownConnectors().addAll(servers[1].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
-      servers[2].getConfiguration().getHAPolicy().getScaleDownConnectors().addAll(servers[2].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
+      scaleDownConfiguration.getConnectors().addAll(servers[0].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
+      scaleDownConfiguration2.getConnectors().addAll(servers[1].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
+      scaleDownConfiguration3.getConnectors().addAll(servers[2].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
 
       startServers(0, 1, 2);
       setupSessionFactory(0, isNetty());

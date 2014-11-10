@@ -12,8 +12,10 @@
  */
 package org.hornetq.api.core;
 
+import java.io.Serializable;
 
-public interface BroadcastEndpointFactory
+
+public interface BroadcastEndpointFactory extends Serializable
 {
    BroadcastEndpoint createBroadcastEndpoint() throws Exception;
 }

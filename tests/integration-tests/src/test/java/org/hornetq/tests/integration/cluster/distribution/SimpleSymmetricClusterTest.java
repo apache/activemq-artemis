@@ -67,9 +67,9 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       setupBackupServer(2, 5, isFileStorage(), true, isNetty());
 
       // The lives
-      setupLiveServer(3, isFileStorage(), true, isNetty());
-      setupLiveServer(4, isFileStorage(), true, isNetty());
-      setupLiveServer(5, isFileStorage(), true, isNetty());
+      setupLiveServer(3, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(4, isFileStorage(), true, isNetty(), false);
+      setupLiveServer(5, isFileStorage(), true, isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 3, 4, 5);
 

@@ -135,12 +135,12 @@ public final class XmlDataExporter
    public XmlDataExporter(OutputStream out, String bindingsDir, String journalDir, String pagingDir,
                           String largeMessagesDir) throws Exception
    {
-      config = new ConfigurationImpl();
-      config.setBindingsDirectory(bindingsDir);
-      config.setJournalDirectory(journalDir);
-      config.setPagingDirectory(pagingDir);
-      config.setLargeMessagesDirectory(largeMessagesDir);
-      config.setJournalType(JournalType.NIO);
+      config = new ConfigurationImpl()
+         .setBindingsDirectory(bindingsDir)
+         .setJournalDirectory(journalDir)
+         .setPagingDirectory(pagingDir)
+         .setLargeMessagesDirectory(largeMessagesDir)
+         .setJournalType(JournalType.NIO);
       final ExecutorService executor = Executors.newFixedThreadPool(1);
       ExecutorFactory executorFactory = new ExecutorFactory()
       {
@@ -950,7 +950,7 @@ public final class XmlDataExporter
          }
          else
          {
-            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, value.toString());
+            xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, value == null ? XmlDataConstants.NULL : value.toString());
          }
 
          if (value instanceof Boolean)

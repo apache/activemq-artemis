@@ -16,8 +16,10 @@ package org.hornetq.spi.core.remoting;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
+import io.netty.channel.ChannelPipeline;
 import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.Interceptor;
+import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.spi.core.protocol.RemotingConnection;
 
 /**
@@ -29,11 +31,9 @@ public interface ClientProtocolManager
 
    /// Life Cycle Methods:
 
-   RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout,  List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors, ProtocolResponseHandler protocolResponseHandler);
+   RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors, TopologyResponseHandler topologyResponseHandler);
 
    RemotingConnection getCurrentConnection();
-
-   void setResponseHandler(ProtocolResponseHandler handler);
 
    Lock lockSessionCreation();
 
@@ -49,10 +49,9 @@ public interface ClientProtocolManager
 
    /// Sending methods
 
+   void addChannelHandlers(ChannelPipeline pipeline);
 
    void sendSubscribeTopology(boolean isServer);
-
-   void shakeHands();
 
    void ping(long connectionTTL);
 
@@ -66,7 +65,14 @@ public interface ClientProtocolManager
                                        int minLargeMessageSize,
                                        int confirmationWindowSize) throws HornetQException;
 
-   boolean cleanupBeforeFailover();
+   boolean cleanupBeforeFailover(HornetQException cause);
 
    boolean checkForFailover(String liveNodeID) throws HornetQException;
+
+   void setSessionFactory(ClientSessionFactory factory);
+
+   ClientSessionFactory getSessionFactory();
+
+   String getName();
+
 }

@@ -730,24 +730,15 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                }
                case HEADER_SEPARATOR:
                {
-                  if (isEscaping)
+                  if (inHeaderName)
                   {
-                     //a colon
-                     holder.append(b);
-                     isEscaping = false;
-                  }
-                  else
-                  {
-                     if (inHeaderName)
-                     {
-                        headerName = holder.getString();
+                     headerName = holder.getString();
 
-                        holder.reset();
+                     holder.reset();
 
-                        inHeaderName = false;
+                     inHeaderName = false;
 
-                        headerValueWhitespace = true;
-                     }
+                     headerValueWhitespace = true;
                   }
 
                   whiteSpaceOnly = false;
@@ -759,6 +750,19 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                   if (isEscaping)
                   {
                      holder.append(StompDecoder.NEW_LINE);
+                     isEscaping = false;
+                  }
+                  else
+                  {
+                     holder.append(b);
+                  }
+                  break;
+               }
+               case StompDecoder.c:
+               {
+                  if (isEscaping)
+                  {
+                     holder.append(StompDecoder.HEADER_SEPARATOR);
                      isEscaping = false;
                   }
                   else

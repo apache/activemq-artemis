@@ -310,7 +310,7 @@ public class QueueBrowserTest extends ServiceTestBase
       }
       // assert that all the messages are there and none have been acked
       Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(100, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+      Assert.assertEquals(100, getMessageCount(((Queue)server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 
@@ -347,7 +347,7 @@ public class QueueBrowserTest extends ServiceTestBase
       }
       // assert that all the messages are there and none have been acked
       Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(100, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getMessageCount());
+      Assert.assertEquals(100, getMessageCount(((Queue)server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 

@@ -38,7 +38,7 @@ public interface HornetQServerControl
     * Returns the list of interceptors used by this server. Invoking this method is the same as invoking
     * <code>getIncomingInterceptorClassNames().</code>
     *
-    * @see Interceptor
+    * @see org.hornetq.api.core.Interceptor
     * @deprecated As of HornetQ 2.3.0.Final, replaced by
     * {@link #getIncomingInterceptorClassNames()} and
     * {@link #getOutgoingInterceptorClassNames()}
@@ -49,14 +49,14 @@ public interface HornetQServerControl
    /**
     * Returns the list of interceptors used by this server for incoming messages.
     *
-    * @see Interceptor
+    * @see org.hornetq.api.core.Interceptor
     */
    String[] getIncomingInterceptorClassNames();
 
    /**
     * Returns the list of interceptors used by this server for outgoing messages.
     *
-    * @see Interceptor
+    * @see org.hornetq.api.core.Interceptor
     */
    String[] getOutgoingInterceptorClassNames();
 
@@ -490,6 +490,18 @@ public interface HornetQServerControl
    boolean closeConnectionsForAddress(@Parameter(desc = "an IP address", name = "ipAddress") String ipAddress) throws Exception;
 
    /**
+    * Closes all the connections of clients connected to this server which matches the specified IP address.
+    */
+   @Operation(desc = "Closes all the consumer connections for the given HornetQ address", impact = MBeanOperationInfo.INFO)
+   boolean closeConsumerConnectionsForAddress(@Parameter(desc = "a HornetQ address", name = "address") String address) throws Exception;
+
+   /**
+    * Closes all the connections of sessions with a matching user name.
+    */
+   @Operation(desc = "Closes all the connections for sessions with the given user name", impact = MBeanOperationInfo.INFO)
+   boolean closeConnectionsForUser(@Parameter(desc = "a user name", name = "userName") String address) throws Exception;
+
+   /**
     * Lists all the IDs of the connections connected to this server.
     */
    @Operation(desc = "List all the connection IDs", impact = MBeanOperationInfo.INFO)
@@ -546,7 +558,10 @@ public interface HornetQServerControl
                            @Parameter(desc = "the maximum redelivery delay", name = "maxRedeliveryDelay") long maxRedeliveryDelay,
                            @Parameter(desc = "the redistribution delay", name = "redistributionDelay") long redistributionDelay,
                            @Parameter(desc = "do we send to the DLA when there is no where to route the message", name = "sendToDLAOnNoRoute") boolean sendToDLAOnNoRoute,
-                           @Parameter(desc = "the ploicy to use when the address is full", name = "addressFullMessagePolicy") String addressFullMessagePolicy) throws Exception;
+                           @Parameter(desc = "the policy to use when the address is full", name = "addressFullMessagePolicy") String addressFullMessagePolicy,
+                           @Parameter(desc = "when a consumer falls below this threshold in terms of messages consumed per second it will be considered 'slow'", name = "slowConsumerThreshold") long slowConsumerThreshold,
+                           @Parameter(desc = "how often (in seconds) to check for slow consumers", name = "slowConsumerCheckPeriod") long slowConsumerCheckPeriod,
+                           @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy) throws Exception;
 
    void removeAddressSettings(String addressMatch) throws Exception;
 
@@ -599,5 +614,8 @@ public interface HornetQServerControl
    void forceFailover() throws Exception;
 
    void updateDuplicateIdCache(String address, Object[] ids) throws Exception;
+
+   @Operation(desc = "force the server to stop and to scale down to another server", impact = MBeanOperationInfo.UNKNOWN)
+   void scaleDown(@Parameter(name = "name", desc = "The connector to use to scale down, if not provided the first appropriate connector will be used")String connector) throws Exception;
 }
 

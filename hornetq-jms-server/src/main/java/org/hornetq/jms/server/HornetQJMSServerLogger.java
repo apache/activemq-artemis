@@ -12,8 +12,6 @@
  */
 package org.hornetq.jms.server;
 
-import javax.management.ObjectName;
-
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.jms.server.recovery.XARecoveryConfig;
 import org.jboss.logging.BasicLogger;
@@ -26,7 +24,7 @@ import org.w3c.dom.Node;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         3/15/12
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  *
  * Logger Code 12
  *
@@ -50,19 +48,6 @@ public interface HornetQJMSServerLogger extends BasicLogger
    HornetQJMSServerLogger LOGGER = Logger.getMessageLogger(HornetQJMSServerLogger.class, HornetQJMSServerLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 121000, value = "Failed to set up JMS bridge connections. Most probably the source or target servers are unavailable." +
-         " Will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
-   void failedToSetUpBridge(long failureRetryInterval);
-
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 121001, value = "JMS Bridge Succeeded in reconnecting to servers" , format = Message.Format.MESSAGE_FORMAT)
-   void bridgeReconnected();
-
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 121002, value = "Succeeded in connecting to servers" , format = Message.Format.MESSAGE_FORMAT)
-   void bridgeConnected();
-
-   @LogMessage(level = Logger.Level.INFO)
    @Message(id = 121003, value = "JMS Server Manager Running cached command for {0}" , format = Message.Format.MESSAGE_FORMAT)
    void serverRunningCachedCommand(Runnable run);
 
@@ -77,48 +62,12 @@ public interface HornetQJMSServerLogger extends BasicLogger
    void invalidHostForConnector(String name, String newHost);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122000, value = "Attempt to start JMS Bridge, but is already started" , format = Message.Format.MESSAGE_FORMAT)
-   void errorBridgeAlreadyStarted();
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122001, value = "Failed to start JMS Bridge" , format = Message.Format.MESSAGE_FORMAT)
-   void errorStartingBridge();
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122002, value = "Failed to unregisted JMS Bridge {0}" , format = Message.Format.MESSAGE_FORMAT)
-   void errorUnregisteringBridge(ObjectName objectName);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122003, value = "JMS Bridge unable to set up connections, bridge will be stopped" , format = Message.Format.MESSAGE_FORMAT)
-   void errorConnectingBridge();
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122004, value = "JMS Bridge Will retry after a pause of {0} ms" , format = Message.Format.MESSAGE_FORMAT)
-   void bridgeRetry(long failureRetryInterval);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122005, value = "JMS Bridge unable to set up connections, bridge will not be started" , format = Message.Format.MESSAGE_FORMAT)
-   void bridgeNotStarted();
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122006, value = "Detected failure on bridge connection" , format = Message.Format.MESSAGE_FORMAT)
-   void bridgeFailure(@Cause Exception e);
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 122007, value = "Queue {0} does not exist on the topic {1}. It was deleted manually probably." , format = Message.Format.MESSAGE_FORMAT)
    void noQueueOnTopic(String queueName, String name);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 122008, value = "XA Recovery can not connect to any hornetq server on recovery {0}"  , format = Message.Format.MESSAGE_FORMAT)
    void recoveryConnectFailed(String s);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122009, value = "JMS Bridge failed to send + acknowledge batch, closing JMS objects"  , format = Message.Format.MESSAGE_FORMAT)
-   void bridgeAckError(@Cause Exception e);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122010, value = "Failed to connect JMS Bridge", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeConnectError(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 122011, value = "error unbinding {0} from JNDI" , format = Message.Format.MESSAGE_FORMAT)
@@ -159,10 +108,6 @@ public interface HornetQJMSServerLogger extends BasicLogger
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 124000, value = "key attribute missing for JMS configuration {0}" , format = Message.Format.MESSAGE_FORMAT)
    void jmsConfigMissingKey(Node e);
-
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 124001, value = "Failed to start source connection" , format = Message.Format.MESSAGE_FORMAT)
-   void jmsBridgeSrcConnectError(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 124002, value = "Failed to start JMS deployer" , format = Message.Format.MESSAGE_FORMAT)

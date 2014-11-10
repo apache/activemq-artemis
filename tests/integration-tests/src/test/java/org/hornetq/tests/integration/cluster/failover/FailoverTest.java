@@ -41,7 +41,12 @@ import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.MessageHandler;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
+import org.hornetq.core.server.cluster.ha.BackupPolicy;
 import org.hornetq.core.server.cluster.ha.HAPolicy;
+import org.hornetq.core.server.cluster.ha.ReplicaPolicy;
+import org.hornetq.core.server.cluster.ha.ReplicatedPolicy;
+import org.hornetq.core.server.cluster.ha.SharedStoreMasterPolicy;
+import org.hornetq.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.hornetq.core.server.impl.InVMNodeManager;
 import org.hornetq.core.transaction.impl.XidImpl;
 import org.hornetq.jms.client.HornetQTextMessage;
@@ -585,7 +590,12 @@ public class FailoverTest extends FailoverTestBase
    public void testFailBack() throws Exception
    {
       boolean doFailBack = true;
-      backupServer.getServer().getConfiguration().setMaxSavedReplicatedJournalSize(0);
+      HAPolicy haPolicy = backupServer.getServer().getHAPolicy();
+      if (haPolicy instanceof ReplicaPolicy)
+      {
+         ((ReplicaPolicy)haPolicy).setMaxSavedReplicatedJournalsSize(0);
+      }
+
       simpleReplication(doFailBack);
    }
 
@@ -618,8 +628,8 @@ public class FailoverTest extends FailoverTestBase
       Thread.sleep(100);
       assertFalse("backup is not running", backupServer.isStarted());
 
-      assertFalse("must NOT be a backup", liveServer.getServer().getConfiguration().getHAPolicy().isBackup());
-      adaptLiveConfigForReplicatedFailBack(liveServer.getServer().getConfiguration());
+      assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy() instanceof BackupPolicy);
+      adaptLiveConfigForReplicatedFailBack(liveServer);
       beforeRestart(liveServer);
       liveServer.start();
       assertTrue("live initialized...", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
@@ -629,7 +639,7 @@ public class FailoverTest extends FailoverTestBase
       ClientSession session2 = createSession(sf, false, false);
       session2.start();
       ClientConsumer consumer2 = session2.createConsumer(FailoverTestBase.ADDRESS);
-      boolean replication = !liveServer.getServer().getConfiguration().getHAPolicy().isSharedStore();
+      boolean replication = liveServer.getServer().getHAPolicy() instanceof ReplicatedPolicy;
       if (replication)
          receiveMessages(consumer2, 0, NUM_MESSAGES, true);
       assertNoMoreMessages(consumer2);
@@ -658,7 +668,8 @@ public class FailoverTest extends FailoverTestBase
 
       backupServer.stop(); // Backup stops!
       backupServer.start();
-      assertTrue(backupServer.getServer().waitForBackupSync(10, TimeUnit.SECONDS));
+
+      waitForRemoteBackupSynchronization(backupServer.getServer());
 
       session.start();
       ClientConsumer consumer = addClientConsumer(session.createConsumer(FailoverTestBase.ADDRESS));
@@ -675,7 +686,7 @@ public class FailoverTest extends FailoverTestBase
       backupServer.stop(); // Backup stops!
       beforeRestart(backupServer);
       backupServer.start();
-      assertTrue(backupServer.getServer().waitForBackupSync(30, TimeUnit.SECONDS));
+      waitForRemoteBackupSynchronization(backupServer.getServer());
       backupServer.stop(); // Backup stops!
 
       liveServer.stop();
@@ -723,8 +734,8 @@ public class FailoverTest extends FailoverTestBase
       assertEquals("backup must be running with the same nodeID", liveId, backupServer.getServer().getNodeID());
       if (doFailBack)
       {
-         assertFalse("must NOT be a backup", liveServer.getServer().getConfiguration().getHAPolicy().isBackup());
-         adaptLiveConfigForReplicatedFailBack(liveServer.getServer().getConfiguration());
+         assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
+         adaptLiveConfigForReplicatedFailBack(liveServer);
          beforeRestart(liveServer);
          liveServer.start();
          assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
@@ -1838,7 +1849,8 @@ public class FailoverTest extends FailoverTestBase
       receiveMessages(consumer);
    }
 
-   public void _testForceBlockingReturn() throws Exception
+   @Test
+   public void testForceBlockingReturn() throws Exception
    {
       locator.setBlockOnNonDurableSend(true);
       locator.setBlockOnDurableSend(true);
@@ -1847,8 +1859,7 @@ public class FailoverTest extends FailoverTestBase
       createClientSessionFactory();
 
       // Add an interceptor to delay the send method so we can get time to cause failover before it returns
-
-      // liveServer.getRemotingService().addIncomingInterceptor(new DelayInterceptor());
+      liveServer.getServer().getRemotingService().addIncomingInterceptor(new DelayInterceptor());
 
       final ClientSession session = createSession(sf, true, true, 0);
 
@@ -1888,7 +1899,11 @@ public class FailoverTest extends FailoverTestBase
 
       Assert.assertNotNull(sender.e);
 
+      Assert.assertNotNull(sender.e.getCause());
+
       Assert.assertEquals(sender.e.getType(), HornetQExceptionType.UNBLOCKED);
+
+      Assert.assertEquals(((HornetQException)sender.e.getCause()).getType(), HornetQExceptionType.DISCONNECTED);
 
       session.close();
    }
@@ -2159,7 +2174,7 @@ public class FailoverTest extends FailoverTestBase
    public void testBackupServerNotRemoved() throws Exception
    {
       // HORNETQ-720 Disabling test for replicating backups.
-      if (!backupServer.getServer().getConfiguration().getHAPolicy().isSharedStore())
+      if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreSlavePolicy))
       {
          waitForComponent(backupServer, 1);
          return;
@@ -2297,11 +2312,11 @@ public class FailoverTest extends FailoverTestBase
       // To reload security or other settings that are read during startup
       beforeRestart(backupServer);
 
-      if (!backupServer.getServer().getConfiguration().getHAPolicy().isSharedStore())
+      if (!backupServer.getServer().getHAPolicy().isSharedStore())
       {
          // XXX
          // this test would not make sense in the remote replication use case, without the following
-         backupServer.getServer().getConfiguration().getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
+         backupServer.getServer().setHAPolicy(new SharedStoreMasterPolicy());
       }
 
       backupServer.start();

@@ -100,6 +100,8 @@ public class StompDecoder
 
    public static final byte C = (byte) 'C';
 
+   public static final byte c = (byte) 'c';
+
    public static final byte D = (byte) 'D';
 
    public static final byte E = (byte) 'E';

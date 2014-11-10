@@ -16,13 +16,11 @@ package org.hornetq.core.protocol.core.impl.wireformat;
 import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.core.protocol.core.impl.PacketImpl;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 
 public class BackupRequestMessage extends PacketImpl
 {
    private int backupSize;
    private SimpleString nodeID;
-   private HAPolicy.POLICY_TYPE backupType;
    private String journalDirectory;
    private String bindingsDirectory;
    private String largeMessagesDirectory;
@@ -38,7 +36,6 @@ public class BackupRequestMessage extends PacketImpl
    {
       super(BACKUP_REQUEST);
       this.backupSize = backupSize;
-      backupType = HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE;
       this.journalDirectory = journalDirectory;
       this.bindingsDirectory = bindingsDirectory;
       this.largeMessagesDirectory = largeMessagesDirectory;
@@ -50,7 +47,6 @@ public class BackupRequestMessage extends PacketImpl
       super(BACKUP_REQUEST);
       this.backupSize = backupSize;
       this.nodeID = nodeID;
-      backupType = HAPolicy.POLICY_TYPE.COLOCATED_REPLICATED;
    }
 
    @Override
@@ -58,18 +54,11 @@ public class BackupRequestMessage extends PacketImpl
    {
       super.encodeRest(buffer);
       buffer.writeInt(backupSize);
-      buffer.writeByte(backupType.getType());
-      if (backupType == HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE)
-      {
-         buffer.writeString(journalDirectory);
-         buffer.writeString(bindingsDirectory);
-         buffer.writeString(largeMessagesDirectory);
-         buffer.writeString(pagingDirectory);
-      }
-      else
-      {
-         buffer.writeSimpleString(nodeID);
-      }
+      buffer.writeNullableString(journalDirectory);
+      buffer.writeNullableString(bindingsDirectory);
+      buffer.writeNullableString(largeMessagesDirectory);
+      buffer.writeNullableString(pagingDirectory);
+      buffer.writeNullableSimpleString(nodeID);
    }
 
    @Override
@@ -77,18 +66,11 @@ public class BackupRequestMessage extends PacketImpl
    {
       super.decodeRest(buffer);
       backupSize = buffer.readInt();
-      backupType = HAPolicy.POLICY_TYPE.toBackupType(buffer.readByte());
-      if (backupType == HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE)
-      {
-         journalDirectory = buffer.readString();
-         bindingsDirectory = buffer.readString();
-         largeMessagesDirectory = buffer.readString();
-         pagingDirectory = buffer.readString();
-      }
-      else
-      {
-         nodeID = buffer.readSimpleString();
-      }
+      journalDirectory = buffer.readNullableString();
+      bindingsDirectory = buffer.readNullableString();
+      largeMessagesDirectory = buffer.readNullableString();
+      pagingDirectory = buffer.readNullableString();
+      nodeID = buffer.readNullableSimpleString();
    }
 
    public int getBackupSize()
@@ -99,11 +81,6 @@ public class BackupRequestMessage extends PacketImpl
    public SimpleString getNodeID()
    {
       return nodeID;
-   }
-
-   public HAPolicy.POLICY_TYPE getBackupType()
-   {
-      return backupType;
    }
 
    public String getJournalDirectory()

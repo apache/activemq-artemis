@@ -136,6 +136,11 @@ public interface Channel
    void returnBlocking();
 
    /**
+    * forces any {@link org.hornetq.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to return with an exception.
+    */
+   void returnBlocking(Throwable cause);
+
+   /**
     * returns the channel lock
     *
     * @return the lock

@@ -42,10 +42,14 @@ public class BroadcastGroupControlTest extends ManagementTestBase
 
    public static BroadcastGroupConfiguration randomBroadcastGroupConfiguration(final List<String> connectorInfos)
    {
-      return new BroadcastGroupConfiguration(RandomUtil.randomString(),
-                                             RandomUtil.randomPositiveInt(),
-                                             connectorInfos,
-                                             new UDPBroadcastGroupConfiguration("231.7.7.7", 1199, null, 1198));
+      return new BroadcastGroupConfiguration()
+         .setName(RandomUtil.randomString())
+         .setBroadcastPeriod(RandomUtil.randomPositiveInt())
+         .setConnectorInfos(connectorInfos)
+         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+            .setGroupAddress("231.7.7.7")
+            .setGroupPort(1199)
+            .setLocalBindPort(1198));
    }
 
    public static Pair<String, String> randomPair()
@@ -65,12 +69,10 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       connectorInfos.add(connectorConfiguration.getName());
       BroadcastGroupConfiguration broadcastGroupConfig = BroadcastGroupControlTest.randomBroadcastGroupConfiguration(connectorInfos);
 
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getConnectorConfigurations().put(connectorConfiguration.getName(), connectorConfiguration);
-      conf.getBroadcastGroupConfigurations().add(broadcastGroupConfig);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration conf = createBasicConfig()
+         .addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration)
+         .addBroadcastGroupConfiguration(broadcastGroupConfig)
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       service = addServer(HornetQServers.newHornetQServer(conf, mbeanServer, false));
       service.start();
 
@@ -105,12 +107,10 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       connectorInfos.add(connectorConfiguration.getName());
       BroadcastGroupConfiguration broadcastGroupConfig = BroadcastGroupControlTest.randomBroadcastGroupConfiguration(connectorInfos);
 
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getConnectorConfigurations().put(connectorConfiguration.getName(), connectorConfiguration);
-      conf.getBroadcastGroupConfigurations().add(broadcastGroupConfig);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration conf = createBasicConfig()
+         .addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration)
+         .addBroadcastGroupConfiguration(broadcastGroupConfig)
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       service = addServer(HornetQServers.newHornetQServer(conf, mbeanServer, false));
       service.start();
 

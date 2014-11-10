@@ -78,10 +78,10 @@ public class Embedded
       System.out.println("\nStarting Embedded");
       if (hornetqServer == null)
       {
-         Configuration configuration = new ConfigurationImpl();
-         configuration.setPersistenceEnabled(false);
-         configuration.setSecurityEnabled(false);
-         configuration.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+         Configuration configuration = new ConfigurationImpl()
+            .setPersistenceEnabled(false)
+            .setSecurityEnabled(false)
+            .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
          hornetqServer = HornetQServers.newHornetQServer(configuration);
          hornetqServer.start();

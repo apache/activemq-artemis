@@ -63,10 +63,8 @@ public class DirectDeliverTest extends ServiceTestBase
 
       TransportConfiguration tc = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createBasicConfig();
-      config.getAcceptorConfigurations().add(tc);
-
-      config.setSecurityEnabled(false);
+      Configuration config = createBasicConfig()
+         .addAcceptorConfiguration(tc);
       server = createServer(false, config);
       server.start();
 

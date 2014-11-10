@@ -1,0 +1,11 @@
+<configuration
+      xmlns="urn:hornetq"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/hornetq-configuration.xsd">
+   <ha-policy>
+      <!--only one of the following-->
+      <!--on server shutdown scale down to another live server-->
+      <live-only/>
+   </ha-policy>
+
+</configuration>

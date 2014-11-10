@@ -23,7 +23,6 @@ import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.core.security.Role;
 import org.hornetq.core.server.JournalType;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.hornetq.core.settings.impl.AddressSettings;
 
@@ -42,7 +41,7 @@ public interface Configuration extends Serializable
    /**
     * To be used on dependency management on the application server
     */
-   void setName(String name);
+   Configuration setName(String name);
 
    /**
     * returns the name used to group of live/backup servers
@@ -59,10 +58,10 @@ public interface Configuration extends Serializable
     *
     * @param nodeGroupName the node group name
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setBackupGroupName(String)}
+    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
-   void setBackupGroupName(String nodeGroupName);
+   Configuration setBackupGroupName(String nodeGroupName);
 
    /**
     * Returns whether this server is clustered. <br>
@@ -76,20 +75,10 @@ public interface Configuration extends Serializable
     *
     * @return {@code true} if the backup will stop when the live server restarts
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#isAllowAutoFailBack()}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
-   boolean isAllowAutoFailBack();
-
-   /**
-    * whether a backup will automatically stop when a live server is restarting (i.e. failing back).
-    *
-    * @param allowAutoFailBack true if allowed
-    *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setAllowAutoFailBack(boolean)}
-    */
-   @Deprecated
-   void setAllowAutoFailBack(boolean allowAutoFailBack);
+   boolean isAllowFailBack();
 
    /**
     * Returns whether delivery count is persisted before messages are delivered to the consumers. <br>
@@ -101,7 +90,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether delivery count is persisted before messages are delivered to consumers.
     */
-   void setPersistDeliveryCountBeforeDelivery(boolean persistDeliveryCountBeforeDelivery);
+   Configuration setPersistDeliveryCountBeforeDelivery(boolean persistDeliveryCountBeforeDelivery);
 
    /**
     * Returns {@code true} if this server is a backup, {@code false} if it is a live server. <br>
@@ -116,10 +105,10 @@ public interface Configuration extends Serializable
    /**
     * Formerly set whether this server is a backup or not.
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setPolicyType(org.hornetq.core.server.cluster.ha.HAPolicy.POLICY_TYPE)}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
-   void setBackup(boolean backup);
+   Configuration setBackup(boolean backup);
 
    /**
     * Returns whether this server shares its data store with a corresponding live or backup server. <br>
@@ -133,10 +122,10 @@ public interface Configuration extends Serializable
    /**
     * Formerly set whether this server shares its data store with a backup or live server.
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setPolicyType(org.hornetq.core.server.cluster.ha.HAPolicy.POLICY_TYPE)}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
-   void setSharedStore(boolean sharedStore);
+   Configuration setSharedStore(boolean sharedStore);
 
    /**
     * Returns whether this server will use files to configure and deploy its resources. <br>
@@ -147,7 +136,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether this server will use files to configure and deploy its resources.
     */
-   void setFileDeploymentEnabled(boolean enable);
+   Configuration setFileDeploymentEnabled(boolean enable);
 
    /**
     * Returns whether this server is using persistence and store data. <br>
@@ -158,7 +147,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether this server is using persistence and store data.
     */
-   void setPersistenceEnabled(boolean enable);
+   Configuration setPersistenceEnabled(boolean enable);
 
    /**
     * Returns the period (in milliseconds) to scan configuration files used by deployment. <br>
@@ -169,7 +158,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the period  to scan configuration files used by deployment.
     */
-   void setFileDeployerScanPeriod(long period);
+   Configuration setFileDeployerScanPeriod(long period);
 
    /**
     * Returns the maximum number of threads in the thread pool of this server. <br>
@@ -180,7 +169,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the maximum number of threads in the thread pool of this server.
     */
-   void setThreadPoolMaxSize(int maxSize);
+   Configuration setThreadPoolMaxSize(int maxSize);
 
    /**
     * Returns the maximum number of threads in the <em>scheduled</em> thread pool of this server. <br>
@@ -191,7 +180,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the maximum number of threads in the <em>scheduled</em> thread pool of this server.
     */
-   void setScheduledThreadPoolMaxSize(int maxSize);
+   Configuration setScheduledThreadPoolMaxSize(int maxSize);
 
    /**
     * Returns the interval time (in milliseconds) to invalidate security credentials. <br>
@@ -202,7 +191,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the interval time (in milliseconds) to invalidate security credentials.
     */
-   void setSecurityInvalidationInterval(long interval);
+   Configuration setSecurityInvalidationInterval(long interval);
 
    /**
     * Returns whether security is enabled for this server. <br>
@@ -213,7 +202,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether security is enabled for this server.
     */
-   void setSecurityEnabled(boolean enabled);
+   Configuration setSecurityEnabled(boolean enabled);
 
    /**
     * Returns whether this server is manageable using JMX or not. <br>
@@ -222,9 +211,10 @@ public interface Configuration extends Serializable
    boolean isJMXManagementEnabled();
 
    /**
-    * Sets whether this server is manageable using JMX or not.
+    * Sets whether this server is manageable using JMX or not. <br>
+    * Default value is {@value org.hornetq.api.config.HornetQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
     */
-   void setJMXManagementEnabled(boolean enabled);
+   Configuration setJMXManagementEnabled(boolean enabled);
 
    /**
     * Returns the domain used by JMX MBeans (provided JMX management is enabled). <br>
@@ -238,7 +228,7 @@ public interface Configuration extends Serializable
     * Changing this JMX domain is required if multiple HornetQ servers are run inside
     * the same JVM and all servers are using the same MBeanServer.
     */
-   void setJMXDomain(String domain);
+   Configuration setJMXDomain(String domain);
 
    /**
     * Returns the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
@@ -276,7 +266,7 @@ public interface Configuration extends Serializable
     * {@link #setOutgoingInterceptorClassNames(List)}
     */
    @Deprecated
-   void setInterceptorClassNames(List<String> interceptors);
+   Configuration setInterceptorClassNames(List<String> interceptors);
 
    /**
     * Sets the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
@@ -284,7 +274,7 @@ public interface Configuration extends Serializable
     * <br />
     * Classes must implement {@link org.hornetq.api.core.Interceptor}.
     */
-   void setIncomingInterceptorClassNames(List<String> interceptors);
+   Configuration setIncomingInterceptorClassNames(List<String> interceptors);
 
    /**
     * Sets the list of interceptors classes used by this server for outgoing messages (i.e. those being delivered to
@@ -292,7 +282,7 @@ public interface Configuration extends Serializable
     * <br />
     * Classes must implement {@link org.hornetq.api.core.Interceptor}.
     */
-   void setOutgoingInterceptorClassNames(List<String> interceptors);
+   Configuration setOutgoingInterceptorClassNames(List<String> interceptors);
 
    /**
     * Returns the connection time to live. <br>
@@ -304,7 +294,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the connection time to live.
     */
-   void setConnectionTTLOverride(long ttl);
+   Configuration setConnectionTTLOverride(long ttl);
 
    /**
     * Returns whether code coming from connection is executed asynchronously or not. <br>
@@ -316,7 +306,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether code coming from connection is executed asynchronously or not.
     */
-   void setEnabledAsyncConnectionExecution(boolean enabled);
+   Configuration setEnabledAsyncConnectionExecution(boolean enabled);
 
    /**
     * Returns the acceptors configured for this server.
@@ -326,7 +316,11 @@ public interface Configuration extends Serializable
    /**
     * Sets the acceptors configured for this server.
     */
-   void setAcceptorConfigurations(Set<TransportConfiguration> infos);
+   Configuration setAcceptorConfigurations(Set<TransportConfiguration> infos);
+
+   Configuration addAcceptorConfiguration(final TransportConfiguration infos);
+
+   Configuration clearAcceptorConfigurations();
 
    /**
     * Returns the connectors configured for this server.
@@ -336,7 +330,9 @@ public interface Configuration extends Serializable
    /**
     * Sets the connectors configured for this server.
     */
-   void setConnectorConfigurations(Map<String, TransportConfiguration> infos);
+   Configuration setConnectorConfigurations(Map<String, TransportConfiguration> infos);
+
+   Configuration addConnectorConfiguration(final String key, final TransportConfiguration info);
 
    /**
     * Returns the broadcast groups configured for this server.
@@ -346,7 +342,9 @@ public interface Configuration extends Serializable
    /**
     * Sets the broadcast groups configured for this server.
     */
-   void setBroadcastGroupConfigurations(List<BroadcastGroupConfiguration> configs);
+   Configuration setBroadcastGroupConfigurations(List<BroadcastGroupConfiguration> configs);
+
+   Configuration addBroadcastGroupConfiguration(final BroadcastGroupConfiguration config);
 
    /**
     * Returns the discovery groups configured for this server.
@@ -356,7 +354,9 @@ public interface Configuration extends Serializable
    /**
     * Sets the discovery groups configured for this server.
     */
-   void setDiscoveryGroupConfigurations(Map<String, DiscoveryGroupConfiguration> configs);
+   Configuration setDiscoveryGroupConfigurations(Map<String, DiscoveryGroupConfiguration> configs);
+
+   Configuration addDiscoveryGroupConfiguration(final String key, DiscoveryGroupConfiguration discoveryGroupConfiguration);
 
    /**
     * Returns the grouping handler configured for this server.
@@ -366,7 +366,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the grouping handler configured for this server.
     */
-   void setGroupingHandlerConfiguration(GroupingHandlerConfiguration groupingHandlerConfiguration);
+   Configuration setGroupingHandlerConfiguration(GroupingHandlerConfiguration groupingHandlerConfiguration);
 
    /**
     * Returns the bridges configured for this server.
@@ -376,7 +376,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the bridges configured for this server.
     */
-   void setBridgeConfigurations(final List<BridgeConfiguration> configs);
+   Configuration setBridgeConfigurations(final List<BridgeConfiguration> configs);
 
    /**
     * Returns the diverts configured for this server.
@@ -386,7 +386,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the diverts configured for this server.
     */
-   void setDivertConfigurations(final List<DivertConfiguration> configs);
+   Configuration setDivertConfigurations(final List<DivertConfiguration> configs);
 
    /**
     * Returns the cluster connections configured for this server.
@@ -399,7 +399,11 @@ public interface Configuration extends Serializable
    /**
     * Sets the cluster connections configured for this server.
     */
-   void setClusterConfigurations(final List<ClusterConnectionConfiguration> configs);
+   Configuration setClusterConfigurations(final List<ClusterConnectionConfiguration> configs);
+
+   Configuration addClusterConfiguration(final ClusterConnectionConfiguration config);
+
+   Configuration clearClusterConfigurations();
 
    /**
     * Returns the queues configured for this server.
@@ -409,32 +413,34 @@ public interface Configuration extends Serializable
    /**
     * Sets the queues configured for this server.
     */
-   void setQueueConfigurations(final List<CoreQueueConfiguration> configs);
+   Configuration setQueueConfigurations(final List<CoreQueueConfiguration> configs);
+
+   Configuration addQueueConfiguration(final CoreQueueConfiguration config);
 
    /**
     * Returns the management address of this server. <br>
     * Clients can send management messages to this address to manage this server. <br>
-    * Default value is {@value org.hornetq.api.config.HornetQDefaultConfiguration#DEFAULT_MANAGEMENT_ADDRESS}.
+    * Default value is {@link org.hornetq.api.config.HornetQDefaultConfiguration#DEFAULT_MANAGEMENT_ADDRESS}.
     */
    SimpleString getManagementAddress();
 
    /**
     * Sets the management address of this server.
     */
-   void setManagementAddress(SimpleString address);
+   Configuration setManagementAddress(SimpleString address);
 
    /**
     * Returns the management notification address of this server. <br>
     * Clients can bind queues to this address to receive management notifications emitted by this
     * server. <br>
-    * Default value is {@value org.hornetq.api.config.HornetQDefaultConfiguration#DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS}.
+    * Default value is {@link org.hornetq.api.config.HornetQDefaultConfiguration#DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS}.
     */
    SimpleString getManagementNotificationAddress();
 
    /**
     * Sets the management notification address of this server.
     */
-   void setManagementNotificationAddress(SimpleString address);
+   Configuration setManagementNotificationAddress(SimpleString address);
 
    /**
     * Returns the cluster user for this server. <br>
@@ -445,7 +451,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the cluster user for this server.
     */
-   void setClusterUser(String user);
+   Configuration setClusterUser(String user);
 
    /**
     * Returns the cluster password for this server. <br>
@@ -459,7 +465,7 @@ public interface Configuration extends Serializable
     * @return true if clients should failover
     * @see #setFailoverOnServerShutdown(boolean)
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#isFailoverOnServerShutdown()}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
    boolean isFailoverOnServerShutdown();
@@ -472,15 +478,15 @@ public interface Configuration extends Serializable
     * case {@code failoverOnServerShutdown} is ignored, and the server will behave as if it was set
     * to {@code true}.
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setFailoverOnServerShutdown(boolean)}
+    * @deprecated you should replace by using the correct {@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
-   void setFailoverOnServerShutdown(boolean failoverOnServerShutdown);
+   Configuration setFailoverOnServerShutdown(boolean failoverOnServerShutdown);
 
    /**
     * Sets the cluster password for this server.
     */
-   void setClusterPassword(String password);
+   Configuration setClusterPassword(String password);
 
    /**
     * Returns the size of the cache for pre-creating message IDs. <br>
@@ -491,7 +497,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the size of the cache for pre-creating message IDs.
     */
-   void setIDCacheSize(int idCacheSize);
+   Configuration setIDCacheSize(int idCacheSize);
 
    /**
     * Returns whether message ID cache is persisted. <br>
@@ -502,7 +508,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether message ID cache is persisted.
     */
-   void setPersistIDCache(boolean persist);
+   Configuration setPersistIDCache(boolean persist);
 
    // Journal related attributes ------------------------------------------------------------
 
@@ -515,7 +521,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the file system directory used to store bindings.
     */
-   void setBindingsDirectory(String dir);
+   Configuration setBindingsDirectory(String dir);
 
    /**
     * The max number of concurrent reads allowed on paging.
@@ -529,7 +535,7 @@ public interface Configuration extends Serializable
     * <p/>
     * Default = 5
     */
-   void setPageMaxConcurrentIO(int maxIO);
+   Configuration setPageMaxConcurrentIO(int maxIO);
 
    /**
     * Returns the file system directory used to store journal log. <br>
@@ -540,7 +546,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the file system directory used to store journal log.
     */
-   void setJournalDirectory(String dir);
+   Configuration setJournalDirectory(String dir);
 
    /**
     * Returns the type of journal used by this server (either {@code NIO} or {@code ASYNCIO}).
@@ -552,7 +558,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the type of journal used by this server (either {@code NIO} or {@code ASYNCIO}).
     */
-   void setJournalType(JournalType type);
+   Configuration setJournalType(JournalType type);
 
    /**
     * Returns whether the journal is synchronized when receiving transactional data. <br>
@@ -563,7 +569,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether the journal is synchronized when receiving transactional data.
     */
-   void setJournalSyncTransactional(boolean sync);
+   Configuration setJournalSyncTransactional(boolean sync);
 
    /**
     * Returns whether the journal is synchronized when receiving non-transactional data. <br>
@@ -574,7 +580,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether the journal is synchronized when receiving non-transactional data.
     */
-   void setJournalSyncNonTransactional(boolean sync);
+   Configuration setJournalSyncNonTransactional(boolean sync);
 
    /**
     * Returns the size (in bytes) of each journal files. <br>
@@ -585,7 +591,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the size (in bytes) of each journal files.
     */
-   void setJournalFileSize(int size);
+   Configuration setJournalFileSize(int size);
 
    /**
     * Returns the minimal number of journal files before compacting. <br>
@@ -596,7 +602,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the minimal number of journal files before compacting.
     */
-   void setJournalCompactMinFiles(int minFiles);
+   Configuration setJournalCompactMinFiles(int minFiles);
 
    /**
     * Returns the percentage of live data before compacting the journal. <br>
@@ -607,7 +613,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the percentage of live data before compacting the journal.
     */
-   void setJournalCompactPercentage(int percentage);
+   Configuration setJournalCompactPercentage(int percentage);
 
    /**
     * Returns the number of journal files to pre-create. <br>
@@ -618,7 +624,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the number of journal files to pre-create.
     */
-   void setJournalMinFiles(int files);
+   Configuration setJournalMinFiles(int files);
 
    // AIO and NIO need different values for these params
 
@@ -631,7 +637,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the maximum number of write requests that can be in the AIO queue at any given time.
     */
-   void setJournalMaxIO_AIO(int journalMaxIO);
+   Configuration setJournalMaxIO_AIO(int journalMaxIO);
 
    /**
     * Returns the timeout (in nanoseconds) used to flush buffers in the AIO queue.
@@ -643,7 +649,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the timeout (in nanoseconds) used to flush buffers in the AIO queue.
     */
-   void setJournalBufferTimeout_AIO(int journalBufferTimeout);
+   Configuration setJournalBufferTimeout_AIO(int journalBufferTimeout);
 
    /**
     * Returns the buffer size (in bytes) for AIO.
@@ -655,7 +661,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the buffer size (in bytes) for AIO.
     */
-   void setJournalBufferSize_AIO(int journalBufferSize);
+   Configuration setJournalBufferSize_AIO(int journalBufferSize);
 
    /**
     * Returns the maximum number of write requests for NIO journal. <br>
@@ -666,7 +672,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the maximum number of write requests for NIO journal.
     */
-   void setJournalMaxIO_NIO(int journalMaxIO);
+   Configuration setJournalMaxIO_NIO(int journalMaxIO);
 
    /**
     * Returns the timeout (in nanoseconds) used to flush buffers in the NIO.
@@ -678,7 +684,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the timeout (in nanoseconds) used to flush buffers in the NIO.
     */
-   void setJournalBufferTimeout_NIO(int journalBufferTimeout);
+   Configuration setJournalBufferTimeout_NIO(int journalBufferTimeout);
 
    /**
     * Returns the buffer size (in bytes) for NIO.
@@ -690,7 +696,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the buffer size (in bytes) for NIO.
     */
-   void setJournalBufferSize_NIO(int journalBufferSize);
+   Configuration setJournalBufferSize_NIO(int journalBufferSize);
 
    /**
     * Returns whether the bindings directory is created on this server startup. <br>
@@ -701,7 +707,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether the bindings directory is created on this server startup.
     */
-   void setCreateBindingsDir(boolean create);
+   Configuration setCreateBindingsDir(boolean create);
 
    /**
     * Returns whether the journal directory is created on this server startup. <br>
@@ -712,33 +718,33 @@ public interface Configuration extends Serializable
    /**
     * Sets whether the journal directory is created on this server startup.
     */
-   void setCreateJournalDir(boolean create);
+   Configuration setCreateJournalDir(boolean create);
 
    // Undocumented attributes
 
    boolean isLogJournalWriteRate();
 
-   void setLogJournalWriteRate(boolean rate);
+   Configuration setLogJournalWriteRate(boolean rate);
 
    int getJournalPerfBlastPages();
 
-   void setJournalPerfBlastPages(int pages);
+   Configuration setJournalPerfBlastPages(int pages);
 
    long getServerDumpInterval();
 
-   void setServerDumpInterval(long interval);
+   Configuration setServerDumpInterval(long interval);
 
    int getMemoryWarningThreshold();
 
-   void setMemoryWarningThreshold(int memoryWarningThreshold);
+   Configuration setMemoryWarningThreshold(int memoryWarningThreshold);
 
    long getMemoryMeasureInterval();
 
-   void setMemoryMeasureInterval(long memoryMeasureInterval);
+   Configuration setMemoryMeasureInterval(long memoryMeasureInterval);
 
    boolean isRunSyncSpeedTest();
 
-   void setRunSyncSpeedTest(boolean run);
+   Configuration setRunSyncSpeedTest(boolean run);
 
    // Paging Properties --------------------------------------------------------------------
 
@@ -751,7 +757,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the file system directory used to store paging files.
     */
-   void setPagingDirectory(String dir);
+   Configuration setPagingDirectory(String dir);
 
    // Large Messages Properties ------------------------------------------------------------
 
@@ -764,7 +770,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the file system directory used to store large messages.
     */
-   void setLargeMessagesDirectory(String directory);
+   Configuration setLargeMessagesDirectory(String directory);
 
    // Other Properties ---------------------------------------------------------------------
 
@@ -777,7 +783,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether wildcard routing is supported by this server.
     */
-   void setWildcardRoutingEnabled(boolean enabled);
+   Configuration setWildcardRoutingEnabled(boolean enabled);
 
    /**
     * Returns the timeout (in milliseconds) after which transactions is removed from the resource
@@ -790,7 +796,7 @@ public interface Configuration extends Serializable
     * Sets the timeout (in milliseconds) after which transactions is removed
     * from the resource manager after it was created.
     */
-   void setTransactionTimeout(long timeout);
+   Configuration setTransactionTimeout(long timeout);
 
    /**
     * Returns whether message counter is enabled for this server. <br>
@@ -801,7 +807,7 @@ public interface Configuration extends Serializable
    /**
     * Sets whether message counter is enabled for this server.
     */
-   void setMessageCounterEnabled(boolean enabled);
+   Configuration setMessageCounterEnabled(boolean enabled);
 
    /**
     * Returns the sample period (in milliseconds) to take message counter snapshot. <br>
@@ -814,7 +820,7 @@ public interface Configuration extends Serializable
     *
     * @param period value must be greater than 1000ms
     */
-   void setMessageCounterSamplePeriod(long period);
+   Configuration setMessageCounterSamplePeriod(long period);
 
    /**
     * Returns the maximum number of days kept in memory for message counter. <br>
@@ -827,7 +833,7 @@ public interface Configuration extends Serializable
     *
     * @param maxDayHistory value must be greater than 0
     */
-   void setMessageCounterMaxDayHistory(int maxDayHistory);
+   Configuration setMessageCounterMaxDayHistory(int maxDayHistory);
 
    /**
     * Returns the frequency (in milliseconds) to scan transactions to detect which transactions have
@@ -840,7 +846,7 @@ public interface Configuration extends Serializable
     * Sets the frequency (in milliseconds)  to scan transactions to detect which transactions
     * have timed out.
     */
-   void setTransactionTimeoutScanPeriod(long period);
+   Configuration setTransactionTimeoutScanPeriod(long period);
 
    /**
     * Returns the frequency (in milliseconds) to scan messages to detect which messages have
@@ -853,7 +859,7 @@ public interface Configuration extends Serializable
     * Sets the frequency (in milliseconds)  to scan messages to detect which messages
     * have expired.
     */
-   void setMessageExpiryScanPeriod(long messageExpiryScanPeriod);
+   Configuration setMessageExpiryScanPeriod(long messageExpiryScanPeriod);
 
    /**
     * Returns the priority of the thread used to scan message expiration. <br>
@@ -864,7 +870,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the priority of the thread used to scan message expiration.
     */
-   void setMessageExpiryThreadPriority(int messageExpiryThreadPriority);
+   Configuration setMessageExpiryThreadPriority(int messageExpiryThreadPriority);
 
    /**
     * @return A list of AddressSettings per matching to be deployed to the address settings repository
@@ -875,19 +881,23 @@ public interface Configuration extends Serializable
     * @param addressesSettings list of AddressSettings per matching to be deployed to the address
     *                          settings repository
     */
-   void setAddressesSettings(Map<String, AddressSettings> addressesSettings);
+   Configuration setAddressesSettings(Map<String, AddressSettings> addressesSettings);
+
+   Configuration addAddressesSetting(String key, AddressSettings addressesSetting);
 
    /**
     * @param roles a list of roles per matching
     */
-   void setSecurityRoles(Map<String, Set<Role>> roles);
+   Configuration setSecurityRoles(Map<String, Set<Role>> roles);
 
    /**
     * @return a list of roles per matching
     */
    Map<String, Set<Role>> getSecurityRoles();
 
-   void setConnectorServiceConfigurations(List<ConnectorServiceConfiguration> configs);
+   Configuration setConnectorServiceConfigurations(List<ConnectorServiceConfiguration> configs);
+
+   Configuration addConnectorServiceConfiguration(ConnectorServiceConfiguration config);
 
    /**
     * @return list of {@link ConnectorServiceConfiguration}
@@ -897,7 +907,7 @@ public interface Configuration extends Serializable
    /**
     * Returns the delay to wait before fail-back occurs on restart.
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#getFailbackDelay()}
+    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.BackupPolicy#getFailbackDelay()}
     */
    @Deprecated
    long getFailbackDelay();
@@ -905,10 +915,10 @@ public interface Configuration extends Serializable
    /**
     * Sets the fail-back delay.
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setFailbackDelay(long)}
+    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.BackupPolicy#setFailbackDelay(long)}
     */
    @Deprecated
-   void setFailbackDelay(long delay);
+   Configuration setFailbackDelay(long delay);
 
    /**
     * Whether to check if the cluster already has a (live) node with our node-ID.
@@ -920,6 +930,7 @@ public interface Configuration extends Serializable
     *
     * @return true if we want to make the check
     */
+   @Deprecated
    boolean isCheckForLiveServer();
 
    /**
@@ -932,12 +943,13 @@ public interface Configuration extends Serializable
     *
     * @param checkForLiveServer true if we want to make the check
     */
-   void setCheckForLiveServer(boolean checkForLiveServer);
+   @Deprecated
+   Configuration setCheckForLiveServer(boolean checkForLiveServer);
 
    /**
     * The default password decoder
     */
-   void setPasswordCodec(String codec);
+   Configuration setPasswordCodec(String codec);
 
    /**
     * Gets the default password decoder
@@ -947,7 +959,7 @@ public interface Configuration extends Serializable
    /**
     * Sets if passwords should be masked or not. True means the passwords should be masked.
     */
-   void setMaskPassword(boolean maskPassword);
+   Configuration setMaskPassword(boolean maskPassword);
 
    /**
     * If passwords are masked. True means the passwords are masked.
@@ -962,46 +974,26 @@ public interface Configuration extends Serializable
     *
     * @param clusterName
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setReplicationClustername(String)}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
+
    @Deprecated
-   void setReplicationClustername(String clusterName);
+   Configuration setReplicationClustername(String clusterName);
 
    /**
     * @return name of the cluster configuration to use
     * @see #setReplicationClustername(String)
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#getReplicationClustername()}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
    String getReplicationClustername();
-
-   /**
-    * Name of the cluster configuration to use for scaling down.
-    * <p/>
-    * Only applicable for servers with more than one cluster configuration.
-    *
-    * @param clusterName
-    *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setScaleDownClustername(String)}
-    */
-   @Deprecated
-   void setScaleDownClustername(String clusterName);
-
-   /**
-    * @return name of the cluster configuration to use
-    * @see #setScaleDownClustername(String)
-    *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#getScaleDownClustername()}
-    */
-   @Deprecated
-   String getScaleDownClustername();
 
    /*
    * Whether or not that HornetQ should use all protocols available on the classpath. If false only the core protocol will
    * be set, any other protocols will need to be set directly on the HornetQServer
    * */
-   void setResolveProtocols(boolean resolveProtocols);
+   Configuration setResolveProtocols(boolean resolveProtocols);
 
    /*
    * @see #setResolveProtocols()
@@ -1018,41 +1010,27 @@ public interface Configuration extends Serializable
     *
     * @param maxSavedReplicatedJournalsSize
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#getMaxSavedReplicatedJournalsSize()}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
-   void setMaxSavedReplicatedJournalSize(int maxSavedReplicatedJournalsSize);
+   Configuration setMaxSavedReplicatedJournalSize(int maxSavedReplicatedJournalsSize);
 
    /**
     * @return the number of backup journals to keep after failback has occurred
     * @see #setMaxSavedReplicatedJournalSize(int)
     *
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#getMaxSavedReplicatedJournalsSize()}
+    * @deprecated you should replace by using the correct{@link org.hornetq.core.server.cluster.ha.HAPolicy}
     */
    @Deprecated
    int getMaxSavedReplicatedJournalsSize();
 
-   Set<Configuration> getBackupServerConfigurations();
-
    Configuration copy() throws Exception;
 
-   /**
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#setBackupStrategy(BackupStrategy)}
-    */
-   @Deprecated
-   void setBackupStrategy(BackupStrategy strategy);
-
-   /**
-    * @deprecated replaced by {@link org.hornetq.core.server.cluster.ha.HAPolicy#getBackupStrategy()}
-    */
-   @Deprecated
-   BackupStrategy getBackupStrategy();
-
-   void setJournalLockAcquisitionTimeout(long journalLockAcquisitionTimeout);
+   Configuration setJournalLockAcquisitionTimeout(long journalLockAcquisitionTimeout);
 
    long getJournalLockAcquisitionTimeout();
 
-   HAPolicy getHAPolicy();
+   HAPolicyConfiguration getHAPolicyConfiguration();
 
-   void setHAPolicy(HAPolicy haPolicy);
+   Configuration setHAPolicyConfiguration(HAPolicyConfiguration haPolicyConfiguration);
 }

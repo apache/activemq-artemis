@@ -44,9 +44,8 @@ public class ExpiryMessageTest extends JMSTestBase
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception
    {
-      Configuration conf = super.createDefaultConfig(netty);
-
-      conf.setMessageExpiryScanPeriod(1000);
+      Configuration conf = super.createDefaultConfig(netty)
+         .setMessageExpiryScanPeriod(1000);
 
       return conf;
    }
@@ -57,8 +56,6 @@ public class ExpiryMessageTest extends JMSTestBase
 
       Topic topic = createTopic("test-topic");
       TopicControl control = ManagementControlHelper.createTopicControl(topic, mbeanServer);
-
-      System.out.println("size = " + control.getMessageCount());
 
       Connection conn2 = cf.createConnection();
 

@@ -30,8 +30,10 @@ import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.MessageHandler;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.impl.ClientSessionInternal;
+import org.hornetq.core.protocol.core.impl.HornetQConsumerContext;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.Queue;
+import org.hornetq.spi.core.remoting.ConsumerContext;
 import org.hornetq.tests.integration.IntegrationTestLogger;
 import org.hornetq.tests.util.ServiceTestBase;
 import org.hornetq.utils.UUID;
@@ -333,9 +335,9 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public Object getId()
+      public ConsumerContext getConsumerContext()
       {
-         return id;
+         return new HornetQConsumerContext(this.id);
       }
 
       @Override
@@ -363,9 +365,9 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public void setMessageHandler(MessageHandler handler) throws HornetQException
+      public FakeConsumerWithID setMessageHandler(MessageHandler handler) throws HornetQException
       {
-
+         return this;
       }
 
       @Override
@@ -410,9 +412,9 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public void setUserID(UUID userID)
+      public FakeMessageWithID setUserID(UUID userID)
       {
-
+         return this;
       }
 
       @Override
@@ -440,9 +442,9 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public void setDurable(boolean durable)
+      public FakeMessageWithID setDurable(boolean durable)
       {
-
+         return this;
       }
 
       @Override
@@ -458,9 +460,9 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public void setExpiration(long expiration)
+      public FakeMessageWithID setExpiration(long expiration)
       {
-
+         return this;
       }
 
       @Override
@@ -470,9 +472,9 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public void setTimestamp(long timestamp)
+      public FakeMessageWithID setTimestamp(long timestamp)
       {
-
+         return this;
       }
 
       @Override
@@ -482,9 +484,9 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public void setPriority(byte priority)
+      public FakeMessageWithID setPriority(byte priority)
       {
-
+         return this;
       }
 
       @Override
@@ -809,6 +811,18 @@ public class AcknowledgeTest extends ServiceTestBase
       public Map<String, Object> toMap()
       {
          return null;
+      }
+
+      @Override
+      public FakeMessageWithID writeBodyBufferBytes(byte[] bytes)
+      {
+         return this;
+      }
+
+      @Override
+      public FakeMessageWithID writeBodyBufferString(String string)
+      {
+         return this;
       }
    }
 }

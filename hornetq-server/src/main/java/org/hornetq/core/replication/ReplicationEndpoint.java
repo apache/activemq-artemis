@@ -74,6 +74,7 @@ import org.hornetq.core.server.HornetQServerLogger;
 import org.hornetq.core.server.ServerMessage;
 import org.hornetq.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.hornetq.core.server.impl.HornetQServerImpl;
+import org.hornetq.core.server.impl.SharedNothingBackupActivation;
 
 /**
  * Handles all the synchronization necessary for replication on the backup side (that is the
@@ -88,6 +89,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
    private final IOCriticalErrorListener criticalErrorListener;
    private final HornetQServerImpl server;
    private final boolean wantedFailBack;
+   private final SharedNothingBackupActivation activation;
    private final boolean noSync = false;
    private Channel channel;
 
@@ -125,11 +127,12 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
 
    // Constructors --------------------------------------------------
    public ReplicationEndpoint(final HornetQServerImpl server, IOCriticalErrorListener criticalErrorListener,
-                              boolean wantedFailBack)
+                              boolean wantedFailBack, SharedNothingBackupActivation activation)
    {
       this.server = server;
       this.criticalErrorListener = criticalErrorListener;
       this.wantedFailBack = wantedFailBack;
+      this.activation = activation;
    }
 
    // Public --------------------------------------------------------
@@ -260,7 +263,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
     */
    private void handleLiveStopping(ReplicationLiveIsStoppingMessage packet) throws HornetQException
    {
-      server.remoteFailOver(packet.isFinalMessage());
+      activation.remoteFailOver(packet.isFinalMessage());
    }
 
    public boolean isStarted()
@@ -394,7 +397,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
 
    public void compareJournalInformation(final JournalLoadInformation[] journalInformation) throws HornetQException
    {
-      if (!server.isRemoteBackupUpToDate())
+      if (!activation.isRemoteBackupUpToDate())
       {
          throw HornetQMessageBundle.BUNDLE.journalsNotInSync();
       }
@@ -481,7 +484,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
 
       journalsHolder = null;
       backupQuorum.liveIDSet(liveID);
-      server.setRemoteBackupUpToDate();
+      activation.setRemoteBackupUpToDate();
       HornetQServerLogger.LOGGER.backupServerSynched(server);
       return;
    }
@@ -555,7 +558,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
     */
    private void handleStartReplicationSynchronization(final ReplicationStartSyncMessage packet) throws Exception
    {
-      if (server.isRemoteBackupUpToDate())
+      if (activation.isRemoteBackupUpToDate())
       {
          throw HornetQMessageBundle.BUNDLE.replicationBackupUpToDate();
       }

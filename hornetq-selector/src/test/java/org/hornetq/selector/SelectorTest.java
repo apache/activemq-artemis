@@ -18,17 +18,17 @@ package org.hornetq.selector;
 
 import java.util.HashMap;
 
-import junit.framework.TestCase;
-
 import org.hornetq.selector.filter.BooleanExpression;
 import org.hornetq.selector.filter.FilterException;
 import org.hornetq.selector.filter.Filterable;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @version $Revision: 1.7 $
  */
 @SuppressWarnings("unchecked")
-public class SelectorTest extends TestCase
+public class SelectorTest
 {
 
    class MockMessage implements Filterable
@@ -142,6 +142,7 @@ public class SelectorTest extends TestCase
    }
 
 
+   @Test
    public void testBooleanSelector() throws Exception
    {
       MockMessage message = createMessage();
@@ -151,6 +152,7 @@ public class SelectorTest extends TestCase
 
    }
 
+   @Test
    public void testXPathSelectors() throws Exception
    {
       MockMessage message = new MockMessage();
@@ -194,6 +196,7 @@ public class SelectorTest extends TestCase
 
    }
 
+   @Test
    public void testJMSPropertySelectors() throws Exception
    {
       MockMessage message = createMessage();
@@ -214,6 +217,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "JMSType = 'crap'", false);
    }
 
+   @Test
    public void testBasicSelectors() throws Exception
    {
       MockMessage message = createMessage();
@@ -225,6 +229,7 @@ public class SelectorTest extends TestCase
 
    }
 
+   @Test
    public void testPropertyTypes() throws Exception
    {
       MockMessage message = createMessage();
@@ -252,6 +257,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "doubleProp = 10", false);
    }
 
+   @Test
    public void testAndSelectors() throws Exception
    {
       MockMessage message = createMessage();
@@ -262,6 +268,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "unknown = 'Foo' and anotherUnknown < 200", false);
    }
 
+   @Test
    public void testOrSelectors() throws Exception
    {
       MockMessage message = createMessage();
@@ -273,6 +280,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "unknown = 'Foo' or anotherUnknown < 200", false);
    }
 
+   @Test
    public void testPlus() throws Exception
    {
       MockMessage message = createMessage();
@@ -285,6 +293,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "name + '!' = 'James!'", true);
    }
 
+   @Test
    public void testMinus() throws Exception
    {
       MockMessage message = createMessage();
@@ -294,6 +303,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "rank - 2 > 122", false);
    }
 
+   @Test
    public void testMultiply() throws Exception
    {
       MockMessage message = createMessage();
@@ -303,6 +313,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "rank * 2 < 130", false);
    }
 
+   @Test
    public void testDivide() throws Exception
    {
       MockMessage message = createMessage();
@@ -314,6 +325,7 @@ public class SelectorTest extends TestCase
 
    }
 
+   @Test
    public void testBetween() throws Exception
    {
       MockMessage message = createMessage();
@@ -322,6 +334,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "rank between 10 and 120", false);
    }
 
+   @Test
    public void testIn() throws Exception
    {
       MockMessage message = createMessage();
@@ -334,6 +347,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "name not in ('Gromit', 'Bob', 'Cheddar')", true);
    }
 
+   @Test
    public void testIsNull() throws Exception
    {
       MockMessage message = createMessage();
@@ -344,6 +358,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "name is null", false);
    }
 
+   @Test
    public void testLike() throws Exception
    {
       MockMessage message = createMessage();
@@ -372,6 +387,7 @@ public class SelectorTest extends TestCase
    /**
     * Test cases from Mats Henricson
     */
+   @Test
    public void testMatsHenricsonUseCases() throws Exception
    {
       MockMessage message = createMessage();
@@ -394,6 +410,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "Command NOT IN ('MirrorLobbyRequest', 'MirrorLobbyReply')", false);
    }
 
+   @Test
    public void testFloatComparisons() throws Exception
    {
       MockMessage message = createMessage();
@@ -444,12 +461,14 @@ public class SelectorTest extends TestCase
       assertSelector(message, "4E-10 < 5E-10", true);
    }
 
+   @Test
    public void testStringQuoteParsing() throws Exception
    {
       MockMessage message = createMessage();
       assertSelector(message, "quote = '''In God We Trust'''", true);
    }
 
+   @Test
    public void testLikeComparisons() throws Exception
    {
       MockMessage message = createMessage();
@@ -472,6 +491,7 @@ public class SelectorTest extends TestCase
       assertSelector(message, "punctuation LIKE '!#$&()*+,-./:;<=>?@[\\]^`{|}~'", true);
    }
 
+   @Test
    public void testInvalidSelector() throws Exception
    {
       MockMessage message = createMessage();
@@ -511,7 +531,7 @@ public class SelectorTest extends TestCase
       try
       {
          SelectorParser.parse(text);
-         fail("Created a valid selector");
+         Assert.fail("Created a valid selector");
       }
       catch (FilterException e)
       {
@@ -521,9 +541,9 @@ public class SelectorTest extends TestCase
    protected void assertSelector(MockMessage message, String text, boolean expected) throws FilterException
    {
       BooleanExpression selector = SelectorParser.parse(text);
-      assertTrue("Created a valid selector", selector != null);
+      Assert.assertTrue("Created a valid selector", selector != null);
       boolean value = selector.matches(message);
-      assertEquals("Selector for: " + text, expected, value);
+      Assert.assertEquals("Selector for: " + text, expected, value);
    }
 
    protected MockMessage createMessage(String subject)

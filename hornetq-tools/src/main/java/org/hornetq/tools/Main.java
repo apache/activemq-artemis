@@ -21,7 +21,8 @@ public class Main
    private static final String PRINT_DATA = "print-data";
    private static final String PRINT_PAGES = "print-pages";
    private static final String DATA_TOOL = "data-tool";
-   private static final String OPTIONS =  " [" + IMPORT + "|" + EXPORT + "|" + PRINT_DATA + "|" + PRINT_PAGES + "|" + DATA_TOOL + "]";
+   private static final String TRANSFER = "transfer-queue";
+   private static final String OPTIONS = " [" + IMPORT + "|" + EXPORT + "|" + PRINT_DATA + "|" + PRINT_PAGES + "|" + DATA_TOOL + "|" + TRANSFER + "]";
 
    public static void main(String[] arg) throws Exception
    {
@@ -31,7 +32,13 @@ public class Main
          System.exit(-1);
       }
 
-      if (DATA_TOOL.equals(arg[0]))
+
+      if (TRANSFER.equals(arg[0]))
+      {
+         TransferQueue tool = new TransferQueue();
+         tool.process(arg);
+      }
+      else if (DATA_TOOL.equals(arg[0]))
       {
          DataTool dataTool = new DataTool();
          dataTool.process(arg);
@@ -90,9 +97,16 @@ public class Main
 
    protected static String getJarName()
    {
-      Class klass = Main.class;
-      String url = klass.getResource('/' + klass.getName().replace('.', '/') + ".class").toString();
-      String jarName = url.substring(0, url.lastIndexOf('!'));
-      return jarName.substring(jarName.lastIndexOf('/') + 1);
+      try
+      {
+         Class klass = Main.class;
+         String url = klass.getResource('/' + klass.getName().replace('.', '/') + ".class").toString();
+         String jarName = url.substring(0, url.lastIndexOf('!'));
+         return jarName.substring(jarName.lastIndexOf('/') + 1);
+      }
+      catch (Throwable e)
+      {
+         return "tool-jar-name.jar";
+      }
    }
 }

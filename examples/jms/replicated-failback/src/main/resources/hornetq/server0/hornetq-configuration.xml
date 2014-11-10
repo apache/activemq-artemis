@@ -14,10 +14,14 @@
 
    <cluster-password>secret</cluster-password>
 
-   <ha-policy template="REPLICATED">
-      <!--we need this for auto failback-->
-      <check-for-live-server>true</check-for-live-server>
-      <allow-failback>true</allow-failback>
+   <ha-policy>
+      <replication>
+         <master>
+            <!--we need this for auto failback-->
+            <check-for-live-server>true</check-for-live-server>
+            <allow-failback>true</allow-failback>
+         </master>
+      </replication>
    </ha-policy>
 
    <connectors>

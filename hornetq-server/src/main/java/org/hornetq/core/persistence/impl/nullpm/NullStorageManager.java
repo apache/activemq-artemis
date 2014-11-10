@@ -232,7 +232,7 @@ public class NullStorageManager implements StorageManager
    @Override
    public long storeHeuristicCompletion(final Xid xid, final boolean isCommit) throws Exception
    {
-      return generateUniqueID();
+      return generateID();
    }
 
    @Override
@@ -264,7 +264,7 @@ public class NullStorageManager implements StorageManager
    }
 
    @Override
-   public long generateUniqueID()
+   public long generateID()
    {
       long id = idSequence.getAndIncrement();
 
@@ -272,7 +272,7 @@ public class NullStorageManager implements StorageManager
    }
 
    @Override
-   public long getCurrentUniqueID()
+   public long getCurrentID()
    {
       return idSequence.get();
    }

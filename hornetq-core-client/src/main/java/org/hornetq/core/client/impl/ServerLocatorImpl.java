@@ -53,9 +53,10 @@ import org.hornetq.core.client.HornetQClientMessageBundle;
 import org.hornetq.core.cluster.DiscoveryEntry;
 import org.hornetq.core.cluster.DiscoveryGroup;
 import org.hornetq.core.cluster.DiscoveryListener;
-import org.hornetq.core.protocol.ClientPacketDecoder;
-import org.hornetq.core.protocol.core.impl.PacketDecoder;
+import org.hornetq.core.protocol.core.impl.HornetQClientProtocolManagerFactory;
 import org.hornetq.core.remoting.FailureListener;
+import org.hornetq.spi.core.remoting.ClientProtocolManager;
+import org.hornetq.spi.core.remoting.ClientProtocolManagerFactory;
 import org.hornetq.spi.core.remoting.Connector;
 import org.hornetq.utils.ClassloadingUtil;
 import org.hornetq.utils.HornetQThreadFactory;
@@ -80,6 +81,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    private static final long serialVersionUID = -1615857864410205260L;
+
+
+   // This is the default value
+   private ClientProtocolManagerFactory protocolManagerFactory = HornetQClientProtocolManagerFactory.getInstance();
 
    private final boolean ha;
 
@@ -207,12 +212,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    * remember that when adding any new classes that we have to support serialization with previous clients.
    * If you need to, make them transient and handle the serialization yourself
    * */
-
-
-   /*
-   * we use the client decoder by default but there are times when we want to use the server packet decoder
-   */
-   private transient PacketDecoder packetDecoder = ClientPacketDecoder.INSTANCE;
 
    private final Exception traceException = new Exception();
 
@@ -642,6 +641,28 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+
+   public ClientProtocolManager newProtocolManager()
+   {
+      return getProtocolManagerFactory().newProtocolManager();
+   }
+
+   public ClientProtocolManagerFactory getProtocolManagerFactory()
+   {
+      if (protocolManagerFactory == null)
+      {
+         // this could happen over serialization from older versions
+         protocolManagerFactory = HornetQClientProtocolManagerFactory.getInstance();
+      }
+      return protocolManagerFactory;
+   }
+
+   public void setProtocolManagerFactory(ClientProtocolManagerFactory protocolManagerFactory)
+   {
+      this.protocolManagerFactory = protocolManagerFactory;
+   }
+
+
    public void disableFinalizeCheck()
    {
       finalizeCheck = false;
@@ -675,9 +696,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return connect(true);
    }
 
-   public void setAfterConnectionInternalListener(AfterConnectInternalListener listener)
+   public ServerLocatorImpl setAfterConnectionInternalListener(AfterConnectInternalListener listener)
    {
       this.afterConnectListener = listener;
+      return this;
    }
 
    public AfterConnectInternalListener getAfterConnectInternalListener()
@@ -736,8 +758,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                                                                           threadPool,
                                                                           scheduledThreadPool,
                                                                           incomingInterceptors,
-                                                                          outgoingInterceptors,
-                                                                          packetDecoder);
+                                                                          outgoingInterceptors);
 
       addToConnecting(factory);
       try
@@ -780,8 +801,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                                                                           threadPool,
                                                                           scheduledThreadPool,
                                                                           incomingInterceptors,
-                                                                          outgoingInterceptors,
-                                                                          packetDecoder);
+                                                                          outgoingInterceptors);
 
       addToConnecting(factory);
       try
@@ -873,8 +893,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                                                       threadPool,
                                                       scheduledThreadPool,
                                                       incomingInterceptors,
-                                                      outgoingInterceptors,
-                                                      packetDecoder);
+                                                      outgoingInterceptors);
                try
                {
                   addToConnecting(factory);
@@ -963,9 +982,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return cacheLargeMessagesClient;
    }
 
-   public void setCacheLargeMessagesClient(final boolean cached)
+   public ServerLocatorImpl setCacheLargeMessagesClient(final boolean cached)
    {
       cacheLargeMessagesClient = cached;
+      return this;
    }
 
    public long getClientFailureCheckPeriod()
@@ -973,10 +993,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return clientFailureCheckPeriod;
    }
 
-   public void setClientFailureCheckPeriod(final long clientFailureCheckPeriod)
+   public ServerLocatorImpl setClientFailureCheckPeriod(final long clientFailureCheckPeriod)
    {
       checkWrite();
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
+      return this;
    }
 
    public long getConnectionTTL()
@@ -984,10 +1005,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return connectionTTL;
    }
 
-   public void setConnectionTTL(final long connectionTTL)
+   public ServerLocatorImpl setConnectionTTL(final long connectionTTL)
    {
       checkWrite();
       this.connectionTTL = connectionTTL;
+      return this;
    }
 
    public long getCallTimeout()
@@ -995,10 +1017,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return callTimeout;
    }
 
-   public void setCallTimeout(final long callTimeout)
+   public ServerLocatorImpl setCallTimeout(final long callTimeout)
    {
       checkWrite();
       this.callTimeout = callTimeout;
+      return this;
    }
 
    public long getCallFailoverTimeout()
@@ -1006,10 +1029,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return callFailoverTimeout;
    }
 
-   public void setCallFailoverTimeout(long callFailoverTimeout)
+   public ServerLocatorImpl setCallFailoverTimeout(long callFailoverTimeout)
    {
       checkWrite();
       this.callFailoverTimeout = callFailoverTimeout;
+      return this;
    }
 
    public int getMinLargeMessageSize()
@@ -1017,10 +1041,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return minLargeMessageSize;
    }
 
-   public void setMinLargeMessageSize(final int minLargeMessageSize)
+   public ServerLocatorImpl setMinLargeMessageSize(final int minLargeMessageSize)
    {
       checkWrite();
       this.minLargeMessageSize = minLargeMessageSize;
+      return this;
    }
 
    public int getConsumerWindowSize()
@@ -1028,10 +1053,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return consumerWindowSize;
    }
 
-   public void setConsumerWindowSize(final int consumerWindowSize)
+   public ServerLocatorImpl setConsumerWindowSize(final int consumerWindowSize)
    {
       checkWrite();
       this.consumerWindowSize = consumerWindowSize;
+      return this;
    }
 
    public int getConsumerMaxRate()
@@ -1039,10 +1065,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return consumerMaxRate;
    }
 
-   public void setConsumerMaxRate(final int consumerMaxRate)
+   public ServerLocatorImpl setConsumerMaxRate(final int consumerMaxRate)
    {
       checkWrite();
       this.consumerMaxRate = consumerMaxRate;
+      return this;
    }
 
    public int getConfirmationWindowSize()
@@ -1050,10 +1077,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return confirmationWindowSize;
    }
 
-   public void setConfirmationWindowSize(final int confirmationWindowSize)
+   public ServerLocatorImpl setConfirmationWindowSize(final int confirmationWindowSize)
    {
       checkWrite();
       this.confirmationWindowSize = confirmationWindowSize;
+      return this;
    }
 
    public int getProducerWindowSize()
@@ -1061,10 +1089,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return producerWindowSize;
    }
 
-   public void setProducerWindowSize(final int producerWindowSize)
+   public ServerLocatorImpl setProducerWindowSize(final int producerWindowSize)
    {
       checkWrite();
       this.producerWindowSize = producerWindowSize;
+      return this;
    }
 
    public int getProducerMaxRate()
@@ -1072,10 +1101,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return producerMaxRate;
    }
 
-   public void setProducerMaxRate(final int producerMaxRate)
+   public ServerLocatorImpl setProducerMaxRate(final int producerMaxRate)
    {
       checkWrite();
       this.producerMaxRate = producerMaxRate;
+      return this;
    }
 
    public boolean isBlockOnAcknowledge()
@@ -1083,10 +1113,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return blockOnAcknowledge;
    }
 
-   public void setBlockOnAcknowledge(final boolean blockOnAcknowledge)
+   public ServerLocatorImpl setBlockOnAcknowledge(final boolean blockOnAcknowledge)
    {
       checkWrite();
       this.blockOnAcknowledge = blockOnAcknowledge;
+      return this;
    }
 
    public boolean isBlockOnDurableSend()
@@ -1094,10 +1125,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return blockOnDurableSend;
    }
 
-   public void setBlockOnDurableSend(final boolean blockOnDurableSend)
+   public ServerLocatorImpl setBlockOnDurableSend(final boolean blockOnDurableSend)
    {
       checkWrite();
       this.blockOnDurableSend = blockOnDurableSend;
+      return this;
    }
 
    public boolean isBlockOnNonDurableSend()
@@ -1105,10 +1137,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return blockOnNonDurableSend;
    }
 
-   public void setBlockOnNonDurableSend(final boolean blockOnNonDurableSend)
+   public ServerLocatorImpl setBlockOnNonDurableSend(final boolean blockOnNonDurableSend)
    {
       checkWrite();
       this.blockOnNonDurableSend = blockOnNonDurableSend;
+      return this;
    }
 
    public boolean isAutoGroup()
@@ -1116,10 +1149,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return autoGroup;
    }
 
-   public void setAutoGroup(final boolean autoGroup)
+   public ServerLocatorImpl setAutoGroup(final boolean autoGroup)
    {
       checkWrite();
       this.autoGroup = autoGroup;
+      return this;
    }
 
    public boolean isPreAcknowledge()
@@ -1127,10 +1161,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return preAcknowledge;
    }
 
-   public void setPreAcknowledge(final boolean preAcknowledge)
+   public ServerLocatorImpl setPreAcknowledge(final boolean preAcknowledge)
    {
       checkWrite();
       this.preAcknowledge = preAcknowledge;
+      return this;
    }
 
    public int getAckBatchSize()
@@ -1138,10 +1173,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return ackBatchSize;
    }
 
-   public void setAckBatchSize(final int ackBatchSize)
+   public ServerLocatorImpl setAckBatchSize(final int ackBatchSize)
    {
       checkWrite();
       this.ackBatchSize = ackBatchSize;
+      return this;
    }
 
    public boolean isUseGlobalPools()
@@ -1149,10 +1185,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return useGlobalPools;
    }
 
-   public void setUseGlobalPools(final boolean useGlobalPools)
+   public ServerLocatorImpl setUseGlobalPools(final boolean useGlobalPools)
    {
       checkWrite();
       this.useGlobalPools = useGlobalPools;
+      return this;
    }
 
    public int getScheduledThreadPoolMaxSize()
@@ -1160,10 +1197,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return scheduledThreadPoolMaxSize;
    }
 
-   public void setScheduledThreadPoolMaxSize(final int scheduledThreadPoolMaxSize)
+   public ServerLocatorImpl setScheduledThreadPoolMaxSize(final int scheduledThreadPoolMaxSize)
    {
       checkWrite();
       this.scheduledThreadPoolMaxSize = scheduledThreadPoolMaxSize;
+      return this;
    }
 
    public int getThreadPoolMaxSize()
@@ -1171,10 +1209,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return threadPoolMaxSize;
    }
 
-   public void setThreadPoolMaxSize(final int threadPoolMaxSize)
+   public ServerLocatorImpl setThreadPoolMaxSize(final int threadPoolMaxSize)
    {
       checkWrite();
       this.threadPoolMaxSize = threadPoolMaxSize;
+      return this;
    }
 
    public long getRetryInterval()
@@ -1182,10 +1221,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return retryInterval;
    }
 
-   public void setRetryInterval(final long retryInterval)
+   public ServerLocatorImpl setRetryInterval(final long retryInterval)
    {
       checkWrite();
       this.retryInterval = retryInterval;
+      return this;
    }
 
    public long getMaxRetryInterval()
@@ -1193,10 +1233,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return maxRetryInterval;
    }
 
-   public void setMaxRetryInterval(final long retryInterval)
+   public ServerLocatorImpl setMaxRetryInterval(final long retryInterval)
    {
       checkWrite();
       maxRetryInterval = retryInterval;
+      return this;
    }
 
    public double getRetryIntervalMultiplier()
@@ -1204,10 +1245,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return retryIntervalMultiplier;
    }
 
-   public void setRetryIntervalMultiplier(final double retryIntervalMultiplier)
+   public ServerLocatorImpl setRetryIntervalMultiplier(final double retryIntervalMultiplier)
    {
       checkWrite();
       this.retryIntervalMultiplier = retryIntervalMultiplier;
+      return this;
    }
 
    public int getReconnectAttempts()
@@ -1215,16 +1257,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return reconnectAttempts;
    }
 
-   public void setReconnectAttempts(final int reconnectAttempts)
+   public ServerLocatorImpl setReconnectAttempts(final int reconnectAttempts)
    {
       checkWrite();
       this.reconnectAttempts = reconnectAttempts;
+      return this;
    }
 
-   public void setInitialConnectAttempts(int initialConnectAttempts)
+   public ServerLocatorImpl setInitialConnectAttempts(int initialConnectAttempts)
    {
       checkWrite();
       this.initialConnectAttempts = initialConnectAttempts;
+      return this;
    }
 
    public int getInitialConnectAttempts()
@@ -1237,10 +1281,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return this.failoverOnInitialConnection;
    }
 
-   public void setFailoverOnInitialConnection(final boolean failover)
+   public ServerLocatorImpl setFailoverOnInitialConnection(final boolean failover)
    {
       checkWrite();
       this.failoverOnInitialConnection = failover;
+      return this;
    }
 
    public String getConnectionLoadBalancingPolicyClassName()
@@ -1248,10 +1293,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return connectionLoadBalancingPolicyClassName;
    }
 
-   public void setConnectionLoadBalancingPolicyClassName(final String loadBalancingPolicyClassName)
+   public ServerLocatorImpl setConnectionLoadBalancingPolicyClassName(final String loadBalancingPolicyClassName)
    {
       checkWrite();
       connectionLoadBalancingPolicyClassName = loadBalancingPolicyClassName;
+      return this;
    }
 
    public TransportConfiguration[] getStaticTransportConfigurations()
@@ -1272,14 +1318,16 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       addIncomingInterceptor(interceptor);
    }
 
-   public void addIncomingInterceptor(final Interceptor interceptor)
+   public ServerLocatorImpl addIncomingInterceptor(final Interceptor interceptor)
    {
       incomingInterceptors.add(interceptor);
+      return this;
    }
 
-   public void addOutgoingInterceptor(final Interceptor interceptor)
+   public ServerLocatorImpl addOutgoingInterceptor(final Interceptor interceptor)
    {
       outgoingInterceptors.add(interceptor);
+      return this;
    }
 
    @Override
@@ -1304,16 +1352,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return initialMessagePacketSize;
    }
 
-   public void setInitialMessagePacketSize(final int size)
+   public ServerLocatorImpl setInitialMessagePacketSize(final int size)
    {
       checkWrite();
       initialMessagePacketSize = size;
+      return this;
    }
 
-   public void setGroupID(final String groupID)
+   public ServerLocatorImpl setGroupID(final String groupID)
    {
       checkWrite();
       this.groupID = groupID;
+      return this;
    }
 
    public String getGroupID()
@@ -1326,9 +1376,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return compressLargeMessage;
    }
 
-   public void setCompressLargeMessage(boolean avoid)
+   public ServerLocatorImpl setCompressLargeMessage(boolean avoid)
    {
       this.compressLargeMessage = avoid;
+      return this;
    }
 
    private void checkWrite()
@@ -1348,14 +1399,16 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return initialConnectors.length;
    }
 
-   public void setIdentity(String identity)
+   public ServerLocatorImpl setIdentity(String identity)
    {
       this.identity = identity;
+      return this;
    }
 
-   public void setNodeID(String nodeID)
+   public ServerLocatorImpl setNodeID(String nodeID)
    {
       this.nodeID = nodeID;
+      return this;
    }
 
    public String getNodeID()
@@ -1363,9 +1416,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return nodeID;
    }
 
-   public void setClusterConnection(boolean clusterConnection)
+   public ServerLocatorImpl setClusterConnection(boolean clusterConnection)
    {
       this.clusterConnection = clusterConnection;
+      return this;
    }
 
    public boolean isClusterConnection()
@@ -1378,9 +1432,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return clusterTransportConfiguration;
    }
 
-   public void setClusterTransportConfiguration(TransportConfiguration tc)
+   public ServerLocatorImpl setClusterTransportConfiguration(TransportConfiguration tc)
    {
       this.clusterTransportConfiguration = tc;
+      return this;
    }
 
    @Override
@@ -1742,20 +1797,15 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
-   public void setPacketDecoder(PacketDecoder packetDecoder)
-   {
-      this.packetDecoder = packetDecoder;
-   }
-
-   @Override
    public boolean isConnectable()
    {
       return getNumInitialConnectors() > 0 || getDiscoveryGroupConfiguration() != null;
    }
 
-   public void addClusterTopologyListener(final ClusterTopologyListener listener)
+   public ServerLocatorImpl addClusterTopologyListener(final ClusterTopologyListener listener)
    {
       topology.addClusterTopologyListener(listener);
+      return this;
    }
 
    public void removeClusterTopologyListener(final ClusterTopologyListener listener)
@@ -1802,8 +1852,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       {
          topologyArrayGuard = new String();
       }
-      //is transient so need to create, for compatibility issues
-      packetDecoder = ClientPacketDecoder.INSTANCE;
    }
 
    private final class StaticConnector implements Serializable
@@ -1951,8 +1999,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                                                                                    threadPool,
                                                                                    scheduledThreadPool,
                                                                                    incomingInterceptors,
-                                                                                   outgoingInterceptors,
-                                                                                   packetDecoder);
+                                                                                   outgoingInterceptors);
 
                factory.disableFinalizeCheck();
 

@@ -124,8 +124,6 @@ public class FileConfigurationParserTest extends UnitTestCase
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
       assertEquals("newpassword", config.getClusterPassword());
-
-      assertEquals("abackupgroupname", config.getHAPolicy().getBackupGroupName());
    }
 
    private static String firstPart =

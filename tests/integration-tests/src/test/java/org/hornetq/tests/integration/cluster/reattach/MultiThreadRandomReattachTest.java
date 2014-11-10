@@ -29,9 +29,9 @@ public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTest
    @Override
    protected void start() throws Exception
    {
-      Configuration liveConf = createDefaultConfig();
-      liveConf.setSecurityEnabled(false);
-      liveConf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration liveConf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       liveServer = createServer(false, liveConf);
       liveServer.start();
       waitForServer(liveServer);

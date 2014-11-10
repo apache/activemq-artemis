@@ -49,44 +49,20 @@ public final class HornetQThreadFactory implements ThreadFactory
 
    public Thread newThread(final Runnable command)
    {
-      final Thread t;
-      // attach the thread to a group only if there is no security manager:
-      // when sandboxed, the code does not have the RuntimePermission modifyThreadGroup
-      if (System.getSecurityManager() == null)
+      // always create a thread in a privileged block.
+      return AccessController.doPrivileged(new PrivilegedAction<Thread>()
       {
-         t = new Thread(group, command, "Thread-" + threadCount.getAndIncrement() + " (" + group.getName() + ")");
-      }
-      else
-      {
-         t = new Thread(command, "Thread-" + threadCount.getAndIncrement());
-      }
-
-      AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
+         @Override
+         public Thread run()
          {
+            final Thread t = new Thread(group, command, "Thread-" + threadCount.getAndIncrement() + " (" + group.getName() + ")");
             t.setDaemon(daemon);
             t.setPriority(threadPriority);
-            return null;
+            t.setContextClassLoader(tccl);
+
+            return t;
          }
       });
-
-      try
-      {
-         AccessController.doPrivileged(new PrivilegedAction<Object>()
-         {
-            public Object run()
-            {
-               t.setContextClassLoader(tccl);
-               return null;
-            }
-         });
-      }
-      catch (java.security.AccessControlException e)
-      {
-         HornetQUtilLogger.LOGGER.missingPrivsForClassloader();
-      }
-
-      return t;
    }
+
 }

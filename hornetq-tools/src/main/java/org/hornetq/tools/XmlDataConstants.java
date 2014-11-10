@@ -117,4 +117,6 @@ public final class XmlDataConstants
    static final String JMS_JNDI_ENTRY = "entry";
 
    public static final String JNDI_COMPATIBILITY_PREFIX = "java:jboss/exported/";
+
+   static final String NULL = "_HQ_NULL";
 }

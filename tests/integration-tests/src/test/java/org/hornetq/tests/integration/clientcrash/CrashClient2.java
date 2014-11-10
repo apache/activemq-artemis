@@ -26,7 +26,7 @@ import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.hornetq.tests.integration.IntegrationTestLogger;
 
 /**
- * Code to be run in an external VM, via main().
+ * Code to be run in an external VM, via main()
  *
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

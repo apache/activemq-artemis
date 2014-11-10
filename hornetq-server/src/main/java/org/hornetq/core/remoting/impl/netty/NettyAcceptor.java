@@ -52,7 +52,7 @@ import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.api.core.management.NotificationType;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.core.client.impl.ClientSessionFactoryImpl;
 import org.hornetq.core.protocol.ProtocolHandler;
 import org.hornetq.core.remoting.impl.ssl.SSLSupport;
@@ -443,7 +443,7 @@ public class NettyAcceptor implements Acceptor
                                           new SimpleString(NettyAcceptorFactory.class.getName()));
             props.putSimpleStringProperty(new SimpleString("host"), new SimpleString(host));
             props.putIntProperty(new SimpleString("port"), port);
-            Notification notification = new Notification(null, NotificationType.ACCEPTOR_STARTED, props);
+            Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STARTED, props);
             notificationService.sendNotification(notification);
          }
 
@@ -457,7 +457,6 @@ public class NettyAcceptor implements Acceptor
                                                                             TimeUnit.MILLISECONDS);
          }
 
-         // TODO: Think about add Version back to netty
          HornetQServerLogger.LOGGER.startedNettyAcceptor(TransportConstants.NETTY_VERSION, host, port);
       }
    }
@@ -560,7 +559,7 @@ public class NettyAcceptor implements Acceptor
                                        new SimpleString(NettyAcceptorFactory.class.getName()));
          props.putSimpleStringProperty(new SimpleString("host"), new SimpleString(host));
          props.putIntProperty(new SimpleString("port"), port);
-         Notification notification = new Notification(null, NotificationType.ACCEPTOR_STOPPED, props);
+         Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
          try
          {
             notificationService.sendNotification(notification);

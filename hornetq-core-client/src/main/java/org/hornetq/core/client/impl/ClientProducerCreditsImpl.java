@@ -16,6 +16,7 @@ import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.core.client.HornetQClientLogger;
 import org.hornetq.core.client.HornetQClientMessageBundle;
+import org.hornetq.spi.core.remoting.SessionContext;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +48,8 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
 
    private boolean serverRespondedWithFail;
 
+   private SessionContext sessionContext;
+
    public ClientProducerCreditsImpl(final ClientSessionInternal session,
                                     final SimpleString address,
                                     final int windowSize)
@@ -62,11 +65,15 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
       semaphore = new Semaphore(0, false);
    }
 
-   public void init()
+   public void init(SessionContext sessionContext)
    {
       // We initial request twice as many credits as we request in subsequent requests
       // This allows the producer to keep sending as more arrive, minimising pauses
       checkCredits(windowSize);
+
+      this.sessionContext = sessionContext;
+
+      this.sessionContext.linkFlowControl(address, this);
    }
 
    public void acquireCredits(final int credits) throws InterruptedException, HornetQException

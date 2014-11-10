@@ -16,11 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import org.hornetq.api.core.HornetQException;
-import org.hornetq.api.core.Pair;
 import org.hornetq.api.core.SimpleString;
-import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.core.config.BridgeConfiguration;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.DivertConfiguration;
@@ -28,14 +24,14 @@ import org.hornetq.core.management.impl.HornetQServerControlImpl;
 import org.hornetq.core.paging.PagingManager;
 import org.hornetq.core.persistence.StorageManager;
 import org.hornetq.core.postoffice.PostOffice;
-import org.hornetq.core.protocol.core.CoreRemotingConnection;
 import org.hornetq.core.remoting.server.RemotingService;
-import org.hornetq.core.replication.ReplicationEndpoint;
 import org.hornetq.core.replication.ReplicationManager;
 import org.hornetq.core.security.Role;
-import org.hornetq.core.server.cluster.ClusterConnection;
+import org.hornetq.core.security.SecurityStore;
 import org.hornetq.core.server.cluster.ClusterManager;
+import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.group.GroupingHandler;
+import org.hornetq.core.server.impl.Activation;
 import org.hornetq.core.server.impl.ConnectorsService;
 import org.hornetq.core.server.management.ManagementService;
 import org.hornetq.core.settings.HierarchicalRepository;
@@ -112,7 +108,10 @@ public interface HornetQServer extends HornetQComponent
                                boolean preAcknowledge,
                                boolean xa,
                                String defaultAddress,
-                               SessionCallback callback) throws Exception;
+                               SessionCallback callback,
+                               ServerSessionFactory sessionFactory) throws Exception;
+
+   SecurityStore getSecurityStore();
 
    void removeSession(String name) throws Exception;
 
@@ -151,17 +150,6 @@ public interface HornetQServer extends HornetQComponent
     * @throws InterruptedException
     */
    boolean waitForActivation(long timeout, TimeUnit unit) throws InterruptedException;
-
-   /**
-    * Wait for backup synchronization when using synchronization
-    * @param timeout
-    * @param unit
-    * @see CountDownLatch#await(long, TimeUnit)
-    * @return {@code true} if the server was already initialized or if it was initialized within the
-    *         timeout period, {@code false} otherwise.
-    * @throws InterruptedException
-    */
-   boolean waitForBackupSync(long timeout, TimeUnit unit) throws InterruptedException;
 
    /**
     * Creates a shared queue. if non durable it will exist as long as there are consumers.
@@ -211,8 +199,6 @@ public interface HornetQServer extends HornetQComponent
 
    GroupingHandler getGroupingHandler();
 
-   ReplicationEndpoint getReplicationEndpoint();
-
    ReplicationManager getReplicationManager();
 
    void deployDivert(DivertConfiguration config) throws Exception;
@@ -238,21 +224,6 @@ public interface HornetQServer extends HornetQComponent
 
    void stop(boolean failoverOnServerShutdown) throws Exception;
 
-   /**
-    * Starts replication.
-    * <p>
-    * This will spawn a new thread that will sync all persistent data with the new backup. This
-    * method may also trigger fail-back if the backup asks for it and the server configuration
-    * allows.
-    * @param rc
-    * @param pair
-    * @param clusterConnection
-    * @throws HornetQAlreadyReplicatingException if replication is already taking place
-    * @throws HornetQException
-    */
-   void startReplication(CoreRemotingConnection rc, ClusterConnection clusterConnection,
-                         Pair<TransportConfiguration, TransportConfiguration> pair, boolean failBackRequest) throws HornetQException;
-
    /*
    * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
    * replace any factories with the same protocol
@@ -269,4 +240,10 @@ public interface HornetQServer extends HornetQComponent
    void addScaledDownNode(SimpleString scaledDownNodeId);
 
    boolean hasScaledDown(SimpleString scaledDownNodeId);
+
+   Activation getActivation();
+
+   HAPolicy getHAPolicy();
+
+   void setHAPolicy(HAPolicy haPolicy);
 }

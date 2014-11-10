@@ -25,15 +25,23 @@ import javax.naming.Context;
  */
 public interface JMSConfiguration
 {
-   void setContext(Context context);
+   JMSConfiguration setContext(Context context);
 
    Context getContext();
 
    List<JMSQueueConfiguration> getQueueConfigurations();
 
+   JMSConfiguration setQueueConfigurations(List<JMSQueueConfiguration> queueConfigurations);
+
    List<TopicConfiguration> getTopicConfigurations();
+
+   JMSConfiguration setTopicConfigurations(List<TopicConfiguration> topicConfigurations);
 
    List<ConnectionFactoryConfiguration> getConnectionFactoryConfigurations();
 
+   JMSConfiguration setConnectionFactoryConfigurations(List<ConnectionFactoryConfiguration> connectionFactoryConfigurations);
+
    String getDomain();
+
+   JMSConfiguration setDomain(String domain);
 }

@@ -18,154 +18,155 @@ import org.hornetq.api.jms.JMSFactoryType;
 import org.hornetq.core.journal.EncodingSupport;
 
 /**
- * A ConnectionFactoryConfiguration for {@link ConnectionFactory} objects.
+ * A ConnectionFactoryConfiguration for {@link javax.jms.ConnectionFactory} objects.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface ConnectionFactoryConfiguration extends EncodingSupport
 {
-
    boolean isPersisted();
 
    String getName();
 
+   ConnectionFactoryConfiguration setName(String name);
+
    String[] getBindings();
 
-   void setBindings(String[] bindings);
+   ConnectionFactoryConfiguration setBindings(String... bindings);
 
    String getDiscoveryGroupName();
 
-   void setDiscoveryGroupName(String discoveryGroupName);
+   ConnectionFactoryConfiguration setDiscoveryGroupName(String discoveryGroupName);
 
    List<String> getConnectorNames();
 
-   void setConnectorNames(List<String> connectorNames);
+   ConnectionFactoryConfiguration setConnectorNames(List<String> connectorNames);
 
    boolean isHA();
 
-   void setHA(boolean ha);
+   ConnectionFactoryConfiguration setHA(boolean ha);
 
    String getClientID();
 
-   void setClientID(String clientID);
+   ConnectionFactoryConfiguration setClientID(String clientID);
 
    long getClientFailureCheckPeriod();
 
-   void setClientFailureCheckPeriod(long clientFailureCheckPeriod);
+   ConnectionFactoryConfiguration setClientFailureCheckPeriod(long clientFailureCheckPeriod);
 
    long getConnectionTTL();
 
-   void setConnectionTTL(long connectionTTL);
+   ConnectionFactoryConfiguration setConnectionTTL(long connectionTTL);
 
    long getCallTimeout();
 
-   void setCallTimeout(long callTimeout);
+   ConnectionFactoryConfiguration setCallTimeout(long callTimeout);
 
    long getCallFailoverTimeout();
 
-   void setCallFailoverTimeout(long callFailoverTimeout);
+   ConnectionFactoryConfiguration setCallFailoverTimeout(long callFailoverTimeout);
 
    boolean isCacheLargeMessagesClient();
 
-   void setCacheLargeMessagesClient(boolean cacheLargeMessagesClient);
+   ConnectionFactoryConfiguration setCacheLargeMessagesClient(boolean cacheLargeMessagesClient);
 
    int getMinLargeMessageSize();
 
-   void setMinLargeMessageSize(int minLargeMessageSize);
+   ConnectionFactoryConfiguration setMinLargeMessageSize(int minLargeMessageSize);
 
    boolean isCompressLargeMessages();
 
-   void setCompressLargeMessages(boolean avoidLargeMessages);
+   ConnectionFactoryConfiguration setCompressLargeMessages(boolean avoidLargeMessages);
 
    int getConsumerWindowSize();
 
-   void setConsumerWindowSize(int consumerWindowSize);
+   ConnectionFactoryConfiguration setConsumerWindowSize(int consumerWindowSize);
 
    int getConsumerMaxRate();
 
-   void setConsumerMaxRate(int consumerMaxRate);
+   ConnectionFactoryConfiguration setConsumerMaxRate(int consumerMaxRate);
 
    int getConfirmationWindowSize();
 
-   void setConfirmationWindowSize(int confirmationWindowSize);
+   ConnectionFactoryConfiguration setConfirmationWindowSize(int confirmationWindowSize);
 
    int getProducerWindowSize();
 
-   void setProducerWindowSize(int producerWindowSize);
+   ConnectionFactoryConfiguration setProducerWindowSize(int producerWindowSize);
 
    int getProducerMaxRate();
 
-   void setProducerMaxRate(int producerMaxRate);
+   ConnectionFactoryConfiguration setProducerMaxRate(int producerMaxRate);
 
    boolean isBlockOnAcknowledge();
 
-   void setBlockOnAcknowledge(boolean blockOnAcknowledge);
+   ConnectionFactoryConfiguration setBlockOnAcknowledge(boolean blockOnAcknowledge);
 
    boolean isBlockOnDurableSend();
 
-   void setBlockOnDurableSend(boolean blockOnDurableSend);
+   ConnectionFactoryConfiguration setBlockOnDurableSend(boolean blockOnDurableSend);
 
    boolean isBlockOnNonDurableSend();
 
-   void setBlockOnNonDurableSend(boolean blockOnNonDurableSend);
+   ConnectionFactoryConfiguration setBlockOnNonDurableSend(boolean blockOnNonDurableSend);
 
    boolean isAutoGroup();
 
-   void setAutoGroup(boolean autoGroup);
+   ConnectionFactoryConfiguration setAutoGroup(boolean autoGroup);
 
    boolean isPreAcknowledge();
 
-   void setPreAcknowledge(boolean preAcknowledge);
+   ConnectionFactoryConfiguration setPreAcknowledge(boolean preAcknowledge);
 
    String getLoadBalancingPolicyClassName();
 
-   void setLoadBalancingPolicyClassName(String loadBalancingPolicyClassName);
+   ConnectionFactoryConfiguration setLoadBalancingPolicyClassName(String loadBalancingPolicyClassName);
 
    int getTransactionBatchSize();
 
-   void setTransactionBatchSize(int transactionBatchSize);
+   ConnectionFactoryConfiguration setTransactionBatchSize(int transactionBatchSize);
 
    int getDupsOKBatchSize();
 
-   void setDupsOKBatchSize(int dupsOKBatchSize);
+   ConnectionFactoryConfiguration setDupsOKBatchSize(int dupsOKBatchSize);
 
    boolean isUseGlobalPools();
 
-   void setUseGlobalPools(boolean useGlobalPools);
+   ConnectionFactoryConfiguration setUseGlobalPools(boolean useGlobalPools);
 
    int getScheduledThreadPoolMaxSize();
 
-   void setScheduledThreadPoolMaxSize(int scheduledThreadPoolMaxSize);
+   ConnectionFactoryConfiguration setScheduledThreadPoolMaxSize(int scheduledThreadPoolMaxSize);
 
    int getThreadPoolMaxSize();
 
-   void setThreadPoolMaxSize(int threadPoolMaxSize);
+   ConnectionFactoryConfiguration setThreadPoolMaxSize(int threadPoolMaxSize);
 
    long getRetryInterval();
 
-   void setRetryInterval(long retryInterval);
+   ConnectionFactoryConfiguration setRetryInterval(long retryInterval);
 
    double getRetryIntervalMultiplier();
 
-   void setRetryIntervalMultiplier(double retryIntervalMultiplier);
+   ConnectionFactoryConfiguration setRetryIntervalMultiplier(double retryIntervalMultiplier);
 
    long getMaxRetryInterval();
 
-   void setMaxRetryInterval(long maxRetryInterval);
+   ConnectionFactoryConfiguration setMaxRetryInterval(long maxRetryInterval);
 
    int getReconnectAttempts();
 
-   void setReconnectAttempts(int reconnectAttempts);
+   ConnectionFactoryConfiguration setReconnectAttempts(int reconnectAttempts);
 
    boolean isFailoverOnInitialConnection();
 
-   void setFailoverOnInitialConnection(boolean failover);
+   ConnectionFactoryConfiguration setFailoverOnInitialConnection(boolean failover);
 
    String getGroupID();
 
-   void setGroupID(String groupID);
+   ConnectionFactoryConfiguration setGroupID(String groupID);
 
-   void setFactoryType(JMSFactoryType factType);
+   ConnectionFactoryConfiguration setFactoryType(JMSFactoryType factType);
 
    JMSFactoryType getFactoryType();
 }

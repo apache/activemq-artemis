@@ -21,6 +21,7 @@
             <file name="en/configuration-index.xml"/>
             <file name="en/configuring-transports.xml"/>
             <file name="en/connection-ttl.xml"/>
+            <file name="en/slow-consumers.xml"/>
             <file name="en/core-bridges.xml"/>
             <file name="en/diverts.xml"/>
             <file name="en/duplicate-detection.xml"/>

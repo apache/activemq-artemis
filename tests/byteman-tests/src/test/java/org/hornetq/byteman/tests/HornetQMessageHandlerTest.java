@@ -96,6 +96,7 @@ public class HornetQMessageHandlerTest extends HornetQRATestBase
 
       HornetQActivationSpec spec = new HornetQActivationSpec();
       spec.setMaxSession(1);
+      spec.setCallTimeout(1000L);
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -131,7 +132,7 @@ public class HornetQMessageHandlerTest extends HornetQRATestBase
       qResourceAdapter.stop();
 
       Binding binding = server.getPostOffice().getBinding(SimpleString.toSimpleString(MDBQUEUEPREFIXED));
-      assertEquals(1, ((Queue) binding.getBindable()).getMessageCount());
+      assertEquals(1, getMessageCount(((Queue) binding.getBindable())));
 
       server.stop();
       server.start();
@@ -175,6 +176,7 @@ public class HornetQMessageHandlerTest extends HornetQRATestBase
 
       HornetQActivationSpec spec = new HornetQActivationSpec();
       spec.setMaxSession(1);
+      spec.setCallTimeout(1000L);
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -210,7 +212,8 @@ public class HornetQMessageHandlerTest extends HornetQRATestBase
       qResourceAdapter.stop();
 
       Binding binding = server.getPostOffice().getBinding(SimpleString.toSimpleString(MDBQUEUEPREFIXED));
-      assertEquals(1, ((Queue) binding.getBindable()).getMessageCount());
+      assertEquals(1, getMessageCount(((Queue) binding.getBindable())));
+
 
       server.stop();
       server.start();

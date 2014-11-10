@@ -21,9 +21,24 @@ package org.hornetq.core.server;
  */
 public interface ActivateCallback
 {
+   /*
+    * this is called before any services are started when the server first initialised
+    */
    void preActivate();
 
+   /*
+    * this is called after most of the services have been started but before any cluster resources or JMS resources have been
+    */
    void activated();
 
+   /*
+    * this is called when the server is stopping, after any network resources and clients are closed but before the rest
+    * of the resources
+    */
    void deActivate();
+
+   /*
+    * this is called when all resources have been started including any JMS resources
+    */
+   void activationComplete();
 }

@@ -27,7 +27,9 @@ public class Match<T>
 
    public static final String WILDCARD = "#";
 
-   private static final String WILDCARD_REPLACEMENT = ".+";
+   public static final String DOT_WILDCARD = ".#";
+
+   private static final String WILDCARD_REPLACEMENT = ".*";
 
    private static final String DOT = ".";
 
@@ -50,9 +52,14 @@ public class Match<T>
       }
       else
       {
+         // this is to match with what's documented
+         actMatch = actMatch.replace(DOT_WILDCARD, WILDCARD);
+
          actMatch = actMatch.replace(Match.DOT, Match.DOT_REPLACEMENT);
-         actMatch = actMatch.replace(Match.WILDCARD, Match.WILDCARD_REPLACEMENT);
          actMatch = actMatch.replace(Match.WORD_WILDCARD, Match.WORD_WILDCARD_REPLACEMENT);
+
+         // this one has to be done by last as we are using .* and it could be replaced wrongly
+         actMatch = actMatch.replace(Match.WILDCARD, Match.WILDCARD_REPLACEMENT);
       }
       pattern = Pattern.compile(actMatch);
 

@@ -14,16 +14,19 @@ package org.hornetq.core.protocol;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
@@ -35,10 +38,14 @@ import org.hornetq.core.remoting.impl.netty.ConnectionCreator;
 import org.hornetq.core.remoting.impl.netty.HttpAcceptorHandler;
 import org.hornetq.core.remoting.impl.netty.HttpKeepAliveRunnable;
 import org.hornetq.core.remoting.impl.netty.NettyAcceptor;
+import org.hornetq.core.remoting.impl.netty.NettyConnector;
 import org.hornetq.core.remoting.impl.netty.NettyServerConnection;
 import org.hornetq.core.remoting.impl.netty.TransportConstants;
 import org.hornetq.spi.core.protocol.ProtocolManager;
 import org.hornetq.utils.ConfigurationHelper;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class ProtocolHandler
 {
@@ -104,6 +111,12 @@ public class ProtocolHandler
                ctx.pipeline().remove("http-handler");
                ctx.fireChannelRead(msg);
             }
+            // HORNETQ-1391
+            else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.HORNETQ_REMOTING))
+            {
+               // Send the response and close the connection if necessary.
+               ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN)).addListener(ChannelFutureListener.CLOSE);
+            }
          }
          else
          {
@@ -133,15 +146,25 @@ public class ProtocolHandler
             return;
          }
          String protocolToUse = null;
-         for (String protocol : protocolMap.keySet())
+         Set<String> protocolSet = protocolMap.keySet();
+         if (!protocolSet.isEmpty())
          {
-            ProtocolManager protocolManager = protocolMap.get(protocol);
-            if (protocolManager.isProtocol(in.copy(0, 8).array()))
+            // Use getBytes(...) as this works with direct and heap buffers.
+            // See https://issues.jboss.org/browse/HORNETQ-1406
+            byte[] bytes = new byte[8];
+            in.getBytes(0, bytes);
+
+            for (String protocol : protocolSet)
             {
-               protocolToUse = protocol;
-               break;
+               ProtocolManager protocolManager = protocolMap.get(protocol);
+               if (protocolManager.isProtocol(bytes))
+               {
+                  protocolToUse = protocol;
+                  break;
+               }
             }
          }
+
          //if we get here we assume we use the core protocol as we match nothing else
          if (protocolToUse == null)
          {

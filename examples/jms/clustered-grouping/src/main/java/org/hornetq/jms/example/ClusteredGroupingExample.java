@@ -80,37 +80,37 @@ public class ClusteredGroupingExample extends HornetQExample
          // Step 7. We create a JMS Connection connection1 which is a connection to server 1
          connection1 = cf1.createConnection();
 
-         // Step 7. We create a JMS Connection connection1 which is a connection to server 1
+         // Step 8. We create a JMS Connection connection2 which is a connection to server 2
          connection2 = cf2.createConnection();
 
-         // Step 8. We create a JMS Session on server 0
+         // Step 9. We create a JMS Session on server 0
          Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 9. We create a JMS Session on server 1
+         // Step 10. We create a JMS Session on server 1
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 10. We create a JMS Session on server 1
+         // Step 11. We create a JMS Session on server 1
          Session session2 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 11. We start the connections to ensure delivery occurs on them
+         // Step 12. We start the connections to ensure delivery occurs on them
          connection0.start();
 
          connection1.start();
 
          connection2.start();
 
-         // Step 12. We create JMS MessageConsumer objects on server 0
+         // Step 13. We create JMS MessageConsumer objects on server 0
          MessageConsumer consumer = session0.createConsumer(queue);
 
 
-         // Step 13. We create a JMS MessageProducer object on server 0, 1 and 2
+         // Step 14. We create a JMS MessageProducer object on server 0, 1 and 2
          MessageProducer producer0 = session0.createProducer(queue);
 
          MessageProducer producer1 = session1.createProducer(queue);
 
          MessageProducer producer2 = session2.createProducer(queue);
 
-         // Step 14. We send some messages to server 0, 1 and 2 with the same groupid set
+         // Step 15. We send some messages to server 0, 1 and 2 with the same groupid set
 
          final int numMessages = 10;
 
@@ -148,7 +148,7 @@ public class ClusteredGroupingExample extends HornetQExample
             System.out.println("Sent messages: " + message.getText() + " to node 2");
          }
 
-         // Step 15. We now consume those messages from server 0
+         // Step 16. We now consume those messages from server 0
          // We note the messages have all been sent to the same consumer on the same node
 
          for (int i = 0; i < numMessages * 3; i++)
@@ -163,7 +163,7 @@ public class ClusteredGroupingExample extends HornetQExample
       }
       finally
       {
-         // Step 16. Be sure to close our resources!
+         // Step 17. Be sure to close our resources!
 
          if (connection0 != null)
          {

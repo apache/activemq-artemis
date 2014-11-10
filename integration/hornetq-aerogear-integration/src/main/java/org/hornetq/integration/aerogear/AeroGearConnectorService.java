@@ -62,6 +62,10 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
    private final String sound;
 
+   private final boolean contentAvailable;
+
+   private final String actionCategory;
+
    private String[] variants;
 
    private String[] aliases;
@@ -96,6 +100,8 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
       this.ttl = ConfigurationHelper.getIntProperty(AeroGearConstants.TTL_NAME, AeroGearConstants.DEFAULT_TTL, configuration);
       this.badge = ConfigurationHelper.getStringProperty(AeroGearConstants.BADGE_NAME, null, configuration);
       this.sound = ConfigurationHelper.getStringProperty(AeroGearConstants.SOUND_NAME, AeroGearConstants.DEFAULT_SOUND, configuration);
+      this.contentAvailable = ConfigurationHelper.getBooleanProperty(AeroGearConstants.CONTENT_AVAILABLE_NAME, false, configuration);
+      this.actionCategory = ConfigurationHelper.getStringProperty(AeroGearConstants.ACTION_CATEGORY_NAME, null, configuration);
       this.filterString = ConfigurationHelper.getStringProperty(AeroGearConstants.FILTER_NAME, null, configuration);
       this.retryInterval = ConfigurationHelper.getIntProperty(AeroGearConstants.RETRY_INTERVAL_NAME, AeroGearConstants.DEFAULT_RETRY_INTERVAL, configuration);
       this.retryAttempts = ConfigurationHelper.getIntProperty(AeroGearConstants.RETRY_ATTEMPTS_NAME, AeroGearConstants.DEFAULT_RETRY_ATTEMPTS, configuration);
@@ -202,7 +208,7 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       String alert = message.getTypedProperties().getProperty(AeroGearConstants.AEROGEAR_ALERT).toString();
 
-      JavaSender sender = new SenderClient(endpoint);
+      JavaSender sender = new SenderClient.Builder(endpoint).build();
 
       UnifiedMessage.Builder builder = new UnifiedMessage.Builder();
 
@@ -222,6 +228,20 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
       if (badge != null)
       {
          builder.badge(badge);
+      }
+
+      boolean contentAvailable = message.containsProperty(AeroGearConstants.AEROGEAR_CONTENT_AVAILABLE) ? message.getBooleanProperty(AeroGearConstants.AEROGEAR_CONTENT_AVAILABLE) : this.contentAvailable;
+
+      if (contentAvailable)
+      {
+         builder.contentAvailable();
+      }
+
+      String actionCategory = message.containsProperty(AeroGearConstants.AEROGEAR_ACTION_CATEGORY) ? message.getStringProperty(AeroGearConstants.AEROGEAR_ACTION_CATEGORY) : this.actionCategory;
+
+      if (actionCategory != null)
+      {
+         builder.actionCategory(actionCategory);
       }
 
       Integer ttl = message.containsProperty(AeroGearConstants.AEROGEAR_TTL) ? message.getIntProperty(AeroGearConstants.AEROGEAR_TTL) : this.ttl;

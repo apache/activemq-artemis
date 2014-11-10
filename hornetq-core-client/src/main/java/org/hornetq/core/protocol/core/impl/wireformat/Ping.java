@@ -16,9 +16,9 @@ import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.core.protocol.core.impl.PacketImpl;
 
 /**
- * Ping is sent on the client side at {@link ClientSessionFactoryImpl}. At the server's side it is
- * treated at {@link RemotingServiceImpl}
- * @see RemotingConnection#checkDataReceived()
+ * Ping is sent on the client side by {@link org.hornetq.core.client.impl.ClientSessionFactoryImpl}. At the server's
+ * side it is handled by {@link org.hornetq.core.remoting.server.impl.RemotingServiceImpl}
+ * @see org.hornetq.spi.core.protocol.RemotingConnection#checkDataReceived()
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class Ping extends PacketImpl

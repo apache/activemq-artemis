@@ -172,18 +172,18 @@ public class StompFrame
          this.val = val;
       }
 
-      public String getEscapedKey()
+      public String getEncodedKey()
       {
-         return escape(key);
+         return encode(key);
       }
 
-      public String getEscapedValue()
+      public String getEncodedValue()
       {
-         return escape(val);
+         return encode(val);
       }
    }
 
-   public String escape(String str)
+   public String encode(String str)
    {
       int len = str.length();
 
@@ -192,21 +192,35 @@ public class StompFrame
       for (int i = 0; i < len; i++)
       {
          char c = str.charAt(i);
-         if (c == '\n')
+
+         // \n
+         if (c == (byte) 10)
          {
-            buffer[iBuffer++] = '\\';
-            buffer[iBuffer] = 'n';
+            buffer[iBuffer] = (byte) 92;
+            buffer[++iBuffer] = (byte) 110;
          }
-         else if (c == '\\')
+
+         // \r
+         else if (c == (byte) 13)
          {
-            buffer[iBuffer++] = '\\';
-            buffer[iBuffer] = '\\';
+            buffer[iBuffer] = (byte) 92;
+            buffer[++iBuffer] = (byte) 114;
          }
-         else if (c == ':')
+
+         // \
+         else if (c == (byte) 92)
          {
-            buffer[iBuffer++] = '\\';
-            buffer[iBuffer] = ':';
+            buffer[iBuffer] = (byte) 92;
+            buffer[++iBuffer] = (byte) 92;
          }
+
+         // :
+         else if (c == (byte) 58)
+         {
+            buffer[iBuffer] = (byte) 92;
+            buffer[++iBuffer] = (byte) 99;
+         }
+
          else
          {
             buffer[iBuffer] = c;

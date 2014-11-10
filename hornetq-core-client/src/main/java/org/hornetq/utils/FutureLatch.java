@@ -22,7 +22,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class FutureLatch implements Runnable
 {
-   private final CountDownLatch latch = new CountDownLatch(1);
+   private final CountDownLatch latch;
+
+   public FutureLatch()
+   {
+      super();
+      latch = new CountDownLatch(1);
+   }
+
+   public FutureLatch(int latches)
+   {
+      super();
+      latch =  new CountDownLatch(latches);
+   }
 
    public boolean await(final long timeout)
    {

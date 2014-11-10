@@ -62,17 +62,17 @@ public class TransactionalSendTest extends ServiceTestBase
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(q.getMessageCount(), 0);
+      Assert.assertEquals(0, getMessageCount(q));
       session.commit();
-      Assert.assertEquals(q.getMessageCount(), numMessages);
+      Assert.assertEquals(getMessageCount(q), numMessages);
       // now send some more
       for (int i = 0; i < numMessages; i++)
       {
          cp.send(session.createMessage(false));
       }
-      Assert.assertEquals(q.getMessageCount(), numMessages);
+      Assert.assertEquals(numMessages, getMessageCount(q));
       session.commit();
-      Assert.assertEquals(q.getMessageCount(), numMessages * 2);
+      Assert.assertEquals(numMessages * 2, getMessageCount(q));
       session.close();
    }
 
@@ -91,17 +91,17 @@ public class TransactionalSendTest extends ServiceTestBase
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
-      Assert.assertEquals(q.getMessageCount(), 0);
+      Assert.assertEquals(getMessageCount(q), 0);
       session.rollback();
-      Assert.assertEquals(q.getMessageCount(), 0);
+      Assert.assertEquals(getMessageCount(q), 0);
       // now send some more
       for (int i = 0; i < numMessages; i++)
       {
          cp.send(session.createMessage(false));
       }
-      Assert.assertEquals(q.getMessageCount(), 0);
+      Assert.assertEquals(0, getMessageCount(q));
       session.commit();
-      Assert.assertEquals(q.getMessageCount(), numMessages);
+      Assert.assertEquals(numMessages, getMessageCount(q));
       session.close();
    }
 

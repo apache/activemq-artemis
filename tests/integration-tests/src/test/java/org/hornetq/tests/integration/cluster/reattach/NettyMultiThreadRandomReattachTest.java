@@ -30,11 +30,11 @@ public class NettyMultiThreadRandomReattachTest extends MultiThreadRandomReattac
    @Override
    protected void start() throws Exception
    {
-      Configuration liveConf = createDefaultConfig();
-      liveConf.setJMXManagementEnabled(false);
-      liveConf.setSecurityEnabled(false);
-      liveConf.getAcceptorConfigurations().clear();
-      liveConf.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+      Configuration liveConf = createDefaultConfig()
+         .setJMXManagementEnabled(false)
+         .setSecurityEnabled(false)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
       liveServer = createServer(false, liveConf);
       liveServer.start();
       waitForServer(liveServer);

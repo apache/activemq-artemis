@@ -17,11 +17,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.remoting.impl.invm.InVMConnector;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServers;
 import org.hornetq.core.server.NodeManager;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.tests.util.InVMNodeManagerServer;
 import org.hornetq.tests.util.UnitTestCase;
 import org.junit.After;
@@ -60,30 +61,32 @@ public abstract class BridgeTestBase extends UnitTestCase
                                                final boolean netty,
                                                final NodeManager nodeManager) throws Exception
    {
-      Configuration serviceConf = createBasicConfig();
-      serviceConf.setSecurityEnabled(false);
-      serviceConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      serviceConf.setJournalType(getDefaultJournalType());
-      serviceConf.setBindingsDirectory(getBindingsDir(id, false));
-      serviceConf.setJournalMinFiles(2);
-      serviceConf.setJournalDirectory(getJournalDir(id, false));
-      serviceConf.setPagingDirectory(getPageDir(id, false));
-      serviceConf.setLargeMessagesDirectory(getLargeMessagesDir(id, false));
-      // these tests don't need any big storage so limiting the size of the journal files to speed up the test
-      serviceConf.setJournalFileSize(100 * 1024);
+      TransportConfiguration tc = new TransportConfiguration();
 
       if (netty)
       {
          params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
                     org.hornetq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
-         serviceConf.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+         tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       }
       else
       {
          params.put(org.hornetq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
-         serviceConf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params));
+         tc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params);
       }
+      Configuration serviceConf = createBasicConfig()
+         .setJournalType(getDefaultJournalType())
+         .setBindingsDirectory(getBindingsDir(id, false))
+         .setJournalMinFiles(2)
+         .setJournalDirectory(getJournalDir(id, false))
+         .setPagingDirectory(getPageDir(id, false))
+         .setLargeMessagesDirectory(getLargeMessagesDir(id, false))
+         // these tests don't need any big storage so limiting the size of the journal files to speed up the test
+         .setJournalFileSize(100 * 1024)
+         .addAcceptorConfiguration(tc)
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+
       HornetQServer service;
       if (nodeManager == null)
       {
@@ -93,6 +96,7 @@ public abstract class BridgeTestBase extends UnitTestCase
       {
          service = new InVMNodeManagerServer(serviceConf, nodeManager);
       }
+
       return addServer(service);
    }
 
@@ -102,30 +106,33 @@ public abstract class BridgeTestBase extends UnitTestCase
                                                      final int liveId,
                                                      final NodeManager nodeManager) throws Exception
    {
-      Configuration serviceConf = createBasicConfig();
-      serviceConf.setSecurityEnabled(false);
-      serviceConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      serviceConf.setJournalType(getDefaultJournalType());
-      serviceConf.setBindingsDirectory(getBindingsDir(liveId, false));
-      serviceConf.setJournalMinFiles(2);
-      serviceConf.setJournalDirectory(getJournalDir(liveId, false));
-      serviceConf.setPagingDirectory(getPageDir(liveId, false));
-      serviceConf.setLargeMessagesDirectory(getLargeMessagesDir(liveId, false));
-      // these tests don't need any big storage so limiting the size of the journal files to speed up the test
-      serviceConf.setJournalFileSize(100 * 1024);
+      TransportConfiguration tc = new TransportConfiguration();
 
       if (netty)
       {
          params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
                     org.hornetq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
-         serviceConf.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+         tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       }
       else
       {
          params.put(org.hornetq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
-         serviceConf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params));
+         tc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params);
       }
+
+      Configuration serviceConf = createBasicConfig()
+         .setJournalType(getDefaultJournalType())
+         .setBindingsDirectory(getBindingsDir(liveId, false))
+         .setJournalMinFiles(2)
+         .setJournalDirectory(getJournalDir(liveId, false))
+         .setPagingDirectory(getPageDir(liveId, false))
+         .setLargeMessagesDirectory(getLargeMessagesDir(liveId, false))
+         // these tests don't need any big storage so limiting the size of the journal files to speed up the test
+         .setJournalFileSize(100 * 1024)
+         .addAcceptorConfiguration(tc)
+         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+
       HornetQServer service;
       if (nodeManager == null)
       {

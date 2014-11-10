@@ -50,8 +50,6 @@ public interface Connector
     */
    Connection createConnection();
 
-   ClientProtocolManagerFactory getProtocolManagerFactory();
-
    /**
     * If the configuration is equivalent to this connector, which means
     * if the parameter configuration is used to create a connection to a target

@@ -12,6 +12,8 @@
  */
 package org.hornetq.tests.integration.ra;
 
+import org.hornetq.core.postoffice.Binding;
+import org.hornetq.core.server.Queue;
 import org.junit.Test;
 
 import org.hornetq.api.core.client.ClientMessage;
@@ -23,6 +25,7 @@ import org.hornetq.ra.inflow.HornetQActivationSpec;
 import org.hornetq.tests.util.UnitTestCase;
 import org.hornetq.utils.UUIDGenerator;
 
+import javax.jms.Message;
 import javax.resource.ResourceException;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -73,6 +76,86 @@ public class HornetQMessageHandlerXATest extends HornetQRATestBase
       endpoint.commit();
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
+   }
+
+   @Test
+   public void testXACommitWhenStopping() throws Exception
+   {
+      HornetQResourceAdapter qResourceAdapter = newResourceAdapter();
+      MyBootstrapContext ctx = new MyBootstrapContext();
+      qResourceAdapter.start(ctx);
+      HornetQActivationSpec spec = new HornetQActivationSpec();
+      spec.setResourceAdapter(qResourceAdapter);
+      spec.setUseJNDI(false);
+      spec.setDestinationType("javax.jms.Queue");
+      spec.setDestination(MDBQUEUE);
+      spec.setMaxSession(1);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      CountDownLatch latch = new CountDownLatch(1);
+      CountDownLatch beforeDeliveryLatch = new CountDownLatch(1);
+      PausingXADummyEndpoint endpoint = new PausingXADummyEndpoint(latch, beforeDeliveryLatch);
+      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, true);
+      qResourceAdapter.endpointActivation(endpointFactory, spec);
+      ClientSession session = locator.createSessionFactory().createSession();
+      ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
+      ClientMessage message = session.createMessage(true);
+      message.getBodyBuffer().writeString("teststring");
+      clientProducer.send(message);
+      ClientMessage message2 = session.createMessage(true);
+      message2.getBodyBuffer().writeString("teststring2");
+      clientProducer.send(message2);
+      session.close();
+      beforeDeliveryLatch.await(5, TimeUnit.SECONDS);
+      qResourceAdapter.endpointDeactivation(endpointFactory, spec);
+      qResourceAdapter.stop();
+
+      assertFalse(endpoint.interrupted);
+      assertNotNull(endpoint.lastMessage);
+      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+
+      Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
+      long messageCount = getMessageCount((Queue) binding.getBindable());
+      assertEquals(1, messageCount);
+   }
+
+   @Test
+   public void testXACommitInterruptsWhenStopping() throws Exception
+   {
+      HornetQResourceAdapter qResourceAdapter = newResourceAdapter();
+      MyBootstrapContext ctx = new MyBootstrapContext();
+      qResourceAdapter.start(ctx);
+      HornetQActivationSpec spec = new HornetQActivationSpec();
+      spec.setCallTimeout(500L);
+      spec.setResourceAdapter(qResourceAdapter);
+      spec.setUseJNDI(false);
+      spec.setDestinationType("javax.jms.Queue");
+      spec.setDestination(MDBQUEUE);
+      spec.setMaxSession(1);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      CountDownLatch latch = new CountDownLatch(1);
+      CountDownLatch beforeDeliveryLatch = new CountDownLatch(1);
+      PausingXADummyEndpoint endpoint = new PausingXADummyEndpoint(latch, beforeDeliveryLatch);
+      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, true);
+      qResourceAdapter.endpointActivation(endpointFactory, spec);
+      ClientSession session = locator.createSessionFactory().createSession();
+      ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
+      ClientMessage message = session.createMessage(true);
+      message.getBodyBuffer().writeString("teststring");
+      clientProducer.send(message);
+      ClientMessage message2 = session.createMessage(true);
+      message2.getBodyBuffer().writeString("teststring2");
+      clientProducer.send(message2);
+      session.close();
+      beforeDeliveryLatch.await(5, TimeUnit.SECONDS);
+      qResourceAdapter.endpointDeactivation(endpointFactory, spec);
+      qResourceAdapter.stop();
+      assertTrue(endpoint.interrupted);
+      assertNotNull(endpoint.lastMessage);
+      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+
+      Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
+      long messageCount = getMessageCount((Queue) binding.getBindable());
+      assertEquals(1, messageCount);
    }
 
    @Test
@@ -167,6 +250,54 @@ public class HornetQMessageHandlerXATest extends HornetQRATestBase
       public void commit() throws XAException
       {
          xaResource.commit(xid, false);
+      }
+   }
+   class PausingXADummyEndpoint extends XADummyEndpoint
+   {
+      private final CountDownLatch beforeDeliveryLatch;
+
+      boolean interrupted = false;
+
+      public PausingXADummyEndpoint(CountDownLatch latch,CountDownLatch beforeDeliveryLatch)
+      {
+         super(latch);
+         this.beforeDeliveryLatch = beforeDeliveryLatch;
+      }
+
+      @Override
+      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException
+      {
+         super.beforeDelivery(method);
+         beforeDeliveryLatch.countDown();
+      }
+
+      @Override
+      public void onMessage(Message message)
+      {
+         super.onMessage(message);
+         try
+         {
+            Thread.sleep(2000);
+         }
+         catch (InterruptedException e)
+         {
+            interrupted = true;
+         }
+      }
+
+      @Override
+      public void release()
+      {
+         try
+         {
+            prepare();
+            commit();
+         }
+         catch (XAException e)
+         {
+            e.printStackTrace();
+         }
+         super.release();
       }
    }
 }

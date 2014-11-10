@@ -43,7 +43,7 @@ public interface ServerSession
 
    RemotingConnection getRemotingConnection();
 
-   void removeConsumer(long consumerID) throws Exception;
+   boolean removeConsumer(long consumerID) throws Exception;
 
    void acknowledge(long consumerID, long messageID) throws Exception;
 
@@ -95,7 +95,7 @@ public interface ServerSession
 
    void deleteQueue(SimpleString name) throws Exception;
 
-   void createConsumer(long consumerID, SimpleString queueName, SimpleString filterString, boolean browseOnly) throws Exception;
+   ServerConsumer createConsumer(long consumerID, SimpleString queueName, SimpleString filterString, boolean browseOnly) throws Exception;
 
    QueueQueryResult executeQueueQuery(SimpleString name) throws Exception;
 

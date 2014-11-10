@@ -21,7 +21,9 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.hornetq.api.core.SimpleString;
@@ -32,11 +34,12 @@ import org.hornetq.api.core.client.FailoverEventType;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.hornetq.api.jms.JMSFactoryType;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.remoting.impl.invm.InVMRegistry;
 import org.hornetq.core.remoting.impl.invm.TransportConstants;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.NodeManager;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.impl.InVMNodeManager;
 import org.hornetq.jms.client.HornetQConnection;
 import org.hornetq.jms.client.HornetQConnectionFactory;
@@ -163,7 +166,7 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
       JMSUtil.crash(liveService, ((HornetQSession) sess).getCoreSession());
 
-      Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getEventTypeList().get(0));
+      Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.get(0));
       for (int i = 0; i < numMessages; i++)
       {
          JMSFailoverListenerTest.log.info("got message " + i);
@@ -178,10 +181,10 @@ public class JMSFailoverListenerTest extends ServiceTestBase
       TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
       Assert.assertNull(tm);
-      Assert.assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.getEventTypeList().get(1));
+      Assert.assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.get(1));
 
       conn.close();
-      Assert.assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.getEventTypeList().size());
+      Assert.assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.size());
    }
 
    @Test
@@ -233,7 +236,7 @@ public class JMSFailoverListenerTest extends ServiceTestBase
       // Note we block on P send to make sure all messages get to server before failover
 
       JMSUtil.crash(liveService, coreSessionLive);
-      Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getEventTypeList().get(0));
+      Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.get(0));
       connLive.close();
 
       // Now recreate on backup
@@ -256,8 +259,8 @@ public class JMSFailoverListenerTest extends ServiceTestBase
       }
 
       TextMessage tm = (TextMessage) consumerBackup.receiveNoWait();
-      Assert.assertEquals(FailoverEventType.FAILOVER_FAILED, listener.getEventTypeList().get(1));
-      Assert.assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.getEventTypeList().size());
+      Assert.assertEquals(FailoverEventType.FAILOVER_FAILED, listener.get(1));
+      Assert.assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.size());
       Assert.assertNull(tm);
 
       connBackup.close();
@@ -285,27 +288,25 @@ public class JMSFailoverListenerTest extends ServiceTestBase
       livetc = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
       liveAcceptortc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY);
-
       backupAcceptortc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams);
 
-      backupConf = createBasicConfig(0);
-
-      backupConf.getAcceptorConfigurations().add(backupAcceptortc);
-      backupConf.getConnectorConfigurations().put(livetc.getName(), livetc);
-      backupConf.getConnectorConfigurations().put(backuptc.getName(), backuptc);
-      basicClusterConnectionConfig(backupConf, backuptc.getName(), livetc.getName());
-
-      backupConf.setSecurityEnabled(false);
-      backupConf.setJournalType(getDefaultJournalType());
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
-      backupConf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams));
-      backupConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      backupConf.setBindingsDirectory(getBindingsDir());
-      backupConf.setJournalMinFiles(2);
-      backupConf.setJournalDirectory(getJournalDir());
-      backupConf.setPagingDirectory(getPageDir());
-      backupConf.setLargeMessagesDirectory(getLargeMessagesDir());
-      backupConf.setPersistenceEnabled(true);
+
+      backupConf = createBasicConfig(0)
+         .addAcceptorConfiguration(backupAcceptortc)
+         .addConnectorConfiguration(livetc.getName(), livetc)
+         .addConnectorConfiguration(backuptc.getName(), backuptc)
+         .setJournalType(getDefaultJournalType())
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams))
+         .setBindingsDirectory(getBindingsDir())
+         .setJournalMinFiles(2)
+         .setJournalDirectory(getJournalDir())
+         .setPagingDirectory(getPageDir())
+         .setLargeMessagesDirectory(getLargeMessagesDir())
+         .setPersistenceEnabled(true)
+         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
+         .addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), livetc.getName()));
+
       backupService = new InVMNodeManagerServer(backupConf, nodeManager);
 
       backupJMSService = new JMSServerManagerImpl(backupService);
@@ -316,23 +317,21 @@ public class JMSFailoverListenerTest extends ServiceTestBase
       log.info("Starting backup");
       backupJMSService.start();
 
-      liveConf = createBasicConfig(0);
+      liveConf = createBasicConfig(0)
+         .setJournalDirectory(getJournalDir())
+         .setBindingsDirectory(getBindingsDir())
+         .addAcceptorConfiguration(liveAcceptortc)
+         .setJournalType(getDefaultJournalType())
+         .setBindingsDirectory(getBindingsDir())
+         .setJournalMinFiles(2)
+         .setJournalDirectory(getJournalDir())
+         .setPagingDirectory(getPageDir())
+         .setLargeMessagesDirectory(getLargeMessagesDir())
+         .addConnectorConfiguration(livetc.getName(), livetc)
+         .setPersistenceEnabled(true)
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
+         .addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
 
-      liveConf.setJournalDirectory(getJournalDir());
-      liveConf.setBindingsDirectory(getBindingsDir());
-
-      liveConf.setSecurityEnabled(false);
-      liveConf.getAcceptorConfigurations().add(liveAcceptortc);
-      basicClusterConnectionConfig(liveConf, livetc.getName());
-      liveConf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      liveConf.setJournalType(getDefaultJournalType());
-      liveConf.setBindingsDirectory(getBindingsDir());
-      liveConf.setJournalMinFiles(2);
-      liveConf.setJournalDirectory(getJournalDir());
-      liveConf.setPagingDirectory(getPageDir());
-      liveConf.setLargeMessagesDirectory(getLargeMessagesDir());
-      liveConf.getConnectorConfigurations().put(livetc.getName(), livetc);
-      liveConf.setPersistenceEnabled(true);
       liveService = new InVMNodeManagerServer(liveConf, nodeManager);
 
       liveJMSService = new JMSServerManagerImpl(liveService);
@@ -381,17 +380,41 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
    private static class MyFailoverListener implements FailoverEventListener
    {
-      private ArrayList<FailoverEventType> eventTypeList = new ArrayList<FailoverEventType>();
+      private List<FailoverEventType> eventTypeList = Collections.synchronizedList(new ArrayList<FailoverEventType>());
 
-      public ArrayList<FailoverEventType> getEventTypeList()
+
+      public FailoverEventType get(int element)
       {
-         return eventTypeList;
+         waitForElements(element + 1);
+         return eventTypeList.get(element);
+      }
+
+      public int size()
+      {
+         return eventTypeList.size();
+      }
+
+      private void waitForElements(int elements)
+      {
+         long timeout = System.currentTimeMillis() + 5000;
+         while (timeout > System.currentTimeMillis() && eventTypeList.size() < elements)
+         {
+            try
+            {
+               Thread.sleep(1);
+            }
+            catch (Throwable e)
+            {
+               fail(e.getMessage());
+            }
+         }
+
+         Assert.assertTrue(eventTypeList.size() >= elements);
       }
 
       public void failoverEvent(FailoverEventType eventType)
       {
          eventTypeList.add(eventType);
-         log.info("Failover event just happened : " + eventType.toString());
       }
    }
 }

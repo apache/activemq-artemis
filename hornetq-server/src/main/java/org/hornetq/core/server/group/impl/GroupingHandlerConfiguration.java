@@ -14,6 +14,7 @@ package org.hornetq.core.server.group.impl;
 
 import java.io.Serializable;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.SimpleString;
 
 /**
@@ -25,75 +26,24 @@ public final class GroupingHandlerConfiguration implements Serializable
 {
    public static final long serialVersionUID = -4600283023652477326L;
 
-   public static final int DEFAULT_TIMEOUT = 5000;
-
-   public static final long DEFAULT_GROUP_TIMEOUT = -1;
-
-   public static final long DEFAULT_REAPER_PERIOD = 30000;
-
    public static final String GROUP_TIMEOUT_PROP_NAME = "org.hornetq.GroupingHandlerConfiguration.groupTimeout";
 
    public static final String REAPER_PERIOD_PROP_NAME = "org.hornetq.GroupingHandlerConfiguration.reaperPeriod";
 
-   private final SimpleString name;
+   private SimpleString name = null;
 
-   private final TYPE type;
+   private TYPE type = null;
 
-   private final SimpleString address;
+   private SimpleString address = null;
 
-   private final long timeout;
+   private long timeout = HornetQDefaultConfiguration.getDefaultGroupingHandlerTimeout();
 
-   private long groupTimeout;
+   private long groupTimeout = HornetQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout();
 
-   private final long reaperPeriod;
+   private long reaperPeriod = HornetQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod();
 
-
-   public GroupingHandlerConfiguration(final SimpleString name, final TYPE type, final SimpleString address)
+   public GroupingHandlerConfiguration()
    {
-      this(name, type, address,
-            GroupingHandlerConfiguration.DEFAULT_TIMEOUT,
-            GroupingHandlerConfiguration.DEFAULT_GROUP_TIMEOUT,
-            GroupingHandlerConfiguration.DEFAULT_REAPER_PERIOD);
-   }
-
-   public GroupingHandlerConfiguration(final SimpleString name,
-                                       final TYPE type,
-                                       final SimpleString address,
-                                       final int timeout)
-   {
-      this(name, type, address, timeout,
-            GroupingHandlerConfiguration.DEFAULT_GROUP_TIMEOUT,
-            GroupingHandlerConfiguration.DEFAULT_REAPER_PERIOD);
-   }
-
-   public GroupingHandlerConfiguration(final SimpleString name,
-                                       final TYPE type,
-                                       final SimpleString address,
-                                       final int timeout,
-                                       final long groupTimeout,
-                                       final long reaperPeriod)
-   {
-      this.type = type;
-      this.name = name;
-      this.address = address;
-      this.timeout = timeout;
-      if (System.getProperty(GROUP_TIMEOUT_PROP_NAME) != null)
-      {
-         this.groupTimeout = Long.parseLong(System.getProperty(GROUP_TIMEOUT_PROP_NAME));
-      }
-      else
-      {
-         this.groupTimeout = groupTimeout;
-      }
-
-      if (System.getProperty(REAPER_PERIOD_PROP_NAME) != null)
-      {
-         this.reaperPeriod = Long.parseLong(System.getProperty(REAPER_PERIOD_PROP_NAME));
-      }
-      else
-      {
-         this.reaperPeriod = reaperPeriod;
-      }
    }
 
    public SimpleString getName()
@@ -124,6 +74,42 @@ public final class GroupingHandlerConfiguration implements Serializable
    public long getReaperPeriod()
    {
       return reaperPeriod;
+   }
+
+   public GroupingHandlerConfiguration setName(SimpleString name)
+   {
+      this.name = name;
+      return this;
+   }
+
+   public GroupingHandlerConfiguration setType(TYPE type)
+   {
+      this.type = type;
+      return this;
+   }
+
+   public GroupingHandlerConfiguration setAddress(SimpleString address)
+   {
+      this.address = address;
+      return this;
+   }
+
+   public GroupingHandlerConfiguration setTimeout(long timeout)
+   {
+      this.timeout = timeout;
+      return this;
+   }
+
+   public GroupingHandlerConfiguration setGroupTimeout(long groupTimeout)
+   {
+      this.groupTimeout = groupTimeout;
+      return this;
+   }
+
+   public GroupingHandlerConfiguration setReaperPeriod(long reaperPeriod)
+   {
+      this.reaperPeriod = reaperPeriod;
+      return this;
    }
 
    public enum TYPE

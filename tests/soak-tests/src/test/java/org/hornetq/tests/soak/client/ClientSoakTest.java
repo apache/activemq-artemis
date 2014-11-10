@@ -69,27 +69,24 @@ public class ClientSoakTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig(ClientSoakTest.IS_NETTY);
-
-      config.setJournalFileSize(10 * 1024 * 1024);
+      Configuration config = createDefaultConfig(ClientSoakTest.IS_NETTY)
+         .setJournalFileSize(10 * 1024 * 1024);
 
       server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
 
-      DivertConfiguration divert1 = new DivertConfiguration("dv1",
-                                                            "nm1",
-                                                            ClientSoakTest.ADDRESS.toString(),
-                                                            ClientSoakTest.DIVERTED_AD1.toString(),
-                                                            true,
-                                                            null,
-                                                            null);
+      DivertConfiguration divert1 = new DivertConfiguration()
+         .setName("dv1")
+         .setRoutingName("nm1")
+         .setAddress(ClientSoakTest.ADDRESS.toString())
+         .setForwardingAddress(ClientSoakTest.DIVERTED_AD1.toString())
+         .setExclusive(true);
 
-      DivertConfiguration divert2 = new DivertConfiguration("dv2",
-                                                            "nm2",
-                                                            ClientSoakTest.ADDRESS.toString(),
-                                                            ClientSoakTest.DIVERTED_AD2.toString(),
-                                                            true,
-                                                            null,
-                                                            null);
+      DivertConfiguration divert2 = new DivertConfiguration()
+         .setName("dv2")
+         .setRoutingName("nm2")
+         .setAddress(ClientSoakTest.ADDRESS.toString())
+         .setForwardingAddress(ClientSoakTest.DIVERTED_AD2.toString())
+         .setExclusive(true);
 
       ArrayList<DivertConfiguration> divertList = new ArrayList<DivertConfiguration>();
       divertList.add(divert1);

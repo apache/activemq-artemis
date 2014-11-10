@@ -103,17 +103,20 @@ public class StompStressTest extends UnitTestCase
 
    private HornetQServer createServer() throws Exception
    {
-      Configuration config = createBasicConfig();
-      config.setSecurityEnabled(false);
-      config.setPersistenceEnabled(false);
-
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put(TransportConstants.PROTOCOL_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
+      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
-      config.getAcceptorConfigurations().add(stompTransport);
-      config.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      config.getQueueConfigurations().add(new CoreQueueConfiguration(destination, destination, null, false));
+
+      Configuration config = createBasicConfig()
+         .setPersistenceEnabled(false)
+         .addAcceptorConfiguration(stompTransport)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+         .addQueueConfiguration(new CoreQueueConfiguration()
+                                   .setAddress(destination)
+                                   .setName(destination)
+                                   .setDurable(false));
+
       return addServer(HornetQServers.newHornetQServer(config));
    }
 

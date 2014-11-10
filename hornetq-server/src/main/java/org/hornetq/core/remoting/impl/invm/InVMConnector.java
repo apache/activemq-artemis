@@ -12,19 +12,21 @@
  */
 package org.hornetq.core.remoting.impl.invm;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 import org.hornetq.api.core.HornetQException;
-import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.core.server.HornetQComponent;
 import org.hornetq.core.server.HornetQServerLogger;
 import org.hornetq.core.server.HornetQMessageBundle;
 import org.hornetq.spi.core.remoting.AbstractConnector;
 import org.hornetq.spi.core.remoting.Acceptor;
 import org.hornetq.spi.core.remoting.BufferHandler;
+import org.hornetq.spi.core.remoting.ClientProtocolManager;
 import org.hornetq.spi.core.remoting.Connection;
 import org.hornetq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.hornetq.utils.ConfigurationHelper;
@@ -34,10 +36,20 @@ import org.hornetq.utils.OrderedExecutorFactory;
  * A InVMConnector
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  *
  */
 public class InVMConnector extends AbstractConnector
 {
+   public static final Map<String, Object> DEFAULT_CONFIG;
+
+   static
+   {
+      Map<String, Object> config = new HashMap<String , Object>();
+      config.put(TransportConstants.SERVER_ID_PROP_NAME, TransportConstants.DEFAULT_SERVER_ID);
+      DEFAULT_CONFIG = Collections.unmodifiableMap(config);
+   }
+
    // Used for testing failure only
    public static volatile boolean failOnCreateConnection;
 
@@ -63,6 +75,8 @@ public class InVMConnector extends AbstractConnector
 
    protected final int id;
 
+   private final ClientProtocolManager protocolManager;
+
    private final BufferHandler handler;
 
    private final ConnectionLifeCycleListener listener;
@@ -81,7 +95,8 @@ public class InVMConnector extends AbstractConnector
                         final BufferHandler handler,
                         final ConnectionLifeCycleListener listener,
                         final Executor closeExecutor,
-                        final Executor threadPool)
+                        final Executor threadPool,
+                        ClientProtocolManager protocolManager)
    {
       super(configuration);
       this.listener = listener;
@@ -97,6 +112,8 @@ public class InVMConnector extends AbstractConnector
       InVMRegistry registry = InVMRegistry.instance;
 
       acceptor = registry.getAcceptor(id);
+
+      this.protocolManager = protocolManager;
    }
 
    public Acceptor getAcceptor()
@@ -180,7 +197,7 @@ public class InVMConnector extends AbstractConnector
    {
       // No acceptor on a client connection
       InVMConnection inVMConnection = new InVMConnection(id, handler, listener, serverExecutor);
-      listener.connectionCreated(null, inVMConnection, HornetQClient.DEFAULT_CORE_PROTOCOL);
+      listener.connectionCreated(null, inVMConnection, protocolManager.getName());
       return inVMConnection;
    }
 

@@ -21,16 +21,16 @@ import org.hornetq.core.settings.HierarchicalRepositoryChangeListener;
 /**
  * <PRE>
  *
- * +------------+      1  +-------------+       N +------------+       N +-------+       1 +----------------+
- * | {@link PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link Page}  | ------&gt; | {@link SequentialFile} |
- * +------------+         +-------------+         +------------+         +-------+         +----------------+
- *                               |                       1 ^
- *                               |                         |
- *                               |                         |
- *                               |                         | 1
- *                               |        N +---------+   /
- *                               +--------&gt; | {@link Address} |
- *                                          +---------+
+ * +--------------+      1  +----------------+       N +--------------+       N +--------+       1 +-------------------+
+ * | {@link org.hornetq.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.hornetq.core.paging.impl.Page}  | ------&gt; | {@link org.hornetq.core.journal.SequentialFile} |
+ * +--------------+         +----------------+         +--------------+         +--------+         +-------------------+
+ *                                                              |                  1 ^
+ *                                                              |                    |
+ *                                                              |                    |
+ *                                                              |                    | 1
+ *                                                              |            N +----------+
+ *                                                              +------------&gt; | {@link org.hornetq.core.postoffice.Address} |
+ *                                                                             +----------+
  * </PRE>
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

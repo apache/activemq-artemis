@@ -35,30 +35,26 @@
         <title>Starting and Stopping the standalone server</title>
         <para>In the distribution you will find a directory called <literal>bin</literal>.</para>
         <para><literal>cd</literal> into that directory and you will find a Unix/Linux script called
-                <literal>run.sh</literal> and a windows batch file called <literal
-            >run.bat</literal></para>
-        <para>To run on Unix/Linux type <literal>./run.sh</literal></para>
-        <para>To run on Windows type <literal>run.bat</literal></para>
+                <literal>hornetq</literal> and a Windows script called <literal>hornetq.cmd</literal>.</para>
+        <para>To start the HornetQ instance on Unix/Linux type <literal>./hornetq run</literal></para>
+        <para>To start the HornetQ instance on Windows type <literal>hornetq.cmd run</literal></para>
         <para>These scripts are very simple and basically just set-up the classpath and some JVM
-            parameters and start the JBoss Microcontainer. The Microcontainer is a light weight
-            container used to deploy the HornetQ POJO's</para>
-        <para>To stop the server you will also find a Unix/Linux script <literal>stop.sh</literal> and
-            a windows batch file <literal>stop.bat</literal></para>
-        <para>To run on Unix/Linux type <literal>./stop.sh</literal></para>
-        <para>To run on Windows type <literal>stop.bat</literal></para>
+            parameters and bootstrap the server using <ulink
+                   url="https://github.com/airlift/airline">Airline</ulink>.</para>
+        <para>To stop the HornetQ instance you will use the same <literal>hornetq</literal> script.</para>
+        <para>To run on Unix/Linux type <literal>./hornetq stop</literal></para>
+        <para>To run on Windows type <literal>hornetq.cmd stop</literal></para>
         <para>Please note that HornetQ requires a Java 6 or later runtime to run.</para>
-        <para>Both the run and the stop scripts use the config under <literal
-                >config/stand-alone/non-clustered</literal> by default. The configuration can be
-            changed by running <literal>./run.sh ../config/stand-alone/clustered</literal> or
-            another config of your choosing. This is the same for the stop script and the windows
-            bat files.</para>
+        <para>By default the <literal>config/non-clustered/bootstrap.xml</literal> configuration is used. The
+            configuration can be changed e.g. by running
+            <literal>./hornetq run -- xml:../config/clustered/bootstrap.xml</literal> or another config of
+            your choosing.</para>
     </section>
     <section>
         <title>Server JVM settings</title>
-        <para>The run scripts <literal>run.sh</literal> and <literal>run.bat</literal> set some JVM
-            settings for tuning running on Java 6 and choosing the garbage collection policy. We
-            recommend using a parallel garbage collection algorithm to smooth out latency and
-            minimise large GC pauses.</para>
+        <para>The run scripts set some JVM settings for tuning the garbage collection policy
+            and heap size. We recommend using a parallel garbage collection algorithm to smooth
+            out latency and minimise large GC pauses.</para>
         <para>By default HornetQ runs in a maximum of 1GiB of RAM. To increase the memory settings
             change the <literal>-Xms</literal> and <literal>-Xmx</literal> memory settings as you
             would for any Java program.</para>
@@ -66,15 +62,7 @@
             are the place to do it.</para>
     </section>
     <section>
-        <title>Server classpath</title>
-        <para>HornetQ looks for its configuration files on the Java classpath.</para>
-        <para>The scripts <literal>run.sh</literal> and <literal>run.bat</literal> specify the
-            classpath when calling Java to run the server.</para>
-        <para>In the distribution, the run scripts will add the non clustered configuration
-            directory to the classpath. This is a directory which contains a set of configuration
-            files for running the HornetQ server in a basic non-clustered configuration. In the
-            distribution this directory is <literal>config/stand-alone/non-clustered/</literal> from
-            the root of the distribution.</para>
+        <title>Pre-configured Options</title>
         <para>The distribution contains several standard configuration sets for running:</para>
         <itemizedlist>
             <listitem>
@@ -84,22 +72,20 @@
                 <para>Clustered stand-alone</para>
             </listitem>
             <listitem>
-                <para>Non clustered in JBoss Application Server</para>
+                <para>Replicated stand-alone</para>
             </listitem>
             <listitem>
-                <para>Clustered in JBoss Application Server</para>
+                <para>Shared-store stand-alone</para>
             </listitem>
         </itemizedlist>
         <para>You can of course create your own configuration and specify any configuration
-            directory when running the run script.</para>
-        <para>Just make sure the directory is on the classpath and HornetQ will search there when
-            starting up.</para>
+            when running the run script.</para>
     </section>
     <section id="using-server.library.path">
         <title>Library Path</title>
         <para>If you're using the <link linkend="aio-journal">Asynchronous IO Journal</link> on
             Linux, you need to specify <literal>java.library.path</literal> as a property on your
-            Java options. This is done automatically in the <literal>run.sh</literal> script.</para>
+            Java options. This is done automatically in the scripts.</para>
         <para>If you don't specify <literal>java.library.path</literal> at your Java options then
             the JVM will use the environment variable <literal>LD_LIBRARY_PATH</literal>.</para>
     </section>
@@ -111,19 +97,9 @@
     </section>
     <section id="using-server.configuration">
         <title>Configuration files</title>
-        <para>The configuration directory is specified on the classpath in the run scripts <literal
-                >run.sh</literal> and <literal>run.bat</literal> This directory can contain the
-            following files.</para>
+        <para>The configuration file used to bootstrap the server (e.g. <literal>bootstrap.xml</literal>
+            by default) references the specific broker configuration files.</para>
         <itemizedlist>
-            <listitem>
-                <para><literal>hornetq-beans.xml</literal> (or <literal
-                        >hornetq-jboss-beans.xml</literal> if you're running inside JBoss
-                    Application Server). This is the JBoss Microcontainer beans file which defines
-                    what beans the Microcontainer should create and what dependencies to enforce
-                    between them. Remember that HornetQ is just a set of POJOs. In the stand-alone
-                    server, it's the JBoss Microcontainer which instantiates these POJOs and
-                    enforces dependencies between them and other beans. </para>
-            </listitem>
             <listitem>
                 <para><literal>hornetq-configuration.xml</literal>. This is the main HornetQ
                     configuration file. All the parameters in this file are described in <xref
@@ -156,11 +132,6 @@
                     file. For more information on using JMS, please see <xref linkend="using-jms"
                     />.</para>
             </listitem>
-            <listitem>
-                <para><literal>logging.properties</literal> This is used to configure the logging
-                    handlers used by the Java logger. For more information on configuring logging,
-                    please see <xref linkend="logging"/>.</para>
-            </listitem>
         </itemizedlist>
         <note>
             <para>The property <literal>file-deployment-enabled</literal> in the <literal
@@ -184,190 +155,43 @@
                 >${hornetq.remoting.netty.host}</literal>, however the system property
                 <emphasis>must</emphasis> be supplied in that case.</para>
     </section>
-    <section id="server.microcontainer.configuration">
-        <title>JBoss Microcontainer Beans File</title>
-        <para>The stand-alone server is basically a set of POJOs which are instantiated by the light
-                weight<ulink url="http://www.jboss.org/jbossmc/"> JBoss Microcontainer
-            </ulink>engine.</para>
-        <note>
-            <para>A beans file is also needed when the server is deployed in the JBoss Application
-                Server but this will deploy a slightly different set of objects since the
-                Application Server will already have things like security etc deployed.</para>
-        </note>
-        <para>Let's take a look at an example beans file from the stand-alone server:</para>
+    <section id="server.bootstrap.configuration">
+        <title>Bootstrap File</title>
+        <para>The stand-alone server is basically a set of POJOs which are instantiated by Airline commands.</para>
+        <para>The bootstrap file is very simple.  Let's take a look at an example:</para>
         <para>
             <programlisting>
-&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;broker xmlns="http://hornetq.org/schema">
 
-&lt;deployment xmlns="urn:jboss:bean-deployer:2.0">
+   &lt;file:core configuration="${hornetq.home}/config/stand-alone/non-clustered/hornetq-configuration.xml">&lt;/core>
+   &lt;file:jms configuration="${hornetq.home}/config/stand-alone/non-clustered/hornetq-jms.xml">&lt;/jms>
 
-   &lt;!-- MBean server -->
-   &lt;bean name="MBeanServer" class="javax.management.MBeanServer">
-      &lt;constructor factoryClass="java.lang.management.ManagementFactory"
-                   factoryMethod="getPlatformMBeanServer"/>
-   &lt;/bean>
+   &lt;basic-security/>
 
-   &lt;!-- The core configuration -->
-   &lt;bean name="Configuration" class="org.hornetq.core.config.impl.FileConfiguration">
-   &lt;/bean>
+   &lt;naming bindAddress="localhost" port="1099" rmiBindAddress="localhost" rmiPort="1098"/>
 
-    &lt;!-- The security manager -->
-   &lt;bean name="HornetQSecurityManager" class="org.hornetq.spi.core.security.HornetQSecurityManagerImpl">
-      &lt;start ignored="true"/>
-      &lt;stop ignored="true"/>
-   &lt;/bean>
-
-    &lt;!-- The core server -->
-   &lt;bean name="HornetQServer" class="org.hornetq.core.server.impl.HornetQServerImpl">
-      &lt;constructor>
-         &lt;parameter>
-            &lt;inject bean="Configuration"/>
-         &lt;/parameter>
-         &lt;parameter>
-            &lt;inject bean="MBeanServer"/>
-         &lt;/parameter>
-         &lt;parameter>
-            &lt;inject bean="HornetQSecurityManager"/>
-         &lt;/parameter>
-      &lt;/constructor>
-      &lt;start ignored="true"/>
-      &lt;stop ignored="true"/>
-   &lt;/bean>
-
-    &lt;!-- The Stand alone server that controls the jndi server-->
-   &lt;bean name="StandaloneServer" class="org.hornetq.jms.server.impl.StandaloneNamingServer">
-      &lt;constructor>
-         &lt;parameter>
-            &lt;inject bean="HornetQServer"/>
-         &lt;/parameter>
-      &lt;/constructor>
-      &lt;property name="port">${jnp.port:1099}&lt;/property>
-      &lt;property name="bindAddress">${jnp.host:localhost}&lt;/property>
-      &lt;property name="rmiPort">${jnp.rmiPort:1098}&lt;/property>
-      &lt;property name="rmiBindAddress">${jnp.host:localhost}&lt;/property>
-   &lt;/bean>
-
-   &lt;!-- The JMS server -->
-   &lt;bean name="JMSServerManager" class="org.hornetq.jms.server.impl.JMSServerManagerImpl">
-      &lt;constructor>
-         &lt;parameter>
-            &lt;inject bean="HornetQServer"/>
-         &lt;/parameter>
-      &lt;/constructor>
-   &lt;/bean>
-
-
-&lt;/deployment></programlisting>
+&lt;/broker></programlisting>
         </para>
-        <para>We can see that, as well as the core HornetQ server, the stand-alone server
-            instantiates various different POJOs, let's look at them in turn:</para>
         <itemizedlist>
             <listitem>
-                <para>MBeanServer</para>
-                <para>In order to provide a JMX management interface a JMS MBean server is necessary
-                    in which to register the management objects. Normally this is just the default
-                    platform MBean server available in the JVM instance. If you don't want to
-                    provide a JMX management interface this can be commented out or removed.</para>
+                <para>core</para>
+                <para>Instantiates a core server using the configuration file from the
+                   <literal>configuration</literal> attribute. This is the main broker POJO necessary
+                   to do all the real messaging work.</para>
             </listitem>
-            <listitem>
-                <para>Configuration</para>
-                <para>The HornetQ server is configured with a Configuration object. In the default
-                    stand-alone set-up it uses a FileConfiguration object which knows to read
-                    configuration information from the file system. In different configurations such
-                    as embedded you might want to provide configuration information from somewhere
-                    else.</para>
-            </listitem>
-            <listitem>
-                <para>Security Manager. The security manager used by the messaging server is
-                    pluggable. The default one used just reads user-role information from the
-                        <literal>hornetq-users.xml</literal> file on disk. However it can be
-                    replaced by a JAAS security manager, or when running inside JBoss Application
-                    Server it can be configured to use the JBoss AS security manager for tight
-                    integration with JBoss AS security. If you've disabled security altogether you
-                    can remove this too.</para>
-            </listitem>
-            <listitem>
-                <para>HornetQServer</para>
-                <para>This is the core server. It's where 99% of the magic happens</para>
-            </listitem>
-            <listitem>
-                <para>StandaloneServer</para>
-                <para>Many clients like to look up JMS Objects from JNDI so we provide a JNDI server
-                    for them to do that. This class is a wrapper around the JBoss naming server.
-                   If you don't need JNDI this can be commented out or removed.</para>
-            </listitem>
-            <listitem id="bean-jmsservermanager">
-                <para>JMSServerManager</para>
+            <listitem id="jms">
+                <para>jms</para>
                 <para>This deploys any JMS Objects such as JMS Queues, Topics and ConnectionFactory
-                    instances from <literal>hornetq-jms.xml</literal> files on the disk. It also
+                    instances from the <literal>hornetq-jms.xml</literal> file specified. It also
                     provides a simple management API for manipulating JMS Objects. On the whole it
                     just translates and delegates its work to the core server. If you don't need to
-                    deploy JMS Queues, Topics and ConnectionFactorys from server side configuration
+                    deploy JMS Queues, Topics and ConnectionFactories from server side configuration
                     and don't require the JMS management interface this can be disabled.</para>
             </listitem>
-        </itemizedlist>
-    </section>
-    <section id="server.microkernel.configuration">
-        <title>JBoss AS4 MBean Service.</title>
-        <note>
-            <para>The section is only to configure HornetQ on JBoss AS4. The service functionality is
-                similar to Microcontainer Beans</para>
-        </note>
-        <para>
-            <programlisting>
-&lt;?xml version="1.0" encoding="UTF-8"?>
-&lt;server>
-   &lt;mbean code="org.hornetq.service.HornetQFileConfigurationService"
-      name="org.hornetq:service=HornetQFileConfigurationService">
-   &lt;/mbean>
-
-   &lt;mbean code="org.hornetq.service.JBossASSecurityManagerService"
-      name="org.hornetq:service=JBossASSecurityManagerService">
-   &lt;/mbean>
-
-   &lt;mbean code="org.hornetq.service.HornetQStarterService" 
-      name="org.hornetq:service=HornetQStarterService">
-      &lt;!--let's let the JMS Server start us-->
-         &lt;attribute name="Start">false&lt;/attribute>
-
-      &lt;depends optional-attribute-name="SecurityManagerService"
-         proxy-type="attribute">org.hornetq:service=JBossASSecurityManagerService&lt;/depends>
-      &lt;depends optional-attribute-name="ConfigurationService"
-         proxy-type="attribute">org.hornetq:service=HornetQFileConfigurationService&lt;/depends>
-   &lt;/mbean>
-
-   &lt;mbean code="org.hornetq.service.HornetQJMSStarterService"
-      name="org.hornetq:service=HornetQJMSStarterService">
-      &lt;depends optional-attribute-name="HornetQServer"
-         proxy-type="attribute">org.hornetq:service=HornetQStarterService&lt;/depends>
-   &lt;/mbean>
-&lt;/server></programlisting>
-        </para>
-        <para>This jboss-service.xml configuration file is included inside the hornetq-service.sar
-            on AS4 with embedded HornetQ. As you can see, on this configuration file we are starting
-            various services:</para>
-        <itemizedlist>
             <listitem>
-                <para>HornetQFileConfigurationService</para>
-                <para>This is an MBean Service that takes care of the life cycle of the <literal>FileConfiguration POJO</literal></para>
-            </listitem>
-            <listitem>
-                <para>JBossASSecurityManagerService</para>
-                <para>This is an MBean Service that takes care of the lifecycle of the <literal>JBossASSecurityManager</literal> POJO</para>
-            </listitem>
-            <listitem>
-                <para>HornetQStarterService</para>
-                <para>This is an MBean Service that controls the main <literal>HornetQServer</literal> POJO.
-                   this has a dependency on JBossASSecurityManagerService and HornetQFileConfigurationService MBeans</para>
-            </listitem>
-            <listitem>
-                <para>HornetQJMSStarterService</para>
-                <para>This is an MBean Service that controls the <literal>JMSServerManagerImpl</literal> POJO.
-                   If you aren't using jms this can be removed.</para>
-            </listitem>
-            <listitem>
-                <para>JMSServerManager</para>
-                <para>Has the responsibility to start the JMSServerManager and the same behaviour that JMSServerManager Bean</para>
+                <para>naming</para>
+                <para>Instantiates a naming server which implements JNDI. This is used by JMS
+                    clients</para>
             </listitem>
         </itemizedlist>
     </section>

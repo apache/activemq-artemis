@@ -673,10 +673,8 @@ public class LVQTest extends UnitTestCase
    {
       super.setUp();
 
-      ConfigurationImpl configuration = createBasicConfig();
-      configuration.setSecurityEnabled(false);
-      TransportConfiguration transportConfig = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY);
-      configuration.getAcceptorConfigurations().add(transportConfig);
+      ConfigurationImpl configuration = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
       server = HornetQServers.newHornetQServer(configuration, false);
       // start the server
       server.start();

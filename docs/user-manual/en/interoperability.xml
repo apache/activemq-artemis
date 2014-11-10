@@ -285,4 +285,23 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
                 however in this version HornetQ will only support single transactions per session</para></note>
         </section>
     </section>
+    <section>
+        <title>OpenWire</title>
+        <para>HornetQ now supports the <ulink url="http://activemq.apache.org/openwire.html">OpenWire</ulink>
+        protocol so that an ActiveMQ JMS client can talk directly to a HornetQ server. To enable OpenWire support
+        you must configure a Netty Acceptor, like so:</para>
+        <programlisting>
+&lt;acceptor name="openwire-acceptor">
+&lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+&lt;param key="protocols"  value="OPENWIRE"/>
+&lt;param key="port"  value="61616"/>
+&lt;/acceptor>
+        </programlisting>
+        <para>The HornetQ server will then listens on port 61616 for incoming openwire commands. Please note the "protocols" is not mandatory here. 
+        The openwire configuration conforms to HornetQ's "Single Port" feature. Please refer to 
+        <link linkend="configuring-transports.single-port">Configuring Single Port</link> for details.</para>
+        <para>Please refer to the openwire example for more coding details.</para>
+        <para>Currently we support ActiveMQ clients that using standard JMS APIs. In the future we will get more supports
+        for some advanced, ActiveMQ specific features into HornetQ.</para>
+    </section>
 </chapter>

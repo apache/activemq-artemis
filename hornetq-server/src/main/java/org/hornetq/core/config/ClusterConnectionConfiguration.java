@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.client.HornetQClient;
-import org.hornetq.core.server.HornetQMessageBundle;
 
 /**
  * A ClusterConnectionConfiguration
@@ -29,221 +28,52 @@ public final class ClusterConnectionConfiguration implements Serializable
 {
    private static final long serialVersionUID = 8948303813427795935L;
 
-   private final String name;
+   private String name;
 
-   private final String address;
+   private String address;
 
-   private final String connectorName;
+   private String connectorName;
 
-   private long clientFailureCheckPeriod;
+   private long clientFailureCheckPeriod = HornetQDefaultConfiguration.getDefaultClusterFailureCheckPeriod();
 
-   private long connectionTTL;
+   private long connectionTTL = HornetQDefaultConfiguration.getDefaultClusterConnectionTtl();
 
-   private long retryInterval;
+   private long retryInterval = HornetQDefaultConfiguration.getDefaultClusterRetryInterval();
 
-   private double retryIntervalMultiplier;
+   private double retryIntervalMultiplier = HornetQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier();
 
-   private long maxRetryInterval;
+   private long maxRetryInterval = HornetQDefaultConfiguration.getDefaultClusterMaxRetryInterval();
 
-   private int initialConnectAttempts;
+   private int initialConnectAttempts = HornetQDefaultConfiguration.getDefaultClusterInitialConnectAttempts();
 
-   private int reconnectAttempts;
+   private int reconnectAttempts = HornetQDefaultConfiguration.getDefaultClusterReconnectAttempts();
 
-   private long callTimeout;
+   private long callTimeout = HornetQDefaultConfiguration.getDefaultClusterCallTimeout();
 
-   private long callFailoverTimeout;
+   private long callFailoverTimeout = HornetQDefaultConfiguration.getDefaultClusterCallFailoverTimeout();
 
-   private boolean duplicateDetection;
+   private boolean duplicateDetection = HornetQDefaultConfiguration.isDefaultClusterDuplicateDetection();
 
-   private boolean forwardWhenNoConsumers;
+   private boolean forwardWhenNoConsumers = HornetQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers();
 
-   private final List<String> staticConnectors;
+   private List<String> staticConnectors = Collections.emptyList();
 
-   private final String discoveryGroupName;
+   private String discoveryGroupName = null;
 
-   private final int maxHops;
+   private int maxHops = HornetQDefaultConfiguration.getDefaultClusterMaxHops();
 
-   private final int confirmationWindowSize;
+   private int confirmationWindowSize = HornetQDefaultConfiguration.getDefaultClusterConfirmationWindowSize();
 
-   private final boolean allowDirectConnectionsOnly;
+   private boolean allowDirectConnectionsOnly = false;
 
-   private int minLargeMessageSize;
+   private int minLargeMessageSize = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
-   private final long clusterNotificationInterval;
+   private long clusterNotificationInterval = HornetQDefaultConfiguration.getDefaultClusterNotificationInterval();
 
-   private final int clusterNotificationAttempts;
+   private int clusterNotificationAttempts = HornetQDefaultConfiguration.getDefaultClusterNotificationAttempts();
 
-   public ClusterConnectionConfiguration(final String name,
-                                         final String address,
-                                         final String connectorName,
-                                         final long retryInterval,
-                                         final boolean duplicateDetection,
-                                         final boolean forwardWhenNoConsumers,
-                                         final int maxHops,
-                                         final int confirmationWindowSize,
-                                         final List<String> staticConnectors,
-                                         final boolean allowDirectConnectionsOnly)
+   public ClusterConnectionConfiguration()
    {
-      this(name,
-         address,
-         connectorName,
-         HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-         HornetQDefaultConfiguration.getDefaultClusterFailureCheckPeriod(),
-         HornetQDefaultConfiguration.getDefaultClusterConnectionTtl(),
-         retryInterval,
-         HornetQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(),
-         HornetQDefaultConfiguration.getDefaultClusterMaxRetryInterval(),
-         HornetQDefaultConfiguration.getDefaultClusterInitialConnectAttempts(),
-         HornetQDefaultConfiguration.getDefaultClusterReconnectAttempts(),
-         HornetQClient.DEFAULT_CALL_TIMEOUT,
-         HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-         duplicateDetection,
-         forwardWhenNoConsumers,
-         maxHops,
-         confirmationWindowSize,
-         staticConnectors,
-         allowDirectConnectionsOnly,
-         HornetQDefaultConfiguration.getDefaultClusterNotificationInterval(),
-         HornetQDefaultConfiguration.getDefaultClusterNotificationAttempts(),
-         null);
-   }
-
-
-   public ClusterConnectionConfiguration(final String name,
-                                         final String address,
-                                         final String connectorName,
-                                         final int minLargeMessageSize,
-                                         final long clientFailureCheckPeriod,
-                                         final long connectionTTL,
-                                         final long retryInterval,
-                                         final double retryIntervalMultiplier,
-                                         final long maxRetryInterval,
-                                         final int initialConnectAttempts,
-                                         final int reconnectAttempts,
-                                         final long callTimeout,
-                                         final long callFailoverTimeout,
-                                         final boolean duplicateDetection,
-                                         final boolean forwardWhenNoConsumers,
-                                         final int maxHops,
-                                         final int confirmationWindowSize,
-                                         final List<String> staticConnectors,
-                                         final boolean allowDirectConnectionsOnly,
-                                         final long clusterNotificationInterval,
-                                         final int clusterNotificationAttempts,
-                                         final String scaleDownConnector)
-   {
-      this.name = name;
-      this.address = address;
-      this.connectorName = connectorName;
-      this.clientFailureCheckPeriod = clientFailureCheckPeriod;
-      this.connectionTTL = connectionTTL;
-      if (retryInterval <= 0)
-         throw HornetQMessageBundle.BUNDLE.invalidRetryInterval(retryInterval);
-      this.retryInterval = retryInterval;
-      this.retryIntervalMultiplier = retryIntervalMultiplier;
-      this.maxRetryInterval = maxRetryInterval;
-      this.initialConnectAttempts = initialConnectAttempts;
-      this.reconnectAttempts = reconnectAttempts;
-      if (staticConnectors != null)
-      {
-         this.staticConnectors = staticConnectors;
-      }
-      else
-      {
-         this.staticConnectors = Collections.emptyList();
-      }
-      this.duplicateDetection = duplicateDetection;
-      this.callTimeout = callTimeout;
-      this.callFailoverTimeout = callFailoverTimeout;
-      this.forwardWhenNoConsumers = forwardWhenNoConsumers;
-      discoveryGroupName = null;
-      this.maxHops = maxHops;
-      this.confirmationWindowSize = confirmationWindowSize;
-      this.allowDirectConnectionsOnly = allowDirectConnectionsOnly;
-      this.minLargeMessageSize = minLargeMessageSize;
-      this.clusterNotificationInterval = clusterNotificationInterval;
-      this.clusterNotificationAttempts = clusterNotificationAttempts;
-   }
-
-
-   public ClusterConnectionConfiguration(final String name,
-                                         final String address,
-                                         final String connectorName,
-                                         final long retryInterval,
-                                         final boolean duplicateDetection,
-                                         final boolean forwardWhenNoConsumers,
-                                         final int maxHops,
-                                         final int confirmationWindowSize,
-                                         final String discoveryGroupName)
-   {
-      this(name,
-         address,
-         connectorName,
-         HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-         HornetQDefaultConfiguration.getDefaultClusterFailureCheckPeriod(),
-         HornetQDefaultConfiguration.getDefaultClusterConnectionTtl(),
-         retryInterval,
-         HornetQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(),
-         HornetQDefaultConfiguration.getDefaultClusterMaxRetryInterval(),
-         HornetQDefaultConfiguration.getDefaultClusterInitialConnectAttempts(),
-         HornetQDefaultConfiguration.getDefaultClusterReconnectAttempts(),
-         HornetQClient.DEFAULT_CALL_TIMEOUT,
-         HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-         duplicateDetection,
-         forwardWhenNoConsumers,
-         maxHops,
-         confirmationWindowSize,
-         discoveryGroupName,
-         HornetQDefaultConfiguration.getDefaultClusterNotificationInterval(),
-         HornetQDefaultConfiguration.getDefaultClusterNotificationAttempts(),
-         null);
-   }
-
-
-   public ClusterConnectionConfiguration(final String name,
-                                         final String address,
-                                         final String connectorName,
-                                         final int minLargeMessageSize,
-                                         final long clientFailureCheckPeriod,
-                                         final long connectionTTL,
-                                         final long retryInterval,
-                                         final double retryIntervalMultiplier,
-                                         final long maxRetryInterval,
-                                         final int initialConnectAttempts,
-                                         final int reconnectAttempts,
-                                         final long callTimeout,
-                                         final long callFailoverTimeout,
-                                         final boolean duplicateDetection,
-                                         final boolean forwardWhenNoConsumers,
-                                         final int maxHops,
-                                         final int confirmationWindowSize,
-                                         final String discoveryGroupName,
-                                         final long clusterNotificationInterval,
-                                         final int clusterNotificationAttempts,
-                                         final String scaleDownConnector)
-   {
-      this.name = name;
-      this.address = address;
-      this.connectorName = connectorName;
-      this.clientFailureCheckPeriod = clientFailureCheckPeriod;
-      this.connectionTTL = connectionTTL;
-      this.retryInterval = retryInterval;
-      this.retryIntervalMultiplier = retryIntervalMultiplier;
-      this.maxRetryInterval = maxRetryInterval;
-      this.initialConnectAttempts = initialConnectAttempts;
-      this.reconnectAttempts = reconnectAttempts;
-      this.callTimeout = callTimeout;
-      this.callFailoverTimeout = callFailoverTimeout;
-      this.duplicateDetection = duplicateDetection;
-      this.forwardWhenNoConsumers = forwardWhenNoConsumers;
-      this.discoveryGroupName = discoveryGroupName;
-      this.clusterNotificationInterval = clusterNotificationInterval;
-      this.clusterNotificationAttempts = clusterNotificationAttempts;
-      this.staticConnectors = Collections.emptyList();
-      this.maxHops = maxHops;
-      this.confirmationWindowSize = confirmationWindowSize;
-      this.minLargeMessageSize = minLargeMessageSize;
-      allowDirectConnectionsOnly = false;
    }
 
    public String getName()
@@ -251,9 +81,21 @@ public final class ClusterConnectionConfiguration implements Serializable
       return name;
    }
 
+   public ClusterConnectionConfiguration setName(String name)
+   {
+      this.name = name;
+      return this;
+   }
+
    public String getAddress()
    {
       return address;
+   }
+
+   public ClusterConnectionConfiguration setAddress(String address)
+   {
+      this.address = address;
+      return this;
    }
 
    /**
@@ -319,6 +161,12 @@ public final class ClusterConnectionConfiguration implements Serializable
       return connectorName;
    }
 
+   public ClusterConnectionConfiguration setConnectorName(String connectorName)
+   {
+      this.connectorName = connectorName;
+      return this;
+   }
+
    public boolean isDuplicateDetection()
    {
       return duplicateDetection;
@@ -334,9 +182,21 @@ public final class ClusterConnectionConfiguration implements Serializable
       return maxHops;
    }
 
+   public ClusterConnectionConfiguration setMaxHops(int maxHops)
+   {
+      this.maxHops = maxHops;
+      return this;
+   }
+
    public int getConfirmationWindowSize()
    {
       return confirmationWindowSize;
+   }
+
+   public ClusterConnectionConfiguration setConfirmationWindowSize(int confirmationWindowSize)
+   {
+      this.confirmationWindowSize = confirmationWindowSize;
+      return this;
    }
 
    public List<String> getStaticConnectors()
@@ -344,9 +204,21 @@ public final class ClusterConnectionConfiguration implements Serializable
       return staticConnectors;
    }
 
+   public ClusterConnectionConfiguration setStaticConnectors(List<String> staticConnectors)
+   {
+      this.staticConnectors = staticConnectors;
+      return this;
+   }
+
    public String getDiscoveryGroupName()
    {
       return discoveryGroupName;
+   }
+
+   public ClusterConnectionConfiguration setDiscoveryGroupName(String discoveryGroupName)
+   {
+      this.discoveryGroupName = discoveryGroupName;
+      return this;
    }
 
    public long getRetryInterval()
@@ -357,6 +229,12 @@ public final class ClusterConnectionConfiguration implements Serializable
    public boolean isAllowDirectConnectionsOnly()
    {
       return allowDirectConnectionsOnly;
+   }
+
+   public ClusterConnectionConfiguration setAllowDirectConnectionsOnly(boolean allowDirectConnectionsOnly)
+   {
+      this.allowDirectConnectionsOnly = allowDirectConnectionsOnly;
+      return this;
    }
 
 
@@ -371,97 +249,109 @@ public final class ClusterConnectionConfiguration implements Serializable
    /**
     * @param minLargeMessageSize the minLargeMessageSize to set
     */
-   public void setMinLargeMessageSize(final int minLargeMessageSize)
+   public ClusterConnectionConfiguration setMinLargeMessageSize(final int minLargeMessageSize)
    {
       this.minLargeMessageSize = minLargeMessageSize;
+      return this;
    }
 
    /**
     * @param clientFailureCheckPeriod the clientFailureCheckPeriod to set
     */
-   public void setClientFailureCheckPeriod(long clientFailureCheckPeriod)
+   public ClusterConnectionConfiguration setClientFailureCheckPeriod(long clientFailureCheckPeriod)
    {
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
+      return this;
    }
 
    /**
     * @param connectionTTL the connectionTTL to set
     */
-   public void setConnectionTTL(long connectionTTL)
+   public ClusterConnectionConfiguration setConnectionTTL(long connectionTTL)
    {
       this.connectionTTL = connectionTTL;
+      return this;
    }
 
    /**
     * @param retryInterval the retryInterval to set
     */
-   public void setRetryInterval(long retryInterval)
+   public ClusterConnectionConfiguration setRetryInterval(long retryInterval)
    {
       this.retryInterval = retryInterval;
+      return this;
    }
 
    /**
     * @param retryIntervalMultiplier the retryIntervalMultiplier to set
     */
-   public void setRetryIntervalMultiplier(double retryIntervalMultiplier)
+   public ClusterConnectionConfiguration setRetryIntervalMultiplier(double retryIntervalMultiplier)
    {
       this.retryIntervalMultiplier = retryIntervalMultiplier;
+      return this;
    }
 
    /**
     * @param maxRetryInterval the maxRetryInterval to set
     */
-   public void setMaxRetryInterval(long maxRetryInterval)
+   public ClusterConnectionConfiguration setMaxRetryInterval(long maxRetryInterval)
    {
       this.maxRetryInterval = maxRetryInterval;
+      return this;
    }
 
    /**
     * @param initialConnectAttempts the reconnectAttempts to set
     */
-   public void setInitialConnectAttempts(int initialConnectAttempts)
+   public ClusterConnectionConfiguration setInitialConnectAttempts(int initialConnectAttempts)
    {
       this.initialConnectAttempts = initialConnectAttempts;
+      return this;
    }
 
    /**
     * @param reconnectAttempts the reconnectAttempts to set
     */
-   public void setReconnectAttempts(int reconnectAttempts)
+   public ClusterConnectionConfiguration setReconnectAttempts(int reconnectAttempts)
    {
       this.reconnectAttempts = reconnectAttempts;
+      return this;
    }
 
    /**
     * @param callTimeout the callTimeout to set
     */
-   public void setCallTimeout(long callTimeout)
+   public ClusterConnectionConfiguration setCallTimeout(long callTimeout)
    {
       this.callTimeout = callTimeout;
+      return this;
    }
 
    /**
     * @param callFailoverTimeout the callTimeout to set
     */
-   public void setCallFailoverTimeout(long callFailoverTimeout)
+   public ClusterConnectionConfiguration setCallFailoverTimeout(long callFailoverTimeout)
    {
       this.callFailoverTimeout = callFailoverTimeout;
+      return this;
    }
 
    /**
     * @param duplicateDetection the duplicateDetection to set
     */
-   public void setDuplicateDetection(boolean duplicateDetection)
+   public ClusterConnectionConfiguration setDuplicateDetection(boolean duplicateDetection)
    {
       this.duplicateDetection = duplicateDetection;
+      return this;
    }
 
    /**
     * @param forwardWhenNoConsumers the forwardWhenNoConsumers to set
     */
-   public void setForwardWhenNoConsumers(boolean forwardWhenNoConsumers)
+   public ClusterConnectionConfiguration setForwardWhenNoConsumers(boolean forwardWhenNoConsumers)
    {
       this.forwardWhenNoConsumers = forwardWhenNoConsumers;
+      return this;
    }
 
    /*
@@ -472,9 +362,21 @@ public final class ClusterConnectionConfiguration implements Serializable
       return clusterNotificationInterval;
    }
 
+   public ClusterConnectionConfiguration setClusterNotificationInterval(long clusterNotificationInterval)
+   {
+      this.clusterNotificationInterval = clusterNotificationInterval;
+      return this;
+   }
+
    public int getClusterNotificationAttempts()
    {
       return clusterNotificationAttempts;
+   }
+
+   public ClusterConnectionConfiguration setClusterNotificationAttempts(int clusterNotificationAttempts)
+   {
+      this.clusterNotificationAttempts = clusterNotificationAttempts;
+      return this;
    }
 
    @Override

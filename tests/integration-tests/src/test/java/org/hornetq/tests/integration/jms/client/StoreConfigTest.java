@@ -55,13 +55,16 @@ public class StoreConfigTest extends JMSTestBase
 
       List<String> transportConfigurations = new ArrayList<String>();
       transportConfigurations.add("tst");
-      ConnectionFactoryConfigurationImpl factCFG = new ConnectionFactoryConfigurationImpl("tst", false, transportConfigurations);
+      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
+         .setName("tst")
+         .setConnectorNames(transportConfigurations);
 
       jmsServer.createConnectionFactory(true, factCFG, "/someCF", "/someCF2" );
 
 
-      ConnectionFactoryConfigurationImpl nonPersisted = new ConnectionFactoryConfigurationImpl("np", false, transportConfigurations);
-
+      ConnectionFactoryConfigurationImpl nonPersisted = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
+         .setName("np")
+         .setConnectorNames(transportConfigurations);
 
       jmsServer.createConnectionFactory(false, nonPersisted, "/nonPersisted" );
 
@@ -130,7 +133,9 @@ public class StoreConfigTest extends JMSTestBase
       List<String> transportConfigurations = new ArrayList<String>();
       transportConfigurations.add("tst");
 
-      ConnectionFactoryConfigurationImpl factCFG = new ConnectionFactoryConfigurationImpl("tst", false, transportConfigurations);
+      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
+         .setName("tst")
+         .setConnectorNames(transportConfigurations);
 
       jmsServer.createConnectionFactory(true, factCFG, "/someCF");
 
@@ -243,8 +248,9 @@ public class StoreConfigTest extends JMSTestBase
       List<String> transportConfigurations = new ArrayList<String>();
       transportConfigurations.add("tst");
 
-      ConnectionFactoryConfigurationImpl factCFG = new ConnectionFactoryConfigurationImpl("tst", false, transportConfigurations);
-
+      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
+         .setName("tst")
+         .setConnectorNames(transportConfigurations);
 
       jmsServer.createConnectionFactory(true, factCFG, "/someCF");
 

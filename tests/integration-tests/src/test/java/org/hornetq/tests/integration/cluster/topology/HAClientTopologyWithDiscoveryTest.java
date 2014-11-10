@@ -60,9 +60,10 @@ public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase
    @Override
    protected ServerLocator createHAServerLocator()
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithHA(
-                  new DiscoveryGroupConfiguration(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-                  new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1)));
+      ServerLocator locator = HornetQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration()
+         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(groupAddress)
+            .setGroupPort(groupPort)));
       locator.setBlockOnNonDurableSend(true);
       locator.setBlockOnDurableSend(true);
       addServerLocator(locator);

@@ -38,7 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class JmsProducerCompletionListenerTest extends JMSTestBase
@@ -51,7 +50,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
 
    private final int confirmationWindowSize;
 
-   @Parameters(name = "confirmationWindowSize={0}")
+   @Parameterized.Parameters(name = "confirmationWindowSize={0}")
    public static Iterable<Object[]> data()
    {
       return Arrays.asList(new Object[][]{{-1}, {0}, {10}, {1000}});

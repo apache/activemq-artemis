@@ -32,6 +32,11 @@ public class ConnectionEntry
 
    public final Executor connectionExecutor;
 
+   public Object getID()
+   {
+      return connection.getID();
+   }
+
    public ConnectionEntry(final RemotingConnection connection, final Executor connectionExecutor, final long lastCheck, final long ttl)
    {
       this.connection = connection;

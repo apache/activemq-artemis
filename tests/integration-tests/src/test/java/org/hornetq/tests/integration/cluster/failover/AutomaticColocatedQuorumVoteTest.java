@@ -21,17 +21,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.impl.Topology;
 import org.hornetq.core.client.impl.TopologyMemberImpl;
-import org.hornetq.core.config.BackupStrategy;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.CoreQueueConfiguration;
+import org.hornetq.core.config.ScaleDownConfiguration;
+import org.hornetq.core.config.ha.ColocatedPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.impl.HornetQServerImpl;
 import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Test;
@@ -41,27 +46,27 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
 {
-   private final HAPolicy.POLICY_TYPE policyType;
+   private final boolean replicated;
 
-   @Parameterized.Parameters
+   @Parameterized.Parameters(name = "replicated={0}")
    public static Collection getParameters()
    {
       return Arrays.asList(new Object[][]
       {
-         {HAPolicy.POLICY_TYPE.COLOCATED_REPLICATED},
-         {HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE}
+         {true},
+         {false}
       });
    }
 
-   public AutomaticColocatedQuorumVoteTest(HAPolicy.POLICY_TYPE policyType)
+   public AutomaticColocatedQuorumVoteTest(boolean replicated)
    {
-      this.policyType = policyType;
+      this.replicated = replicated;
    }
    @Test
    public void testSimpleDistributionBackupStrategyFull() throws Exception
    {
-      HornetQServer server0 = createServer(0, 1, BackupStrategy.FULL);
-      HornetQServer server1 = createServer(1, 0, BackupStrategy.FULL);
+      HornetQServer server0 = createServer(0, 1, false);
+      HornetQServer server1 = createServer(1, 0, false);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
 
@@ -103,7 +108,7 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          assertEquals(2, connectorConfigurations1.size());
          assertEquals("5546", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
          assertEquals("5445", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
-         if (policyType == HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE)
+         if (!replicated)
          {
             assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
@@ -128,7 +133,14 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
       }
       finally
       {
-         server0.stop();
+         try
+         {
+            server0.stop();
+         }
+         catch (Throwable e)
+         {
+            e.printStackTrace();
+         }
          server1.stop();
       }
    }
@@ -136,8 +148,8 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
    @Test
    public void testSimpleDistributionBackupStrategyScaleDown() throws Exception
    {
-      HornetQServer server0 = createServer(0, 1, BackupStrategy.SCALE_DOWN);
-      HornetQServer server1 = createServer(1, 0, BackupStrategy.SCALE_DOWN);
+      HornetQServer server0 = createServer(0, 1, true);
+      HornetQServer server1 = createServer(1, 0, true);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
 
@@ -177,7 +189,7 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          assertEquals(2, connectorConfigurations1.size());
          assertEquals("5446", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
          assertEquals("5445", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
-         if (policyType == HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE)
+         if (!replicated)
          {
             assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
@@ -202,7 +214,14 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
       }
       finally
       {
-         server0.stop();
+         try
+         {
+            server0.stop();
+         }
+         catch (Throwable e)
+         {
+            e.printStackTrace();
+         }
          server1.stop();
       }
    }
@@ -210,10 +229,10 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
    @Test
    public void testSimpleDistributionOfBackupsMaxBackupsExceeded() throws Exception
    {
-      HornetQServer server0 = createServer(0, 1, BackupStrategy.FULL);
-      HornetQServer server1 = createServer(1, 0, BackupStrategy.FULL);
-      HornetQServer server2 = createServer(2, 0, BackupStrategy.FULL);
-      HornetQServer server3 = createServer(3, 0, BackupStrategy.FULL);
+      HornetQServer server0 = createServer(0, 1, false);
+      HornetQServer server1 = createServer(1, 0, false);
+      HornetQServer server2 = createServer(2, 0, false);
+      HornetQServer server3 = createServer(3, 0, false);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
       TransportConfiguration liveConnector2 = getConnectorTransportConfiguration("liveConnector" + 2, 2);
@@ -274,45 +293,69 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
       }
    }
 
-   private HornetQServer createServer(int node, int remoteNode, BackupStrategy backupStrategy) throws Exception
+   private HornetQServer createServer(int node, int remoteNode, boolean scaleDown) throws Exception
    {
       TransportConfiguration liveConnector = getConnectorTransportConfiguration("liveConnector" + node, node);
       TransportConfiguration remoteConnector = getConnectorTransportConfiguration("remoteConnector" + node, remoteNode);
       TransportConfiguration liveAcceptor = getAcceptorTransportConfiguration(node);
-      Configuration liveConfiguration = getConfiguration("server" + node, backupStrategy, liveConnector, liveAcceptor, remoteConnector);
+      Configuration liveConfiguration = getConfiguration("server" + node, scaleDown, liveConnector, liveAcceptor, remoteConnector);
       HornetQServer server = new HornetQServerImpl(liveConfiguration);
       server.setIdentity("server" + node);
       return server;
    }
-   private Configuration getConfiguration(String identity, BackupStrategy backupStrategy, TransportConfiguration liveConnector, TransportConfiguration liveAcceptor, TransportConfiguration... otherLiveNodes) throws Exception
+
+   private Configuration getConfiguration(String identity, boolean scaleDown, TransportConfiguration liveConnector, TransportConfiguration liveAcceptor, TransportConfiguration... otherLiveNodes) throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-      configuration.getAcceptorConfigurations().clear();
-      configuration.getAcceptorConfigurations().add(liveAcceptor);
-      configuration.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-      configuration.setJournalDirectory(configuration.getJournalDirectory() + identity);
-      configuration.setBindingsDirectory(configuration.getBindingsDirectory() + identity);
-      configuration.setLargeMessagesDirectory(configuration.getLargeMessagesDirectory() + identity);
-      configuration.setPagingDirectory(configuration.getPagingDirectory() + identity);
+      Configuration configuration = createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(liveAcceptor)
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+         .setJournalDirectory(HornetQDefaultConfiguration.getDefaultJournalDir() + identity)
+         .setBindingsDirectory(HornetQDefaultConfiguration.getDefaultBindingsDirectory() + identity)
+         .setLargeMessagesDirectory(HornetQDefaultConfiguration.getDefaultLargeMessagesDir() + identity)
+         .setPagingDirectory(HornetQDefaultConfiguration.getDefaultPagingDir() + identity)
+         .addQueueConfiguration(new CoreQueueConfiguration()
+                                   .setAddress("jms.queue.testQueue")
+                                   .setName("jms.queue.testQueue"));
+
       List<String> transportConfigurationList = new ArrayList<>();
-      final HAPolicy haPolicy = new HAPolicy();
+
+      final ColocatedPolicyConfiguration haPolicy = new ColocatedPolicyConfiguration();
       for (TransportConfiguration otherLiveNode : otherLiveNodes)
       {
-         configuration.getConnectorConfigurations().put(otherLiveNode.getName(), otherLiveNode);
+         configuration.addConnectorConfiguration(otherLiveNode.getName(), otherLiveNode);
          transportConfigurationList.add(otherLiveNode.getName());
-         haPolicy.getRemoteConnectors().add(otherLiveNode.getName());
+         haPolicy.getExcludedConnectors().add(otherLiveNode.getName());
       }
-      basicClusterConnectionConfig(configuration, liveConnector.getName(), transportConfigurationList);
-      configuration.getQueueConfigurations().add(new CoreQueueConfiguration("jms.queue.testQueue", "jms.queue.testQueue", null, true));
-
-      haPolicy.setPolicyType(policyType);
-      haPolicy.setBackupStrategy(backupStrategy);
+      configuration.addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), transportConfigurationList));
       haPolicy.setBackupPortOffset(100);
       haPolicy.setBackupRequestRetries(-1);
       haPolicy.setBackupRequestRetryInterval(500);
       haPolicy.setMaxBackups(1);
       haPolicy.setRequestBackup(true);
-      configuration.setHAPolicy(haPolicy);
+      configuration.setHAPolicyConfiguration(haPolicy);
+      if (!replicated)
+      {
+         SharedStoreMasterPolicyConfiguration ssmc = new SharedStoreMasterPolicyConfiguration();
+         SharedStoreSlavePolicyConfiguration sssc = new SharedStoreSlavePolicyConfiguration();
+         haPolicy.setLiveConfig(ssmc);
+         haPolicy.setBackupConfig(sssc);
+         if (scaleDown)
+         {
+            sssc.setScaleDownConfiguration(new ScaleDownConfiguration());
+         }
+      }
+      else
+      {
+         ReplicatedPolicyConfiguration rpc = new ReplicatedPolicyConfiguration();
+         ReplicaPolicyConfiguration rpc2 = new ReplicaPolicyConfiguration();
+         haPolicy.setLiveConfig(rpc);
+         haPolicy.setBackupConfig(rpc2);
+         if (scaleDown)
+         {
+            rpc2.setScaleDownConfiguration(new ScaleDownConfiguration());
+         }
+      }
 
       return configuration;
    }

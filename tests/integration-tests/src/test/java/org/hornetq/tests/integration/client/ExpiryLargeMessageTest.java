@@ -143,14 +143,14 @@ public class ExpiryLargeMessageTest extends ServiceTestBase
       Thread.sleep(1500);
 
       long timeout = System.currentTimeMillis() + 5000;
-      while (timeout > System.currentTimeMillis() && queueExpiry.getMessageCount() != numberOfMessages)
+      while (timeout > System.currentTimeMillis() && getMessageCount(queueExpiry) != numberOfMessages)
       {
          // What the Expiry Scan would be doing
          myQueue.expireReferences();
          Thread.sleep(50);
       }
 
-      assertEquals(50, queueExpiry.getMessageCount());
+      assertEquals(50, getMessageCount(queueExpiry));
 
       session = sf.createSession(false, false);
 

@@ -130,7 +130,7 @@ public class MessageCounter
    {
       public void run()
       {
-         long latestMessagesAdded = serverQueue.getInstantMessagesAdded();
+         long latestMessagesAdded = serverQueue.getMessagesAdded();
 
          long newMessagesAdded = latestMessagesAdded - lastMessagesAdded;
 
@@ -213,7 +213,7 @@ public class MessageCounter
     */
    public long getMessageCount()
    {
-      return serverQueue.getInstantMessageCount();
+      return serverQueue.getMessageCount();
    }
 
    /**
@@ -222,7 +222,7 @@ public class MessageCounter
     */
    public long getMessageCountDelta()
    {
-      long current = serverQueue.getInstantMessageCount();
+      long current = serverQueue.getMessageCount();
       int delta = (int)(current - depthLast);
 
       depthLast = current;

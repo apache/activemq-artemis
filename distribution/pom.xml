@@ -34,7 +34,6 @@
 
    <modules>
       <module>jnp-client</module>
-      <module>jboss-mc</module>
       <module>hornetq</module>
    </modules>
 

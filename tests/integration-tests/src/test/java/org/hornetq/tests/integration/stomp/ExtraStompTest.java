@@ -677,24 +677,27 @@ public class ExtraStompTest extends StompTestBase
 
    protected JMSServerManager createPersistentServerWithStompMinLargeSize(int sz) throws Exception
    {
-      Configuration config = createBasicConfig();
-      config.setSecurityEnabled(false);
-      config.setPersistenceEnabled(true);
-
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put(TransportConstants.PROTOCOL_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
+      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       params.put(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, sz);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
-      config.getAcceptorConfigurations().add(stompTransport);
-      config.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+
+      Configuration config = createBasicConfig()
+         .setPersistenceEnabled(true)
+         .addAcceptorConfiguration(stompTransport)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+
       HornetQServer hornetQServer = HornetQServers.newHornetQServer(config, defUser, defPass);
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getQueueConfigurations()
-         .add(new JMSQueueConfigurationImpl(getQueueName(), null, true, getQueueName()));
-      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl(getTopicName(), getTopicName()));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
+                                                .setName(getQueueName())
+                                                .setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
+                                                .setName(getTopicName())
+                                                .setBindings(getTopicName()));
       server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
       server.setContext(new InVMNamingContext());
       return server;
@@ -772,12 +775,9 @@ public class ExtraStompTest extends StompTestBase
 
    protected JMSServerManager createServerWithExtraStompOptions(String ttl, Boolean enableMessageID) throws Exception
    {
-      Configuration config = createBasicConfig();
-      config.setSecurityEnabled(false);
-      config.setPersistenceEnabled(false);
 
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put(TransportConstants.PROTOCOL_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
+      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       if (ttl != null)
       {
@@ -789,14 +789,22 @@ public class ExtraStompTest extends StompTestBase
       }
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       TransportConfiguration stompTransport = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
-      config.getAcceptorConfigurations().add(stompTransport);
-      config.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+
+      Configuration config = createBasicConfig()
+         .setPersistenceEnabled(false)
+         .addAcceptorConfiguration(stompTransport)
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+
       HornetQServer hornetQServer = addServer(HornetQServers.newHornetQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getQueueConfigurations()
-         .add(new JMSQueueConfigurationImpl(getQueueName(), null, false, getQueueName()));
-      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl(getTopicName(), getTopicName()));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
+                                                .setName(getQueueName())
+                                                .setDurable(false)
+                                                .setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
+                                                .setName(getTopicName())
+                                                .setBindings(getTopicName()));
       server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
       server.setContext(new InVMNamingContext());
       return server;

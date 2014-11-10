@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.hornetq.tests.integration.client;
+import org.hornetq.core.message.impl.MessageImpl;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -52,15 +53,16 @@ public class ExpiryAddressTest extends ServiceTestBase
    public void testBasicSend() throws Exception
    {
       SimpleString ea = new SimpleString("EA");
+      SimpleString adSend = new SimpleString("a1");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EA1");
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setExpiryAddress(ea);
-      server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
       clientSession.createQueue(ea, eq, null, false);
-      clientSession.createQueue(qName, qName, null, false);
+      clientSession.createQueue(adSend, qName, null, false);
 
-      ClientProducer producer = clientSession.createProducer(qName);
+      ClientProducer producer = clientSession.createProducer(adSend);
       ClientMessage clientMessage = createTextMessage(clientSession, "heyho!");
       clientMessage.setExpiration(System.currentTimeMillis());
       producer.send(clientMessage);
@@ -74,6 +76,9 @@ public class ExpiryAddressTest extends ServiceTestBase
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(qName.toString(), m.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE));
+      Assert.assertEquals(adSend.toString(), m.getStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS));
       Assert.assertNotNull(m);
       Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
@@ -165,6 +170,9 @@ public class ExpiryAddressTest extends ServiceTestBase
 
       Assert.assertNotNull(m);
 
+      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE));
+
       ExpiryAddressTest.log.info("acking");
       m.acknowledge();
 
@@ -177,6 +185,9 @@ public class ExpiryAddressTest extends ServiceTestBase
       m = clientConsumer.receive(500);
 
       Assert.assertNotNull(m);
+
+      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE));
 
       ExpiryAddressTest.log.info("acking");
       m.acknowledge();
@@ -206,6 +217,7 @@ public class ExpiryAddressTest extends ServiceTestBase
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       ClientMessage m = clientConsumer.receiveImmediate();
       Assert.assertNull(m);
+
       clientConsumer.close();
    }
 
@@ -375,11 +387,11 @@ public class ExpiryAddressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
       TransportConfiguration transportConfig = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY);
-      configuration.getAcceptorConfigurations().add(transportConfig);
+
+      Configuration configuration = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(transportConfig);
       server = addServer(HornetQServers.newHornetQServer(configuration, false));
       // start the server
       server.start();

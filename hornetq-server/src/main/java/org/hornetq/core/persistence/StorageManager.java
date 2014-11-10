@@ -46,6 +46,7 @@ import org.hornetq.core.server.group.impl.GroupBinding;
 import org.hornetq.core.server.impl.JournalLoader;
 import org.hornetq.core.transaction.ResourceManager;
 import org.hornetq.core.transaction.Transaction;
+import org.hornetq.utils.IDGenerator;
 
 /**
  * A StorageManager
@@ -53,8 +54,17 @@ import org.hornetq.core.transaction.Transaction;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
+ *
+ * Note about IDGEnerator
+ *
+ *  I've changed StorageManager to extend IDGenerator, because in some places
+ *  all we needed from the StorageManager was the idGeneration.
+ *  I couldn't just get the IDGenerator from the inner part because the NullPersistent has its own sequence.
+ *  So the best was to add the interface and adjust the callers for the method
+ *
+
  */
-public interface StorageManager extends HornetQComponent
+public interface StorageManager extends IDGenerator, HornetQComponent
 {
 
    /**
@@ -143,10 +153,6 @@ public interface StorageManager extends HornetQComponent
    void freeDirectBuffer(ByteBuffer buffer);
 
    void clearContext();
-
-   long generateUniqueID();
-
-   long getCurrentUniqueID();
 
    /**
     * Confirms that a large message was finished
@@ -336,8 +342,7 @@ public interface StorageManager extends HornetQComponent
    Journal getMessageJournal();
 
    /**
-    * @see JournalStorageManager#startReplication(ReplicationManager, PagingManager, String,
-    * boolean)
+    * @see org.hornetq.core.persistence.impl.journal.JournalStorageManager#startReplication(org.hornetq.core.replication.ReplicationManager, org.hornetq.core.paging.PagingManager, String, boolean)
     */
    void startReplication(ReplicationManager replicationManager, PagingManager pagingManager, String nodeID,
                          boolean autoFailBack) throws Exception;
@@ -397,10 +402,10 @@ public interface StorageManager extends HornetQComponent
    void readUnLock();
 
    /**
-    * Closes the {@link IDGenerator} persisting the current record ID.
+    * Closes the {@link org.hornetq.utils.IDGenerator} persisting the current record ID.
     * <p/>
     * Effectively a "pre-stop" method. Necessary due to the "stop"-order at
-    * {@link HornetQServerImpl}
+    * {@link org.hornetq.core.server.impl.HornetQServerImpl}
     */
    void persistIdGenerator();
 }

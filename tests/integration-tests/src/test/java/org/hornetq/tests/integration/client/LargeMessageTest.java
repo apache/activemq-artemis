@@ -301,9 +301,8 @@ public class LargeMessageTest extends LargeMessageTestBase
       final int PAGE_SIZE = 10 * 1024;
       final int MESSAGE_SIZE = 1024; // 1k
 
-      Configuration config = createDefaultConfig();
-
-      config.setJournalSyncNonTransactional(false);
+      Configuration config = createDefaultConfig()
+         .setJournalSyncNonTransactional(false);
 
       HornetQServer server = createServer(true,
                                           config,
@@ -380,11 +379,10 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       ClientSession session = null;
 
-      Configuration config = createDefaultConfig(isNetty());
-      config.setJournalFileSize(journalsize);
-
-      config.setJournalBufferSize_AIO(10 * 1024);
-      config.setJournalBufferSize_NIO(10 * 1024);
+      Configuration config = createDefaultConfig(isNetty())
+         .setJournalFileSize(journalsize)
+         .setJournalBufferSize_AIO(10 * 1024)
+         .setJournalBufferSize_NIO(10 * 1024);
 
       HornetQServer server = createServer(true, config);
 
@@ -2504,7 +2502,7 @@ public class LargeMessageTest extends LargeMessageTestBase
          Assert.assertEquals(0,
                              ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0,
-                             ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+                             getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       }
       finally
@@ -2609,7 +2607,7 @@ public class LargeMessageTest extends LargeMessageTestBase
          Assert.assertEquals(0,
                              ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0,
-                             ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+                             getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       }
       finally
@@ -2942,7 +2940,7 @@ public class LargeMessageTest extends LargeMessageTestBase
          Assert.assertEquals(0,
                              ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0,
-                             ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+                             getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       }
       finally
@@ -3028,7 +3026,7 @@ public class LargeMessageTest extends LargeMessageTestBase
       Assert.assertEquals(0,
                           ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
       Assert.assertEquals(0,
-                          ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getMessageCount());
+                          getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       log.debug("Thread done");
    }

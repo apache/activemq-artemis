@@ -164,7 +164,6 @@ public class JMSClusteredTestBase extends ServiceTestBase
 
       Configuration conf2 = createDefaultConfig(1, generateInVMParams(1), INVM_ACCEPTOR_FACTORY);
       conf2.setSecurityEnabled(false);
-      conf2.setJMXManagementEnabled(true);
       conf2.setPersistenceEnabled(false);
 
       conf2.getConnectorConfigurations().put("toServer1",
@@ -174,15 +173,15 @@ public class JMSClusteredTestBase extends ServiceTestBase
                                              new TransportConfiguration(InVMConnectorFactory.class.getName(),
                                                                         generateInVMParams(1)));
 
-      conf2.getClusterConfigurations().add(new ClusterConnectionConfiguration("to-server1",
-                                                                              "jms",
-                                                                              "server2",
-                                                                              1000,
-                                                                              true,
-                                                                              false,
-                                                                              MAX_HOPS,
-                                                                              1024,
-                                                                              toOtherServerPair, false));
+      conf2.getClusterConfigurations().add(new ClusterConnectionConfiguration()
+         .setName("to-server1")
+         .setAddress("jms")
+         .setConnectorName("server2")
+         .setRetryInterval(1000)
+         .setMaxHops(MAX_HOPS)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(toOtherServerPair));
+
       return conf2;
    }
 
@@ -218,7 +217,6 @@ public class JMSClusteredTestBase extends ServiceTestBase
       Configuration conf1 = createDefaultConfig(0, generateInVMParams(0), INVM_ACCEPTOR_FACTORY);
 
       conf1.setSecurityEnabled(false);
-      conf1.setJMXManagementEnabled(true);
       conf1.setPersistenceEnabled(false);
 
       conf1.getConnectorConfigurations().put("toServer2",
@@ -228,15 +226,15 @@ public class JMSClusteredTestBase extends ServiceTestBase
                                              new TransportConfiguration(InVMConnectorFactory.class.getName(),
                                                                         generateInVMParams(0)));
 
-      conf1.getClusterConfigurations().add(new ClusterConnectionConfiguration("to-server2",
-                                                                              "jms",
-                                                                              "server1",
-                                                                              1000,
-                                                                              true,
-                                                                              false,
-                                                                              MAX_HOPS,
-                                                                              1024,
-                                                                              toOtherServerPair, false));
+      conf1.getClusterConfigurations().add(new ClusterConnectionConfiguration()
+         .setName("to-server2")
+         .setAddress("jms")
+         .setConnectorName("server1")
+         .setRetryInterval(1000)
+         .setMaxHops(MAX_HOPS)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(toOtherServerPair));
+
       return conf1;
    }
 

@@ -60,7 +60,7 @@ public class HornetQQueue extends HornetQDestination implements Queue
       super(address, name, temporary, true, session);
    }
 
-   protected HornetQQueue(final String address, final String name)
+   public HornetQQueue(final String address, final String name)
    {
       super(address, name, false, true, null);
    }

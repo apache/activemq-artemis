@@ -346,7 +346,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 
       long newRecordID = -1;
 
-      long txCleanup = storage.generateUniqueID();
+      long txCleanup = storage.generateID();
 
       try
       {

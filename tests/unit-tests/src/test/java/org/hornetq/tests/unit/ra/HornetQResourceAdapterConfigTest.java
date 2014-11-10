@@ -92,6 +92,12 @@ public class HornetQResourceAdapterConfigTest extends UnitTestCase
       "        <config-property-value>java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory;java.naming.provider.url=jnp://localhost:1199;java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</config-property-value>\n" +
       "      </config-property>\n" +
       "      <config-property>\n" +
+      "        <description>The jndi entries to use to look up the connection factory</description>\n" +
+      "        <config-property-name>Entries</config-property-name>\n" +
+      "        <config-property-type>java.lang.String</config-property-type>\n" +
+      "        <config-property-value>[\"java://jmsXA\"]</config-property-value>\n" +
+      "      </config-property>\n" +
+      "      <config-property>\n" +
       "        <description>The discovery group address</description>\n" +
       "        <config-property-name>DiscoveryLocalBindAddress</config-property-name>\n" +
       "        <config-property-type>java.lang.String</config-property-type>\n" +

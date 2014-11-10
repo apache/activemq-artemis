@@ -220,8 +220,8 @@ public class LVQRecoveryTest extends ServiceTestBase
    {
       super.setUp();
 
-      configuration = createDefaultConfig();
-      configuration.setSecurityEnabled(false);
+      configuration = createDefaultConfig()
+         .setSecurityEnabled(false);
       server = createServer(true, configuration);
       // start the server
       server.start();

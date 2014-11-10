@@ -22,11 +22,14 @@ import org.hornetq.api.config.HornetQDefaultConfiguration;
  * A TransportConstants
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  *
  */
 public final class TransportConstants
 {
    public static final String SERVER_ID_PROP_NAME = "server-id";
+
+   public static final int DEFAULT_SERVER_ID = 0;
 
    public static final Set<String> ALLOWABLE_CONNECTOR_KEYS;
 

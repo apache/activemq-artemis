@@ -130,6 +130,27 @@ public class QueueInfo implements Serializable
       numberOfConsumers--;
    }
 
+   public boolean matchesAddress(SimpleString address)
+   {
+      boolean containsAddress = false;
+
+      if (address != null)
+      {
+         SimpleString[] split = address.split(',');
+         for (SimpleString addressPart : split)
+         {
+            containsAddress = address.startsWith(addressPart);
+
+            if (containsAddress)
+            {
+               break;
+            }
+         }
+      }
+
+      return containsAddress;
+   }
+
    /* (non-Javadoc)
     * @see java.lang.Object#toString()
     */
@@ -153,6 +174,4 @@ public class QueueInfo implements Serializable
              distance +
              "]";
    }
-
-
 }

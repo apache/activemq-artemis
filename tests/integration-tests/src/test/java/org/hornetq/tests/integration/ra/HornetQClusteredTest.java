@@ -75,12 +75,13 @@ public class HornetQClusteredTest extends HornetQRAClusteredTestBase
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Topic");
       spec.setDestination("mdbTopic");
+      spec.setSetupAttempts(5);
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       CountDownLatch latch = new CountDownLatch(1);
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
-      ClientSession session = locator.createSessionFactory().createSession();
+      ClientSession session = addClientSession(locator.createSessionFactory().createSession());
       ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString("test");

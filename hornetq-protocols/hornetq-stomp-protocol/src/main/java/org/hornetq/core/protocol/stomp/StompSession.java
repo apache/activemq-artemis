@@ -30,6 +30,7 @@ import org.hornetq.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.hornetq.core.remoting.impl.netty.TransportConstants;
 import org.hornetq.core.server.LargeServerMessage;
 import org.hornetq.core.server.QueueQueryResult;
+import org.hornetq.core.server.ServerConsumer;
 import org.hornetq.core.server.ServerMessage;
 import org.hornetq.core.server.ServerSession;
 import org.hornetq.core.server.impl.ServerMessageImpl;
@@ -86,6 +87,12 @@ public class StompSession implements SessionCallback
       return session;
    }
 
+   @Override
+   public boolean hasCredits(ServerConsumer consumerID)
+   {
+      return true;
+   }
+
    public void sendProducerCreditsMessage(int credits, SimpleString address)
    {
    }
@@ -94,13 +101,13 @@ public class StompSession implements SessionCallback
    {
    }
 
-   public int sendMessage(ServerMessage serverMessage, long consumerID, int deliveryCount)
+   public int sendMessage(ServerMessage serverMessage, ServerConsumer consumer, int deliveryCount)
    {
       LargeServerMessageImpl largeMessage = null;
       ServerMessage newServerMessage = serverMessage;
       try
       {
-         StompSubscription subscription = subscriptions.get(consumerID);
+         StompSubscription subscription = subscriptions.get(consumer.getID());
          StompFrame frame = null;
          if (serverMessage.isLargeMessage())
          {
@@ -146,13 +153,13 @@ public class StompSession implements SessionCallback
             if (manager.send(connection, frame))
             {
                //we ack and commit only if the send is successful
-               session.acknowledge(consumerID, newServerMessage.getMessageID());
+               session.acknowledge(consumer.getID(), newServerMessage.getMessageID());
                session.commit();
             }
          }
          else
          {
-            messagesToAck.put(newServerMessage.getMessageID(), new Pair<Long, Integer>(consumerID, length));
+            messagesToAck.put(newServerMessage.getMessageID(), new Pair<Long, Integer>(consumer.getID(), length));
             // Must send AFTER adding to messagesToAck - or could get acked from client BEFORE it's been added!
             manager.send(connection, frame);
          }
@@ -174,12 +181,12 @@ public class StompSession implements SessionCallback
 
    }
 
-   public int sendLargeMessageContinuation(long consumerID, byte[] body, boolean continues, boolean requiresResponse)
+   public int sendLargeMessageContinuation(ServerConsumer consumer, byte[] body, boolean continues, boolean requiresResponse)
    {
       return 0;
    }
 
-   public int sendLargeMessage(ServerMessage msg, long consumerID, long bodySize, int deliveryCount)
+   public int sendLargeMessage(ServerMessage msg, ServerConsumer consumer, long bodySize, int deliveryCount)
    {
       return 0;
    }
@@ -199,9 +206,9 @@ public class StompSession implements SessionCallback
    }
 
    @Override
-   public void disconnect(long consumerId, String queueName)
+   public void disconnect(ServerConsumer consumerId, String queueName)
    {
-      StompSubscription stompSubscription = subscriptions.remove(consumerId);
+      StompSubscription stompSubscription = subscriptions.remove(consumerId.getID());
       if (stompSubscription != null)
       {
          StompFrame frame = connection.getFrameHandler().createStompFrame(StompCommands.ERROR.toString());
@@ -380,7 +387,7 @@ public class StompSession implements SessionCallback
       }
 
       StorageManager storageManager = ((ServerSessionImpl) session).getStorageManager();
-      long id = storageManager.generateUniqueID();
+      long id = storageManager.generateID();
       LargeServerMessage largeMessage = storageManager.createLargeMessage(id, message);
 
       byte[] bytes = new byte[message.getBodyBuffer().writerIndex() - MessageImpl.BODY_OFFSET];

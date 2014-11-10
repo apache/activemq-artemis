@@ -70,7 +70,11 @@
            <groupId>org.jboss.logging</groupId>
            <artifactId>jboss-logging-processor</artifactId>
        </dependency>
-
+      <!-- this for Ironjacamar SPI XAResourceWrapper implementation -->
+      <dependency>
+         <groupId>org.jboss.ironjacamar</groupId>
+         <artifactId>ironjacamar-core-api</artifactId>
+      </dependency>
        <!--
            JBoss Logging
        -->

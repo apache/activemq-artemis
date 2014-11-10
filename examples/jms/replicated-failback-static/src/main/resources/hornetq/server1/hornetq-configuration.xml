@@ -14,10 +14,14 @@
 
     <cluster-password>secret</cluster-password>
 
-   <ha-policy template="BACKUP_REPLICATED">
-      <allow-failback>true</allow-failback>
-      <!-- not needed but tells the backup not to restart after failback as there will be > 0 backups saved -->
-      <max-saved-replicated-journals-size>0</max-saved-replicated-journals-size>
+   <ha-policy>
+      <replication>
+         <slave>
+            <allow-failback>true</allow-failback>
+            <!-- not needed but tells the backup not to restart after failback as there will be > 0 backups saved -->
+            <max-saved-replicated-journals-size>0</max-saved-replicated-journals-size>
+         </slave>
+      </replication>
    </ha-policy>
 
    <!-- Connectors -->

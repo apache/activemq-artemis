@@ -41,14 +41,14 @@ public class PagePositionImpl implements PagePosition
     */
    public PagePositionImpl(long pageNr, int messageNr)
    {
-      super();
+      this();
       this.pageNr = pageNr;
       this.messageNr = messageNr;
    }
 
    public PagePositionImpl()
    {
-
+      super();
    }
 
    /**
@@ -151,4 +151,12 @@ public class PagePositionImpl implements PagePosition
       return "PagePositionImpl [pageNr=" + pageNr + ", messageNr=" + messageNr + ", recordID=" + recordID + "]";
    }
 
+   /**
+    * I needed a finalize method defined here just as a way to get a hook on the PagingLeakTest through ByteMan
+    * There is a rule for finalizing it where I'm establishing a counter, and that rule won't work without this method defined.
+    * So, please don't remove it unless you had to remove that test for any weird reason.. it's here for a purpose!
+    */
+   protected void finalize()
+   {
+   }
 }

@@ -153,16 +153,12 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
 
    private void setupServer(final JournalType journalType) throws Exception
    {
-      Configuration config = createDefaultConfig(true);
-
-      config.setJournalType(journalType);
-      config.setJMXManagementEnabled(true);
-
-      config.setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize());
-      config.setJournalMinFiles(HornetQDefaultConfiguration.getDefaultJournalMinFiles());
-
-      config.setJournalCompactMinFiles(2);
-      config.setJournalCompactPercentage(50);
+      Configuration config = createDefaultConfig(true)
+         .setJournalType(journalType)
+         .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
+         .setJournalMinFiles(HornetQDefaultConfiguration.getDefaultJournalMinFiles())
+         .setJournalCompactMinFiles(2)
+         .setJournalCompactPercentage(50);
 
       server = createServer(true, config);
 

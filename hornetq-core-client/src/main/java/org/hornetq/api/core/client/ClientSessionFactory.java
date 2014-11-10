@@ -144,8 +144,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * Adds a FailoverEventListener to the session which is notified if a failover event  occurs on the session.
     *
     * @param listener the listener to add
+    * @return this ClientSessionFactory
     */
-   void addFailoverListener(FailoverEventListener listener);
+   ClientSessionFactory addFailoverListener(FailoverEventListener listener);
 
    /**
     * Removes a FailoverEventListener to the session.

@@ -104,13 +104,12 @@ public class DivertAndACKClientTest extends JMSTestBase
    {
       Configuration config = super.createDefaultConfig(netty);
 
-      DivertConfiguration divert = new DivertConfiguration("local-divert",
-                                                           "some-name",
-                                                           "jms.queue.Source",
-                                                           "jms.queue.Dest",
-                                                           true,
-                                                           null,
-                                                           null);
+      DivertConfiguration divert = new DivertConfiguration()
+         .setName("local-divert")
+         .setRoutingName("some-name")
+         .setAddress("jms.queue.Source")
+         .setForwardingAddress("jms.queue.Dest")
+         .setExclusive(true);
 
       ArrayList<DivertConfiguration> divertList = new ArrayList<DivertConfiguration>();
       divertList.add(divert);

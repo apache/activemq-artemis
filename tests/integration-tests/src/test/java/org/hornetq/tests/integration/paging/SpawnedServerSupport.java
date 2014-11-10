@@ -23,11 +23,13 @@ import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.config.ClusterConnectionConfiguration;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.HAPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServers;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.settings.impl.AddressFullMessagePolicy;
 import org.hornetq.core.settings.impl.AddressSettings;
 import org.hornetq.tests.util.ServiceTestBase;
@@ -49,52 +51,48 @@ public class SpawnedServerSupport
 
    static Configuration createConfig(String folder)
    {
-      Configuration conf = ServiceTestBase.createBasicConfig(folder, 0);
-      conf.setSecurityEnabled(false);
-      conf.setPersistenceEnabled(true);
-
       AddressSettings settings = new AddressSettings();
       settings.setMaxDeliveryAttempts(-1);
       settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       settings.setPageSizeBytes(10 * 1024);
       settings.setMaxSizeBytes(100 * 1024);
-      conf.getAddressesSettings().put("#", settings);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration("org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory"));
+
+      Configuration conf = ServiceTestBase.createBasicConfig(folder, 0)
+         .setPersistenceEnabled(true)
+         .addAddressesSetting("#", settings)
+         .addAcceptorConfiguration(new TransportConfiguration("org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory"));
+
       return conf;
    }
 
    static Configuration createSharedFolderConfig(String folder, int thisport, int otherport, boolean isBackup)
    {
-      Configuration conf = createConfig(folder);
-      conf.getAcceptorConfigurations().clear();
-      conf.setJournalFileSize(15 * 1024 * 1024);
-      conf.getAcceptorConfigurations().add(createTransportConfigiguration(true, thisport));
-      conf.getConnectorConfigurations().put("thisServer", createTransportConfigiguration(false, thisport));
-      conf.getConnectorConfigurations().put("otherServer", createTransportConfigiguration(false, otherport));
-      conf.setMessageExpiryScanPeriod(500);
+      HAPolicyConfiguration haPolicyConfiguration = null;
 
       if (isBackup)
       {
-         setupClusterConn(conf, "thisServer", "otherServer");
+         haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
+         ((SharedStoreSlavePolicyConfiguration)haPolicyConfiguration).setAllowFailBack(false);
       }
       else
       {
-         setupClusterConn(conf, "thisServer");
+         haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
       }
 
-      if (isBackup)
-         conf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      else
-         conf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-
-      conf.setAllowAutoFailBack(false);
+      Configuration conf = createConfig(folder)
+         .clearAcceptorConfigurations()
+         .setJournalFileSize(15 * 1024 * 1024)
+         .addAcceptorConfiguration(createTransportConfigiguration(true, thisport))
+         .addConnectorConfiguration("thisServer", createTransportConfigiguration(false, thisport))
+         .addConnectorConfiguration("otherServer", createTransportConfigiguration(false, otherport))
+         .setMessageExpiryScanPeriod(500)
+         .addClusterConfiguration(isBackup ? setupClusterConn("thisServer", "otherServer") : setupClusterConn("thisServer"))
+         .setHAPolicyConfiguration(haPolicyConfiguration);
 
       return conf;
    }
 
-   protected static final void setupClusterConn(Configuration mainConfig,
-                                                String connectorName,
-                                                String... connectors)
+   protected static final ClusterConnectionConfiguration setupClusterConn(String connectorName, String... connectors)
    {
       List<String> connectorList = new LinkedList<String>();
       for (String conn : connectors)
@@ -102,10 +100,17 @@ public class SpawnedServerSupport
          connectorList.add(conn);
       }
 
-      ClusterConnectionConfiguration ccc =
-         new ClusterConnectionConfiguration("cluster1", "jms", connectorName, 10, false, true, 1, 1, connectorList,
-                                            false);
-      mainConfig.getClusterConfigurations().add(ccc);
+      ClusterConnectionConfiguration ccc = new ClusterConnectionConfiguration()
+         .setName("cluster1")
+         .setAddress("jms")
+         .setConnectorName(connectorName)
+         .setRetryInterval(10)
+         .setDuplicateDetection(false)
+         .setForwardWhenNoConsumers(true)
+         .setConfirmationWindowSize(1)
+         .setStaticConnectors(connectorList);
+
+      return ccc;
    }
 
 
@@ -139,6 +144,4 @@ public class SpawnedServerSupport
       Configuration conf = createSharedFolderConfig(folder, thisPort, otherPort, isBackup);
       return HornetQServers.newHornetQServer(conf, true);
    }
-
-
 }

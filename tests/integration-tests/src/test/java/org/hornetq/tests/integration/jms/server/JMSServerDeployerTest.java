@@ -337,15 +337,19 @@ public class JMSServerDeployerTest extends ServiceTestBase
    {
       super.setUp();
 
-      config = createBasicConfig();
-      config.getConnectorConfigurations().put("netty",
-                                              new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      DiscoveryGroupConfiguration dcg = new DiscoveryGroupConfiguration()
+         .setName("mygroup")
+         .setRefreshTimeout(5432)
+         .setDiscoveryInitialWaitTimeout(5432)
+         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
+                                                      .setGroupAddress("243.7.7.7")
+                                                      .setGroupPort(12345)
+                                                      .setLocalBindAddress("172.16.8.10"));
 
-      DiscoveryGroupConfiguration dcg = new DiscoveryGroupConfiguration("mygroup",
-                                                                        5432, 5432,
-                                                                        new UDPBroadcastGroupConfiguration("243.7.7.7", 12345,
-                                                                                                           "172.16.8.10", -1));
-      config.getDiscoveryGroupConfigurations().put("mygroup", dcg);
+      config = createBasicConfig()
+         .addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()))
+         .addDiscoveryGroupConfiguration("mygroup", dcg);
+
       HornetQServer server = createServer(false, config);
 
       deploymentManager = new FileDeploymentManager(config.getFileDeployerScanPeriod());
@@ -354,7 +358,6 @@ public class JMSServerDeployerTest extends ServiceTestBase
       context = new InVMNamingContext();
       jmsServer.setContext(context);
       jmsServer.start();
-
    }
 
    @Override

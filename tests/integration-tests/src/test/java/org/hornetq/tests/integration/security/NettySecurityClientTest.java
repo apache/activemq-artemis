@@ -55,9 +55,8 @@ public class NettySecurityClientTest extends ServiceTestBase
    {
       super.setUp();
 
-      ConfigurationImpl config = createBasicConfig();
-      config.setSecurityEnabled(false);
-      config.getAcceptorConfigurations().add(getNettyAcceptorTransportConfiguration(true));
+      ConfigurationImpl config = createBasicConfig()
+         .addAcceptorConfiguration(getNettyAcceptorTransportConfiguration(true));
       messagingService = createServer(false, config);
       messagingService.start();
       waitForServer(messagingService);

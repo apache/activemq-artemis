@@ -111,9 +111,9 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ServiceTestBas
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig();
-      config.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      config.setSecurityEnabled(false);
+      Configuration config = createDefaultConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .setSecurityEnabled(false);
       server = createServer(false, config);
 
       server.start();

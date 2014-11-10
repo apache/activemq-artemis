@@ -1,0 +1,28 @@
+<configuration
+      xmlns="urn:hornetq"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/hornetq-configuration.xsd">
+   <ha-policy>
+      <shared-store>
+         <colocated>
+            <backup-request-retries>44</backup-request-retries>
+            <backup-request-retry-interval>33</backup-request-retry-interval>
+            <max-backups>3</max-backups>
+            <request-backup>false</request-backup>
+            <backup-port-offset>33</backup-port-offset>
+            <master>
+               <failback-delay>1234</failback-delay>
+               <failover-on-shutdown>false</failover-on-shutdown>
+            </master>
+            <slave>
+               <failback-delay>44</failback-delay>
+               <failover-on-shutdown>false</failover-on-shutdown>
+               <restart-backup>false</restart-backup>
+               <scale-down/>
+            </slave>
+         </colocated>
+
+      </shared-store>
+   </ha-policy>
+
+</configuration>

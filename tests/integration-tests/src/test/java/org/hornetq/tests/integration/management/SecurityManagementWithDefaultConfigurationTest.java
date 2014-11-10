@@ -56,10 +56,10 @@ public class SecurityManagementWithDefaultConfigurationTest extends SecurityMana
    @Override
    protected HornetQServer setupAndStartHornetQServer() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setClusterPassword(HornetQDefaultConfiguration.getDefaultClusterPassword());
-      conf.setSecurityEnabled(true);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration conf = createBasicConfig()
+         .setClusterPassword(HornetQDefaultConfiguration.getDefaultClusterPassword())
+         .setSecurityEnabled(true)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       HornetQServer server = addServer(HornetQServers.newHornetQServer(conf, false));
       server.start();
 

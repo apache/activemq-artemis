@@ -19,12 +19,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.channel.ChannelFutureListener;
 import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.HornetQBuffers;
 import org.hornetq.api.core.HornetQInterruptedException;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.core.security.HornetQPrincipal;
 import org.hornetq.core.server.HornetQServerLogger;
+import org.hornetq.spi.core.protocol.RemotingConnection;
 import org.hornetq.spi.core.remoting.BufferHandler;
 import org.hornetq.spi.core.remoting.Connection;
 import org.hornetq.spi.core.remoting.ConnectionLifeCycleListener;
@@ -58,6 +60,8 @@ public class InVMConnection implements Connection
    private volatile boolean closing;
 
    private final HornetQPrincipal defaultHornetQPrincipal;
+
+   private RemotingConnection protocolConnection;
 
    public InVMConnection(final int serverID,
                          final BufferHandler handler,
@@ -96,6 +100,24 @@ public class InVMConnection implements Connection
       this.defaultHornetQPrincipal = defaultHornetQPrincipal;
    }
 
+
+   public void forceClose()
+   {
+      // no op
+   }
+
+   public RemotingConnection getProtocolConnection()
+   {
+      return this.protocolConnection;
+   }
+
+   public void setProtocolConnection(RemotingConnection connection)
+   {
+      this.protocolConnection = connection;
+   }
+
+
+
    public void close()
    {
       if (closing)
@@ -132,10 +154,15 @@ public class InVMConnection implements Connection
 
    public void write(final HornetQBuffer buffer)
    {
-      write(buffer, false, false);
+      write(buffer, false, false, null);
    }
 
    public void write(final HornetQBuffer buffer, final boolean flush, final boolean batch)
+   {
+      write(buffer, flush, batch, null);
+   }
+
+   public void write(final HornetQBuffer buffer, final boolean flush, final boolean batch, final ChannelFutureListener futureListener)
    {
       final HornetQBuffer copied = buffer.copy(0, buffer.capacity());
 
@@ -157,6 +184,11 @@ public class InVMConnection implements Connection
                         HornetQServerLogger.LOGGER.trace(InVMConnection.this + "::Sending inVM packet");
                      }
                      handler.bufferReceived(id, copied);
+                     if (futureListener != null)
+                     {
+                         // TODO BEFORE MERGE: (is null a good option here?)
+                        futureListener.operationComplete(null);
+                     }
                   }
                }
                catch (Exception e)
@@ -222,6 +254,12 @@ public class InVMConnection implements Connection
 
    public void removeReadyListener(ReadyListener listener)
    {
+   }
+
+   @Override
+   public boolean isUsingProtocolHandling()
+   {
+      return false;
    }
 
    public HornetQPrincipal getDefaultHornetQPrincipal()

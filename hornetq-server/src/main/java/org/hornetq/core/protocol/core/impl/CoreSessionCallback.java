@@ -22,6 +22,7 @@ import org.hornetq.core.protocol.core.impl.wireformat.SessionReceiveContinuation
 import org.hornetq.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
 import org.hornetq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 import org.hornetq.core.server.HornetQServerLogger;
+import org.hornetq.core.server.ServerConsumer;
 import org.hornetq.core.server.ServerMessage;
 import org.hornetq.spi.core.protocol.ProtocolManager;
 import org.hornetq.spi.core.protocol.SessionCallback;
@@ -47,9 +48,9 @@ public final class CoreSessionCallback implements SessionCallback
       this.channel = channel;
    }
 
-   public int sendLargeMessage(ServerMessage message, long consumerID, long bodySize, int deliveryCount)
+   public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount)
    {
-      Packet packet = new SessionReceiveLargeMessage(consumerID, message, bodySize, deliveryCount);
+      Packet packet = new SessionReceiveLargeMessage(consumer.getID(), message, bodySize, deliveryCount);
 
       channel.send(packet);
 
@@ -58,18 +59,18 @@ public final class CoreSessionCallback implements SessionCallback
       return size;
    }
 
-   public int sendLargeMessageContinuation(long consumerID, byte[] body, boolean continues, boolean requiresResponse)
+   public int sendLargeMessageContinuation(ServerConsumer consumer, byte[] body, boolean continues, boolean requiresResponse)
    {
-      Packet packet = new SessionReceiveContinuationMessage(consumerID, body, continues, requiresResponse);
+      Packet packet = new SessionReceiveContinuationMessage(consumer.getID(), body, continues, requiresResponse);
 
       channel.send(packet);
 
       return packet.getPacketSize();
    }
 
-   public int sendMessage(ServerMessage message, long consumerID, int deliveryCount)
+   public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount)
    {
-      Packet packet = new SessionReceiveMessage(consumerID, message, deliveryCount);
+      Packet packet = new SessionReceiveMessage(consumer.getID(), message, deliveryCount);
 
       int size = 0;
 
@@ -112,15 +113,24 @@ public final class CoreSessionCallback implements SessionCallback
    }
 
    @Override
-   public void disconnect(long consumerId, String queueName)
+   public void disconnect(ServerConsumer consumerId, String queueName)
    {
       if (channel.supports(PacketImpl.DISCONNECT_CONSUMER))
       {
-         channel.send(new DisconnectConsumerMessage(consumerId));
+         channel.send(new DisconnectConsumerMessage(consumerId.getID()));
       }
       else
       {
          HornetQServerLogger.LOGGER.warnDisconnectOldClient(queueName);
       }
+   }
+
+
+   @Override
+   public boolean hasCredits(ServerConsumer consumer)
+   {
+      // This one will always return has credits
+      // as the flow control is done by hornetq
+      return true;
    }
 }

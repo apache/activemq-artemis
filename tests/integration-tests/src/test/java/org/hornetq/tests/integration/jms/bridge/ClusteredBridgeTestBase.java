@@ -37,10 +37,11 @@ import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.hornetq.api.jms.JMSFactoryType;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.hornetq.core.remoting.impl.invm.TransportConstants;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.server.HornetQServers;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.jms.bridge.ConnectionFactoryFactory;
 import org.hornetq.jms.bridge.DestinationFactory;
 import org.hornetq.jms.client.HornetQConnectionFactory;
@@ -151,14 +152,13 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
          backupConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params, "in-vm-backup");
 
          //live
-         Configuration conf0 = createBasicConfig();
-         conf0.setJournalDirectory(getJournalDir(id, false));
-         conf0.setBindingsDirectory(getBindingsDir(id, false));
-         conf0.setSecurityEnabled(false);
-         conf0.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params0));
-         conf0.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-         conf0.getHAPolicy().setFailoverOnServerShutdown(true);
-         basicClusterConnectionConfig(conf0, liveConnector.getName());
+         Configuration conf0 = createBasicConfig()
+            .setJournalDirectory(getJournalDir(id, false))
+            .setBindingsDirectory(getBindingsDir(id, false))
+            .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params0))
+            .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+            .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration())
+            .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()));
 
          HornetQServer server0 = addServer(HornetQServers.newHornetQServer(conf0, true));
 
@@ -167,17 +167,14 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
          liveNode.setContext(liveContext);
 
          //backup
-         Configuration conf = createBasicConfig();
-         conf.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_REPLICATED);
-         conf.setJournalDirectory(getJournalDir(id, true));
-         conf.setBindingsDirectory(getBindingsDir(id, true));
-         conf.setSecurityEnabled(false);
-         conf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params));
-
-         conf.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
-         conf.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-         conf.getHAPolicy().setFailoverOnServerShutdown(true);
-         basicClusterConnectionConfig(conf, backupConnector.getName(), liveConnector.getName());
+         Configuration conf = createBasicConfig()
+            .setJournalDirectory(getJournalDir(id, true))
+            .setBindingsDirectory(getBindingsDir(id, true))
+            .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params))
+            .addConnectorConfiguration(backupConnector.getName(), backupConnector)
+            .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+            .setHAPolicyConfiguration(new ReplicaPolicyConfiguration())
+            .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
          HornetQServer backup = addServer(HornetQServers.newHornetQServer(conf, true));
 

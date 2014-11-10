@@ -63,11 +63,9 @@ public class CoreClientTest extends ServiceTestBase
    {
       final SimpleString QUEUE = new SimpleString("CoreClientTestQueue");
 
-      Configuration conf = createDefaultConfig();
-
-      conf.setSecurityEnabled(false);
-
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(acceptorFactoryClassName));
+      Configuration conf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(acceptorFactoryClassName));
 
       HornetQServer server = addServer(HornetQServers.newHornetQServer(conf, false));
 

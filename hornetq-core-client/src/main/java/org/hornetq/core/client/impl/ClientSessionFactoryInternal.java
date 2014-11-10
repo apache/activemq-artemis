@@ -24,6 +24,7 @@ import org.hornetq.utils.ConfirmationWindowWarning;
  * A ClientSessionFactoryInternal
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  *
  */
 public interface ClientSessionFactoryInternal extends ClientSessionFactory
@@ -35,6 +36,8 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory
    boolean removeFailureListener(SessionFailureListener listener);
 
    void disableFinalizeCheck();
+
+   String getLiveNodeId();
 
    // for testing
 
@@ -55,7 +58,6 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory
    void setReconnectAttempts(int i);
 
    ConfirmationWindowWarning getConfirmationWindowWarning();
-
 
    Lock lockFailover();
 }

@@ -13,7 +13,7 @@
    <name>HornetQ Vert.x Example</name>
 
    <properties>
-      <vertx.version>2.1RC1</vertx.version>
+      <vertx.version>2.1.2</vertx.version>
    </properties>
    <dependencies>
       <dependency>

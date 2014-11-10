@@ -10,7 +10,11 @@
 
    <paging-directory>${build.directory}/server1/data/messaging/paging</paging-directory>
 
-   <ha-policy template="BACKUP_REPLICATED"/>
+   <ha-policy>
+      <replication>
+         <slave/>
+      </replication>
+   </ha-policy>
 
    <!-- Connectors -->
    <connectors>

@@ -23,7 +23,7 @@ import org.hornetq.core.persistence.impl.journal.JournalStorageManager.JournalCo
 import org.hornetq.core.protocol.core.impl.PacketImpl;
 
 /**
- * Message is used to sync {@link SequentialFile}s to a backup server. The {@link FileType} controls
+ * Message is used to sync {@link org.hornetq.core.journal.SequentialFile}s to a backup server. The {@link FileType} controls
  * which extra information is sent.
  */
 public final class ReplicationSyncFileMessage extends PacketImpl

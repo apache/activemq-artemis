@@ -76,10 +76,14 @@ public class MessageRedistributionTest extends ClusterTestBase
       MessageRedistributionTest.log.info("Doing test");
 
 
-      getServer(0).getConfiguration().setGroupingHandlerConfiguration(
-         new GroupingHandlerConfiguration(new SimpleString("handler"), GroupingHandlerConfiguration.TYPE.LOCAL, new SimpleString("queues")));
-      getServer(1).getConfiguration().setGroupingHandlerConfiguration(
-         new GroupingHandlerConfiguration(new SimpleString("handler"), GroupingHandlerConfiguration.TYPE.REMOTE, new SimpleString("queues")));
+      getServer(0).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration()
+                                                                         .setName(new SimpleString("handler"))
+                                                                         .setType(GroupingHandlerConfiguration.TYPE.LOCAL)
+                                                                         .setAddress(new SimpleString("queues")));
+      getServer(1).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration()
+                                                                         .setName(new SimpleString("handler"))
+                                                                         .setType(GroupingHandlerConfiguration.TYPE.REMOTE)
+                                                                         .setAddress(new SimpleString("queues")));
 
       startServers(0, 1);
 

@@ -23,9 +23,17 @@ public interface JMSQueueConfiguration
 {
    String getName();
 
+   JMSQueueConfiguration setName(String name);
+
    String getSelector();
+
+   JMSQueueConfiguration setSelector(String selector);
 
    boolean isDurable();
 
+   JMSQueueConfiguration setDurable(boolean durable);
+
    String[] getBindings();
+
+   JMSQueueConfiguration setBindings(String[] bindings);
 }

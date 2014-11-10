@@ -14,6 +14,17 @@
    </properties>
 
    <dependencies>
+      <!-- JMS Client because of some Convertions that are done -->
+      <dependency>
+         <groupId>org.hornetq</groupId>
+         <artifactId>hornetq-jms-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.hornetq</groupId>
+         <artifactId>hornetq-core-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>
@@ -32,13 +43,33 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.hornetq</groupId>
+         <artifactId>hornetq-proton-plug</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.apache.qpid</groupId>
-         <artifactId>proton-api</artifactId>
+         <artifactId>proton-j</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>proton-jms</artifactId>
       </dependency>
+
+
+
+      <dependency>
+         <groupId>org.jboss.spec.javax.jms</groupId>
+         <artifactId>jboss-jms-api_2.0_spec</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+
+
    </dependencies>
 
 

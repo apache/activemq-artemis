@@ -16,8 +16,8 @@ import org.junit.After;
 
 import org.junit.Test;
 
-import static org.hornetq.api.core.management.NotificationType.SECURITY_AUTHENTICATION_VIOLATION;
-import static org.hornetq.api.core.management.NotificationType.SECURITY_PERMISSION_VIOLATION;
+import static org.hornetq.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
+import static org.hornetq.api.core.management.CoreNotificationType.SECURITY_PERMISSION_VIOLATION;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -148,11 +148,11 @@ public class SecurityNotificationTest extends UnitTestCase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(true);
-      // the notifications are independent of JMX
-      conf.setJMXManagementEnabled(false);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration conf = createBasicConfig()
+         .setSecurityEnabled(true)
+         // the notifications are independent of JMX
+         .setJMXManagementEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       server = HornetQServers.newHornetQServer(conf, false);
       server.start();
 

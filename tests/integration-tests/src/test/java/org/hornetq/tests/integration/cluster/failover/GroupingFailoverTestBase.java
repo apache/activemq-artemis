@@ -13,13 +13,17 @@
 package org.hornetq.tests.integration.cluster.failover;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import org.hornetq.api.core.Message;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.impl.TopologyMemberImpl;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
+import org.hornetq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.hornetq.core.server.group.impl.GroupingHandlerConfiguration;
+import org.hornetq.core.server.impl.SharedNothingBackupActivation;
 import org.hornetq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Test;
@@ -36,9 +40,9 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
    {
       setupBackupServer(2, 0, isFileStorage(), isSharedStore(), isNetty());
 
-      setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty());
+      setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty(), false);
 
-      setupLiveServer(1, isFileStorage(), isSharedStore(), isNetty());
+      setupLiveServer(1, isFileStorage(), isSharedStore(), isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 1);
 
@@ -51,10 +55,12 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 2);
-
-      servers[0].getConfiguration().getHAPolicy().setBackupGroupName("group1");
-      servers[1].getConfiguration().getHAPolicy().setBackupGroupName("group2");
-      servers[2].getConfiguration().getHAPolicy().setBackupGroupName("group1");
+      if (!isSharedStore())
+      {
+         ((ReplicatedPolicyConfiguration)servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+         ((ReplicatedPolicyConfiguration)servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+         ((ReplicaPolicyConfiguration)servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      }
 
       startServers(0, 1, 2);
       setupSessionFactory(0, isNetty());
@@ -133,9 +139,9 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
    {
       setupBackupServer(2, 0, isFileStorage(), isSharedStore(), isNetty());
 
-      setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty());
+      setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty(), false);
 
-      setupLiveServer(1, isFileStorage(), isSharedStore(), isNetty());
+      setupLiveServer(1, isFileStorage(), isSharedStore(), isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 1);
 
@@ -149,9 +155,12 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 2);
 
-      servers[0].getConfiguration().getHAPolicy().setBackupGroupName("group1");
-      servers[1].getConfiguration().getHAPolicy().setBackupGroupName("group2");
-      servers[2].getConfiguration().getHAPolicy().setBackupGroupName("group1");
+      if (!isSharedStore())
+      {
+         ((ReplicatedPolicyConfiguration)servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+         ((ReplicatedPolicyConfiguration)servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+         ((ReplicaPolicyConfiguration)servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      }
 
       startServers(0, 1, 2);
 
@@ -189,7 +198,8 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
 
       if (!isSharedStore())
       {
-         waitForBackupTopologyAnnouncement(sfs[0]);
+         SharedNothingBackupActivation backupActivation =  (SharedNothingBackupActivation) servers[2].getActivation();
+         assertTrue(backupActivation.waitForBackupSync(10, TimeUnit.SECONDS));
       }
 
       closeSessionFactory(0);

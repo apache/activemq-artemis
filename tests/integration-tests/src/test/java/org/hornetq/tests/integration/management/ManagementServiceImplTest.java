@@ -46,8 +46,8 @@ public class ManagementServiceImplTest extends UnitTestCase
       String queue = RandomUtil.randomString();
       String address = RandomUtil.randomString();
 
-      Configuration conf = createBasicConfig();
-      conf.setJMXManagementEnabled(false);
+      Configuration conf = createBasicConfig()
+         .setJMXManagementEnabled(false);
 
       HornetQServer server = HornetQServers.newHornetQServer(conf, false);
       server.start();
@@ -66,8 +66,8 @@ public class ManagementServiceImplTest extends UnitTestCase
    @Test
    public void testHandleManagementMessageWithOperationWhichFails() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setJMXManagementEnabled(false);
+      Configuration conf = createBasicConfig()
+         .setJMXManagementEnabled(false);
 
       HornetQServer server = HornetQServers.newHornetQServer(conf, false);
       server.start();
@@ -86,8 +86,8 @@ public class ManagementServiceImplTest extends UnitTestCase
    @Test
    public void testHandleManagementMessageWithUnknowResource() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setJMXManagementEnabled(false);
+      Configuration conf = createBasicConfig()
+         .setJMXManagementEnabled(false);
 
       HornetQServer server = HornetQServers.newHornetQServer(conf, false);
       server.start();
@@ -106,8 +106,8 @@ public class ManagementServiceImplTest extends UnitTestCase
    @Test
    public void testHandleManagementMessageWithUnknownAttribute() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setJMXManagementEnabled(false);
+      Configuration conf = createBasicConfig()
+         .setJMXManagementEnabled(false);
 
       HornetQServer server = HornetQServers.newHornetQServer(conf, false);
       server.start();
@@ -127,8 +127,8 @@ public class ManagementServiceImplTest extends UnitTestCase
    @Test
    public void testHandleManagementMessageWithKnownAttribute() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setJMXManagementEnabled(false);
+      Configuration conf = createBasicConfig()
+         .setJMXManagementEnabled(false);
 
       HornetQServer server = HornetQServers.newHornetQServer(conf, false);
       server.start();
@@ -148,8 +148,8 @@ public class ManagementServiceImplTest extends UnitTestCase
    @Test
    public void testGetResources() throws Exception
    {
-      Configuration conf = createBasicConfig();
-      conf.setJMXManagementEnabled(false);
+      Configuration conf = createBasicConfig()
+         .setJMXManagementEnabled(false);
       ManagementServiceImpl managementService = new ManagementServiceImpl(null, conf);
       managementService.setStorageManager(new NullStorageManager());
 

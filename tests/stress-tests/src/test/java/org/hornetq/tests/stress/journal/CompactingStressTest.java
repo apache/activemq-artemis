@@ -415,14 +415,12 @@ public class CompactingStressTest extends ServiceTestBase
 
    private void setupServer(final JournalType journalType) throws Exception
    {
-      Configuration config = createDefaultConfig();
-      config.setJournalSyncNonTransactional(false);
-      config.setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize());
-
-      config.setJournalType(journalType);
-
-      config.setJournalCompactMinFiles(10);
-      config.setJournalCompactPercentage(50);
+      Configuration config = createDefaultConfig()
+         .setJournalSyncNonTransactional(false)
+         .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
+         .setJournalType(journalType)
+         .setJournalCompactMinFiles(10)
+         .setJournalCompactPercentage(50);
 
       server = createServer(true, config);
 

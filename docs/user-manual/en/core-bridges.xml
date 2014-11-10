@@ -197,11 +197,13 @@
                     connection used to forward messages to the target node. This attribute is
                     described in section <xref linkend="client-reconnection"/></para>
 
-                 <warning><para>When using the bridge to forward messages from a queue which has a
-                    max-size-bytes set it's important that confirmation-window-size is less than
-                    or equal to <literal>max-size-bytes</literal> to prevent the flow of
-                    messages from ceasing.</para>
-                 </warning>
+                <warning><para>When using the bridge to forward messages to an address which uses
+                    the <literal>BLOCK</literal> <literal>address-full-policy</literal> from a
+                    queue which has a <literal>max-size-bytes</literal> set it's important that
+                    <literal>confirmation-window-size</literal> is less than or equal to
+                    <literal>max-size-bytes</literal> to prevent the flow of messages from
+                    ceasing.</para>
+                </warning>
 
             </listitem>
             <listitem>

@@ -102,9 +102,10 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage
       return true;
    }
 
-   public void setMessageID(final long id)
+   public ServerMessageImpl setMessageID(final long id)
    {
       messageID = id;
+      return this;
    }
 
    public MessageReference createReference(final Queue queue)
@@ -247,16 +248,20 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage
    @Override
    public void setOriginalHeaders(final ServerMessage other, final MessageReference originalReference, final boolean expiry)
    {
+      SimpleString originalQueue = other.getSimpleStringProperty(Message.HDR_ORIGINAL_QUEUE);
+
+      if (originalQueue != null)
+      {
+         putStringProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
+      }
+      else if (originalReference != null)
+      {
+         putStringProperty(Message.HDR_ORIGINAL_QUEUE, originalReference.getQueue().getName());
+      }
+
       if (other.containsProperty(Message.HDR_ORIG_MESSAGE_ID))
       {
          putStringProperty(Message.HDR_ORIGINAL_ADDRESS, other.getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS));
-
-         SimpleString originalQueue = other.getSimpleStringProperty(Message.HDR_ORIGINAL_QUEUE);
-
-         if (originalQueue != null)
-         {
-            putStringProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
-         }
 
          putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getLongProperty(Message.HDR_ORIG_MESSAGE_ID));
       }
@@ -264,13 +269,6 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage
       {
          putStringProperty(Message.HDR_ORIGINAL_ADDRESS, other.getAddress());
 
-         /**
-          * This could be null in some DLA cases since the message wasn't routed yet
-          */
-         if (originalReference != null)
-         {
-            putStringProperty(Message.HDR_ORIGINAL_QUEUE, originalReference.getQueue().getName());
-         }
 
          putLongProperty(Message.HDR_ORIG_MESSAGE_ID, other.getMessageID());
       }
@@ -328,9 +326,6 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage
          ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
    }
 
-   // FIXME - this is stuff that is only used in large messages
-
-   // This is only valid on the client side - why is it here?
    public InputStream getBodyInputStream()
    {
       return null;

@@ -98,7 +98,7 @@ public abstract class BridgeTestBase extends UnitTestCase
 
    protected InVMNamingContext context1;
 
-   private HashMap<String, Object> params1;
+   protected HashMap<String, Object> params1;
 
    protected ConnectionFactoryFactory cff0LowProducerWindow;
 
@@ -109,11 +109,11 @@ public abstract class BridgeTestBase extends UnitTestCase
       super.setUp();
 
       // Start the servers
-      Configuration conf0 = createBasicConfig();
-      conf0.setJournalDirectory(getJournalDir(0, false));
-      conf0.setBindingsDirectory(getBindingsDir(0, false));
-      conf0.setSecurityEnabled(false);
-      conf0.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration conf0 = createBasicConfig()
+         .setJournalDirectory(getJournalDir(0, false))
+         .setBindingsDirectory(getBindingsDir(0, false))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+
       server0 = addServer(HornetQServers.newHornetQServer(conf0, false));
 
       context0 = new InVMNamingContext();
@@ -121,13 +121,13 @@ public abstract class BridgeTestBase extends UnitTestCase
       jmsServer0.setContext(context0);
       jmsServer0.start();
 
-      Configuration conf1 = createBasicConfig();
-      conf1.setSecurityEnabled(false);
-      conf1.setJournalDirectory(getJournalDir(1, false));
-      conf1.setBindingsDirectory(getBindingsDir(1, false));
       params1 = new HashMap<String, Object>();
       params1.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
-      conf1.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
+
+      Configuration conf1 = createBasicConfig()
+         .setJournalDirectory(getJournalDir(1, false))
+         .setBindingsDirectory(getBindingsDir(1, false))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
 
       server1 = addServer(HornetQServers.newHornetQServer(conf1, false));
 
@@ -562,11 +562,16 @@ public abstract class BridgeTestBase extends UnitTestCase
       }
       JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(ResourceNames.JMS_QUEUE + queue.getQueueName());
 
-      Long messageCount = queueControl.getMessageCount();
-
-      if (messageCount > 0)
+      //server may be closed
+      if (queueControl != null)
       {
-         queueControl.removeMessages(null);
+         queueControl.flushExecutor();
+         Long messageCount = queueControl.getMessageCount();
+
+         if (messageCount > 0)
+         {
+            queueControl.removeMessages(null);
+         }
       }
       return true;
    }

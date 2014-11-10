@@ -32,19 +32,15 @@ import org.hornetq.utils.ClassloadingUtil;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
+ * @author Justin Bertram
  *
- *
+ * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the HornetQ test-suite to
+ * validate/verify this works because this requires a functioning PKCS#11 provider which is not available by default
+ * (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores will have a
+ * null keystore path.
  */
 public class SSLSupport
 {
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
    // Public --------------------------------------------------------
 
    public static SSLContext createContext(final String keystoreProvider, final String keystorePath, final String keystorePassword,
@@ -81,17 +77,13 @@ public class SSLSupport
       return supportedSuites.delete(supportedSuites.length() - 2, supportedSuites.length()).toString();
    }
 
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
    // Private -------------------------------------------------------
 
    private static TrustManager[] loadTrustManager(final String trustStoreProvider,
                                                   final String trustStorePath,
                                                   final String trustStorePassword) throws Exception
    {
-      if (trustStorePath == null && ("JKS".equals(trustStoreProvider) || trustStoreProvider == null))
+      if (trustStorePath == null && (trustStoreProvider == null || (trustStoreProvider != null && !"PKCS11".equals(trustStoreProvider.toUpperCase()))))
       {
          return null;
       }
@@ -107,14 +99,11 @@ public class SSLSupport
 
    private static KeyStore loadKeystore(final String keystoreProvider, final String keystorePath, final String keystorePassword) throws Exception
    {
-      assert keystorePath != null || "JKS".equals(keystoreProvider) == false;
-      assert keystorePassword != null;
-
       KeyStore ks = KeyStore.getInstance(keystoreProvider);
       InputStream in = null;
       try
       {
-         if ("JKS".equals(keystoreProvider))
+         if (keystorePath != null)
          {
             URL keystoreURL = SSLSupport.validateStoreURL(keystorePath);
             in = keystoreURL.openStream();
@@ -139,7 +128,7 @@ public class SSLSupport
 
    private static KeyManager[] loadKeyManagers(final String keyStoreProvider, final String keystorePath, final String keystorePassword) throws Exception
    {
-      if (keystorePath == null && ("JKS".equals(keyStoreProvider) || keyStoreProvider == null))
+      if (keystorePath == null && (keyStoreProvider == null || (keyStoreProvider != null && !"PKCS11".equals(keyStoreProvider.toUpperCase()))))
       {
          return null;
       }
@@ -196,7 +185,4 @@ public class SSLSupport
          }
       });
    }
-
-
-   // Inner classes -------------------------------------------------
 }

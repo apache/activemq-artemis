@@ -18,8 +18,9 @@ import java.util.Set;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.security.Role;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.impl.InVMNodeManager;
 import org.hornetq.spi.core.security.HornetQSecurityManager;
 import org.hornetq.tests.integration.cluster.util.TestableServer;
@@ -93,34 +94,32 @@ public class SecurityFailoverTest extends FailoverTest
    protected void createConfigs() throws Exception
    {
       nodeManager = new InVMNodeManager(false);
-
-      backupConfig = super.createDefaultConfig();
-      backupConfig.getAcceptorConfigurations().clear();
-      backupConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(false));
-      backupConfig.setSecurityEnabled(true);
-      backupConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.BACKUP_SHARED_STORE);
-      backupConfig.getHAPolicy().setFailbackDelay(1000);
-
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
-      backupConfig.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-      backupConfig.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
-      basicClusterConnectionConfig(backupConfig, backupConnector.getName(), liveConnector.getName());
+
+      backupConfig = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
+         .setSecurityEnabled(true)
+         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
+                                      .setFailbackDelay(1000))
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
+         .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+
       backupServer = createTestableServer(backupConfig);
-
       HornetQSecurityManager securityManager = installSecurity(backupServer);
-
       securityManager.setDefaultUser(null);
 
-      liveConfig = super.createDefaultConfig();
-      liveConfig.getAcceptorConfigurations().clear();
-      liveConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(true));
-      liveConfig.setSecurityEnabled(true);
-      liveConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
-      basicClusterConnectionConfig(liveConfig, liveConnector.getName());
-      liveConfig.getConnectorConfigurations().put(liveConnector.getName(), liveConnector);
-      liveServer = createTestableServer(liveConfig);
+      liveConfig = super.createDefaultConfig()
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
+         .setSecurityEnabled(true)
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
+         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
+         .addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
+      liveServer = createTestableServer(liveConfig);
       installSecurity(liveServer);
    }
 

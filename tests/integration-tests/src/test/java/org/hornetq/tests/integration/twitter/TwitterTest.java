@@ -197,7 +197,6 @@ public class TwitterTest extends ServiceTestBase
 
       try
       {
-         Configuration configuration = createDefaultConfig(false);
          HashMap<String, Object> config = new HashMap<String, Object>();
          config.put(TwitterConstants.INCOMING_INTERVAL, interval);
          config.put(TwitterConstants.QUEUE_NAME, queue);
@@ -205,14 +204,19 @@ public class TwitterTest extends ServiceTestBase
          config.put(TwitterConstants.CONSUMER_SECRET, TWITTER_CONSUMER_SECRET);
          config.put(TwitterConstants.ACCESS_TOKEN, TWITTER_ACCESS_TOKEN);
          config.put(TwitterConstants.ACCESS_TOKEN_SECRET, TWITTER_ACCESS_TOKEN_SECRET);
-         ConnectorServiceConfiguration inconf = new ConnectorServiceConfiguration(
-            TwitterIncomingConnectorServiceFactory.class.getName(),
-            config, "test-incoming-connector");
-         configuration.getConnectorServiceConfigurations().add(inconf);
+         ConnectorServiceConfiguration inconf = new ConnectorServiceConfiguration()
+            .setFactoryClassName(TwitterIncomingConnectorServiceFactory.class.getName())
+            .setParams(config)
+            .setName("test-incoming-connector");
+
+         Configuration configuration = createDefaultConfig(false)
+            .addConnectorServiceConfiguration(inconf);
 
          if (createQueue)
          {
-            CoreQueueConfiguration qc = new CoreQueueConfiguration(queue, queue, null, true);
+            CoreQueueConfiguration qc = new CoreQueueConfiguration()
+               .setAddress(queue)
+               .setName(queue);
             configuration.getQueueConfigurations().add(qc);
          }
 
@@ -318,7 +322,6 @@ public class TwitterTest extends ServiceTestBase
 
       try
       {
-         Configuration configuration = createDefaultConfig(false);
          HashMap<String, Object> config = new HashMap<String, Object>();
          config.put(TwitterConstants.INCOMING_INTERVAL, interval);
          config.put(TwitterConstants.QUEUE_NAME, queue);
@@ -326,13 +329,19 @@ public class TwitterTest extends ServiceTestBase
          config.put(TwitterConstants.CONSUMER_SECRET, consumerSecret);
          config.put(TwitterConstants.ACCESS_TOKEN, accessToken);
          config.put(TwitterConstants.ACCESS_TOKEN_SECRET, accessTokenSecret);
-         ConnectorServiceConfiguration inconf =
-            new ConnectorServiceConfiguration(TwitterIncomingConnectorServiceFactory.class.getName(),
-                                              config,
-                                              connectorName);
-         configuration.getConnectorServiceConfigurations().add(inconf);
-         CoreQueueConfiguration qc = new CoreQueueConfiguration(queue, queue, null, true);
-         configuration.getQueueConfigurations().add(qc);
+
+         ConnectorServiceConfiguration inconf = new ConnectorServiceConfiguration()
+            .setFactoryClassName(TwitterIncomingConnectorServiceFactory.class.getName())
+            .setParams(config)
+            .setName(connectorName);
+
+         CoreQueueConfiguration qc = new CoreQueueConfiguration()
+            .setAddress(queue)
+            .setName(queue);
+
+         Configuration configuration = createDefaultConfig(false)
+            .addConnectorServiceConfiguration(inconf)
+            .addQueueConfiguration(qc);
 
          server0 = createServer(false, configuration);
          server0.start();
@@ -369,21 +378,26 @@ public class TwitterTest extends ServiceTestBase
 
       try
       {
-         Configuration configuration = createDefaultConfig(false);
          HashMap<String, Object> config = new HashMap<String, Object>();
          config.put(TwitterConstants.QUEUE_NAME, queue);
          config.put(TwitterConstants.CONSUMER_KEY, TWITTER_CONSUMER_KEY);
          config.put(TwitterConstants.CONSUMER_SECRET, TWITTER_CONSUMER_SECRET);
          config.put(TwitterConstants.ACCESS_TOKEN, TWITTER_ACCESS_TOKEN);
          config.put(TwitterConstants.ACCESS_TOKEN_SECRET, TWITTER_ACCESS_TOKEN_SECRET);
-         ConnectorServiceConfiguration outconf =
-            new ConnectorServiceConfiguration(TwitterOutgoingConnectorServiceFactory.class.getName(),
-                                              config,
-                                              "test-outgoing-connector");
-         configuration.getConnectorServiceConfigurations().add(outconf);
+         ConnectorServiceConfiguration outconf = new ConnectorServiceConfiguration()
+            .setFactoryClassName(TwitterOutgoingConnectorServiceFactory.class.getName())
+            .setParams(config)
+            .setName("test-outgoing-connector");
+
+         Configuration configuration = createDefaultConfig(false)
+            .addConnectorServiceConfiguration(outconf);
+
          if (createQueue)
          {
-            CoreQueueConfiguration qc = new CoreQueueConfiguration(queue, queue, null, false);
+            CoreQueueConfiguration qc = new CoreQueueConfiguration()
+               .setAddress(queue)
+               .setName(queue)
+               .setDurable(false);
             configuration.getQueueConfigurations().add(qc);
          }
 
@@ -491,20 +505,26 @@ public class TwitterTest extends ServiceTestBase
 
       try
       {
-         Configuration configuration = createDefaultConfig(false);
          HashMap<String, Object> config = new HashMap<String, Object>();
          config.put(TwitterConstants.QUEUE_NAME, queue);
          config.put(TwitterConstants.CONSUMER_KEY, consumerKey);
          config.put(TwitterConstants.CONSUMER_SECRET, consumerSecret);
          config.put(TwitterConstants.ACCESS_TOKEN, accessToken);
          config.put(TwitterConstants.ACCESS_TOKEN_SECRET, accessTokenSecret);
-         ConnectorServiceConfiguration outconf =
-            new ConnectorServiceConfiguration(TwitterOutgoingConnectorServiceFactory.class.getName(),
-                                              config,
-                                              connectorName);
-         configuration.getConnectorServiceConfigurations().add(outconf);
-         CoreQueueConfiguration qc = new CoreQueueConfiguration(queue, queue, null, false);
-         configuration.getQueueConfigurations().add(qc);
+
+         ConnectorServiceConfiguration outconf = new ConnectorServiceConfiguration()
+            .setFactoryClassName(TwitterOutgoingConnectorServiceFactory.class.getName())
+            .setParams(config)
+            .setName(connectorName);
+
+         CoreQueueConfiguration qc = new CoreQueueConfiguration()
+            .setAddress(queue)
+            .setName(queue)
+            .setDurable(false);
+
+         Configuration configuration = createDefaultConfig(false)
+            .addConnectorServiceConfiguration(outconf)
+            .addQueueConfiguration(qc);
 
          server0 = createServer(false, configuration);
          server0.start();
@@ -536,20 +556,26 @@ public class TwitterTest extends ServiceTestBase
       String replyMessage = "@" + twitter.getScreenName() + " TwitterTest/outgoing reply: " + System.currentTimeMillis();
       try
       {
-         Configuration configuration = createDefaultConfig(false);
          HashMap<String, Object> config = new HashMap<String, Object>();
          config.put(TwitterConstants.QUEUE_NAME, queue);
          config.put(TwitterConstants.CONSUMER_KEY, TWITTER_CONSUMER_KEY);
          config.put(TwitterConstants.CONSUMER_SECRET, TWITTER_CONSUMER_SECRET);
          config.put(TwitterConstants.ACCESS_TOKEN, TWITTER_ACCESS_TOKEN);
          config.put(TwitterConstants.ACCESS_TOKEN_SECRET, TWITTER_ACCESS_TOKEN_SECRET);
-         ConnectorServiceConfiguration outconf =
-            new ConnectorServiceConfiguration(TwitterOutgoingConnectorServiceFactory.class.getName(),
-                                              config,
-                                              "test-outgoing-with-in-reply-to");
-         configuration.getConnectorServiceConfigurations().add(outconf);
-         CoreQueueConfiguration qc = new CoreQueueConfiguration(queue, queue, null, false);
-         configuration.getQueueConfigurations().add(qc);
+
+         ConnectorServiceConfiguration outconf = new ConnectorServiceConfiguration()
+            .setFactoryClassName(TwitterOutgoingConnectorServiceFactory.class.getName())
+            .setParams(config)
+            .setName("test-outgoing-with-in-reply-to");
+
+         CoreQueueConfiguration qc = new CoreQueueConfiguration()
+            .setAddress(queue)
+            .setName(queue)
+            .setDurable(false);
+
+         Configuration configuration = createDefaultConfig(false)
+            .addConnectorServiceConfiguration(outconf)
+            .addQueueConfiguration(qc);
 
          Status s = twitter.updateStatus(testMessage);
 

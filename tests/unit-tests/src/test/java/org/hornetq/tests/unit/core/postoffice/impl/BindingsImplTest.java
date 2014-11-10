@@ -12,6 +12,7 @@
  */
 package org.hornetq.tests.unit.core.postoffice.impl;
 
+import org.hornetq.core.server.impl.RefsOperation;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -252,6 +253,13 @@ public class BindingsImplTest extends UnitTestCase
 
       public void setWaitBeforeCommit(boolean waitBeforeCommit)
       {
+      }
+
+      @Override
+      public RefsOperation createRefsOperation(Queue queue)
+      {
+         // TODO Auto-generated method stub
+         return null;
       }
    }
 

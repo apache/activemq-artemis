@@ -14,6 +14,7 @@ package org.hornetq.core.config;
 
 import java.io.Serializable;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.utils.UUIDGenerator;
 
 /**
@@ -25,42 +26,22 @@ public class DivertConfiguration implements Serializable
 {
    private static final long serialVersionUID = 6910543740464269629L;
 
-   private String name;
+   private String name = null;
 
-   private String routingName;
+   private String routingName = UUIDGenerator.getInstance().generateStringUUID();
 
-   private String address;
+   private String address = null;
 
-   private String forwardingAddress;
+   private String forwardingAddress = null;
 
-   private boolean exclusive;
+   private boolean exclusive = HornetQDefaultConfiguration.isDefaultDivertExclusive();
 
-   private String filterString;
+   private String filterString = null;
 
-   private String transformerClassName;
+   private String transformerClassName = null;
 
-   public DivertConfiguration(final String name,
-                              final String routingName,
-                              final String address,
-                              final String forwardingAddress,
-                              final boolean exclusive,
-                              final String filterString,
-                              final String transformerClassName)
+   public DivertConfiguration()
    {
-      this.name = name;
-      if (routingName == null)
-      {
-         this.routingName = UUIDGenerator.getInstance().generateStringUUID();
-      }
-      else
-      {
-         this.routingName = routingName;
-      }
-      this.address = address;
-      this.forwardingAddress = forwardingAddress;
-      this.exclusive = exclusive;
-      this.filterString = filterString;
-      this.transformerClassName = transformerClassName;
    }
 
    public String getName()
@@ -101,57 +82,64 @@ public class DivertConfiguration implements Serializable
    /**
     * @param name the name to set
     */
-   public void setName(final String name)
+   public DivertConfiguration setName(final String name)
    {
       this.name = name;
+      return this;
    }
 
    /**
     * @param routingName the routingName to set
     */
-   public void setRoutingName(final String routingName)
+   public DivertConfiguration setRoutingName(final String routingName)
    {
       this.routingName = routingName;
+      return this;
    }
 
    /**
     * @param address the address to set
     */
-   public void setAddress(final String address)
+   public DivertConfiguration setAddress(final String address)
    {
       this.address = address;
+      return this;
    }
 
    /**
     * @param forwardingAddress the forwardingAddress to set
     */
-   public void setForwardingAddress(final String forwardingAddress)
+   public DivertConfiguration setForwardingAddress(final String forwardingAddress)
    {
       this.forwardingAddress = forwardingAddress;
+      return this;
    }
 
    /**
     * @param exclusive the exclusive to set
     */
-   public void setExclusive(final boolean exclusive)
+   public DivertConfiguration setExclusive(final boolean exclusive)
    {
       this.exclusive = exclusive;
+      return this;
    }
 
    /**
     * @param filterString the filterString to set
     */
-   public void setFilterString(final String filterString)
+   public DivertConfiguration setFilterString(final String filterString)
    {
       this.filterString = filterString;
+      return this;
    }
 
    /**
     * @param transformerClassName the transformerClassName to set
     */
-   public void setTransformerClassName(final String transformerClassName)
+   public DivertConfiguration setTransformerClassName(final String transformerClassName)
    {
       this.transformerClassName = transformerClassName;
+      return this;
    }
 
    @Override

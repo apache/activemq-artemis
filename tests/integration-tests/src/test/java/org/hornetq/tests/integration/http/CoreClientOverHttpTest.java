@@ -51,12 +51,12 @@ public class CoreClientOverHttpTest extends UnitTestCase
    public void setUp() throws Exception
    {
       super.setUp();
-      conf = createDefaultConfig();
-
-      conf.setSecurityEnabled(false);
       HashMap<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.HTTP_ENABLED_PROP_NAME, true);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+
+      conf = createDefaultConfig()
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
 
       server = addServer(HornetQServers.newHornetQServer(conf, false));
 

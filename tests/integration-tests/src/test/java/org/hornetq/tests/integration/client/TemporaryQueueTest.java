@@ -551,6 +551,13 @@ public class TemporaryQueueTest extends SingleServerTestBase
                         serverCloseLatch.await(2 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL +
                                                   2 *
                                                      TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
+
+      // The next getCount will be asynchronously done at the end of failure. We will wait some time until it has reached there.
+      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && server.getConnectionCount() > 0;)
+      {
+         Thread.sleep(1);
+      }
+
       Assert.assertEquals(0, server.getConnectionCount());
 
       session.close();

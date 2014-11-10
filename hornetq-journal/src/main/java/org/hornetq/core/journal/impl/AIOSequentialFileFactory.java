@@ -226,9 +226,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       private volatile long bufferReuseLastTime = System.currentTimeMillis();
 
       /**
-       * This queue is fed by {@link JournalImpl.ReuseBuffersController.LocalBufferCallback}} which is called directly by NIO or NIO.
-       * On the case of the AIO this is almost called by the native layer as soon as the buffer is not being used any more
-       * and ready to be reused or GCed
+       * This queue is fed by {@link org.hornetq.core.journal.impl.AIOSequentialFileFactory.ReuseBuffersController.LocalBufferCallback}
+       * which is called directly by NIO or NIO. On the case of the AIO this is almost called by the native layer as
+       * soon as the buffer is not being used any more and ready to be reused or GCed
        */
       private final ConcurrentLinkedQueue<ByteBuffer> reuseBuffersQueue = new ConcurrentLinkedQueue<ByteBuffer>();
 

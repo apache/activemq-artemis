@@ -17,6 +17,7 @@ import java.io.OutputStream;
 
 import org.hornetq.api.core.HornetQException;
 import org.hornetq.api.core.Message;
+import org.hornetq.api.core.SimpleString;
 
 /**
  *
@@ -38,8 +39,9 @@ public interface ClientMessage extends Message
     * <p>
     * This method is not meant to be called by HornetQ clients.
     * @param deliveryCount message delivery count
+    * @return this ClientMessage
     */
-   void setDeliveryCount(int deliveryCount);
+   ClientMessage setDeliveryCount(int deliveryCount);
 
    /**
     * Acknowledges reception of this message.
@@ -50,7 +52,7 @@ public interface ClientMessage extends Message
     * @throws HornetQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
-   void acknowledge() throws HornetQException;
+   ClientMessage acknowledge() throws HornetQException;
 
    /**
     * Acknowledges reception of a single message.
@@ -61,7 +63,7 @@ public interface ClientMessage extends Message
     * @throws HornetQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
-   void individualAcknowledge() throws HornetQException;
+   ClientMessage individualAcknowledge() throws HornetQException;
 
    /**
     * This can be optionally used to verify if the entire message has been received.
@@ -84,8 +86,9 @@ public interface ClientMessage extends Message
     * This method is used when consuming large messages
     *
     * @throws HornetQException
+    * @return this ClientMessage
     */
-   void setOutputStream(OutputStream out) throws HornetQException;
+   ClientMessage setOutputStream(OutputStream out) throws HornetQException;
 
    /**
     * Saves the content of the message to the OutputStream.
@@ -111,7 +114,119 @@ public interface ClientMessage extends Message
     * Sets the body's IntputStream.
     * <br>
     * This method is used when sending large messages
+    * @return this ClientMessage
     */
-   void setBodyInputStream(InputStream bodyInputStream);
+   ClientMessage setBodyInputStream(InputStream bodyInputStream);
+
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putBooleanProperty(SimpleString key, boolean value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putBooleanProperty(String key, boolean value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putByteProperty(SimpleString key, byte value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putByteProperty(String key, byte value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putBytesProperty(SimpleString key, byte[] value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putBytesProperty(String key, byte[] value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putShortProperty(SimpleString key, short value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putShortProperty(String key, short value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putCharProperty(SimpleString key, char value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putCharProperty(String key, char value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putIntProperty(SimpleString key, int value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putIntProperty(String key, int value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putLongProperty(SimpleString key, long value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putLongProperty(String key, long value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putFloatProperty(SimpleString key, float value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putFloatProperty(String key, float value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putDoubleProperty(SimpleString key, double value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putDoubleProperty(String key, double value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putStringProperty(SimpleString key, SimpleString value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage putStringProperty(String key, String value);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage writeBodyBufferBytes(byte[] bytes);
+
+   /**
+    * Overridden from {@link org.hornetq.api.core.Message} to enable fluent API
+    */
+   ClientMessage writeBodyBufferString(String string);
 
 }

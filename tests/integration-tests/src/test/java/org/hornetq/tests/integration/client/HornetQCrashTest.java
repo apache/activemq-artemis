@@ -56,10 +56,10 @@ public class HornetQCrashTest extends UnitTestCase
    @Test
    public void testHang() throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-      configuration.setPersistenceEnabled(false);
-      configuration.setSecurityEnabled(false);
-      configuration.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration configuration = createDefaultConfig()
+         .setPersistenceEnabled(false)
+         .setSecurityEnabled(false)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       server = addServer(HornetQServers.newHornetQServer(configuration));
 

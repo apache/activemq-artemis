@@ -57,8 +57,12 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       for (HornetQServer server : servers)
       {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration(ORIGINAL_QUEUE, ORIGINAL_QUEUE, null, true));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration(TARGET_QUEUE, TARGET_QUEUE, null, true));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
+            .setAddress(ORIGINAL_QUEUE)
+            .setName(ORIGINAL_QUEUE));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
+            .setAddress(TARGET_QUEUE)
+            .setName(TARGET_QUEUE));
       }
 
       startServers();
@@ -132,8 +136,12 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       for (HornetQServer server : servers)
       {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration(ORIGINAL_QUEUE, ORIGINAL_QUEUE, null, true));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration(TARGET_QUEUE, TARGET_QUEUE, null, true));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
+            .setAddress(ORIGINAL_QUEUE)
+            .setName(ORIGINAL_QUEUE));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
+            .setAddress(TARGET_QUEUE)
+            .setName(TARGET_QUEUE));
       }
 
       startServers();
@@ -245,8 +253,12 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       for (HornetQServer server : servers)
       {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration(ORIGINAL_QUEUE, ORIGINAL_QUEUE, null, true));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration(TARGET_QUEUE, TARGET_QUEUE, null, true));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
+            .setAddress(ORIGINAL_QUEUE)
+            .setName(ORIGINAL_QUEUE));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
+            .setAddress(TARGET_QUEUE)
+            .setName(TARGET_QUEUE));
       }
 
       startBackups(0, 1, 3, 4);

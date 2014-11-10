@@ -10,7 +10,11 @@
 
    <paging-directory>${build.directory}/server2/data/messaging/paging</paging-directory>
 
-   <ha-policy template="BACKUP_REPLICATED"/>
+   <ha-policy>
+      <replication>
+         <slave/>
+      </replication>
+   </ha-policy>
     
    <connectors>
       <connector name="netty-live-connector">

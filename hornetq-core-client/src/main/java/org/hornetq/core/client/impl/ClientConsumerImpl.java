@@ -32,6 +32,7 @@ import org.hornetq.api.core.client.MessageHandler;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.HornetQClientLogger;
 import org.hornetq.core.client.HornetQClientMessageBundle;
+import org.hornetq.spi.core.remoting.ConsumerContext;
 import org.hornetq.spi.core.remoting.SessionContext;
 import org.hornetq.utils.FutureLatch;
 import org.hornetq.utils.PriorityLinkedList;
@@ -67,7 +68,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    private final SessionContext sessionContext;
 
-   private final long id;
+   private final ConsumerContext consumerContext;
 
    private final SimpleString filterString;
 
@@ -137,7 +138,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    // ---------------------------------------------------------------------------------
 
    public ClientConsumerImpl(final ClientSessionInternal session,
-                             final long id,
+                             final ConsumerContext consumerContext,
                              final SimpleString queueName,
                              final SimpleString filterString,
                              final boolean browseOnly,
@@ -150,7 +151,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                              final ClientSession.QueueQuery queueInfo,
                              final ClassLoader contextClassLoader)
    {
-      this.id = id;
+      this.consumerContext = consumerContext;
 
       this.queueName = queueName;
 
@@ -180,9 +181,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    // ClientConsumer implementation
    // -----------------------------------------------------------------
 
-   public Object getId()
+   public ConsumerContext getConsumerContext()
    {
-      return id;
+      return consumerContext;
    }
 
    private ClientMessage receive(final long timeout, final boolean forcingDelivery) throws HornetQException
@@ -421,7 +422,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    // Must be synchronized since messages may be arriving while handler is being set and might otherwise end
    // up not queueing enough executors - so messages get stranded
-   public synchronized void setMessageHandler(final MessageHandler theHandler) throws HornetQException
+   public synchronized ClientConsumerImpl setMessageHandler(final MessageHandler theHandler) throws HornetQException
    {
       checkClosed();
 
@@ -449,6 +450,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       {
          waitForOnMessageToComplete(true);
       }
+
+      return this;
    }
 
    public void close() throws HornetQException
@@ -457,29 +460,28 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    }
 
    /**
-    * To be used by MDBs
+    * To be used by MDBs to stop any more handling of messages.
     *
     * @throws HornetQException
+    * @param future the future to run once the onMessage Thread has completed
     */
-   public void interruptHandlers() throws HornetQException
+   public Thread prepareForClose(final FutureLatch future) throws HornetQException
    {
       closing = true;
 
       resetLargeMessageController();
 
-      Thread onThread = onMessageThread;
-      if (onThread != null)
+      //execute the future after the last onMessage call
+      sessionExecutor.execute(new Runnable()
       {
-         try
+         @Override
+         public void run()
          {
-            // just trying to interrupt any ongoing messages
-            onThread.interrupt();
+            future.run();
          }
-         catch (Throwable ignored)
-         {
-            // security exception probably.. we just ignore it, not big deal!
-         }
-      }
+      });
+
+      return onMessageThread;
    }
 
    public void cleanUp()
@@ -556,11 +558,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    public ClientSession.QueueQuery getQueueInfo()
    {
       return queueInfo;
-   }
-
-   public long getID()
-   {
-      return id;
    }
 
    public SimpleString getFilterString()

@@ -75,26 +75,27 @@ public class MultipleProducersPagingTest extends UnitTestCase
       super.setUp();
       executor = Executors.newCachedThreadPool();
 
-      Configuration config = createBasicConfig();
-
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setPageSizeBytes(50000);
       addressSettings.setMaxSizeBytes(404850);
-      config.setPersistenceEnabled(false);
-      config.setJMXManagementEnabled(true);
-      config.setAddressesSettings(Collections.singletonMap("#", addressSettings));
-      config.setAcceptorConfigurations(Collections.singleton(new TransportConfiguration(
-         NettyAcceptorFactory.class.getName())));
-      config.setConnectorConfigurations(Collections.singletonMap("netty",
-                                                                 new TransportConfiguration(
-                                                                    NettyConnectorFactory.class.getName())));
+
+      Configuration config = createBasicConfig()
+         .setPersistenceEnabled(false)
+         .setAddressesSettings(Collections.singletonMap("#", addressSettings))
+         .setAcceptorConfigurations(Collections.singleton(new TransportConfiguration(NettyAcceptorFactory.class.getName())))
+         .setConnectorConfigurations(Collections.singletonMap("netty", new TransportConfiguration(NettyConnectorFactory.class.getName())));
 
       final JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getConnectionFactoryConfigurations().add(new ConnectionFactoryConfigurationImpl("cf", false,
-                                                                                                Arrays.asList("netty"),
-                                                                                                "/cf"));
-      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl("simple", "", false, "/queue/simple"));
+      jmsConfig.getConnectionFactoryConfigurations().add(new ConnectionFactoryConfigurationImpl()
+         .setName("cf")
+         .setConnectorNames(Arrays.asList("netty"))
+         .setBindings("/cf"));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
+                                                .setName("simple")
+                                                .setSelector("")
+                                                .setDurable(false)
+                                                .setBindings("/queue/simple"));
 
       jmsServer = new EmbeddedJMS();
       jmsServer.setConfiguration(config);

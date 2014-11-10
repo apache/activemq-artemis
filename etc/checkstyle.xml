@@ -71,5 +71,16 @@
          <property name="caseIndent" value="3"/>
          <property name="throwsIndent" value="3"/>
       </module>
+
+       <module name="IllegalImport">
+           <property name="illegalPkgs" value="junit.framework"/>
+       </module>
+
+      <!-- developed at https://github.com/hornetq/hornetq-checkstyle-checks -->
+      <module name="org.hornetq.checks.annotation.RequiredAnnotation">
+         <property name="annotationName" value="Parameters"/>
+         <property name="requiredParameters" value="name"/>
+      </module>
+
    </module>
 </module>

@@ -72,9 +72,9 @@ public class ProducerCloseTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      Configuration config = createDefaultConfig();
-      config.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()));
-      config.setSecurityEnabled(false);
+      Configuration config = createDefaultConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
+         .setSecurityEnabled(false);
       server = createServer(false, config);
       server.start();
       locator = createInVMNonHALocator();

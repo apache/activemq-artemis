@@ -19,8 +19,8 @@ import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 
 import org.hornetq.api.core.SimpleString;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.ManagementHelper;
-import org.hornetq.api.core.management.NotificationType;
 import org.hornetq.core.postoffice.BindingType;
 import org.hornetq.core.server.HornetQServerLogger;
 import org.hornetq.core.server.group.GroupingHandler;
@@ -110,7 +110,7 @@ public abstract class GroupHandlingAbstract implements GroupingHandler
       props.putIntProperty(ManagementHelper.HDR_BINDING_TYPE, BindingType.LOCAL_QUEUE_INDEX);
       props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, address);
       props.putIntProperty(ManagementHelper.HDR_DISTANCE, distance);
-      Notification notification = new Notification(null, NotificationType.UNPROPOSAL, props);
+      Notification notification = new Notification(null, CoreNotificationType.UNPROPOSAL, props);
       try
       {
          managementService.sendNotification(notification);

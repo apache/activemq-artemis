@@ -356,4 +356,16 @@ public interface HornetQMessageBundle
 
    @Message(id = 119105, value = "Server will not accept create session request since scale down has not occurred", format = Message.Format.MESSAGE_FORMAT)
    HornetQSessionCreationException sessionNotFailedOver();
+
+   @Message(id = 119106, value = "Invalid slow consumer policy type {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidSlowConsumerPolicyType(String val);
+
+   @Message(id = 119107, value = "consumer connections for address {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
+   HornetQInternalErrorException consumerConnectionsClosedByManagement(String address);
+
+   @Message(id = 119108, value = "connections for user {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
+   HornetQInternalErrorException connectionsForUserClosedByManagement(String userName);
+
+   @Message(id = 119109, value = "unsupported HA Policy Configuration {0}", format = Message.Format.MESSAGE_FORMAT)
+   HornetQIllegalStateException unsupportedHAPolicyConfiguration(Object o);
 }

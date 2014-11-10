@@ -160,7 +160,7 @@ public class PageCountSyncOnNonTXTest extends ServiceTestBase
 
             assertNotNull(queue);
 
-            long msgs = queue.getMessageCount();
+            long msgs = getMessageCount(queue);
 
             ClientSessionFactory factory = locator.createSessionFactory();
 

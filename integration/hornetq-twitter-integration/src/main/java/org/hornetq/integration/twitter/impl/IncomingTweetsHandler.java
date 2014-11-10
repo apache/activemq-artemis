@@ -161,7 +161,7 @@ public class IncomingTweetsHandler implements ConnectorService
       {
          Status status = (Status) res.get(i);
 
-         ServerMessage msg = new ServerMessageImpl(this.storageManager.generateUniqueID(),
+         ServerMessage msg = new ServerMessageImpl(this.storageManager.generateID(),
                                                    TwitterConstants.INITIAL_MESSAGE_BUFFER_SIZE);
          msg.setAddress(new SimpleString(this.queueName));
          msg.setDurable(true);

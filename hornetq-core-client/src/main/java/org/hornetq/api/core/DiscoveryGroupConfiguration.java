@@ -17,6 +17,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.utils.UUIDGenerator;
 
 /**
@@ -36,61 +37,39 @@ public final class DiscoveryGroupConfiguration implements Serializable
 {
    private static final long serialVersionUID = 8657206421727863400L;
 
-   private String name;
+   private String name = UUIDGenerator.getInstance().generateStringUUID();
 
-   private long refreshTimeout;
+   private long refreshTimeout = HornetQClient.DEFAULT_DISCOVERY_REFRESH_TIMEOUT;
 
-   private long discoveryInitialWaitTimeout;
+   private long discoveryInitialWaitTimeout = HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
 
    /*
    * The localBindAddress is needed so we can be backward compatible with 2.2 clients
    * */
-   private transient String localBindAddress;
+   private transient String localBindAddress = null;
 
    /*
    * The localBindPort is needed so we can be backward compatible with 2.2 clients
    * */
-   private transient int localBindPort;
+   private transient int localBindPort = -1;
 
    /*
    * The groupAddress is needed so we can be backward compatible with 2.2 clients
    * */
-   private String groupAddress;
+   private String groupAddress = null;
 
    /*
    * The groupPort is needed so we can be backward compatible with 2.2 clients
    * */
-   private int groupPort;
+   private int groupPort = -1;
 
    /*
    * This is the actual object used by the class, it has to be transient so we can handle deserialization with a 2.2 client
    * */
    private transient BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration;
 
-   public DiscoveryGroupConfiguration(final String name,
-                                      final long refreshTimeout,
-                                      final long discoveryInitialWaitTimeout, BroadcastEndpointFactoryConfiguration
-         endpointFactoryConfiguration)
+   public DiscoveryGroupConfiguration()
    {
-      this.name = name;
-      this.refreshTimeout = refreshTimeout;
-      this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
-      this.endpointFactoryConfiguration = endpointFactoryConfiguration;
-      if (endpointFactoryConfiguration instanceof DiscoveryGroupConfigurationCompatibilityHelper)
-      {
-         DiscoveryGroupConfigurationCompatibilityHelper dgcch = (DiscoveryGroupConfigurationCompatibilityHelper) endpointFactoryConfiguration;
-         localBindAddress = dgcch.getLocalBindAddress();
-         localBindPort = dgcch.getLocalBindPort();
-         groupAddress = dgcch.getGroupAddress();
-         groupPort = dgcch.getGroupPort();
-      }
-   }
-
-   public DiscoveryGroupConfiguration(final long refreshTimeout,
-                                      final long discoveryInitialWaitTimeout,
-                                            BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration)
-   {
-      this(UUIDGenerator.getInstance().generateStringUUID(), refreshTimeout, discoveryInitialWaitTimeout, endpointFactoryConfiguration);
    }
 
    public String getName()
@@ -106,17 +85,19 @@ public final class DiscoveryGroupConfiguration implements Serializable
    /**
     * @param name the name to set
     */
-   public void setName(final String name)
+   public DiscoveryGroupConfiguration setName(final String name)
    {
       this.name = name;
+      return this;
    }
 
    /**
     * @param refreshTimeout the refreshTimeout to set
     */
-   public void setRefreshTimeout(final long refreshTimeout)
+   public DiscoveryGroupConfiguration setRefreshTimeout(final long refreshTimeout)
    {
       this.refreshTimeout = refreshTimeout;
+      return this;
    }
 
    /**
@@ -130,14 +111,29 @@ public final class DiscoveryGroupConfiguration implements Serializable
    /**
     * @param discoveryInitialWaitTimeout the discoveryInitialWaitTimeout to set
     */
-   public void setDiscoveryInitialWaitTimeout(long discoveryInitialWaitTimeout)
+   public DiscoveryGroupConfiguration setDiscoveryInitialWaitTimeout(long discoveryInitialWaitTimeout)
    {
       this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
+      return this;
    }
 
    public BroadcastEndpointFactoryConfiguration getBroadcastEndpointFactoryConfiguration()
    {
       return endpointFactoryConfiguration;
+   }
+
+   public DiscoveryGroupConfiguration setBroadcastEndpointFactoryConfiguration(BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration)
+   {
+      this.endpointFactoryConfiguration = endpointFactoryConfiguration;
+      if (endpointFactoryConfiguration instanceof DiscoveryGroupConfigurationCompatibilityHelper)
+      {
+         DiscoveryGroupConfigurationCompatibilityHelper dgcch = (DiscoveryGroupConfigurationCompatibilityHelper) endpointFactoryConfiguration;
+         localBindAddress = dgcch.getLocalBindAddress();
+         localBindPort = dgcch.getLocalBindPort();
+         groupAddress = dgcch.getGroupAddress();
+         groupPort = dgcch.getGroupPort();
+      }
+      return this;
    }
 
    private void writeObject(ObjectOutputStream out) throws IOException
@@ -158,7 +154,11 @@ public final class DiscoveryGroupConfiguration implements Serializable
       }
       else
       {
-         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localBindAddress, localBindPort);
+         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(groupAddress)
+            .setGroupPort(groupPort)
+            .setLocalBindAddress(localBindAddress)
+            .setLocalBindPort(localBindPort);
       }
    }
 

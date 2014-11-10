@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hornetq.core.client.HornetQClientMessageBundle;
+import org.hornetq.core.remoting.impl.TransportConfigurationUtil;
 import org.hornetq.core.remoting.impl.netty.TransportConstants;
 import org.hornetq.utils.UUIDGenerator;
 
@@ -81,6 +82,7 @@ public class TransportConfiguration implements Serializable
     */
    public TransportConfiguration()
    {
+      this.params = new HashMap<>();
    }
 
    /**
@@ -95,7 +97,14 @@ public class TransportConfiguration implements Serializable
    {
       factoryClassName = className;
 
-      this.params = params;
+      if (params == null || params.isEmpty())
+      {
+         this.params = TransportConfigurationUtil.getDefaults(className);
+      }
+      else
+      {
+         this.params = params;
+      }
 
       this.name = name;
    }

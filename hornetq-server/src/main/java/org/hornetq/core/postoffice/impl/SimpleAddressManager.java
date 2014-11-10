@@ -63,9 +63,9 @@ public class SimpleAddressManager implements AddressManager
          throw HornetQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (HornetQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
+         HornetQServerLogger.LOGGER.trace("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
       }
 
       return addMappingInternal(binding.getAddress(), binding);

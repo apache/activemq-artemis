@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.hornetq.core.journal.SequentialFile;
@@ -78,6 +79,8 @@ public class JournalFilesRepository
    private final String fileExtension;
 
    private final int userVersion;
+
+   private final AtomicInteger freeFilesCount = new AtomicInteger(0);
 
    private Executor openFilesExecutor;
 
@@ -139,6 +142,8 @@ public class JournalFilesRepository
       dataFiles.clear();
 
       freeFiles.clear();
+
+      freeFilesCount.set(0);
 
       for (JournalFile file : openedFiles)
       {
@@ -207,8 +212,7 @@ public class JournalFilesRepository
 
    public void ensureMinFiles() throws Exception
    {
-      // FIXME - size() involves a scan
-      int filesToCreate = minFiles - (dataFiles.size() + freeFiles.size());
+      int filesToCreate = minFiles - (dataFiles.size() + freeFilesCount.get());
 
       if (filesToCreate > 0)
       {
@@ -216,6 +220,7 @@ public class JournalFilesRepository
          {
             // Keeping all files opened can be very costly (mainly on AIO)
             freeFiles.add(createFile(false, false, true, false, -1));
+            freeFilesCount.getAndIncrement();
          }
       }
 
@@ -368,7 +373,7 @@ public class JournalFilesRepository
 
    public int getFreeFilesCount()
    {
-      return freeFiles.size();
+      return freeFilesCount.get();
    }
 
    /**
@@ -405,8 +410,7 @@ public class JournalFilesRepository
          file.getFile().delete();
       }
       else
-         // FIXME - size() involves a scan!!!
-         if (!checkDelete || (freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() < minFiles))
+         if (!checkDelete || (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size() < minFiles))
          {
             // Re-initialise it
 
@@ -423,6 +427,7 @@ public class JournalFilesRepository
             }
 
             freeFiles.add(jf);
+            freeFilesCount.getAndIncrement();
          }
          else
          {
@@ -431,10 +436,10 @@ public class JournalFilesRepository
                HornetQJournalLogger.LOGGER.trace("DataFiles.size() = " + dataFiles.size());
                HornetQJournalLogger.LOGGER.trace("openedFiles.size() = " + openedFiles.size());
                HornetQJournalLogger.LOGGER.trace("minfiles = " + minFiles);
-               HornetQJournalLogger.LOGGER.trace("Free Files = " + freeFiles.size());
+               HornetQJournalLogger.LOGGER.trace("Free Files = " + freeFilesCount.get());
                HornetQJournalLogger.LOGGER.trace("File " + file +
                                                     " being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() (" +
-                                                    (freeFiles.size() + dataFiles.size() + 1 + openedFiles.size()) +
+                                                    (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()) +
                                                     ") < minFiles (" + minFiles + ")");
             }
             file.getFile().delete();
@@ -453,7 +458,9 @@ public class JournalFilesRepository
 
    public JournalFile getFreeFile()
    {
-      return freeFiles.remove();
+      JournalFile file = freeFiles.remove();
+      freeFilesCount.getAndDecrement();
+      return file;
    }
 
    // Opened files operations =======================================
@@ -543,6 +550,11 @@ public class JournalFilesRepository
       JournalFile nextFile = null;
 
       nextFile = freeFiles.poll();
+
+      if (nextFile != null)
+      {
+         freeFilesCount.getAndDecrement();
+      }
 
       if (nextFile == null)
       {

@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
+import org.jgroups.conf.PlainConfigurator;
 
 /**
  * The configuration for creating broadcasting/discovery groups using JGroups channels
@@ -55,6 +56,8 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
    {
       factory = new BroadcastEndpointFactory()
       {
+         private static final long serialVersionUID = 1047956472941098435L;
+
          @Override
          public BroadcastEndpoint createBroadcastEndpoint() throws Exception
          {
@@ -69,6 +72,8 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
    {
       factory = new BroadcastEndpointFactory()
       {
+         private static final long serialVersionUID = 5110372849181145377L;
+
          @Override
          public BroadcastEndpoint createBroadcastEndpoint() throws Exception
          {
@@ -182,12 +187,23 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
          broadcastOpened = true;
       }
 
-      private void initChannel(final String fileName, final String channelName) throws Exception
+      private void initChannel(final String jgroupsConfig, final String channelName) throws Exception
       {
-         URL configURL = Thread.currentThread().getContextClassLoader().getResource(fileName);
+         PlainConfigurator configurator = new PlainConfigurator(jgroupsConfig);
+         try
+         {
+            this.channel = JChannelManager.getJChannel(channelName, configurator);
+            return;
+         }
+         catch (Exception e)
+         {
+            this.channel = null;
+         }
+         URL configURL = Thread.currentThread().getContextClassLoader().getResource(jgroupsConfig);
+
          if (configURL == null)
          {
-            throw new RuntimeException("couldn't find JGroups configuration " + fileName);
+            throw new RuntimeException("couldn't find JGroups configuration " + jgroupsConfig);
          }
          this.channel = JChannelManager.getJChannel(channelName, configURL);
       }
@@ -242,45 +258,6 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
       }
 
       /**
-       * This is used for identifying a unique JChannel instance.
-       * Because we have two ways to get a JChannel (by configuration
-       * or by passing in a JChannel instance), the key needs to take
-       * this into consideration when doing comparison.
-       *
-       * @param <T> : either being a JChannel or a URL representing the JGroups
-       *            configuration file.
-       */
-      private static class ChannelKey<T>
-      {
-         private final String name;
-         private final T channelSource;
-
-         public ChannelKey(String name, T t)
-         {
-            this.name = name;
-            this.channelSource = t;
-         }
-
-         @Override
-         public int hashCode()
-         {
-            return name.hashCode();
-         }
-
-         @Override
-         public boolean equals(Object t)
-         {
-            if (t == null || (!(t instanceof ChannelKey)))
-            {
-               return false;
-            }
-
-            ChannelKey<?> key = (ChannelKey<?>) t;
-            return (name.equals(key.name) && channelSource.equals(key.channelSource));
-         }
-      }
-
-      /**
        * This class wraps a JChannel with a reference counter. The reference counter
        * controls the life of the JChannel. When reference count is zero, the channel
        * will be disconnected.
@@ -292,7 +269,6 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
          int refCount = 1;
          JChannel channel;
          String channelName;
-         T source;
          List<JGroupsReceiver> receivers = new ArrayList<JGroupsReceiver>();
 
          public JChannelWrapper(String channelName, T t) throws Exception
@@ -307,11 +283,14 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
             {
                this.channel = (JChannel) t;
             }
+            else if (t instanceof PlainConfigurator)
+            {
+               this.channel = new JChannel((PlainConfigurator)t);
+            }
             else
             {
                throw new IllegalArgumentException("Unsupported type " + t);
             }
-            this.source = t;
          }
 
          public synchronized void close()
@@ -319,7 +298,7 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
             refCount--;
             if (refCount == 0)
             {
-               JChannelManager.closeChannel(new ChannelKey<T>(this.channelName, source), this.channelName, channel);
+               JChannelManager.closeChannel(this.channelName, channel);
             }
          }
 
@@ -387,31 +366,30 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
        */
       private static class JChannelManager
       {
-         private static Map<ChannelKey<?>, JChannelWrapper<?>> channels;
+         private static Map<String, JChannelWrapper<?>> channels;
 
          public static synchronized <T> JChannelWrapper<?> getJChannel(String channelName, T t) throws Exception
          {
             if (channels == null)
             {
-               channels = new HashMap<ChannelKey<?>, JChannelWrapper<?>>();
+               channels = new HashMap<String, JChannelWrapper<?>>();
             }
-            ChannelKey<T> key = new ChannelKey<T>(channelName, t);
-            JChannelWrapper<?> wrapper = channels.get(key);
+            JChannelWrapper<?> wrapper = channels.get(channelName);
             if (wrapper == null)
             {
                wrapper = new JChannelWrapper<T>(channelName, t);
-               channels.put(key, wrapper);
+               channels.put(channelName, wrapper);
                return wrapper;
             }
             return wrapper.addRef();
          }
 
-         public static synchronized void closeChannel(ChannelKey<?> key, String channelName, JChannel channel)
+         public static synchronized void closeChannel(String channelName, JChannel channel)
          {
             channel.setReceiver(null);
             channel.disconnect();
             channel.close();
-            JChannelWrapper<?> wrapper = channels.remove(key);
+            JChannelWrapper<?> wrapper = channels.remove(channelName);
             if (wrapper == null)
             {
                throw new IllegalStateException("Did not find channel " + channelName);

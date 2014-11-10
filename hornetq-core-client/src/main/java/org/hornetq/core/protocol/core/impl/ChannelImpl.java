@@ -184,11 +184,16 @@ public final class ChannelImpl implements Channel
 
    public void returnBlocking()
    {
+      returnBlocking(null);
+   }
+
+   public void returnBlocking(Throwable cause)
+   {
       lock.lock();
 
       try
       {
-         response = new HornetQExceptionMessage(HornetQClientMessageBundle.BUNDLE.unblockingACall());
+         response = new HornetQExceptionMessage(HornetQClientMessageBundle.BUNDLE.unblockingACall(cause));
 
          sendCondition.signal();
       }

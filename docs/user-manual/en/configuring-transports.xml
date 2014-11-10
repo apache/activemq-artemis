@@ -177,10 +177,10 @@ etc</programlisting>
             Java IO, or NIO (non-blocking), also to use straightforward TCP sockets, SSL, or to
             tunnel over HTTP or HTTPS..</para>
         <para>We believe this caters for the vast majority of transport requirements.</para>
-        <section>
+        <section id="configuring-transports.single-port">
             <title>Single Port Support</title>
             <para>As of version 2.4 HornetQ now supports using a single port for all protocols, HornetQ will automatically
-            detect which protocol is being used CORE, AMQP or STOMP and use the appropriate HornetQ handler. It will also detect
+            detect which protocol is being used CORE, AMQP, STOMP or OPENWIRE and use the appropriate HornetQ handler. It will also detect
             whether protocols such as HTTP or Web Sockets are being used and also use the appropriate decoders</para>
             <para>It is possible to limit which protocols are supported by using the <literal>protocols</literal> parameter
             on the Acceptor like so:</para>

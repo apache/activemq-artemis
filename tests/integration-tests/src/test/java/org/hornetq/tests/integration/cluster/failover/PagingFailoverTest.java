@@ -131,7 +131,7 @@ public class PagingFailoverTest extends FailoverTestBase
       if (failBeforeConsume)
       {
          crash(session);
-         waitForBackup(null, 30);
+         waitForBackup(null, 5);
       }
 
       session.close();

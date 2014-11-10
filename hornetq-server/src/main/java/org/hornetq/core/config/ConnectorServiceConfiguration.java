@@ -23,17 +23,14 @@ public class ConnectorServiceConfiguration implements Serializable
 {
    private static final long serialVersionUID = -641207073030767325L;
 
-   private final String name;
+   private String name;
 
-   private final  String factoryClassName;
+   private String factoryClassName;
 
-   private final  Map<String, Object> params;
+   private Map<String, Object> params;
 
-   public ConnectorServiceConfiguration(final String clazz, final Map<String, Object> params, final String name)
+   public ConnectorServiceConfiguration()
    {
-      this.name = name;
-      factoryClassName = clazz;
-      this.params = params;
    }
 
    public String getConnectorName()
@@ -49,6 +46,29 @@ public class ConnectorServiceConfiguration implements Serializable
    public Map<String, Object> getParams()
    {
       return params;
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   public ConnectorServiceConfiguration setName(String name)
+   {
+      this.name = name;
+      return this;
+   }
+
+   public ConnectorServiceConfiguration setFactoryClassName(String factoryClassName)
+   {
+      this.factoryClassName = factoryClassName;
+      return this;
+   }
+
+   public ConnectorServiceConfiguration setParams(Map<String, Object> params)
+   {
+      this.params = params;
+      return this;
    }
 
    @Override

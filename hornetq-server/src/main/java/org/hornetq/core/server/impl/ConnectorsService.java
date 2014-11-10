@@ -12,11 +12,13 @@
  */
 package org.hornetq.core.server.impl;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.hornetq.api.core.Pair;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.ConnectorServiceConfiguration;
 import org.hornetq.core.persistence.StorageManager;
@@ -51,48 +53,36 @@ public final class ConnectorsService implements HornetQComponent
 
    private final Set<ConnectorService> connectors = new HashSet<ConnectorService>();
 
+   private final ServiceRegistry serviceRegistry;
+
    public ConnectorsService(final Configuration configuration,
                             final StorageManager storageManager,
                             final ScheduledExecutorService scheduledPool,
-                            final PostOffice postOffice)
+                            final PostOffice postOffice,
+                            final ServiceRegistry serviceRegistry)
    {
       this.configuration = configuration;
       this.storageManager = storageManager;
       this.scheduledPool = scheduledPool;
       this.postOffice = postOffice;
+      this.serviceRegistry = serviceRegistry;
    }
 
    public void start() throws Exception
    {
       List<ConnectorServiceConfiguration> configurationList = configuration.getConnectorServiceConfigurations();
 
+      Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServiceFactories = serviceRegistry.getConnectorServices();
+
+      for (Pair<ConnectorServiceFactory, ConnectorServiceConfiguration> pair : connectorServiceFactories)
+      {
+         createService(pair.getB(), pair.getA());
+      }
+
       for (ConnectorServiceConfiguration info : configurationList)
       {
-         ConnectorServiceFactory factory = (ConnectorServiceFactory)ClassloadingUtil.newInstanceFromClassLoader(info.getFactoryClassName());
-
-         if (info.getParams() != null)
-         {
-            Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), info.getParams()
-               .keySet());
-
-            if (!invalid.isEmpty())
-            {
-               HornetQServerLogger.LOGGER.connectorKeysInvalid(ConfigurationHelper.stringSetToCommaListString(invalid));
-
-               continue;
-            }
-         }
-         Set<String> invalid = ConfigurationHelper.checkKeysExist(factory.getRequiredProperties(), info.getParams()
-            .keySet());
-
-         if (!invalid.isEmpty())
-         {
-            HornetQServerLogger.LOGGER.connectorKeysMissing(ConfigurationHelper.stringSetToCommaListString(invalid));
-
-            continue;
-         }
-         ConnectorService connectorService = factory.createConnectorService(info.getConnectorName(), info.getParams(), storageManager, postOffice, scheduledPool);
-         connectors.add(connectorService);
+         ConnectorServiceFactory factory = (ConnectorServiceFactory) ClassloadingUtil.newInstanceFromClassLoader(info.getFactoryClassName());
+         createService(info, factory);
       }
 
       for (ConnectorService connector : connectors)
@@ -107,6 +97,28 @@ public final class ConnectorsService implements HornetQComponent
          }
       }
       isStarted = true;
+   }
+
+   public void createService(ConnectorServiceConfiguration info, ConnectorServiceFactory factory)
+   {
+      if (info.getParams() != null)
+      {
+         Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), info.getParams().keySet());
+         if (!invalid.isEmpty())
+         {
+            HornetQServerLogger.LOGGER.connectorKeysInvalid(ConfigurationHelper.stringSetToCommaListString(invalid));
+            return;
+         }
+      }
+
+      Set<String> invalid = ConfigurationHelper.checkKeysExist(factory.getRequiredProperties(), info.getParams().keySet());
+      if (!invalid.isEmpty())
+      {
+         HornetQServerLogger.LOGGER.connectorKeysMissing(ConfigurationHelper.stringSetToCommaListString(invalid));
+         return;
+      }
+      ConnectorService connectorService = factory.createConnectorService(info.getConnectorName(), info.getParams(), storageManager, postOffice, scheduledPool);
+      connectors.add(connectorService);
    }
 
    public void stop() throws Exception

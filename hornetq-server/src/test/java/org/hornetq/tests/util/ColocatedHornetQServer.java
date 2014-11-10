@@ -58,7 +58,7 @@ public class ColocatedHornetQServer extends HornetQServerImpl
 
    @Override
    protected NodeManager
-   createNodeManager(final String directory, final String nodeGroupName, boolean replicatingBackup)
+   createNodeManager(final String directory, boolean replicatingBackup)
    {
       if (replicatingBackup)
       {
@@ -76,12 +76,10 @@ public class ColocatedHornetQServer extends HornetQServerImpl
       {
          if (backup)
          {
-            nodeManagerBackup.setNodeGroupName(nodeGroupName);
             return nodeManagerBackup;
          }
          else
          {
-            nodeManagerLive.setNodeGroupName(nodeGroupName);
             return nodeManagerLive;
          }
       }

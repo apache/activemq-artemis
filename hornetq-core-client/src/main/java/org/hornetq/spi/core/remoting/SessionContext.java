@@ -27,6 +27,7 @@ import org.hornetq.api.core.client.SendAcknowledgementHandler;
 import org.hornetq.core.client.impl.ClientConsumerInternal;
 import org.hornetq.core.client.impl.ClientLargeMessageInternal;
 import org.hornetq.core.client.impl.ClientMessageInternal;
+import org.hornetq.core.client.impl.ClientProducerCreditsImpl;
 import org.hornetq.core.client.impl.ClientSessionInternal;
 import org.hornetq.core.message.impl.MessageInternal;
 import org.hornetq.spi.core.protocol.RemotingConnection;
@@ -41,8 +42,6 @@ public abstract class SessionContext
 {
    protected ClientSessionInternal session;
 
-   protected final String name;
-
    protected SendAcknowledgementHandler sendAckHandler;
 
    protected volatile RemotingConnection remotingConnection;
@@ -50,10 +49,9 @@ public abstract class SessionContext
    protected final IDGenerator idGenerator = new SimpleIDGenerator(0);
 
 
-   public SessionContext(final String name, RemotingConnection remotingConnection)
+   public SessionContext(RemotingConnection remotingConnection)
    {
       this.remotingConnection = remotingConnection;
-      this.name = name;
    }
 
 
@@ -88,7 +86,7 @@ public abstract class SessionContext
 
    public abstract boolean supportsLargeMessage();
 
-   protected void handleReceiveLargeMessage(long consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
+   protected void handleReceiveLargeMessage(ConsumerContext consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
    {
       ClientSessionInternal session = this.session;
       if (session != null)
@@ -97,7 +95,7 @@ public abstract class SessionContext
       }
    }
 
-   protected void handleReceiveMessage(final long consumerID, final ClientMessageInternal message) throws Exception
+   protected void handleReceiveMessage(ConsumerContext consumerID, final ClientMessageInternal message) throws Exception
    {
 
       ClientSessionInternal session = this.session;
@@ -107,7 +105,7 @@ public abstract class SessionContext
       }
    }
 
-   protected void handleReceiveContinuation(final long consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception
+   protected void handleReceiveContinuation(final ConsumerContext consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception
    {
       ClientSessionInternal session = this.session;
       if (session != null)
@@ -138,7 +136,7 @@ public abstract class SessionContext
 
    public abstract int getCreditsOnSendingFull(MessageInternal msgI);
 
-   public abstract void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler) throws HornetQException;
+   public abstract void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler, SimpleString defaultAddress) throws HornetQException;
 
    /**
     * it should return the number of credits (or bytes) used to send this packet
@@ -252,7 +250,7 @@ public abstract class SessionContext
    /**
     * Interrupt and return any blocked calls
     */
-   public abstract void returnBlocking();
+   public abstract void returnBlocking(HornetQException cause);
 
    /**
     * it will lock the communication channel of the session avoiding anything to come while failover is happening.
@@ -266,4 +264,5 @@ public abstract class SessionContext
    public abstract void cleanup();
 
 
+   public abstract void linkFlowControl(SimpleString address, ClientProducerCreditsImpl clientProducerCredits);
 }

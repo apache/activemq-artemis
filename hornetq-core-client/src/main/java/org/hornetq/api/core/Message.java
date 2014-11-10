@@ -44,7 +44,7 @@ import org.hornetq.utils.UUID;
  * </pre>
  * <p>
  * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a
- * {@code boolean}), a {@link PropertyConversionException} will be thrown.
+ * {@code boolean}), a {@link HornetQPropertyConversionException} will be thrown.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:clebert.suconic@jboss.com">ClebertSuconic</a>
@@ -104,7 +104,7 @@ public interface Message
     *
     * @param userID
     */
-   void setUserID(UUID userID);
+   Message setUserID(UUID userID);
 
    /**
     * Returns the address this message is sent to.
@@ -135,7 +135,7 @@ public interface Message
     *
     * @param durable {@code true} to flag this message as durable, {@code false} else
     */
-   void setDurable(boolean durable);
+   Message setDurable(boolean durable);
 
    /**
     * Returns the expiration time of this message.
@@ -152,7 +152,7 @@ public interface Message
     *
     * @param expiration expiration time
     */
-   void setExpiration(long expiration);
+   Message setExpiration(long expiration);
 
    /**
     * Returns the message timestamp.
@@ -167,7 +167,7 @@ public interface Message
     *
     * @param timestamp timestamp
     */
-   void setTimestamp(long timestamp);
+   Message setTimestamp(long timestamp);
 
    /**
     * Returns the message priority.
@@ -183,7 +183,7 @@ public interface Message
     *
     * @param priority the new message priority
     */
-   void setPriority(byte priority);
+   Message setPriority(byte priority);
 
    /**
     * Returns the size of the <em>encoded</em> message.
@@ -199,6 +199,16 @@ public interface Message
     * Returns the message body as a HornetQBuffer
     */
    HornetQBuffer getBodyBuffer();
+
+   /**
+    * Writes the input byte array to the message body HornetQBuffer
+    */
+   Message writeBodyBufferBytes(byte[] bytes);
+
+   /**
+    * Writes the input String to the message body HornetQBuffer
+    */
+   Message writeBodyBufferString(String string);
 
    /**
     * Returns a <em>copy</em> of the message body as a HornetQBuffer. Any modification

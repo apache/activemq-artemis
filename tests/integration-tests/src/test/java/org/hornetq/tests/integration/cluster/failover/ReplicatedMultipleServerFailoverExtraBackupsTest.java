@@ -22,6 +22,7 @@ import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
+import org.hornetq.core.config.ha.ReplicaPolicyConfiguration;
 import org.hornetq.tests.integration.cluster.util.TestableServer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,12 +36,13 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    @Test
    public void testStartLiveFirst() throws Exception
    {
-      backupServers.get(2).getServer().getConfiguration().getHAPolicy().setBackupGroupName(getNodeGroupName() + "-0");
-      backupServers.get(3).getServer().getConfiguration().getHAPolicy().setBackupGroupName(getNodeGroupName() + "-1");
+      ((ReplicaPolicyConfiguration)backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+      ((ReplicaPolicyConfiguration)backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
 
       startServers(liveServers);
       startServers(backupServers);
-      waitForBackups();
+      waitForRemoteBackupSynchronization(backupServers.get(0).getServer());
+      waitForRemoteBackupSynchronization(backupServers.get(1).getServer());
 
       sendCrashReceive();
       waitForTopology(backupServers.get(0).getServer(), liveServers.size(), 2);
@@ -67,8 +69,8 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    @Test
    public void testStartBackupFirst() throws Exception
    {
-      backupServers.get(2).getServer().getConfiguration().getHAPolicy().setBackupGroupName(getNodeGroupName() + "-0");
-      backupServers.get(3).getServer().getConfiguration().getHAPolicy().setBackupGroupName(getNodeGroupName() + "-1");
+      ((ReplicaPolicyConfiguration)backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+      ((ReplicaPolicyConfiguration)backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
 
       startServers(backupServers);
       startServers(liveServers);
@@ -110,7 +112,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       List<TestableServer> toCrash = new ArrayList<TestableServer>();
       for (TestableServer backupServer : backupServers)
       {
-         if (!backupServer.getServer().getConfiguration().getHAPolicy().isBackup())
+         if (!backupServer.getServer().getHAPolicy().isBackup())
          {
             toCrash.add(backupServer);
          }

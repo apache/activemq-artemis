@@ -22,20 +22,16 @@ public class CoreQueueConfiguration implements Serializable
 {
    private static final long serialVersionUID = 650404974977490254L;
 
-   private String address;
+   private String address = null;
 
-   private String name;
+   private String name = null;
 
-   private String filterString;
+   private String filterString = null;
 
-   private boolean durable;
+   private boolean durable = true;
 
-   public CoreQueueConfiguration(final String address, final String name, final String filterString, final boolean durable)
+   public CoreQueueConfiguration()
    {
-      this.address = address;
-      this.name = name;
-      this.filterString = filterString;
-      this.durable = durable;
    }
 
    public String getAddress()
@@ -61,33 +57,37 @@ public class CoreQueueConfiguration implements Serializable
    /**
     * @param address the address to set
     */
-   public void setAddress(final String address)
+   public CoreQueueConfiguration setAddress(final String address)
    {
       this.address = address;
+      return this;
    }
 
    /**
     * @param name the name to set
     */
-   public void setName(final String name)
+   public CoreQueueConfiguration setName(final String name)
    {
       this.name = name;
+      return this;
    }
 
    /**
     * @param filterString the filterString to set
     */
-   public void setFilterString(final String filterString)
+   public CoreQueueConfiguration setFilterString(final String filterString)
    {
       this.filterString = filterString;
+      return this;
    }
 
    /**
-    * @param durable the durable to set
+    * @param durable the durable to set; default value is true
     */
-   public void setDurable(final boolean durable)
+   public CoreQueueConfiguration setDurable(final boolean durable)
    {
       this.durable = durable;
+      return this;
    }
 
    @Override

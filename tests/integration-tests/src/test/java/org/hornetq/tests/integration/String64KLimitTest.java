@@ -207,9 +207,8 @@ public class String64KLimitTest extends UnitTestCase
    {
       super.setUp();
 
-      Configuration config = createBasicConfig();
-      config.setSecurityEnabled(false);
-      config.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration config = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       server = addServer(HornetQServers.newHornetQServer(config, false));
       server.start();
       locator = createInVMNonHALocator();

@@ -41,6 +41,8 @@ import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -94,16 +96,16 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.hornetq.api.config.HornetQDefaultConfiguration;
-import org.hornetq.api.core.HornetQBuffer;
 import org.hornetq.api.core.HornetQException;
-import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.core.client.HornetQClientLogger;
 import org.hornetq.core.client.HornetQClientMessageBundle;
 import org.hornetq.core.client.impl.ClientSessionFactoryImpl;
+import org.hornetq.core.protocol.core.impl.HornetQClientProtocolManager;
 import org.hornetq.core.remoting.impl.ssl.SSLSupport;
 import org.hornetq.core.server.HornetQComponent;
 import org.hornetq.spi.core.remoting.AbstractConnector;
 import org.hornetq.spi.core.remoting.BufferHandler;
+import org.hornetq.spi.core.remoting.ClientProtocolManager;
 import org.hornetq.spi.core.remoting.Connection;
 import org.hornetq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.hornetq.utils.ConfigurationHelper;
@@ -117,6 +119,7 @@ import static org.hornetq.utils.Base64.encodeBytes;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:tlee@redhat.com">Trustin Lee</a>
  * @author <a href="mailto:nmaurer@redhat.com">Norman Maurer</a>
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class NettyConnector extends AbstractConnector
 {
@@ -142,10 +145,19 @@ public class NettyConnector extends AbstractConnector
 
    private static final AttributeKey<String> REMOTING_KEY = AttributeKey.valueOf(SEC_HORNETQ_REMOTING_KEY);
 
+   // Default Configuration
+   public static final Map<String, Object> DEFAULT_CONFIG;
+
    static
    {
       // Disable resource leak detection for performance reasons by default
       ResourceLeakDetector.setEnabled(false);
+
+      // Set default Configuration
+      Map<String, Object> config = new HashMap<String , Object>();
+      config.put(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST);
+      config.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT);
+      DEFAULT_CONFIG = Collections.unmodifiableMap(config);
    }
 
    // Attributes ----------------------------------------------------
@@ -229,12 +241,13 @@ public class NettyConnector extends AbstractConnector
 
    private int connectTimeoutMillis;
 
+   private final ClientProtocolManager protocolManager;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
-
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
                          final ConnectionLifeCycleListener listener,
@@ -242,7 +255,22 @@ public class NettyConnector extends AbstractConnector
                          final Executor threadPool,
                          final ScheduledExecutorService scheduledThreadPool)
    {
+      this(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, new HornetQClientProtocolManager());
+   }
+
+
+   public NettyConnector(final Map<String, Object> configuration,
+                         final BufferHandler handler,
+                         final ConnectionLifeCycleListener listener,
+                         final Executor closeExecutor,
+                         final Executor threadPool,
+                         final ScheduledExecutorService scheduledThreadPool,
+                         final ClientProtocolManager protocolManager)
+   {
       super(configuration);
+
+      this.protocolManager = protocolManager;
+
       if (listener == null)
       {
          throw HornetQClientMessageBundle.BUNDLE.nullListener();
@@ -437,10 +465,7 @@ public class NettyConnector extends AbstractConnector
          group = new NioEventLoopGroup(threadsToUse);
       }
       // if we are a servlet wrap the socketChannelFactory
-      if (useServlet)
-      {
-         // TODO: This will be replaced by allow upgrade HTTP connection from Undertow.;
-      }
+
       bootstrap = new Bootstrap();
       bootstrap.channel(channelClazz);
       bootstrap.group(group);
@@ -611,7 +636,8 @@ public class NettyConnector extends AbstractConnector
                pipeline.addLast(httpClientCodec);
                pipeline.addLast("http-upgrade", new HttpUpgradeHandler(pipeline, httpClientCodec));
             }
-            pipeline.addLast(new HornetQFrameDecoder2());
+
+            protocolManager.addChannelHandlers(pipeline);
 
             pipeline.addLast(new HornetQClientChannelHandler(channelGroup, handler, new Listener()));
          }
@@ -761,8 +787,8 @@ public class NettyConnector extends AbstractConnector
                request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.UPGRADE);
 
                final String endpoint = ConfigurationHelper.getStringProperty(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME,
-                       null,
-                       configuration);
+                                                                             null,
+                                                                             configuration);
                if (endpoint != null)
                {
                   request.headers().set(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME, endpoint);
@@ -800,7 +826,7 @@ public class NettyConnector extends AbstractConnector
          // No acceptor on a client connection
          Listener connectionListener = new Listener();
          NettyConnection conn = new NettyConnection(configuration, ch, connectionListener, !httpEnabled && batchDelay > 0, false);
-         connectionListener.connectionCreated(null, conn, HornetQClient.DEFAULT_CORE_PROTOCOL);
+         connectionListener.connectionCreated(null, conn, protocolManager.getName());
          return conn;
       }
       else
@@ -875,6 +901,11 @@ public class NettyConnector extends AbstractConnector
                   HornetQClientLogger.LOGGER.httpHandshakeFailed(accept, expectedResponse);
                   ctx.close();
                }
+            }
+            else if (response.getStatus().code() == HttpResponseStatus.FORBIDDEN.code())
+            {
+               HornetQClientLogger.LOGGER.httpUpgradeNotSupportedByRemoteAcceptor();
+               ctx.close();
             }
             latch.countDown();
          }
@@ -1062,10 +1093,6 @@ public class NettyConnector extends AbstractConnector
          {
             throw HornetQClientMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
-         String handshake = "HORNETQ";
-         HornetQBuffer buffer = connection.createBuffer(handshake.length());
-         buffer.writeBytes(handshake.getBytes());
-         connection.write(buffer);
       }
 
       public void connectionDestroyed(final Object connectionID)

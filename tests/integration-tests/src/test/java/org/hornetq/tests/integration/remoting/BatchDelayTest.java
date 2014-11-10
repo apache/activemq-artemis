@@ -57,10 +57,8 @@ public class BatchDelayTest extends ServiceTestBase
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
-      Configuration config = createBasicConfig();
-      config.getAcceptorConfigurations().add(tc);
-
-      config.setSecurityEnabled(false);
+      Configuration config = createBasicConfig()
+         .addAcceptorConfiguration(tc);
       server = createServer(false, config);
       server.start();
    }

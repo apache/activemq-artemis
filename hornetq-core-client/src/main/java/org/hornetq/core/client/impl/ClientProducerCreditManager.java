@@ -13,6 +13,7 @@
 package org.hornetq.core.client.impl;
 
 import org.hornetq.api.core.SimpleString;
+import org.hornetq.spi.core.remoting.SessionContext;
 
 /**
  * A ClientProducerCreditManager
@@ -23,7 +24,7 @@ import org.hornetq.api.core.SimpleString;
  */
 public interface ClientProducerCreditManager
 {
-   ClientProducerCredits getCredits(SimpleString address, boolean anon);
+   ClientProducerCredits getCredits(SimpleString address, boolean anon, SessionContext context);
 
    void returnCredits(SimpleString address);
 

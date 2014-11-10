@@ -59,9 +59,17 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
          final int port = getUDPDiscoveryPort();
          String localBindAddress = getLocalHost().getHostAddress();
 
-         UDPBroadcastGroupConfiguration config = new UDPBroadcastGroupConfiguration(groupAddress, port, localBindAddress, 8580);
+         UDPBroadcastGroupConfiguration config = new UDPBroadcastGroupConfiguration()
+            .setGroupAddress(groupAddress)
+            .setGroupPort(port)
+            .setLocalBindAddress(localBindAddress)
+            .setLocalBindPort(8580);
 
-         DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration("dg1", 5000, 5000, config);
+         DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration()
+            .setName("dg1")
+            .setRefreshTimeout(5000)
+            .setDiscoveryInitialWaitTimeout(5000)
+            .setBroadcastEndpointFactoryConfiguration(config);
 
          jmsServer.getHornetQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
 

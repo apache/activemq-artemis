@@ -13,11 +13,12 @@
 package org.hornetq.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientConsumer;
@@ -36,6 +37,8 @@ import org.hornetq.tests.integration.IntegrationTestLogger;
 import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * A BridgeStartTest
@@ -44,13 +47,31 @@ import org.junit.Test;
  *         <p/>
  *         Created 14 Jan 2009 14:05:01
  */
+@RunWith(value = Parameterized.class)
 public class BridgeStartTest extends ServiceTestBase
 {
+
+   @Parameterized.Parameters(name = "isNetty={0}")
+   public static Collection getParameters()
+   {
+      return Arrays.asList(new Object[][]{
+         {true},
+         {false}
+      });
+   }
+
+   public BridgeStartTest(boolean netty)
+   {
+      this.netty = netty;
+   }
+
+   private final boolean netty;
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected boolean isNetty()
    {
-      return false;
+      return netty;
    }
 
    private String getConnector()
@@ -98,37 +119,30 @@ public class BridgeStartTest extends ServiceTestBase
 
          final String bridgeName = "bridge1";
 
-         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration(bridgeName,
-                                                                           queueName0,
-                                                                           forwardAddress,
-                                                                           null,
-                                                                           null,
-                                                                           HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                                           HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                                                           HornetQClient.DEFAULT_CONNECTION_TTL,
-                                                                           1000,
-                                                                           HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                                                           1d,
-                                                                           -1,
-                                                                           0,
-                                                                           0,
-                                                                           true,
-                                                                           1024,
-                                                                           staticConnectors,
-                                                                           false,
-                                                                           HornetQDefaultConfiguration.getDefaultClusterUser(),
-                                                                           HornetQDefaultConfiguration.getDefaultClusterPassword());
+         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
+            .setName(bridgeName)
+            .setQueueName(queueName0)
+            .setForwardingAddress(forwardAddress)
+            .setRetryInterval(1000)
+            .setReconnectAttempts(0)
+            .setReconnectAttemptsOnSameNode(0)
+            .setConfirmationWindowSize(1024)
+            .setStaticConnectors(staticConnectors);
 
          List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration(testAddress, queueName0, null, true);
+         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration()
+            .setAddress(testAddress)
+            .setName(queueName0);
          List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration(forwardAddress, queueName1, null, true);
+         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration()
+            .setAddress(forwardAddress)
+            .setName(queueName1);
          List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
@@ -272,37 +286,30 @@ public class BridgeStartTest extends ServiceTestBase
 
       final String bridgeName = "bridge1";
 
-      BridgeConfiguration bridgeConfiguration = new BridgeConfiguration(bridgeName,
-                                                                        queueName0,
-                                                                        forwardAddress,
-                                                                        null,
-                                                                        null,
-                                                                        HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                                        HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                                                        HornetQClient.DEFAULT_CONNECTION_TTL,
-                                                                        500,
-                                                                        HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                                                        1d,
-                                                                        -1,
-                                                                        -1,
-                                                                        0,
-                                                                        true,
-                                                                        1024,
-                                                                        staticConnectors,
-                                                                        false,
-                                                                        HornetQDefaultConfiguration.getDefaultClusterUser(),
-                                                                        HornetQDefaultConfiguration.getDefaultClusterPassword());
+      BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
+         .setName(bridgeName)
+         .setQueueName(queueName0)
+         .setForwardingAddress(forwardAddress)
+         .setRetryInterval(500)
+         .setReconnectAttempts(-1)
+         .setReconnectAttemptsOnSameNode(0)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(staticConnectors);
 
       List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-      CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration(testAddress, queueName0, null, true);
+      CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration()
+         .setAddress(testAddress)
+         .setName(queueName0);
       List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
-      CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration(forwardAddress, queueName1, null, true);
+      CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration()
+         .setAddress(forwardAddress)
+         .setName(queueName1);
       List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
@@ -492,37 +499,31 @@ public class BridgeStartTest extends ServiceTestBase
 
          final String bridgeName = "bridge1";
 
-         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration(bridgeName,
-                                                                           queueName0,
-                                                                           forwardAddress,
-                                                                           null,
-                                                                           null,
-                                                                           HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                                           HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                                                           HornetQClient.DEFAULT_CONNECTION_TTL,
-                                                                           1000,
-                                                                           HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                                                           1d,
-                                                                           -1,
-                                                                           0,
-                                                                           0,
-                                                                           false,
-                                                                           1024,
-                                                                           staticConnectors,
-                                                                           false,
-                                                                           HornetQDefaultConfiguration.getDefaultClusterUser(),
-                                                                           HornetQDefaultConfiguration.getDefaultClusterPassword());
+         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
+            .setName(bridgeName)
+            .setQueueName(queueName0)
+            .setForwardingAddress(forwardAddress)
+            .setRetryInterval(1000)
+            .setReconnectAttempts(0)
+            .setReconnectAttemptsOnSameNode(0)
+            .setUseDuplicateDetection(false)
+            .setConfirmationWindowSize(1024)
+            .setStaticConnectors(staticConnectors);
 
          List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration(testAddress, queueName0, null, true);
+         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration()
+            .setAddress(testAddress)
+            .setName(queueName0);
          List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration(forwardAddress, queueName1, null, true);
+         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration()
+            .setAddress(forwardAddress)
+            .setName(queueName1);
          List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
@@ -652,37 +653,30 @@ public class BridgeStartTest extends ServiceTestBase
 
          final String bridgeName = "bridge1";
 
-         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration(bridgeName,
-                                                                           queueName0,
-                                                                           forwardAddress,
-                                                                           null,
-                                                                           null,
-                                                                           HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                                           HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                                                           HornetQClient.DEFAULT_CONNECTION_TTL,
-                                                                           1000,
-                                                                           HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                                                           1d,
-                                                                           -1,
-                                                                           1,
-                                                                           0,
-                                                                           true,
-                                                                           1024,
-                                                                           staticConnectors,
-                                                                           false,
-                                                                           HornetQDefaultConfiguration.getDefaultClusterUser(),
-                                                                           HornetQDefaultConfiguration.getDefaultClusterPassword());
+         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
+            .setName(bridgeName)
+            .setQueueName(queueName0)
+            .setForwardingAddress(forwardAddress)
+            .setRetryInterval(1000)
+            .setReconnectAttempts(1)
+            .setReconnectAttemptsOnSameNode(0)
+            .setConfirmationWindowSize(1024)
+            .setStaticConnectors(staticConnectors);
 
          List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration(testAddress, queueName0, null, true);
+         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration()
+            .setAddress(testAddress)
+            .setName(queueName0);
          List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration(forwardAddress, queueName1, null, true);
+         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration()
+            .setAddress(forwardAddress)
+            .setName(queueName1);
          List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);

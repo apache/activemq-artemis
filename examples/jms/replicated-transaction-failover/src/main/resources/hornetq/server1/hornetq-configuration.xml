@@ -1,6 +1,6 @@
 <configuration xmlns="urn:hornetq"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="urn:hornetq ../../../../../../../hornetq-core/src/main/resources/schema/hornetq-configuration.xsd">
+         xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 
    <bindings-directory>${build.directory}/server1/data/messaging/bindings</bindings-directory>
 
@@ -10,7 +10,11 @@
 
    <paging-directory>${build.directory}/server1/data/messaging/paging</paging-directory>
 
-   <ha-policy template="BACKUP_REPLICATED"/>
+   <ha-policy>
+      <replication>
+         <slave/>
+      </replication>
+   </ha-policy>
     
    <!-- Connectors -->
 

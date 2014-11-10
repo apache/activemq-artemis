@@ -63,11 +63,10 @@ public class SpawnedJMSServer
          jndiServer.setRmiBindAddress("localhost");
          jndiServer.start();
 
-         Configuration conf = new ConfigurationImpl();
-         conf.getAcceptorConfigurations().add(new TransportConfiguration(NettyAcceptorFactory.class.getName()));
-         conf.setSecurityEnabled(false);
-         conf.setFileDeploymentEnabled(false);
-
+         Configuration conf = new ConfigurationImpl()
+            .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
+            .setSecurityEnabled(false)
+            .setFileDeploymentEnabled(false);
 
          conf.getConnectorConfigurations().put("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()));
 

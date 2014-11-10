@@ -13,6 +13,8 @@
 package org.hornetq.tests.integration.ssl;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,22 +44,55 @@ import org.hornetq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @version <tt>$Revision: 3716 $</tt>
+ * @author Justin Bertram
  */
+@RunWith(value = Parameterized.class)
 public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
 {
-   // Constants -----------------------------------------------------
+   @Parameterized.Parameters(name = "storeType={0}")
+   public static Collection getParameters()
+   {
+      return Arrays.asList(new Object[][]{
+         {"JCEKS"},
+         {"JKS"}
+      });
+   }
+
+   public CoreClientOverTwoWaySSLTest(String storeType)
+   {
+      this.storeType = storeType;
+      SERVER_SIDE_KEYSTORE = "server-side-keystore." + storeType.toLowerCase();
+      SERVER_SIDE_TRUSTSTORE = "server-side-truststore." + storeType.toLowerCase();
+      CLIENT_SIDE_TRUSTSTORE = "client-side-truststore." + storeType.toLowerCase();
+      CLIENT_SIDE_KEYSTORE = "client-side-keystore." + storeType.toLowerCase();
+   }
 
    public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
 
-   public static final String SERVER_SIDE_KEYSTORE = "server-side.keystore";
-   public static final String SERVER_SIDE_TRUSTSTORE = "server-side.truststore";
-   public static final String CLIENT_SIDE_TRUSTSTORE = "client-side.truststore";
-   public static final String CLIENT_SIDE_KEYSTORE = "client-side.keystore";
-   public static final String PASSWORD = "secureexample";
+   /** These artifacts are required for testing 2-way SSL
+    *
+    * Commands to create the JKS artifacts:
+    * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
+    * keytool -export -keystore client-side-keystore.jks -file hornetq-jks.cer -storepass secureexample
+    * keytool -import -keystore server-side-truststore.jks -file hornetq-jks.cer -storepass secureexample -keypass secureexample -noprompt
+    *
+    * Commands to create the JCEKS artifacts:
+    * keytool -genkey -keystore client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
+    * keytool -export -keystore client-side-keystore.jceks -file hornetq-jceks.cer -storetype jceks -storepass secureexample
+    * keytool -import -keystore server-side-truststore.jceks -storetype JCEKS -file hornetq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
+    */
+
+   private static String storeType;
+   private static String SERVER_SIDE_KEYSTORE;
+   private static String SERVER_SIDE_TRUSTSTORE;
+   private static String CLIENT_SIDE_TRUSTSTORE;
+   private static String CLIENT_SIDE_KEYSTORE;
+   private static final String PASSWORD = "secureexample";
 
    private HornetQServer server;
 
@@ -96,6 +131,8 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
@@ -124,6 +161,7 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
    public void testTwoWaySSLWithoutClientKeyStore() throws Exception
    {
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
@@ -150,16 +188,17 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      ConfigurationImpl config = createBasicConfig();
-      config.setSecurityEnabled(false);
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, SERVER_SIDE_TRUSTSTORE);
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      params.put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
-      config.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      ConfigurationImpl config = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server = createServer(false, config);
       server.start();
       waitForServer(server);

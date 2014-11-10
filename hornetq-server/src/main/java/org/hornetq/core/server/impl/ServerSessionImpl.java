@@ -26,6 +26,7 @@ package org.hornetq.core.server.impl;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import org.hornetq.api.core.HornetQNonExistentQueueException;
 import org.hornetq.api.core.Message;
 import org.hornetq.api.core.Pair;
 import org.hornetq.api.core.SimpleString;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.api.core.management.ManagementHelper;
 import org.hornetq.core.client.impl.ClientMessageImpl;
 import org.hornetq.core.exception.HornetQXAException;
@@ -78,6 +80,7 @@ import org.hornetq.core.server.management.Notification;
 import org.hornetq.core.transaction.ResourceManager;
 import org.hornetq.core.transaction.Transaction;
 import org.hornetq.core.transaction.Transaction.State;
+import org.hornetq.core.transaction.TransactionFactory;
 import org.hornetq.core.transaction.TransactionOperationAbstract;
 import org.hornetq.core.transaction.TransactionPropertyIndexes;
 import org.hornetq.core.transaction.impl.TransactionImpl;
@@ -87,8 +90,6 @@ import org.hornetq.utils.TypedProperties;
 import org.hornetq.utils.UUID;
 import org.hornetq.utils.json.JSONArray;
 import org.hornetq.utils.json.JSONObject;
-
-import static org.hornetq.api.core.management.NotificationType.CONSUMER_CREATED;
 
 /**
  * Server side Session implementation
@@ -108,29 +109,29 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
    // Attributes ----------------------------------------------------------------------------
 
-   private final String username;
+   protected final String username;
 
-   private final String password;
+   protected final String password;
 
    private final int minLargeMessageSize;
 
-   private final boolean autoCommitSends;
+   protected boolean autoCommitSends;
 
-   private final boolean autoCommitAcks;
+   protected boolean autoCommitAcks;
 
-   private final boolean preAcknowledge;
+   protected final boolean preAcknowledge;
 
-   private final boolean strictUpdateDeliveryCount;
+   protected final boolean strictUpdateDeliveryCount;
 
-   private final RemotingConnection remotingConnection;
+   protected final RemotingConnection remotingConnection;
 
-   private final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<Long, ServerConsumer>();
+   protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<Long, ServerConsumer>();
 
-   private Transaction tx;
+   protected Transaction tx;
 
-   private final boolean xa;
+   protected boolean xa;
 
-   private final StorageManager storageManager;
+   protected final StorageManager storageManager;
 
    private final ResourceManager resourceManager;
 
@@ -138,24 +139,24 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
    private final SecurityStore securityStore;
 
-   private final ManagementService managementService;
+   protected final ManagementService managementService;
 
-   private volatile boolean started = false;
+   protected volatile boolean started = false;
 
-   private final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<SimpleString, TempQueueCleanerUpper>();
+   protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<SimpleString, TempQueueCleanerUpper>();
 
-   private final String name;
+   protected final String name;
 
-   private final HornetQServer server;
+   protected final HornetQServer server;
 
    private final SimpleString managementAddress;
 
    // The current currentLargeMessage being processed
    private volatile LargeServerMessage currentLargeMessage;
 
-   private final RoutingContext routingContext = new RoutingContextImpl(null);
+   protected final RoutingContext routingContext = new RoutingContextImpl(null);
 
-   private final SessionCallback callback;
+   protected final SessionCallback callback;
 
    private volatile SimpleString defaultAddress;
 
@@ -166,7 +167,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    private final OperationContext context;
 
    // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
-   private final Map<SimpleString, Pair<UUID, AtomicLong>> targetAddressInfos = new HashMap<SimpleString, Pair<UUID, AtomicLong>>();
+   protected final Map<SimpleString, Pair<UUID, AtomicLong>> targetAddressInfos = new HashMap<SimpleString, Pair<UUID, AtomicLong>>();
 
    private final long creationTime = System.currentTimeMillis();
 
@@ -178,7 +179,33 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    // concurrently.
    private volatile boolean closed = false;
 
+   private final TransactionFactory transactionFactory;
+
    // Constructors ---------------------------------------------------------------------------------
+
+   //create an 'empty' session. Only used by AMQServerSession
+   //in order to check username and password
+   protected ServerSessionImpl(String username, String password)
+   {
+      this.username = username;
+      this.password = password;
+
+      this.transactionFactory = null;
+      this.strictUpdateDeliveryCount = false;
+      this.storageManager = null;
+      this.server = null;
+      this.securityStore = null;
+      this.resourceManager = null;
+      this.remotingConnection = null;
+      this.preAcknowledge = false;
+      this.postOffice = null;
+      this.name = null;
+      this.minLargeMessageSize = 0;
+      this.managementService = null;
+      this.managementAddress = null;
+      this.context = null;
+      this.callback = null;
+   }
 
    public ServerSessionImpl(final String name,
                             final String username,
@@ -200,6 +227,36 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context) throws Exception
+   {
+      this(name, username, password, minLargeMessageSize,
+         autoCommitSends, autoCommitAcks, preAcknowledge,
+         strictUpdateDeliveryCount, xa, remotingConnection,
+         storageManager, postOffice, resourceManager, securityStore,
+         managementService, server, managementAddress, defaultAddress,
+         callback, context, null);
+   }
+
+   public ServerSessionImpl(final String name,
+                            final String username,
+                            final String password,
+                            final int minLargeMessageSize,
+                            final boolean autoCommitSends,
+                            final boolean autoCommitAcks,
+                            final boolean preAcknowledge,
+                            final boolean strictUpdateDeliveryCount,
+                            final boolean xa,
+                            final RemotingConnection remotingConnection,
+                            final StorageManager storageManager,
+                            final PostOffice postOffice,
+                            final ResourceManager resourceManager,
+                            final SecurityStore securityStore,
+                            final ManagementService managementService,
+                            final HornetQServer server,
+                            final SimpleString managementAddress,
+                            final SimpleString defaultAddress,
+                            final SessionCallback callback,
+                            final OperationContext context,
+                            TransactionFactory transactionFactory) throws Exception
    {
       this.username = username;
 
@@ -242,6 +299,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       remotingConnection.addFailureListener(this);
       this.context = context;
+
+      if (transactionFactory == null)
+      {
+         this.transactionFactory = new DefaultTransactionFactory();
+      }
+      else
+      {
+         this.transactionFactory = transactionFactory;
+      }
+
       if (!xa)
       {
          tx = newTransaction();
@@ -289,15 +356,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       return Collections.unmodifiableSet(consumersClone);
    }
 
-   public void removeConsumer(final long consumerID) throws Exception
+   public boolean removeConsumer(final long consumerID) throws Exception
    {
-      if (consumers.remove(consumerID) == null)
-      {
-         throw new IllegalStateException("Cannot find consumer with id " + consumerID + " to remove");
-      }
+      return consumers.remove(consumerID) != null;
    }
 
-   private void doClose(final boolean failed) throws Exception
+   protected void doClose(final boolean failed) throws Exception
    {
       synchronized (this)
       {
@@ -316,14 +380,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
-
-         server.removeSession(name);
-
-         remotingConnection.removeFailureListener(this);
-
-         callback.closed();
-
-         closed = true;
       }
 
       //putting closing of consumers outside the sync block
@@ -332,7 +388,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       for (ServerConsumer consumer : consumersClone)
       {
-         consumer.close(failed);
+         try
+         {
+            consumer.close(failed);
+         }
+         catch (Throwable e)
+         {
+            HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+            try
+            {
+               consumer.removeItself();
+            }
+            catch (Throwable e2)
+            {
+               HornetQServerLogger.LOGGER.warn(e2.getMessage(), e2);
+            }
+         }
       }
 
       consumers.clear();
@@ -348,22 +419,34 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             HornetQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
          }
       }
+
+
+      synchronized (this)
+      {
+         server.removeSession(name);
+
+         remotingConnection.removeFailureListener(this);
+
+         callback.closed();
+
+         closed = true;
+      }
    }
 
-   public void createConsumer(final long consumerID,
-                              final SimpleString queueName,
-                              final SimpleString filterString,
-                              final boolean browseOnly) throws Exception
+   public ServerConsumer createConsumer(final long consumerID,
+                                        final SimpleString queueName,
+                                        final SimpleString filterString,
+                                        final boolean browseOnly) throws Exception
    {
-      this.createConsumer(consumerID, queueName, filterString, browseOnly, true, null);
+      return this.createConsumer(consumerID, queueName, filterString, browseOnly, true, null);
    }
 
-   public void createConsumer(final long consumerID,
-                              final SimpleString queueName,
-                              final SimpleString filterString,
-                              final boolean browseOnly,
-                              final boolean supportLargeMessage,
-                              final Integer credits) throws Exception
+   public ServerConsumer createConsumer(final long consumerID,
+                                        final SimpleString queueName,
+                                        final SimpleString filterString,
+                                        final boolean browseOnly,
+                                        final boolean supportLargeMessage,
+                                        final Integer credits) throws Exception
    {
       Binding binding = postOffice.getBinding(queueName);
 
@@ -376,7 +459,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       Filter filter = FilterImpl.createFilter(filterString);
 
-      ServerConsumer consumer = new ServerConsumerImpl(consumerID,
+      ServerConsumer consumer = newConsumer(consumerID,
                                                        this,
                                                        (QueueBinding) binding,
                                                        filter,
@@ -419,7 +502,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, filterString);
          }
 
-         Notification notification = new Notification(null, CONSUMER_CREATED, props);
+         Notification notification = new Notification(null, CoreNotificationType.CONSUMER_CREATED, props);
 
          if (HornetQServerLogger.LOGGER.isDebugEnabled())
          {
@@ -431,6 +514,31 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
          managementService.sendNotification(notification);
       }
+
+      return consumer;
+   }
+
+   protected ServerConsumer newConsumer(long consumerID,
+         ServerSessionImpl serverSessionImpl, QueueBinding binding,
+         Filter filter, boolean started2, boolean browseOnly,
+         StorageManager storageManager2, SessionCallback callback2,
+         boolean preAcknowledge2, boolean strictUpdateDeliveryCount2,
+         ManagementService managementService2, boolean supportLargeMessage,
+         Integer credits) throws Exception
+   {
+      return new ServerConsumerImpl(consumerID,
+            this,
+            (QueueBinding) binding,
+            filter,
+            started,
+            browseOnly,
+            storageManager,
+            callback,
+            preAcknowledge,
+            strictUpdateDeliveryCount,
+            managementService,
+            supportLargeMessage,
+            credits);
    }
 
    public void createQueue(final SimpleString address,
@@ -492,13 +600,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       return remotingConnection;
    }
 
-   private static class TempQueueCleanerUpper implements CloseListener, FailureListener
+   public static class TempQueueCleanerUpper implements CloseListener, FailureListener
    {
       private final SimpleString bindingName;
 
       private final HornetQServer server;
 
-      TempQueueCleanerUpper(final HornetQServer server, final SimpleString bindingName)
+      public TempQueueCleanerUpper(final HornetQServer server, final SimpleString bindingName)
       {
          this.server = server;
 
@@ -599,7 +707,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                                          queue.isTemporary(),
                                          filterString,
                                          queue.getConsumerCount(),
-                                         queue.getMessageCount(QueueImpl.DELIVERY_TIMEOUT));
+                                         queue.getMessageCount());
       }
       // make an exception for the management address (see HORNETQ-29)
       else if (name.equals(managementAddress))
@@ -668,12 +776,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          // have these messages to be stuck on the limbo until the server is restarted
          // The tx has already timed out, so we need to ack and rollback immediately
          Transaction newTX = newTransaction();
-         consumer.acknowledge(autoCommitAcks, newTX, messageID);
+         consumer.acknowledge(newTX, messageID);
          newTX.rollback();
       }
       else
       {
-         consumer.acknowledge(autoCommitAcks, tx, messageID);
+         consumer.acknowledge(autoCommitAcks ? null : tx, messageID);
       }
    }
 
@@ -681,23 +789,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       ServerConsumer consumer = consumers.get(consumerID);
 
-      if (this.xa && tx == null)
-      {
-         throw new HornetQXAException(XAException.XAER_PROTO, "Invalid transaction state");
-      }
-
       if (tx != null && tx.getState() == State.ROLLEDBACK)
       {
          // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
          // have these messages to be stuck on the limbo until the server is restarted
          // The tx has already timed out, so we need to ack and rollback immediately
          Transaction newTX = newTransaction();
-         consumer.individualAcknowledge(autoCommitAcks, tx, messageID);
+         consumer.individualAcknowledge(tx, messageID);
          newTX.rollback();
       }
       else
       {
-         consumer.individualAcknowledge(autoCommitAcks, tx, messageID);
+         consumer.individualAcknowledge(autoCommitAcks ? null : tx, messageID);
       }
 
    }
@@ -732,11 +835,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
       try
       {
-         tx.commit();
+         if (tx != null)
+         {
+            tx.commit();
+         }
       }
       finally
       {
-         tx = newTransaction();
+         if (xa)
+         {
+            tx = null;
+         }
+         else
+         {
+            tx = newTransaction();
+         }
       }
    }
 
@@ -774,18 +887,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    /**
     * @return
     */
-   private TransactionImpl newTransaction()
+   protected Transaction newTransaction()
    {
-      return new TransactionImpl(storageManager, timeoutSeconds);
+      return transactionFactory.newTransaction(null, storageManager, timeoutSeconds);
    }
 
    /**
     * @param xid
     * @return
     */
-   private TransactionImpl newTransaction(final Xid xid)
+   private Transaction newTransaction(final Xid xid)
    {
-      return new TransactionImpl(xid, storageManager, timeoutSeconds);
+      return transactionFactory.newTransaction(xid, storageManager, timeoutSeconds);
    }
 
    public synchronized void xaCommit(final Xid xid, final boolean onePhase) throws Exception
@@ -1306,13 +1419,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    @Override
    public Transaction getCurrentTransaction()
    {
+      if (tx == null)
+      {
+         tx = newTransaction();
+      }
       return tx;
    }
 
    public void sendLarge(final MessageInternal message) throws Exception
    {
       // need to create the LargeMessage before continue
-      long id = storageManager.generateUniqueID();
+      long id = storageManager.generateID();
 
       LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
 
@@ -1335,7 +1452,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       //case the id header already generated.
       if (!message.isLargeMessage())
       {
-         long id = storageManager.generateUniqueID();
+         long id = storageManager.generateID();
 
          message.setMessageID(id);
          message.encodeMessageIDToBuffer();
@@ -1658,6 +1775,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          toCancel.addAll(consumer.cancelRefs(clientFailed, lastMessageAsDelived, theTx));
       }
 
+      //we need to check this before we cancel the refs and add them to the tx, any delivering refs will have been delivered
+      //after the last tx was rolled back so we should handle them separately. if not they
+      //will end up added to the tx but never ever handled even tho they were removed from the consumers delivering refs.
+      //we add them to a new tx and roll them back as the calling client will assume that this has happened.
+      if (theTx.getState() == State.ROLLEDBACK)
+      {
+         Transaction newTX = newTransaction();
+         cancelAndRollback(clientFailed, newTX, wasStarted, toCancel);
+         throw new IllegalStateException("Transaction has already been rolled back");
+      }
+      cancelAndRollback(clientFailed, theTx, wasStarted, toCancel);
+   }
+
+   private void cancelAndRollback(boolean clientFailed, Transaction theTx, boolean wasStarted, List<MessageReference> toCancel) throws Exception
+   {
       for (MessageReference ref : toCancel)
       {
          ref.getQueue().cancel(theTx, ref);
@@ -1683,7 +1815,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       theTx.rollback();
    }
 
-   private void doSend(final ServerMessage msg, final boolean direct) throws Exception
+   protected void doSend(final ServerMessage msg, final boolean direct) throws Exception
    {
       // check the user has write access to this address.
       try
@@ -1692,7 +1824,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
       catch (HornetQException e)
       {
-         if (!autoCommitSends)
+         if (!autoCommitSends && tx != null)
          {
             tx.markAsRollbackOnly(e);
          }
@@ -1735,7 +1867,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       if (this.tx != null)
       {
-         QueueImpl.RefsOperation oper = (QueueImpl.RefsOperation) tx.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
+         RefsOperation oper = (RefsOperation) tx.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
 
          if (oper == null)
          {
@@ -1752,4 +1884,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
    }
 
+   private static class DefaultTransactionFactory implements TransactionFactory
+   {
+      @Override
+      public Transaction newTransaction(Xid xid, StorageManager storageManager, int timeoutSeconds)
+      {
+         return new TransactionImpl(xid, storageManager, timeoutSeconds);
+      }
+   }
 }

@@ -12,19 +12,31 @@
          HA Policy that is colocated. colocated means that backup servers can be created and maintained by live servers on behalf
          of other requesting live servers. In this example we create a colocated shared store server that will scale down.
          That is it will not become live but scale down the journal to the colocated live server.
-     <p>This example starts 2 live servers each with a backup server that backs up the other live server.</p>
+     <p>This example starts 2 live servers each will request the other to create a backup.</p>
      <p>The first live server will be killed and the backup in the second will recover the journal and recreate its state
          in the live server it shares its VM with.</p>
-     <p>The following shows how to configure the backup, the backup strategy is set to <b>SCALE_DOWN</b> which means
+     <p>The following shows how to configure the backup, the slave is configured <b>&lt;scale-down/></b> which means
          that the backup server will not fully start on fail over, instead it will just recover the journal and write it
-     to its parent live server. Also notice we have over ridden some of the configuration since we want it to use the same
-     journal as server1 since it is using shared store.</p>
+     to its parent live server.</p>
      <pre class="prettyprint">
-     <code>&lt;ha-policy template="COLOCATED_SHARED_STORE"/>
+     <code>&lt;ha-policy>
+         &lt;shared-store>
+             &lt;colocated>
+                 &lt;backup-port-offset>100&lt;/backup-port-offset>
+                 &lt;backup-request-retries>-1&lt;/backup-request-retries>
+                 &lt;backup-request-retry-interval>2000&lt;/backup-request-retry-interval>
+                 &lt;max-backups>1&lt;/max-backups>
+                 &lt;request-backup>true&lt;/request-backup>
+                 &lt;master/>
+                 &lt;slave>
+                     &lt;scale-down/>
+                 &lt;/slave>
+             &lt;/colocated>
+         &lt;/shared-store>
+     &lt;/ha-policy>
      </code>
      </pre>
-     <p>note that for this HA policy we use a template that will use some sensibe settings, in this case this includes
-     setting scale down to true. Also note that since we dont specify a scale down connector it will use most appropriate
+     <p>Notice that we dont need to specify a scale down connector as it will use most appropriate
      from the list of available connectors which in  this case is the first INVM connector</p>
      <p> One other thing to notice is that the cluster connection has its reconnect attempts set to 5, this is so it will
          disconnect instead of trying to reconnect to a backup that doesn't exist.</p>

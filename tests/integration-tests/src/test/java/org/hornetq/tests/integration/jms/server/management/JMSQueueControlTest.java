@@ -18,8 +18,12 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.management.Notification;
 import javax.naming.Context;
+
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,9 +35,11 @@ import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.ServerLocator;
+import org.hornetq.api.core.management.ObjectNameBuilder;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.hornetq.api.jms.JMSFactoryType;
 import org.hornetq.api.jms.management.JMSQueueControl;
+import org.hornetq.api.jms.management.JMSServerControl;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.hornetq.core.server.HornetQServer;
@@ -43,6 +49,7 @@ import org.hornetq.jms.client.HornetQConnectionFactory;
 import org.hornetq.jms.client.HornetQDestination;
 import org.hornetq.jms.client.HornetQQueue;
 import org.hornetq.jms.server.impl.JMSServerManagerImpl;
+import org.hornetq.jms.server.management.JMSNotificationType;
 import org.hornetq.tests.integration.management.ManagementControlHelper;
 import org.hornetq.tests.integration.management.ManagementTestBase;
 import org.hornetq.tests.unit.util.InVMNamingContext;
@@ -90,7 +97,7 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       JMSQueueControl queueControl = createManagementControl();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
       Assert.assertEquals(0, queueControl.getConsumerCount());
 
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
@@ -104,16 +111,16 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       JMSUtil.sendMessages(queue, 2);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
-      Assert.assertEquals(2, queueControl.getMessagesAdded());
+      Assert.assertEquals(2, getMessageCount(queueControl));
+      Assert.assertEquals(2, getMessagesAdded(queueControl));
 
       connection.start();
 
       Assert.assertNotNull(consumer.receive(500));
       Assert.assertNotNull(consumer.receive(500));
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
-      Assert.assertEquals(2, queueControl.getMessagesAdded());
+      Assert.assertEquals(0, getMessageCount(queueControl));
+      Assert.assertEquals(2, getMessagesAdded(queueControl));
 
       consumer.close();
 
@@ -127,11 +134,11 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       JMSQueueControl queueControl = createManagementControl();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       String[] ids = JMSUtil.sendMessages(queue, 2);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       Map<String, Object>[] data = queueControl.listMessages(null);
       Assert.assertEquals(2, data.length);
@@ -150,11 +157,11 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       JMSQueueControl queueControl = createManagementControl();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       String[] ids = JMSUtil.sendMessages(queue, 2);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       String jsonString = queueControl.listMessagesAsJSON(null);
       Assert.assertNotNull(jsonString);
@@ -176,11 +183,11 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       JMSQueueControl queueControl = createManagementControl();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       JMSUtil.sendMessages(queue, 2);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       Map<String, Object>[] data = queueControl.listMessages(null);
       Assert.assertEquals(2, data.length);
@@ -197,7 +204,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       queueControl.removeMessage(messageID.toString());
 
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
    }
 
    @Test
@@ -207,7 +214,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       JMSQueueControl queueControl = createManagementControl();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       try
       {
@@ -224,15 +231,15 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       JMSQueueControl queueControl = createManagementControl();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       JMSUtil.sendMessages(queue, 2);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       queueControl.removeMessages(null);
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       connection.start();
@@ -248,7 +255,7 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       JMSQueueControl queueControl = createManagementControl();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       Connection conn = createConnection();
 
@@ -263,12 +270,12 @@ public class JMSQueueControlTest extends ManagementTestBase
       message.setStringProperty("foo", "baz");
       producer.send(message);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       int removedMatchingMessagesCount = queueControl.removeMessages("foo = 'bar'");
       Assert.assertEquals(1, removedMatchingMessagesCount);
 
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
 
       conn.start();
       MessageConsumer consumer = JMSUtil.createConsumer(conn, queue);
@@ -286,7 +293,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       JMSUtil.sendMessages(queue, 1);
 
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
 
       Map<String, Object>[] data = queueControl.listMessages(null);
       // retrieve the first message info
@@ -317,7 +324,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       String[] messageIDs = JMSUtil.sendMessages(queue, 1);
 
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
 
       try
       {
@@ -371,11 +378,11 @@ public class JMSQueueControlTest extends ManagementTestBase
       Message msg_2 = JMSUtil.sendMessageWithProperty(session, queue, key, unmatchingValue);
 
       JMSQueueControl queueControl = createManagementControl();
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       int changedMessagesCount = queueControl.changeMessagesPriority(filter, newPriority);
       Assert.assertEquals(1, changedMessagesCount);
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       connection.start();
       MessageConsumer consumer = session.createConsumer(queue);
@@ -463,13 +470,13 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       String[] messageIDs = JMSUtil.sendMessages(queue, 1);
 
-      Assert.assertEquals(1, queueControl.getMessageCount());
-      Assert.assertEquals(0, expiryQueueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
+      Assert.assertEquals(0, getMessageCount(expiryQueueControl));
 
       Assert.assertTrue(queueControl.expireMessage(messageIDs[0]));
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
-      Assert.assertEquals(1, expiryQueueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
+      Assert.assertEquals(1, getMessageCount(expiryQueueControl));
 
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       connection.start();
@@ -517,11 +524,11 @@ public class JMSQueueControlTest extends ManagementTestBase
       connection.close();
 
       JMSQueueControl queueControl = createManagementControl();
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       int expiredMessagesCount = queueControl.expireMessages(filter);
       Assert.assertEquals(1, expiredMessagesCount);
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
 
       // consume the unmatched message from queue
       JMSUtil.consumeMessages(1, queue);
@@ -543,7 +550,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSUtil.sendMessageWithProperty(session, queue, key, unmatchingValue);
       JMSUtil.sendMessageWithProperty(session, queue, key, matchingValue);
 
-      Assert.assertEquals(3, queueControl.getMessageCount());
+      Assert.assertEquals(3, getMessageCount(queueControl));
 
       Assert.assertEquals(2, queueControl.countMessages(key + " =" + matchingValue));
       Assert.assertEquals(1, queueControl.countMessages(key + " =" + unmatchingValue));
@@ -608,15 +615,15 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSQueueControl queueControl = createManagementControl();
       JMSQueueControl dlqControl = ManagementControlHelper.createJMSQueueControl(dlq, mbeanServer);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
-      Assert.assertEquals(0, dlqControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
+      Assert.assertEquals(0, getMessageCount(dlqControl));
 
       queueControl.setDeadLetterAddress(dlq.getAddress());
 
       boolean movedToDeadLetterAddress = queueControl.sendMessageToDeadLetterAddress(message.getJMSMessageID());
       Assert.assertTrue(movedToDeadLetterAddress);
-      Assert.assertEquals(1, queueControl.getMessageCount());
-      Assert.assertEquals(1, dlqControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
+      Assert.assertEquals(1, getMessageCount(dlqControl));
 
       // check there is a single message to consume from queue
       JMSUtil.consumeMessages(1, queue);
@@ -667,15 +674,15 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSQueueControl queueControl = createManagementControl();
       JMSQueueControl dlqControl = ManagementControlHelper.createJMSQueueControl(dlq, mbeanServer);
 
-      Assert.assertEquals(2, queueControl.getMessageCount());
-      Assert.assertEquals(0, dlqControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
+      Assert.assertEquals(0, getMessageCount(dlqControl));
 
       queueControl.setDeadLetterAddress(dlq.getAddress());
 
       int deadMessageCount = queueControl.sendMessagesToDeadLetterAddress(filter);
       Assert.assertEquals(1, deadMessageCount);
-      Assert.assertEquals(1, queueControl.getMessageCount());
-      Assert.assertEquals(1, dlqControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
+      Assert.assertEquals(1, getMessageCount(dlqControl));
 
       conn.start();
       MessageConsumer consumer = sess.createConsumer(queue);
@@ -704,12 +711,12 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSUtil.sendMessages(queue, 2);
 
       JMSQueueControl queueControl = createManagementControl();
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       // moved all messages to otherQueue
       int movedMessagesCount = queueControl.moveMessages(null, otherQueueName);
       Assert.assertEquals(2, movedMessagesCount);
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       // check there is no message to consume from queue
       JMSUtil.consumeMessages(0, queue);
@@ -756,12 +763,12 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSUtil.sendMessageWithProperty(session, queue, key, unmatchingValue);
 
       JMSQueueControl queueControl = createManagementControl();
-      Assert.assertEquals(2, queueControl.getMessageCount());
+      Assert.assertEquals(2, getMessageCount(queueControl));
 
       // moved matching messages to otherQueue
       int movedMessagesCount = queueControl.moveMessages(filter, otherQueueName);
       Assert.assertEquals(1, movedMessagesCount);
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
 
       connection.start();
       MessageConsumer consumer = session.createConsumer(queue);
@@ -788,11 +795,11 @@ public class JMSQueueControlTest extends ManagementTestBase
       String[] messageIDs = JMSUtil.sendMessages(queue, 1);
 
       JMSQueueControl queueControl = createManagementControl();
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
 
       boolean moved = queueControl.moveMessage(messageIDs[0], otherQueueName);
       Assert.assertTrue(moved);
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       JMSUtil.consumeMessages(0, queue);
       JMSUtil.consumeMessages(1, otherQueue);
@@ -837,7 +844,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSQueueControl otherQueueControl = ManagementControlHelper.createJMSQueueControl((HornetQQueue) otherQueue,
                                                                                         mbeanServer);
 
-      Assert.assertEquals(10, queueControl.getMessageCount());
+      Assert.assertEquals(10, getMessageCount(queueControl));
 
       int moved = queueControl.moveMessages(null, otherQueueName, true);
 
@@ -872,9 +879,9 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       locator.close();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
-      Assert.assertEquals(0, otherQueueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(otherQueueControl));
 
       serverManager.destroyQueue(otherQueueName);
    }
@@ -923,7 +930,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSQueueControl otherQueueControl = ManagementControlHelper.createJMSQueueControl((HornetQQueue) otherQueue,
                                                                                         mbeanServer);
 
-      Assert.assertEquals(10, queueControl.getMessageCount());
+      Assert.assertEquals(10, getMessageCount(queueControl));
 
       for (int i = 0; i < 10; i++)
       {
@@ -959,9 +966,9 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       locator.close();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
-      Assert.assertEquals(0, otherQueueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(otherQueueControl));
 
       serverManager.destroyQueue(otherQueueName);
    }
@@ -994,8 +1001,8 @@ public class JMSQueueControlTest extends ManagementTestBase
       JMSQueueControl otherQueueControl = ManagementControlHelper.createJMSQueueControl((HornetQQueue) otherQueue,
                                                                                         mbeanServer);
 
-      Assert.assertEquals(1, queueControl.getMessageCount());
-      Assert.assertEquals(1, otherQueueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
+      Assert.assertEquals(1, getMessageCount(otherQueueControl));
 
       int moved = queueControl.moveMessages(null, otherQueueName, true);
 
@@ -1027,9 +1034,9 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       locator.close();
 
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
-      Assert.assertEquals(0, otherQueueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(otherQueueControl));
 
       serverManager.destroyQueue(otherQueueName);
    }
@@ -1043,7 +1050,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       serverManager.createQueue(false, otherQueueName, null, true, otherQueueName);
 
       JMSQueueControl queueControl = createManagementControl();
-      Assert.assertEquals(0, queueControl.getMessageCount());
+      Assert.assertEquals(0, getMessageCount(queueControl));
 
       try
       {
@@ -1170,7 +1177,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       String[] messageIDs = JMSUtil.sendMessages(queue, 1);
 
       JMSQueueControl queueControl = createManagementControl();
-      Assert.assertEquals(1, queueControl.getMessageCount());
+      Assert.assertEquals(1, getMessageCount(queueControl));
 
       try
       {
@@ -1259,6 +1266,46 @@ public class JMSQueueControlTest extends ManagementTestBase
       assertTrue(newBindingAdded);
    }
 
+   //make sure notifications are always received no matter whether
+   //a Queue is created via JMSServerControl or by JMSServerManager directly.
+   @Test
+   public void testCreateQueueNotification() throws Exception
+   {
+      JMSUtil.JMXListener listener = new JMSUtil.JMXListener();
+      this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getJMSServerObjectName(), listener, null, null);
+
+      List<String> connectors = new ArrayList<String>();
+      connectors.add("invm");
+
+      String testQueueName = "newQueue";
+      serverManager.createQueue(true, testQueueName, null, true, testQueueName);
+
+      Notification notif = listener.getNotification();
+
+      assertEquals(JMSNotificationType.QUEUE_CREATED.toString(), notif.getType());
+      assertEquals(testQueueName, notif.getMessage());
+
+      this.serverManager.destroyQueue(testQueueName);
+
+      notif = listener.getNotification();
+      assertEquals(JMSNotificationType.QUEUE_DESTROYED.toString(), notif.getType());
+      assertEquals(testQueueName, notif.getMessage());
+
+      JMSServerControl control = ManagementControlHelper.createJMSServerControl(mbeanServer);
+
+      control.createQueue(testQueueName);
+
+      notif = listener.getNotification();
+      assertEquals(JMSNotificationType.QUEUE_CREATED.toString(), notif.getType());
+      assertEquals(testQueueName, notif.getMessage());
+
+      control.destroyQueue(testQueueName);
+
+      notif = listener.getNotification();
+      assertEquals(JMSNotificationType.QUEUE_DESTROYED.toString(), notif.getType());
+      assertEquals(testQueueName, notif.getMessage());
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -1269,11 +1316,9 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig();
-      conf.setSecurityEnabled(false);
-      conf.setJMXManagementEnabled(true);
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      conf.setFileDeploymentEnabled(false);
+      Configuration conf = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .setFileDeploymentEnabled(false);
       server = createServer(this.getName().contains("WithRealData"), conf, mbeanServer);
 
       serverManager = new JMSServerManagerImpl(server);

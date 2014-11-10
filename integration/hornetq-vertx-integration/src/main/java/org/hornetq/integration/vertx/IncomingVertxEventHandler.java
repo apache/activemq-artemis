@@ -150,7 +150,7 @@ public class IncomingVertxEventHandler implements ConnectorService
       @Override
       public void handle(Message<?> message)
       {
-         ServerMessage msg = new ServerMessageImpl(storageManager.generateUniqueID(),
+         ServerMessage msg = new ServerMessageImpl(storageManager.generateID(),
                   VertxConstants.INITIAL_MESSAGE_BUFFER_SIZE);
          msg.setAddress(new SimpleString(queueName));
          msg.setDurable(true);

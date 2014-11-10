@@ -18,9 +18,11 @@ import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
 import org.hornetq.api.core.client.ServerLocator;
 import org.hornetq.core.client.impl.ClientSessionFactoryInternal;
-import org.hornetq.core.config.BackupStrategy;
+import org.hornetq.core.config.ScaleDownConfiguration;
+import org.hornetq.core.config.ha.ColocatedPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.hornetq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.cluster.ha.HAPolicy;
 import org.hornetq.core.server.impl.InVMNodeManager;
 import org.hornetq.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
@@ -47,38 +49,39 @@ public class LiveToLiveFailoverTest extends FailoverTest
    {
       nodeManager0 = new InVMNodeManager(false);
       nodeManager1 = new InVMNodeManager(false);
-
-      backupConfig = super.createDefaultConfig(1);
-      backupConfig.getAcceptorConfigurations().clear();
-      backupConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(true, 1));
-      backupConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE);
-      backupConfig.getHAPolicy().setFailbackDelay(1000);
-
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration(true, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration(true, 1);
 
-      backupConfig.getConnectorConfigurations().put(liveConnector0.getName(), liveConnector0);
-      backupConfig.getConnectorConfigurations().put(liveConnector1.getName(), liveConnector1);
-      backupConfig.getHAPolicy().setBackupStrategy(BackupStrategy.SCALE_DOWN);
-      backupConfig.getHAPolicy().getScaleDownConnectors().add(liveConnector1.getName());
-      backupConfig.getHAPolicy().setRequestBackup(true);
-      backupConfig.getHAPolicy().setBackupRequestRetryInterval(1000);
-      basicClusterConnectionConfig(backupConfig, liveConnector1.getName(), liveConnector0.getName());
-      backupServer =  createColocatedTestableServer(backupConfig, nodeManager1, nodeManager0, 1);
+      backupConfig = super.createDefaultConfig(1)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, 1))
+         .setHAPolicyConfiguration(new ColocatedPolicyConfiguration()
+                                      .setRequestBackup(true)
+                                      .setLiveConfig(new SharedStoreMasterPolicyConfiguration())
+                                      .setBackupConfig(new SharedStoreSlavePolicyConfiguration()
+                                                          .setFailbackDelay(1000)
+                                                          .setScaleDownConfiguration(new ScaleDownConfiguration()
+                                                                                        .addConnector(liveConnector1.getName()))))
+         .addConnectorConfiguration(liveConnector0.getName(), liveConnector0)
+         .addConnectorConfiguration(liveConnector1.getName(), liveConnector1)
+         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector1.getName(), liveConnector0.getName()));
 
-      liveConfig = super.createDefaultConfig(0);
-      liveConfig.getAcceptorConfigurations().clear();
-      liveConfig.getAcceptorConfigurations().add(getAcceptorTransportConfiguration(true, 0));
-      liveConfig.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.COLOCATED_SHARED_STORE);
-      liveConfig.getHAPolicy().setFailbackDelay(1000);
+      backupServer = createColocatedTestableServer(backupConfig, nodeManager1, nodeManager0, 1);
 
-      basicClusterConnectionConfig(liveConfig, liveConnector0.getName(), liveConnector1.getName());
-      liveConfig.getConnectorConfigurations().put(liveConnector0.getName(), liveConnector0);
-      liveConfig.getConnectorConfigurations().put(liveConnector1.getName(), liveConnector1);
-      liveConfig.getHAPolicy().setBackupStrategy(BackupStrategy.SCALE_DOWN);
-      liveConfig.getHAPolicy().setScaleDownClustername(liveConnector0.getName());
-      liveConfig.getHAPolicy().setRequestBackup(true);
-      liveConfig.getHAPolicy().setBackupRequestRetryInterval(1000);
+      liveConfig = super.createDefaultConfig(0)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, 0))
+         .setHAPolicyConfiguration(new ColocatedPolicyConfiguration()
+                                      .setRequestBackup(true)
+                                      .setBackupRequestRetryInterval(1000)
+                                      .setLiveConfig(new SharedStoreMasterPolicyConfiguration())
+                                      .setBackupConfig(new SharedStoreSlavePolicyConfiguration()
+                                                          .setFailbackDelay(1000)
+                                                          .setScaleDownConfiguration(new ScaleDownConfiguration())))
+         .addConnectorConfiguration(liveConnector0.getName(), liveConnector0)
+         .addConnectorConfiguration(liveConnector1.getName(), liveConnector1)
+         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector0.getName(), liveConnector1.getName()));
+
       liveServer = createColocatedTestableServer(liveConfig, nodeManager0, nodeManager1, 0);
    }
 
@@ -334,6 +337,12 @@ public class LiveToLiveFailoverTest extends FailoverTest
    }
 
    @Override
+   public void testFailoverMultipleSessionsWithConsumers() throws Exception
+   {
+      //
+   }
+
+   @Override
    public void testTimeoutOnFailover() throws Exception
    {
    }
@@ -385,6 +394,11 @@ public class LiveToLiveFailoverTest extends FailoverTest
    //todo check to see which failing tests are valid,
    @Override
    public void testSimpleSendAfterFailoverDurableNonTemporary() throws Exception
+   {
+   }
+
+   @Override
+   public void testCommitOccurredUnblockedAndResendNoDuplicates() throws Exception
    {
    }
 

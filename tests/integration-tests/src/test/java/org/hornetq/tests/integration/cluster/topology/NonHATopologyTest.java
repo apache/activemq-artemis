@@ -76,9 +76,14 @@ public class NonHATopologyTest extends ServiceTestBase
             ArrayList<String> list = new ArrayList<String>();
             list.add("netty");
             Configuration config = server.getConfiguration();
-            config.getClusterConfigurations().add(new ClusterConnectionConfiguration("tst", "jms", "netty", 1000, true,
-                                                                                     false, 1, 1000, list, true));
-
+            config.getClusterConfigurations().add(new ClusterConnectionConfiguration()
+               .setName("tst")
+               .setAddress("jms")
+               .setConnectorName("netty")
+               .setRetryInterval(1000)
+               .setConfirmationWindowSize(1000)
+               .setStaticConnectors(list)
+               .setAllowDirectConnectionsOnly(true));
          }
 
          server.start();

@@ -41,13 +41,13 @@ public class ProtonJExample extends HornetQExample
          Session session = connection.createSession();
 
          // Step 3. Create a sender
-         Sender sender = session.createSender("testQueue");
+         Sender sender = session.createSender("jms.queue.exampleQueue");
 
          // Step 4. send a simple message
          sender.send(new Message("I am an amqp message"));
 
          // Step 5. create a moving receiver, this means the message will be removed from the queue
-         Receiver rec = session.createMovingReceiver("testQueue");
+         Receiver rec = session.createMovingReceiver("jms.queue.exampleQueue");
 
          // Step 6. set some credit so we can receive
          rec.setCredit(UnsignedInteger.valueOf(1), false);

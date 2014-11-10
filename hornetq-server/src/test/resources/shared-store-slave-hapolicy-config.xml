@@ -1,0 +1,22 @@
+<configuration
+      xmlns="urn:hornetq"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/hornetq-configuration.xsd">
+   <ha-policy>
+      <shared-store>
+         <slave>
+            <allow-failback>true</allow-failback>
+            <failback-delay>9876</failback-delay>
+            <failover-on-shutdown>false</failover-on-shutdown>
+            <restart-backup>false</restart-backup>
+            <scale-down>
+               <!--a grouping of servers that can be scaled down to-->
+               <group-name>boo!</group-name>
+               <!--either a discovery group-->
+               <discovery-group>wahey</discovery-group>
+            </scale-down>
+         </slave>
+      </shared-store>
+   </ha-policy>
+
+</configuration>

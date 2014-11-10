@@ -161,33 +161,18 @@
              <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>
       </bridges>
-      <ha-policy template="COLOCATED_REPLICATED">
-         <policy-type>COLOCATED_REPLICATED</policy-type>
-         <request-backup>true</request-backup>
-         <backup-request-retries>33</backup-request-retries>
-         <backup-request-retry-interval>1234</backup-request-retry-interval>
-         <max-backups>12</max-backups>
-         <backup-port-offset>1002</backup-port-offset>
-         <backup-strategy>SCALE_DOWN</backup-strategy>
-         <scale-down-discovery-group>wahey!</scale-down-discovery-group>
-         <scale-down-group-name>boo!</scale-down-group-name>
-         <scale-down-connectors>
-            <connector-ref>sd-connector1</connector-ref>
-            <connector-ref>sd-connector2</connector-ref>
-         </scale-down-connectors>
-         <backup-group-name>backupGroupName</backup-group-name>
-         <remote-connectors>
-            <connector-ref>remote-connector1</connector-ref>
-            <connector-ref>remote-connector2</connector-ref>
-         </remote-connectors>
-         <check-for-live-server>true</check-for-live-server>
-         <allow-failback>false</allow-failback>
-         <failback-delay>10000</failback-delay>
-         <failover-on-shutdown>true</failover-on-shutdown>
-         <replication-clustername>replicationClustername</replication-clustername>
-         <scale-down-clustername>scaleDownClustername</scale-down-clustername>
-         <max-saved-replicated-journals-size>3</max-saved-replicated-journals-size>
-         <scale-down>true</scale-down>
+      <ha-policy>
+         <!--only one of the following-->
+         <!--on server shutdown scale down to another live server-->
+         <live-only>
+            <scale-down>
+               <!--a grouping of servers that can be scaled down to-->
+               <group-name>boo!</group-name>
+               <!--either a discovery group-->
+               <discovery-group>wahey</discovery-group>
+            </scale-down>
+         </live-only>
+
       </ha-policy>
       <cluster-connections>
          <cluster-connection name="cluster-connection1">
@@ -267,6 +252,9 @@
          <page-size-bytes>81738173872337</page-size-bytes>
          <page-max-cache-size>10</page-max-cache-size>
          <message-counter-history-day-limit>4</message-counter-history-day-limit>
+         <slow-consumer-threshold>10</slow-consumer-threshold>
+         <slow-consumer-check-period>5</slow-consumer-check-period>
+         <slow-consumer-policy>NOTIFY</slow-consumer-policy>
       </address-setting>
       <address-setting match="a2">
          <dead-letter-address>a2.1</dead-letter-address>
@@ -276,6 +264,9 @@
          <page-size-bytes>7126716262626</page-size-bytes>
          <page-max-cache-size>20</page-max-cache-size>
          <message-counter-history-day-limit>8</message-counter-history-day-limit>
+         <slow-consumer-threshold>20</slow-consumer-threshold>
+         <slow-consumer-check-period>15</slow-consumer-check-period>
+         <slow-consumer-policy>KILL</slow-consumer-policy>
       </address-setting>
    </address-settings>
    <connector-services>

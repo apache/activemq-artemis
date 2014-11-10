@@ -61,7 +61,9 @@ import org.hornetq.core.server.NodeManager;
 import org.hornetq.core.server.Queue;
 import org.hornetq.core.server.cluster.ClusterConnection;
 import org.hornetq.core.server.cluster.RemoteQueueBinding;
+import org.hornetq.core.server.impl.Activation;
 import org.hornetq.core.server.impl.HornetQServerImpl;
+import org.hornetq.core.server.impl.SharedNothingBackupActivation;
 import org.hornetq.core.settings.impl.AddressFullMessagePolicy;
 import org.hornetq.core.settings.impl.AddressSettings;
 import org.hornetq.spi.core.security.HornetQSecurityManager;
@@ -337,7 +339,7 @@ public abstract class ServiceTestBase extends UnitTestCase
          fail("server didn't start: " + server);
       }
 
-      if (!server.getConfiguration().getHAPolicy().isBackup())
+      if (!server.getHAPolicy().isBackup())
       {
          if (!server.waitForActivation(wait, TimeUnit.MILLISECONDS))
             fail("Server didn't initialize: " + server);
@@ -383,10 +385,35 @@ public abstract class ServiceTestBase extends UnitTestCase
       final HornetQServerImpl actualServer = (HornetQServerImpl) backup;
       final long toWait = seconds * 1000;
       final long time = System.currentTimeMillis();
+      int loop = 0;
       while (true)
       {
+         Activation activation = actualServer.getActivation();
+         boolean isReplicated = !backup.getHAPolicy().isSharedStore();
+         boolean isRemoteUpToDate = true;
+         if (isReplicated)
+         {
+            if (activation instanceof SharedNothingBackupActivation)
+            {
+               isRemoteUpToDate = ((SharedNothingBackupActivation) activation).isRemoteBackupUpToDate();
+            }
+            else
+            {
+               //we may have already failed over and changed the Activation
+               if (actualServer.isStarted())
+               {
+                  //let it fail a few time to have time to start stopping in the case of waiting to failback
+                  isRemoteUpToDate = loop++ > 10;
+               }
+               //we could be waiting to failback or restart if the server is stopping
+               else
+               {
+                  isRemoteUpToDate = false;
+               }
+            }
+         }
          if ((sessionFactory == null || sessionFactory.getBackupConnector() != null) &&
-            (actualServer.isRemoteBackupUpToDate() || !waitForSync) &&
+               (isRemoteUpToDate || !waitForSync) &&
             (!waitForSync || actualServer.getBackupManager() != null && actualServer.getBackupManager().isBackupAnnounced()))
          {
             break;
@@ -394,7 +421,7 @@ public abstract class ServiceTestBase extends UnitTestCase
          if (System.currentTimeMillis() > (time + toWait))
          {
             fail("backup started? (" + actualServer.isStarted() + "). Finished synchronizing (" +
-                    actualServer.isRemoteBackupUpToDate() + "). SessionFactory!=null ? " + (sessionFactory != null) +
+                  (activation) + "). SessionFactory!=null ? " + (sessionFactory != null) +
                     " || sessionFactory.getBackupConnector()==" +
                     (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable"));
          }

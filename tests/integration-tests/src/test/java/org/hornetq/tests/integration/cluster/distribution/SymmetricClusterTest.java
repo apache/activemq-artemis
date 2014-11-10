@@ -25,6 +25,7 @@ import org.hornetq.tests.util.UnitTestCase;
  * Most of the cases are covered in OneWayTwoNodeClusterTest - we don't duplicate them all here
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author <a href="mtaylor@redhat,com">Martyn Taylor</a>
  *
  * Created 3 Feb 2009 09:10:43
  *
@@ -1758,6 +1759,196 @@ public class SymmetricClusterTest extends ClusterTestBase
       waitForBindings(4, "queues.testaddress", 7, 7, true);
 
       waitForBindings(4, "queues.testaddress", 0, 0, false);
+   }
+
+   @Test
+   /**
+    * This test verifies that addresses matching a simple string filter such as 'jms' result in bindings being created
+    * on appropriate nodes in the cluster.  It also verifies that addresses not matching the simple string filter do not
+    * result in bindings being created.
+    */
+   public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception
+   {
+      setupCluster("jms", "jms", "jms", "jms", "jms");
+      startServers();
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+      setupSessionFactory(2, isNetty());
+      setupSessionFactory(3, isNetty());
+      setupSessionFactory(4, isNetty());
+
+      createQueue(0, "jms.queues.test.1", "queue0", null, false);
+      createQueue(1, "jms.queues.test.1", "queue0", null, false);
+      createQueue(2, "jms.queues.test.1", "queue0", null, false);
+      createQueue(3, "jms.queues.test.1", "queue0", null, false);
+      createQueue(4, "jms.queues.test.1", "queue0", null, false);
+
+      createQueue(0, "foo.queues.test.1", "queue1", null, false);
+      createQueue(1, "foo.queues.test.1", "queue1", null, false);
+      createQueue(2, "foo.queues.test.1", "queue1", null, false);
+      createQueue(3, "foo.queues.test.1", "queue1", null, false);
+      createQueue(4, "foo.queues.test.1", "queue1", null, false);
+
+      waitForBindings(0, "jms.queues.test.1", 4, 0, false);
+      waitForBindings(1, "jms.queues.test.1", 4, 0, false);
+      waitForBindings(2, "jms.queues.test.1", 4, 0, false);
+      waitForBindings(3, "jms.queues.test.1", 4, 0, false);
+      waitForBindings(4, "jms.queues.test.1", 4, 0, false);
+
+      waitForBindings(0, "foo.queues.test.1", 0, 0, false);
+      waitForBindings(1, "foo.queues.test.1", 0, 0, false);
+      waitForBindings(2, "foo.queues.test.1", 0, 0, false);
+      waitForBindings(3, "foo.queues.test.1", 0, 0, false);
+      waitForBindings(4, "foo.queues.test.1", 0, 0, false);
+   }
+
+   @Test
+   /**
+    * This test verifies that an string exclude filter '!jms.eu.uk' results in bindings not being created for this
+    * address for nodes in a cluster.  But ensures that other addresses are matched and bindings created.
+    */
+   public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception
+   {
+      setupCluster("jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk");
+      startServers();
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+      setupSessionFactory(2, isNetty());
+      setupSessionFactory(3, isNetty());
+      setupSessionFactory(4, isNetty());
+
+      createQueue(0, "jms.eu.uk", "queue0", null, false);
+      createQueue(1, "jms.eu.uk", "queue0", null, false);
+      createQueue(2, "jms.eu.uk", "queue0", null, false);
+      createQueue(3, "jms.eu.uk", "queue0", null, false);
+      createQueue(4, "jms.eu.uk", "queue0", null, false);
+
+      createQueue(0, "jms.eu.de", "queue1", null, false);
+      createQueue(1, "jms.eu.de", "queue1", null, false);
+      createQueue(2, "jms.eu.de", "queue1", null, false);
+      createQueue(3, "jms.eu.de", "queue1", null, false);
+      createQueue(4, "jms.eu.de", "queue1", null, false);
+
+      waitForBindings(0, "jms.eu.de", 4, 0, false);
+      waitForBindings(1, "jms.eu.de", 4, 0, false);
+      waitForBindings(2, "jms.eu.de", 4, 0, false);
+      waitForBindings(3, "jms.eu.de", 4, 0, false);
+      waitForBindings(4, "jms.eu.de", 4, 0, false);
+
+      waitForBindings(0, "jms.eu.uk", 0, 0, false);
+      waitForBindings(1, "jms.eu.uk", 0, 0, false);
+      waitForBindings(2, "jms.eu.uk", 0, 0, false);
+      waitForBindings(3, "jms.eu.uk", 0, 0, false);
+      waitForBindings(4, "jms.eu.uk", 0, 0, false);
+   }
+
+   /**
+    * This test verifies that remote bindings are only created for queues that match jms.eu or jms.us excluding
+    * jms.eu.uk and jms.us.bos.  Represented by the address filter 'jms.eu,!jms.eu.uk,jms.us,!jms.us.bos'
+    * @throws Exception
+    */
+   @Test
+   public void testClusterAddressFiltersExcludesAndIncludesAddressesInList() throws Exception
+   {
+      setupCluster("jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
+                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
+                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
+                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
+                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos");
+
+      startServers();
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+      setupSessionFactory(2, isNetty());
+      setupSessionFactory(3, isNetty());
+      setupSessionFactory(4, isNetty());
+
+      createQueue(0, "jms.eu.uk", "queue0", null, false);
+      createQueue(1, "jms.eu.uk", "queue0", null, false);
+      createQueue(2, "jms.eu.uk", "queue0", null, false);
+      createQueue(3, "jms.eu.uk", "queue0", null, false);
+      createQueue(4, "jms.eu.uk", "queue0", null, false);
+
+      createQueue(0, "jms.eu.de", "queue1", null, false);
+      createQueue(1, "jms.eu.de", "queue1", null, false);
+      createQueue(2, "jms.eu.de", "queue1", null, false);
+      createQueue(3, "jms.eu.de", "queue1", null, false);
+      createQueue(4, "jms.eu.de", "queue1", null, false);
+
+      createQueue(0, "jms.eu.fr", "queue2", null, false);
+      createQueue(1, "jms.eu.fr", "queue2", null, false);
+      createQueue(2, "jms.eu.fr", "queue2", null, false);
+      createQueue(3, "jms.eu.fr", "queue2", null, false);
+      createQueue(4, "jms.eu.fr", "queue2", null, false);
+
+      createQueue(0, "jms.us.ca", "queue4", null, false);
+      createQueue(1, "jms.us.ca", "queue4", null, false);
+      createQueue(2, "jms.us.ca", "queue4", null, false);
+      createQueue(3, "jms.us.ca", "queue4", null, false);
+      createQueue(4, "jms.us.ca", "queue4", null, false);
+
+      createQueue(0, "jms.us.se", "queue5", null, false);
+      createQueue(1, "jms.us.se", "queue5", null, false);
+      createQueue(2, "jms.us.se", "queue5", null, false);
+      createQueue(3, "jms.us.se", "queue5", null, false);
+      createQueue(4, "jms.us.se", "queue5", null, false);
+
+      createQueue(0, "jms.us.ny", "queue6", null, false);
+      createQueue(1, "jms.us.ny", "queue6", null, false);
+      createQueue(2, "jms.us.ny", "queue6", null, false);
+      createQueue(3, "jms.us.ny", "queue6", null, false);
+      createQueue(4, "jms.us.ny", "queue6", null, false);
+
+      waitForBindings(0, "jms.eu.de", 4, 0, false);
+      waitForBindings(1, "jms.eu.de", 4, 0, false);
+      waitForBindings(2, "jms.eu.de", 4, 0, false);
+      waitForBindings(3, "jms.eu.de", 4, 0, false);
+      waitForBindings(4, "jms.eu.de", 4, 0, false);
+
+      waitForBindings(0, "jms.eu.fr", 4, 0, false);
+      waitForBindings(1, "jms.eu.fr", 4, 0, false);
+      waitForBindings(2, "jms.eu.fr", 4, 0, false);
+      waitForBindings(3, "jms.eu.fr", 4, 0, false);
+      waitForBindings(4, "jms.eu.fr", 4, 0, false);
+
+      waitForBindings(0, "jms.eu.uk", 0, 0, false);
+      waitForBindings(1, "jms.eu.uk", 0, 0, false);
+      waitForBindings(2, "jms.eu.uk", 0, 0, false);
+      waitForBindings(3, "jms.eu.uk", 0, 0, false);
+      waitForBindings(4, "jms.eu.uk", 0, 0, false);
+
+      waitForBindings(0, "jms.us.ca", 4, 0, false);
+      waitForBindings(1, "jms.us.ca", 4, 0, false);
+      waitForBindings(2, "jms.us.ca", 4, 0, false);
+      waitForBindings(3, "jms.us.ca", 4, 0, false);
+      waitForBindings(4, "jms.us.ca", 4, 0, false);
+
+      waitForBindings(0, "jms.us.ny", 4, 0, false);
+      waitForBindings(1, "jms.us.ny", 4, 0, false);
+      waitForBindings(2, "jms.us.ny", 4, 0, false);
+      waitForBindings(3, "jms.us.ny", 4, 0, false);
+      waitForBindings(4, "jms.us.ny", 4, 0, false);
+
+      waitForBindings(0, "jms.us.bos", 0, 0, false);
+      waitForBindings(1, "jms.us.bos", 0, 0, false);
+      waitForBindings(2, "jms.us.bos", 0, 0, false);
+      waitForBindings(3, "jms.us.bos", 0, 0, false);
+      waitForBindings(4, "jms.us.bos", 0, 0, false);
+   }
+
+   protected void setupCluster(String addr1, String addr2, String addr3, String addr4, String addr5) throws Exception
+   {
+      setupClusterConnection("cluster0", addr1, true, 1, isNetty(), 0, 1, 2, 3, 4);
+
+      setupClusterConnection("cluster1", addr2, true, 1, isNetty(), 1, 0, 2, 3, 4);
+
+      setupClusterConnection("cluster2", addr3, true, 1, isNetty(), 2, 0, 1, 3, 4);
+
+      setupClusterConnection("cluster3", addr4, true, 1, isNetty(), 3, 0, 1, 2, 4);
+      setupClusterConnection("cluster4", addr5, true, 1, isNetty(), 4, 0, 1, 2, 3);
    }
 
    protected void setupCluster() throws Exception

@@ -12,8 +12,12 @@
  */
 package org.hornetq.tests.integration.discovery;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -33,7 +37,7 @@ import org.hornetq.api.core.JGroupsBroadcastGroupConfiguration;
 import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
-import org.hornetq.api.core.management.NotificationType;
+import org.hornetq.api.core.management.CoreNotificationType;
 import org.hornetq.core.cluster.DiscoveryEntry;
 import org.hornetq.core.cluster.DiscoveryGroup;
 import org.hornetq.core.cluster.DiscoveryListener;
@@ -114,7 +118,7 @@ public class DiscoveryTest extends UnitTestCase
 
       bg = new BroadcastGroupImpl(new FakeNodeManager(nodeID),
                                   RandomUtil.randomString(),
-                                  0, null, new UDPBroadcastGroupConfiguration(address1, groupPort, null, -1).createBroadcastEndpointFactory());
+                                  0, null, new UDPBroadcastGroupConfiguration().setGroupAddress(address1).setGroupPort(groupPort).createBroadcastEndpointFactory());
 
       bg.start();
 
@@ -1158,7 +1162,7 @@ public class DiscoveryTest extends UnitTestCase
 
       Assert.assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
-      Assert.assertEquals(NotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
+      Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
       Assert.assertEquals(dg.getName(), notif.getProperties()
          .getSimpleStringProperty(new SimpleString("name"))
          .toString());
@@ -1167,7 +1171,7 @@ public class DiscoveryTest extends UnitTestCase
 
       Assert.assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
-      Assert.assertEquals(NotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
+      Assert.assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
       Assert.assertEquals(dg.getName(), notif.getProperties()
          .getSimpleStringProperty(new SimpleString("name"))
          .toString());
@@ -1198,7 +1202,7 @@ public class DiscoveryTest extends UnitTestCase
 
       Assert.assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
-      Assert.assertEquals(NotificationType.BROADCAST_GROUP_STARTED, notif.getType());
+      Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STARTED, notif.getType());
       Assert.assertEquals(bg.getName(), notif.getProperties()
          .getSimpleStringProperty(new SimpleString("name"))
          .toString());
@@ -1207,10 +1211,32 @@ public class DiscoveryTest extends UnitTestCase
 
       Assert.assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
-      Assert.assertEquals(NotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
+      Assert.assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
       Assert.assertEquals(bg.getName(), notif.getProperties()
          .getSimpleStringProperty(new SimpleString("name"))
          .toString());
+   }
+
+   /**
+    * https://issues.jboss.org/browse/HORNETQ-1389
+    * @throws Exception
+    */
+   @Test
+   public void testJGroupsBroadcastGroupConfigurationSerializable() throws Exception
+   {
+      JGroupsBroadcastGroupConfiguration jgroupsConfig =
+         new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "somChannel");
+      ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+      ObjectOutputStream objectOut = new ObjectOutputStream(byteOut);
+      objectOut.writeObject(jgroupsConfig);
+
+      byte[] serializedData = byteOut.toByteArray();
+      ByteArrayInputStream byteIn = new ByteArrayInputStream(serializedData);
+      ObjectInputStream objectIn = new ObjectInputStream(byteIn);
+
+      Object object = objectIn.readObject();
+      assertNotNull(object);
+      assertTrue(object instanceof JGroupsBroadcastGroupConfiguration);
    }
 
    private TransportConfiguration generateTC(String debug)
@@ -1305,9 +1331,12 @@ public class DiscoveryTest extends UnitTestCase
                                            final InetAddress groupAddress,
                                            final int groupPort) throws Exception
    {
-      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null,
-                                    new UDPBroadcastGroupConfiguration(groupAddress.getHostAddress(), groupPort,
-                                                                       localAddress != null ? localAddress.getHostAddress() : null, localPort).createBroadcastEndpointFactory());
+      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastGroupConfiguration()
+         .setGroupAddress(groupAddress.getHostAddress())
+         .setGroupPort(groupPort)
+         .setLocalBindAddress(localAddress != null ? localAddress.getHostAddress() : null)
+         .setLocalBindPort(localPort)
+         .createBroadcastEndpointFactory());
    }
 
    private DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
@@ -1319,9 +1348,11 @@ public class DiscoveryTest extends UnitTestCase
    private DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
                                             final InetAddress groupAddress, final int groupPort, final long timeout, NotificationService notif) throws Exception
    {
-      return new DiscoveryGroup(nodeID, name, timeout,
-                                new UDPBroadcastGroupConfiguration(groupAddress.getHostAddress(), groupPort,
-                                                                   localBindAddress != null ? localBindAddress.getHostAddress() : null, -1).createBroadcastEndpointFactory(), notif);
+      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastGroupConfiguration()
+         .setGroupAddress(groupAddress.getHostAddress())
+         .setGroupPort(groupPort)
+         .setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : null)
+         .createBroadcastEndpointFactory(), notif);
    }
 
 

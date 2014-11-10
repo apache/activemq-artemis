@@ -33,6 +33,7 @@ import org.hornetq.core.config.Configuration;
 import org.hornetq.core.server.HornetQServer;
 import org.hornetq.core.settings.impl.AddressSettings;
 import org.hornetq.core.transaction.impl.XidImpl;
+import org.hornetq.ra.HornetQRAXAResource;
 import org.hornetq.tests.integration.IntegrationTestLogger;
 import org.hornetq.tests.util.ServiceTestBase;
 import org.hornetq.utils.UUIDGenerator;
@@ -69,10 +70,10 @@ public class BasicXaTest extends ServiceTestBase
       super.setUp();
 
       addressSettings.clear();
-      configuration = createDefaultConfig(true);
-      configuration.setSecurityEnabled(false);
-      configuration.setJournalMinFiles(2);
-      configuration.setPagingDirectory(getPageDir());
+      configuration = createDefaultConfig(true)
+         .setSecurityEnabled(false)
+         .setJournalMinFiles(2)
+         .setPagingDirectory(getPageDir());
 
       messagingService = createServer(false, configuration, -1, -1, addressSettings);
 
@@ -155,36 +156,22 @@ public class BasicXaTest extends ServiceTestBase
       assertNull("Acknowledge went through invalid XA Session", msg);
    }
 
-
    @Test
    public void testIsSameRM() throws Exception
    {
-      ServerLocator locator = createNettyNonHALocator();
-      ClientSessionFactory nettyFactory = createSessionFactory(locator);
-      validateRM(nettyFactory, nettyFactory);
-      validateRM(sessionFactory, sessionFactory);
-      validateRM(nettyFactory, sessionFactory);
-      locator.close();
-   }
 
-   private void validateRM(final ClientSessionFactory factory1, final ClientSessionFactory factory2) throws Exception
-   {
-      ClientSession session1 = factory1.createSession(true, false, false);
-      ClientSession session2 = factory2.createSession(true, false, false);
-
-      if (factory1 == factory2)
+      try (ServerLocator locator = createNettyNonHALocator();
+           ServerLocator locator2 = createNettyNonHALocator())
       {
-         Assert.assertTrue(session1.isSameRM(session2));
+         ClientSessionFactory nettyFactory = createSessionFactory(locator);
+         ClientSessionFactory nettyFactory2 = createSessionFactory(locator2);
+         ClientSession session1 = nettyFactory.createSession(true, false, false);
+         ClientSession session2 = nettyFactory2.createSession(true, false, false);
+         assertTrue(session1.isSameRM(session2));
+         HornetQRAXAResource hornetQRAXAResource = new HornetQRAXAResource(null, session2);
+         assertTrue(session1.isSameRM(hornetQRAXAResource));
       }
-      else
-      {
-         Assert.assertFalse(session1.isSameRM(session2));
-      }
-
-      session1.close();
-      session2.close();
    }
-
 
    @Test
    public void testXAInterleaveResourceSuspendWorkCommit() throws Exception
