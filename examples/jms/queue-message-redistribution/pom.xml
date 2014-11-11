@@ -77,7 +77,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.QueueMessageRedistributionExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.QueueMessageRedistributionExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                         <param>jnp://localhost:1199</param>

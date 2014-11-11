@@ -59,7 +59,7 @@ public class HornetQRAProperties extends ConnectionFactoryProperties implements 
     * Class used to locate the Transaction Manager.
     * Using JBoss5 as the default locator
     */
-   private String transactionManagerLocatorClass = "org.apache.activemq6.integration.jboss.tm.JBoss5TransactionManagerLocator;org.hornetq.integration.jboss.tm.JBoss4TransactionManagerLocator";
+   private String transactionManagerLocatorClass = "org.apache.activemq6.integration.jboss.tm.JBoss5TransactionManagerLocator;org.apache.activemq6.integration.jboss.tm.JBoss4TransactionManagerLocator";
 
    /**
     * Method used to locate the TM

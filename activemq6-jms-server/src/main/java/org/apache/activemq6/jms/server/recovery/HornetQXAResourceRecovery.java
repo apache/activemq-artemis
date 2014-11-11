@@ -29,19 +29,19 @@ import org.apache.activemq6.jms.server.HornetQJMSServerLogger;
  * To enable this add the following to the jbossts-properties file
  * <pre>
  * &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
- *                 value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.hornetq.core.remoting.impl.invm.InVMConnectorFactory"/&gt;
+ *                 value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory"/&gt;
  * </pre>
  * <p>
  * you'll need something like this if the HornetQ Server is remote
  * <pre>
  *      &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ2"
- *                  value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=5445"/&gt;
+ *                  value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=5445"/&gt;
  * </pre>
  * <p>
  * you'll need something like this if the HornetQ Server is remote and has failover configured
  * <pre>
  *             &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ2"
- *                       value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=5445;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=5446"/&gt;
+ *                       value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=5445;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=5446"/&gt;
  * </pre>
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

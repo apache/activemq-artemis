@@ -156,7 +156,7 @@
         <!--
 			com.arjuna.ats.internal.jta.transaction.jts.UserTransactionImple
 			-->
-<property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ" value="org.hornetq.api.jms.server.recovery.HornetQXAResourceRecovery;adaptor1"/>
+<property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ" value="org.apache.activemq6.api.jms.server.recovery.HornetQXAResourceRecovery;adaptor1"/>
 
 
 

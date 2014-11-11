@@ -90,7 +90,7 @@
         <section>
             <title>异步发送通知</title>
             <para>如果使用核心API，你需要实现<literal
-                    >org.hornetq.api.core.client.SendAcknowledgementHandler</literal>接口并将一个实例设置到
+                    >org.apache.activemq6.api.core.client.SendAcknowledgementHandler</literal>接口并将一个实例设置到
                     <literal>ClientSession</literal>中。</para>
             <para>然后使用这个<literal>ClientSession</literal>发送消息。当消息到达服务器后，服务器向客户端异步地发送通知，
                 并在客户端调用你的SendAcknowledgementHandler实例的<literal

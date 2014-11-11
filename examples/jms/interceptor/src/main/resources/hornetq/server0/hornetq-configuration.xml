@@ -12,21 +12,21 @@
 
 
    <remoting-incoming-interceptors>
-      <class-name>org.hornetq.jms.example.SimpleInterceptor</class-name>
+      <class-name>org.apache.activemq6.jms.example.SimpleInterceptor</class-name>
    </remoting-incoming-interceptors>
 
    <!-- Connectors -->
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>         
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>         
       </connector>
    </connectors>
    
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>         
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>         
       </acceptor>
    </acceptors>
 

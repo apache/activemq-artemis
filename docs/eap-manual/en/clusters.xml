@@ -221,14 +221,14 @@
    &lt;deployment xmlns="urn:jboss:bean-deployer:2.0">
 
       &lt;!-- The core configuration -->
-      &lt;bean name="BackupConfiguration" class="org.hornetq.core.config.impl.FileConfiguration">
+      &lt;bean name="BackupConfiguration" class="org.apache.activemq6.core.config.impl.FileConfiguration">
          &lt;property
             name="configurationUrl">${jboss.server.home.url}/deploy/hornetq-backup1/hornetq-configuration.xml&lt;/property>
       &lt;/bean>
 
 
       &lt;!-- The core server -->
-      &lt;bean name="BackupHornetQServer" class="org.hornetq.core.server.impl.HornetQServerImpl">
+      &lt;bean name="BackupHornetQServer" class="org.apache.activemq6.core.server.impl.HornetQServerImpl">
          &lt;constructor>
             &lt;parameter>
                &lt;inject bean="BackupConfiguration"/>
@@ -245,7 +245,7 @@
       &lt;/bean>
 
       &lt;!-- The JMS server -->
-      &lt;bean name="BackupJMSServerManager" class="org.hornetq.jms.server.impl.JMSServerManagerImpl">
+      &lt;bean name="BackupJMSServerManager" class="org.apache.activemq6.jms.server.impl.JMSServerManagerImpl">
          &lt;constructor>
             &lt;parameter>
                &lt;inject bean="BackupHornetQServer"/>
@@ -288,7 +288,7 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 
-      &lt;jmx-domain>org.hornetq.backup1&lt;/jmx-domain>
+      &lt;jmx-domain>org.apache.activemq6.backup1&lt;/jmx-domain>
 
       &lt;clustered>true&lt;/clustered>
 
@@ -310,13 +310,13 @@
 
       &lt;connectors>
          &lt;connector name="netty-connector">
-            &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
+            &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
             &lt;param key="host" value="${jboss.bind.address:localhost}"/>
             &lt;param key="port" value="${hornetq.remoting.backup.netty.port:5446}"/>
          &lt;/connector>
 
          &lt;connector name="in-vm">
-            &lt;factory-class>org.hornetq.core.remoting.impl.invm.InVMConnectorFactory&lt;/factory-class>
+            &lt;factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory&lt;/factory-class>
             &lt;param key="server-id" value="${hornetq.server-id:0}"/>
          &lt;/connector>
 
@@ -324,7 +324,7 @@
 
       &lt;acceptors>
          &lt;acceptor name="netty">
-            &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+            &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
             &lt;param key="host" value="${jboss.bind.address:localhost}"/>
             &lt;param key="port" value="${hornetq.remoting.backup.netty.port:5446}"/>
          &lt;/acceptor>
@@ -387,7 +387,7 @@
                   <literal>jmx-domain</literal>
                   attribute, this is used when
                   adding objects, such as the HornetQ server and JMS server to jmx, we change this from the default
-                  <literal>org.hornetq</literal>
+                  <literal>org.apache.activemq6</literal>
                   to avoid naming clashes with the live server
                </para>
                <para>
@@ -529,7 +529,7 @@
                as in the last diagram. Then simply edit the <literal>jms-ds.xml</literal> and change the following lines to
             </para>
             <programlisting>
-   &lt;config-property name="ConnectorClassName" type="java.lang.String">org.hornetq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property>
+   &lt;config-property name="ConnectorClassName" type="java.lang.String">org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property>
    &lt;config-property name="ConnectionParameters" type="java.lang.String">host=127.0.0.1;port=5446&lt;/config-property>
             </programlisting>
             <para>
@@ -541,7 +541,7 @@
       &lt;description>The transport type&lt;/description>
       &lt;config-property-name>ConnectorClassName&lt;/config-property-name>
       &lt;config-property-type>java.lang.String&lt;/config-property-type>
-      &lt;config-property-value>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property-value>
+      &lt;config-property-value>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property-value>
    &lt;/config-property>
    &lt;config-property>
       &lt;description>The transport configuration. These values must be in the form of key=val;key=val;&lt;/description>

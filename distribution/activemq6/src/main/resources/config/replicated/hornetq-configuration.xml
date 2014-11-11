@@ -18,13 +18,13 @@
 
    <connectors>      
       <connector name="netty">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
          <param key="port"  value="${hornetq.remoting.netty.port:5445}"/>
       </connector>
       
       <connector name="netty-throughput">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
          <param key="port"  value="${hornetq.remoting.netty.batch.port:5455}"/>
          <param key="batch-delay" value="50"/>
@@ -33,13 +33,13 @@
 
    <acceptors>
       <acceptor name="netty">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
          <param key="port"  value="${hornetq.remoting.netty.port:5445}"/>
       </acceptor>
       
       <acceptor name="netty-throughput">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
          <param key="port"  value="${hornetq.remoting.netty.batch.port:5455}"/>
          <param key="batch-delay" value="50"/>

@@ -190,16 +190,16 @@
             changing the class for the <literal>HornetQSecurityManager</literal> bean.</para>
         <para>Let's take a look at a snippet from the default beans file:</para>
         <programlisting>           
-&lt;bean name="HornetQSecurityManager" class="org.hornetq.spi.core.security.HornetQSecurityManagerImpl">
+&lt;bean name="HornetQSecurityManager" class="org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl">
    &lt;start ignored="true"/>
    &lt;stop ignored="true"/>
 &lt;/bean></programlisting>
-        <para>The class <literal>org.hornetq.spi.core.security.HornetQSecurityManagerImpl</literal>
+        <para>The class <literal>org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl</literal>
             is the default security manager that is used by the standalone server.</para>
         <para>HornetQ ships with two other security manager implementations you can use
             off-the-shelf; one a JAAS security manager and another for integrating with JBoss
             Application Sever security, alternatively you could write your own implementation by
-            implementing the <literal>org.hornetq.spi.core.security.HornetQSecurityManager</literal>
+            implementing the <literal>org.apache.activemq6.spi.core.security.HornetQSecurityManager</literal>
             interface, and specifying the classname of your implementation in the file <literal
             >hornetq-beans.xml</literal> (or <literal>hornetq-jboss-beans.xml</literal> if
             you're running JBoss Application Server).</para>
@@ -214,11 +214,11 @@
             you need to specify the security manager as a <literal>JAASSecurityManager</literal> in
             the beans file. Here's an example:</para>
         <programlisting>
-&lt;bean name="HornetQSecurityManager" class="org.hornetq.integration.jboss.security.JAASSecurityManager">
+&lt;bean name="HornetQSecurityManager" class="org.apache.activemq6.integration.jboss.security.JAASSecurityManager">
    &lt;start ignored="true"/>
    &lt;stop ignored="true"/>
 
-   &lt;property name="ConfigurationName">org.hornetq.jms.example.ExampleLoginModule&lt;/property>
+   &lt;property name="ConfigurationName">org.apache.activemq6.jms.example.ExampleLoginModule&lt;/property>
    &lt;property name="Configuration">
       &lt;inject bean="ExampleConfiguration"/>
    &lt;/property>
@@ -253,7 +253,7 @@
             Application server. This allows tight integration with the JBoss Application Server's
             security model.</para>
         <para>The class name of this security manager is <literal
-                >org.hornetq.integration.jboss.security.JBossASSecurityManager</literal></para>
+                >org.apache.activemq6.integration.jboss.security.JBossASSecurityManager</literal></para>
         <para>Take a look at one of the default <literal>hornetq-jboss-beans.xml</literal> files for
             JBoss Application Server that are bundled in the distribution for an example of how this
             is configured.</para>

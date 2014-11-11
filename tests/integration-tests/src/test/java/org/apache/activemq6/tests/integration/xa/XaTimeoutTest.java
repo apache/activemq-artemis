@@ -711,7 +711,7 @@ public class XaTimeoutTest extends UnitTestCase
       {
 
          /* (non-Javadoc)
-          * @see org.apache.activemq6.api.core.Interceptor#intercept(org.hornetq.core.protocol.core.Packet, org.hornetq.spi.core.protocol.RemotingConnection)
+          * @see org.apache.activemq6.api.core.Interceptor#intercept(org.apache.activemq6.core.protocol.core.Packet, org.apache.activemq6.spi.core.protocol.RemotingConnection)
           */
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException

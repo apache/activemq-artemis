@@ -27,8 +27,8 @@
      <p>HornetQ can use a JAAS security manager by specifying it in <a href="server0/hornetq-beans.xml">hornetq-beans.xml</a>:</p>
      <pre class="prettyprint">
              &lt;!-- The security manager using JAAS --&gt;
-             &lt;bean name=&quot;HornetQSecurityManager&quot; class=&quot;org.hornetq.integration.jboss.security.JAASSecurityManager&quot;&gt;
-             &lt;property name=&quot;configurationName&quot;&gt;org.hornetq.jms.example.ExampleLoginModule&lt;/property&gt;
+             &lt;bean name=&quot;HornetQSecurityManager&quot; class=&quot;org.apache.activemq6.integration.jboss.security.JAASSecurityManager&quot;&gt;
+             &lt;property name=&quot;configurationName&quot;&gt;org.apache.activemq6.jms.example.ExampleLoginModule&lt;/property&gt;
              &lt;property name=&quot;configuration&quot;&gt;
              &lt;inject bean=&quot;ExampleConfiguration&quot;/&gt;
              &lt;/property&gt;
@@ -39,9 +39,9 @@
 
              &lt;!-- JAAS uses a simple LoginModule where the user credentials and roles are
              specified as options in the constructor --&gt;
-             &lt;bean name=&quot;ExampleConfiguration&quot; class=&quot;org.hornetq.jms.example.ExampleConfiguration&quot;&gt;
+             &lt;bean name=&quot;ExampleConfiguration&quot; class=&quot;org.apache.activemq6.jms.example.ExampleConfiguration&quot;&gt;
              &lt;constructor&gt;
-             &lt;parameter&gt;org.hornetq.jms.example.ExampleLoginModule&lt;/parameter&gt;
+             &lt;parameter&gt;org.apache.activemq6.jms.example.ExampleLoginModule&lt;/parameter&gt;
              &lt;parameter&gt;
              &lt;map class=&quot;java.util.HashMap&quot; keyClass=&quot;java.lang.String&quot;
              valueClass=&quot;java.lang.String&quot;&gt;
@@ -63,7 +63,7 @@
              &lt;/bean&gt;
 
              &lt;!-- the CallbackHandler does nothing as we don&apos;t have any user interaction --&gt;
-             &lt;bean name=&quot;ExampleCallbackHandler&quot; class=&quot;org.hornetq.jms.example.ExampleCallbackHandler&quot;
+             &lt;bean name=&quot;ExampleCallbackHandler&quot; class=&quot;org.apache.activemq6.jms.example.ExampleCallbackHandler&quot;
              /&gt;
      </pre>
      

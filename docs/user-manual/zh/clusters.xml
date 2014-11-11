@@ -340,9 +340,9 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
             </listitem>
         </itemizedlist>
         <para>你可以实现自己的策略。只需要实现接口<literal
-                >org.hornetq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy</literal>即可。</para>
+                >org.apache.activemq6.api.core.client.loadbalance.ConnectionLoadBalancingPolicy</literal>即可。</para>
         <para>根据你使用的是JMS还是核心接口，指定负载均衡的方法是有所不同的。如果你不指定策略，默认的策略是<literal
-                >org.hornetq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>.</para>
+                >org.apache.activemq6.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>.</para>
         <para>如果使用的是JMS，并且JMS连接工厂注册到JNDI，则你需要在<literal>hornetq-jms.xml</literal>文件中定义策略，如：
             <programlisting>
 &lt;connection-factory name="ConnectionFactory"&gt;
@@ -351,7 +351,7 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
         &lt;entry name="ConnectionFactory"/&gt;
     &lt;/entries&gt;
     &lt;connection-load-balancing-policy-class-name&gt;
-    org.hornetq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
+    org.apache.activemq6.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
     &lt;/connection-load-balancing-policy-class-name&gt;
 &lt;/connection-factory&gt;            
         </programlisting>上面的配置将部署一个连接工厂，它的连接负载均衡策略是随机策略。</para>

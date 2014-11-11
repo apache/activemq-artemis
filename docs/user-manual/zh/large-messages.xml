@@ -99,7 +99,7 @@ factory.setMinLargeMessageSize(25 * 1024);</programlisting>
             <para>下表列出了<literal>ClientMessage</literal>上可以使用的方法。
                   通过相应的对象属性也可以在JMS中应用。</para>
             <table frame="topbot" id="large-messages.ClientMessageAPI">
-                <title>org.hornetq.api.core.client.ClientMessage API</title>
+                <title>org.apache.activemq6.api.core.client.ClientMessage API</title>
                 <tgroup cols="3">
                     <colspec colname="Name" colnum="1"/>
                     <colspec colname="Descr" colnum="2"/>

@@ -36,7 +36,7 @@
             parameter set to have <literal>stomp</literal>:</para>
 <programlisting>
 &lt;acceptor name="stomp-acceptor">
-   &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+   &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
    &lt;param key="protocols"  value="STOMP"/>
    &lt;param key="port"  value="61613"/>
 &lt;/acceptor></programlisting>
@@ -90,7 +90,7 @@
         </para>
 <programlisting>
 &lt;acceptor name="stomp-acceptor">
-   &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+   &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
    &lt;param key="protocols"  value="STOMP"/>
    &lt;param key="port"  value="61613"/>
    &lt;param key="connection-ttl"  value="20000"/>
@@ -156,7 +156,7 @@ destination:jms.topic.stocks
             just set the <literal>stomp-enable-message-id</literal> to true. For example:</para>
 <programlisting>
 &lt;acceptor name="stomp-acceptor">
-   &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+   &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
    &lt;param key="protocols" value="STOMP"/>
    &lt;param key="port" value="61613"/>
    &lt;param key="stomp-enable-message-id" value="true"/>
@@ -178,7 +178,7 @@ hq-message-id : STOMP12345</programlisting>
             This attribute can be configured inside a stomp acceptor, as a parameter. For example: </para>
 <programlisting>
    &lt;acceptor name="stomp-acceptor">
-   &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+   &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
    &lt;param key="protocols" value="STOMP"/>
    &lt;param key="port" value="61613"/>
    &lt;param key="stomp-min-large-message-size" value="10240"/>
@@ -203,7 +203,7 @@ hq-message-id : STOMP12345</programlisting>
             parameter set to <literal>stomp_ws</literal>:</para>
          <programlisting>
 &lt;acceptor name="stomp-ws-acceptor">
-   &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+   &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
    &lt;param key="protocols" value="STOMP_WS"/>
    &lt;param key="port" value="61614"/>
 &lt;/acceptor></programlisting>
@@ -248,7 +248,7 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
         specification. To enable AMQP you must configure a Netty Acceptor to receive AMQP clients, like so:</para>
         <programlisting>
 &lt;acceptor name="stomp-acceptor">
-&lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+&lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
 &lt;param key="protocols"  value="AMQP"/>
 &lt;param key="port"  value="5672"/>
 &lt;/acceptor>
@@ -292,7 +292,7 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
         you must configure a Netty Acceptor, like so:</para>
         <programlisting>
 &lt;acceptor name="openwire-acceptor">
-&lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+&lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
 &lt;param key="protocols"  value="OPENWIRE"/>
 &lt;param key="port"  value="61616"/>
 &lt;/acceptor>

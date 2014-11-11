@@ -128,11 +128,11 @@ finally
                 a warning similar to the following in the logs (If you are using JMS the warning
                 will involve a JMS connection not a client session):</para>
             <programlisting>
-[Finalizer] 20:14:43,244 WARNING [org.hornetq.core.client.impl.DelegatingSession]  I'm closing a ClientSession you left open. Please make sure you close all ClientSessions explicitly before let
+[Finalizer] 20:14:43,244 WARNING [org.apache.activemq6.core.client.impl.DelegatingSession]  I'm closing a ClientSession you left open. Please make sure you close all ClientSessions explicitly before let
 ting them go out of scope!
-[Finalizer] 20:14:43,244 WARNING [org.hornetq.core.client.impl.DelegatingSession]  The session you didn't close was created here:
+[Finalizer] 20:14:43,244 WARNING [org.apache.activemq6.core.client.impl.DelegatingSession]  The session you didn't close was created here:
 java.lang.Exception
-   at org.hornetq.core.client.impl.DelegatingSession.&lt;init>(DelegatingSession.java:83)
+   at org.apache.activemq6.core.client.impl.DelegatingSession.&lt;init>(DelegatingSession.java:83)
    at org.acme.yourproject.YourClass (YourClass.java:666)</programlisting>
             <para>HornetQ will then close the connection / client session for you.</para>
             <para>Note that the log will also tell you the exact line of your user code where you
@@ -177,22 +177,22 @@ java.lang.Exception
             are:</para>
         <itemizedlist>
             <listitem>
-                <para><literal>org.hornetq.core.protocol.core.impl.wireformat.RollbackMessage</literal></para>
+                <para><literal>org.apache.activemq6.core.protocol.core.impl.wireformat.RollbackMessage</literal></para>
             </listitem>
             <listitem>
-               <para><literal>org.hornetq.core.protocol.core.impl.wireformat.SessionCloseMessage</literal></para>
+               <para><literal>org.apache.activemq6.core.protocol.core.impl.wireformat.SessionCloseMessage</literal></para>
             </listitem>
             <listitem>
-               <para><literal>org.hornetq.core.protocol.core.impl.wireformat.SessionCommitMessage</literal></para>
+               <para><literal>org.apache.activemq6.core.protocol.core.impl.wireformat.SessionCommitMessage</literal></para>
             </listitem>
             <listitem>
-               <para><literal>org.hornetq.core.protocol.core.impl.wireformat.SessionXACommitMessage</literal></para>
+               <para><literal>org.apache.activemq6.core.protocol.core.impl.wireformat.SessionXACommitMessage</literal></para>
             </listitem>
             <listitem>
-                <para><literal>org.hornetq.core.protocol.core.impl.wireformat.SessionXAPrepareMessage</literal></para>
+                <para><literal>org.apache.activemq6.core.protocol.core.impl.wireformat.SessionXAPrepareMessage</literal></para>
             </listitem>
             <listitem>
-               <para><literal>org.hornetq.core.protocol.core.impl.wireformat.SessionXARollbackMessage</literal></para>
+               <para><literal>org.apache.activemq6.core.protocol.core.impl.wireformat.SessionXARollbackMessage</literal></para>
             </listitem>
         </itemizedlist>
         <para>To disable asynchronous connection execution, set the parameter

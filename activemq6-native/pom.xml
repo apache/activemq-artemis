@@ -108,7 +108,7 @@
                      <libraries>
                         <library>
                            <type>jni</type>
-                           <narSystemPackage>org.hornetq.core.libaio</narSystemPackage>
+                           <narSystemPackage>org.apache.activemq6.core.libaio</narSystemPackage>
                         </library>
                      </libraries>
                   </configuration>

@@ -69,7 +69,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.ColocatedFailoverScaleDownExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.ColocatedFailoverScaleDownExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                         <param>jnp://localhost:1199</param>

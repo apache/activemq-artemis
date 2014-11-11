@@ -17,7 +17,7 @@ import static org.apache.activemq6.api.core.HornetQExceptionType.INTERCEPTOR_REJ
 
 /**
  * An outgoing interceptor returned false.
- * @see org.apache.activemq6.api.core.client.ServerLocator#addOutgoingInterceptor(org.hornetq.api.core.Interceptor)
+ * @see org.apache.activemq6.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq6.api.core.Interceptor)
  * @author Justin Bertram
  */
 // XXX I doubt any reader will make much sense of this Javadoc's text.

@@ -27,7 +27,7 @@
       <title>实现拦截器</title>
       <para>拦截器必须要实现<literal>Interceptor接口</literal>：</para>
       <programlisting>
-package org.hornetq.api.core.interceptor;
+package org.apache.activemq6.api.core.interceptor;
 
 public interface Interceptor
 {   
@@ -51,8 +51,8 @@ public interface Interceptor
       <para>拦截器的配置在<literal>hornetq-configuration.xml</literal>文件中：</para>
       <programlisting>
 &lt;remoting-interceptors&gt;
-   &lt;class-name&gt;org.hornetq.jms.example.LoginInterceptor&lt;/class-name&gt;
-   &lt;class-name&gt;org.hornetq.jms.example.AdditionalPropertyInterceptor&lt;/class-name&gt;
+   &lt;class-name&gt;org.apache.activemq6.jms.example.LoginInterceptor&lt;/class-name&gt;
+   &lt;class-name&gt;org.apache.activemq6.jms.example.AdditionalPropertyInterceptor&lt;/class-name&gt;
 &lt;/remoting-interceptors&gt;
          </programlisting>
       <para>拦截器的类（以及它们依赖的类）必须要在服务器的classpath中，否则不能被正常初始化及调用。</para>

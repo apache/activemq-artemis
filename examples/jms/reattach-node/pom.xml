@@ -45,7 +45,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.ReattachExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.ReattachExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

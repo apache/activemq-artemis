@@ -34,7 +34,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
     * This field is only used at the client side.
     *
     * @see org.apache.activemq6.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
-    * @see org.apache.activemq6.api.core.client.ClientProducer#send(org.hornetq.api.core.SimpleString, org.hornetq.api.core.Message, SendAcknowledgementHandler)
+    * @see org.apache.activemq6.api.core.client.ClientProducer#send(org.apache.activemq6.api.core.SimpleString, org.apache.activemq6.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
 

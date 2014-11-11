@@ -1565,7 +1565,7 @@ public class RandomReattachTest extends UnitTestCase
       private final ArrayList<AssertionError> errors = new ArrayList<AssertionError>();
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.MessageHandler#onMessage(org.hornetq.api.core.client.ClientMessage)
+       * @see org.apache.activemq6.api.core.client.MessageHandler#onMessage(org.apache.activemq6.api.core.client.ClientMessage)
        */
       public void onMessage(ClientMessage message)
       {

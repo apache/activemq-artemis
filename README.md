@@ -4,7 +4,7 @@ If you need information about the HornetQ project please go to
 
 http://community.jboss.org/wiki/HornetQ
 
-http://www.jboss.org/hornetq/
+http://www.jboss.org.apache.activemq6/
 
 This file describes some minimum 'stuff one needs to know' to get
 started coding in this project.

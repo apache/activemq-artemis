@@ -49,7 +49,7 @@ rem set JMX_OPTS=-Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.j
 
 set JVM_FLAGS=%JVM_FLAGS% %JMX_OPTS% -Dhornetq.home="%HORNETQ_HOME%" -classpath "%HORNETQ_HOME%\lib\*"
 
-"%_JAVACMD%" %JVM_FLAGS% org.hornetq.cli.HornetQ %*
+"%_JAVACMD%" %JVM_FLAGS% org.apache.activemq6.cli.HornetQ %*
 
 :END
 endlocal

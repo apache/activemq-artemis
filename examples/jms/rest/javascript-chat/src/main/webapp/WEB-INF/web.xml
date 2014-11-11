@@ -9,11 +9,11 @@
 
 
     <listener>
-        <listener-class>org.hornetq.rest.integration.HornetqBootstrapListener</listener-class>
+        <listener-class>org.apache.activemq6.rest.integration.HornetqBootstrapListener</listener-class>
     </listener>
 
     <listener>
-        <listener-class>org.hornetq.rest.integration.RestMessagingBootstrapListener</listener-class>
+        <listener-class>org.apache.activemq6.rest.integration.RestMessagingBootstrapListener</listener-class>
     </listener>
 
     <filter>

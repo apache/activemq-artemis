@@ -26,15 +26,15 @@
         方法，将日志输出到屏幕终端（Console）及文件中。请访问Sun公司的相关网址来进一步了解如何配置使用JUL。</para>
     <para>你可以通过编程或定义系统变量的方法来配置不同的日志代理（Logging Delegate）。</para>
     <para>采用编程方法，只需要调用方法：
-        <programlisting>org.hornetq.core.logging.Logger.setDelegateFactory(new Log4jLogDelegateFactory())</programlisting></para>
+        <programlisting>org.apache.activemq6.core.logging.Logger.setDelegateFactory(new Log4jLogDelegateFactory())</programlisting></para>
     <para>其中<literal>Log4jLogDelegateFactory</literal>实现了<literal
-            >org.hornetq.spi.core.logging.LogDelegateFactory </literal>接口。</para>
+            >org.apache.activemq6.spi.core.logging.LogDelegateFactory </literal>接口。</para>
     <para>如果要使用系统变量方法，则需要设置变量<literal
-            >org.hornetq.logger-delegate-factory-class-name</literal>为相应的代理工厂，即
-        <programlisting>-Dorg.hornetq.logger-delegate-factory-class-name=org.hornetq.integration.logging.Log4jLogDelegateFactory</programlisting></para>
+            >org.apache.activemq6.logger-delegate-factory-class-name</literal>为相应的代理工厂，即
+        <programlisting>-Dorg.apache.activemq6.logger-delegate-factory-class-name=org.apache.activemq6.integration.logging.Log4jLogDelegateFactory</programlisting></para>
     <para>上面的例子可以看出HornetQ提供了一些代理工厂以方便用户使用，它们是：<orderedlist
-                    ><listitem><para>org.hornetq.core.logging.impl.JULLogDelegateFactory - 默认的JUL日志代理工厂。</para>
-                </listitem><listitem><para>org.hornetq.integration.logging.Log4jLogDelegateFactory
+                    ><listitem><para>org.apache.activemq6.core.logging.impl.JULLogDelegateFactory - 默认的JUL日志代理工厂。</para>
+                </listitem><listitem><para>org.apache.activemq6.integration.logging.Log4jLogDelegateFactory
                     - Log4J的日志代理工厂。</para></listitem></orderedlist></para>
     <para>如果在客户端使用JUL代理，注意要提供<literal>logging.properties</literal>文件，并且在客户端启动之前设置<literal
             >java.util.logging.config.file</literal>属性。</para>

@@ -3110,7 +3110,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.hornetq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
        */
       public void decode(final HornetQBuffer buffer)
       {
@@ -3118,7 +3118,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.hornetq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
        */
       public void encode(final HornetQBuffer buffer)
       {
@@ -3149,7 +3149,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.hornetq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
        */
       public void decode(final HornetQBuffer buffer)
       {
@@ -3157,7 +3157,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.hornetq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
        */
       public void encode(final HornetQBuffer buffer)
       {
@@ -3283,7 +3283,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.hornetq.api.core.HornetQBuffer)
+       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.apache.activemq6.api.core.HornetQBuffer)
        */
       @Override
       public void encode(HornetQBuffer buffer)
@@ -3293,7 +3293,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.hornetq.api.core.HornetQBuffer)
+       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.apache.activemq6.api.core.HornetQBuffer)
        */
       @Override
       public void decode(HornetQBuffer buffer)

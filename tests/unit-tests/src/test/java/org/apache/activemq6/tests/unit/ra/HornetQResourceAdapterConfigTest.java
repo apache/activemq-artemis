@@ -44,7 +44,7 @@ public class HornetQResourceAdapterConfigTest extends UnitTestCase
       "<config-property>\n" +
       "         <description>\n" +
       "            The transport type. Multiple connectors can be configured by using a comma separated list,\n" +
-      "            i.e. org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory,org.hornetq.core.remoting.impl.invm.InVMConnectorFactory.\n" +
+      "            i.e. org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory,org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory.\n" +
       "         </description>\n" +
       "         <config-property-name>ConnectorClassName</config-property-name>\n" +
       "         <config-property-type>java.lang.String</config-property-type>\n" +

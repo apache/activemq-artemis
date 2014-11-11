@@ -187,7 +187,7 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
                 <literal>hornetq-beans.xml</literal> by setting properties on the <literal
                 >JNDIServer</literal> bean:</para>
         <programlisting>
-&lt;bean name="StandaloneServer" class="org.hornetq.jms.server.impl.StandaloneNamingServer">
+&lt;bean name="StandaloneServer" class="org.apache.activemq6.jms.server.impl.StandaloneNamingServer">
    &lt;constructor>
       &lt;parameter>
          &lt;inject bean="HornetQServer"/>

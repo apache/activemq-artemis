@@ -47,7 +47,7 @@
 
          <li>We look up the EJB</li>
          <pre class="prettyprint">
-            SendMessageService service = (SendMessageService) initialContext.lookup("ejb:/test//SendMessageBean!org.hornetq.javaee.example.server.SendMessageService");
+            SendMessageService service = (SendMessageService) initialContext.lookup("ejb:/test//SendMessageBean!org.apache.activemq6.javaee.example.server.SendMessageService");
          </pre>
 
          <li>We create the DB table which will be updated if it does not already exist</li>

@@ -24,7 +24,7 @@ import org.apache.activemq6.api.core.HornetQBuffer;
 public interface BufferDecoder
 {
    /**
-    * called by the remoting system prior to {@link org.apache.activemq6.spi.core.remoting.BufferHandler#bufferReceived(Object, org.hornetq.api.core.HornetQBuffer)}.
+    * called by the remoting system prior to {@link org.apache.activemq6.spi.core.remoting.BufferHandler#bufferReceived(Object, org.apache.activemq6.api.core.HornetQBuffer)}.
     * <p>
     * The implementation should return true if there is enough data in the buffer to decode. otherwise false.
     *                  * @param buffer the buffer

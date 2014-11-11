@@ -120,7 +120,7 @@
         </note>
         <para>所有配置文件中的参数都可以用系统变量来定义其值。以下用一个connector的配置来说明：</para>
         <programlisting>&lt;connector name="netty">
-         &lt;factory-class>org.hornetq.integration.transports.netty.NettyConnectorFactory
+         &lt;factory-class>org.apache.activemq6.integration.transports.netty.NettyConnectorFactory
            &lt;/factory-class>
          &lt;param key="host"  value="${hornetq.remoting.netty.host:localhost}" type="String"/>
          &lt;param key="port"  value="${hornetq.remoting.netty.port:5445}" type="Integer"/>
@@ -165,18 +165,18 @@
 &lt;/bean&gt; 
 
 &lt;!-- The core configuration --&gt;
-&lt;bean name="Configuration" class="org.hornetq.core.config.impl.FileConfiguration"&gt;
+&lt;bean name="Configuration" class="org.apache.activemq6.core.config.impl.FileConfiguration"&gt;
 &lt;/bean&gt;
 
 &lt;!-- The security manager --&gt;
 &lt;bean name="HornetQSecurityManager" 
-      class="org.hornetq.spi.core.security.HornetQSecurityManagerImpl"&gt;
+      class="org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl"&gt;
    &lt;start ignored="true"/&gt;
    &lt;stop ignored="true"/&gt;
 &lt;/bean&gt;
 
 &lt;!-- The core server --&gt;
-&lt;bean name="HornetQServer" class="org.hornetq.core.server.impl.HornetQServerImpl"&gt;
+&lt;bean name="HornetQServer" class="org.apache.activemq6.core.server.impl.HornetQServerImpl"&gt;
    &lt;start ignored="true"/&gt;
    &lt;stop ignored="true"/&gt;  
    &lt;constructor&gt;
@@ -194,7 +194,7 @@
 
 &lt;!-- The JMS server --&gt;
 &lt;bean name="JMSServerManager" 
-      class="org.hornetq.jms.server.impl.JMSServerManagerImpl"&gt;
+      class="org.apache.activemq6.jms.server.impl.JMSServerManagerImpl"&gt;
    &lt;constructor&gt;         
       &lt;parameter&gt;
          &lt;inject bean="HornetQServer"/&gt;
@@ -247,29 +247,29 @@
             <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;server&gt;
 
-   &lt;mbean code="org.hornetq.service.HornetQFileConfigurationService"
-      name="org.hornetq:service=HornetQFileConfigurationService"&gt;
+   &lt;mbean code="org.apache.activemq6.service.HornetQFileConfigurationService"
+      name="org.apache.activemq6:service=HornetQFileConfigurationService"&gt;
    &lt;/mbean&gt;
 
-   &lt;mbean code="org.hornetq.service.JBossASSecurityManagerService"
-      name="org.hornetq:service=JBossASSecurityManagerService"&gt;
+   &lt;mbean code="org.apache.activemq6.service.JBossASSecurityManagerService"
+      name="org.apache.activemq6:service=JBossASSecurityManagerService"&gt;
    &lt;/mbean&gt;
 
-   &lt;mbean code="org.hornetq.service.HornetQStarterService" 
-      name="org.hornetq:service=HornetQStarterService"&gt;
+   &lt;mbean code="org.apache.activemq6.service.HornetQStarterService" 
+      name="org.apache.activemq6:service=HornetQStarterService"&gt;
       &lt;!--let's let the JMS Server start us--&gt;
          &lt;attribute name="Start"&gt;false&lt;/attribute&gt;
 
       &lt;depends optional-attribute-name="SecurityManagerService"
-         proxy-type="attribute"&gt;org.hornetq:service=JBossASSecurityManagerService&lt;/depends&gt;
+         proxy-type="attribute"&gt;org.apache.activemq6:service=JBossASSecurityManagerService&lt;/depends&gt;
       &lt;depends optional-attribute-name="ConfigurationService"
-         proxy-type="attribute"&gt;org.hornetq:service=HornetQFileConfigurationService&lt;/depends&gt;
+         proxy-type="attribute"&gt;org.apache.activemq6:service=HornetQFileConfigurationService&lt;/depends&gt;
    &lt;/mbean&gt;
 
-   &lt;mbean code="org.hornetq.service.HornetQJMSStarterService"
-      name="org.hornetq:service=HornetQJMSStarterService"&gt;
+   &lt;mbean code="org.apache.activemq6.service.HornetQJMSStarterService"
+      name="org.apache.activemq6:service=HornetQJMSStarterService"&gt;
       &lt;depends optional-attribute-name="HornetQServer"
-         proxy-type="attribute"&gt;org.hornetq:service=HornetQStarterService&lt;/depends&gt;
+         proxy-type="attribute"&gt;org.apache.activemq6:service=HornetQStarterService&lt;/depends&gt;
    &lt;/mbean&gt;
    
 &lt;/server&gt;

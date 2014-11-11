@@ -60,7 +60,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.InstantiateConnectionFactoryExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.InstantiateConnectionFactoryExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

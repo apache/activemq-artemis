@@ -67,7 +67,7 @@
    &lt;forwarding-address>jms.queue.priceForwarding&lt;/forwarding-address>
    &lt;filter string="office='New York'"/>
    &lt;transformer-class-name>
-      org.hornetq.jms.example.AddForwardingTimeTransformer
+      org.apache.activemq6.jms.example.AddForwardingTimeTransformer
    &lt;/transformer-class-name>
    &lt;exclusive>true&lt;/exclusive>
 &lt;/divert></programlisting>

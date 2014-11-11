@@ -557,7 +557,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.SequentialFile#renameTo(org.hornetq.core.journal.SequentialFile)
+       * @see org.apache.activemq6.core.journal.SequentialFile#renameTo(org.apache.activemq6.core.journal.SequentialFile)
        */
       public void renameTo(final String newFileName) throws Exception
       {
@@ -601,7 +601,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.hornetq.spi.core.remoting.HornetQBuffer, boolean, org.hornetq.core.journal.IOCallback)
+       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.apache.activemq6.spi.core.remoting.HornetQBuffer, boolean, org.apache.activemq6.core.journal.IOCallback)
        */
       public void write(final HornetQBuffer bytes, final boolean sync, final IOAsyncTask callback) throws Exception
       {
@@ -612,7 +612,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.hornetq.spi.core.remoting.HornetQBuffer, boolean)
+       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.apache.activemq6.spi.core.remoting.HornetQBuffer, boolean)
        */
       public void write(final HornetQBuffer bytes, final boolean sync) throws Exception
       {
@@ -622,7 +622,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.hornetq.core.journal.EncodingSupport, boolean, org.hornetq.core.journal.IOCompletion)
+       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.apache.activemq6.core.journal.EncodingSupport, boolean, org.apache.activemq6.core.journal.IOCompletion)
        */
       public void write(final EncodingSupport bytes, final boolean sync, final IOAsyncTask callback) throws Exception
       {
@@ -633,7 +633,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.hornetq.core.journal.EncodingSupport, boolean)
+       * @see org.apache.activemq6.core.journal.SequentialFile#write(org.apache.activemq6.core.journal.EncodingSupport, boolean)
        */
       public void write(final EncodingSupport bytes, final boolean sync) throws Exception
       {
@@ -654,14 +654,14 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.SequentialFile#setTimedBuffer(org.hornetq.core.journal.impl.TimedBuffer)
+       * @see org.apache.activemq6.core.journal.SequentialFile#setTimedBuffer(org.apache.activemq6.core.journal.impl.TimedBuffer)
        */
       public void setTimedBuffer(final TimedBuffer buffer)
       {
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.SequentialFile#copyTo(org.hornetq.core.journal.SequentialFile)
+       * @see org.apache.activemq6.core.journal.SequentialFile#copyTo(org.apache.activemq6.core.journal.SequentialFile)
        */
       public void copyTo(SequentialFile newFileName)
       {

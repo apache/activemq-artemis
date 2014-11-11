@@ -48,7 +48,7 @@
 
         <li>We create a core message that we are going to send</li>
         <pre class="prettyprint">
-           <code>ClientMessage cm = session.createMessage(org.hornetq.api.core.Message.TEXT_TYPE,true);
+           <code>ClientMessage cm = session.createMessage(org.apache.activemq6.api.core.Message.TEXT_TYPE,true);
 String testMessage = System.currentTimeMillis() + ": twitter connector test example";
 cm.getBodyBuffer().writeString(testMessage);</code>
         </pre>

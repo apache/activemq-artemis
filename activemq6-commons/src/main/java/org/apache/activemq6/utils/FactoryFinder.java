@@ -23,7 +23,7 @@ public class FactoryFinder
    /**
     * The strategy that the FactoryFinder uses to find load and instantiate Objects
     * can be changed out by calling the
-    * {@link org.apache.activemq6.utils.FactoryFinder#setObjectFactory(org.hornetq.utils.FactoryFinder.ObjectFactory)}
+    * {@link org.apache.activemq6.utils.FactoryFinder#setObjectFactory(org.apache.activemq6.utils.FactoryFinder.ObjectFactory)}
     * method with a custom implementation of ObjectFactory.
     * <p/>
     * The default ObjectFactory is typically changed out when running in a specialized container

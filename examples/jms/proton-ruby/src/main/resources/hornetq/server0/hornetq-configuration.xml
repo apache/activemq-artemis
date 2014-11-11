@@ -13,7 +13,7 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="proton-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="protocol" value="AMQP"/>
          <param key="port" value="5672"/>
       </acceptor>

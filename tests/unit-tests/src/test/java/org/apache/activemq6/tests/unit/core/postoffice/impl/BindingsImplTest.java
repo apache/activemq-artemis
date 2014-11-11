@@ -212,7 +212,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.transaction.Transaction#setState(org.hornetq.core.transaction.Transaction.State)
+       * @see org.apache.activemq6.core.transaction.Transaction#setState(org.apache.activemq6.core.transaction.Transaction.State)
        */
       public void setState(final State state)
       {
@@ -275,7 +275,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.filter.Filter#match(org.hornetq.core.server.ServerMessage)
+       * @see org.apache.activemq6.core.filter.Filter#match(org.apache.activemq6.core.server.ServerMessage)
        */
       public boolean match(final ServerMessage message)
       {

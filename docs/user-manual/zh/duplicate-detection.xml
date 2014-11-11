@@ -46,7 +46,7 @@
         <para>如果是在一个事务中发送消息，则只需要设置其中一个消息的属性值。在服务器端如果服务器检测到一个事务中某一个
             消息重复，则会忽略整个事务。</para>
         <para>这个属性的名称由<literal
-                >org.hornetq.api.core.HDR_DUPLICATE_DETECTION_ID</literal>定义，即：
+                >org.apache.activemq6.api.core.HDR_DUPLICATE_DETECTION_ID</literal>定义，即：
                <literal>_HQ_DUPL_ID</literal>。</para>
         <para>该属性的值可以是<literal>byte[]</literal>类型或<literal
                 >SimpleString</literal>类型（核心接口）。如果使用JMS，它必须是<literal>String</literal>
@@ -79,7 +79,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
     <section id="duplicate.id.cache">
         <title>配置重复ID缓存</title>
         <para>服务器缓存中保存接收到的消息的<literal
-                >org.hornetq.core.message.impl.HDR_DUPLICATE_DETECTION_ID</literal>属性值。每个地址有
+                >org.apache.activemq6.core.message.impl.HDR_DUPLICATE_DETECTION_ID</literal>属性值。每个地址有
               单独的缓存。</para>
         <para>缓存的大小是固定的，循环使用。如果缓存的最大可以存放<literal
                 >n</literal>条记录，那么<literal>n + 1</literal>条记录将会覆盖缓存中的第<literal>0</literal>

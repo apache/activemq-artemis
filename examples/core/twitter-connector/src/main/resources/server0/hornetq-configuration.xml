@@ -14,14 +14,14 @@
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
       </connector>
    </connectors>
    
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
       </acceptor>
    </acceptors>
 
@@ -50,7 +50,7 @@
 
    <connector-services>
       <connector-service name="my-incoming-tweets">
-         <factory-class>org.hornetq.integration.twitter.TwitterIncomingConnectorServiceFactory</factory-class>
+         <factory-class>org.apache.activemq6.integration.twitter.TwitterIncomingConnectorServiceFactory</factory-class>
          <param key="queue" value="queue.incomingQueue"/>
          <param key="consumerKey" value="${twitter.consumerKey}"/>
          <param key="consumerSecret" value="${twitter.consumerSecret}"/>
@@ -59,7 +59,7 @@
          <param key="interval" value="60"/>
       </connector-service>
        <connector-service name="my-outgoing-tweets">
-         <factory-class>org.hornetq.integration.twitter.TwitterOutgoingConnectorServiceFactory</factory-class>
+         <factory-class>org.apache.activemq6.integration.twitter.TwitterOutgoingConnectorServiceFactory</factory-class>
          <param key="queue" value="queue.outgoingQueue"/>
          <param key="consumerKey" value="${twitter.consumerKey}"/>
          <param key="consumerSecret" value="${twitter.consumerSecret}"/>

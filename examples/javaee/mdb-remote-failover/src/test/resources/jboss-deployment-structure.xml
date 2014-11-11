@@ -1,7 +1,7 @@
 <jboss-deployment-structure>
    <deployment>
       <dependencies>
-         <module name="org.hornetq"/>
+         <module name="org.apache.activemq6"/>
       </dependencies>
    </deployment>
 </jboss-deployment-structure>

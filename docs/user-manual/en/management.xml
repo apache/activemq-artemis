@@ -57,11 +57,11 @@
       <itemizedlist>
          <listitem>
             <para><emphasis>Core</emphasis> resources are located in the <literal
-                  >org.hornetq.api.core.management</literal> package</para>
+                  >org.apache.activemq6.api.core.management</literal> package</para>
          </listitem>
          <listitem>
             <para><emphasis>JMS</emphasis> resources are located in the <literal
-                  >org.hornetq.api.jms.management</literal> package</para>
+                  >org.apache.activemq6.api.jms.management</literal> package</para>
          </listitem>
       </itemizedlist>
       <para>The way to invoke a <emphasis>management operations</emphasis> depends whether JMX, core
@@ -87,7 +87,7 @@
                         <literal>createQueue()</literal> or <literal>deployQueue()</literal> or
                         <literal>destroyQueue()</literal>)on the <literal
                         >HornetQServerControl</literal> (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=Server</literal> or the resource name <literal
+                        >org.apache.activemq6:module=Core,type=Server</literal> or the resource name <literal
                         >core.server</literal>)</para>
                   <para><literal>createQueue</literal> will fail if the queue already exists while
                         <literal>deployQueue</literal> will do nothing.</para>
@@ -144,14 +144,14 @@
                         <literal>createBridge()</literal> and <literal>destroyBridge()</literal> 
                         (resp. <literal>createDivert()</literal> and <literal>destroyDivert()</literal>) on the <literal
                         >HornetQServerControl</literal> (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=Server</literal> or the resource name <literal
+                        >org.apache.activemq6:module=Core,type=Server</literal> or the resource name <literal
                         >core.server</literal>).</para>
                </listitem>
                <listitem>
                   <para>It is possible to stop the server and force failover to occur with any currently attached clients.</para>
                   <para>to do this use the <literal>forceFailover()</literal> on the <literal
                         >HornetQServerControl</literal> (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=Server</literal> or the resource name <literal
+                        >org.apache.activemq6:module=Core,type=Server</literal> or the resource name <literal
                         >core.server</literal>) </para>
                   <note>
                      <para>Since this method actually stops the server you will probably receive some sort of error
@@ -164,7 +164,7 @@
          <section>
             <title>Core Address Management</title>
             <para>Core addresses can be managed using the <literal>AddressControl</literal> class
-               (with the ObjectName <literal>org.hornetq:module=Core,type=Address,name="&lt;the
+               (with the ObjectName <literal>org.apache.activemq6:module=Core,type=Address,name="&lt;the
                   address name>"</literal> or the resource name <literal>core.address.&lt;the
                   address name></literal>). </para>
             <itemizedlist>
@@ -181,7 +181,7 @@
             <title>Core Queue Management</title>
             <para>The bulk of the core management API deals with core queues. The <literal
                   >QueueControl</literal> class defines the Core queue management operations (with
-               the ObjectName <literal>org.hornetq:module=Core,type=Queue,address="&lt;the bound
+               the ObjectName <literal>org.apache.activemq6:module=Core,type=Queue,address="&lt;the bound
                   address>",name="&lt;the queue name>"</literal> or the resource name <literal
                   >core.queue.&lt;the queue name></literal>).</para>
             <para>Most of the management operations on queues take either a single message ID (e.g.
@@ -268,7 +268,7 @@
                   <para>They can be started or stopped using the <literal>start()</literal> or.
                         <literal>stop()</literal> method on the <literal>AcceptorControl</literal>
                      class (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=Acceptor,name="&lt;the acceptor
+                        >org.apache.activemq6:module=Core,type=Acceptor,name="&lt;the acceptor
                         name>"</literal> or the resource name <literal>core.acceptor.&lt;the
                         address name></literal>). The acceptors parameters can be retrieved using
                      the <literal>AcceptorControl</literal> attributes (see <xref
@@ -279,7 +279,7 @@
                   <para>They can be started or stopped using the <literal>start()</literal> or
                         <literal>stop()</literal> method on the <literal>DivertControl</literal>
                      class (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=Divert,name=&lt;the divert name></literal>
+                        >org.apache.activemq6:module=Core,type=Divert,name=&lt;the divert name></literal>
                      or the resource name <literal>core.divert.&lt;the divert name></literal>).
                      Diverts parameters can be retrieved using the <literal>DivertControl</literal>
                      attributes (see <xref linkend="diverts"/>)</para>
@@ -289,7 +289,7 @@
                   <para>They can be started or stopped using the <literal>start()</literal> (resp.
                         <literal>stop()</literal>) method on the <literal>BridgeControl</literal>
                      class (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=Bridge,name="&lt;the bridge
+                        >org.apache.activemq6:module=Core,type=Bridge,name="&lt;the bridge
                         name>"</literal> or the resource name <literal>core.bridge.&lt;the bridge
                         name></literal>). Bridges parameters can be retrieved using the <literal
                         >BridgeControl</literal> attributes (see <xref linkend="core-bridges"
@@ -300,7 +300,7 @@
                   <para>They can be started or stopped using the <literal>start()</literal> or
                         <literal>stop()</literal> method on the <literal
                         >BroadcastGroupControl</literal> class (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=BroadcastGroup,name="&lt;the broadcast group
+                        >org.apache.activemq6:module=Core,type=BroadcastGroup,name="&lt;the broadcast group
                         name>"</literal> or the resource name <literal
                         >core.broadcastgroup.&lt;the broadcast group name></literal>). Broadcast
                      groups parameters can be retrieved using the <literal
@@ -312,7 +312,7 @@
                   <para>They can be started or stopped using the <literal>start()</literal> or
                         <literal>stop()</literal> method on the <literal
                         >DiscoveryGroupControl</literal> class (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=DiscoveryGroup,name="&lt;the discovery group
+                        >org.apache.activemq6:module=Core,type=DiscoveryGroup,name="&lt;the discovery group
                         name>"</literal> or the resource name <literal>core.discovery.&lt;the
                         discovery group name></literal>). Discovery groups parameters can be
                      retrieved using the <literal>DiscoveryGroupControl</literal> attributes (see
@@ -323,7 +323,7 @@
                   <para>They can be started or stopped using the <literal>start()</literal> or
                         <literal>stop()</literal> method on the <literal
                         >ClusterConnectionControl</literal> class (with the ObjectName <literal
-                        >org.hornetq:module=Core,type=ClusterConnection,name="&lt;the cluster
+                        >org.apache.activemq6:module=Core,type=ClusterConnection,name="&lt;the cluster
                         connection name>"</literal> or the resource name <literal
                         >core.clusterconnection.&lt;the cluster connection name></literal>).
                      Cluster connections parameters can be retrieved using the <literal
@@ -341,7 +341,7 @@
             <title>JMS Server Management</title>
             <para>JMS Resources (connection factories and destinations) can be created using the
                   <literal>JMSServerControl</literal> class (with the ObjectName <literal
-                  >org.hornetq:module=JMS,type=Server</literal> or the resource name <literal
+                  >org.apache.activemq6:module=JMS,type=Server</literal> or the resource name <literal
                   >jms.server</literal>).</para>
             <itemizedlist>
                <listitem>
@@ -395,7 +395,7 @@
             <title>JMS ConnectionFactory Management</title>
             <para>JMS Connection Factories can be managed using the <literal
                   >ConnectionFactoryControl</literal> class (with the ObjectName <literal
-                  >org.hornetq:module=JMS,type=ConnectionFactory,name="&lt;the connection factory
+                  >org.apache.activemq6:module=JMS,type=ConnectionFactory,name="&lt;the connection factory
                   name>"</literal> or the resource name <literal>jms.connectionfactory.&lt;the
                   connection factory name></literal>).</para>
             <itemizedlist>
@@ -413,7 +413,7 @@
          <section>
             <title>JMS Queue Management</title>
             <para>JMS queues can be managed using the <literal>JMSQueueControl</literal> class (with
-               the ObjectName <literal>org.hornetq:module=JMS,type=Queue,name="&lt;the queue
+               the ObjectName <literal>org.apache.activemq6:module=JMS,type=Queue,name="&lt;the queue
                   name>"</literal> or the resource name <literal>jms.queue.&lt;the queue
                   name></literal>). </para>
             <para><emphasis>The management operations on a JMS queue are very similar to the
@@ -488,7 +488,7 @@
          <section>
             <title>JMS Topic Management</title>
             <para>JMS Topics can be managed using the <literal>TopicControl</literal> class (with
-               the ObjectName <literal>org.hornetq:module=JMS,type=Topic,name="&lt;the topic
+               the ObjectName <literal>org.apache.activemq6:module=JMS,type=Topic,name="&lt;the topic
                   name>"</literal> or the resource name <literal>jms.topic.&lt;the topic
                   name></literal>).</para>
             <itemizedlist>
@@ -524,16 +524,16 @@
             url="http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html"
          >JMX</ulink>. </para>
       <para>The management API is exposed by HornetQ using MBeans interfaces. HornetQ registers its
-         resources with the domain <literal>org.hornetq</literal>.</para>
+         resources with the domain <literal>org.apache.activemq6</literal>.</para>
       <para>For example, the <literal>ObjectName</literal> to manage a JMS Queue <literal
             >exampleQueue</literal> is:</para>
       <programlisting>
-org.hornetq:module=JMS,type=Queue,name="exampleQueue"</programlisting>
+org.apache.activemq6:module=JMS,type=Queue,name="exampleQueue"</programlisting>
       <para>and the MBean is:</para>
       <programlisting>
-org.hornetq.api.jms.management.JMSQueueControl</programlisting>
+org.apache.activemq6.api.jms.management.JMSQueueControl</programlisting>
       <para>The MBean's <literal>ObjectName</literal> are built using the helper class <literal
-            >org.hornetq.api.core.management.ObjectNameBuilder</literal>. You can also use <literal
+            >org.apache.activemq6.api.core.management.ObjectNameBuilder</literal>. You can also use <literal
             >jconsole</literal> to find the <literal>ObjectName</literal> of the MBeans you want to
          manage. </para>
       <para>Managing HornetQ using JMX is identical to management of any Java Applications using
@@ -554,13 +554,13 @@ org.hornetq.api.jms.management.JMSQueueControl</programlisting>
             properties must be set in <literal>run.sh</literal> or <literal>run.bat</literal>
             scripts).</para>
          </note>
-         <para>By default, HornetQ server uses the JMX domain "org.hornetq". To manage several
+         <para>By default, HornetQ server uses the JMX domain "org.apache.activemq6". To manage several
             HornetQ servers from the <emphasis>same</emphasis> MBeanServer, the JMX domain can be
             configured for each individual HornetQ server by setting <literal>jmx-domain</literal>
             in <literal>hornetq-configuration.xml</literal>: </para>
          <programlisting>
 &lt;!-- use a specific JMX domain for HornetQ MBeans -->
-&lt;jmx-domain>my.org.hornetq&lt;/jmx-domain></programlisting>
+&lt;jmx-domain>my.org.apache.activemq6&lt;/jmx-domain></programlisting>
          <section>
             <title>MBeanServer configuration</title>
             <para>When HornetQ is run in standalone, it uses the Java Virtual Machine's <literal
@@ -613,7 +613,7 @@ org.hornetq.api.jms.management.JMSQueueControl</programlisting>
       <para>A <literal>ClientConsumer</literal> can be used to consume the management reply and
          retrieve the result of the operation (if any) stored in the reply's body. For portability,
          results are returned as a <ulink url="http://json.org">JSON</ulink> String rather than Java
-         Serialization (the <literal>org.hornetq.api.core.management.ManagementHelper</literal> can
+         Serialization (the <literal>org.apache.activemq6.api.core.management.ManagementHelper</literal> can
          be used to convert the JSON string to Java objects).</para>
       <para>These steps can be simplified to make it easier to invoke management operations using
          Core messages:</para>
@@ -627,7 +627,7 @@ org.hornetq.api.jms.management.JMSQueueControl</programlisting>
          </listitem>
          <listitem>
             <para>Use the helper class <literal
-                  >org.hornetq.api.core.management.ManagementHelper</literal> to fill the message
+                  >org.apache.activemq6.api.core.management.ManagementHelper</literal> to fill the message
                with the management properties</para>
          </listitem>
          <listitem>
@@ -635,7 +635,7 @@ org.hornetq.api.jms.management.JMSQueueControl</programlisting>
          </listitem>
          <listitem>
             <para>Use the helper class <literal
-                  >org.hornetq.api.core.management.ManagementHelper</literal> to retrieve the
+                  >org.apache.activemq6.api.core.management.ManagementHelper</literal> to retrieve the
                operation result from the management reply</para>
          </listitem>
       </orderedlist>
@@ -653,7 +653,7 @@ System.out.println("There are " + count + " messages in exampleQueue");</program
       <para>Management operation name and parameters must conform to the Java interfaces defined in
          the <literal>management</literal> packages.</para>
       <para>Names of the resources are built using the helper class <literal
-            >org.hornetq.api.core.management.ResourceNames</literal> and are straightforward
+            >org.apache.activemq6.api.core.management.ResourceNames</literal> and are straightforward
             (<literal>core.queue.exampleQueue</literal> for the Core Queue <literal
             >exampleQueue</literal>, <literal>jms.topic.exampleTopic</literal> for the JMS Topic
             <literal>exampleTopic</literal>, etc.).</para>
@@ -697,7 +697,7 @@ Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");</pro
          </listitem>
          <listitem>
             <para>use the helper class <literal
-                  >org.hornetq.api.jms.management.JMSManagementHelper</literal> to fill the message
+                  >org.apache.activemq6.api.jms.management.JMSManagementHelper</literal> to fill the message
                with the management properties</para>
          </listitem>
          <listitem>
@@ -705,7 +705,7 @@ Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");</pro
          </listitem>
          <listitem>
             <para>use the helper class <literal
-                  >org.hornetq.api.jms.management.JMSManagementHelper</literal> to retrieve the
+                  >org.apache.activemq6.api.jms.management.JMSManagementHelper</literal> to retrieve the
                operation result from the management reply</para>
          </listitem>
       </orderedlist>
@@ -756,11 +756,11 @@ System.out.println("There are " + count + " messages in exampleQueue");</program
             notifications can be received by subscribing to 2 MBeans:</para>
          <itemizedlist>
             <listitem>
-               <para><literal>org.hornetq:module=Core,type=Server</literal> for notifications on
+               <para><literal>org.apache.activemq6:module=Core,type=Server</literal> for notifications on
                      <emphasis>Core</emphasis> resources</para>
             </listitem>
             <listitem>
-               <para><literal>org.hornetq:module=JMS,type=Server</literal> for notifications on
+               <para><literal>org.apache.activemq6:module=JMS,type=Server</literal> for notifications on
                      <emphasis>JMS</emphasis> resources</para>
             </listitem>
          </itemizedlist>

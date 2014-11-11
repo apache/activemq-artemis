@@ -44,7 +44,7 @@
             <configuration>
                <archive>
                   <manifest>
-                     <mainClass>org.hornetq.tools.Main</mainClass>
+                     <mainClass>org.apache.activemq6.tools.Main</mainClass>
                   </manifest>
                </archive>
                <descriptorRefs>

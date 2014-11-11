@@ -97,13 +97,13 @@ finally
                   是相应的JMS连接）：</para>
             <programlisting>
                 
-[Finalizer] 20:14:43,244 WARNING [org.hornetq.core.client.impl.DelegatingSession]  I'm closin
+[Finalizer] 20:14:43,244 WARNING [org.apache.activemq6.core.client.impl.DelegatingSession]  I'm closin
 g a ClientSession you left open. Please make sure you close all ClientSessions explicitly before let
 ting them go out of scope!
-[Finalizer] 20:14:43,244 WARNING [org.hornetq.core.client.impl.DelegatingSession]  The sessi
+[Finalizer] 20:14:43,244 WARNING [org.apache.activemq6.core.client.impl.DelegatingSession]  The sessi
 on you didn't close was created here:
 java.lang.Exception
-at org.hornetq.core.client.impl.DelegatingSession.&lt;init&gt;(DelegatingSession.java:83)
+at org.apache.activemq6.core.client.impl.DelegatingSession.&lt;init&gt;(DelegatingSession.java:83)
 at org.acme.yourproject.YourClass (YourClass.java:666)    
                 
             </programlisting>

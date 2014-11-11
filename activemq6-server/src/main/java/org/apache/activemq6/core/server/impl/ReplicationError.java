@@ -30,7 +30,7 @@ import org.apache.activemq6.spi.core.protocol.RemotingConnection;
  * Stops the backup in case of an error at the start of Replication.
  * <p>
  * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0
- * handler at {@link org.apache.activemq6.core.protocol.core.impl.HornetQClientProtocolManager.Channel0Handler}. As {@link org.hornetq.core.protocol.core.impl.HornetQClientProtocolManager}
+ * handler at {@link org.apache.activemq6.core.protocol.core.impl.HornetQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq6.core.protocol.core.impl.HornetQClientProtocolManager}
  * is also shipped in the HQ-client JAR (which does not include {@link HornetQServer}).
  */
 final class ReplicationError implements Interceptor

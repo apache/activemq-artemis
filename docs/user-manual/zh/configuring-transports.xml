@@ -28,7 +28,7 @@
 &lt;acceptors&gt;                
     &lt;acceptor name="netty"&gt;
         &lt;factory-class&gt;
-org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory
+org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory
         &lt;/factory-class&gt;
         &lt;param key="port" value="5446"/&gt;
     &lt;/acceptor&gt;
@@ -54,7 +54,7 @@ org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory
 &lt;connectors&gt;
     &lt;connector name="netty"&gt;
         &lt;factory-class&gt;
-            org.hornetq.core.remoting.impl.netty.NettyConnectorFactory
+            org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory
         &lt;/factory-class&gt;
         &lt;param key="port" value="5446"/&gt;
     &lt;/connector&gt;
@@ -103,12 +103,12 @@ org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory
         <programlisting>
 Map&lt;String, Object&gt; connectionParams = new HashMap&lt;String, Object&gt;();
     
-connectionParams.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 
+connectionParams.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 
                     5446);
 
 TransportConfiguration transportConfiguration = 
     new TransportConfiguration(
-    "org.hornetq.core.remoting.impl.netty.NettyConnectorFactory", 
+    "org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory", 
     connectionParams);
 
 ClientSessionFactory sessionFactory = HornetQClient.createClientSessionFactory(transportConfiguration);
@@ -122,11 +122,11 @@ etc
         <programlisting>
 Map&lt;String, Object&gt; connectionParams = new HashMap&lt;String, Object&gt;();
 
-connectionParams.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 5446);
+connectionParams.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 5446);
 
 TransportConfiguration transportConfiguration = 
     new TransportConfiguration(
-    "org.hornetq.core.remoting.impl.netty.NettyConnectorFactory", 
+    "org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory", 
     connectionParams);
 
 ConnectionFactory connectionFactory = HornetQJMSClient.createConnectionFactory(transportConfiguration);
@@ -151,7 +151,7 @@ etc
             <para>如果你的应用是运行在不信任的网络上，你应该选择使用SSL或HTTPS。</para>
             <para>Netty TCP的所有连接都是从客户端发起的。服务器端不向客户端发起任何连接。在有防火墙的环境中，这种方式
                 是比较适合的。因为防火墙只允许单方向的连接。</para>
-            <para>在<literal>org.hornetq.core.remoting.impl.netty.TransportConstants</literal>类中定义了所
+            <para>在<literal>org.apache.activemq6.core.remoting.impl.netty.TransportConstants</literal>类中定义了所
                 有的配置参数的名称（key）。它们当中绝大多娄既用于配置接收器也用于配置连接器，有一些只适用于接收器。
                 下面列出的参数用以配置一个简单的Netty TCP：</para>
             <itemizedlist>
@@ -296,7 +296,7 @@ etc
       &lt;servlet-class>org.jboss.netty.channel.socket.http.HttpTunnelingServlet&lt;/servlet-class>
       &lt;init-param>
              &lt;param-name>endpoint&lt;/param-name>
-             &lt;param-value>local:org.hornetq&lt;/param-value>
+             &lt;param-value>local:org.apache.activemq6&lt;/param-value>
            &lt;/init-param>
            &lt;load-on-startup>1&lt;/load-on-startup>
    &lt;/servlet>
@@ -317,10 +317,10 @@ etc
 
       &lt;acceptor name="netty-invm">
          &lt;factory-class>
-            org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory
+            org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory
          &lt;/factory-class>
          &lt;param key="use-invm" value="true"/>
-         &lt;param key="host" value="org.hornetq"/>
+         &lt;param key="host" value="org.apache.activemq6"/>
       &lt;/acceptor>
 
 &lt;/acceptors>                                         
@@ -332,7 +332,7 @@ etc
 
       &lt;connector name="netty-servlet">
          &lt;factory-class>
-            org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory
+            org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory
          &lt;/factory-class>
          &lt;param key="host" value="localhost"/>
          &lt;param key="port" value="8080"/>
@@ -353,7 +353,7 @@ etc
             <para>在<literal>web.xml</literal>中定义的servlet的URL形式与在连接器配置文件中定义的
                 <literal>servlet-path</literal>值应该相匹配。</para>
             <para>servlet可以与SSL一起使用。只需要在连接器配置中加上下面的配置即可：<programlisting>    &lt;connector name="netty-servlet">
-         &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+         &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
          &lt;param key="host" value="localhost"/>
          &lt;param key="port" value="8443"/>
          &lt;param key="use-servlet" value="true"/>

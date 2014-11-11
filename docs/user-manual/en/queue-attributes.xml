@@ -83,7 +83,7 @@
         <title>Using the API</title>
         <para>Queues can also be created using the core API or the management API.</para>
         <para>For the core API, queues can be created via the <literal
-                >org.hornetq.api.core.client.ClientSession</literal> interface. There are multiple
+                >org.apache.activemq6.api.core.client.ClientSession</literal> interface. There are multiple
                 <literal>createQueue</literal> methods that support setting all of the previously
             mentioned attributes. There is one extra attribute that can be set via this API which is
                 <literal>temporary</literal>. setting this to true means that the queue will be

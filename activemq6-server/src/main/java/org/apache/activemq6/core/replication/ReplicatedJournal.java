@@ -91,7 +91,7 @@ public class ReplicatedJournal implements Journal
     * @param record
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#appendAddRecord(long, byte, org.hornetq.core.journal.EncodingSupport, boolean)
+    * @see org.apache.activemq6.core.journal.Journal#appendAddRecord(long, byte, org.apache.activemq6.core.journal.EncodingSupport, boolean)
     */
    public void appendAddRecord(final long id,
                                final byte recordType,
@@ -126,7 +126,7 @@ public class ReplicatedJournal implements Journal
     * @param recordType
     * @param record
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#appendAddRecordTransactional(long, long, byte, org.hornetq.core.journal.EncodingSupport)
+    * @see org.apache.activemq6.core.journal.Journal#appendAddRecordTransactional(long, long, byte, org.apache.activemq6.core.journal.EncodingSupport)
     */
    public void appendAddRecordTransactional(final long txID,
                                             final long id,
@@ -223,7 +223,7 @@ public class ReplicatedJournal implements Journal
     * @param id
     * @param record
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#appendDeleteRecordTransactional(long, long, org.hornetq.core.journal.EncodingSupport)
+    * @see org.apache.activemq6.core.journal.Journal#appendDeleteRecordTransactional(long, long, org.apache.activemq6.core.journal.EncodingSupport)
     */
    public void appendDeleteRecordTransactional(final long txID, final long id, final EncodingSupport record) throws Exception
    {
@@ -268,7 +268,7 @@ public class ReplicatedJournal implements Journal
     * @param transactionData
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#appendPrepareRecord(long, org.hornetq.core.journal.EncodingSupport, boolean)
+    * @see org.apache.activemq6.core.journal.Journal#appendPrepareRecord(long, org.apache.activemq6.core.journal.EncodingSupport, boolean)
     */
    public void appendPrepareRecord(final long txID, final EncodingSupport transactionData, final boolean sync) throws Exception
    {
@@ -339,7 +339,7 @@ public class ReplicatedJournal implements Journal
     * @param record
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#appendUpdateRecord(long, byte, org.hornetq.core.journal.EncodingSupport, boolean)
+    * @see org.apache.activemq6.core.journal.Journal#appendUpdateRecord(long, byte, org.apache.activemq6.core.journal.EncodingSupport, boolean)
     */
    @Override
    public void appendUpdateRecord(final long id, final byte recordType, final EncodingSupport record, final boolean sync) throws Exception
@@ -387,7 +387,7 @@ public class ReplicatedJournal implements Journal
     * @param recordType
     * @param record
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#appendUpdateRecordTransactional(long, long, byte, org.hornetq.core.journal.EncodingSupport)
+    * @see org.apache.activemq6.core.journal.Journal#appendUpdateRecordTransactional(long, long, byte, org.apache.activemq6.core.journal.EncodingSupport)
     */
    public void appendUpdateRecordTransactional(final long txID, final long id, final byte recordType,
                                                final EncodingSupport record) throws Exception
@@ -407,7 +407,7 @@ public class ReplicatedJournal implements Journal
     * @param transactionFailure
     *
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#load(java.util.List, java.util.List, org.hornetq.core.journal.TransactionFailureCallback)
+    * @see org.apache.activemq6.core.journal.Journal#load(java.util.List, java.util.List, org.apache.activemq6.core.journal.TransactionFailureCallback)
     */
    public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                       final List<PreparedTransactionInfo> preparedTransactions,
@@ -420,7 +420,7 @@ public class ReplicatedJournal implements Journal
     * @param reloadManager
     *
     * @throws Exception
-    * @see org.apache.activemq6.core.journal.Journal#load(org.hornetq.core.journal.LoaderCallback)
+    * @see org.apache.activemq6.core.journal.Journal#load(org.apache.activemq6.core.journal.LoaderCallback)
     */
    public JournalLoadInformation load(final LoaderCallback reloadManager) throws Exception
    {

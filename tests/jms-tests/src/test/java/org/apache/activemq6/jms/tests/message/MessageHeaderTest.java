@@ -1419,7 +1419,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.ClientSession#createQueue(org.hornetq.utils.SimpleString, org.hornetq.utils.SimpleString)
+       * @see org.apache.activemq6.api.core.client.ClientSession#createQueue(org.apache.activemq6.utils.SimpleString, org.apache.activemq6.utils.SimpleString)
        */
       public void createQueue(SimpleString address, SimpleString queueName) throws HornetQException
       {

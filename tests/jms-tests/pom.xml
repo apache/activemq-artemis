@@ -145,11 +145,11 @@
             <configuration>
                <skipTests>${skipJmsTests}</skipTests>
                <excludes>
-                  <exclude>org/hornetq/jms/tests/XARecoveryTest.java</exclude>
-                  <exclude>org/hornetq/jms/tests/XAResourceRecoveryTest.java</exclude>
-                  <exclude>org/hornetq/jms/tests/XATest.java</exclude>
-                  <exclude>org/hornetq/jms/tests/stress/*.java</exclude>
-                  <exclude>org/hornetq/jms/tests/manual/**</exclude>
+                  <exclude>org.apache.activemq6/jms/tests/XARecoveryTest.java</exclude>
+                  <exclude>org.apache.activemq6/jms/tests/XAResourceRecoveryTest.java</exclude>
+                  <exclude>org.apache.activemq6/jms/tests/XATest.java</exclude>
+                  <exclude>org.apache.activemq6/jms/tests/stress/*.java</exclude>
+                  <exclude>org.apache.activemq6/jms/tests/manual/**</exclude>
                </excludes>
                <argLine>${hornetq-surefire-argline}</argLine>
             </configuration>

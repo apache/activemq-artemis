@@ -97,7 +97,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.core.example.VertxConnectorExample</clientClass>
+                     <clientClass>org.apache.activemq6.core.example.VertxConnectorExample</clientClass>
                   </configuration>
                </execution>
                <execution>

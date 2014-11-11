@@ -60,7 +60,7 @@
      &lt;!-- 这个连接器用于连接备份服务喝咖啡    -->
      &lt;!-- 备份服务器在主机"192.168.0.11"上，端口"5445" -->
      &lt;connector name="backup-connector">
-       &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
+       &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
        &lt;param key="host" value="192.168.0.11"/>
        &lt;param key="port" value="5445"/>
      &lt;/connector>
@@ -74,7 +74,7 @@
   
   &lt;acceptors>
      &lt;acceptor name="acceptor">
-        &lt;factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
+        &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
         &lt;param key="host" value="192.168.0.11"/>
         &lt;param key="port" value="5445"/>
      &lt;/acceptor>

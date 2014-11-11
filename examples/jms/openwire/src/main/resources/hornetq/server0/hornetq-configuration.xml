@@ -12,17 +12,17 @@
    
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
       </connector>
    </connectors>
    
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>        
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>        
       </acceptor>
       <acceptor name="openwire-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>        
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>        
          <param key="protocols" value="OPENWIRE" />
          <param key="port" value="61616" />
      </acceptor>

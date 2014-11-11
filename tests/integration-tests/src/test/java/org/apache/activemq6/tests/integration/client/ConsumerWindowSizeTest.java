@@ -1171,7 +1171,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
             int count = 0;
 
             /* (non-Javadoc)
-             * @see org.apache.activemq6.api.core.client.MessageHandler#onMessage(org.hornetq.api.core.client.ClientMessage)
+             * @see org.apache.activemq6.api.core.client.MessageHandler#onMessage(org.apache.activemq6.api.core.client.ClientMessage)
              */
             public synchronized void onMessage(final ClientMessage message)
             {
@@ -1331,7 +1331,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
             int count = 0;
 
             /* (non-Javadoc)
-             * @see org.apache.activemq6.api.core.client.MessageHandler#onMessage(org.hornetq.api.core.client.ClientMessage)
+             * @see org.apache.activemq6.api.core.client.MessageHandler#onMessage(org.apache.activemq6.api.core.client.ClientMessage)
              */
             public synchronized void onMessage(final ClientMessage message)
             {

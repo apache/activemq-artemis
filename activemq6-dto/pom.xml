@@ -51,9 +51,9 @@
              <configuration>
                <tasks>
                  <taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask"/>
-                 <mkdir dir="${project.build.directory}/schema/org/hornetq/dto"/>
-                 <echo message="Generating XSD to: ${project.build.directory}/schema/org/hornetq/dto"/>
-                 <schemagen srcdir="${basedir}/.." destdir="${project.build.directory}/schema/org/hornetq/dto"
+                 <mkdir dir="${project.build.directory}/schema/org.apache.activemq6/dto"/>
+                 <echo message="Generating XSD to: ${project.build.directory}/schema/org.apache.activemq6/dto"/>
+                 <schemagen srcdir="${basedir}/.." destdir="${project.build.directory}/schema/org.apache.activemq6/dto"
                             includeantruntime="false">
                    <schema namespace="http://hornetq.org/schema" file="hornetq.xsd"/>
                    <classpath refid="maven.compile.classpath"/>

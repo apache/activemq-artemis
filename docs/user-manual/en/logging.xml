@@ -43,23 +43,23 @@
                    <entry>Logs any calls not handled by the HornetQ loggers</entry>
                </row>
                <row>
-                   <entry>org.hornetq.core.server</entry>
+                   <entry>org.apache.activemq6.core.server</entry>
                    <entry>Logs the core server</entry>
                </row>
                <row>
-                   <entry>org.hornetq.utils</entry>
+                   <entry>org.apache.activemq6.utils</entry>
                    <entry>Logs utility calls</entry>
                </row>
                <row>
-                   <entry>org.hornetq.journal</entry>
+                   <entry>org.apache.activemq6.journal</entry>
                    <entry>Logs Journal calls</entry>
                </row>
                <row>
-                   <entry>org.hornetq.jms</entry>
+                   <entry>org.apache.activemq6.jms</entry>
                    <entry>Logs JMS calls</entry>
                </row>
                <row>
-                   <entry>org.hornetq.integration.bootstrap</entry>
+                   <entry>org.apache.activemq6.integration.bootstrap</entry>
                    <entry>Logs bootstrap calls</entry>
                </row>
             </tbody>
@@ -91,7 +91,7 @@
    &lt;version>1.3.1.Final&lt;/version>
 &lt;/dependency>
 &lt;dependency>
-   &lt;groupId>org.hornetq&lt;/groupId>
+   &lt;groupId>org.apache.activemq6&lt;/groupId>
    &lt;artifactId>hornetq-core-client&lt;/artifactId>
    &lt;version>2.3.0.Final&lt;/version>
 &lt;/dependency></programlisting>
@@ -112,14 +112,14 @@
          The following is a typical <literal>logging.properties for a client</literal>
          <programlisting>
 # Root logger option
-loggers=org.jboss.logging,org.hornetq.core.server,org.hornetq.utils,org.hornetq.journal,org.hornetq.jms,org.hornetq.ra
+loggers=org.jboss.logging,org.apache.activemq6.core.server,org.apache.activemq6.utils,org.apache.activemq6.journal,org.apache.activemq6.jms,org.apache.activemq6.ra
 
 # Root logger level
 logger.level=INFO
 # HornetQ logger levels
-logger.org.hornetq.core.server.level=INFO
-logger.org.hornetq.utils.level=INFO
-logger.org.hornetq.jms.level=DEBUG
+logger.org.apache.activemq6.core.server.level=INFO
+logger.org.apache.activemq6.utils.level=INFO
+logger.org.apache.activemq6.jms.level=DEBUG
 
 # Root logger handlers
 logger.handlers=FILE,CONSOLE

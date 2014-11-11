@@ -28,7 +28,7 @@ import org.apache.activemq6.utils.UUIDGenerator;
 /**
  * NodeManager used to run multiple servers in the same VM.
  * <p/>
- * We use the {@link org.apache.activemq6.core.server.impl.InVMNodeManager} instead of {@link org.hornetq.core.server.impl.FileLockNodeManager} when
+ * We use the {@link org.apache.activemq6.core.server.impl.InVMNodeManager} instead of {@link org.apache.activemq6.core.server.impl.FileLockNodeManager} when
  * multiple servers are run inside the same VM and File Locks can not be shared in the
  * same VM (it would cause a shared lock violation).
  *

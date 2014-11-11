@@ -536,7 +536,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendProducerCreditsMessage(int, org.hornetq.api.core.SimpleString)
+       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendProducerCreditsMessage(int, org.apache.activemq6.api.core.SimpleString)
        */
       @Override
       public void sendProducerCreditsMessage(int credits, SimpleString address)
@@ -550,7 +550,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendMessage(org.hornetq.core.server.ServerMessage, long, int)
+       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendMessage(org.apache.activemq6.core.server.ServerMessage, long, int)
        */
       @Override
       public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount)
@@ -578,7 +578,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendLargeMessage(org.hornetq.core.server.ServerMessage, long, long, int)
+       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendLargeMessage(org.apache.activemq6.core.server.ServerMessage, long, long, int)
        */
       @Override
       public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount)
@@ -605,7 +605,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#addReadyListener(org.hornetq.spi.core.remoting.ReadyListener)
+       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#addReadyListener(org.apache.activemq6.spi.core.remoting.ReadyListener)
        */
       @Override
       public void addReadyListener(ReadyListener listener)
@@ -614,7 +614,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#removeReadyListener(org.hornetq.spi.core.remoting.ReadyListener)
+       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#removeReadyListener(org.apache.activemq6.spi.core.remoting.ReadyListener)
        */
       @Override
       public void removeReadyListener(ReadyListener listener)

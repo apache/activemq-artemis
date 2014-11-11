@@ -73,7 +73,7 @@
                      <maxmemory>512m</maxmemory>
                      <quiet>false</quiet>
                      <aggregate>true</aggregate>
-                     <excludePackageNames>org.hornetq.core:org.hornetq.utils</excludePackageNames>
+                     <excludePackageNames>org.apache.activemq6.core:org.apache.activemq6.utils</excludePackageNames>
                   </configuration>
                   <executions>
                      <execution>

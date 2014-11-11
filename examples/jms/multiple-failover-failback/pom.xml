@@ -99,7 +99,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.MultipleFailoverFailbackExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.MultipleFailoverFailbackExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                         <param>jnp://localhost:1199</param>

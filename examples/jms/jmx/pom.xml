@@ -78,7 +78,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.JMXExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.JMXExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

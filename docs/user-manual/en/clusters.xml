@@ -806,31 +806,31 @@ ClientSession session = factory.createSession();</programlisting>
                     subsequent node is chosen sequentially in the same order.</para>
                 <para>For example nodes might be chosen in the order B, C, D, A, B, C, D, A, B or D,
                     A, B, C, D, A, B, C, D or C, D, A, B, C, D, A, B, C.</para>
-                <para>Use <literal>org.hornetq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>
+                <para>Use <literal>org.apache.activemq6.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>
                     as the <literal>&lt;connection-load-balancing-policy-class-name></literal>.</para>
             </listitem>
             <listitem>
                 <para>Random. With this policy each node is chosen randomly.</para>
-                <para>Use <literal>org.hornetq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy</literal>
+                <para>Use <literal>org.apache.activemq6.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy</literal>
                     as the <literal>&lt;connection-load-balancing-policy-class-name></literal>.</para>
             </listitem>
             <listitem>
                 <para>Random Sticky. With this policy the first node is chosen randomly and then re-used for subsequent
                     connections.</para>
-                <para>Use <literal>org.hornetq.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy</literal>
+                <para>Use <literal>org.apache.activemq6.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy</literal>
                     as the <literal>&lt;connection-load-balancing-policy-class-name></literal>.</para>
             </listitem>
             <listitem>
                 <para>First Element. With this policy the "first" (i.e. 0th) node is always returned.</para>
-                <para>Use <literal>org.hornetq.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy</literal>
+                <para>Use <literal>org.apache.activemq6.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy</literal>
                     as the <literal>&lt;connection-load-balancing-policy-class-name></literal>.</para>
             </listitem>
         </itemizedlist>
         <para>You can also implement your own policy by implementing the interface <literal
-                >org.hornetq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy</literal></para>
+                >org.apache.activemq6.api.core.client.loadbalance.ConnectionLoadBalancingPolicy</literal></para>
         <para>Specifying which load balancing policy to use differs whether you are using JMS or the
             core API. If you don't specify a policy then the default will be used which is <literal
-                    >org.hornetq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>.</para>
+                    >org.apache.activemq6.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>.</para>
         <para>If you're using JMS, and you're using JNDI on the server to put your JMS connection
             factories into JNDI, then you can specify the load balancing policy directly in the
             <literal>hornetq-jms.xml</literal> configuration file on the server as follows:</para>
@@ -841,7 +841,7 @@ ClientSession session = factory.createSession();</programlisting>
       &lt;entry name="ConnectionFactory"/>
    &lt;/entries>
    &lt;connection-load-balancing-policy-class-name>
-      org.hornetq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
+      org.apache.activemq6.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
    &lt;/connection-load-balancing-policy-class-name>
 &lt;/connection-factory></programlisting>
         <para>The above example would deploy a JMS connection factory that uses the random connection load

@@ -19,7 +19,7 @@
       <pre class="prettyprint">
       <code>
       &lt;connector name=&quot;netty-connector&quot;&gt;
-         &lt;factory-class&gt;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class&gt;
+         &lt;factory-class&gt;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class&gt;
          &lt;param key=&quot;hornetq.remoting.netty.http-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
          &lt;param key=&quot;hornetq.remoting.netty.port&quot; value=&quot;8080&quot; type=&quot;Integer&quot;/&gt;
       &lt;/connector&gt;
@@ -27,7 +27,7 @@
       &lt;!-- Acceptors --&gt;
 
       &lt;acceptor name=&quot;netty-acceptor&quot;&gt;
-         &lt;factory-class&gt;org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
+         &lt;factory-class&gt;org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
          &lt;param key=&quot;hornetq.remoting.netty.port&quot; value=&quot;8080&quot; type=&quot;Integer&quot;/&gt;
       &lt;/acceptor&gt;
       </code>

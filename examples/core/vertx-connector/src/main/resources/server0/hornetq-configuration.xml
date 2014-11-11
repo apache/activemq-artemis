@@ -14,14 +14,14 @@
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
       </connector>
    </connectors>
    
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
       </acceptor>
    </acceptors>
 
@@ -43,14 +43,14 @@
 
    <connector-services>
       <connector-service name="my-incoming-vertx">
-         <factory-class>org.hornetq.integration.vertx.VertxIncomingConnectorServiceFactory</factory-class>
+         <factory-class>org.apache.activemq6.integration.vertx.VertxIncomingConnectorServiceFactory</factory-class>
          <param key="queue" value="queue.vertxQueue"/>
          <param key="host" value="localhost"/>
          <param key="port" value="0"/>
          <param key="vertx-address" value="incoming.vertx.address"/>
       </connector-service>
       <connector-service name="my-outgoing-vertx">
-         <factory-class>org.hornetq.integration.vertx.VertxOutgoingConnectorServiceFactory</factory-class>
+         <factory-class>org.apache.activemq6.integration.vertx.VertxOutgoingConnectorServiceFactory</factory-class>
          <param key="queue" value="queue.vertxQueue"/>
          <param key="host" value="localhost"/>
          <param key="port" value="0"/>

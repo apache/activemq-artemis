@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="urn:hornetq" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:hq="urn:org.hornetq"
+<xsd:schema xmlns="urn:hornetq" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:hq="urn:org.apache.activemq6"
             xmlns:csd="http://www.w3.org/2001/XMLSchema"
             attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:hornetq"
             version="1.0">
@@ -189,7 +189,7 @@
          </xsd:element>
 
          <xsd:element name="password-codec" type="xsd:string"
-                      default="org.hornetq.utils.DefaultSensitiveStringCodec" maxOccurs="1" minOccurs="0">
+                      default="org.apache.activemq6.utils.DefaultSensitiveStringCodec" maxOccurs="1" minOccurs="0">
             <xsd:annotation hq:linkend="configuration.masked-password">
                <xsd:documentation>
                   Class name and its parameters for the Decoder used to decode the masked password. Ignored if
@@ -225,7 +225,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="jmx-domain" type="xsd:string" default="org.hornetq" maxOccurs="1" minOccurs="0">
+         <xsd:element name="jmx-domain" type="xsd:string" default="org.apache.activemq6" maxOccurs="1" minOccurs="0">
             <xsd:annotation hq:linkend="management.jmx.configuration" hq:field_name="DEFAULT_JMX_DOMAIN">
                <xsd:documentation>
                   the JMX domain used to registered HornetQ MBeans in the MBeanServer

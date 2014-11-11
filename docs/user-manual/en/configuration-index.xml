@@ -207,7 +207,7 @@
                             </entry>
                             <entry>String</entry>
                             <entry>the name of the load balancing class</entry>
-                            <entry>org.hornetq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</entry>
+                            <entry>org.apache.activemq6.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</entry>
                         </row>
                         <row>
                             <entry id="configuration.connection-factory.connection-ttl">
@@ -608,7 +608,7 @@
 
 <programlisting>
 &lt;mask-password>true&lt;/mask-password>
-&lt;password-codec>org.hornetq.utils.DefaultSensitiveStringCodec;key=hello world&lt;/password-codec></programlisting>
+&lt;password-codec>org.apache.activemq6.utils.DefaultSensitiveStringCodec;key=hello world&lt;/password-codec></programlisting>
 
            <para>When so configured, the HornetQ security manager will initialize a DefaultSensitiveStringCodec with the parameters
            "key"->"hello world", then use it to decode all the masked passwords in this configuration file.</para>
@@ -626,12 +626,12 @@
               <section><title>The built-in Decoder</title>
 
               <para>Whenever no decoder is specified in the configuration file, the built-in decoder is used. The class name for the built-in
-              decoder is org.hornetq.utils.DefaultSensitiveStringCodec. It has both encoding and decoding capabilities. It uses java.crypto.Cipher
+              decoder is org.apache.activemq6.utils.DefaultSensitiveStringCodec. It has both encoding and decoding capabilities. It uses java.crypto.Cipher
               utilities to encrypt (encode) a plaintext password and decrypt a mask string using same algorithm. Using this decoder/encoder is
               pretty straightforward. To get a mask for a password, just run the following in command line:</para>
 
 <programlisting>
-java org.hornetq.utils.DefaultSensitiveStringCodec "your plaintext password"</programlisting>
+java org.apache.activemq6.utils.DefaultSensitiveStringCodec "your plaintext password"</programlisting>
 
               <para>Make sure the classpath is correct. You'll get something like</para>
 
@@ -668,7 +668,7 @@ Encoded password: 80cf731af62c290</programlisting>
               <section><title>Implementing your own codecs</title>
 
               <para>To use a different decoder than the built-in one, you either pick one from existing libraries or you implement it yourself.
-              All decoders must implement the <literal>org.hornetq.utils.SensitiveDataCodec&lt;T></literal> interface:</para>
+              All decoders must implement the <literal>org.apache.activemq6.utils.SensitiveDataCodec&lt;T></literal> interface:</para>
 
 <programlisting>
 public interface SensitiveDataCodec&lt;T>

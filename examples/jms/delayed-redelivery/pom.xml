@@ -42,7 +42,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.DelayedRedeliveryExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.DelayedRedeliveryExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

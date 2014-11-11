@@ -20,7 +20,7 @@ import org.apache.activemq6.api.core.HornetQException;
  * A channel is a way of interleaving data meant for different endpoints over the same {@link org.apache.activemq6.core.protocol.core.CoreRemotingConnection}.
  * <p>
  * Any packet sent will have its channel id set to the specific channel sending so it can be routed to its correct channel
- * when received by the {@link org.apache.activemq6.core.protocol.core.CoreRemotingConnection}. see {@link org.hornetq.core.protocol.core.Packet#setChannelID(long)}.
+ * when received by the {@link org.apache.activemq6.core.protocol.core.CoreRemotingConnection}. see {@link org.apache.activemq6.core.protocol.core.Packet#setChannelID(long)}.
  * <p>
  * Each Channel should will forward any packets received to its {@link org.apache.activemq6.core.protocol.core.ChannelHandler}.
  * <p>

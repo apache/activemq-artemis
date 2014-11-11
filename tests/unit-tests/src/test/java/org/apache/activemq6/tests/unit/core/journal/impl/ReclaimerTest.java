@@ -968,7 +968,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#resetNegCount(org.hornetq.core.journal.impl.JournalFile)
+       * @see org.apache.activemq6.core.journal.impl.JournalFile#resetNegCount(org.apache.activemq6.core.journal.impl.JournalFile)
        */
       public boolean resetNegCount(final JournalFile file)
       {

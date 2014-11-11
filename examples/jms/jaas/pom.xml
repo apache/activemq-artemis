@@ -47,11 +47,11 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <securityManager implementation="org.hornetq.spi.core.security.JAASSecurityManager">
-                        <configurationName>org.hornetq.jms.example.ExampleLoginModule</configurationName>
-                        <callbackHandler implementation="org.hornetq.jms.example.ExampleCallbackHandler"/>
-                        <config implementation="org.hornetq.jms.example.ExampleConfiguration">
-                           <loginModuleName>org.hornetq.jms.example.ExampleLoginModule</loginModuleName>
+                     <securityManager implementation="org.apache.activemq6.spi.core.security.JAASSecurityManager">
+                        <configurationName>org.apache.activemq6.jms.example.ExampleLoginModule</configurationName>
+                        <callbackHandler implementation="org.apache.activemq6.jms.example.ExampleCallbackHandler"/>
+                        <config implementation="org.apache.activemq6.jms.example.ExampleConfiguration">
+                           <loginModuleName>org.apache.activemq6.jms.example.ExampleLoginModule</loginModuleName>
                            <options>
                               <user>jboss</user>
                               <pass>redhat</pass>
@@ -73,7 +73,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.JAASExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.JAASExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

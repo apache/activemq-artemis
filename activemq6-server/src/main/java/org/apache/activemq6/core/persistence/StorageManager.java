@@ -342,7 +342,7 @@ public interface StorageManager extends IDGenerator, HornetQComponent
    Journal getMessageJournal();
 
    /**
-    * @see org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager#startReplication(org.hornetq.core.replication.ReplicationManager, org.hornetq.core.paging.PagingManager, String, boolean)
+    * @see org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager#startReplication(org.apache.activemq6.core.replication.ReplicationManager, org.apache.activemq6.core.paging.PagingManager, String, boolean)
     */
    void startReplication(ReplicationManager replicationManager, PagingManager pagingManager, String nodeID,
                          boolean autoFailBack) throws Exception;

@@ -50,7 +50,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.TopicHierarchyExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.TopicHierarchyExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

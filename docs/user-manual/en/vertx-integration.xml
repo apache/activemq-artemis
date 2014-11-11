@@ -36,7 +36,7 @@
     Such a service can be configured as follows:</para>
     <programlisting>
     &lt;connector-service name="vertx-incoming-connector">
-    &lt;factory-class>org.hornetq.integration.vertx.VertxIncomingConnectorServiceFactory&lt;/factory-class>
+    &lt;factory-class>org.apache.activemq6.integration.vertx.VertxIncomingConnectorServiceFactory&lt;/factory-class>
     &lt;param key="host" value="127.0.0.1"/>
     &lt;param key="port" value="0"/>
     &lt;param key="queue" value="jms.queue.vertxQueue"/>
@@ -64,7 +64,7 @@
                 <para><literal>ha-group</literal>. The name of the ha-group of target vertx instance. Default is <literal>hornetq</literal>.</para>
             </listitem>
             <listitem>
-                <para><literal>vertx-address</literal>. The vertx address to listen to. default is org.hornetq.</para>
+                <para><literal>vertx-address</literal>. The vertx address to listen to. default is org.apache.activemq6.</para>
             </listitem>
         </itemizedlist>
     </section>
@@ -75,7 +75,7 @@
     Such a service can be configured as follows:</para>
     <programlisting>
     &lt;connector-service name="vertx-outgoing-connector">
-    &lt;factory-class>org.hornetq.integration.vertx.VertxOutgoingConnectorServiceFactory&lt;/factory-class>
+    &lt;factory-class>org.apache.activemq6.integration.vertx.VertxOutgoingConnectorServiceFactory&lt;/factory-class>
     &lt;param key="host" value="127.0.0.1"/>
     &lt;param key="port" value="0"/>
     &lt;param key="queue" value="jms.queue.vertxQueue"/>
@@ -104,7 +104,7 @@
                 <para><literal>ha-group</literal>. The name of the ha-group of target vertx instance. Default is <literal>hornetq</literal>.</para>
             </listitem>
             <listitem>
-                <para><literal>vertx-address</literal>. The vertx address to put messages to. default is org.hornetq.</para>
+                <para><literal>vertx-address</literal>. The vertx address to put messages to. default is org.apache.activemq6.</para>
             </listitem>
             <listitem>
                 <para><literal>publish</literal>. How messages is sent to vertx event bus. "true" means using publish style.

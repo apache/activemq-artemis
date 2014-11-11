@@ -586,7 +586,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq6.core.server.QueueFactory#setPostOffice(org.hornetq.core.postoffice.PostOffice)
+          * @see org.apache.activemq6.core.server.QueueFactory#setPostOffice(org.apache.activemq6.core.postoffice.PostOffice)
           */
          public void setPostOffice(PostOffice postOffice)
          {

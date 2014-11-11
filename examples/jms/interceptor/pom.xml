@@ -55,7 +55,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.InterceptorExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.InterceptorExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

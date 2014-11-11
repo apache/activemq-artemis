@@ -12,7 +12,7 @@
 
    <connectors>
       <connector name="netty">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <!-- **************************************** -->
          <!-- Replace with the *target* server address -->
          <!-- **************************************** -->
@@ -23,7 +23,7 @@
 
    <acceptors>
       <acceptor name="netty">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <!-- the server accepts connections on all the server addresses -->
          <param key="host" value="localhost"/>
          <param key="port" value="5455"/>

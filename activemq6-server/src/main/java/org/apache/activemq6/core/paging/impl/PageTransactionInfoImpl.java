@@ -160,7 +160,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    /*
     * This is to be used after paging. We will update the PageTransactions until they get all the messages delivered. On that case we will delete the page TX
     * (non-Javadoc)
-    * @see org.apache.activemq6.core.paging.PageTransactionInfo#storeUpdate(org.hornetq.core.persistence.StorageManager, org.hornetq.core.transaction.Transaction, int)
+    * @see org.apache.activemq6.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq6.core.persistence.StorageManager, org.apache.activemq6.core.transaction.Transaction, int)
     */
    public void storeUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx) throws Exception
    {

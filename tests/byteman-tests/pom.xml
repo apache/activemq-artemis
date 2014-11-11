@@ -185,7 +185,7 @@
             <configuration>
                <skipTests>${skipBytemanTests}</skipTests>
                <includes>
-                  <include>org/hornetq/byteman/tests/*.java</include>
+                  <include>org.apache.activemq6/byteman/tests/*.java</include>
                </includes>
                <!-- ensure we don't inherit a byteman jar form any env settings -->
                <environmentVariables>

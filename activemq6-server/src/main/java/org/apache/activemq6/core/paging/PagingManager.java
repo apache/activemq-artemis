@@ -22,7 +22,7 @@ import org.apache.activemq6.core.settings.HierarchicalRepositoryChangeListener;
  * <PRE>
  *
  * +--------------+      1  +----------------+       N +--------------+       N +--------+       1 +-------------------+
- * | {@link org.apache.activemq6.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.hornetq.core.paging.impl.Page}  | ------&gt; | {@link org.hornetq.core.journal.SequentialFile} |
+ * | {@link org.apache.activemq6.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq6.core.paging.impl.Page}  | ------&gt; | {@link org.apache.activemq6.core.journal.SequentialFile} |
  * +--------------+         +----------------+         +--------------+         +--------+         +-------------------+
  *                                                              |                  1 ^
  *                                                              |                    |

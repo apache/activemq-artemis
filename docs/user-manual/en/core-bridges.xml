@@ -57,7 +57,7 @@
    &lt;forwarding-address>jms.queue.mincing-machine&lt;/forwarding-address>
    &lt;filter-string="name='aardvark'"/>
    &lt;transformer-class-name>
-      org.hornetq.jms.example.HatColourChangeTransformer
+      org.apache.activemq6.jms.example.HatColourChangeTransformer
    &lt;/transformer-class-name>
    &lt;retry-interval>1000&lt;/retry-interval>
    &lt;ha>true&lt;/ha>
@@ -114,7 +114,7 @@
             <listitem>
                 <para><literal>transformer-class-name</literal>. An optional transformer-class-name
                     can be specified. This is the name of a user-defined class which implements the
-                        <literal>org.hornetq.core.server.cluster.Transformer</literal>
+                        <literal>org.apache.activemq6.core.server.cluster.Transformer</literal>
                     interface.</para>
                 <para>If this is specified then the transformer's <literal>transform()</literal>
                     method will be invoked with the message before it is forwarded. This gives you

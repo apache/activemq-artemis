@@ -50,7 +50,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.hornetq.jms.example.XAReceiveExample</clientClass>
+                     <clientClass>org.apache.activemq6.jms.example.XAReceiveExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>

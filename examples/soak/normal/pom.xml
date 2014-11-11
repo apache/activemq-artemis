@@ -97,7 +97,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.hornetq.jms.soak.example.SoakReceiver</clientClass>
+                           <clientClass>org.apache.activemq6.jms.soak.example.SoakReceiver</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>
@@ -109,7 +109,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.hornetq.jms.soak.example.SoakSender</clientClass>
+                           <clientClass>org.apache.activemq6.jms.soak.example.SoakSender</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>
@@ -143,7 +143,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.hornetq.jms.soak.example.SoakReceiver</clientClass>
+                           <clientClass>org.apache.activemq6.jms.soak.example.SoakReceiver</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>
@@ -155,7 +155,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.hornetq.jms.soak.example.SoakSender</clientClass>
+                           <clientClass>org.apache.activemq6.jms.soak.example.SoakSender</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>

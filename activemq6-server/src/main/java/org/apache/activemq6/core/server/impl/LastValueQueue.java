@@ -275,7 +275,7 @@ public class LastValueQueue extends QueueImpl
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.server.MessageReference#acknowledge(org.hornetq.core.server.MessageReference)
+       * @see org.apache.activemq6.core.server.MessageReference#acknowledge(org.apache.activemq6.core.server.MessageReference)
        */
       @Override
       public void acknowledge() throws Exception
