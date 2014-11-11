@@ -158,16 +158,16 @@ Do not use the [maven-eclipse-plugin] to copy the files as it conflicts with [m2
 
 ## Committing Changes
 
-### GitHub
+### Repositories
 
-We follow the GitHub workflow for all code changes in HornetQ. For information on the GitHub workflow please see:
-https://guides.github.com/introduction/flow/index.html
+The code repository for ActiveMQ6 is hosted by Apache org and lives here: https://git-wip-us.apache.org/repos/asf/activemq-6.git.
+We also host a mirror of the ActiveMQ repository on GitHub: https://github.com/apache/activemq-6.  We use this mirror for all code submissions and reviews.  To submit code to ActiveMQ please open a Pull Request as outlined as part of the GitHub workflow described here: https://guides.github.com/introduction/flow/index.html.  Once a pull request is opened it will be reviewed and commented on.  Any further changes as a result of comments / review process should be addressed and reflected in the original pull request as outlined in the GitHub workflow.  When the pull request has went through the review process and ready to merge, the reviewer should comment with "Ack, Ready to Push".  Once an Ack message is received one of the ActiveMQ core team members will push the changes to upstream Apache ActiveMQ repository and close the pull request.
 
 ### Commit Messages
 
-We follow the 50/72 git commit message format.  A HornetQ commit message should be formatted in the following manner:
+We follow the 50/72 git commit message format.  An ActiveMQ6 commit message should be formatted in the following manner:
 
-* Add the HornetQ JIRA or Bugzilla reference (if one exists) followed by a brief description of the change in the first line.
+* Add the ACTIVEMQ6 JIRA or Bugzilla reference (if one exists) followed by a brief description of the change in the first line.
 * Insert a single blank line after the first line.
 * Provide a detailed description of the change in the following lines, breaking paragraphs where needed.
 * The first line should be limited to 50 characters
@@ -176,10 +176,52 @@ We follow the 50/72 git commit message format.  A HornetQ commit message should 
 An example correctly formatted commit message:
 
 ```
-HORNETQ-1234 Add new commit msg format to README
+ACTIVEMQ6-123 Add new commit msg format to README
 
 Adds a description of the new commit message format as well as examples
 of well formatted commit messages to the README.md.  This is required 
 to enable developers to quickly identify what the commit is intended to 
 do and why the commit was added.
+```
+
+### Core Contributers
+
+Core ActiveMQ members have write access to the Apache ActiveMQ repositories and will be responsible for Ack'ing and pushing commits contributed via pull requests on GitHub.  The follow steps can be used as an example for how to set up relevant ActiveMQ repositories for reviewing and pushing changes.
+
+To setup repositories for reviewing and pushing:
+
+```
+  # Clone the GitHub Mirror of ActiveMQ Repo:
+  git clone git@github.com:apache/activemq-6.git
+
+  # Add the following section to your <activemq-6 repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
+  [remote "activemq"]
+        url = git@github.com:apache/activemq-6.git
+        fetch = +refs/heads/*:refs/remotes/activemq/*
+        fetch = +refs/pull/*/head:refs/remotes/activemq/pr/*
+
+
+  # Add the Apache repository as a remote
+  git remote add apache https://git-wip-us.apache.org/repos/asf/activemq-6.git
+
+  # Fetch
+  git fetch --all
+```
+
+To push commits from a pull request to the apache repository:
+
+```
+  cd <activemq repo>
+
+  # Download all the remote branches etc... including all the pull requests.
+  git fetch --all
+  
+  # Checkout the pull request you wish to review
+  git checkout pr/2
+
+  # Ensure this patch is rebased onto apache/master
+  git rebase apache/master
+
+  # Continue through review process.  Once an Ack has been sent.  Push to the Apache ActiveMQ6 repo
+  git push apache pr/2:master
 ```
