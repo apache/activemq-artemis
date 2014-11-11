@@ -1,0 +1,147 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq6</groupId>
+      <artifactId>activemq6-pom</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
+   </parent>
+
+   <artifactId>activemq6-dto</artifactId>
+   <packaging>jar</packaging>
+   <name>ActiveMQ6 DTO</name>
+
+   <properties>
+     <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+   </properties>
+
+   <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson-databind.version}</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+     <resources>
+       <resource>
+         <directory>target/schema</directory>
+         <includes>
+           <include>**/*</include>
+         </includes>
+       </resource>
+       <resource>
+         <directory>src/main/resources</directory>
+         <includes>
+           <include>**/*</include>
+         </includes>
+         <filtering>true</filtering>
+       </resource>
+     </resources>
+
+     <plugins>
+       <plugin>
+         <artifactId>maven-antrun-plugin</artifactId>
+         <version>1.7</version>
+         <executions>
+           <execution>
+             <phase>generate-resources</phase>
+             <configuration>
+               <tasks>
+                 <taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask"/>
+                 <mkdir dir="${project.build.directory}/schema/org/hornetq/dto"/>
+                 <echo message="Generating XSD to: ${project.build.directory}/schema/org/hornetq/dto"/>
+                 <schemagen srcdir="${basedir}/.." destdir="${project.build.directory}/schema/org/hornetq/dto"
+                            includeantruntime="false">
+                   <schema namespace="http://hornetq.org/schema" file="hornetq.xsd"/>
+                   <classpath refid="maven.compile.classpath"/>
+                   <include name="**/package-info.java"/>
+                   <include name="**/*DTO.java"/>
+                   <exclude name="**/.git/**"/>
+                   <exclude name="**/.svn/**"/>
+                 </schemagen>
+                 <copy todir="${project.build.directory}/classes">
+                   <fileset dir="${project.build.directory}/schema"/>
+                 </copy>
+               </tasks>
+             </configuration>
+             <goals>
+               <goal>run</goal>
+             </goals>
+           </execution>
+         </executions>
+         <dependencies>
+            <dependency>
+               <groupId>javax.xml.bind</groupId>
+               <artifactId>jaxb-api</artifactId>
+               <version>2.2.7</version>
+            </dependency>
+            <dependency>
+               <groupId>com.sun.xml.bind</groupId>
+               <artifactId>jaxb-impl</artifactId>
+               <version>2.2.7</version>
+            </dependency>
+            <dependency>
+               <groupId>com.sun.xml.bind</groupId>
+               <artifactId>jaxb-jxc</artifactId>
+               <version>2.2.7</version>
+            </dependency>
+         </dependencies>
+       </plugin>
+     </plugins>
+   </build>
+
+   <profiles>
+     <profile>
+       <id>jdk-1.5</id>
+       <activation>
+         <jdk>1.5</jdk>
+       </activation>
+       <dependencies>
+         <dependency>
+           <groupId>javax.xml.bind</groupId>
+           <artifactId>jaxb-api</artifactId>
+           <version>${jaxb-api-version}</version>
+         </dependency>
+         <dependency>
+           <groupId>com.sun.xml.bind</groupId>
+           <artifactId>jaxb-impl</artifactId>
+           <version>${jaxb-version}</version>
+         </dependency>
+       </dependencies>
+     </profile>
+
+    <profile>
+       <id>ibmjdk</id>
+       <activation>
+         <file>
+           <exists>${java.home}/../lib/tools.jar</exists>
+         </file>
+       </activation>
+       <build>
+         <pluginManagement>
+           <plugins>
+             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-antrun-plugin</artifactId>
+               <dependencies>
+                 <dependency>
+                   <groupId>com.sun</groupId>
+                   <artifactId>tools</artifactId>
+                   <!--the real JDK version could be 1.5 or 1.6-->
+                   <version>1.5.0</version>
+                   <scope>system</scope>
+                   <optional>true</optional>
+                   <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                 </dependency>
+               </dependencies>
+             </plugin>
+           </plugins>
+         </pluginManagement>
+       </build>
+     </profile>
+   </profiles>
+
+</project>

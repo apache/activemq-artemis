@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
-      <groupId>org.hornetq.tests</groupId>
-      <artifactId>hornetq-tests-pom</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <groupId>org.apache.activemq6.tests</groupId>
+      <artifactId>activemq6-tests-pom</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>integration-tests</artifactId>
    <packaging>jar</packaging>
-   <name>HornetQ Integration Tests</name>
+   <name>ActiveMQ6 Integration Tests</name>
 
    <properties>
       <hornetq.basedir>${project.basedir}/../..</hornetq.basedir>
@@ -19,94 +19,94 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-server</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-server</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq.tests</groupId>
+         <groupId>org.apache.activemq6.tests</groupId>
          <artifactId>unit-tests</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-core-client</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-core-client</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-jms-client</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-jms-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-jms-server</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-jms-server</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-ra</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-ra</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-bootstrap</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-bootstrap</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-commons</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-tools</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-tools</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-twitter-integration</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-twitter-integration</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-spring-integration</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-spring-integration</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-vertx-integration</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-vertx-integration</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-journal</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-journal</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-amqp-protocol</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-amqp-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-stomp-protocol</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-stomp-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-openwire-protocol</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-openwire-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-aerogear-integration</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-aerogear-integration</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>

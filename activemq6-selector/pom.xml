@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq6</groupId>
+      <artifactId>activemq6-pom</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
+   </parent>
+
+   <artifactId>activemq6-selector</artifactId>
+   <packaging>jar</packaging>
+   <name>ActiveMQ6 Selector Implementation</name>
+
+   <properties>
+      <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+   </properties>
+
+   <dependencies>
+       
+      <dependency>
+         <groupId>xalan</groupId>
+         <artifactId>xalan</artifactId>
+         <version>2.6.0</version>
+         <optional>true</optional>
+      </dependency>
+       
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+   </dependencies>
+
+   <profiles>
+      <profile>
+         <id>release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <version>2.9</version>
+                  <configuration>
+                     <doclet>org.jboss.apiviz.APIviz</doclet>
+                     <docletArtifact>
+                        <groupId>org.jboss.apiviz</groupId>
+                        <artifactId>apiviz</artifactId>
+                        <version>1.3.2.GA</version>
+                     </docletArtifact>
+                     <useStandardDocletOptions>true</useStandardDocletOptions>
+                     <minmemory>128m</minmemory>
+                     <maxmemory>512m</maxmemory>
+                     <quiet>false</quiet>
+                     <aggregate>true</aggregate>
+                     <excludePackageNames>org.hornetq.core:org.hornetq.utils</excludePackageNames>
+                  </configuration>
+                  <executions>
+                     <execution>
+                        <id>javadocs</id>
+                        <goals>
+                           <goal>jar</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
+
+   <build>
+      <resources>
+         <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+         </resource>
+      </resources>
+      <plugins>
+         <plugin>
+           <groupId>org.codehaus.mojo</groupId>
+           <artifactId>javacc-maven-plugin</artifactId>
+           <version>2.4.1</version>
+           <executions>
+             <execution>
+               <phase>generate-sources</phase>
+               <goals>
+                 <goal>javacc</goal>
+               </goals>
+             </execution>
+           </executions>
+         </plugin>        
+      </plugins>
+   </build>
+
+</project>

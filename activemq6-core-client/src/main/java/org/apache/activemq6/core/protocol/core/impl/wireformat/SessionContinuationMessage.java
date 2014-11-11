@@ -1,0 +1,121 @@
+/*
+ * Copyright 2005-2014 Red Hat, Inc.
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+package org.apache.activemq6.core.protocol.core.impl.wireformat;
+
+import java.util.Arrays;
+
+import org.apache.activemq6.api.core.HornetQBuffer;
+import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq6.utils.DataConstants;
+
+/**
+ * A SessionContinuationMessage
+ *
+ * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
+ *
+ * Created Dec 5, 2008 10:08:40 AM
+ *
+ *
+ */
+public abstract class SessionContinuationMessage extends PacketImpl
+{
+
+   public static final int SESSION_CONTINUATION_BASE_SIZE = PACKET_HEADERS_SIZE + DataConstants.SIZE_INT +
+                                                            DataConstants.SIZE_BOOLEAN;
+
+   protected byte[] body;
+
+   protected boolean continues;
+
+   public SessionContinuationMessage(final byte type, final byte[] body, final boolean continues)
+   {
+      super(type);
+      this.body = body;
+      this.continues = continues;
+   }
+
+   public SessionContinuationMessage(final byte type)
+   {
+      super(type);
+   }
+
+   // Public --------------------------------------------------------
+
+   /**
+    * @return the body
+    */
+   public byte[] getBody()
+   {
+      if (size <= 0)
+      {
+         return new byte[0];
+      }
+      else
+      {
+         return body;
+      }
+   }
+
+   /**
+    * @return the continues
+    */
+   public boolean isContinues()
+   {
+      return continues;
+   }
+
+   @Override
+   public void encodeRest(final HornetQBuffer buffer)
+   {
+      buffer.writeInt(body.length);
+      buffer.writeBytes(body);
+      buffer.writeBoolean(continues);
+   }
+
+   @Override
+   public void decodeRest(final HornetQBuffer buffer)
+   {
+      int size = buffer.readInt();
+      body = new byte[size];
+      buffer.readBytes(body);
+      continues = buffer.readBoolean();
+   }
+
+   @Override
+   public int hashCode()
+   {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result + Arrays.hashCode(body);
+      result = prime * result + (continues ? 1231 : 1237);
+      return result;
+   }
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (!super.equals(obj))
+         return false;
+      if (!(obj instanceof SessionContinuationMessage))
+         return false;
+      SessionContinuationMessage other = (SessionContinuationMessage)obj;
+      if (!Arrays.equals(body, other.body))
+         return false;
+      if (continues != other.continues)
+         return false;
+      return true;
+   }
+
+}

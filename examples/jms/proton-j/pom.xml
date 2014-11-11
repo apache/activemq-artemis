@@ -3,19 +3,19 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.hornetq.examples.jms</groupId>
+      <groupId>org.apache.activemq6.examples.jms</groupId>
       <artifactId>jms-examples</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>hornetq-proton-j-example</artifactId>
+   <artifactId>activemq6-proton-j-example</artifactId>
    <packaging>jar</packaging>
-   <name>HornetQ Proton-J Example</name>
+   <name>ActiveMQ6 Proton-J Example</name>
 
    <dependencies>
       <dependency>
-         <groupId>org.hornetq.examples.jms</groupId>
-         <artifactId>hornetq-jms-examples-common</artifactId>
+         <groupId>org.apache.activemq6.examples.jms</groupId>
+         <artifactId>activemq6-jms-examples-common</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -28,8 +28,8 @@
    <build>
       <plugins>
          <plugin>
-            <groupId>org.hornetq</groupId>
-            <artifactId>hornetq-maven-plugin</artifactId>
+            <groupId>org.apache.activemq6</groupId>
+            <artifactId>activemq6-maven-plugin</artifactId>
             <executions>
                <execution>
                   <id>start</id>
@@ -66,33 +66,33 @@
             </executions>
             <dependencies>
                <dependency>
-                  <groupId>org.hornetq.examples.jms</groupId>
-                  <artifactId>hornetq-proton-j-example</artifactId>
+                  <groupId>org.apache.activemq6.examples.jms</groupId>
+                  <artifactId>activemq6-proton-j-example</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.hornetq</groupId>
-                  <artifactId>hornetq-core-client</artifactId>
+                  <groupId>org.apache.activemq6</groupId>
+                  <artifactId>activemq6-core-client</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.hornetq</groupId>
-                  <artifactId>hornetq-server</artifactId>
+                  <groupId>org.apache.activemq6</groupId>
+                  <artifactId>activemq6-server</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.hornetq</groupId>
-                  <artifactId>hornetq-jms-client</artifactId>
+                  <groupId>org.apache.activemq6</groupId>
+                  <artifactId>activemq6-jms-client</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.hornetq</groupId>
-                  <artifactId>hornetq-jms-server</artifactId>
+                  <groupId>org.apache.activemq6</groupId>
+                  <artifactId>activemq6-jms-server</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.hornetq</groupId>
-                  <artifactId>hornetq-amqp-protocol</artifactId>
+                  <groupId>org.apache.activemq6</groupId>
+                  <artifactId>activemq6-amqp-protocol</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>

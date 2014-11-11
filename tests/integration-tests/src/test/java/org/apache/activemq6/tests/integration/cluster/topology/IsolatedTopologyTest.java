@@ -1,0 +1,220 @@
+/*
+ * Copyright 2005-2014 Red Hat, Inc.
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+package org.apache.activemq6.tests.integration.cluster.topology;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.activemq6.api.core.TransportConfiguration;
+import org.apache.activemq6.core.client.impl.Topology;
+import org.apache.activemq6.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq6.core.config.Configuration;
+import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq6.core.server.HornetQServer;
+import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq6.tests.util.UnitTestCase;
+import org.junit.Assert;
+import org.junit.Test;
+
+/**
+ * A IsolatedTopologyTest
+ *
+ * @author clebertsuconic
+ */
+public class IsolatedTopologyTest extends ServiceTestBase
+{
+
+   @Test
+   public void testIsolatedClusters() throws Exception
+   {
+
+      HornetQServer server1 = createServer1();
+
+      HornetQServer server2 = createServer2();
+
+      server1.start();
+      server2.start();
+
+      waitForTopology(server1, "cc1", 2, 5000);
+
+      waitForTopology(server1, "cc2", 2, 5000);
+
+      waitForTopology(server2, "cc1", 2, 5000);
+
+      waitForTopology(server2, "cc2", 2, 5000);
+
+      String node1 = server1.getNodeID().toString();
+      String node2 = server2.getNodeID().toString();
+
+      checkTopology(server1,
+                    "cc1",
+                    node1,
+                    node2,
+                    createInVMTransportConnectorConfig(1, "srv1"),
+                    createInVMTransportConnectorConfig(3, "srv1"));
+
+      checkTopology(server2,
+                    "cc1",
+                    node1,
+                    node2,
+                    createInVMTransportConnectorConfig(1, "srv1"),
+                    createInVMTransportConnectorConfig(3, "srv1"));
+
+      checkTopology(server1,
+                    "cc2",
+                    node1,
+                    node2,
+                    createInVMTransportConnectorConfig(2, "srv1"),
+                    createInVMTransportConnectorConfig(4, "srv1"));
+
+      checkTopology(server2,
+                    "cc2",
+                    node1,
+                    node2,
+                    createInVMTransportConnectorConfig(2, "srv1"),
+                    createInVMTransportConnectorConfig(4, "srv1"));
+      Thread.sleep(500);
+   }
+
+   private void checkTopology(final HornetQServer serverParameter,
+                              final String clusterName,
+                              final String nodeId1,
+                              final String nodeId2,
+                              final TransportConfiguration cfg1,
+                              final TransportConfiguration cfg2)
+   {
+      Topology topology = serverParameter.getClusterManager().getClusterConnection(clusterName).getTopology();
+
+      TopologyMemberImpl member1 = topology.getMember(nodeId1);
+      TopologyMemberImpl member2 = topology.getMember(nodeId2);
+      Assert.assertEquals(member1.getLive().getParams().toString(), cfg1.getParams().toString());
+      Assert.assertEquals(member2.getLive().getParams().toString(), cfg2.getParams().toString());
+   }
+
+   private HornetQServer createServer1() throws Exception
+   {
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
+      params.put(org.apache.activemq6.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "1");
+
+      TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+                                                                       params,
+                                                                       "acceptor-cc1");
+
+      params = new HashMap<String, Object>();
+      params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
+      params.put(org.apache.activemq6.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "2");
+
+      TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+                                                                       params,
+                                                                       "acceptor-cc2");
+
+      List<String> connectTo = new ArrayList<String>();
+      connectTo.add("other-cc1");
+
+      ClusterConnectionConfiguration server1CC1 = new ClusterConnectionConfiguration()
+         .setName("cc1")
+         .setAddress("jms")
+         .setConnectorName("local-cc1")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo);
+
+      ArrayList<String> connectTo2 = new ArrayList<String>();
+      connectTo2.add("other-cc2");
+
+      ClusterConnectionConfiguration server1CC2 = new ClusterConnectionConfiguration()
+         .setName("cc2")
+         .setAddress("jms")
+         .setConnectorName("local-cc2")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo2);
+
+      // Server1 with two acceptors, each acceptor on a different cluster connection
+      // talking to a different connector.
+      // i.e. two cluster connections isolated on the same node
+      Configuration config1 = createBasicConfig(0)
+         .addConnectorConfiguration("local-cc1", createInVMTransportConnectorConfig(1, "local-cc1"))
+         .addConnectorConfiguration("local-cc2", createInVMTransportConnectorConfig(2, "local-cc2"))
+         .addConnectorConfiguration("other-cc1", createInVMTransportConnectorConfig(3, "other-cc1"))
+         .addConnectorConfiguration("other-cc2", createInVMTransportConnectorConfig(4, "other-cc2"))
+         .addAcceptorConfiguration(acceptor1VM1)
+         .addAcceptorConfiguration(acceptor2VM1)
+         .addClusterConfiguration(server1CC1)
+         .addClusterConfiguration(server1CC2);
+
+      return createServer(false, config1);
+   }
+
+   private HornetQServer createServer2() throws Exception
+   {
+
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
+      params.put(org.apache.activemq6.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "3");
+
+      TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+                                                                       params,
+                                                                       "acceptor-cc1");
+
+      params = new HashMap<String, Object>();
+      params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
+      params.put(org.apache.activemq6.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "4");
+
+      TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+                                                                       params,
+                                                                       "acceptor-cc2");
+
+      List<String> connectTo = new ArrayList<String>();
+      connectTo.add("other-cc1");
+
+      ClusterConnectionConfiguration server1CC1 = new ClusterConnectionConfiguration()
+         .setName("cc1")
+         .setAddress("jms")
+         .setConnectorName("local-cc1")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo);
+
+      List<String> connectTo2 = new ArrayList<String>();
+      connectTo2.add("other-cc2");
+
+      ClusterConnectionConfiguration server1CC2 = new ClusterConnectionConfiguration()
+         .setName("cc2")
+         .setAddress("jms")
+         .setConnectorName("local-cc2")
+         .setRetryInterval(250)
+         .setConfirmationWindowSize(1024)
+         .setStaticConnectors(connectTo2);
+
+      // Server1 with two acceptors, each acceptor on a different cluster connection
+      // talking to a different connector.
+      // i.e. two cluster connections isolated on the same node
+      Configuration config1 = createBasicConfig(3)
+         .addAcceptorConfiguration(acceptor1VM1)
+         .addAcceptorConfiguration(acceptor2VM1)
+         .addConnectorConfiguration("local-cc1", createInVMTransportConnectorConfig(3, "local-cc1"))
+         .addConnectorConfiguration("local-cc2", createInVMTransportConnectorConfig(4, "local-cc2"))
+         .addConnectorConfiguration("other-cc1", createInVMTransportConnectorConfig(1, "other-cc1"))
+         .addConnectorConfiguration("other-cc2", createInVMTransportConnectorConfig(2, "other-cc2"))
+         .addClusterConfiguration(server1CC1)
+         .addClusterConfiguration(server1CC2);
+
+      return createServer(false, config1);
+   }
+
+}

@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.hornetq</groupId>
-   <artifactId>hornetq-pom</artifactId>
+   <groupId>org.apache.activemq6</groupId>
+   <artifactId>activemq6-pom</artifactId>
    <packaging>pom</packaging>
-   <version>2.5.0-SNAPSHOT</version>
+   <version>6.0.0-SNAPSHOT</version>
    <modules>
-      <module>hornetq-protocols</module>
-     <module>hornetq-dto</module>
+      <module>activemq6-protocols</module>
+     <module>activemq6-dto</module>
    </modules>
 
-   <name>HornetQ Parent</name>
+   <name>ActiveMQ6 Parent</name>
    <url>http://hornetq.org</url>
    <description>
       Putting the buzz in messaging
@@ -476,75 +476,75 @@
             <activeByDefault>true</activeByDefault>
          </activation>
          <modules>
-            <module>hornetq-dto</module>
-            <module>hornetq-bootstrap</module>
-            <module>hornetq-commons</module>
-            <module>hornetq-selector</module>
-            <module>hornetq-core-client</module>
-            <module>hornetq-server</module>
-            <module>hornetq-jms-client</module>
-            <module>hornetq-jms-server</module>
-            <module>hornetq-journal</module>
-            <module>hornetq-native</module>
-            <module>hornetq-ra</module>
-            <module>hornetq-rest</module>
-            <module>hornetq-service-sar</module>
-            <module>hornetq-tools</module>
-            <module>integration/hornetq-jboss-as-integration</module>
-            <module>integration/hornetq-spring-integration</module>
-            <module>integration/hornetq-twitter-integration</module>
-            <module>integration/hornetq-aerogear-integration</module>
-            <module>integration/hornetq-vertx-integration</module>
+            <module>activemq6-dto</module>
+            <module>activemq6-bootstrap</module>
+            <module>activemq6-commons</module>
+            <module>activemq6-selector</module>
+            <module>activemq6-core-client</module>
+            <module>activemq6-server</module>
+            <module>activemq6-jms-client</module>
+            <module>activemq6-jms-server</module>
+            <module>activemq6-journal</module>
+            <module>activemq6-native</module>
+            <module>activemq6-ra</module>
+            <module>activemq6-rest</module>
+            <module>activemq6-service-sar</module>
+            <module>activemq6-tools</module>
+            <module>integration/activemq6-jboss-as-integration</module>
+            <module>integration/activemq6-spring-integration</module>
+            <module>integration/activemq6-twitter-integration</module>
+            <module>integration/activemq6-aerogear-integration</module>
+            <module>integration/activemq6-vertx-integration</module>
             <module>tests</module>
          </modules>
       </profile>
       <profile>
          <id>maven-release</id>
          <modules>
-            <module>hornetq-dto</module>
-            <module>hornetq-bootstrap</module>
-            <module>hornetq-commons</module>
-            <module>hornetq-selector</module>
-            <module>hornetq-core-client</module>
-            <module>hornetq-server</module>
-            <module>hornetq-jms-client</module>
-            <module>hornetq-jms-server</module>
-            <module>hornetq-journal</module>
-            <module>hornetq-native</module>
-            <module>hornetq-ra</module>
-            <module>hornetq-rest</module>
-            <module>hornetq-service-sar</module>
-            <module>hornetq-tools</module>
-            <module>integration/hornetq-jboss-as-integration</module>
-            <module>integration/hornetq-spring-integration</module>
-            <module>integration/hornetq-twitter-integration</module>
-            <module>integration/hornetq-aerogear-integration</module>
-            <module>integration/hornetq-vertx-integration</module>
+            <module>activemq6-dto</module>
+            <module>activemq6-bootstrap</module>
+            <module>activemq6-commons</module>
+            <module>activemq6-selector</module>
+            <module>activemq6-core-client</module>
+            <module>activemq6-server</module>
+            <module>activemq6-jms-client</module>
+            <module>activemq6-jms-server</module>
+            <module>activemq6-journal</module>
+            <module>activemq6-native</module>
+            <module>activemq6-ra</module>
+            <module>activemq6-rest</module>
+            <module>activemq6-service-sar</module>
+            <module>activemq6-tools</module>
+            <module>integration/activemq6-jboss-as-integration</module>
+            <module>integration/activemq6-spring-integration</module>
+            <module>integration/activemq6-twitter-integration</module>
+            <module>integration/activemq6-aerogear-integration</module>
+            <module>integration/activemq6-vertx-integration</module>
             <module>examples</module>
          </modules>
       </profile>
       <profile>
          <id>release</id>
          <modules>
-            <module>hornetq-dto</module>
-            <module>hornetq-bootstrap</module>
-            <module>hornetq-commons</module>
-            <module>hornetq-selector</module>
-            <module>hornetq-core-client</module>
-            <module>hornetq-server</module>
-            <module>hornetq-jms-client</module>
-            <module>hornetq-jms-server</module>
-            <module>hornetq-native</module>
-            <module>hornetq-journal</module>
-            <module>hornetq-ra</module>
-            <module>hornetq-rest</module>
-            <module>hornetq-service-sar</module>
-            <module>hornetq-tools</module>
-            <module>integration/hornetq-jboss-as-integration</module>
-            <module>integration/hornetq-spring-integration</module>
-            <module>integration/hornetq-twitter-integration</module>
-            <module>integration/hornetq-aerogear-integration</module>
-            <module>integration/hornetq-vertx-integration</module>
+            <module>activemq6-dto</module>
+            <module>activemq6-bootstrap</module>
+            <module>activemq6-commons</module>
+            <module>activemq6-selector</module>
+            <module>activemq6-core-client</module>
+            <module>activemq6-server</module>
+            <module>activemq6-jms-client</module>
+            <module>activemq6-jms-server</module>
+            <module>activemq6-native</module>
+            <module>activemq6-journal</module>
+            <module>activemq6-ra</module>
+            <module>activemq6-rest</module>
+            <module>activemq6-service-sar</module>
+            <module>activemq6-tools</module>
+            <module>integration/activemq6-jboss-as-integration</module>
+            <module>integration/activemq6-spring-integration</module>
+            <module>integration/activemq6-twitter-integration</module>
+            <module>integration/activemq6-aerogear-integration</module>
+            <module>integration/activemq6-vertx-integration</module>
             <module>examples</module>
             <module>docs</module>
             <module>distribution</module>
@@ -553,25 +553,25 @@
       <profile>
          <id>hudson-tests</id>
          <modules>
-            <module>hornetq-dto</module>
-            <module>hornetq-bootstrap</module>
-            <module>hornetq-commons</module>
-            <module>hornetq-selector</module>
-            <module>hornetq-core-client</module>
-            <module>hornetq-server</module>
-            <module>hornetq-jms-client</module>
-            <module>hornetq-jms-server</module>
-            <module>hornetq-native</module>
-            <module>hornetq-journal</module>
-            <module>hornetq-ra</module>
-            <module>hornetq-rest</module>
-            <module>hornetq-service-sar</module>
-            <module>hornetq-tools</module>
-            <module>integration/hornetq-jboss-as-integration</module>
-            <module>integration/hornetq-spring-integration</module>
-            <module>integration/hornetq-twitter-integration</module>
-            <module>integration/hornetq-aerogear-integration</module>
-            <module>integration/hornetq-vertx-integration</module>
+            <module>activemq6-dto</module>
+            <module>activemq6-bootstrap</module>
+            <module>activemq6-commons</module>
+            <module>activemq6-selector</module>
+            <module>activemq6-core-client</module>
+            <module>activemq6-server</module>
+            <module>activemq6-jms-client</module>
+            <module>activemq6-jms-server</module>
+            <module>activemq6-native</module>
+            <module>activemq6-journal</module>
+            <module>activemq6-ra</module>
+            <module>activemq6-rest</module>
+            <module>activemq6-service-sar</module>
+            <module>activemq6-tools</module>
+            <module>integration/activemq6-jboss-as-integration</module>
+            <module>integration/activemq6-spring-integration</module>
+            <module>integration/activemq6-twitter-integration</module>
+            <module>integration/activemq6-aerogear-integration</module>
+            <module>integration/activemq6-vertx-integration</module>
             <module>tests</module>
          </modules>
          <properties>
@@ -591,25 +591,25 @@
       <profile>
          <id>jenkins-fast-tests</id>
          <modules>
-            <module>hornetq-dto</module>
-            <module>hornetq-bootstrap</module>
-            <module>hornetq-commons</module>
-            <module>hornetq-selector</module>
-            <module>hornetq-core-client</module>
-            <module>hornetq-server</module>
-            <module>hornetq-jms-client</module>
-            <module>hornetq-jms-server</module>
-            <module>hornetq-native</module>
-            <module>hornetq-journal</module>
-            <module>hornetq-ra</module>
-            <module>hornetq-rest</module>
-            <module>hornetq-service-sar</module>
-            <module>hornetq-tools</module>
-            <module>integration/hornetq-jboss-as-integration</module>
-            <module>integration/hornetq-spring-integration</module>
-            <module>integration/hornetq-twitter-integration</module>
-            <module>integration/hornetq-aerogear-integration</module>
-            <module>integration/hornetq-vertx-integration</module>
+            <module>activemq6-dto</module>
+            <module>activemq6-bootstrap</module>
+            <module>activemq6-commons</module>
+            <module>activemq6-selector</module>
+            <module>activemq6-core-client</module>
+            <module>activemq6-server</module>
+            <module>activemq6-jms-client</module>
+            <module>activemq6-jms-server</module>
+            <module>activemq6-native</module>
+            <module>activemq6-journal</module>
+            <module>activemq6-ra</module>
+            <module>activemq6-rest</module>
+            <module>activemq6-service-sar</module>
+            <module>activemq6-tools</module>
+            <module>integration/activemq6-jboss-as-integration</module>
+            <module>integration/activemq6-spring-integration</module>
+            <module>integration/activemq6-twitter-integration</module>
+            <module>integration/activemq6-aerogear-integration</module>
+            <module>integration/activemq6-vertx-integration</module>
             <module>tests</module>
          </modules>
          <properties>
@@ -625,25 +625,25 @@
       <profile>
          <id>examples</id>
          <modules>
-            <module>hornetq-dto</module>
-            <module>hornetq-bootstrap</module>
-            <module>hornetq-commons</module>
-            <module>hornetq-selector</module>
-            <module>hornetq-core-client</module>
-            <module>hornetq-server</module>
-            <module>hornetq-jms-client</module>
-            <module>hornetq-jms-server</module>
-            <module>hornetq-native</module>
-            <module>hornetq-journal</module>
-            <module>hornetq-ra</module>
-            <module>hornetq-rest</module>
-            <module>hornetq-service-sar</module>
-            <module>hornetq-tools</module>
-            <module>integration/hornetq-jboss-as-integration</module>
-            <module>integration/hornetq-spring-integration</module>
-            <module>integration/hornetq-twitter-integration</module>
-            <module>integration/hornetq-aerogear-integration</module>
-            <module>integration/hornetq-vertx-integration</module>
+            <module>activemq6-dto</module>
+            <module>activemq6-bootstrap</module>
+            <module>activemq6-commons</module>
+            <module>activemq6-selector</module>
+            <module>activemq6-core-client</module>
+            <module>activemq6-server</module>
+            <module>activemq6-jms-client</module>
+            <module>activemq6-jms-server</module>
+            <module>activemq6-native</module>
+            <module>activemq6-journal</module>
+            <module>activemq6-ra</module>
+            <module>activemq6-rest</module>
+            <module>activemq6-service-sar</module>
+            <module>activemq6-tools</module>
+            <module>integration/activemq6-jboss-as-integration</module>
+            <module>integration/activemq6-spring-integration</module>
+            <module>integration/activemq6-twitter-integration</module>
+            <module>integration/activemq6-aerogear-integration</module>
+            <module>integration/activemq6-vertx-integration</module>
             <module>tests</module>
             <module>examples</module>
          </modules>
@@ -799,8 +799,8 @@
             </plugin>
             <!-- Many examples use it -->
             <plugin>
-               <groupId>org.hornetq</groupId>
-               <artifactId>hornetq-maven-plugin</artifactId>
+               <groupId>org.apache.activemq6</groupId>
+               <artifactId>activemq6-maven-plugin</artifactId>
                <version>1.2.0</version>
             </plugin>
          </plugins>
@@ -907,7 +907,7 @@
                   <exclude>**/filter/impl/Operator.java</exclude>
                   <exclude>**/filter/impl/RegExp.java</exclude>
                   <exclude>**/utils/UUID*.java</exclude>
-                  <exclude>**/org/hornetq/selector/**</exclude>
+                  <exclude>**/org/apache/activemq6/selector/**</exclude>
                </excludes>
                <useDefaultExcludes>true</useDefaultExcludes>
                <strictCheck>true</strictCheck>

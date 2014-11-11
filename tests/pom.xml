@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
-      <groupId>org.hornetq</groupId>
-      <artifactId>hornetq-pom</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <groupId>org.apache.activemq6</groupId>
+      <artifactId>activemq6-pom</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
-   <name>HornetQ Tests POM</name>
+   <name>ActiveMQ6 Tests POM</name>
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.hornetq.tests</groupId>
-   <artifactId>hornetq-tests-pom</artifactId>
+   <groupId>org.apache.activemq6.tests</groupId>
+   <artifactId>activemq6-tests-pom</artifactId>
    <packaging>pom</packaging>
 
    <properties>

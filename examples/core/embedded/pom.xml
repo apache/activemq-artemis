@@ -3,29 +3,29 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.hornetq.examples.core</groupId>
+      <groupId>org.apache.activemq6.examples.core</groupId>
       <artifactId>core-examples</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>hornetq-core-embedded-example</artifactId>
+   <artifactId>activemq6-core-embedded-example</artifactId>
    <packaging>jar</packaging>
-   <name>HornetQ Core Embedded Example</name>
+   <name>ActiveMQ6 Core Embedded Example</name>
 
    <dependencies>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-server</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-server</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-core-client</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-commons</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>

@@ -1,0 +1,608 @@
+/*
+ * Copyright 2005-2014 Red Hat, Inc.
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+package org.apache.activemq6.tests.integration.jms.bridge;
+
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import javax.jms.XAConnectionFactory;
+import javax.transaction.TransactionManager;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
+import com.arjuna.ats.arjuna.coordinator.TxControl;
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
+import org.apache.activemq6.api.core.TransportConfiguration;
+import org.apache.activemq6.api.core.management.ResourceNames;
+import org.apache.activemq6.api.jms.HornetQJMSClient;
+import org.apache.activemq6.api.jms.JMSFactoryType;
+import org.apache.activemq6.api.jms.management.JMSQueueControl;
+import org.apache.activemq6.api.jms.management.TopicControl;
+import org.apache.activemq6.core.config.Configuration;
+import org.apache.activemq6.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq6.core.server.HornetQServer;
+import org.apache.activemq6.core.server.HornetQServers;
+import org.apache.activemq6.core.server.management.ManagementService;
+import org.apache.activemq6.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq6.jms.bridge.DestinationFactory;
+import org.apache.activemq6.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq6.jms.client.HornetQConnectionFactory;
+import org.apache.activemq6.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq6.jms.client.HornetQMessage;
+import org.apache.activemq6.jms.client.HornetQXAConnectionFactory;
+import org.apache.activemq6.jms.server.JMSServerManager;
+import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq6.tests.integration.IntegrationTestLogger;
+import org.apache.activemq6.tests.unit.util.InVMNamingContext;
+import org.apache.activemq6.tests.util.UnitTestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+
+/**
+ * A BridgeTestBase
+ *
+ * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ */
+public abstract class BridgeTestBase extends UnitTestCase
+{
+   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+
+   protected ConnectionFactoryFactory cff0, cff1;
+
+   protected ConnectionFactoryFactory cff0xa, cff1xa;
+
+   protected ConnectionFactory cf0, cf1;
+
+   protected XAConnectionFactory cf0xa, cf1xa;
+
+   protected DestinationFactory sourceQueueFactory;
+   protected DestinationFactory targetQueueFactory;
+   protected DestinationFactory localTargetQueueFactory;
+   protected DestinationFactory sourceTopicFactory;
+
+   protected Queue sourceQueue, targetQueue, localTargetQueue;
+
+   protected Topic sourceTopic;
+
+   protected HornetQServer server0;
+
+   protected JMSServerManager jmsServer0;
+
+   protected HornetQServer server1;
+
+   protected JMSServerManager jmsServer1;
+
+   private InVMNamingContext context0;
+
+   protected InVMNamingContext context1;
+
+   protected HashMap<String, Object> params1;
+
+   protected ConnectionFactoryFactory cff0LowProducerWindow;
+
+   @Override
+   @Before
+   public void setUp() throws Exception
+   {
+      super.setUp();
+
+      // Start the servers
+      Configuration conf0 = createBasicConfig()
+         .setJournalDirectory(getJournalDir(0, false))
+         .setBindingsDirectory(getBindingsDir(0, false))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+
+      server0 = addServer(HornetQServers.newHornetQServer(conf0, false));
+
+      context0 = new InVMNamingContext();
+      jmsServer0 = new JMSServerManagerImpl(server0);
+      jmsServer0.setContext(context0);
+      jmsServer0.start();
+
+      params1 = new HashMap<String, Object>();
+      params1.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
+
+      Configuration conf1 = createBasicConfig()
+         .setJournalDirectory(getJournalDir(1, false))
+         .setBindingsDirectory(getBindingsDir(1, false))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
+
+      server1 = addServer(HornetQServers.newHornetQServer(conf1, false));
+
+      context1 = new InVMNamingContext();
+
+      jmsServer1 = new JMSServerManagerImpl(server1);
+      jmsServer1.setContext(context1);
+      jmsServer1.start();
+
+      createQueue("sourceQueue", 0);
+
+      jmsServer0.createTopic(false, "sourceTopic", "/topic/sourceTopic");
+
+      createQueue("localTargetQueue", 0);
+
+      createQueue("targetQueue", 1);
+
+      setUpAdministeredObjects();
+      TxControl.enable();
+      // We need a local transaction and recovery manager
+      // We must start this after the remote servers have been created or it won't
+      // have deleted the database and the recovery manager may attempt to recover transactions
+
+   }
+
+   protected void createQueue(final String queueName, final int index) throws Exception
+   {
+      JMSServerManager server = jmsServer0;
+      if (index == 1)
+      {
+         server = jmsServer1;
+      }
+      assertTrue("queue '/queue/" + queueName + "' created",
+                 server.createQueue(false, queueName, null, true, "/queue/" + queueName));
+   }
+
+   @Override
+   @After
+   public void tearDown() throws Exception
+   {
+      checkEmpty(sourceQueue, 0);
+      checkEmpty(localTargetQueue, 0);
+      checkEmpty(targetQueue, 1);
+
+      // Check no subscriptions left lying around
+
+      checkNoSubscriptions(sourceTopic, 0);
+      if (cff0 instanceof HornetQConnectionFactory)
+      {
+         ((HornetQConnectionFactory) cff0).close();
+      }
+      if (cff1 instanceof HornetQConnectionFactory)
+      {
+         ((HornetQConnectionFactory) cff1).close();
+      }
+      stopComponent(jmsServer0);
+      stopComponent(jmsServer1);
+      cff0 = cff1 = null;
+      cff0xa = cff1xa = null;
+
+      cf0 = cf1 = null;
+
+      cf0xa = cf1xa = null;
+
+      sourceQueueFactory = targetQueueFactory = localTargetQueueFactory = sourceTopicFactory = null;
+
+      sourceQueue = targetQueue = localTargetQueue = null;
+
+      sourceTopic = null;
+
+      server0 = null;
+
+      jmsServer0 = null;
+
+      server1 = null;
+
+      jmsServer1 = null;
+      if (context0 != null)
+         context0.close();
+      context0 = null;
+      if (context1 != null)
+         context1.close();
+      context1 = null;
+
+      // Shutting down Arjuna threads
+      TxControl.disable(true);
+
+      TransactionReaper.terminate(false);
+      super.tearDown();
+   }
+
+
+   protected void setUpAdministeredObjects() throws Exception
+   {
+      cff0LowProducerWindow = new ConnectionFactoryFactory()
+      {
+         public ConnectionFactory createConnectionFactory() throws Exception
+         {
+            HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                            new TransportConfiguration(
+                                                                                               INVM_CONNECTOR_FACTORY));
+
+            // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
+            cf.setReconnectAttempts(0);
+            cf.setBlockOnNonDurableSend(true);
+            cf.setBlockOnDurableSend(true);
+            cf.setCacheLargeMessagesClient(true);
+            cf.setProducerWindowSize(100);
+
+            return cf;
+         }
+
+      };
+
+
+      cff0 = new ConnectionFactoryFactory()
+      {
+         public ConnectionFactory createConnectionFactory() throws Exception
+         {
+            HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                            new TransportConfiguration(
+                                                                                               INVM_CONNECTOR_FACTORY));
+
+            // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
+            cf.setReconnectAttempts(0);
+            cf.setBlockOnNonDurableSend(true);
+            cf.setBlockOnDurableSend(true);
+            cf.setCacheLargeMessagesClient(true);
+
+            return cf;
+         }
+
+      };
+
+      cff0xa = new ConnectionFactoryFactory()
+      {
+         public Object createConnectionFactory() throws Exception
+         {
+            HornetQXAConnectionFactory cf = (HornetQXAConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF,
+                                                                                                                           new TransportConfiguration(
+                                                                                                                              INVM_CONNECTOR_FACTORY));
+
+            // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
+            cf.setReconnectAttempts(0);
+            cf.setBlockOnNonDurableSend(true);
+            cf.setBlockOnDurableSend(true);
+            cf.setCacheLargeMessagesClient(true);
+
+            return cf;
+         }
+
+      };
+
+      cf0 = (ConnectionFactory) cff0.createConnectionFactory();
+      cf0xa = (XAConnectionFactory) cff0xa.createConnectionFactory();
+
+      cff1 = new ConnectionFactoryFactory()
+      {
+
+         public ConnectionFactory createConnectionFactory() throws Exception
+         {
+            HornetQJMSConnectionFactory cf = (HornetQJMSConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                                                             new TransportConfiguration(
+                                                                                                                                INVM_CONNECTOR_FACTORY,
+                                                                                                                                params1));
+
+            // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
+            cf.setReconnectAttempts(0);
+            cf.setBlockOnNonDurableSend(true);
+            cf.setBlockOnDurableSend(true);
+            cf.setCacheLargeMessagesClient(true);
+
+            return cf;
+         }
+      };
+
+      cff1xa = new ConnectionFactoryFactory()
+      {
+
+         public XAConnectionFactory createConnectionFactory() throws Exception
+         {
+            HornetQXAConnectionFactory cf = (HornetQXAConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF,
+                                                                                                                           new TransportConfiguration(
+                                                                                                                              INVM_CONNECTOR_FACTORY,
+                                                                                                                              params1));
+
+            // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
+            cf.setReconnectAttempts(0);
+            cf.setBlockOnNonDurableSend(true);
+            cf.setBlockOnDurableSend(true);
+            cf.setCacheLargeMessagesClient(true);
+
+            return cf;
+         }
+      };
+
+      cf1 = (ConnectionFactory) cff1.createConnectionFactory();
+      cf1xa = (XAConnectionFactory) cff1xa.createConnectionFactory();
+
+      sourceQueueFactory = new DestinationFactory()
+      {
+         public Destination createDestination() throws Exception
+         {
+            return (Destination) context0.lookup("/queue/sourceQueue");
+         }
+      };
+
+      sourceQueue = (Queue) sourceQueueFactory.createDestination();
+
+      targetQueueFactory = new DestinationFactory()
+      {
+         public Destination createDestination() throws Exception
+         {
+            return (Destination) context1.lookup("/queue/targetQueue");
+         }
+      };
+
+      targetQueue = (Queue) targetQueueFactory.createDestination();
+
+      sourceTopicFactory = new DestinationFactory()
+      {
+         public Destination createDestination() throws Exception
+         {
+            return (Destination) context0.lookup("/topic/sourceTopic");
+         }
+      };
+
+      sourceTopic = (Topic) sourceTopicFactory.createDestination();
+
+      localTargetQueueFactory = new DestinationFactory()
+      {
+         public Destination createDestination() throws Exception
+         {
+            return (Destination) context0.lookup("/queue/localTargetQueue");
+         }
+      };
+
+      localTargetQueue = (Queue) localTargetQueueFactory.createDestination();
+   }
+
+   protected void sendMessages(final ConnectionFactory cf,
+                               final Destination dest,
+                               final int start,
+                               final int numMessages,
+                               final boolean persistent,
+                               final boolean largeMessage) throws Exception
+   {
+      Connection conn = null;
+
+      try
+      {
+         conn = cf.createConnection();
+
+         Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageProducer prod = sess.createProducer(dest);
+
+         prod.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
+
+         for (int i = start; i < start + numMessages; i++)
+         {
+            if (largeMessage)
+            {
+               BytesMessage msg = sess.createBytesMessage();
+               ((HornetQMessage) msg).setInputStream(UnitTestCase.createFakeLargeStream(1024L * 1024L));
+               msg.setStringProperty("msg", "message" + i);
+               prod.send(msg);
+            }
+            else
+            {
+               TextMessage tm = sess.createTextMessage("message" + i);
+               prod.send(tm);
+            }
+
+         }
+      }
+      finally
+      {
+         if (conn != null)
+         {
+            conn.close();
+         }
+      }
+   }
+
+   protected void checkMessagesReceived(final ConnectionFactory cf,
+                                        final Destination dest,
+                                        final QualityOfServiceMode qosMode,
+                                        final int numMessages,
+                                        final boolean longWaitForFirst,
+                                        final boolean largeMessage) throws Exception
+   {
+      Connection conn = null;
+
+      try
+      {
+         conn = cf.createConnection();
+
+         conn.start();
+
+         Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageConsumer cons = sess.createConsumer(dest);
+
+         // Consume the messages
+
+         Set<String> msgs = new HashSet<String>();
+
+         int count = 0;
+
+         // We always wait longer for the first one - it may take some time to arrive especially if we are
+         // waiting for recovery to kick in
+         while (true)
+         {
+            Message tm = cons.receive(count == 0 ? (longWaitForFirst ? 60000 : 10000) : 5000);
+
+            if (tm == null)
+            {
+               break;
+            }
+
+            // log.info("Got message " + tm.getText());
+
+            if (largeMessage)
+            {
+               BytesMessage bmsg = (BytesMessage) tm;
+               msgs.add(tm.getStringProperty("msg"));
+               byte[] buffRead = new byte[1024];
+               for (int i = 0; i < 1024; i++)
+               {
+                  Assert.assertEquals(1024, bmsg.readBytes(buffRead));
+               }
+            }
+            else
+            {
+               msgs.add(((TextMessage) tm).getText());
+            }
+
+            count++;
+
+         }
+
+         if (qosMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE || qosMode == QualityOfServiceMode.DUPLICATES_OK)
+         {
+            // All the messages should be received
+
+            for (int i = 0; i < numMessages; i++)
+            {
+               Assert.assertTrue("quality=" + qosMode + ", #=" + i + ", message=" + msgs, msgs.contains("message" + i));
+            }
+
+            // Should be no more
+            if (qosMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE)
+            {
+               Assert.assertEquals(numMessages, msgs.size());
+            }
+         }
+         else if (qosMode == QualityOfServiceMode.AT_MOST_ONCE)
+         {
+            // No *guarantee* that any messages will be received
+            // but you still might get some depending on how/where the crash occurred
+         }
+
+         BridgeTestBase.log.trace("Check complete");
+
+      }
+      finally
+      {
+         if (conn != null)
+         {
+            conn.close();
+         }
+      }
+   }
+
+   protected void checkAllMessageReceivedInOrder(final ConnectionFactory cf,
+                                                 final Destination dest,
+                                                 final int start,
+                                                 final int numMessages,
+                                                 final boolean largeMessage) throws Exception
+   {
+      Connection conn = null;
+      try
+      {
+         conn = cf.createConnection();
+
+         conn.start();
+
+         Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageConsumer cons = sess.createConsumer(dest);
+
+         // Consume the messages
+
+         for (int i = 0; i < numMessages; i++)
+         {
+            Message tm = cons.receive(30000);
+
+            Assert.assertNotNull(tm);
+
+            if (largeMessage)
+            {
+               BytesMessage bmsg = (BytesMessage) tm;
+               Assert.assertEquals("message" + (i + start), tm.getStringProperty("msg"));
+               byte[] buffRead = new byte[1024];
+               for (int j = 0; j < 1024; j++)
+               {
+                  Assert.assertEquals(1024, bmsg.readBytes(buffRead));
+               }
+            }
+            else
+            {
+               Assert.assertEquals("message" + (i + start), ((TextMessage) tm).getText());
+            }
+         }
+      }
+      finally
+      {
+         if (conn != null)
+         {
+            conn.close();
+         }
+      }
+   }
+
+   public boolean checkEmpty(final Queue queue, final int index) throws Exception
+   {
+      ManagementService managementService = server0.getManagementService();
+      if (index == 1)
+      {
+         managementService = server1.getManagementService();
+      }
+      JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(ResourceNames.JMS_QUEUE + queue.getQueueName());
+
+      //server may be closed
+      if (queueControl != null)
+      {
+         queueControl.flushExecutor();
+         Long messageCount = queueControl.getMessageCount();
+
+         if (messageCount > 0)
+         {
+            queueControl.removeMessages(null);
+         }
+      }
+      return true;
+   }
+
+   protected void checkNoSubscriptions(final Topic topic, final int index) throws Exception
+   {
+      ManagementService managementService = server0.getManagementService();
+      if (index == 1)
+      {
+         managementService = server1.getManagementService();
+      }
+      TopicControl topicControl = (TopicControl) managementService.getResource(ResourceNames.JMS_TOPIC + topic.getTopicName());
+      Assert.assertEquals(0, topicControl.getSubscriptionCount());
+
+   }
+
+   protected void removeAllMessages(final String queueName, final int index) throws Exception
+   {
+      ManagementService managementService = server0.getManagementService();
+      if (index == 1)
+      {
+         managementService = server1.getManagementService();
+      }
+      JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(ResourceNames.JMS_QUEUE + queueName);
+      queueControl.removeMessages(null);
+   }
+
+   protected TransactionManager newTransactionManager()
+   {
+      return new TransactionManagerImple();
+   }
+
+   // Inner classes -------------------------------------------------------------------
+}

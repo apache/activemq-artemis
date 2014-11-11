@@ -1,0 +1,126 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <name>ActiveMQ6 Native POM</name>
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq6</groupId>
+      <artifactId>activemq6-pom</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
+   </parent>
+
+   <artifactId>activemq6-native</artifactId>
+   <packaging>${native-package-type}</packaging>
+   <dependencies>
+      <dependency>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <resources>
+         <resource>
+            <directory>${basedir}/target/output/</directory>
+         </resource>
+      </resources>
+      <plugins>
+         <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>copy-resources-32</id>
+                  <phase>validate</phase>
+                  <goals>
+                     <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${basedir}/target/output/lib/linux-i686/</outputDirectory>
+                     <resources>
+                        <resource>
+                           <directory>bin/</directory>
+                           <includes>
+                              <include>libHornetQAIO32.so</include>
+                           </includes>
+                        </resource>
+                     </resources>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>copy-resources-64</id>
+                  <phase>validate</phase>
+                  <goals>
+                     <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${basedir}/target/output/lib/linux-x86_64/</outputDirectory>
+                     <resources>
+                        <resource>
+                           <directory>bin/</directory>
+                           <includes>
+                              <include>libHornetQAIO64.so</include>
+                           </includes>
+                        </resource>
+                     </resources>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+
+
+   <profiles>
+      <profile>
+         <id>native-build</id>
+         <properties>
+            <native-package-type>nar</native-package-type>
+         </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <!-- Not officially released into Central Maven yet,
+                       for now you have to download the snapshot with
+                       git clone https://github.com/maven-nar/nar-maven-plugin.git
+                       cd nar-maven-plugin
+                       mvn install
+                       -->
+                  <groupId>com.github.maven-nar</groupId>
+                  <artifactId>nar-maven-plugin</artifactId>
+                  <version>3.0.0</version>
+                  <extensions>true</extensions>
+                  <configuration>
+                     <java>
+                        <include>true</include>
+                     </java>
+                     <c>
+                        <systemIncludePaths>
+                        </systemIncludePaths>
+                     </c>
+                     <linker>
+                        <sysLibs>
+                           <sysLib>
+                              <name>aio</name>
+                           </sysLib>
+                        </sysLibs>
+                     </linker>
+                     <libraries>
+                        <library>
+                           <type>jni</type>
+                           <narSystemPackage>org.hornetq.core.libaio</narSystemPackage>
+                        </library>
+                     </libraries>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
+
+   <properties>
+      <native-package-type>jar</native-package-type>
+      <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+   </properties>
+
+</project>

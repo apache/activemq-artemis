@@ -3,15 +3,15 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.hornetq.examples</groupId>
-      <artifactId>hornetq-examples</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <groupId>org.apache.activemq6.examples</groupId>
+      <artifactId>activemq6-examples</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <groupId>org.hornetq.example.javaee</groupId>
+   <groupId>org.apache.activemq6.example.javaee</groupId>
    <artifactId>javaee-examples</artifactId>
    <packaging>pom</packaging>
-   <name>HornetQ Java EE Examples</name>
+   <name>ActiveMQ6 Java EE Examples</name>
    <!-- Properties -->
    <properties>
       <!--
@@ -92,18 +92,18 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-core-client</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-core-client</artifactId>
          <version>${hornetq.client.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-jms-client</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-jms-client</artifactId>
          <version>${hornetq.client.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-ra</artifactId>
+         <groupId>org.apache.activemq6</groupId>
+         <artifactId>activemq6-ra</artifactId>
          <version>${hornetq.client.version}</version>
       </dependency>
       <dependency>

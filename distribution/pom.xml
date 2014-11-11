@@ -3,14 +3,14 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.hornetq</groupId>
-      <artifactId>hornetq-pom</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <groupId>org.apache.activemq6</groupId>
+      <artifactId>activemq6-pom</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>hornetq-distribution</artifactId>
+   <artifactId>activemq6-distribution</artifactId>
    <packaging>pom</packaging>
-   <name>HornetQ Distribution</name>
+   <name>ActiveMQ6 Distribution</name>
 
    <properties>
       <skipLicenseCheck>true</skipLicenseCheck>
@@ -34,7 +34,7 @@
 
    <modules>
       <module>jnp-client</module>
-      <module>hornetq</module>
+      <module>activemq6</module>
    </modules>
 
    <build>
