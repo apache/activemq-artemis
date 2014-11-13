@@ -1,10 +1,4 @@
-# HornetQ
-
-If you need information about the HornetQ project please go to
-
-http://community.jboss.org/wiki/HornetQ
-
-http://www.jboss.org.apache.activemq6/
+# ActiveMQ6
 
 This file describes some minimum 'stuff one needs to know' to get
 started coding in this project.
@@ -13,7 +7,7 @@ started coding in this project.
 
 The project's source code is hosted at:
 
-https://github.com/hornetq
+https://git-wip-us.apache.org/repos/asf/activemq-6.git
 
 ### Git usage:
 
@@ -100,7 +94,7 @@ can be installed from [Eclipse Kepler release repository].
 
 ### Annotation Pre-Processing
 
-HornetQ uses [JBoss Logging] and that requires source code generation from Java
+ActiveMQ6 uses [JBoss Logging] and that requires source code generation from Java
 annotations. In order for it to 'just work' in Eclipse you need to install the
 _Maven Integration for Eclipse JDT Annotation Processor Toolkit_ [m2e-apt]. See
 this [JBoss blog post] for details.
@@ -122,7 +116,7 @@ do this with Eclipse Juno (4.2).
 
 The current recommended solution for Eclipse Kepler is to mark
 `javacc-maven-plugin` as ignored by Eclipse, run Maven from the
-command line and then modify the project `hornetq-core-client` adding
+command line and then modify the project `activemq6-core-client` adding
 the folder `target/generated-sources/javacc` to its build path.
 
 [m2e connector for javacc-maven-plugin]: https://github.com/objectledge/maven-extensions
@@ -131,7 +125,7 @@ http://dev.eclipse.org/mhonarc/lists/m2e-users/msg02725.html
 
 ### Use _Project Working Sets_
 
-Importing all HornetQ subprojects will create _too many_ projects in Eclipse,
+Importing all ActiveMQ6 subprojects will create _too many_ projects in Eclipse,
 cluttering your _Package Explorer_ and _Project Explorer_ views. One way to address
 that is to use [Eclipse's Working Sets] feature. A good introduction to it can be
 found at a [Dzone article on Eclipse Working Sets].
@@ -161,7 +155,8 @@ Do not use the [maven-eclipse-plugin] to copy the files as it conflicts with [m2
 ### Repositories
 
 The code repository for ActiveMQ6 is hosted by Apache org and lives here: https://git-wip-us.apache.org/repos/asf/activemq-6.git.
-We also host a mirror of the ActiveMQ repository on GitHub: https://github.com/apache/activemq-6.  We use this mirror for all code submissions and reviews.  To submit code to ActiveMQ please open a Pull Request as outlined as part of the GitHub workflow described here: https://guides.github.com/introduction/flow/index.html.  Once a pull request is opened it will be reviewed and commented on.  Any further changes as a result of comments / review process should be addressed and reflected in the original pull request as outlined in the GitHub workflow.  When the pull request has went through the review process and ready to merge, the reviewer should comment with "Ack, Ready to Push".  Once an Ack message is received one of the ActiveMQ core team members will push the changes to upstream Apache ActiveMQ repository and close the pull request.
+
+We also host a mirror of the ActiveMQ repository on GitHub: https://github.com/apache/activemq-6.  We use this mirror for all code submissions and reviews.  To submit code to ActiveMQ6 please open a Pull Request as outlined as part of the GitHub workflow described here: https://guides.github.com/introduction/flow/index.html.  Once a pull request is opened it will be reviewed and commented on.  Any further changes as a result of comments / review process should be addressed and reflected in the original pull request as outlined in the GitHub workflow.  When the pull request has went through the review process and ready to merge, the reviewer should comment with "Ack, Ready to Push".  Once an Ack message is received one of the ActiveMQ6 core team members will push the changes to upstream Apache ActiveMQ6 repository and close the pull request.
 
 ### Commit Messages
 
@@ -186,19 +181,19 @@ do and why the commit was added.
 
 ### Core Contributers
 
-Core ActiveMQ members have write access to the Apache ActiveMQ repositories and will be responsible for Ack'ing and pushing commits contributed via pull requests on GitHub.  The follow steps can be used as an example for how to set up relevant ActiveMQ repositories for reviewing and pushing changes.
+Core ActiveMQ6 members have write access to the Apache ActiveMQ6 repositories and will be responsible for Ack'ing and pushing commits contributed via pull requests on GitHub.  The follow steps can be used as an example for how to set up relevant ActiveMQ6 repositories for reviewing and pushing changes.
 
 To setup repositories for reviewing and pushing:
 
 ```
-  # Clone the GitHub Mirror of ActiveMQ Repo:
+  # Clone the GitHub Mirror of ActiveMQ6 Repo:
   git clone git@github.com:apache/activemq-6.git
 
-  # Add the following section to your <activemq-6 repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
-  [remote "activemq"]
+  # Add the following section to your <activemq6 repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
+  [remote "origin"]
         url = git@github.com:apache/activemq-6.git
-        fetch = +refs/heads/*:refs/remotes/activemq/*
-        fetch = +refs/pull/*/head:refs/remotes/activemq/pr/*
+        fetch = +refs/heads/*:refs/remotes/origin/*
+        fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
 
 
   # Add the Apache repository as a remote
@@ -211,7 +206,7 @@ To setup repositories for reviewing and pushing:
 To push commits from a pull request to the apache repository:
 
 ```
-  cd <activemq repo>
+  cd <activemq6 repo>
 
   # Download all the remote branches etc... including all the pull requests.
   git fetch --all
