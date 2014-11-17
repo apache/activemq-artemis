@@ -51,8 +51,8 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-jca-api</artifactId>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
       </dependency>
       <dependency>
          <groupId>org.jboss.security</groupId>
@@ -61,6 +61,11 @@
       <dependency>
          <groupId>org.jboss.security</groupId>
          <artifactId>jbosssx</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.security</groupId>
+         <artifactId>jbosssx</artifactId>
+         <version>2.0.3.SP1</version>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

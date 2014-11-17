@@ -24,7 +24,7 @@
       <jboss.home>${env.JBOSS_HOME}</jboss.home>
 
       <!-- Note this must be consistent with the version in AS7 -->
-      <hornetq.client.version>2.5.0-SNAPSHOT</hornetq.client.version>
+      <hornetq.client.version>6.0.0-SNAPSHOT</hornetq.client.version>
 
    </properties>
 
