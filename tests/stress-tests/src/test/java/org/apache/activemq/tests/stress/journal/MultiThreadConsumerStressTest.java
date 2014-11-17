@@ -15,7 +15,7 @@ package org.apache.activemq.tests.stress.journal;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -155,8 +155,8 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
    {
       Configuration config = createDefaultConfig(true)
          .setJournalType(journalType)
-         .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
-         .setJournalMinFiles(HornetQDefaultConfiguration.getDefaultJournalMinFiles())
+         .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
+         .setJournalMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles())
          .setJournalCompactMinFiles(2)
          .setJournalCompactPercentage(50);
 

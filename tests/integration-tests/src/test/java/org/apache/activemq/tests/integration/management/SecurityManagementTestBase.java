@@ -11,12 +11,12 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.management;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.junit.Before;
 import org.junit.After;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientRequestor;
@@ -96,7 +96,7 @@ public abstract class SecurityManagementTestBase extends UnitTestCase
 
          session.start();
 
-         ClientRequestor requestor = new ClientRequestor(session, HornetQDefaultConfiguration.getDefaultManagementAddress());
+         ClientRequestor requestor = new ClientRequestor(session, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
 
          ClientMessage mngmntMessage = session.createMessage(false);
          ManagementHelper.putAttribute(mngmntMessage, ResourceNames.CORE_SERVER, "started");

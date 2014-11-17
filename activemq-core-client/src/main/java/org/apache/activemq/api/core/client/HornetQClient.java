@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.api.core.client;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy;
@@ -30,13 +30,13 @@ public final class HornetQClient
 {
    public static final String DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME = RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName();
 
-   public static final long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD = HornetQDefaultConfiguration.getDefaultClientFailureCheckPeriod();
+   public static final long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD = ActiveMQDefaultConfiguration.getDefaultClientFailureCheckPeriod();
 
    public static final long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD_INVM = -1;
 
    // 1 minute - this should be higher than ping period
 
-   public static final long DEFAULT_CONNECTION_TTL = HornetQDefaultConfiguration.getDefaultConnectionTtl();
+   public static final long DEFAULT_CONNECTION_TTL = ActiveMQDefaultConfiguration.getDefaultConnectionTtl();
 
    public static final long DEFAULT_CONNECTION_TTL_INVM = -1;
 
@@ -80,9 +80,9 @@ public final class HornetQClient
 
    public static final long DEFAULT_RETRY_INTERVAL = 2000;
 
-   public static final double DEFAULT_RETRY_INTERVAL_MULTIPLIER = HornetQDefaultConfiguration.getDefaultRetryIntervalMultiplier();
+   public static final double DEFAULT_RETRY_INTERVAL_MULTIPLIER = ActiveMQDefaultConfiguration.getDefaultRetryIntervalMultiplier();
 
-   public static final long DEFAULT_MAX_RETRY_INTERVAL = HornetQDefaultConfiguration.getDefaultMaxRetryInterval();
+   public static final long DEFAULT_MAX_RETRY_INTERVAL = ActiveMQDefaultConfiguration.getDefaultMaxRetryInterval();
 
    public static final int DEFAULT_RECONNECT_ATTEMPTS = 0;
 

@@ -15,7 +15,7 @@ package org.apache.activemq.api.core;
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 
 
 /**
@@ -32,7 +32,7 @@ public final class BroadcastGroupConfiguration implements Serializable
 
    private String name = null;
 
-   private long broadcastPeriod = HornetQDefaultConfiguration.getDefaultBroadcastPeriod();
+   private long broadcastPeriod = ActiveMQDefaultConfiguration.getDefaultBroadcastPeriod();
 
    private BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = null;
 

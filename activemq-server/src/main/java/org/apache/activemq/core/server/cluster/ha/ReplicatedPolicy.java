@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.server.impl.HornetQServerImpl;
 import org.apache.activemq.core.server.impl.LiveActivation;
 import org.apache.activemq.core.server.impl.SharedNothingLiveActivation;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class ReplicatedPolicy implements HAPolicy<LiveActivation>
 {
-   private boolean checkForLiveServer = HornetQDefaultConfiguration.isDefaultCheckForLiveServer();
+   private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
 
    private String groupName = null;
 
@@ -31,9 +31,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation>
    * these are only set by the ReplicaPolicy after failover to decide if the live server can failback, these should not
    * be exposed in configuration.
    * */
-   private boolean allowAutoFailBack = HornetQDefaultConfiguration.isDefaultAllowAutoFailback();
+   private boolean allowAutoFailBack = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
 
-   private long failbackDelay = HornetQDefaultConfiguration.getDefaultFailbackDelay();
+   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
    /*
    * this is used as the policy when the server is started after a failover

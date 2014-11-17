@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
@@ -866,7 +866,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected void setUpGroupHandler(final GroupingHandlerConfiguration.TYPE type, final int node, final int timeout)
    {
-      setUpGroupHandler(type, node, timeout, -1, HornetQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod());
+      setUpGroupHandler(type, node, timeout, -1, ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod());
    }
 
    protected void setUpGroupHandler(final GroupingHandlerConfiguration.TYPE type, final int node, final int timeout, final long groupTimeout,

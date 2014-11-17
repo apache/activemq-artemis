@@ -12,6 +12,7 @@
  */
 package org.apache.activemq.core.config.impl;
 
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.junit.Test;
 
@@ -19,7 +20,6 @@ import java.util.Collections;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.journal.impl.JournalConstants;
 
@@ -38,23 +38,23 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
    public void testDefaults()
    {
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(),
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(),
                           conf.getScheduledThreadPoolMaxSize());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultThreadPoolMaxSize(), conf.getThreadPoolMaxSize());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize(), conf.getThreadPoolMaxSize());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultSecurityInvalidationInterval(),
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(),
                           conf.getSecurityInvalidationInterval());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultSecurityEnabled(), conf.isSecurityEnabled());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled(), conf.isSecurityEnabled());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultJmxManagementEnabled(), conf.isJMXManagementEnabled());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled(), conf.isJMXManagementEnabled());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJmxDomain(), conf.getJMXDomain());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), conf.getJMXDomain());
 
       Assert.assertEquals(0, conf.getIncomingInterceptorClassNames().size());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultConnectionTtlOverride(), conf.getConnectionTTLOverride());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultConnectionTtlOverride(), conf.getConnectionTTLOverride());
 
       Assert.assertEquals(0, conf.getAcceptorConfigurations().size());
 
@@ -72,70 +72,70 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(Collections.emptyList(), conf.getQueueConfigurations());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultManagementNotificationAddress(),
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(),
                           conf.getManagementNotificationAddress());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultClusterPassword(), conf.getClusterPassword());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterPassword(), conf.getClusterPassword());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultIdCacheSize(), conf.getIDCacheSize());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultIdCacheSize(), conf.getIDCacheSize());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultPersistIdCache(), conf.isPersistIDCache());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistIdCache(), conf.isPersistIDCache());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultBindingsDirectory(), conf.getBindingsDirectory());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory(), conf.getBindingsDirectory());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalDir(), conf.getJournalDirectory());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalDir(), conf.getJournalDirectory());
 
       Assert.assertEquals(getDefaultJournalType(), conf.getJournalType());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultJournalSyncTransactional(), conf.isJournalSyncTransactional());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional(), conf.isJournalSyncTransactional());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultJournalSyncNonTransactional(),
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional(),
                           conf.isJournalSyncNonTransactional());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalFileSize(), conf.getJournalFileSize());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), conf.getJournalFileSize());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles(), conf.getJournalCompactMinFiles());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles(), conf.getJournalCompactMinFiles());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalCompactPercentage(), conf.getJournalCompactPercentage());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(), conf.getJournalCompactPercentage());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalMinFiles(), conf.getJournalMinFiles());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles(), conf.getJournalMinFiles());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalMaxIoAio(), conf.getJournalMaxIO_AIO());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), conf.getJournalMaxIO_AIO());
 
       Assert.assertEquals(JournalConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, conf.getJournalBufferTimeout_AIO());
 
       Assert.assertEquals(JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, conf.getJournalBufferSize_AIO());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalMaxIoNio(), conf.getJournalMaxIO_NIO());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio(), conf.getJournalMaxIO_NIO());
 
       Assert.assertEquals(JournalConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, conf.getJournalBufferTimeout_NIO());
 
       Assert.assertEquals(JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, conf.getJournalBufferSize_NIO());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultCreateBindingsDir(), conf.isCreateBindingsDir());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateBindingsDir(), conf.isCreateBindingsDir());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultCreateJournalDir(), conf.isCreateJournalDir());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateJournalDir(), conf.isCreateJournalDir());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultPagingDir(), conf.getPagingDirectory());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultPagingDir(), conf.getPagingDirectory());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultLargeMessagesDir(), conf.getLargeMessagesDirectory());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir(), conf.getLargeMessagesDirectory());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultWildcardRoutingEnabled(), conf.isWildcardRoutingEnabled());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled(), conf.isWildcardRoutingEnabled());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultTransactionTimeout(), conf.getTransactionTimeout());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeout(), conf.getTransactionTimeout());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.isDefaultMessageCounterEnabled(), conf.isMessageCounterEnabled());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled(), conf.isMessageCounterEnabled());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(),
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(),
                           conf.getTransactionTimeoutScanPeriod());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod());
 
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(),
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(),
                           conf.getMessageExpiryThreadPriority());
 
       Assert.assertTrue(conf.getHAPolicyConfiguration() instanceof LiveOnlyPolicyConfiguration);

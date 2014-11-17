@@ -12,13 +12,13 @@
  */
 package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.server.impl.Activation;
 
 public abstract class BackupPolicy implements HAPolicy<Activation>
 {
    protected ScaleDownPolicy scaleDownPolicy;
-   protected boolean restartBackup = HornetQDefaultConfiguration.isDefaultRestartBackup();
+   protected boolean restartBackup = ActiveMQDefaultConfiguration.isDefaultRestartBackup();
 
    public ScaleDownPolicy getScaleDownPolicy()
    {

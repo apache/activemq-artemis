@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.tests.integration.management;
 
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.junit.Test;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -32,8 +32,8 @@ public class SecurityManagementWithDefaultConfigurationTest extends SecurityMana
    @Test
    public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception
    {
-      doSendManagementMessage(HornetQDefaultConfiguration.getDefaultClusterUser(),
-                              HornetQDefaultConfiguration.getDefaultClusterPassword(),
+      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(),
+                              ActiveMQDefaultConfiguration.getDefaultClusterPassword(),
                               true);
    }
 
@@ -57,7 +57,7 @@ public class SecurityManagementWithDefaultConfigurationTest extends SecurityMana
    protected HornetQServer setupAndStartHornetQServer() throws Exception
    {
       Configuration conf = createBasicConfig()
-         .setClusterPassword(HornetQDefaultConfiguration.getDefaultClusterPassword())
+         .setClusterPassword(ActiveMQDefaultConfiguration.getDefaultClusterPassword())
          .setSecurityEnabled(true)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       HornetQServer server = addServer(HornetQServers.newHornetQServer(conf, false));

@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.PreparedTransactionInfo;
@@ -117,18 +117,18 @@ public class JournalCleanupCompactStressTest extends ServiceTestBase
       if (AsynchronousFileImpl.isLoaded())
       {
          factory = new AIOSequentialFileFactory(dir.getPath());
-         maxAIO = HornetQDefaultConfiguration.getDefaultJournalMaxIoAio();
+         maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
       }
       else
       {
          factory = new NIOSequentialFileFactory(dir.getPath(), true);
-         maxAIO = HornetQDefaultConfiguration.getDefaultJournalMaxIoNio();
+         maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio();
       }
 
       journal = new JournalImpl(50 * 1024,
                                 20,
                                 50,
-                                HornetQDefaultConfiguration.getDefaultJournalCompactPercentage(),
+                                ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(),
                                 factory,
                                 "hornetq-data",
                                 "hq",

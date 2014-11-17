@@ -95,8 +95,8 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
@@ -354,8 +354,8 @@ public class NettyConnector extends AbstractConnector
          keyStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME,
                                                                     TransportConstants.DEFAULT_KEYSTORE_PASSWORD,
                                                                     configuration,
-                                                                    HornetQDefaultConfiguration.getPropMaskPassword(),
-                                                                    HornetQDefaultConfiguration.getPropMaskPassword());
+                                                                    ActiveMQDefaultConfiguration.getPropMaskPassword(),
+                                                                    ActiveMQDefaultConfiguration.getPropMaskPassword());
 
          trustStoreProvider = ConfigurationHelper.getStringProperty(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME,
                                                                     TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER,
@@ -368,8 +368,8 @@ public class NettyConnector extends AbstractConnector
          trustStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME,
                                                                       TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD,
                                                                       configuration,
-                                                                      HornetQDefaultConfiguration.getPropMaskPassword(),
-                                                                      HornetQDefaultConfiguration.getPropMaskPassword());
+                                                                      ActiveMQDefaultConfiguration.getPropMaskPassword(),
+                                                                      ActiveMQDefaultConfiguration.getPropMaskPassword());
 
          enabledCipherSuites = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME,
                                                                      TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES,

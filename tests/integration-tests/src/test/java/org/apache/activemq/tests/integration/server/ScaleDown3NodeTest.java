@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.server;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -91,7 +91,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
    @Test
    public void testBasicScaleDownWithDefaultReconnectAttempts() throws Exception
    {
-      testBasicScaleDownInternal(HornetQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), false);
+      testBasicScaleDownInternal(ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), false);
    }
 
    @Test
@@ -103,7 +103,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
    @Test
    public void testBasicScaleDownWithDefaultReconnectAttemptsAndLargeMessages() throws Exception
    {
-      testBasicScaleDownInternal(HornetQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), true);
+      testBasicScaleDownInternal(ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), true);
    }
 
    private void testBasicScaleDownInternal(int reconnectAttempts, boolean large) throws Exception

@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -166,7 +166,7 @@ public class SecurityNotificationTest extends UnitTestCase
       Role role = new Role("notif", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
-      server.getSecurityRepository().addMatch(HornetQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(),
+      server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(),
                                               roles);
 
       securityManager.addRole("admin", "notif");
@@ -176,7 +176,7 @@ public class SecurityNotificationTest extends UnitTestCase
       adminSession = sf.createSession("admin", "admin", false, true, true, false, 1);
       adminSession.start();
 
-      adminSession.createTemporaryQueue(HornetQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue);
+      adminSession.createTemporaryQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue);
 
       notifConsumer = adminSession.createConsumer(notifQueue);
    }

@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.management;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.core.config.Configuration;
@@ -42,7 +42,7 @@ public class JMXDomainTest extends ManagementTestBase
       Configuration config_0 = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      String jmxDomain_1 = HornetQDefaultConfiguration.getDefaultJmxDomain() + ".1";
+      String jmxDomain_1 = ActiveMQDefaultConfiguration.getDefaultJmxDomain() + ".1";
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);

@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -82,7 +82,7 @@ public class FileConfigurationParserTest extends UnitTestCase
 
       String clusterPassword = config.getClusterPassword();
 
-      assertEquals(HornetQDefaultConfiguration.getDefaultClusterPassword(), clusterPassword);
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterPassword(), clusterPassword);
 
       //if we add cluster-password, it should be default plain text
       String clusterPasswordPart = "<cluster-password>helloworld</cluster-password>";

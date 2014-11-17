@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.config;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class ScaleDownConfiguration implements Serializable
 
    private String clusterName = null;
 
-   private boolean enabled = HornetQDefaultConfiguration.isDefaultScaleDownEnabled();
+   private boolean enabled = ActiveMQDefaultConfiguration.isDefaultScaleDownEnabled();
 
    public List<String> getConnectors()
    {

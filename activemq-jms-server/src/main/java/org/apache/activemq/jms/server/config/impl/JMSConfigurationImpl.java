@@ -17,7 +17,7 @@ import java.util.List;
 
 import javax.naming.Context;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
@@ -36,7 +36,7 @@ public class JMSConfigurationImpl implements JMSConfiguration
 
    private List<TopicConfiguration> topicConfigurations = new ArrayList<TopicConfiguration>();
 
-   private String domain = HornetQDefaultConfiguration.getDefaultJmxDomain();
+   private String domain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
 
    private Context context = null;
 

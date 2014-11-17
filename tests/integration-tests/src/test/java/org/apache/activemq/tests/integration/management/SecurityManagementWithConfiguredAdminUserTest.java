@@ -12,11 +12,11 @@
  */
 package org.apache.activemq.tests.integration.management;
 
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.junit.Test;
 
 import java.util.Set;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -60,7 +60,7 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    @Test
    public void testSendManagementMessageWithClusterAdminUser() throws Exception
    {
-      doSendManagementMessage(HornetQDefaultConfiguration.getDefaultClusterUser(), CLUSTER_PASSWORD, true);
+      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), CLUSTER_PASSWORD, true);
    }
 
    @Test
@@ -102,9 +102,9 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       securityManager.addRole(validAdminUser, "guest");
       securityManager.addRole(invalidAdminUser, "guest");
 
-      Set<Role> adminRole = securityRepository.getMatch(HornetQDefaultConfiguration.getDefaultManagementAddress().toString());
+      Set<Role> adminRole = securityRepository.getMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString());
       adminRole.add(new Role("admin", true, true, true, true, true, true, true));
-      securityRepository.addMatch(HornetQDefaultConfiguration.getDefaultManagementAddress().toString(), adminRole);
+      securityRepository.addMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString(), adminRole);
       Set<Role> guestRole = securityRepository.getMatch("*");
       guestRole.add(new Role("guest", true, true, true, true, true, true, false));
       securityRepository.addMatch("*", guestRole);

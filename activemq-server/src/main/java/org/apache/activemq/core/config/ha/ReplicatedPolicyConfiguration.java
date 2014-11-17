@@ -12,12 +12,12 @@
  */
 package org.apache.activemq.core.config.ha;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.config.HAPolicyConfiguration;
 
 public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration
 {
-   private boolean checkForLiveServer = HornetQDefaultConfiguration.isDefaultCheckForLiveServer();
+   private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
 
    private String groupName = null;
 

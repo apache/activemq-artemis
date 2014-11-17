@@ -15,7 +15,7 @@ package org.apache.activemq.tests.stress.journal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -278,7 +278,7 @@ public class LargeJournalStressTest extends ServiceTestBase
    {
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false)
-         .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
+         .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
          .setJournalType(journalType)
          .setJournalCompactMinFiles(0)
          .setJournalCompactPercentage(50);

@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -160,10 +160,10 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
          .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration())
-         .setBindingsDirectory(HornetQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
-         .setJournalDirectory(HornetQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
-         .setPagingDirectory(HornetQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(HornetQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode);
+         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
+         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
+         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode);
 
       for (int node : otherBackupNodes)
       {
@@ -195,10 +195,10 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
          .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
-         .setBindingsDirectory(HornetQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
-         .setJournalDirectory(HornetQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
-         .setPagingDirectory(HornetQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(HornetQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode)
+         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
+         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
+         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode)
          .addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
       List<String> pairs = new ArrayList<String>();

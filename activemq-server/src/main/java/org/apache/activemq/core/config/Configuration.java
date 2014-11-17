@@ -83,7 +83,7 @@ public interface Configuration extends Serializable
    /**
     * Returns whether delivery count is persisted before messages are delivered to the consumers. <br>
     * Default value is
-    * {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY}.
+    * {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY}.
     */
    boolean isPersistDeliveryCountBeforeDelivery();
 
@@ -95,7 +95,7 @@ public interface Configuration extends Serializable
    /**
     * Returns {@code true} if this server is a backup, {@code false} if it is a live server. <br>
     * If a backup server has been activated, returns {@code false}. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_BACKUP}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_BACKUP}.
     *
     * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.HAPolicy#isBackup()}
     */
@@ -112,7 +112,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether this server shares its data store with a corresponding live or backup server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_SHARED_STORE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SHARED_STORE}.
     *
     * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.HAPolicy#isSharedStore()}
     */
@@ -129,7 +129,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether this server will use files to configure and deploy its resources. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_FILE_DEPLOYMENT_ENABLED}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_FILE_DEPLOYMENT_ENABLED}.
     */
    boolean isFileDeploymentEnabled();
 
@@ -140,7 +140,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether this server is using persistence and store data. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_PERSISTENCE_ENABLED}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSISTENCE_ENABLED}.
     */
    boolean isPersistenceEnabled();
 
@@ -151,7 +151,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the period (in milliseconds) to scan configuration files used by deployment. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_FILE_DEPLOYER_SCAN_PERIOD}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_FILE_DEPLOYER_SCAN_PERIOD}.
     */
    long getFileDeployerScanPeriod();
 
@@ -162,7 +162,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the maximum number of threads in the thread pool of this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_THREAD_POOL_MAX_SIZE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_THREAD_POOL_MAX_SIZE}.
     */
    int getThreadPoolMaxSize();
 
@@ -173,7 +173,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the maximum number of threads in the <em>scheduled</em> thread pool of this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
     */
    int getScheduledThreadPoolMaxSize();
 
@@ -184,7 +184,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the interval time (in milliseconds) to invalidate security credentials. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_SECURITY_INVALIDATION_INTERVAL}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_INVALIDATION_INTERVAL}.
     */
    long getSecurityInvalidationInterval();
 
@@ -195,7 +195,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether security is enabled for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
     */
    boolean isSecurityEnabled();
 
@@ -206,19 +206,19 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether this server is manageable using JMX or not. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
     */
    boolean isJMXManagementEnabled();
 
    /**
     * Sets whether this server is manageable using JMX or not. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
     */
    Configuration setJMXManagementEnabled(boolean enabled);
 
    /**
     * Returns the domain used by JMX MBeans (provided JMX management is enabled). <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JMX_DOMAIN}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_DOMAIN}.
     */
    String getJMXDomain();
 
@@ -287,7 +287,7 @@ public interface Configuration extends Serializable
    /**
     * Returns the connection time to live. <br>
     * This value overrides the connection time to live <em>sent by the client</em>. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_CONNECTION_TTL_OVERRIDE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CONNECTION_TTL_OVERRIDE}.
     */
    long getConnectionTTLOverride();
 
@@ -299,7 +299,7 @@ public interface Configuration extends Serializable
    /**
     * Returns whether code coming from connection is executed asynchronously or not. <br>
     * Default value is
-    * {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED}.
+    * {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED}.
     */
    boolean isAsyncConnectionExecutionEnabled();
 
@@ -420,7 +420,7 @@ public interface Configuration extends Serializable
    /**
     * Returns the management address of this server. <br>
     * Clients can send management messages to this address to manage this server. <br>
-    * Default value is {@link org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MANAGEMENT_ADDRESS}.
+    * Default value is {@link org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MANAGEMENT_ADDRESS}.
     */
    SimpleString getManagementAddress();
 
@@ -433,7 +433,7 @@ public interface Configuration extends Serializable
     * Returns the management notification address of this server. <br>
     * Clients can bind queues to this address to receive management notifications emitted by this
     * server. <br>
-    * Default value is {@link org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS}.
+    * Default value is {@link org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS}.
     */
    SimpleString getManagementNotificationAddress();
 
@@ -444,7 +444,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the cluster user for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_CLUSTER_USER}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CLUSTER_USER}.
     */
    String getClusterUser();
 
@@ -455,7 +455,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the cluster password for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_CLUSTER_PASSWORD}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CLUSTER_PASSWORD}.
     */
    String getClusterPassword();
 
@@ -490,7 +490,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the size of the cache for pre-creating message IDs. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_ID_CACHE_SIZE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_ID_CACHE_SIZE}.
     */
    int getIDCacheSize();
 
@@ -501,7 +501,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether message ID cache is persisted. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_PERSIST_ID_CACHE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSIST_ID_CACHE}.
     */
    boolean isPersistIDCache();
 
@@ -514,7 +514,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the file system directory used to store bindings. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_BINDINGS_DIRECTORY}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_BINDINGS_DIRECTORY}.
     */
    String getBindingsDirectory();
 
@@ -526,7 +526,7 @@ public interface Configuration extends Serializable
    /**
     * The max number of concurrent reads allowed on paging.
     * <p/>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MAX_CONCURRENT_PAGE_IO}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MAX_CONCURRENT_PAGE_IO}.
     */
    int getPageMaxConcurrentIO();
 
@@ -539,7 +539,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the file system directory used to store journal log. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_DIR}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_DIR}.
     */
    String getJournalDirectory();
 
@@ -562,7 +562,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether the journal is synchronized when receiving transactional data. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_TRANSACTIONAL}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_TRANSACTIONAL}.
     */
    boolean isJournalSyncTransactional();
 
@@ -573,7 +573,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether the journal is synchronized when receiving non-transactional data. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL}.
     */
    boolean isJournalSyncNonTransactional();
 
@@ -584,7 +584,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the size (in bytes) of each journal files. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_FILE_SIZE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_FILE_SIZE}.
     */
    int getJournalFileSize();
 
@@ -595,7 +595,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the minimal number of journal files before compacting. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_MIN_FILES}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_MIN_FILES}.
     */
    int getJournalCompactMinFiles();
 
@@ -606,7 +606,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the percentage of live data before compacting the journal. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_PERCENTAGE}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_PERCENTAGE}.
     */
    int getJournalCompactPercentage();
 
@@ -617,7 +617,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the number of journal files to pre-create. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_MIN_FILES}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MIN_FILES}.
     */
    int getJournalMinFiles();
 
@@ -630,7 +630,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the maximum number of write requests that can be in the AIO queue at any given time. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_AIO}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_AIO}.
     */
    int getJournalMaxIO_AIO();
 
@@ -665,7 +665,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the maximum number of write requests for NIO journal. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_NIO}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_NIO}.
     */
    int getJournalMaxIO_NIO();
 
@@ -700,7 +700,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether the bindings directory is created on this server startup. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_CREATE_BINDINGS_DIR}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CREATE_BINDINGS_DIR}.
     */
    boolean isCreateBindingsDir();
 
@@ -711,7 +711,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether the journal directory is created on this server startup. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_CREATE_JOURNAL_DIR}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CREATE_JOURNAL_DIR}.
     */
    boolean isCreateJournalDir();
 
@@ -750,7 +750,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the file system directory used to store paging files. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_PAGING_DIR}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PAGING_DIR}.
     */
    String getPagingDirectory();
 
@@ -763,7 +763,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the file system directory used to store large messages. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_LARGE_MESSAGES_DIR}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_LARGE_MESSAGES_DIR}.
     */
    String getLargeMessagesDirectory();
 
@@ -776,7 +776,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether wildcard routing is supported by this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_WILDCARD_ROUTING_ENABLED}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_WILDCARD_ROUTING_ENABLED}.
     */
    boolean isWildcardRoutingEnabled();
 
@@ -788,7 +788,7 @@ public interface Configuration extends Serializable
    /**
     * Returns the timeout (in milliseconds) after which transactions is removed from the resource
     * manager after it was created. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT}.
     */
    long getTransactionTimeout();
 
@@ -800,7 +800,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns whether message counter is enabled for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_ENABLED}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_ENABLED}.
     */
    boolean isMessageCounterEnabled();
 
@@ -811,7 +811,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the sample period (in milliseconds) to take message counter snapshot. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_SAMPLE_PERIOD}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_SAMPLE_PERIOD}.
     */
    long getMessageCounterSamplePeriod();
 
@@ -824,7 +824,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the maximum number of days kept in memory for message counter. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_MAX_DAY_HISTORY}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_MAX_DAY_HISTORY}.
     */
    int getMessageCounterMaxDayHistory();
 
@@ -838,7 +838,7 @@ public interface Configuration extends Serializable
    /**
     * Returns the frequency (in milliseconds) to scan transactions to detect which transactions have
     * timed out. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT_SCAN_PERIOD}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT_SCAN_PERIOD}.
     */
    long getTransactionTimeoutScanPeriod();
 
@@ -851,7 +851,7 @@ public interface Configuration extends Serializable
    /**
     * Returns the frequency (in milliseconds) to scan messages to detect which messages have
     * expired. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_SCAN_PERIOD}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_SCAN_PERIOD}.
     */
    long getMessageExpiryScanPeriod();
 
@@ -863,7 +863,7 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the priority of the thread used to scan message expiration. <br>
-    * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY}.
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY}.
     */
    int getMessageExpiryThreadPriority();
 

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.management;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -265,7 +265,7 @@ public class NotificationTest extends UnitTestCase
 
       notifQueue = RandomUtil.randomSimpleString();
 
-      session.createQueue(HornetQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue, null, false);
+      session.createQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue, null, false);
 
       notifConsumer = session.createConsumer(notifQueue);
    }

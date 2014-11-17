@@ -14,7 +14,7 @@ package org.apache.activemq.api.core.management;
 
 import javax.management.ObjectName;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
@@ -29,7 +29,7 @@ public final class ObjectNameBuilder
    /**
     * Default JMX domain for HornetQ resources.
     */
-   public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(HornetQDefaultConfiguration.getDefaultJmxDomain());
+   public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
 
    static final String JMS_MODULE = "JMS";
 
@@ -45,7 +45,7 @@ public final class ObjectNameBuilder
    {
       if (domain == null)
       {
-         return new ObjectNameBuilder(HornetQDefaultConfiguration.getDefaultJmxDomain());
+         return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
       }
       else
       {

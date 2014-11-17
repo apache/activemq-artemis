@@ -14,7 +14,7 @@ package org.apache.activemq.core.server.group.impl;
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
@@ -36,11 +36,11 @@ public final class GroupingHandlerConfiguration implements Serializable
 
    private SimpleString address = null;
 
-   private long timeout = HornetQDefaultConfiguration.getDefaultGroupingHandlerTimeout();
+   private long timeout = ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout();
 
-   private long groupTimeout = HornetQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout();
+   private long groupTimeout = ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout();
 
-   private long reaperPeriod = HornetQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod();
+   private long reaperPeriod = ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod();
 
    public GroupingHandlerConfiguration()
    {

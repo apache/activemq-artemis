@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.server.impl.Activation;
 import org.apache.activemq.core.server.impl.HornetQServerImpl;
 import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
@@ -23,11 +23,11 @@ public class ReplicaPolicy extends BackupPolicy
 {
    private String clusterName;
 
-   private int maxSavedReplicatedJournalsSize = HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
+   private int maxSavedReplicatedJournalsSize = ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
 
    private String groupName = null;
 
-   private boolean restartBackup = HornetQDefaultConfiguration.isDefaultRestartBackup();
+   private boolean restartBackup = ActiveMQDefaultConfiguration.isDefaultRestartBackup();
 
    private ReplicatedPolicy replicatedPolicy;
 

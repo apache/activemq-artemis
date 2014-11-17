@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.tests.integration.management;
 
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.junit.Test;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -44,14 +44,14 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
    @Test
    public void testSendManagementMessageWithModifiedClusterAdminUser() throws Exception
    {
-      doSendManagementMessage(HornetQDefaultConfiguration.getDefaultClusterUser(), configuredClusterPassword, true);
+      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), configuredClusterPassword, true);
    }
 
    @Test
    public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception
    {
-      doSendManagementMessage(HornetQDefaultConfiguration.getDefaultClusterUser(),
-                              HornetQDefaultConfiguration.getDefaultClusterPassword(),
+      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(),
+                              ActiveMQDefaultConfiguration.getDefaultClusterPassword(),
                               false);
    }
 

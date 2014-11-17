@@ -12,14 +12,14 @@
  */
 package org.apache.activemq.core.config.ha;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.config.HAPolicyConfiguration;
 
 public class SharedStoreMasterPolicyConfiguration implements HAPolicyConfiguration
 {
-   private long failbackDelay = HornetQDefaultConfiguration.getDefaultFailbackDelay();
+   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
-   private boolean failoverOnServerShutdown = HornetQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
+   private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
 
    public SharedStoreMasterPolicyConfiguration()
    {

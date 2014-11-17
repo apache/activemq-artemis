@@ -15,7 +15,7 @@ package org.apache.activemq.core.config;
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.HornetQClient;
 
 /**
@@ -46,21 +46,21 @@ public final class BridgeConfiguration implements Serializable
 
    private double retryIntervalMultiplier = HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
 
-   private int initialConnectAttempts = HornetQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts();
+   private int initialConnectAttempts = ActiveMQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts();
 
-   private int reconnectAttempts = HornetQDefaultConfiguration.getDefaultBridgeReconnectAttempts();
+   private int reconnectAttempts = ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts();
 
-   private int reconnectAttemptsOnSameNode = HornetQDefaultConfiguration.getDefaultBridgeConnectSameNode();
+   private int reconnectAttemptsOnSameNode = ActiveMQDefaultConfiguration.getDefaultBridgeConnectSameNode();
 
-   private boolean useDuplicateDetection = HornetQDefaultConfiguration.isDefaultBridgeDuplicateDetection();
+   private boolean useDuplicateDetection = ActiveMQDefaultConfiguration.isDefaultBridgeDuplicateDetection();
 
    private int confirmationWindowSize = HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
 
    private long clientFailureCheckPeriod = HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
 
-   private String user = HornetQDefaultConfiguration.getDefaultClusterUser();
+   private String user = ActiveMQDefaultConfiguration.getDefaultClusterUser();
 
-   private String password = HornetQDefaultConfiguration.getDefaultClusterPassword();
+   private String password = ActiveMQDefaultConfiguration.getDefaultClusterPassword();
 
    private long connectionTTL = HornetQClient.DEFAULT_CONNECTION_TTL;
 

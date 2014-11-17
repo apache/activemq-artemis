@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 
 /**
  * A TransportConstants
@@ -40,15 +40,15 @@ public final class TransportConstants
       Set<String> allowableAcceptorKeys = new HashSet<String>();
       allowableAcceptorKeys.add(TransportConstants.SERVER_ID_PROP_NAME);
       allowableAcceptorKeys.add(org.apache.activemq.core.remoting.impl.netty.TransportConstants.CLUSTER_CONNECTION);
-      allowableAcceptorKeys.add(HornetQDefaultConfiguration.getPropMaskPassword());
-      allowableAcceptorKeys.add(HornetQDefaultConfiguration.getPropPasswordCodec());
+      allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
+      allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
       Set<String> allowableConnectorKeys = new HashSet<String>();
       allowableConnectorKeys.add(TransportConstants.SERVER_ID_PROP_NAME);
-      allowableConnectorKeys.add(HornetQDefaultConfiguration.getPropMaskPassword());
-      allowableConnectorKeys.add(HornetQDefaultConfiguration.getPropPasswordCodec());
+      allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
+      allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
    }

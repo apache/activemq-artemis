@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -93,7 +93,7 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
          stopServer();
 
          NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getJournalDir());
-         JournalImpl journal = new JournalImpl(HornetQDefaultConfiguration.getDefaultJournalFileSize(),
+         JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
                                                2,
                                                0,
                                                0,
@@ -348,13 +348,13 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
       if (server == null)
       {
          Configuration config = createDefaultConfig(true)
-            .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
+            .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
             .setJournalType(journalType)
             .setJMXManagementEnabled(false)
-            .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
-            .setJournalMinFiles(HornetQDefaultConfiguration.getDefaultJournalMinFiles())
-            .setJournalCompactMinFiles(HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles())
-            .setJournalCompactPercentage(HornetQDefaultConfiguration.getDefaultJournalCompactPercentage())
+            .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
+            .setJournalMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles())
+            .setJournalCompactMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles())
+            .setJournalCompactPercentage(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage())
             // This test is supposed to not sync.. All the ACKs are async, and it was supposed to not sync
             .setJournalSyncNonTransactional(false);
 

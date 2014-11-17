@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.HornetQClient;
@@ -310,10 +310,10 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(liveAcceptor)
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .setJournalDirectory(HornetQDefaultConfiguration.getDefaultJournalDir() + identity)
-         .setBindingsDirectory(HornetQDefaultConfiguration.getDefaultBindingsDirectory() + identity)
-         .setLargeMessagesDirectory(HornetQDefaultConfiguration.getDefaultLargeMessagesDir() + identity)
-         .setPagingDirectory(HornetQDefaultConfiguration.getDefaultPagingDir() + identity)
+         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + identity)
+         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + identity)
+         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + identity)
+         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + identity)
          .addQueueConfiguration(new CoreQueueConfiguration()
                                    .setAddress("jms.queue.testQueue")
                                    .setName("jms.queue.testQueue"));

@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.messagecounter.MessageCounter;
 import org.apache.activemq.core.messagecounter.MessageCounterManager;
 
@@ -39,11 +39,11 @@ import org.apache.activemq.core.messagecounter.MessageCounterManager;
 public class MessageCounterManagerImpl implements MessageCounterManager
 {
 
-   public static final long DEFAULT_SAMPLE_PERIOD = HornetQDefaultConfiguration.getDefaultMessageCounterSamplePeriod();
+   public static final long DEFAULT_SAMPLE_PERIOD = ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod();
 
    public static final long MIN_SAMPLE_PERIOD = 1000;
 
-   public static final int DEFAULT_MAX_DAY_COUNT = HornetQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory();
+   public static final int DEFAULT_MAX_DAY_COUNT = ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory();
 
    private final Map<String, MessageCounter> messageCounters;
 

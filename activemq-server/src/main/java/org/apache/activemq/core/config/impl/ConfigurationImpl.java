@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.SimpleString;
@@ -61,38 +61,38 @@ public class ConfigurationImpl implements Configuration
 
    private String name = "ConfigurationImpl::" + System.identityHashCode(this);
 
-   protected boolean fileDeploymentEnabled = HornetQDefaultConfiguration.isDefaultFileDeploymentEnabled();
+   protected boolean fileDeploymentEnabled = ActiveMQDefaultConfiguration.isDefaultFileDeploymentEnabled();
 
-   private boolean persistenceEnabled = HornetQDefaultConfiguration.isDefaultPersistenceEnabled();
+   private boolean persistenceEnabled = ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled();
 
-   protected long fileDeploymentScanPeriod = HornetQDefaultConfiguration.getDefaultFileDeployerScanPeriod();
+   protected long fileDeploymentScanPeriod = ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod();
 
    private boolean persistDeliveryCountBeforeDelivery =
-            HornetQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery();
+            ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery();
 
-   private int scheduledThreadPoolMaxSize = HornetQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize();
+   private int scheduledThreadPoolMaxSize = ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize();
 
-   private int threadPoolMaxSize = HornetQDefaultConfiguration.getDefaultThreadPoolMaxSize();
+   private int threadPoolMaxSize = ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize();
 
-   private long securityInvalidationInterval = HornetQDefaultConfiguration.getDefaultSecurityInvalidationInterval();
+   private long securityInvalidationInterval = ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval();
 
-   private boolean securityEnabled = HornetQDefaultConfiguration.isDefaultSecurityEnabled();
+   private boolean securityEnabled = ActiveMQDefaultConfiguration.isDefaultSecurityEnabled();
 
-   protected boolean jmxManagementEnabled = HornetQDefaultConfiguration.isDefaultJmxManagementEnabled();
+   protected boolean jmxManagementEnabled = ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled();
 
-   protected String jmxDomain = HornetQDefaultConfiguration.getDefaultJmxDomain();
+   protected String jmxDomain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
 
-   protected long connectionTTLOverride = HornetQDefaultConfiguration.getDefaultConnectionTtlOverride();
+   protected long connectionTTLOverride = ActiveMQDefaultConfiguration.getDefaultConnectionTtlOverride();
 
-   protected boolean asyncConnectionExecutionEnabled = HornetQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled();
+   protected boolean asyncConnectionExecutionEnabled = ActiveMQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled();
 
-   private long messageExpiryScanPeriod = HornetQDefaultConfiguration.getDefaultMessageExpiryScanPeriod();
+   private long messageExpiryScanPeriod = ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod();
 
-   private int messageExpiryThreadPriority = HornetQDefaultConfiguration.getDefaultMessageExpiryThreadPriority();
+   private int messageExpiryThreadPriority = ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority();
 
-   protected int idCacheSize = HornetQDefaultConfiguration.getDefaultIdCacheSize();
+   protected int idCacheSize = ActiveMQDefaultConfiguration.getDefaultIdCacheSize();
 
-   private boolean persistIDCache = HornetQDefaultConfiguration.isDefaultPersistIdCache();
+   private boolean persistIDCache = ActiveMQDefaultConfiguration.isDefaultPersistIdCache();
 
    private List<String> incomingInterceptorClassNames = new ArrayList<String>();
 
@@ -116,84 +116,84 @@ public class ConfigurationImpl implements Configuration
 
    // Paging related attributes ------------------------------------------------------------
 
-   private String pagingDirectory = HornetQDefaultConfiguration.getDefaultPagingDir();
+   private String pagingDirectory = ActiveMQDefaultConfiguration.getDefaultPagingDir();
 
    // File related attributes -----------------------------------------------------------
 
-   private int maxConcurrentPageIO = HornetQDefaultConfiguration.getDefaultMaxConcurrentPageIo();
+   private int maxConcurrentPageIO = ActiveMQDefaultConfiguration.getDefaultMaxConcurrentPageIo();
 
-   protected String largeMessagesDirectory = HornetQDefaultConfiguration.getDefaultLargeMessagesDir();
+   protected String largeMessagesDirectory = ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir();
 
-   protected String bindingsDirectory = HornetQDefaultConfiguration.getDefaultBindingsDirectory();
+   protected String bindingsDirectory = ActiveMQDefaultConfiguration.getDefaultBindingsDirectory();
 
-   protected boolean createBindingsDir = HornetQDefaultConfiguration.isDefaultCreateBindingsDir();
+   protected boolean createBindingsDir = ActiveMQDefaultConfiguration.isDefaultCreateBindingsDir();
 
-   protected String journalDirectory = HornetQDefaultConfiguration.getDefaultJournalDir();
+   protected String journalDirectory = ActiveMQDefaultConfiguration.getDefaultJournalDir();
 
-   protected boolean createJournalDir = HornetQDefaultConfiguration.isDefaultCreateJournalDir();
+   protected boolean createJournalDir = ActiveMQDefaultConfiguration.isDefaultCreateJournalDir();
 
    public JournalType journalType = ConfigurationImpl.DEFAULT_JOURNAL_TYPE;
 
-   protected boolean journalSyncTransactional = HornetQDefaultConfiguration.isDefaultJournalSyncTransactional();
+   protected boolean journalSyncTransactional = ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional();
 
-   protected boolean journalSyncNonTransactional = HornetQDefaultConfiguration.isDefaultJournalSyncNonTransactional();
+   protected boolean journalSyncNonTransactional = ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional();
 
-   protected int journalCompactMinFiles = HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles();
+   protected int journalCompactMinFiles = ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles();
 
-   protected int journalCompactPercentage = HornetQDefaultConfiguration.getDefaultJournalCompactPercentage();
+   protected int journalCompactPercentage = ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage();
 
-   protected int journalFileSize = HornetQDefaultConfiguration.getDefaultJournalFileSize();
+   protected int journalFileSize = ActiveMQDefaultConfiguration.getDefaultJournalFileSize();
 
-   protected int journalMinFiles = HornetQDefaultConfiguration.getDefaultJournalMinFiles();
+   protected int journalMinFiles = ActiveMQDefaultConfiguration.getDefaultJournalMinFiles();
 
    // AIO and NIO need different values for these attributes
 
-   protected int journalMaxIO_AIO = HornetQDefaultConfiguration.getDefaultJournalMaxIoAio();
+   protected int journalMaxIO_AIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
 
-   protected int journalBufferTimeout_AIO = HornetQDefaultConfiguration.getDefaultJournalBufferTimeoutAio();
+   protected int journalBufferTimeout_AIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutAio();
 
-   protected int journalBufferSize_AIO = HornetQDefaultConfiguration.getDefaultJournalBufferSizeAio();
+   protected int journalBufferSize_AIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeAio();
 
-   protected int journalMaxIO_NIO = HornetQDefaultConfiguration.getDefaultJournalMaxIoNio();
+   protected int journalMaxIO_NIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio();
 
-   protected int journalBufferTimeout_NIO = HornetQDefaultConfiguration.getDefaultJournalBufferTimeoutNio();
+   protected int journalBufferTimeout_NIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio();
 
-   protected int journalBufferSize_NIO = HornetQDefaultConfiguration.getDefaultJournalBufferSizeNio();
+   protected int journalBufferSize_NIO = ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeNio();
 
-   protected boolean logJournalWriteRate = HornetQDefaultConfiguration.isDefaultJournalLogWriteRate();
+   protected boolean logJournalWriteRate = ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate();
 
-   protected int journalPerfBlastPages = HornetQDefaultConfiguration.getDefaultJournalPerfBlastPages();
+   protected int journalPerfBlastPages = ActiveMQDefaultConfiguration.getDefaultJournalPerfBlastPages();
 
-   protected boolean runSyncSpeedTest = HornetQDefaultConfiguration.isDefaultRunSyncSpeedTest();
+   protected boolean runSyncSpeedTest = ActiveMQDefaultConfiguration.isDefaultRunSyncSpeedTest();
 
-   private boolean wildcardRoutingEnabled = HornetQDefaultConfiguration.isDefaultWildcardRoutingEnabled();
+   private boolean wildcardRoutingEnabled = ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled();
 
-   private boolean messageCounterEnabled = HornetQDefaultConfiguration.isDefaultMessageCounterEnabled();
+   private boolean messageCounterEnabled = ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled();
 
-   private long messageCounterSamplePeriod = HornetQDefaultConfiguration.getDefaultMessageCounterSamplePeriod();
+   private long messageCounterSamplePeriod = ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod();
 
-   private int messageCounterMaxDayHistory = HornetQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory();
+   private int messageCounterMaxDayHistory = ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory();
 
-   private long transactionTimeout = HornetQDefaultConfiguration.getDefaultTransactionTimeout();
+   private long transactionTimeout = ActiveMQDefaultConfiguration.getDefaultTransactionTimeout();
 
-   private long transactionTimeoutScanPeriod = HornetQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod();
+   private long transactionTimeoutScanPeriod = ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod();
 
-   private SimpleString managementAddress = HornetQDefaultConfiguration.getDefaultManagementAddress();
+   private SimpleString managementAddress = ActiveMQDefaultConfiguration.getDefaultManagementAddress();
 
-   private SimpleString managementNotificationAddress = HornetQDefaultConfiguration.getDefaultManagementNotificationAddress();
+   private SimpleString managementNotificationAddress = ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress();
 
-   protected String clusterUser = HornetQDefaultConfiguration.getDefaultClusterUser();
+   protected String clusterUser = ActiveMQDefaultConfiguration.getDefaultClusterUser();
 
-   protected String clusterPassword = HornetQDefaultConfiguration.getDefaultClusterPassword();
+   protected String clusterPassword = ActiveMQDefaultConfiguration.getDefaultClusterPassword();
 
-   private long serverDumpInterval = HornetQDefaultConfiguration.getDefaultServerDumpInterval();
+   private long serverDumpInterval = ActiveMQDefaultConfiguration.getDefaultServerDumpInterval();
 
-   protected boolean failoverOnServerShutdown = HornetQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
+   protected boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
 
    // percentage of free memory which triggers warning from the memory manager
-   private int memoryWarningThreshold = HornetQDefaultConfiguration.getDefaultMemoryWarningThreshold();
+   private int memoryWarningThreshold = ActiveMQDefaultConfiguration.getDefaultMemoryWarningThreshold();
 
-   private long memoryMeasureInterval = HornetQDefaultConfiguration.getDefaultMemoryMeasureInterval();
+   private long memoryMeasureInterval = ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval();
 
    protected GroupingHandlerConfiguration groupingHandlerConfiguration;
 
@@ -203,13 +203,13 @@ public class ConfigurationImpl implements Configuration
 
    protected List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<ConnectorServiceConfiguration>();
 
-   private boolean maskPassword = HornetQDefaultConfiguration.isDefaultMaskPassword();
+   private boolean maskPassword = ActiveMQDefaultConfiguration.isDefaultMaskPassword();
 
    private transient String passwordCodec;
 
-   private boolean resolveProtocols = HornetQDefaultConfiguration.isDefaultResolveProtocols();
+   private boolean resolveProtocols = ActiveMQDefaultConfiguration.isDefaultResolveProtocols();
 
-   private long journalLockAcquisitionTimeout = HornetQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout();
+   private long journalLockAcquisitionTimeout = ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout();
 
    private HAPolicyConfiguration haPolicyConfiguration;
 

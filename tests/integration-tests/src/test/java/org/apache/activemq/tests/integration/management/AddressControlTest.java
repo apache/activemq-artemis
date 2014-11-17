@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.management;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -279,7 +279,7 @@ public class AddressControlTest extends ManagementTestBase
       session.createQueue(address, address, true);
 
       AddressControl addressControl = createManagementControl(address);
-      Assert.assertEquals(HornetQDefaultConfiguration.getDefaultJournalFileSize(), addressControl.getNumberOfBytesPerPage());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), addressControl.getNumberOfBytesPerPage());
 
       session.close();
       server.stop();

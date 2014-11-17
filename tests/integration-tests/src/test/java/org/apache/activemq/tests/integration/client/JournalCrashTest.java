@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.client;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -60,9 +60,9 @@ public class JournalCrashTest extends ServiceTestBase
    protected void startServer() throws Exception
    {
       Configuration config = createDefaultConfig()
-         .setJournalFileSize(HornetQDefaultConfiguration.getDefaultJournalFileSize())
-         .setJournalCompactMinFiles(HornetQDefaultConfiguration.getDefaultJournalCompactMinFiles())
-         .setJournalCompactPercentage(HornetQDefaultConfiguration.getDefaultJournalCompactPercentage())
+         .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
+         .setJournalCompactMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles())
+         .setJournalCompactPercentage(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage())
          .setJournalMinFiles(2);
 
       server = super.createServer(true, config);
@@ -222,7 +222,7 @@ public class JournalCrashTest extends ServiceTestBase
    private void printJournal() throws Exception
    {
       NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getJournalDir());
-      JournalImpl journal = new JournalImpl(HornetQDefaultConfiguration.getDefaultJournalFileSize(),
+      JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
                                             2,
                                             0,
                                             0,

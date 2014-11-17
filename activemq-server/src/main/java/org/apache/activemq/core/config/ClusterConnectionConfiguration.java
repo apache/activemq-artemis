@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.HornetQClient;
 
 /**
@@ -34,43 +34,43 @@ public final class ClusterConnectionConfiguration implements Serializable
 
    private String connectorName;
 
-   private long clientFailureCheckPeriod = HornetQDefaultConfiguration.getDefaultClusterFailureCheckPeriod();
+   private long clientFailureCheckPeriod = ActiveMQDefaultConfiguration.getDefaultClusterFailureCheckPeriod();
 
-   private long connectionTTL = HornetQDefaultConfiguration.getDefaultClusterConnectionTtl();
+   private long connectionTTL = ActiveMQDefaultConfiguration.getDefaultClusterConnectionTtl();
 
-   private long retryInterval = HornetQDefaultConfiguration.getDefaultClusterRetryInterval();
+   private long retryInterval = ActiveMQDefaultConfiguration.getDefaultClusterRetryInterval();
 
-   private double retryIntervalMultiplier = HornetQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier();
+   private double retryIntervalMultiplier = ActiveMQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier();
 
-   private long maxRetryInterval = HornetQDefaultConfiguration.getDefaultClusterMaxRetryInterval();
+   private long maxRetryInterval = ActiveMQDefaultConfiguration.getDefaultClusterMaxRetryInterval();
 
-   private int initialConnectAttempts = HornetQDefaultConfiguration.getDefaultClusterInitialConnectAttempts();
+   private int initialConnectAttempts = ActiveMQDefaultConfiguration.getDefaultClusterInitialConnectAttempts();
 
-   private int reconnectAttempts = HornetQDefaultConfiguration.getDefaultClusterReconnectAttempts();
+   private int reconnectAttempts = ActiveMQDefaultConfiguration.getDefaultClusterReconnectAttempts();
 
-   private long callTimeout = HornetQDefaultConfiguration.getDefaultClusterCallTimeout();
+   private long callTimeout = ActiveMQDefaultConfiguration.getDefaultClusterCallTimeout();
 
-   private long callFailoverTimeout = HornetQDefaultConfiguration.getDefaultClusterCallFailoverTimeout();
+   private long callFailoverTimeout = ActiveMQDefaultConfiguration.getDefaultClusterCallFailoverTimeout();
 
-   private boolean duplicateDetection = HornetQDefaultConfiguration.isDefaultClusterDuplicateDetection();
+   private boolean duplicateDetection = ActiveMQDefaultConfiguration.isDefaultClusterDuplicateDetection();
 
-   private boolean forwardWhenNoConsumers = HornetQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers();
+   private boolean forwardWhenNoConsumers = ActiveMQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers();
 
    private List<String> staticConnectors = Collections.emptyList();
 
    private String discoveryGroupName = null;
 
-   private int maxHops = HornetQDefaultConfiguration.getDefaultClusterMaxHops();
+   private int maxHops = ActiveMQDefaultConfiguration.getDefaultClusterMaxHops();
 
-   private int confirmationWindowSize = HornetQDefaultConfiguration.getDefaultClusterConfirmationWindowSize();
+   private int confirmationWindowSize = ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize();
 
    private boolean allowDirectConnectionsOnly = false;
 
    private int minLargeMessageSize = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
-   private long clusterNotificationInterval = HornetQDefaultConfiguration.getDefaultClusterNotificationInterval();
+   private long clusterNotificationInterval = ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval();
 
-   private int clusterNotificationAttempts = HornetQDefaultConfiguration.getDefaultClusterNotificationAttempts();
+   private int clusterNotificationAttempts = ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts();
 
    public ClusterConnectionConfiguration()
    {

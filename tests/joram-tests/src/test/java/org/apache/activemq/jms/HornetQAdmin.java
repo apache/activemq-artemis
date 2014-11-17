@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Hashtable;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientRequestor;
@@ -85,14 +85,14 @@ public class HornetQAdmin implements Admin
    {
       serverLocator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
       sf = serverLocator.createSessionFactory();
-      clientSession = sf.createSession(HornetQDefaultConfiguration.getDefaultClusterUser(),
-                                       HornetQDefaultConfiguration.getDefaultClusterPassword(),
+      clientSession = sf.createSession(ActiveMQDefaultConfiguration.getDefaultClusterUser(),
+                                       ActiveMQDefaultConfiguration.getDefaultClusterPassword(),
                                        false,
                                        true,
                                        true,
                                        false,
                                        1);
-      requestor = new ClientRequestor(clientSession, HornetQDefaultConfiguration.getDefaultManagementAddress());
+      requestor = new ClientRequestor(clientSession, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
       clientSession.start();
 
    }

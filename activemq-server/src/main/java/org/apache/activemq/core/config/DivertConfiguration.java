@@ -14,7 +14,7 @@ package org.apache.activemq.core.config;
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.utils.UUIDGenerator;
 
 /**
@@ -34,7 +34,7 @@ public class DivertConfiguration implements Serializable
 
    private String forwardingAddress = null;
 
-   private boolean exclusive = HornetQDefaultConfiguration.isDefaultDivertExclusive();
+   private boolean exclusive = ActiveMQDefaultConfiguration.isDefaultDivertExclusive();
 
    private String filterString = null;
 

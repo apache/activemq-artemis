@@ -37,7 +37,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
@@ -1631,7 +1631,7 @@ public class HornetQServerImpl implements HornetQServer
 
       storageManager = createStorageManager();
 
-      if (HornetQDefaultConfiguration.getDefaultClusterUser().equals(configuration.getClusterUser()) && HornetQDefaultConfiguration.getDefaultClusterPassword().equals(configuration.getClusterPassword()))
+      if (ActiveMQDefaultConfiguration.getDefaultClusterUser().equals(configuration.getClusterUser()) && ActiveMQDefaultConfiguration.getDefaultClusterPassword().equals(configuration.getClusterPassword()))
       {
          HornetQServerLogger.LOGGER.clusterSecurityRisk();
       }

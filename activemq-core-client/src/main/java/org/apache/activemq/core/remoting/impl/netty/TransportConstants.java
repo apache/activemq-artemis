@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.netty.util.Version;
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 
 /**
  * A TransportConstants
@@ -225,8 +225,8 @@ public class TransportConstants
       allowableAcceptorKeys.add(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE);
       allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL);
       allowableAcceptorKeys.add(TransportConstants.STOMP_ENABLE_MESSAGE_ID);
-      allowableAcceptorKeys.add(HornetQDefaultConfiguration.getPropMaskPassword());
-      allowableAcceptorKeys.add(HornetQDefaultConfiguration.getPropPasswordCodec());
+      allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
+      allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
@@ -259,8 +259,8 @@ public class TransportConstants
       allowableConnectorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.BATCH_DELAY);
-      allowableConnectorKeys.add(HornetQDefaultConfiguration.getPropMaskPassword());
-      allowableConnectorKeys.add(HornetQDefaultConfiguration.getPropPasswordCodec());
+      allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
+      allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);

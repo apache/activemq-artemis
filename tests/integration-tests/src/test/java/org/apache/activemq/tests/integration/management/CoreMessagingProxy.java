@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.management;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientRequestor;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -48,7 +48,7 @@ public class CoreMessagingProxy
 
       this.resourceName = resourceName;
 
-      requestor = new ClientRequestor(session, HornetQDefaultConfiguration.getDefaultManagementAddress());
+      requestor = new ClientRequestor(session, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
 
    }
 

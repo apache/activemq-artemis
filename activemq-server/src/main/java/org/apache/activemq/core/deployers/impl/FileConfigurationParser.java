@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
@@ -790,8 +790,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       int journalMaxIO = getInteger(e,
                                     "journal-max-io",
-                                    config.getJournalType() == JournalType.ASYNCIO ? HornetQDefaultConfiguration.getDefaultJournalMaxIoAio()
-                                       : HornetQDefaultConfiguration.getDefaultJournalMaxIoNio(),
+                                    config.getJournalType() == JournalType.ASYNCIO ? ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio()
+                                       : ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio(),
                                     Validators.GT_ZERO);
 
       if (config.getJournalType() == JournalType.ASYNCIO)
@@ -819,11 +819,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       config.setLogJournalWriteRate(getBoolean(e,
                                                "log-journal-write-rate",
-                                               HornetQDefaultConfiguration.isDefaultJournalLogWriteRate()));
+                                               ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate()));
 
       config.setJournalPerfBlastPages(getInteger(e,
                                                  "perf-blast-pages",
-                                                 HornetQDefaultConfiguration.getDefaultJournalPerfBlastPages(),
+                                                 ActiveMQDefaultConfiguration.getDefaultJournalPerfBlastPages(),
                                                  Validators.MINUS_ONE_OR_GT_ZERO));
 
       config.setRunSyncSpeedTest(getBoolean(e, "run-sync-speed-test", config.isRunSyncSpeedTest()));
@@ -1185,11 +1185,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       if (mainConfig.isMaskPassword())
       {
-         params.put(HornetQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
+         params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
 
          if (mainConfig.getPasswordCodec() != null)
          {
-            params.put(HornetQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
+            params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
          }
       }
 
@@ -1482,7 +1482,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       }
 
       long broadcastPeriod =
-         getLong(e, "broadcast-period", HornetQDefaultConfiguration.getDefaultBroadcastPeriod(), Validators.GT_ZERO);
+         getLong(e, "broadcast-period", ActiveMQDefaultConfiguration.getDefaultBroadcastPeriod(), Validators.GT_ZERO);
 
       String localAddress = getString(e, "local-bind-address", null, Validators.NO_CHECK);
 
@@ -1532,7 +1532,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
                  Validators.GT_ZERO);
 
       long refreshTimeout =
-         getLong(e, "refresh-timeout", HornetQDefaultConfiguration.getDefaultBroadcastRefreshTimeout(),
+         getLong(e, "refresh-timeout", ActiveMQDefaultConfiguration.getDefaultBroadcastRefreshTimeout(),
                  Validators.GT_ZERO);
 
       String localBindAddress = getString(e, "local-bind-address", null, Validators.NO_CHECK);
@@ -1589,27 +1589,27 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       String connectorName = getString(e, "connector-ref", null, Validators.NOT_NULL_OR_EMPTY);
 
       boolean duplicateDetection =
-         getBoolean(e, "use-duplicate-detection", HornetQDefaultConfiguration.isDefaultClusterDuplicateDetection());
+         getBoolean(e, "use-duplicate-detection", ActiveMQDefaultConfiguration.isDefaultClusterDuplicateDetection());
 
       boolean forwardWhenNoConsumers =
          getBoolean(e, "forward-when-no-consumers",
-                    HornetQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers());
+                    ActiveMQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers());
 
       int maxHops = getInteger(e, "max-hops",
-                               HornetQDefaultConfiguration.getDefaultClusterMaxHops(),
+                               ActiveMQDefaultConfiguration.getDefaultClusterMaxHops(),
                                Validators.GE_ZERO);
 
       long clientFailureCheckPeriod =
-         getLong(e, "check-period", HornetQDefaultConfiguration.getDefaultClusterFailureCheckPeriod(),
+         getLong(e, "check-period", ActiveMQDefaultConfiguration.getDefaultClusterFailureCheckPeriod(),
                  Validators.GT_ZERO);
 
       long connectionTTL =
-         getLong(e, "connection-ttl", HornetQDefaultConfiguration.getDefaultClusterConnectionTtl(),
+         getLong(e, "connection-ttl", ActiveMQDefaultConfiguration.getDefaultClusterConnectionTtl(),
                  Validators.GT_ZERO);
 
 
       long retryInterval =
-         getLong(e, "retry-interval", HornetQDefaultConfiguration.getDefaultClusterRetryInterval(),
+         getLong(e, "retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterRetryInterval(),
                  Validators.GT_ZERO);
 
       long callTimeout = getLong(e, "call-timeout", HornetQClient.DEFAULT_CALL_TIMEOUT, Validators.GT_ZERO);
@@ -1617,24 +1617,24 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       long callFailoverTimeout = getLong(e, "call-failover-timeout", HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, Validators.MINUS_ONE_OR_GT_ZERO);
 
       double retryIntervalMultiplier = getDouble(e, "retry-interval-multiplier",
-                                                 HornetQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(), Validators.GT_ZERO);
+                                                 ActiveMQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(), Validators.GT_ZERO);
 
       int minLargeMessageSize = getInteger(e, "min-large-message-size", HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, Validators.GT_ZERO);
 
-      long maxRetryInterval = getLong(e, "max-retry-interval", HornetQDefaultConfiguration.getDefaultClusterMaxRetryInterval(), Validators.GT_ZERO);
+      long maxRetryInterval = getLong(e, "max-retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterMaxRetryInterval(), Validators.GT_ZERO);
 
-      int initialConnectAttempts = getInteger(e, "initial-connect-attempts", HornetQDefaultConfiguration.getDefaultClusterInitialConnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int initialConnectAttempts = getInteger(e, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultClusterInitialConnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
 
-      int reconnectAttempts = getInteger(e, "reconnect-attempts", HornetQDefaultConfiguration.getDefaultClusterReconnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
+      int reconnectAttempts = getInteger(e, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultClusterReconnectAttempts(), Validators.MINUS_ONE_OR_GE_ZERO);
 
 
       int confirmationWindowSize =
-         getInteger(e, "confirmation-window-size", HornetQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(),
+         getInteger(e, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(),
                     Validators.GT_ZERO);
 
-      long clusterNotificationInterval = getLong(e, "notification-interval", HornetQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
+      long clusterNotificationInterval = getLong(e, "notification-interval", ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
 
-      int clusterNotificationAttempts = getInteger(e, "notification-attempts", HornetQDefaultConfiguration.getDefaultClusterNotificationAttempts(), Validators.GT_ZERO);
+      int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), Validators.GT_ZERO);
 
       String scaleDownConnector = e.getAttribute("scale-down-connector");
 
@@ -1704,9 +1704,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       String name = node.getAttribute("name");
       String type = getString(node, "type", null, Validators.NOT_NULL_OR_EMPTY);
       String address = getString(node, "address", null, Validators.NOT_NULL_OR_EMPTY);
-      Integer timeout = getInteger(node, "timeout", HornetQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), Validators.GT_ZERO);
-      Long groupTimeout = getLong(node, "group-timeout", HornetQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
-      Long reaperPeriod = getLong(node, "reaper-period", HornetQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), Validators.GT_ZERO);
+      Integer timeout = getInteger(node, "timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout(), Validators.GT_ZERO);
+      Long groupTimeout = getLong(node, "group-timeout", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout(), Validators.MINUS_ONE_OR_GT_ZERO);
+      Long reaperPeriod = getLong(node, "reaper-period", ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod(), Validators.GT_ZERO);
       mainConfiguration.setGroupingHandlerConfiguration(new GroupingHandlerConfiguration()
                                                            .setName(new SimpleString(name))
                                                            .setType(
@@ -1731,7 +1731,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       // Default bridge conf
       int confirmationWindowSize =
-         getInteger(brNode, "confirmation-window-size", HornetQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(),
+         getInteger(brNode, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(),
                     Validators.GT_ZERO);
 
       long retryInterval = getLong(brNode, "retry-interval", HornetQClient.DEFAULT_RETRY_INTERVAL, Validators.GT_ZERO);
@@ -1753,24 +1753,24 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
                    Validators.GT_ZERO);
 
       int initialConnectAttempts =
-         getInteger(brNode, "initial-connect-attempts", HornetQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts(),
+         getInteger(brNode, "initial-connect-attempts", ActiveMQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts(),
                     Validators.MINUS_ONE_OR_GE_ZERO);
 
       int reconnectAttempts =
-         getInteger(brNode, "reconnect-attempts", HornetQDefaultConfiguration.getDefaultBridgeReconnectAttempts(),
+         getInteger(brNode, "reconnect-attempts", ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts(),
                     Validators.MINUS_ONE_OR_GE_ZERO);
 
       int reconnectAttemptsSameNode =
-         getInteger(brNode, "reconnect-attempts-same-node", HornetQDefaultConfiguration.getDefaultBridgeConnectSameNode(),
+         getInteger(brNode, "reconnect-attempts-same-node", ActiveMQDefaultConfiguration.getDefaultBridgeConnectSameNode(),
                     Validators.MINUS_ONE_OR_GE_ZERO);
 
       boolean useDuplicateDetection = getBoolean(brNode,
                                                  "use-duplicate-detection",
-                                                 HornetQDefaultConfiguration.isDefaultBridgeDuplicateDetection());
+                                                 ActiveMQDefaultConfiguration.isDefaultBridgeDuplicateDetection());
 
       String user = getString(brNode,
                               "user",
-                              HornetQDefaultConfiguration.getDefaultClusterUser(),
+                              ActiveMQDefaultConfiguration.getDefaultClusterUser(),
                               Validators.NO_CHECK);
 
       NodeList clusterPassNodes = brNode.getElementsByTagName("password");
@@ -1795,7 +1795,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       }
       else
       {
-         password = HornetQDefaultConfiguration.getDefaultClusterPassword();
+         password = ActiveMQDefaultConfiguration.getDefaultClusterPassword();
       }
 
       boolean ha = getBoolean(brNode, "ha", false);
@@ -1883,7 +1883,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       String forwardingAddress = getString(e, "forwarding-address", null, Validators.NOT_NULL_OR_EMPTY);
 
-      boolean exclusive = getBoolean(e, "exclusive", HornetQDefaultConfiguration.isDefaultDivertExclusive());
+      boolean exclusive = getBoolean(e, "exclusive", ActiveMQDefaultConfiguration.isDefaultDivertExclusive());
 
       String transformerClassName = getString(e, "transformer-class-name", null, Validators.NO_CHECK);
 

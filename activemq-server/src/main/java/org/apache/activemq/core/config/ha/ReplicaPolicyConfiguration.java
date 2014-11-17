@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.config.ha;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.config.HAPolicyConfiguration;
 import org.apache.activemq.core.config.ScaleDownConfiguration;
 
@@ -20,11 +20,11 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration
 {
    private String clusterName = null;
 
-   private int maxSavedReplicatedJournalsSize = HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
+   private int maxSavedReplicatedJournalsSize = ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
 
    private String groupName = null;
 
-   private boolean restartBackup = HornetQDefaultConfiguration.isDefaultRestartBackup();
+   private boolean restartBackup = ActiveMQDefaultConfiguration.isDefaultRestartBackup();
 
    private ScaleDownConfiguration scaleDownConfiguration;
 
@@ -33,7 +33,7 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration
    * */
    private boolean allowFailBack = false;
 
-   private long failbackDelay = HornetQDefaultConfiguration.getDefaultFailbackDelay();
+   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
    public ReplicaPolicyConfiguration()
    {

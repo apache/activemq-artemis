@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.management;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
 import org.junit.Before;
 import org.junit.After;
@@ -28,7 +29,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -90,7 +90,7 @@ public class ManagementWithStompTest extends ManagementTestBase
       sendFrame(frame);
 
       // retrieve the address of the queue
-      frame = "\nSEND\n" + "destination:" + HornetQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
+      frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
             "reply-to:" + address + "\n" +
             "_HQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
             "_HQ_Attribute: Address\n\n" +
@@ -133,7 +133,7 @@ public class ManagementWithStompTest extends ManagementTestBase
       sendFrame(frame);
 
       // count number of message with filter "color = 'blue'"
-      frame = "\nSEND\n" + "destination:" + HornetQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
+      frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
             "reply-to:" + address + "\n" +
             "_HQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
             "_HQ_OperationName: countMessages\n\n" +

@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQException;
@@ -123,10 +123,10 @@ public final class ReplicationTest extends ServiceTestBase
 
       Configuration backupConfig = createDefaultConfig()
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
-         .setBindingsDirectory(HornetQDefaultConfiguration.getDefaultBindingsDirectory() + suffix)
-         .setJournalDirectory(HornetQDefaultConfiguration.getDefaultJournalDir() + suffix)
-         .setPagingDirectory(HornetQDefaultConfiguration.getDefaultPagingDir() + suffix)
-         .setLargeMessagesDirectory(HornetQDefaultConfiguration.getDefaultLargeMessagesDir() + suffix)
+         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + suffix)
+         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + suffix)
+         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + suffix)
+         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + suffix)
          .setIncomingInterceptorClassNames(interceptors.length > 0 ? Arrays.asList(interceptors) : new ArrayList<String>());
 
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector);

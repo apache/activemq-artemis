@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.server.impl.ColocatedActivation;
 import org.apache.activemq.core.server.impl.HornetQServerImpl;
 import org.apache.activemq.core.server.impl.LiveActivation;
@@ -25,15 +25,15 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation>
 {
 
    /*live stuff*/
-   private boolean requestBackup = HornetQDefaultConfiguration.isDefaultHapolicyRequestBackup();
+   private boolean requestBackup = ActiveMQDefaultConfiguration.isDefaultHapolicyRequestBackup();
 
-   private int backupRequestRetries = HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetries();
+   private int backupRequestRetries = ActiveMQDefaultConfiguration.getDefaultHapolicyBackupRequestRetries();
 
-   private long backupRequestRetryInterval = HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetryInterval();
+   private long backupRequestRetryInterval = ActiveMQDefaultConfiguration.getDefaultHapolicyBackupRequestRetryInterval();
 
-   private int maxBackups = HornetQDefaultConfiguration.getDefaultHapolicyMaxBackups();
+   private int maxBackups = ActiveMQDefaultConfiguration.getDefaultHapolicyMaxBackups();
 
-   private int backupPortOffset = HornetQDefaultConfiguration.getDefaultHapolicyBackupPortOffset();
+   private int backupPortOffset = ActiveMQDefaultConfiguration.getDefaultHapolicyBackupPortOffset();
 
    /*backup stuff*/
    private List<String> excludedConnectors = new ArrayList<>();

@@ -18,7 +18,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -74,7 +74,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
       ArrayList<JMSQueueConfiguration> queues = new ArrayList<JMSQueueConfiguration>();
       ArrayList<TopicConfiguration> topics = new ArrayList<TopicConfiguration>();
       ArrayList<ConnectionFactoryConfiguration> cfs = new ArrayList<ConnectionFactoryConfiguration>();
-      String domain = HornetQDefaultConfiguration.getDefaultJmxDomain();
+      String domain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
 
       Element e = (Element) rootnode;
 
@@ -111,7 +111,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
          }
       }
 
-      domain = XMLConfigurationUtil.getString(e, JMSServerDeployer.JMX_DOMAIN_NAME, HornetQDefaultConfiguration.getDefaultJmxDomain(), Validators.NO_CHECK);
+      domain = XMLConfigurationUtil.getString(e, JMSServerDeployer.JMX_DOMAIN_NAME, ActiveMQDefaultConfiguration.getDefaultJmxDomain(), Validators.NO_CHECK);
 
 
       JMSConfiguration value = newConfig(queues, topics, cfs, domain);
