@@ -251,6 +251,29 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    }
 
    @Test
+   // http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html
+   public void testPOODLE() throws Exception
+   {
+      createCustomSslServer(null, "SSLv3");
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "SSLv3");
+
+      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      try
+      {
+         createSessionFactory(locator);
+         Assert.fail();
+      }
+      catch (HornetQNotConnectedException e)
+      {
+         Assert.assertTrue(true);
+      }
+   }
+
+   @Test
    public void testOneWaySSLWithGoodClientCipherSuite() throws Exception
    {
       createCustomSslServer();

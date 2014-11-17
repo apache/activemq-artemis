@@ -556,7 +556,14 @@ public class ServerSessionPacketHandler implements ChannelHandler
             }
             else
             {
-               HornetQServerLogger.LOGGER.caughtException(e);
+               if (e.getType() == HornetQExceptionType.QUEUE_EXISTS)
+               {
+                  HornetQServerLogger.LOGGER.debug("Caught exception", e);
+               }
+               else
+               {
+                  HornetQServerLogger.LOGGER.caughtException(e);
+               }
             }
          }
          catch (Throwable t)
