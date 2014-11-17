@@ -1106,6 +1106,12 @@ public interface HornetQServerLogger extends BasicLogger
          format = Message.Format.MESSAGE_FORMAT)
    void activateSharedStoreSlaveFailed(@Cause Throwable e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222190,
+         value = "Disallowing use of vulnerable protocol: {0}. See http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html for more details.",
+         format = Message.Format.MESSAGE_FORMAT)
+   void disallowedProtocol(String protocol);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
