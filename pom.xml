@@ -481,7 +481,6 @@
             <module>activemq-native</module>
             <module>activemq-ra</module>
             <module>activemq-rest</module>
-            <module>activemq-service-sar</module>
             <module>activemq-tools</module>
             <!-- <module>integration/activemq-jboss-as-integration</module> -->
             <module>integration/activemq-spring-integration</module>
@@ -506,7 +505,6 @@
             <module>activemq-native</module>
             <module>activemq-ra</module>
             <module>activemq-rest</module>
-            <module>activemq-service-sar</module>
             <module>activemq-tools</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
@@ -531,7 +529,6 @@
             <module>activemq-journal</module>
             <module>activemq-ra</module>
             <module>activemq-rest</module>
-            <module>activemq-service-sar</module>
             <module>activemq-tools</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
@@ -558,7 +555,6 @@
             <module>activemq-journal</module>
             <module>activemq-ra</module>
             <module>activemq-rest</module>
-            <module>activemq-service-sar</module>
             <module>activemq-tools</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
@@ -596,7 +592,6 @@
             <module>activemq-journal</module>
             <module>activemq-ra</module>
             <module>activemq-rest</module>
-            <module>activemq-service-sar</module>
             <module>activemq-tools</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
@@ -630,7 +625,6 @@
             <module>activemq-journal</module>
             <module>activemq-ra</module>
             <module>activemq-rest</module>
-            <module>activemq-service-sar</module>
             <module>activemq-tools</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
