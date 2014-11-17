@@ -3,29 +3,29 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6.examples.core</groupId>
+      <groupId>org.apache.activemq.examples.core</groupId>
       <artifactId>core-examples</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq6-core-embedded-remote-example</artifactId>
+   <artifactId>activemq-core-embedded-remote-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ6 Core Embedded Remote Example</name>
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-core-client</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-commons</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-server</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-server</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -53,8 +53,8 @@
          <id>server</id>
          <dependencies>
             <dependency>
-               <groupId>org.apache.activemq6</groupId>
-               <artifactId>activemq6-server</artifactId>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>activemq-server</artifactId>
                <version>${project.version}</version>
             </dependency>
          </dependencies>
@@ -73,7 +73,7 @@
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq6.core.example.EmbeddedServer</mainClass>
+                     <mainClass>org.apache.activemq.core.example.EmbeddedServer</mainClass>
                   </configuration>
                </plugin>
             </plugins>
@@ -83,8 +83,8 @@
          <id>client</id>
          <dependencies>
             <dependency>
-               <groupId>org.apache.activemq6</groupId>
-               <artifactId>activemq6-core-client</artifactId>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>activemq-core-client</artifactId>
                <version>${project.version}</version>
             </dependency>
          </dependencies>
@@ -103,7 +103,7 @@
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq6.core.example.EmbeddedRemoteExample</mainClass>
+                     <mainClass>org.apache.activemq.core.example.EmbeddedRemoteExample</mainClass>
                   </configuration>
                </plugin>
             </plugins>

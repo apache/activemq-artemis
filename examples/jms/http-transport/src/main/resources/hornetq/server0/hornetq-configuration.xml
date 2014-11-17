@@ -14,7 +14,7 @@
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="http-enabled" value="true"/>
          <param key="port" value="8080"/>
       </connector>
@@ -24,7 +24,7 @@
 
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="8080"/>
       </acceptor>
    </acceptors>

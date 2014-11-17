@@ -27,12 +27,12 @@
    <!-- Connectors -->
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5448"/>
       </connector>
       <!-- connector to the server0 -->
       <connector name="server0-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5445"/>
       </connector>
    </connectors>
@@ -40,7 +40,7 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="5448"/>
       </acceptor>
    </acceptors>

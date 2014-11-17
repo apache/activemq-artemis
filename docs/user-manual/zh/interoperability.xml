@@ -30,7 +30,7 @@
             其中的<literal>protocol</literal>参数值应设为<literal>stomp</literal>：</para>
 <programlisting>
 	&lt;acceptor name="stomp-acceptor">
-		&lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>		&lt;param key="protocol"  value="stomp"/>
+		&lt;factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>		&lt;param key="protocol"  value="stomp"/>
 		&lt;param key="port"  value="61613"/>
 	&lt;/acceptor>
 </programlisting>
@@ -103,7 +103,7 @@ hello queue orders
             的值为<literal>stomp_ws</literal>：</para>
          <programlisting>
 &lt;acceptor name="stomp-ws-acceptor">
-	&lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
+	&lt;factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
 	&lt;param key="protocol" value="stomp_ws"/>
 	&lt;param key="port" value="61614"/>
 &lt;/acceptor>

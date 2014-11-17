@@ -69,7 +69,7 @@
             set it once in the transaction. If the server detects a duplicate message for any
             message in the transaction, then it will ignore the entire transaction.</para>
         <para>The name of the property that you set is given by the value of <literal
-                >org.apache.activemq6.api.core.Message.HDR_DUPLICATE_DETECTION_ID</literal>, which
+                >org.apache.activemq.api.core.Message.HDR_DUPLICATE_DETECTION_ID</literal>, which
             is <literal>_HQ_DUPL_ID</literal></para>
         <para>The value of the property can be of type <literal>byte[]</literal> or <literal
                 >SimpleString</literal> if you're using the core API. If you're using JMS it must be
@@ -101,7 +101,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
     <section id="duplicate.id.cache">
         <title>Configuring the Duplicate ID Cache</title>
         <para>The server maintains caches of received values of the <literal
-                >org.apache.activemq6.core.message.impl.HDR_DUPLICATE_DETECTION_ID</literal> property
+                >org.apache.activemq.core.message.impl.HDR_DUPLICATE_DETECTION_ID</literal> property
             sent to each address. Each address has its own distinct cache.</para>
         <para>The cache is a circular fixed size cache. If the cache has a maximum size of <literal
                 >n</literal> elements, then the <literal>n + 1</literal>th id stored will overwrite

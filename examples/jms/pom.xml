@@ -3,12 +3,12 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6.examples</groupId>
-      <artifactId>activemq6-examples</artifactId>
+      <groupId>org.apache.activemq.examples</groupId>
+      <artifactId>activemq-examples</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <groupId>org.apache.activemq6.examples.jms</groupId>
+   <groupId>org.apache.activemq.examples.jms</groupId>
    <artifactId>jms-examples</artifactId>
    <packaging>pom</packaging>
    <name>ActiveMQ6 JMS Examples</name>
@@ -21,7 +21,7 @@
       <profile>
          <id>maven-release</id>
          <modules>
-            <module>activemq6-jms-examples-common</module>
+            <module>activemq-jms-examples-common</module>
          </modules>
       </profile>
       <profile>
@@ -30,7 +30,7 @@
             <activeByDefault>true</activeByDefault>
          </activation>
          <modules>
-            <module>activemq6-jms-examples-common</module>
+            <module>activemq-jms-examples-common</module>
             <!--this needs to be run standalone-->
             <!--<module>applet</module>-->
             <module>application-layer-failover</module>
@@ -113,7 +113,7 @@
       <profile>
          <id>release</id>
          <modules>
-            <module>activemq6-jms-examples-common</module>
+            <module>activemq-jms-examples-common</module>
          </modules>
       </profile>
    </profiles>

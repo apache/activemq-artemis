@@ -31,8 +31,8 @@
         <para>按照以下步骤去做：</para>
         <para>创建配置对象－－这个对象包装了HornetQ的配置信息。如果你想使用配置文件，则使用<literal
                 >FileConfigurationImpl</literal>。</para>
-        <programlisting>import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.FileConfiguration;
+        <programlisting>import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.FileConfiguration;
 
 ...
 
@@ -44,8 +44,8 @@ config.start();</programlisting>
             即可。如添加适当的接收器。</para>
         <para><literal>ConfigurationImpl</literal>用来配置接收器。和主要配置文件相似，只需要添加
             <literal>NettyAcceptorFactory</literal>即可。</para>
-        <programlisting>import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
+        <programlisting>import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
 
 ...
 
@@ -57,9 +57,9 @@ transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
 config.setAcceptorConfigurations(transports);</programlisting>
         <para>接着就需要初始化并启动HornetQ服务。<literal
-                >org.apache.activemq6.api.core.server.HornetQ</literal>类有一些静态方法可用来创建HornetQ服务器。</para>
-        <programlisting>import org.apache.activemq6.api.core.server.HornetQ;
-import org.apache.activemq6.core.server.HornetQServer;
+                >org.apache.activemq.api.core.server.HornetQ</literal>类有一些静态方法可用来创建HornetQ服务器。</para>
+        <programlisting>import org.apache.activemq.api.core.server.HornetQ;
+import org.apache.activemq.core.server.HornetQServer;
 
 ...
 
@@ -88,12 +88,12 @@ server.start();</programlisting>
    
    &lt;!-- The core configuration -->
    &lt;bean name="Configuration" 
-         class="org.apache.activemq6.core.config.impl.FileConfiguration">
+         class="org.apache.activemq.core.config.impl.FileConfiguration">
    &lt;/bean>
 
    	&lt;!-- The core server -->
    &lt;bean name="HornetQServer" 
-         class="org.apache.activemq6.core.server.impl.HornetQServerImpl">      
+         class="org.apache.activemq.core.server.impl.HornetQServerImpl">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="Configuration"/>

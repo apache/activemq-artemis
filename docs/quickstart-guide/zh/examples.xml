@@ -70,31 +70,31 @@ runExample:
 seParallelGC,-XX:+AggressiveOpts,-XX:+UseFastAccessorMethods,-Djava.util.logging.config.
 file=/home/andy/projects/hornetq/trunk/examples/jms/common/../../../src/config/stand-alone/no
 n-clustered/logging.properties
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:08,437 INFO  @main [Journal
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:08,437 INFO  @main [Journal
 StorageManager] AIO journal selected
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:08,437 WARN  @main [Journal
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:08,437 WARN  @main [Journal
 StorageManager] AIO wasn't located on this platform, it will fall back to using pure Jav
 a NIO. If your platform is Linux, install LibAIO to enable the AIO journal
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:08,437 WARN  @main [Securit
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:08,437 WARN  @main [Securit
 yStoreImpl] It has been detected that the cluster admin password which is used to replic
 ate management operation from one node to the other has not had its password changed fro
 m the installation default. Please see the HornetQ user guide for instructions o
 n how to do this.
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
 nnectionFactory] read only is false
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
 nnectionFactory] read only is false
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
 nnectionFactory] read only is false
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:10,991 WARN  @main [JMSServ
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,991 WARN  @main [JMSServ
 erManagerImpl] Binding for java:/ConnectionFactory already exists
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:10,991 WARN  @main [JMSServ
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,991 WARN  @main [JMSServ
 erManagerImpl] Binding for java:/XAConnectionFactory already exists
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:11,241 INFO  @main [Messagi
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:11,241 INFO  @main [Messagi
 ngServerImpl] HornetQ Server version 2.0.0.BETA5 (buzz-buzz, 107) started
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:10:41:11,241 INFO  @main [HornetQBoot
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:11,241 INFO  @main [HornetQBoot
 strapServer] HornetQ server started
-     [java] org.apache.activemq6.jms.example.SpawnedJMSServer out:STARTED::
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:STARTED::
      [java] 10:41:11,276 INFO  @main [JMSExample] using server0/client-jndi.properties f
 or jndi
      [java] Sent message: This is a text message
@@ -155,7 +155,7 @@ deploy-ear:
      [exec] 16:01:04,607 INFO  [JBossASKernel] Added bean(jboss.j2ee:ear=mdb-example.ear,
      jar=mdb-example.jar,name=MessageMDBExample,service=EJB3) to KernelDeployment of: 
      mdb-example.jar
-     [exec] 16:01:04,702 INFO  [EJBContainer] STARTED EJB: org.apache.activemq6.javaee.example.server
+     [exec] 16:01:04,702 INFO  [EJBContainer] STARTED EJB: org.apache.activemq.javaee.example.server
      .MDBExample ejbName: MessageMDBExample
      [exec] 16:01:09,496 INFO  [TomcatDeployment] deploy, ctxPath=/mdb-example
      [exec] 16:01:09,812 WARNING [config] Unable to process deployment descriptor for cont

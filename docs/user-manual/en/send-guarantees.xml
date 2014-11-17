@@ -137,7 +137,7 @@
         <section>
             <title>Asynchronous Send Acknowledgements</title>
             <para>To use the feature using the core API, you implement the interface <literal
-                    >org.apache.activemq6.api.core.client.SendAcknowledgementHandler</literal> and set a handler
+                    >org.apache.activemq.api.core.client.SendAcknowledgementHandler</literal> and set a handler
                 instance on your <literal>ClientSession</literal>.</para>
             <para>Then, you just send messages as normal using your <literal
                 >ClientSession</literal>, and as messages reach the server, the server will send

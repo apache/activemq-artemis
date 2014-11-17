@@ -43,7 +43,7 @@
     &lt;forwarding-address&gt;jms.queue.mincing-machine&lt;/forwarding-address&gt;
     &lt;filter-string="name='aardvark'"/&gt;
     &lt;transformer-class-name&gt;
-        org.apache.activemq6.jms.example.HatColourChangeTransformer
+        org.apache.activemq.jms.example.HatColourChangeTransformer
     &lt;/transformer-class-name&gt;
     &lt;retry-interval&gt;1000&lt;/retry-interval&gt;
     &lt;retry-interval-multiplier&gt;1.0&lt;/retry-interval-multiplier&gt;
@@ -87,7 +87,7 @@
             </listitem>
             <listitem>
                 <para><literal>transformer-class-name</literal>。可选的转换器类名。这是一个用户定义的
-                    类，它需要实现接口<literal>org.apache.activemq6.core.server.cluster.Transformer</literal>
+                    类，它需要实现接口<literal>org.apache.activemq.core.server.cluster.Transformer</literal>
                     。</para>
                 <para>如果指定了这个类，每当一个消息被转发之前，它的<literal>transform()</literal>方法
                     就会被调用。用户利用这个机会可以对消息本身或消息头信息进行修改。</para>

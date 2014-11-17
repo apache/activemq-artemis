@@ -5,7 +5,7 @@
    <!-- Connectors -->
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
       </connector>
    </connectors>
 

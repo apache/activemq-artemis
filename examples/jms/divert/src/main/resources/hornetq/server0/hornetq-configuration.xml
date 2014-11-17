@@ -17,14 +17,14 @@
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5445"/>
       </connector>
    
       <!-- This connector corresponds to the New York server -->
       
       <connector name="newyork-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5446"/>
       </connector>
    </connectors>
@@ -33,7 +33,7 @@
 
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="5445"/>
       </acceptor>
    </acceptors>
@@ -61,7 +61,7 @@
          <address>jms.topic.priceUpdates</address>
          <forwarding-address>jms.queue.priceForwarding</forwarding-address>    
          <filter string="office='New York'"/>
-         <transformer-class-name>org.apache.activemq6.jms.example.AddForwardingTimeTransformer</transformer-class-name>     
+         <transformer-class-name>org.apache.activemq.jms.example.AddForwardingTimeTransformer</transformer-class-name>
          <exclusive>true</exclusive>
       </divert>
    </diverts>

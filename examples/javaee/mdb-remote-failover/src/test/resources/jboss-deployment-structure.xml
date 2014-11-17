@@ -1,7 +1,7 @@
 <jboss-deployment-structure>
    <deployment>
       <dependencies>
-         <module name="org.apache.activemq6"/>
+         <module name="org.apache.activemq"/>
       </dependencies>
    </deployment>
 </jboss-deployment-structure>

@@ -15,7 +15,7 @@
 
    <connectors>
       <connector name="netty-ssl-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="host" value="localhost"/>
          <param key="port" value="5500"/>
          <param key="ssl-enabled" value="true"/>
@@ -27,7 +27,7 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-ssl-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="host" value="localhost"/>
          <param key="port" value="5500"/>
          <param key="ssl-enabled" value="true"/>

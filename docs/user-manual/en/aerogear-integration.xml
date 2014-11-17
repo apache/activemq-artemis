@@ -31,7 +31,7 @@
     <para>AeroGear Connector services are configured in the connector-services configuration:</para>
     <programlisting>
     &lt;connector-service name="aerogear-connector">
-    &lt;factory-class>org.apache.activemq6.integration.aerogear.AeroGearConnectorServiceFactory&lt;/factory-class>
+    &lt;factory-class>org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory&lt;/factory-class>
     &lt;param key="endpoint" value="endpoint"/>
     &lt;param key="queue" value="jms.queue.aerogearQueue"/>
     &lt;param key="application-id" value="an applicationid"/>

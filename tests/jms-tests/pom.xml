@@ -2,8 +2,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
-      <groupId>org.apache.activemq6.tests</groupId>
-      <artifactId>activemq6-tests-pom</artifactId>
+      <groupId>org.apache.activemq.tests</groupId>
+      <artifactId>activemq-tests-pom</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
@@ -17,49 +17,49 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-core-client</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-core-client</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-server</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-server</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6.tests</groupId>
+         <groupId>org.apache.activemq.tests</groupId>
          <artifactId>unit-tests</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-jms-client</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-jms-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-commons</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-jms-server</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-jms-server</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-ra</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-ra</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-bootstrap</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-bootstrap</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -145,11 +145,11 @@
             <configuration>
                <skipTests>${skipJmsTests}</skipTests>
                <excludes>
-                  <exclude>org.apache.activemq6/jms/tests/XARecoveryTest.java</exclude>
-                  <exclude>org.apache.activemq6/jms/tests/XAResourceRecoveryTest.java</exclude>
-                  <exclude>org.apache.activemq6/jms/tests/XATest.java</exclude>
-                  <exclude>org.apache.activemq6/jms/tests/stress/*.java</exclude>
-                  <exclude>org.apache.activemq6/jms/tests/manual/**</exclude>
+                  <exclude>org.apache.activemq/jms/tests/XARecoveryTest.java</exclude>
+                  <exclude>org.apache.activemq/jms/tests/XAResourceRecoveryTest.java</exclude>
+                  <exclude>org.apache.activemq/jms/tests/XATest.java</exclude>
+                  <exclude>org.apache.activemq/jms/tests/stress/*.java</exclude>
+                  <exclude>org.apache.activemq/jms/tests/manual/**</exclude>
                </excludes>
                <argLine>${hornetq-surefire-argline}</argLine>
             </configuration>

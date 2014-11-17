@@ -58,7 +58,7 @@
       <literal>hornetq-configuration.xml</literal> in your
       classpath:</para>
         <programlisting>
-import org.apache.activemq6.core.server.embedded.EmbeddedHornetQ;
+import org.apache.activemq.core.server.embedded.EmbeddedHornetQ;
 
 ...
 
@@ -109,7 +109,7 @@ session.close();</programlisting>
       <literal>hornetq-jms.xml</literal> config file.</para>
 
       <programlisting>
-import org.apache.activemq6.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 
 ...
 
@@ -149,8 +149,8 @@ Destination destination = jms.lookup("/example/queue");
     would through the main configuration file.</para>
 
     <programlisting>
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
 
 ...
 
@@ -163,12 +163,12 @@ transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 config.setAcceptorConfigurations(transports);</programlisting>
 
     <para>You need to instantiate an instance of
-    <literal>org.apache.activemq6.api.core.server.embedded.EmbeddedHornetQ</literal>
+    <literal>org.apache.activemq.api.core.server.embedded.EmbeddedHornetQ</literal>
     and add the configuration object to it.</para>
 
     <programlisting>
-import org.apache.activemq6.api.core.server.HornetQ;
-import org.apache.activemq6.core.server.embedded.EmbeddedHornetQ;
+import org.apache.activemq.api.core.server.HornetQ;
+import org.apache.activemq.core.server.embedded.EmbeddedHornetQ;
 
 ...
 
@@ -247,12 +247,12 @@ jmsServer.start();</programlisting>
 &lt;deployment xmlns="urn:jboss:bean-deployer:2.0">
    &lt;!-- The core configuration -->
    &lt;bean name="Configuration" 
-         class="org.apache.activemq6.core.config.impl.FileConfiguration">
+         class="org.apache.activemq.core.config.impl.FileConfiguration">
    &lt;/bean>
 
      &lt;!-- The core server -->
    &lt;bean name="HornetQServer" 
-         class="org.apache.activemq6.core.server.impl.HornetQServerImpl">
+         class="org.apache.activemq.core.server.impl.HornetQServerImpl">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="Configuration"/>

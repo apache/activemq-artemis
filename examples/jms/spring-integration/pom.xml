@@ -3,24 +3,24 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6.examples.jms</groupId>
+      <groupId>org.apache.activemq.examples.jms</groupId>
       <artifactId>jms-examples</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq6-jms-spring-integration-example</artifactId>
+   <artifactId>activemq-jms-spring-integration-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ6 JMS Spring Integration Example</name>
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq6.examples.jms</groupId>
-         <artifactId>activemq6-jms-examples-common</artifactId>
+         <groupId>org.apache.activemq.examples.jms</groupId>
+         <artifactId>activemq-jms-examples-common</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-spring-integration</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-spring-integration</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -36,8 +36,8 @@
    <build>
       <plugins>
          <plugin>
-            <groupId>org.apache.activemq6</groupId>
-            <artifactId>activemq6-maven-plugin</artifactId>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-maven-plugin</artifactId>
             <executions>
                <execution>
                   <id>runClient</id>
@@ -45,7 +45,7 @@
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq6.jms.example.SpringExample</clientClass>
+                     <clientClass>org.apache.activemq.jms.example.SpringExample</clientClass>
                      <args>
                         <param>jnp://localhost:1099</param>
                      </args>
@@ -54,28 +54,28 @@
             </executions>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.activemq6.examples.jms</groupId>
-                  <artifactId>activemq6-jms-spring-integration-example</artifactId>
+                  <groupId>org.apache.activemq.examples.jms</groupId>
+                  <artifactId>activemq-jms-spring-integration-example</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-core-client</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-core-client</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-server</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-server</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-jms-client</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-jms-client</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-jms-server</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-jms-server</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>

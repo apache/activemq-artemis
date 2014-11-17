@@ -160,7 +160,7 @@ ClientSessionFactory factory = HornetQClient.createClientSessionFactory();</prog
                     >ClientMessage</literal> which are also available through JMS by the use of
                 object properties.</para>
             <table frame="topbot" id="large-messages.ClientMessageAPI">
-                <title>org.apache.activemq6.api.core.client.ClientMessage API</title>
+                <title>org.apache.activemq.api.core.client.ClientMessage API</title>
                 <tgroup cols="3">
                     <colspec colname="Name" colnum="1"/>
                     <colspec colname="Descr" colnum="2"/>

@@ -4,12 +4,12 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-   <bean id="EmbeddedJms" class="org.apache.activemq6.integration.spring.SpringJmsBootstrap" init-method="start" destroy-method="stop">
+   <bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start" destroy-method="stop">
    </bean>
 
-    <bean id="listener" class="org.apache.activemq6.jms.example.ExampleListener"/>
+    <bean id="listener" class="org.apache.activemq.jms.example.ExampleListener"/>
     
-    <bean id="MessageSender" class="org.apache.activemq6.jms.example.MessageSender">
+    <bean id="MessageSender" class="org.apache.activemq.jms.example.MessageSender">
         <property name="connectionFactory" ref="ConnectionFactory"/>
         <property name="destination" ref="/queue/exampleQueue"/>
     </bean>

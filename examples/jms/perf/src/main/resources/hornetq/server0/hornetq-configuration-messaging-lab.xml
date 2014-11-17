@@ -6,7 +6,7 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>    
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="tcp-no-delay" value="false"/>
          <param key="tcp-send-buffer-size" value="1048576"/>
          <param key="tcp-receive-buffer-size" value="1048576"/>

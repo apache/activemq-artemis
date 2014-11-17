@@ -55,7 +55,7 @@
         <programlisting>
 &lt;?xml version="1.0" encoding="UTF-8"?>
 &lt;deployment xmlns="urn:jboss:bean-deployer:2.0">
-   &lt;bean name="JMSBridge" class="org.apache.activemq6.api.jms.bridge.impl.JMSBridgeImpl">
+   &lt;bean name="JMSBridge" class="org.apache.activemq.api.jms.bridge.impl.JMSBridgeImpl">
       &lt;!-- HornetQ must be started before the bridge -->
       &lt;depends>HornetQServer&lt;/depends>
       &lt;constructor>
@@ -105,7 +105,7 @@
          &lt;parameter>
             &lt;inject bean="MBeanServer"/>
          &lt;/parameter>
-         &lt;parameter>org.apache.activemq6:service=JMSBridge&lt;/parameter>
+         &lt;parameter>org.apache.activemq:service=JMSBridge&lt;/parameter>
       &lt;/constructor>
       &lt;property name="transactionManager">
          &lt;inject bean="RealTransactionManager"/>
@@ -114,7 +114,7 @@
 
    &lt;!-- SourceCFF describes the ConnectionFactory used to connect to the source destination -->
    &lt;bean name="SourceCFF"
-       class="org.apache.activemq6.api.jms.bridge.impl.JNDIConnectionFactoryFactory">
+       class="org.apache.activemq.api.jms.bridge.impl.JNDIConnectionFactoryFactory">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="JNDI" />
@@ -125,7 +125,7 @@
 
    &lt;!-- TargetCFF describes the ConnectionFactory used to connect to the target destination -->
    &lt;bean name="TargetCFF"
-       class="org.apache.activemq6.api.jms.bridge.impl.JNDIConnectionFactoryFactory">
+       class="org.apache.activemq.api.jms.bridge.impl.JNDIConnectionFactoryFactory">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="JNDI" />
@@ -135,7 +135,7 @@
    &lt;/bean>
 
    &lt;!-- SourceDestinationFactory describes the Destination used as the source -->
-   &lt;bean name="SourceDestinationFactory" class="org.apache.activemq6.api.jms.bridge.impl.JNDIDestinationFactory">
+   &lt;bean name="SourceDestinationFactory" class="org.apache.activemq.api.jms.bridge.impl.JNDIDestinationFactory">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="JNDI" />
@@ -145,7 +145,7 @@
    &lt;/bean>
 
    &lt;!-- TargetDestinationFactory describes the Destination used as the target -->
-   &lt;bean name="TargetDestinationFactory" class="org.apache.activemq6.api.jms.bridge.impl.JNDIDestinationFactory">
+   &lt;bean name="TargetDestinationFactory" class="org.apache.activemq.api.jms.bridge.impl.JNDIDestinationFactory">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="JNDI" />
@@ -359,7 +359,7 @@
                 HornetQ that looks up the connection factory using JNDI. For other Application
                 Servers or JMS providers a new implementation may have to be provided. This can
                 easily be done by implementing the interface <literal
-                    >org.apache.activemq6.jms.bridge.ConnectionFactoryFactory</literal>.</para>
+                    >org.apache.activemq.jms.bridge.ConnectionFactoryFactory</literal>.</para>
         </section>
         <section>
             <title>Source and Target Destination Factories</title>
@@ -367,7 +367,7 @@
             <para>In the configuration example above, we have used the default provided by HornetQ
                 that looks up the destination using JNDI.</para>
             <para>A new implementation can be provided by implementing <literal
-                    >org.apache.activemq6.jms.bridge.DestinationFactory</literal> interface.</para>
+                    >org.apache.activemq.jms.bridge.DestinationFactory</literal> interface.</para>
         </section>
         <section id="quality-of-service">
             <title>Quality Of Service</title>

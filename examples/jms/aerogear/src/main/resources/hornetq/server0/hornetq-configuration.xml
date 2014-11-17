@@ -15,14 +15,14 @@
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
       </connector>
    </connectors>
    
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>        
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
       </acceptor>
    </acceptors>
 
@@ -36,7 +36,7 @@
 
     <connector-services>
         <connector-service name="aerogear-connector">
-            <factory-class>org.apache.activemq6.integration.aerogear.AeroGearConnectorServiceFactory</factory-class>
+            <factory-class>org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory</factory-class>
             <param key="endpoint" value="${endpoint}"/>
             <param key="queue" value="jms.queue.aerogearQueue"/>
             <param key="application-id" value="${applicationid}"/>

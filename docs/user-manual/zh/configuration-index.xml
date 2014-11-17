@@ -195,7 +195,7 @@
                                 >jmx-domain</link></entry>
                             <entry>String</entry>
                             <entry>用于HornetQ MBean注册到MBeanServer的JMX域名</entry>
-                            <entry>org.apache.activemq6</entry>
+                            <entry>org.apache.activemq</entry>
                         </row>
                         <row>
                             <entry><link linkend="large.message.configuring"
@@ -1068,7 +1068,7 @@
                             </entry>
                             <entry>String</entry>
                             <entry>负载均衡类名</entry>
-                            <entry>org.apache.activemq6.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</entry>
+                            <entry>org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</entry>
                         </row>
                         <row>
                             <entry id="configuration.connection-factory.connection-ttl">

@@ -65,7 +65,7 @@
     <section>
         <title>使用接口（API）创建队列</title>
         <para>队列还可以使用核心接口或管理接口来创建。</para>
-        <para>核心接口的<literal>org.apache.activemq6.api.core.client.ClientSession</literal>接口可以用来
+        <para>核心接口的<literal>org.apache.activemq.api.core.client.ClientSession</literal>接口可以用来
               创建队列。它有几个<literal>createQueue</literal>方法，可以在创建队列时对上述的属性进行设置。
               除此之外，还有一个额外的属性<literal>temporary</literal>可以设置。如果将其设为true，
               那么队列在会话断开时将被删除。</para>

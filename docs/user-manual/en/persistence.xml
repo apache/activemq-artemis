@@ -324,12 +324,12 @@
             HornetQ, and you can use the export/import tool for that purpose. The export/import are
             classes located at the hornetq-core.jar, you can export the journal as a text file by
             using this command:</para>
-        <para><literal>java -cp hornetq-core.jar org.apache.activemq6.core.journal.impl.ExportJournal
+        <para><literal>java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.ExportJournal
                 &lt;JournalDirectory> &lt;JournalPrefix> &lt;FileExtension> &lt;FileSize>
                 &lt;FileOutput></literal></para>
         <para>To import the file as binary data on the journal (Notice you also require
             netty.jar):</para>
-        <para><literal>java -cp hornetq-core.jar:netty.jar org.apache.activemq6.core.journal.impl.ImportJournal
+        <para><literal>java -cp hornetq-core.jar:netty.jar org.apache.activemq.core.journal.impl.ImportJournal
                 &lt;JournalDirectory> &lt;JournalPrefix> &lt;FileExtension> &lt;FileSize>
                 &lt;FileInput></literal></para>
         <itemizedlist>

@@ -14,7 +14,7 @@
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
       </connector>
    </connectors>
    
@@ -22,12 +22,12 @@
    <acceptors>
       <!-- a regular Netty acceptor used by the JMS client -->
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>        
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
       </acceptor>
       <!-- the stomp-acceptor is configured for the Stomp over Web Sockets and -->
       <!-- will listen on port 61614)              -->
       <acceptor name="stomp-websocket">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="61614" />
       </acceptor>
    </acceptors>

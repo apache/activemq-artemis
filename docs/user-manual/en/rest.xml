@@ -128,7 +128,7 @@ Content-Type: application/xml
 
    &lt;listener>
       &lt;listener-class>
-         org.apache.activemq6.rest.integration.RestMessagingBootstrapListener
+         org.apache.activemq.rest.integration.RestMessagingBootstrapListener
       &lt;/listener-class>
    &lt;/listener>
 
@@ -185,7 +185,7 @@ Content-Type: application/xml
 
    &lt;dependencies>
       &lt;dependency>
-         &lt;groupId>org.apache.activemq6.rest&lt;/groupId>
+         &lt;groupId>org.apache.activemq.rest&lt;/groupId>
          &lt;artifactId>hornetq-rest&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
@@ -196,7 +196,7 @@ Content-Type: application/xml
                 <para>JBoss AS 7 loads classes differently than previous versions.
                     To work properly in AS 7 the WAR will need this in its MANIFEST.MF:
                 </para>
-                <programlisting>Dependencies: org.apache.activemq6, org.jboss.netty</programlisting>
+                <programlisting>Dependencies: org.apache.activemq, org.jboss.netty</programlisting>
                 <para>You can add this to the<literal>&lt;plugins></literal>
                     section of the pom.xml to create this entry automatically:
                 </para>
@@ -207,7 +207,7 @@ Content-Type: application/xml
    &lt;configuration>
       &lt;archive>
          &lt;manifestEntries>
-            &lt;Dependencies>org.apache.activemq6, org.jboss.netty&lt;/Dependencies>
+            &lt;Dependencies>org.apache.activemq, org.jboss.netty&lt;/Dependencies>
          &lt;/manifestEntries>
       &lt;/archive>
    &lt;/configuration>
@@ -252,13 +252,13 @@ Content-Type: application/xml
 
    &lt;listener>
       &lt;listener-class>
-         org.apache.activemq6.rest.integration.HornetqBootstrapListener
+         org.apache.activemq.rest.integration.HornetqBootstrapListener
       &lt;/listener-class>
    &lt;/listener>
 
    &lt;listener>
       &lt;listener-class>
-         org.apache.activemq6.rest.integration.RestMessagingBootstrapListener
+         org.apache.activemq.rest.integration.RestMessagingBootstrapListener
       &lt;/listener-class>
    &lt;/listener>
 
@@ -312,7 +312,7 @@ Content-Type: application/xml
    &lt;/build>
    &lt;dependencies>
       &lt;dependency>
-         &lt;groupId>org.apache.activemq6&lt;/groupId>
+         &lt;groupId>org.apache.activemq&lt;/groupId>
          &lt;artifactId>hornetq-core&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
@@ -322,7 +322,7 @@ Content-Type: application/xml
          &lt;version>3.4.5.Final&lt;/version>
       &lt;/dependency>
       &lt;dependency>
-         &lt;groupId>org.apache.activemq6&lt;/groupId>
+         &lt;groupId>org.apache.activemq&lt;/groupId>
          &lt;artifactId>hornetq-jms&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
@@ -332,7 +332,7 @@ Content-Type: application/xml
          &lt;version>1.0.0.Final&lt;/version>
       &lt;/dependency>
       &lt;dependency>
-         &lt;groupId>org.apache.activemq6.rest&lt;/groupId>
+         &lt;groupId>org.apache.activemq.rest&lt;/groupId>
          &lt;artifactId>hornetq-rest&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
@@ -844,7 +844,7 @@ msg-create-next: http://example.com/queues/jms.queue.bar/create/13582001787374</
                 like this on the server:
             </para>
             <programlisting>
-WARN  [org.apache.activemq6.core.server] (Thread-3 (HornetQ-remoting-threads-HornetQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) HQ112098: Duplicate message detected - message will not be routed. Message information:
+WARN  [org.apache.activemq.core.server] (Thread-3 (HornetQ-remoting-threads-HornetQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) HQ112098: Duplicate message detected - message will not be routed. Message information:
 ServerMessage[messageID=20,priority=4, bodySize=1500,expiration=0, durable=true, address=jms.queue.bar,properties=TypedProperties[{http_content$type=application/x-www-form-urlencoded, http_content$length=3, postedAsHttpMessage=true, _HQ_DUPL_ID=42}]]@12835058</programlisting>
 
             <para>An alternative to this approach is to use the <literal>msg-create-with-id</literal>
@@ -2113,7 +2113,7 @@ Location: http://example.com/topics/jms.topic.testTopic</programlisting>
 
             <programlisting>
 ObjectMessage message = session.createObjectMessage();
-message.setStringProperty(org.apache.activemq6.rest.HttpHeaderProperty.CONTENT_TYPE, "application/xml");</programlisting>
+message.setStringProperty(org.apache.activemq.rest.HttpHeaderProperty.CONTENT_TYPE, "application/xml");</programlisting>
 
             <para>If the JMS producer does not set the content-type, then this
                 information must be obtained from the REST consumer. If it is a pull
@@ -2136,7 +2136,7 @@ message.setStringProperty(org.apache.activemq6.rest.HttpHeaderProperty.CONTENT_T
             <programlisting>
 public void onMessage(Message message)
 {
-   MyType obj = org.apache.activemq6.rest.Jms.getEntity(message, MyType.class);
+   MyType obj = org.apache.activemq.rest.Jms.getEntity(message, MyType.class);
 }</programlisting>
 
             <para>The way the <literal>getEntity()</literal> method works is that if
