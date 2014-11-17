@@ -185,11 +185,12 @@ Core ActiveMQ6 members have write access to the Apache ActiveMQ6 repositories an
 
 To setup repositories for reviewing and pushing:
 
-```
+```bash
   # Clone the GitHub Mirror of ActiveMQ6 Repo:
   git clone git@github.com:apache/activemq-6.git
 
-  # Add the following section to your <activemq repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
+  # Add the following section to your <activemq6 repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
+
   [remote "origin"]
         url = git@github.com:apache/activemq-6.git
         fetch = +refs/heads/*:refs/remotes/origin/*
@@ -197,7 +198,7 @@ To setup repositories for reviewing and pushing:
 
 
   # Add the Apache repository as a remote
-  git remote add apache https://git-wip-us.apache.org/repos/asf/activemq-6.git
+  git remote add upstream https://git-wip-us.apache.org/repos/asf/activemq-6.git
 
   # Fetch
   git fetch --all
@@ -205,8 +206,8 @@ To setup repositories for reviewing and pushing:
 
 To push commits from a pull request to the apache repository:
 
-```
-  cd <activemq repo>
+```bash
+  cd <activemq6 repo>
 
   # Download all the remote branches etc... including all the pull requests.
   git fetch --all
@@ -214,9 +215,46 @@ To push commits from a pull request to the apache repository:
   # Checkout the pull request you wish to review
   git checkout pr/2
 
-  # Ensure this patch is rebased onto apache/master
-  git rebase apache/master
+  # Review is done...  READY TO MERGE.
 
-  # Continue through review process.  Once an Ack has been sent.  Push to the Apache ActiveMQ6 repo
-  git push apache pr/2:master
+  # Check out the master branch.
+  git checkout master
+
+  # Ensure you are up to date
+  git pull
+
+  # Create a new merge commit from the 
+  git merge --no-ff pr/2
+
+  #  IMPORTANT: In this commit message be sure to write something along the lines of: "Merge Pull Request #2" Where 2 is the Pull Request ID.  "#2" shows up as a link in the GitHub UI for navigating to the PR from the commit message.
+
+  # Pushes to the upstream repo.
+  git push upstream master
 ```
+
+#### Notes:
+
+The GitHub mirror repository is cloning the Apache ActiveMQ6 repository (The root repository).  There maybe a slight delay between when a commit is pushed to the Apache repo and when that commit is reflected in the GitHub mirror.  This may cause some difficulty when trying to push a PR to upstream (Apache) that has been merged on an out of date GitHub (mirror) master.  You can wait for the mirror to update before performing the steps above.  A solution to this is to change local master branch to track the upstream (Apache) master, rather than GitHub (mirror) master by editing your config to look like this:
+
+```bash
+  [branch "master"]
+        remote = upstream
+        merge = refs/heads/master
+```
+
+Where upstream points to the Apache Repo.
+
+If you'd like master to always track GitHub master, then another way to acheive this is to add another branch that tracks upstream master and push from that branch to upstream master e.g.
+
+```bash
+  # .git/config entry
+  [branch "umaster"]
+        remote = upstream
+        merge = refs/heads/master
+
+  git checkout umaster
+  git pull
+  git merge --no-ff pr/2
+  git push upstream umaster:master # Push local branch umaster to upstream branch master.
+```
+
