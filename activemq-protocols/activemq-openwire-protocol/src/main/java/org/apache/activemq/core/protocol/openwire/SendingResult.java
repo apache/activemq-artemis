@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire;
+package org.apache.activemq.core.protocol.openwire;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.paging.impl.PagingStoreImpl;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.paging.impl.PagingStoreImpl;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 
 /**
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>

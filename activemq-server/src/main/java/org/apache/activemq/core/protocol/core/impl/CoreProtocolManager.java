@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl;
+package org.apache.activemq.core.protocol.core.impl;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -20,38 +20,38 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.protocol.ServerPacketDecoder;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.ChannelHandler;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.ServerSessionPacketHandler;
-import org.apache.activemq6.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.Ping;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
-import org.apache.activemq6.core.remoting.CloseListener;
-import org.apache.activemq6.core.remoting.impl.netty.HornetQFrameDecoder2;
-import org.apache.activemq6.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq6.spi.core.protocol.MessageConverter;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.Connection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.protocol.ServerPacketDecoder;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.ChannelHandler;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.ServerSessionPacketHandler;
+import org.apache.activemq.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
+import org.apache.activemq.core.protocol.core.impl.wireformat.Ping;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
+import org.apache.activemq.core.remoting.CloseListener;
+import org.apache.activemq.core.remoting.impl.netty.HornetQFrameDecoder2;
+import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.spi.core.protocol.MessageConverter;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.Connection;
 
 /**
  * A CoreProtocolManager

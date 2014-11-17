@@ -10,20 +10,20 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.recovery;
+package org.apache.activemq.jms.server.recovery;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.jms.server.HornetQJMSServerLogger;
 
 /**
  * <p>This class will have a simple Connection Factory and will listen

@@ -11,10 +11,10 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.paging;
+package org.apache.activemq.tests.integration.paging;
 
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.tests.util.SpawnedVMSupport;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.tests.util.SpawnedVMSupport;
 
 /**
  * @author Clebert Suconic

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue;
+package org.apache.activemq.rest.queue;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.HeaderParam;
@@ -24,15 +24,15 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.jms.client.SelectorTranslator;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.util.Constants;
-import org.apache.activemq6.rest.util.LinkStrategy;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.jms.client.SelectorTranslator;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.util.Constants;
+import org.apache.activemq.rest.util.LinkStrategy;
 
 /**
  * Auto-acknowleged consumer

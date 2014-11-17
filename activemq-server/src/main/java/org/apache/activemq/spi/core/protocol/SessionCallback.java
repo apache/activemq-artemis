@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.protocol;
+package org.apache.activemq.spi.core.protocol;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
 
 /**
  * A SessionCallback

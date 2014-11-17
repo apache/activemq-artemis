@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.jms;
+package org.apache.activemq.tests.unit.jms;
 
 import org.junit.Test;
 
@@ -20,9 +20,9 @@ import javax.jms.Topic;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

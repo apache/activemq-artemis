@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.javaee.example.server2;
+package org.apache.activemq.javaee.example.server2;
 
 /**
  * A StatelessSenderService

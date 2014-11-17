@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.XAQueueSession;
 import javax.jms.XATopicSession;
 
-import org.apache.activemq6.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSession;
 
 /**
  * A HornetQXASession

@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.qourum;
+package org.apache.activemq.core.server.cluster.qourum;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.client.impl.Topology;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.client.impl.Topology;
 
 /**
  * the vote itself. the vote can be decided by the enquirer or sent out to each node in the quorum.
@@ -28,7 +28,7 @@ public abstract class QuorumVote<V extends Vote, T>
    }
 
    /**
-    * called by the {@link org.apache.activemq6.core.server.cluster.qourum.QuorumManager} when one of teh nodes in the quorum is
+    * called by the {@link org.apache.activemq.core.server.cluster.qourum.QuorumManager} when one of teh nodes in the quorum is
     * successfully connected to. The QuorumVote can then decide whether or not a decision can be made with just that information.
     *
     * @return the vote to use
@@ -36,7 +36,7 @@ public abstract class QuorumVote<V extends Vote, T>
    public abstract Vote connected();
 
    /**
-    * called by the {@link org.apache.activemq6.core.server.cluster.qourum.QuorumManager} fails to connect to a node in the quorum.
+    * called by the {@link org.apache.activemq.core.server.cluster.qourum.QuorumManager} fails to connect to a node in the quorum.
     * The QuorumVote can then decide whether or not a decision can be made with just that information however the node
     * cannot cannot be asked.
     * @return the vote to use
@@ -44,7 +44,7 @@ public abstract class QuorumVote<V extends Vote, T>
    public abstract Vote notConnected();
 
    /**
-    * called by the {@link org.apache.activemq6.core.server.cluster.qourum.QuorumManager} when a vote can be made, either from the
+    * called by the {@link org.apache.activemq.core.server.cluster.qourum.QuorumManager} when a vote can be made, either from the
     * cluster or decided by itself.
     *
     * @param vote the vote to make.
@@ -59,14 +59,14 @@ public abstract class QuorumVote<V extends Vote, T>
    public abstract T getDecision();
 
    /**
-    * called by the {@link org.apache.activemq6.core.server.cluster.qourum.QuorumManager} when all the votes have been cast and received.
+    * called by the {@link org.apache.activemq.core.server.cluster.qourum.QuorumManager} when all the votes have been cast and received.
     *
     * @param voteTopology the topology of where the votes were sent.
     */
    public abstract void allVotesCast(Topology voteTopology);
 
    /**
-    * the name of this quorum vote, used for identifying the correct {@link org.apache.activemq6.core.server.cluster.qourum.QuorumVoteHandler}
+    * the name of this quorum vote, used for identifying the correct {@link org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler}
     *
     * @return the name of the wuorum vote
     */

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -22,13 +22,13 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientLogger;
 
 
 /**
  * The configuration used to determine how the server will broadcast members.
  * <p>
- * This is analogous to {@link org.apache.activemq6.api.core.DiscoveryGroupConfiguration}
+ * This is analogous to {@link org.apache.activemq.api.core.DiscoveryGroupConfiguration}
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> Created 18 Nov 2008 08:44:30
  */
@@ -110,7 +110,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
 
    /**
     * <p> This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
-    * {@link org.apache.activemq6.core.cluster.DiscoveryGroup}</p>
+    * {@link org.apache.activemq.core.cluster.DiscoveryGroup}</p>
     *
     * @author Tomohisa
     * @author Howard Gao

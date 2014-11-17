@@ -10,25 +10,25 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.ChannelHandler;
-import org.apache.activemq6.core.remoting.server.RemotingService;
-import org.apache.activemq6.core.replication.ReplicationManager;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.QueueFactory;
-import org.apache.activemq6.core.server.cluster.ha.HAManager;
-import org.apache.activemq6.core.server.cluster.ha.StandaloneHAManager;
-import org.apache.activemq6.core.server.group.GroupingHandler;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.ChannelHandler;
+import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.replication.ReplicationManager;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.QueueFactory;
+import org.apache.activemq.core.server.cluster.ha.HAManager;
+import org.apache.activemq.core.server.cluster.ha.StandaloneHAManager;
+import org.apache.activemq.core.server.group.GroupingHandler;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.spi.core.remoting.Acceptor;
 
 /**
 * An activation controls the lifecycle of the server and any components specific to the Activation itself.

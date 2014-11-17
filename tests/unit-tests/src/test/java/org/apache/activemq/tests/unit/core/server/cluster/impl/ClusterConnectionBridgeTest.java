@@ -11,11 +11,11 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.unit.core.server.cluster.impl;
+package org.apache.activemq.tests.unit.core.server.cluster.impl;
 
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.core.server.cluster.impl.ClusterConnectionBridge;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
 /**

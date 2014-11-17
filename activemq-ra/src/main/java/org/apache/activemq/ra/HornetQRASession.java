@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.jms.BytesMessage;
 import javax.jms.Destination;
@@ -49,8 +49,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.jms.client.HornetQSession;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.jms.client.HornetQSession;
 
 
 /**

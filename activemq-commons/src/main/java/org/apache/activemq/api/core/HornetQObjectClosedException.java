@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.OBJECT_CLOSED;
+import static org.apache.activemq.api.core.HornetQExceptionType.OBJECT_CLOSED;
 
 /**
  * A client operation failed because the calling resource (ClientSession, ClientProducer, etc.) is

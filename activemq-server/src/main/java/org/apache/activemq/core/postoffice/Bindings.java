@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.postoffice;
+package org.apache.activemq.core.postoffice;
 
 import java.util.Collection;
 
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.group.UnproposalListener;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.group.UnproposalListener;
 
 /**
  * A Bindings

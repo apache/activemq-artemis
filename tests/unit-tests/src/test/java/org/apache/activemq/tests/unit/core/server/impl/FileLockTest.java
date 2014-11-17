@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.server.impl;
+package org.apache.activemq.tests.unit.core.server.impl;
 import org.junit.Before;
 
 import org.junit.Test;
 
 import java.io.File;
 
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.server.impl.AIOFileLockNodeManager;
-import org.apache.activemq6.core.server.impl.FileLockNodeManager;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.server.impl.AIOFileLockNodeManager;
+import org.apache.activemq.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A FileLockTest

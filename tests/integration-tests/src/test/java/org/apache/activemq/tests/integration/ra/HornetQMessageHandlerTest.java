@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.ra;
+package org.apache.activemq.tests.integration.ra;
 
 import javax.jms.Message;
 import javax.resource.ResourceException;
@@ -20,21 +20,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSession.QueueQuery;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.inflow.HornetQActivation;
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.inflow.HornetQActivation;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
 /**

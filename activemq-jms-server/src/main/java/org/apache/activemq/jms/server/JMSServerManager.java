@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server;
+package org.apache.activemq.jms.server;
 
 import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
 
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 /**
  * The JMS Management interface.

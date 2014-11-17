@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,11 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ScheduledDeliveryHandler;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ScheduledDeliveryHandler;
 
 /**
  * Handles scheduling deliveries to a queue at the correct time.

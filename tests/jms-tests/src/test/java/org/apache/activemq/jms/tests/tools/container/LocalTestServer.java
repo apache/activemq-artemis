@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.tools.container;
+package org.apache.activemq.jms.tests.tools.container;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -25,22 +25,22 @@ import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.api.jms.management.TopicControl;
-import org.apache.activemq6.core.config.impl.FileConfiguration;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.jms.tests.JmsTestLogger;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.api.jms.management.TopicControl;
+import org.apache.activemq.core.config.impl.FileConfiguration;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.jms.tests.JmsTestLogger;
+import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
 import org.jnp.server.Main;
 import org.jnp.server.NamingBeanImpl;
 
@@ -386,7 +386,7 @@ public class LocalTestServer implements Server, Runnable
    {
       Properties props = new Properties();
       props.setProperty("java.naming.factory.initial",
-                        "org.apache.activemq6.jms.tests.tools.container.InVMInitialContextFactory");
+                        "org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory");
       props.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
       // props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
       return new InitialContext(props);

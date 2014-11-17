@@ -11,10 +11,10 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton.sasl;
+package org.apache.activemq.core.protocol.proton.sasl;
 
-import org.apache.activemq6.core.security.SecurityStore;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.core.security.SecurityStore;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
 import org.proton.plug.sasl.ServerSASLPlain;
 
 /**

@@ -15,11 +15,11 @@
 
 
     <listener>
-        <listener-class>org.apache.activemq6.rest.integration.HornetqBootstrapListener</listener-class>
+        <listener-class>org.apache.activemq.rest.integration.HornetqBootstrapListener</listener-class>
     </listener>
 
     <listener>
-        <listener-class>org.apache.activemq6.rest.integration.RestMessagingBootstrapListener</listener-class>
+        <listener-class>org.apache.activemq.rest.integration.RestMessagingBootstrapListener</listener-class>
     </listener>
 
     <filter>

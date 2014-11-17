@@ -10,27 +10,27 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster;
+package org.apache.activemq.tests.integration.cluster;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.impl.InVMNodeManager;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.impl.InVMNodeManager;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
 
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.AWAIT_LIVE;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.CRASH_LIVE;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_BACKUP;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_LIVE;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.HAS_BACKUP;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.HAS_LIVE;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.PAUSE_LIVE;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.RELEASE_BACKUP;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.START_BACKUP;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.START_LIVE;
-import static org.apache.activemq6.tests.integration.cluster.NodeManagerAction.STOP_BACKUP;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.AWAIT_LIVE;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.CRASH_LIVE;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_BACKUP;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_LIVE;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.HAS_BACKUP;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.HAS_LIVE;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.PAUSE_LIVE;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.RELEASE_BACKUP;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.START_BACKUP;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.START_LIVE;
+import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.STOP_BACKUP;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>

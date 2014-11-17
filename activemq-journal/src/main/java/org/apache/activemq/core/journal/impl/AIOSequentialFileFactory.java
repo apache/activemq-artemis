@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.security.AccessController;
@@ -20,14 +20,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.core.asyncio.BufferCallback;
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.journal.IOCriticalErrorListener;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.libaio.Native;
-import org.apache.activemq6.journal.HornetQJournalLogger;
-import org.apache.activemq6.utils.HornetQThreadFactory;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.core.asyncio.BufferCallback;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.libaio.Native;
+import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.utils.HornetQThreadFactory;
 
 /**
  * A AIOSequentialFileFactory
@@ -168,7 +168,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.journal.SequentialFileFactory#releaseBuffer(java.nio.ByteBuffer)
+    * @see org.apache.activemq.core.journal.SequentialFileFactory#releaseBuffer(java.nio.ByteBuffer)
     */
    @Override
    public synchronized void releaseBuffer(final ByteBuffer buffer)
@@ -226,7 +226,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       private volatile long bufferReuseLastTime = System.currentTimeMillis();
 
       /**
-       * This queue is fed by {@link org.apache.activemq6.core.journal.impl.AIOSequentialFileFactory.ReuseBuffersController.LocalBufferCallback}
+       * This queue is fed by {@link org.apache.activemq.core.journal.impl.AIOSequentialFileFactory.ReuseBuffersController.LocalBufferCallback}
        * which is called directly by NIO or NIO. On the case of the AIO this is almost called by the native layer as
        * soon as the buffer is not being used any more and ready to be reused or GCed
        */

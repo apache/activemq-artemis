@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms;
+package org.apache.activemq.tests.integration.jms;
 
 import javax.jms.JMSContext;
 import javax.jms.JMSSecurityException;
@@ -18,7 +18,7 @@ import javax.jms.JMSSecurityRuntimeException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 

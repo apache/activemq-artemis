@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor.impl;
+package org.apache.activemq.core.paging.cursor.impl;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.cursor.LivePageCache;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.server.LargeServerMessage;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.cursor.LivePageCache;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.server.LargeServerMessage;
 
 /**
  * This is the same as PageCache, however this is for the page that's being currently written.

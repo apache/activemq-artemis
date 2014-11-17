@@ -38,7 +38,7 @@
 &lt;acceptors>
    &lt;acceptor name="netty">
       &lt;factory-class>
-         org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory
+         org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory
       &lt;/factory-class>
       &lt;param key="port" value="5446"/>
    &lt;/acceptor>
@@ -78,7 +78,7 @@
 &lt;connectors>
    &lt;connector name="netty">
       &lt;factory-class>
-         org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory
+         org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory
       &lt;/factory-class>
       &lt;param key="port" value="5446"/>
    &lt;/connector>
@@ -135,12 +135,12 @@
         <programlisting>
 Map&lt;String, Object> connectionParams = new HashMap&lt;String, Object>();
 
-connectionParams.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
                     5446);
 
 TransportConfiguration transportConfiguration =
     new TransportConfiguration(
-    "org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory",
+    "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
     connectionParams);
 
 ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(transportConfiguration);
@@ -156,11 +156,11 @@ etc</programlisting>
         <programlisting>
 Map&lt;String, Object> connectionParams = new HashMap&lt;String, Object>();
 
-connectionParams.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 5446);
+connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 5446);
 
 TransportConfiguration transportConfiguration =
     new TransportConfiguration(
-    "org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory",
+    "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
     connectionParams);
 
 ConnectionFactory connectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
@@ -205,7 +205,7 @@ etc</programlisting>
                 with firewall policies that typically only allow connections to be initiated in one
                 direction.</para>
             <para>All the valid Netty transport keys are defined in the class <literal
-                    >org.apache.activemq6.core.remoting.impl.netty.TransportConstants</literal>. Most
+                    >org.apache.activemq.core.remoting.impl.netty.TransportConstants</literal>. Most
                 parameters can be used either with acceptors or connectors, some only work with
                 acceptors. The following parameters can be used to configure Netty for simple
                 TCP:</para>
@@ -342,7 +342,7 @@ buffer_size = bandwidth * RTT.</programlisting>
                         downloaded and used by the client. If the client needs to use a different path
                         from that set on the server then it can override the server-side setting by either
                         using the customary "javax.net.ssl.keyStore" system property or the HornetQ-specific
-                        "org.apache.activemq6.ssl.keyStore" system property. The HornetQ-specific system property
+                        "org.apache.activemq.ssl.keyStore" system property. The HornetQ-specific system property
                         is useful if another component on client is already making use of the standard, Java
                         system property.</para>
                 </listitem>
@@ -356,7 +356,7 @@ buffer_size = bandwidth * RTT.</programlisting>
                         be configured on the server, it is downloaded and used by the client.  If the client
                         needs to use a different password from that set on the server then it can override
                         the server-side setting by either using the customary "javax.net.ssl.keyStorePassword"
-                        system property or the HornetQ-specific "org.apache.activemq6.ssl.keyStorePassword" system
+                        system property or the HornetQ-specific "org.apache.activemq.ssl.keyStorePassword" system
                         property. The HornetQ-specific system property is useful if another component on client
                         is already making use of the standard, Java system property.</para>
                 </listitem>
@@ -372,7 +372,7 @@ buffer_size = bandwidth * RTT.</programlisting>
                         used by the client.  If the client needs to use a different path
                         from that set on the server then it can override the server-side setting by either
                         using the customary "javax.net.ssl.trustStore" system property or the HornetQ-specific
-                        "org.apache.activemq6.ssl.trustStore" system property. The HornetQ-specific system property
+                        "org.apache.activemq.ssl.trustStore" system property. The HornetQ-specific system property
                         is useful if another component on client is already making use of the standard, Java
                         system property.</para>
                 </listitem>
@@ -386,7 +386,7 @@ buffer_size = bandwidth * RTT.</programlisting>
                         downloaded and used by the client.   If the client
                         needs to use a different password from that set on the server then it can override
                         the server-side setting by either using the customary "javax.net.ssl.trustStorePassword"
-                        system property or the HornetQ-specific "org.apache.activemq6.ssl.trustStorePassword" system
+                        system property or the HornetQ-specific "org.apache.activemq.ssl.trustStorePassword" system
                         property. The HornetQ-specific system property is useful if another component on client
                         is already making use of the standard, Java system property.</para>
                 </listitem>

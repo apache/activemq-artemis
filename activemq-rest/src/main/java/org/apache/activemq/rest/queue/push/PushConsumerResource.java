@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue.push;
+package org.apache.activemq.rest.queue.push;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

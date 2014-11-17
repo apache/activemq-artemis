@@ -11,12 +11,12 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.javaee.examples;
+package org.apache.activemq.javaee.examples;
 
-import org.apache.activemq6.javaee.example.XARecoveryExampleStepOne;
-import org.apache.activemq6.javaee.example.XARecoveryExampleStepTwo;
-import org.apache.activemq6.javaee.example.server.XARecoveryExampleBean;
-import org.apache.activemq6.javaee.example.server.XARecoveryExampleService;
+import org.apache.activemq.javaee.example.XARecoveryExampleStepOne;
+import org.apache.activemq.javaee.example.XARecoveryExampleStepTwo;
+import org.apache.activemq.javaee.example.server.XARecoveryExampleBean;
+import org.apache.activemq.javaee.example.server.XARecoveryExampleService;
 import org.jboss.arquillian.container.test.api.*;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;

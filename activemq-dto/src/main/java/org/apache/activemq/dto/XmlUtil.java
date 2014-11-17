@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.dto;
+package org.apache.activemq.dto;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -81,12 +81,12 @@ public class XmlUtil
 
    public static <T> T decode(Class<T> clazz, File configuration) throws Exception
    {
-      JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq6.dto");
+      JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq.dto");
 
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
       sf.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
-      InputStream xsdStream = XmlUtil.class.getClassLoader().getResourceAsStream("org.apache.activemq6/dto/hornetq.xsd");
+      InputStream xsdStream = XmlUtil.class.getClassLoader().getResourceAsStream("org.apache.activemq/dto/hornetq.xsd");
       StreamSource xsdSource = new StreamSource(xsdStream);
       Schema schema = sf.newSchema(xsdSource);
       unmarshaller.setSchema(schema);

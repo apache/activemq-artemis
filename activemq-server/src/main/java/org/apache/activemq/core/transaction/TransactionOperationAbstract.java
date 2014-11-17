@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.transaction;
+package org.apache.activemq.core.transaction;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.activemq6.core.server.MessageReference;
+import org.apache.activemq.core.server.MessageReference;
 
 /**
  * Just a helper, when you don't want to implement all the methods on a transaction operation.
@@ -74,7 +74,7 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.transaction.TransactionOperation#getListOnConsumer(long)
+    * @see org.apache.activemq.core.transaction.TransactionOperation#getListOnConsumer(long)
     */
    @Override
    public List<MessageReference> getListOnConsumer(long consumerID)

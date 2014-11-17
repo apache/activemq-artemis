@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.management.impl;
+package org.apache.activemq.core.management.impl;
 
 import java.util.Map;
 
 import javax.management.MBeanOperationInfo;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.AcceptorControl;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.AcceptorControl;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.spi.core.remoting.Acceptor;
 
 /**
  * A AcceptorControl

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.invm;
+package org.apache.activemq.core.remoting.impl.invm;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,18 +19,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.spi.core.remoting.AbstractConnector;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.utils.ConfigurationHelper;
-import org.apache.activemq6.utils.OrderedExecutorFactory;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.spi.core.remoting.AbstractConnector;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.utils.OrderedExecutorFactory;
 
 /**
  * A InVMConnector

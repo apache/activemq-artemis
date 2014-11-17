@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.connection;
+package org.apache.activemq.tests.integration.jms.connection;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,11 +23,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +93,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
    {
       cf = (HornetQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
 
-      // apparently looking up the connection factory with the org.apache.activemq6.jms.tests.tools.container.InVMInitialContextFactory
+      // apparently looking up the connection factory with the org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory
       // is not enough to actually serialize it so we serialize it manually
       byte[] x = serialize(cf);
       HornetQConnectionFactory y = deserialize(x, HornetQConnectionFactory.class);

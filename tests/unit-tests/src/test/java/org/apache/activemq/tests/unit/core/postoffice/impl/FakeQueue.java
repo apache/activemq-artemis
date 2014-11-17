@@ -10,25 +10,25 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.postoffice.impl;
+package org.apache.activemq.tests.unit.core.postoffice.impl;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.server.Consumer;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.utils.LinkedListIterator;
-import org.apache.activemq6.utils.ReferenceCounter;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.server.Consumer;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.utils.ReferenceCounter;
 
 /**
  * A FakeQueue
@@ -586,14 +586,14 @@ public class FakeQueue implements Queue
    }
 
    /* (non-Javadoc)
-   * @see org.apache.activemq6.core.server.Queue#destroyPaging()
+   * @see org.apache.activemq.core.server.Queue#destroyPaging()
    */
    public void destroyPaging()
    {
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.server.Queue#getDeliveringMessages()
+    * @see org.apache.activemq.core.server.Queue#getDeliveringMessages()
     */
    @Override
    public Map<String, List<MessageReference>> getDeliveringMessages()

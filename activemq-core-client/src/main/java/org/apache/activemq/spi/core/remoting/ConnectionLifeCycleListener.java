@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.server.HornetQComponent;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.server.HornetQComponent;
 
 /**
  * A ConnectionLifeCycleListener is called by the remoting implementation to notify of connection events.

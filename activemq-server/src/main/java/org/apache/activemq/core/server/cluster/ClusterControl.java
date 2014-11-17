@@ -11,33 +11,33 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.cluster;
+package org.apache.activemq.core.server.cluster;
 
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq6.core.config.ConfigurationUtils;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.impl.ChannelImpl;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.BackupRequestMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.BackupResponseMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterConnectMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.QuorumVoteMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq6.core.server.cluster.qourum.Vote;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.config.ConfigurationUtils;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.impl.ChannelImpl;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.BackupRequestMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.BackupResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler;
+import org.apache.activemq.core.server.cluster.qourum.Vote;
 
 /**
  * handles the communication between a cluster node and the cluster, either the whole cluster or a specific node in the
@@ -90,7 +90,7 @@ public class ClusterControl implements AutoCloseable
     * @param attemptingFailBack if {@code true} then this server wants to trigger a fail-back when
     *                           up-to-date, that is it wants to take over the role of 'live' from the current 'live'
     *                           server.
-    * @throws org.apache.activemq6.api.core.HornetQException
+    * @throws org.apache.activemq.api.core.HornetQException
     */
    public void announceReplicatingBackupToLive(final boolean attemptingFailBack, String replicationClusterName) throws HornetQException
    {

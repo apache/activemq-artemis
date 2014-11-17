@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.impl;
+package org.apache.activemq.core.paging.impl;
 
 import java.util.Arrays;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * This class represents a paged message

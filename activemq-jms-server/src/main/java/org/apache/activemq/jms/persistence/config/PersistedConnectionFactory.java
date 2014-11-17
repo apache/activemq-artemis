@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.persistence.config;
+package org.apache.activemq.jms.persistence.config;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 
 /**
  * A PersistedConnectionFactory

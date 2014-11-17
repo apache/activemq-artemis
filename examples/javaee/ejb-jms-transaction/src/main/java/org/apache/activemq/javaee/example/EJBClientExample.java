@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.example;
+package org.apache.activemq.javaee.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -22,7 +22,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import java.util.Properties;
 
-import org.apache.activemq6.javaee.example.server.SendMessageService;
+import org.apache.activemq.javaee.example.server.SendMessageService;
 
 /**
  * An example showing how to invoke a EJB which sends a JMS message and update a JDBC table in the same transaction.
@@ -45,7 +45,7 @@ public class EJBClientExample
          initialContext = new InitialContext(env);
 
          // Step 2. Lookup the EJB
-         SendMessageService service = (SendMessageService) initialContext.lookup("ejb:/test//SendMessageBean!org.apache.activemq6.javaee.example.server.SendMessageService");
+         SendMessageService service = (SendMessageService) initialContext.lookup("ejb:/test//SendMessageBean!org.apache.activemq.javaee.example.server.SendMessageService");
 
          // Step 3. Create the DB table which will be updated
          service.createTable();

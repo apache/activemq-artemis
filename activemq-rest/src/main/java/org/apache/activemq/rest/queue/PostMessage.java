@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue;
+package org.apache.activemq.rest.queue;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -28,16 +28,16 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.util.HttpMessageHelper;
-import org.apache.activemq6.utils.UUID;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.util.HttpMessageHelper;
+import org.apache.activemq.utils.UUID;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

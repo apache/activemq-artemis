@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
 import javax.transaction.xa.Xid;
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.transaction.impl.XidImpl;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

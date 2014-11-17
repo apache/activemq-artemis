@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
@@ -40,26 +40,26 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import io.netty.channel.Channel;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.impl.JournalFile;
-import org.apache.activemq6.core.paging.cursor.PagePosition;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.persistence.OperationContext;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
-import org.apache.activemq6.core.server.cluster.Bridge;
-import org.apache.activemq6.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq6.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.ServerSessionImpl;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.utils.FutureLatch;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.core.paging.cursor.PagePosition;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.persistence.OperationContext;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
+import org.apache.activemq.core.server.cluster.Bridge;
+import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.utils.FutureLatch;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;

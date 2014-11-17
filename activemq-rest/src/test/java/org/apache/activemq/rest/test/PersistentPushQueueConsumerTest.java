@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.test;
+package org.apache.activemq.rest.test;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
-import org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.rest.MessageServiceManager;
-import org.apache.activemq6.rest.queue.QueueDeployment;
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
-import org.apache.activemq6.rest.queue.push.xml.XmlLink;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.rest.MessageServiceManager;
+import org.apache.activemq.rest.queue.QueueDeployment;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.rest.queue.push.xml.XmlLink;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;

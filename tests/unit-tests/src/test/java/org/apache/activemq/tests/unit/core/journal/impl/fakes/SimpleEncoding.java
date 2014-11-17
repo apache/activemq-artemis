@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.journal.impl.fakes;
+package org.apache.activemq.tests.unit.core.journal.impl.fakes;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.journal.EncodingSupport;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
  * Provides a SimpleEncoding with a Fake Payload

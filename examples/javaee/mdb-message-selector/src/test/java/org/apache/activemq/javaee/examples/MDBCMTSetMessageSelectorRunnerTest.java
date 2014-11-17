@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.examples;
+package org.apache.activemq.javaee.examples;
 
-import org.apache.activemq6.javaee.example.MDBMessageSelectorClientExample;
-import org.apache.activemq6.javaee.example.server.MDBMessageSelectorExample;
+import org.apache.activemq.javaee.example.MDBMessageSelectorClientExample;
+import org.apache.activemq.javaee.example.server.MDBMessageSelectorExample;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;

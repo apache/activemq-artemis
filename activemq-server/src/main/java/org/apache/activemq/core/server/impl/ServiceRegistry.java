@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,10 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq6.core.server.ConnectorServiceFactory;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.core.server.ConnectorServiceFactory;
 
 /**
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>

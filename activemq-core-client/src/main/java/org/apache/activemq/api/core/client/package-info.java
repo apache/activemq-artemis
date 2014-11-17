@@ -15,5 +15,5 @@
  * <br>
  * This package defines the API used by HornetQ clients to produce and consume messages.
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.example.server2;
+package org.apache.activemq.javaee.example.server2;
 
 import org.jboss.ejb3.annotation.ResourceAdapter;
 

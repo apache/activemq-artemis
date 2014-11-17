@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.message;
+package org.apache.activemq.jms.tests.message;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

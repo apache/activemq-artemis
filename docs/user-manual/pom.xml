@@ -19,12 +19,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.activemq6.docs</groupId>
-        <artifactId>activemq6-docs</artifactId>
+        <groupId>org.apache.activemq.docs</groupId>
+        <artifactId>activemq-docs</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.activemq6.docs</groupId>
+    <groupId>org.apache.activemq.docs</groupId>
     <artifactId>user-manual</artifactId>
     <version>1.0</version>
     <packaging>jdocbook</packaging>
@@ -275,7 +275,7 @@
               <transformerFactory>net.sf.saxon.TransformerFactoryImpl</transformerFactory>
               <transformationSets>
                 <transformationSet>
-                  <dir>../../activemq6-server/src/main/resources/schema</dir>
+                  <dir>../../activemq-server/src/main/resources/schema</dir>
                   <stylesheet>./src/main/resources/schemaToTable.xsl</stylesheet>
                   <includes>
                     <include>hornetq-configuration.xsd</include>

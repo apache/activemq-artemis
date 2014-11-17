@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.client;
+package org.apache.activemq.tests.integration.jms.client;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -21,13 +21,13 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -63,7 +63,7 @@ public class GroupingTest extends JMSTestBase
 
    protected void setProperty(Message message)
    {
-      ((HornetQMessage)message).getCoreMessage().putStringProperty(org.apache.activemq6.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
+      ((HornetQMessage)message).getCoreMessage().putStringProperty(org.apache.activemq.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
    }
 
    protected ConnectionFactory getCF() throws Exception

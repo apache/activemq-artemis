@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.integration;
+package org.apache.activemq.rest.integration;
 
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 import javax.servlet.ServletContext;
 

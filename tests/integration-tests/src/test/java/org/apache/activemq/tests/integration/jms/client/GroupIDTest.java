@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.client;
+package org.apache.activemq.tests.integration.jms.client;
 
 import org.junit.Test;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
 
 /**
  * A GroupIDTest

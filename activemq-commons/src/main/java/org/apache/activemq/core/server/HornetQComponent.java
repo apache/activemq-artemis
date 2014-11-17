@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
 /**
  * A HornetQComponent

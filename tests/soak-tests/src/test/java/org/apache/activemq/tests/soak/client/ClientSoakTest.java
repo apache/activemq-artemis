@@ -10,23 +10,23 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.soak.client;
+package org.apache.activemq.tests.soak.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.DivertConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

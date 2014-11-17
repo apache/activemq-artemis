@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import org.junit.Test;
 
@@ -19,9 +19,9 @@ import java.util.Set;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.UUID;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.UUID;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

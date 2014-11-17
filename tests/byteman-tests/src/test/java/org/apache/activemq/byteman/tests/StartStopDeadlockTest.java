@@ -10,20 +10,20 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.tests.unit.util.InVMNamingContext;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -51,7 +51,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
                @BMRule
                   (
                      name = "Server.start wait-init",
-                     targetClass = "org.apache.activemq6.core.server.impl.HornetQServerImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.HornetQServerImpl",
                      targetMethod = "initialisePart2",
                      targetLocation = "ENTRY",
                      condition = "incrementCounter(\"server-Init\") == 2",
@@ -59,14 +59,14 @@ public class StartStopDeadlockTest extends ServiceTestBase
                   ),
                @BMRule(
                   name = "JMSServer.stop wait-init",
-                  targetClass = "org.apache.activemq6.jms.server.impl.JMSServerManagerImpl",
+                  targetClass = "org.apache.activemq.jms.server.impl.JMSServerManagerImpl",
                   targetMethod = "stop",
                   targetLocation = "ENTRY",
                   action = "signalWake(\"start-init\", true)"
                ),
                @BMRule(
                   name = "StartStopDeadlockTest tearDown",
-                  targetClass = "org.apache.activemq6.byteman.tests.StartStopDeadlockTest",
+                  targetClass = "org.apache.activemq.byteman.tests.StartStopDeadlockTest",
                   targetMethod = "tearDown",
                   targetLocation = "ENTRY",
                   action = "deleteCounter(\"server-Init\")"

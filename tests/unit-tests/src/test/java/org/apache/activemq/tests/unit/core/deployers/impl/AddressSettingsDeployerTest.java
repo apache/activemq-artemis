@@ -10,22 +10,22 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.deployers.impl;
+package org.apache.activemq.tests.unit.core.deployers.impl;
 import org.junit.Before;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.deployers.impl.AddressSettingsDeployer;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.impl.AddressSettingsDeployer;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -94,7 +94,7 @@ public class AddressSettingsDeployerTest extends UnitTestCase
                    "</address-settings>" +
                    "</configuration>";
 
-      Element rootNode = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
       addressSettingsDeployer.validate(rootNode);
       NodeList addressSettingsNode = rootNode.getElementsByTagName("address-setting");
       Assert.assertEquals(1, addressSettingsNode.getLength());

@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl.dataformat;
+package org.apache.activemq.core.journal.impl.dataformat;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.journal.impl.JournalImpl;
 
 /**
  * <p>
  * A transaction record (Commit or Prepare), will hold the number of elements the transaction has in
  * the current file.
  * <p>
- * While loading the {@link org.apache.activemq6.core.journal.impl.JournalFile}, the number of operations found is matched against this
+ * While loading the {@link org.apache.activemq.core.journal.impl.JournalFile}, the number of operations found is matched against this
  * number. If for any reason there are missing operations, the transaction will be ignored.
  * <p>
  * We can't just use a global counter as reclaiming could delete files after the transaction was

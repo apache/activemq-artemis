@@ -17,5 +17,5 @@
  * HornetQ JMS managed resources (ConnectionFactory, Queue and Topic).
  *
  */
-package org.apache.activemq6.api.jms;
+package org.apache.activemq.api.jms;
 

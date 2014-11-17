@@ -10,28 +10,28 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.security.impl;
+package org.apache.activemq.core.security.impl;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.core.security.CheckType;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.security.SecurityStore;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationService;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.HierarchicalRepositoryChangeListener;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.security.SecurityStore;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationService;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * The HornetQ SecurityStore implementation

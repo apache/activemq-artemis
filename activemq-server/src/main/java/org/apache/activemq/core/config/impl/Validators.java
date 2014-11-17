@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config.impl;
+package org.apache.activemq.core.config.impl;
 
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
 
 /**
  * A Validators.

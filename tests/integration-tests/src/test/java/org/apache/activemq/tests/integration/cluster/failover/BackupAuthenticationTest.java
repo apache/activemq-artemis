@@ -13,7 +13,7 @@
 /**
  *
  */
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -22,13 +22,13 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.util.TransportConfigurationUtils;
 
 public class BackupAuthenticationTest extends FailoverTestBase
 {

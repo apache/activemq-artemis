@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.failover.remote;
+package org.apache.activemq.tests.integration.cluster.failover.remote;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Test;
 
 /**

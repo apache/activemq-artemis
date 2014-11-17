@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.cluster;
+package org.apache.activemq.core.cluster;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,19 +19,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq6.api.core.BroadcastEndpoint;
-import org.apache.activemq6.api.core.BroadcastEndpointFactory;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationService;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.BroadcastEndpoint;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationService;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * This class is used to search for members on the cluster through the opaque interface {@link BroadcastEndpoint}.

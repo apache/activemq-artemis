@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 
 public final class TransportConfigurationUtils
 {
@@ -99,7 +99,7 @@ public final class TransportConfigurationUtils
       {
          Map<String, Object> serverParams = new HashMap<String, Object>();
          Integer port = live ? 5445 : 5545;
-         serverParams.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
+         serverParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams);
       }
 
@@ -114,7 +114,7 @@ public final class TransportConfigurationUtils
       {
          Map<String, Object> serverParams = new HashMap<String, Object>();
          Integer port = live ? 5445 : 5545;
-         serverParams.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
+         serverParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams, name);
       }
 

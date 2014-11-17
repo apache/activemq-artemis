@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.netty;
+package org.apache.activemq.core.remoting.impl.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * A Netty decoder specially optimised to to decode messages on the core protocol only

@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config.impl;
+package org.apache.activemq.core.config.impl;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Test;
 
 /**
@@ -116,7 +116,7 @@ public class FileConfigurationParserTest extends UnitTestCase
 
       clusterPasswordPart = "<cluster-password>" + mask + "</cluster-password>";
 
-      String codecPart = "<password-codec>" + "org.apache.activemq6.utils.DefaultSensitiveStringCodec" +
+      String codecPart = "<password-codec>" + "org.apache.activemq.utils.DefaultSensitiveStringCodec" +
          ";key=newkey</password-codec>";
 
       configStr = firstPart + clusterPasswordPart + maskPasswordPart + codecPart + lastPart;
@@ -133,7 +133,7 @@ public class FileConfigurationParserTest extends UnitTestCase
          "<name>HornetQ.main.config</name>" + "\n" +
          "<backup-group-name>abackupgroupname</backup-group-name>" + "\n" +
          "<scale-down-group-name>ascaledowngroupname</scale-down-group-name>" + "\n" +
-         "<log-delegate-factory-class-name>org.apache.activemq6.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
+         "<log-delegate-factory-class-name>org.apache.activemq.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
          "<bindings-directory>${jboss.server.data.dir}/hornetq/bindings</bindings-directory>" + "\n" +
          "<journal-directory>${jboss.server.data.dir}/hornetq/journal</journal-directory>" + "\n" +
          "<journal-min-files>10</journal-min-files>" + "\n" +
@@ -141,36 +141,36 @@ public class FileConfigurationParserTest extends UnitTestCase
          "<paging-directory>${jboss.server.data.dir}/hornetq/paging</paging-directory>" + "\n" +
          "<connectors>" + "\n" +
          "<connector name=\"netty\">" + "\n" +
-         "<factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
+         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
          "<param key=\"port\"  value=\"${hornetq.remoting.netty.port:5445}\"/>" + "\n" +
          "</connector>" + "\n" +
          "<connector name=\"netty-throughput\">" + "\n" +
-         "<factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
+         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
          "<param key=\"port\"  value=\"${hornetq.remoting.netty.batch.port:5455}\"/>" + "\n" +
          "<param key=\"batch-delay\" value=\"50\"/>" + "\n" +
          "</connector>" + "\n" +
          "<connector name=\"in-vm\">" + "\n" +
-         "<factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory</factory-class>" + "\n" +
+         "<factory-class>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</factory-class>" + "\n" +
          "<param key=\"server-id\" value=\"${hornetq.server-id:0}\"/>" + "\n" +
          "</connector>" + "\n" +
          "</connectors>" + "\n" +
          "<acceptors>" + "\n" +
          "<acceptor name=\"netty\">" + "\n" +
-         "<factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
+         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
          "<param key=\"port\"  value=\"${hornetq.remoting.netty.port:5445}\"/>" + "\n" +
          "</acceptor>" + "\n" +
          "<acceptor name=\"netty-throughput\">" + "\n" +
-         "<factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
+         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
          "<param key=\"port\"  value=\"${hornetq.remoting.netty.batch.port:5455}\"/>" + "\n" +
          "<param key=\"batch-delay\" value=\"50\"/>" + "\n" +
          "<param key=\"direct-deliver\" value=\"false\"/>" + "\n" +
          "</acceptor>" + "\n" +
          "<acceptor name=\"in-vm\">" + "\n" +
-         "<factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>" + "\n" +
+         "<factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>" + "\n" +
          "<param key=\"server-id\" value=\"0\"/>" + "\n" +
          "</acceptor>" + "\n" +
          "</acceptors>" + "\n" +

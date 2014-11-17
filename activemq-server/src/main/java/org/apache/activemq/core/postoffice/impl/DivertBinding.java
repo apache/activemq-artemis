@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.postoffice.impl;
+package org.apache.activemq.core.postoffice.impl;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.server.Bindable;
-import org.apache.activemq6.core.server.Divert;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.server.Bindable;
+import org.apache.activemq.core.server.Divert;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

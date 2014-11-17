@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.stomp;
+package org.apache.activemq.core.protocol.stomp;
 
 /**
  * The standard verbs and headers used for the <a href="http://stomp.codehaus.org/">STOMP</a> protocol.

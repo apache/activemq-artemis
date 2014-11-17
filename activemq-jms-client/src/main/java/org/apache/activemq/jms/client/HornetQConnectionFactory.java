@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,14 +31,14 @@ import javax.naming.Reference;
 import javax.naming.Referenceable;
 import java.io.Serializable;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq6.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
+import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
 
 /**
  * HornetQ implementation of a JMS ConnectionFactory.

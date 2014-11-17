@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.journal.HornetQJournalLogger;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.journal.HornetQJournalLogger;
 
 /**
  * This is a helper class for the Journal, which will control access to dataFiles, openedFiles and freeFiles

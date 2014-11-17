@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.client;
+package org.apache.activemq.tests.integration.jms.client;
 
 import org.junit.Test;
 
@@ -27,15 +27,15 @@ import javax.jms.Session;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.jms.client.HornetQSession;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
  *

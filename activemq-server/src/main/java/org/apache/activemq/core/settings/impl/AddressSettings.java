@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.settings.impl;
+package org.apache.activemq.core.settings.impl;
 
 import java.io.Serializable;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.settings.Mergeable;
-import org.apache.activemq6.utils.BufferHelper;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.settings.Mergeable;
+import org.apache.activemq.utils.BufferHelper;
 
 /**
  * Configuration settings that are applied on the address level

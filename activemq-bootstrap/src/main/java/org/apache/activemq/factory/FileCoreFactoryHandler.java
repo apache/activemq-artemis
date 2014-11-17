@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.factory;
+package org.apache.activemq.factory;
 
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.FileConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.FileConfiguration;
 
 import java.net.URI;
 

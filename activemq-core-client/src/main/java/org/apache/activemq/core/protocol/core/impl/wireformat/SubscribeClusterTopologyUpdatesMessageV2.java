@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffer;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

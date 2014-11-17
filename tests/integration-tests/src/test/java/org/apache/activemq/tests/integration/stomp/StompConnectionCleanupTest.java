@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.stomp;
+package org.apache.activemq.tests.integration.stomp;
 
 import org.junit.Test;
 
@@ -19,8 +19,8 @@ import javax.jms.MessageConsumer;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.protocol.stomp.Stomp;
-import org.apache.activemq6.jms.server.JMSServerManager;
+import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.jms.server.JMSServerManager;
 
 /**
  * A StompConnectionCleanupTest

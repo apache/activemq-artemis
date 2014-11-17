@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest;
+package org.apache.activemq.rest;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -22,21 +22,21 @@ import java.util.concurrent.Executors;
 
 import javax.xml.bind.JAXBContext;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq6.rest.queue.DestinationSettings;
-import org.apache.activemq6.rest.queue.QueueServiceManager;
-import org.apache.activemq6.rest.topic.TopicServiceManager;
-import org.apache.activemq6.rest.util.CustomHeaderLinkStrategy;
-import org.apache.activemq6.rest.util.LinkHeaderLinkStrategy;
-import org.apache.activemq6.rest.util.LinkStrategy;
-import org.apache.activemq6.rest.util.TimeoutTask;
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.rest.queue.DestinationSettings;
+import org.apache.activemq.rest.queue.QueueServiceManager;
+import org.apache.activemq.rest.topic.TopicServiceManager;
+import org.apache.activemq.rest.util.CustomHeaderLinkStrategy;
+import org.apache.activemq.rest.util.LinkHeaderLinkStrategy;
+import org.apache.activemq.rest.util.LinkStrategy;
+import org.apache.activemq.rest.util.TimeoutTask;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.utils.XMLUtil;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

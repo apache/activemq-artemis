@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.stomp.util;
+package org.apache.activemq.tests.integration.stomp.util;
 
 import java.util.StringTokenizer;
 

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.security.impl;
+package org.apache.activemq.tests.unit.core.security.impl;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -30,10 +30,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq6.core.security.CheckType;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.spi.core.security.JAASSecurityManager;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.spi.core.security.JAASSecurityManager;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.jboss.security.SimpleGroup;
 import org.junit.After;
 import org.junit.Assert;

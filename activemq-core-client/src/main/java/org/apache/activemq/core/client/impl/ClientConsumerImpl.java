@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.io.File;
 import java.security.AccessController;
@@ -20,25 +20,25 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.MessageHandler;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.spi.core.remoting.ConsumerContext;
-import org.apache.activemq6.spi.core.remoting.SessionContext;
-import org.apache.activemq6.utils.FutureLatch;
-import org.apache.activemq6.utils.PriorityLinkedList;
-import org.apache.activemq6.utils.PriorityLinkedListImpl;
-import org.apache.activemq6.utils.ReusableLatch;
-import org.apache.activemq6.utils.TokenBucketLimiter;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.MessageHandler;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.spi.core.remoting.SessionContext;
+import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.utils.PriorityLinkedList;
+import org.apache.activemq.utils.PriorityLinkedListImpl;
+import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.utils.TokenBucketLimiter;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -1003,7 +1003,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
          return;
       }
 
-      org.apache.activemq6.utils.FutureLatch future = new FutureLatch();
+      org.apache.activemq.utils.FutureLatch future = new FutureLatch();
 
       sessionExecutor.execute(future);
 

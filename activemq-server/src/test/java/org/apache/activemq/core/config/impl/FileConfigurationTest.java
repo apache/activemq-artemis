@@ -10,24 +10,24 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config.impl;
+package org.apache.activemq.core.config.impl;
 
 import java.util.Collections;
 
-import org.apache.activemq6.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.core.config.BridgeConfiguration;
-import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.DivertConfiguration;
-import org.apache.activemq6.core.config.HAPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.config.HAPolicyConfiguration;
+import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -93,16 +93,16 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(2, conf.getIncomingInterceptorClassNames().size());
       Assert.assertTrue(conf.getIncomingInterceptorClassNames()
-                           .contains("org.apache.activemq6.tests.unit.core.config.impl.TestInterceptor1"));
+                           .contains("org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1"));
       Assert.assertTrue(conf.getIncomingInterceptorClassNames()
-                           .contains("org.apache.activemq6.tests.unit.core.config.impl.TestInterceptor2"));
+                           .contains("org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2"));
 
 
       Assert.assertEquals(2, conf.getConnectorConfigurations().size());
 
       TransportConfiguration tc = conf.getConnectorConfigurations().get("connector1");
       Assert.assertNotNull(tc);
-      Assert.assertEquals("org.apache.activemq6.tests.unit.core.config.impl.TestConnectorFactory1", tc.getFactoryClassName());
+      Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestConnectorFactory1", tc.getFactoryClassName());
       Assert.assertEquals("v1", tc.getParams().get("a1"));
       Assert.assertEquals("123", tc.getParams().get("a2"));
       Assert.assertEquals("345", tc.getParams().get("a3"));
@@ -110,23 +110,23 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
       tc = conf.getConnectorConfigurations().get("connector2");
       Assert.assertNotNull(tc);
-      Assert.assertEquals("org.apache.activemq6.tests.unit.core.config.impl.TestConnectorFactory2", tc.getFactoryClassName());
+      Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestConnectorFactory2", tc.getFactoryClassName());
       Assert.assertEquals("w1", tc.getParams().get("b1"));
       Assert.assertEquals("234", tc.getParams().get("b2"));
 
       Assert.assertEquals(2, conf.getAcceptorConfigurations().size());
       for (TransportConfiguration ac : conf.getAcceptorConfigurations())
       {
-         if (ac.getFactoryClassName().equals("org.apache.activemq6.tests.unit.core.config.impl.TestAcceptorFactory1"))
+         if (ac.getFactoryClassName().equals("org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory1"))
          {
-            Assert.assertEquals("org.apache.activemq6.tests.unit.core.config.impl.TestAcceptorFactory1",
+            Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory1",
                                 ac.getFactoryClassName());
             Assert.assertEquals("y1", ac.getParams().get("d1"));
             Assert.assertEquals("456", ac.getParams().get("d2"));
          }
          else
          {
-            Assert.assertEquals("org.apache.activemq6.tests.unit.core.config.impl.TestAcceptorFactory2",
+            Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory2",
                                 ac.getFactoryClassName());
             Assert.assertEquals("z1", ac.getParams().get("e1"));
             Assert.assertEquals("567", ac.getParams().get("e2"));

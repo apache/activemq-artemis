@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.client;
+package org.apache.activemq.tests.integration.client;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -19,9 +19,9 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
 /**

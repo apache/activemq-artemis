@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
 
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.utils.UUID;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.utils.UUID;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>

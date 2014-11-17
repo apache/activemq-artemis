@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.management;
+package org.apache.activemq.tests.integration.management;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -18,20 +18,20 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.AcceptorControl;
-import org.apache.activemq6.api.core.management.AddressControl;
-import org.apache.activemq6.api.core.management.BridgeControl;
-import org.apache.activemq6.api.core.management.BroadcastGroupControl;
-import org.apache.activemq6.api.core.management.ClusterConnectionControl;
-import org.apache.activemq6.api.core.management.DivertControl;
-import org.apache.activemq6.api.core.management.HornetQServerControl;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.api.jms.management.JMSServerControl;
-import org.apache.activemq6.api.jms.management.TopicControl;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.AcceptorControl;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.BridgeControl;
+import org.apache.activemq.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.api.core.management.DivertControl;
+import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.api.jms.management.JMSServerControl;
+import org.apache.activemq.api.jms.management.TopicControl;
 
 /**
  * A ManagementControlHelper

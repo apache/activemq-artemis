@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor;
+package org.apache.activemq.core.paging.cursor;
 
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.utils.LinkedListIterator;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.utils.LinkedListIterator;
 
 /**
  * A PageCursor

@@ -11,14 +11,14 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.unit.core.remoting.impl.netty;
+package org.apache.activemq.tests.unit.core.remoting.impl.netty;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnector;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

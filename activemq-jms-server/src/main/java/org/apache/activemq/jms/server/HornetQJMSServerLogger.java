@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server;
+package org.apache.activemq.jms.server;
 
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.jms.server.recovery.XARecoveryConfig;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra.inflow;
+package org.apache.activemq.ra.inflow;
 
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -29,25 +29,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQNonExistentQueueException;
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.server.recovery.XARecoveryConfig;
-import org.apache.activemq6.ra.HornetQRABundle;
-import org.apache.activemq6.ra.HornetQRAConnectionFactory;
-import org.apache.activemq6.ra.HornetQRALogger;
-import org.apache.activemq6.ra.HornetQRaUtils;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.utils.FutureLatch;
-import org.apache.activemq6.utils.SensitiveDataCodec;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
+import org.apache.activemq.ra.HornetQRABundle;
+import org.apache.activemq.ra.HornetQRAConnectionFactory;
+import org.apache.activemq.ra.HornetQRALogger;
+import org.apache.activemq.ra.HornetQRaUtils;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.utils.SensitiveDataCodec;
 
 /**
  * The activation.

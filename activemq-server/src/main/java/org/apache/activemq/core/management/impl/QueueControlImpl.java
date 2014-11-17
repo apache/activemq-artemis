@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.management.impl;
+package org.apache.activemq.core.management.impl;
 
 import javax.management.MBeanOperationInfo;
 import java.util.ArrayList;
@@ -19,29 +19,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.MessageCounterInfo;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.filter.impl.FilterImpl;
-import org.apache.activemq6.core.messagecounter.MessageCounter;
-import org.apache.activemq6.core.messagecounter.impl.MessageCounterHelper;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.Consumer;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.utils.LinkedListIterator;
-import org.apache.activemq6.utils.json.JSONArray;
-import org.apache.activemq6.utils.json.JSONException;
-import org.apache.activemq6.utils.json.JSONObject;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.MessageCounterInfo;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.filter.impl.FilterImpl;
+import org.apache.activemq.core.messagecounter.MessageCounter;
+import org.apache.activemq.core.messagecounter.impl.MessageCounterHelper;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.Consumer;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.utils.json.JSONException;
+import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

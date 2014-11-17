@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.jms.ConnectionConsumer;
 import javax.jms.ConnectionMetaData;
@@ -41,9 +41,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.activemq6.api.jms.HornetQJMSConstants;
-import org.apache.activemq6.jms.client.HornetQConnectionForContext;
-import org.apache.activemq6.jms.client.HornetQConnectionForContextImpl;
+import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.jms.client.HornetQConnectionForContext;
+import org.apache.activemq.jms.client.HornetQConnectionForContextImpl;
 
 /**
  * Implements the JMS Connection API and produces {@link HornetQRASession} objects.

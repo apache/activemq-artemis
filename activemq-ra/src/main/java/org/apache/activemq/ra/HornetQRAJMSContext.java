@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
-import org.apache.activemq6.jms.client.HornetQConnectionForContext;
-import org.apache.activemq6.jms.client.HornetQJMSContext;
-import org.apache.activemq6.jms.client.ThreadAwareContext;
+import org.apache.activemq.jms.client.HornetQConnectionForContext;
+import org.apache.activemq.jms.client.HornetQJMSContext;
+import org.apache.activemq.jms.client.ThreadAwareContext;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSContext;

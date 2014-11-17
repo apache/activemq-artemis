@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.INTERNAL_ERROR;
+import static org.apache.activemq.api.core.HornetQExceptionType.INTERNAL_ERROR;
 
 /**
  * Internal error which prevented HornetQ from performing an important operation.

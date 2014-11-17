@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,19 +26,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.UTF8Util;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.UTF8Util;
 
 /**
- * This class aggregates several {@link org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage}
+ * This class aggregates several {@link org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage}
  * as it was being handled
  * by a single buffer. This buffer can be consumed as messages are arriving, and it will hold the
  * packets until they are read using the ChannelBuffer interface, or the setOutputStream or

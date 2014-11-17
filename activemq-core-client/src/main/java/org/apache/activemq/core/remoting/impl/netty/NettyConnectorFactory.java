@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.netty;
+package org.apache.activemq.core.remoting.impl.netty;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.spi.core.remoting.Connector;
-import org.apache.activemq6.spi.core.remoting.ConnectorFactory;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.spi.core.remoting.Connector;
+import org.apache.activemq.spi.core.remoting.ConnectorFactory;
 
 /**
  * A NettyConnectorFactory

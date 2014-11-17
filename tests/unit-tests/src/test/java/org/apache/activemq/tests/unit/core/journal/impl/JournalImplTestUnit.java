@@ -10,20 +10,20 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.journal.impl;
+package org.apache.activemq.tests.unit.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQIOErrorException;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq6.tests.util.RandomUtil;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQIOErrorException;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

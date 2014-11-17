@@ -44,11 +44,11 @@
       <itemizedlist>
          <listitem>
             <para><emphasis>核心</emphasis>资源的管理接口在 <literal
-                  >org.apache.activemq6.api.core.management</literal>包中。</para>
+                  >org.apache.activemq.api.core.management</literal>包中。</para>
          </listitem>
          <listitem>
             <para><emphasis>JMS</emphasis>资源的管理接口在 <literal
-                  >org.apache.activemq6.api.jms.management</literal>包中。</para>
+                  >org.apache.activemq.api.jms.management</literal>包中。</para>
          </listitem>
       </itemizedlist>
       <para>调用<emphasis>管理操作</emphasis>的方法由所使用是方式是JMX、核心消息还是JMS
@@ -69,7 +69,7 @@
                   <para>队列的列表、创建、部署与删除</para>
                   <para><literal>getQueueNames()</literal> method方法用来列出所有已经部署的队列。</para>
                   <para>在<literal>HornetQServerControl</literal> （ObjectName <literal
-                        >org.apache.activemq6:module=Core,type=Server</literal>或资源名<literal
+                        >org.apache.activemq:module=Core,type=Server</literal>或资源名<literal
                         >core.server</literal>）上有队列创建或删除的方法，它们是
                         <literal>createQueue()</literal>、<literal>deployQueue()</literal>和
                         <literal>destroyQueue()</literal>。</para>
@@ -118,7 +118,7 @@
                   <para>使用<literal>getBridgeNames()</literal>可以列出部署的核心桥。
                         使用<literal>getDivertNames()</literal>可以列出部署的转发器。</para>
                   <para>使用<literal>HornetQServerControl</literal> (ObjectName <literal
-                        >org.apache.activemq6:module=Core,type=Server</literal> 或资源名 <literal
+                        >org.apache.activemq:module=Core,type=Server</literal> 或资源名 <literal
                         >core.server</literal>)的方法<literal>createBridge()</literal>
 　　　　　　　　　　　　　   和<literal>destroyBridge()</literal>可以创建和删除核心桥。
                         通过<literal>createDivert()</literal>和<literal>destroyDivert()</literal>
@@ -129,7 +129,7 @@
          <section>
             <title>核心地址的管理</title>
             <para>核心地址可以通过<literal>AddressControl</literal>类进行访问（ObjectName
-                  是 <literal>org.apache.activemq6:module=Core,type=Address,name="&lt;the
+                  是 <literal>org.apache.activemq:module=Core,type=Address,name="&lt;the
                   address name&gt;"</literal>或者资源名 <literal>core.address.&lt;the
                   address name&gt;</literal>）。</para>
             <itemizedlist>
@@ -143,7 +143,7 @@
          <section>
             <title>核心队列的管理</title>
             <para>管理接口中的一大部分是管理核心队列的。<literal>QueueControl</literal>类定义了核心队列的管理
-               接口（ObjectName <literal>org.apache.activemq6:module=Core,type=Queue,address="&lt;绑定地址
+               接口（ObjectName <literal>org.apache.activemq:module=Core,type=Queue,address="&lt;绑定地址
                   address&gt;",name="&lt;队列名&gt;"</literal> 或资源名 <literal
                   >core.queue.&lt;队列名&gt;</literal>）。</para>
             <para>绝大部分的队列管理方法需要一个消息ID参数（如删除一个消息）或一个过滤器参数（如将具有某个
@@ -209,7 +209,7 @@
                <listitem>
                   <para>接收器</para>
                   <para>用<literal>AcceptorControl</literal>类（ObjectName <literal
-                        >org.apache.activemq6:module=Core,type=Acceptor,name="&lt;接收器名
+                        >org.apache.activemq:module=Core,type=Acceptor,name="&lt;接收器名
                         &gt;"</literal> 或资源名 <literal>core.acceptor.&lt;地址名
                         &gt;</literal>）的<literal>start()</literal>方法启动，用<literal>
                         stop()</literal>方法停止。接收器的参数可以通过<literal>AcceptorControl</literal>
@@ -219,7 +219,7 @@
                <listitem>
                   <para>转发器</para>
                   <para>用<literal>DivertControl</literal>（ObjectName是 <literal
-                        >org.apache.activemq6:module=Core,type=Divert,name=&lt;转发器名&gt;</literal>
+                        >org.apache.activemq:module=Core,type=Divert,name=&lt;转发器名&gt;</literal>
                         或资源名<literal>core.divert.&lt;转发器&gt;</literal>）类的
                         <literal>start()</literal>方法可以启动，用<literal>stop()</literal>方法可以停止。
                         通过<literal>DivertControl</literal>还可以获得转发器的各种属性。（参见 <xref
@@ -228,7 +228,7 @@
                <listitem>
                   <para>桥</para>
                   <para>桥可以通过<literal>BridgeControl</literal>类（ObjectName <literal
-                        >org.apache.activemq6:module=Core,type=Bridge,name="&lt;桥的名字
+                        >org.apache.activemq:module=Core,type=Bridge,name="&lt;桥的名字
                         &gt;"</literal> 或资源名 <literal>core.bridge.&lt;桥的名字
                         &gt;</literal>）的<literal>start()</literal>
                         方法启动，用<literal>stop()</literal>方法停止。它的属性可以通过
@@ -238,7 +238,7 @@
                <listitem>
                   <para>广播组</para>
                   <para>广播组可以通过<literal>BroadcastGroupControl</literal>类（ObjectName <literal
-                        >org.apache.activemq6:module=Core,type=BroadcastGroup,name="&lt;广播组名
+                        >org.apache.activemq:module=Core,type=BroadcastGroup,name="&lt;广播组名
                         &gt;"</literal> 或者资源名 <literal
                         >core.broadcastgroup.&lt;广播组名&gt;</literal>)的<literal>
                         start()</literal>方法启动，用<literal>stop()</literal>方法停止。
@@ -249,7 +249,7 @@
                <listitem>
                   <para>发现组</para>
                   <para>发现组可以通过<literal>DiscoveryGroupControl</literal>类
-                        （ObjectName <literal>org.apache.activemq6:module=Core,type=DiscoveryGroup,
+                        （ObjectName <literal>org.apache.activemq:module=Core,type=DiscoveryGroup,
                         name="&lt;发现组名&gt;"</literal> 或资源名<literal>core.discovery.&lt;
                         发现组名&gt;</literal>）的
                         <literal>start()</literal>方法启动，用<literal>stop()</literal>方法停止。
@@ -260,7 +260,7 @@
                   <para>集群连接</para>
                   <para>集群连接可以通过<literal>ClusterConnectionControl</literal>类（
                         ObjectName <literal
-                        >org.apache.activemq6:module=Core,type=ClusterConnection,name="&lt;集群连接名
+                        >org.apache.activemq:module=Core,type=ClusterConnection,name="&lt;集群连接名
                         &gt;"</literal> 或资源名 <literal
                         >core.clusterconnection.&lt;集群连接名&gt;</literal>）的<literal>
                         start()</literal>方法启动，用<literal>stop()</literal>方法停止。
@@ -278,7 +278,7 @@
          <section>
             <title>JMS服务器管理</title>
             <para><literal>JMSServerControl</literal>类（ObjectName <literal
-                  >org.apache.activemq6:module=JMS,type=Server</literal> 或资源名<literal
+                  >org.apache.activemq:module=JMS,type=Server</literal> 或资源名<literal
                   >jms.server</literal>）用来创建JMS资源（连接工厂和目标）。</para>
             <itemizedlist>
                <listitem>
@@ -316,7 +316,7 @@
          </section>
          <section>
             <title>JMS连接工厂的管理</title>
-            <para>使用类（ObjectName <literal>org.apache.activemq6:module=JMS,type=ConnectionFactory,
+            <para>使用类（ObjectName <literal>org.apache.activemq:module=JMS,type=ConnectionFactory,
                   name="&lt;连接工厂名&gt;"</literal>或者资源名<literal>jms.connectionfactory.&lt;
                   连接工厂名&gt;</literal>）可以管理JMS的连接工厂。</para>
             <itemizedlist>
@@ -331,7 +331,7 @@
          </section>
          <section>
             <title>JMS队列管理</title>
-            <para>使用<literal>JMSQueueControl</literal>类（ObjectName <literal>org.apache.activemq6:module=JMS,
+            <para>使用<literal>JMSQueueControl</literal>类（ObjectName <literal>org.apache.activemq:module=JMS,
                   type=Queue,name="&lt;队列名&gt;"</literal>或资源名 <literal>jms.queue.&lt;队列名
                   &gt;</literal>可以管理JMS队列。</para>
             <para><emphasis>JMS队列的管理操作与核心队列的管理十分相似。</emphasis></para>
@@ -387,7 +387,7 @@
          <section>
             <title>JMS话题（Topic）的管理</title>
             <para>JMS话题的管理是通过<literal>TopicControl</literal>类（
-               the ObjectName <literal>org.apache.activemq6:module=JMS,type=Topic,name="&lt;话题名&gt;"</literal>
+               the ObjectName <literal>org.apache.activemq:module=JMS,type=Topic,name="&lt;话题名&gt;"</literal>
                或资源名 <literal>jms.topic.&lt;话题名&gt;</literal>）。</para>
             <itemizedlist>
                <listitem>
@@ -417,17 +417,17 @@
       <para>HornetQ提供了<ulink
             url="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/"
          >JMX</ulink>。</para>
-      <para>HornetQ通过MBean的接口暴露其JMX管理操作。它将自己的资源注册到<literal>org.apache.activemq6</literal>域。</para>
+      <para>HornetQ通过MBean的接口暴露其JMX管理操作。它将自己的资源注册到<literal>org.apache.activemq</literal>域。</para>
       <para>比如，用来管理一个名为<literal>exampleQueue</literal>JMS队列的<literal>ObjectName</literal>是：</para>
       <programlisting>
-   org.apache.activemq6:module=JMS,type=Queue,name="exampleQueue"   
+   org.apache.activemq:module=JMS,type=Queue,name="exampleQueue"
       </programlisting>
       <para>MBean为：</para>
       <programlisting>
-   org.apache.activemq6.api.jms.management.JMSQueueControl   
+   org.apache.activemq.api.jms.management.JMSQueueControl
       </programlisting>
       <para>MBean的<literal>ObjectName</literal>用 <literal
-            >org.apache.activemq6.api.core.management.ObjectNameBuilder</literal>来产生出来的。你也可以使用<literal
+            >org.apache.activemq.api.core.management.ObjectNameBuilder</literal>来产生出来的。你也可以使用<literal
             >jconsole</literal>来查找你想要的MBean的<literal>ObjectName</literal>。</para>
       <para>使用JMX来管理HornetQ与用JMX管理其它Java应用程序没有什么不同。你可以使用反射或者创建MBean代理的方法。</para>
       <section id="management.jmx.configuration">
@@ -444,11 +444,11 @@
            <para>出于安全考虑，默认情况下JMX远程连接是关闭的。参见<ulink url="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#remote"
                >Java管理指南</ulink>来配置服务器的远程管理（系统变量必须在<literal>run.sh</literal>或<literal>run.bat</literal>中定义）。</para>
          </note>
-         <para>HornetQ默认使用JMX域名"org.apache.activemq6"。如果要用一个MBeanServer管理多个HornetQ服务器，可以将每个HornetQ
+         <para>HornetQ默认使用JMX域名"org.apache.activemq"。如果要用一个MBeanServer管理多个HornetQ服务器，可以将每个HornetQ
             服务器配置成不同的JMX域。方法就是在<literal>hornetq-configuration.xml</literal>文件中设置<literal>jmx-domain</literal>：</para>
          <programlisting>
 &lt;!-- use a specific JMX domain for HornetQ MBeans -->
-&lt;jmx-domain>my.org.apache.activemq6&lt;/jmx-domain>            
+&lt;jmx-domain>my.org.apache.activemq&lt;/jmx-domain>
          </programlisting>
          <section>
             <title>MBeanServer的配置</title>
@@ -495,7 +495,7 @@
          </literal>定义）发送一个<emphasis>管理回答</emphasis>。</para>
       <para>一个<literal>ClientConsumer</literal>用来接收管理回答并提取出其中的操作的結果（如果有的话）。
          考虑到可移植性，返回的結果采用的是格式的字符串，而没有采用Java的序列化技术
-         （<literal>org.apache.activemq6.api.core.management.ManagementHelper</literal>可以用来将JSON字符串
+         （<literal>org.apache.activemq.api.core.management.ManagementHelper</literal>可以用来将JSON字符串
          转换成Java对象）。</para>
       <para>使用以下步骤可以简化使用核心消息调用管理操作：</para>
       <orderedlist>
@@ -507,14 +507,14 @@
          </listitem>
          <listitem>
             <para>使用<literal
-                  >org.apache.activemq6.api.core.management.ManagementHelper</literal>类来帮助设置消息的管理参数。</para>
+                  >org.apache.activemq.api.core.management.ManagementHelper</literal>类来帮助设置消息的管理参数。</para>
          </listitem>
          <listitem>
             <para>通过<literal>ClientRequestor</literal>将消息发送</para>
          </listitem>
          <listitem>
             <para>使用 <literal
-                  >org.apache.activemq6.api.core.management.ManagementHelper</literal>类从管理操作結果中提取返回值。</para>
+                  >org.apache.activemq.api.core.management.ManagementHelper</literal>类从管理操作結果中提取返回值。</para>
          </listitem>
       </orderedlist>
       <para>例如，要得到核心队列<literal>exampleQueue</literal>中消息的数量：</para>
@@ -528,7 +528,7 @@
    System.out.println("There are " + count + " messages in exampleQueue");
       </programlisting>
       <para>管理操作名及其参数必须和<literal>management</literal>包中定义的Java接口一致。</para>
-      <para>资源的名称是用<literal>org.apache.activemq6.api.core.management.ResourceNames</literal>类来生成的，
+      <para>资源的名称是用<literal>org.apache.activemq.api.core.management.ResourceNames</literal>类来生成的，
             命名都非常直观（如核心队列<literal>exampleQueue</literal>的名称为<literal>core.queue.exampleQueue</literal>，
             JMS Topic <literal>exampleTopic</literal>的名称为<literal>jms.topic.exampleTopic</literal>，等等）。
 </para>
@@ -569,13 +569,13 @@
             <para>创建一个<literal>消息</literal></para>
          </listitem>
          <listitem>
-            <para>使用 <literal>org.apache.activemq6.api.jms.management.JMSManagementHelper</literal>类向消息中设置管理参数。</para>
+            <para>使用 <literal>org.apache.activemq.api.jms.management.JMSManagementHelper</literal>类向消息中设置管理参数。</para>
          </listitem>
          <listitem>
             <para>再使用<literal>QueueRequestor</literal>发送消息。</para>
          </listitem>
          <listitem>
-            <para>使用<literal>org.apache.activemq6.api.jms.management.JMSManagementHelper</literal>来从回答中提取返回結果。</para>
+            <para>使用<literal>org.apache.activemq.api.jms.management.JMSManagementHelper</literal>来从回答中提取返回結果。</para>
          </listitem>
       </orderedlist>
       <para>例如，要得到一个JMS队列<literal>exampleQueue</literal>中有多少消息：</para>
@@ -622,11 +622,11 @@
                两个MBean来获得通知：</para>
          <itemizedlist>
             <listitem>
-               <para><literal>org.apache.activemq6:module=Core,type=Server</literal> 可以获得有关
+               <para><literal>org.apache.activemq:module=Core,type=Server</literal> 可以获得有关
                      <emphasis>核心</emphasis>资源的通知</para>
             </listitem>
             <listitem>
-               <para><literal>org.apache.activemq6:module=JMS,type=Server</literal>可以获得有关
+               <para><literal>org.apache.activemq:module=JMS,type=Server</literal>可以获得有关
                      <emphasis>JMS</emphasis>资源的通知</para>
             </listitem>
          </itemizedlist>

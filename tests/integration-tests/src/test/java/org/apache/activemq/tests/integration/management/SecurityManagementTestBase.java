@@ -10,24 +10,24 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.management;
+package org.apache.activemq.tests.integration.management;
 import org.junit.Before;
 import org.junit.After;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientRequestor;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientRequestor;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A SecurityManagementTest

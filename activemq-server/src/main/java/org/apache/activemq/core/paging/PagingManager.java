@@ -10,26 +10,26 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging;
+package org.apache.activemq.core.paging;
 
 import java.util.Map;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
 
 /**
  * <PRE>
  *
  * +--------------+      1  +----------------+       N +--------------+       N +--------+       1 +-------------------+
- * | {@link org.apache.activemq6.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq6.core.paging.impl.Page}  | ------&gt; | {@link org.apache.activemq6.core.journal.SequentialFile} |
+ * | {@link org.apache.activemq.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq.core.paging.impl.Page}  | ------&gt; | {@link org.apache.activemq.core.journal.SequentialFile} |
  * +--------------+         +----------------+         +--------------+         +--------+         +-------------------+
  *                                                              |                  1 ^
  *                                                              |                    |
  *                                                              |                    |
  *                                                              |                    | 1
  *                                                              |            N +----------+
- *                                                              +------------&gt; | {@link org.apache.activemq6.core.postoffice.Address} |
+ *                                                              +------------&gt; | {@link org.apache.activemq.core.postoffice.Address} |
  *                                                                             +----------+
  * </PRE>
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>

@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.invm;
+package org.apache.activemq.core.remoting.impl.invm;
 
-import org.apache.activemq6.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQMessageBundle;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

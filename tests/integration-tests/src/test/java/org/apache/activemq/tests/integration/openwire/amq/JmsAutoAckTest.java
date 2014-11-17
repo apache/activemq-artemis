@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.openwire.amq;
+package org.apache.activemq.tests.integration.openwire.amq;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -19,7 +19,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.apache.activemq6.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Test;
 
 /**

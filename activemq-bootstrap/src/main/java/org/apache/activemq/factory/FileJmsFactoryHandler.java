@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.factory;
+package org.apache.activemq.factory;
 
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.jms.server.impl.JMSServerConfigParserImpl;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

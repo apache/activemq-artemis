@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.transaction.impl;
+package org.apache.activemq.core.transaction.impl;
 
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.impl.RefsOperation;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.impl.RefsOperation;
 
 /**
  * A BindingsTransactionImpl

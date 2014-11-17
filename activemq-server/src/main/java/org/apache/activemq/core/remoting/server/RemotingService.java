@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.server;
+package org.apache.activemq.core.remoting.server;
 
 import java.util.Set;
 
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.security.HornetQPrincipal;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

@@ -13,7 +13,7 @@
 /**
  *
  */
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

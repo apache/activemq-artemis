@@ -11,28 +11,28 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq6.core.client.impl.ClientLargeMessageInternal;
-import org.apache.activemq6.core.client.impl.ClientMessageInternal;
-import org.apache.activemq6.core.client.impl.ClientProducerCreditsImpl;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.utils.IDGenerator;
-import org.apache.activemq6.utils.SimpleIDGenerator;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
+import org.apache.activemq.core.client.impl.ClientMessageInternal;
+import org.apache.activemq.core.client.impl.ClientProducerCreditsImpl;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.utils.IDGenerator;
+import org.apache.activemq.utils.SimpleIDGenerator;
 
 /**
  * @author Clebert Suconic

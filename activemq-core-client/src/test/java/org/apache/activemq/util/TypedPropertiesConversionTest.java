@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.util;
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.utils.TypedProperties;
+package org.apache.activemq.util;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.utils.TypedProperties;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

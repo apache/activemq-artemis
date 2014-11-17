@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.core.config.ScaleDownConfiguration;
-import org.apache.activemq6.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq6.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.core.config.ScaleDownConfiguration;
+import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.After;
@@ -74,8 +74,8 @@ public class ScaleDownFailureTest extends ClusterTestBase
    @BMRule
       (
          name = "blow-up",
-         targetClass = "org.apache.activemq6.api.core.client.ServerLocator",
-         targetMethod = "createSessionFactory(org.apache.activemq6.api.core.TransportConfiguration, int, boolean)",
+         targetClass = "org.apache.activemq.api.core.client.ServerLocator",
+         targetMethod = "createSessionFactory(org.apache.activemq.api.core.TransportConfiguration, int, boolean)",
          isInterface = true,
          targetLocation = "ENTRY",
          action = "throw new Exception()"

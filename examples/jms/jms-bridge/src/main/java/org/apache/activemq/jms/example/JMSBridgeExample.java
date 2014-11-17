@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-import org.apache.activemq6.jms.bridge.JMSBridge;
-import org.apache.activemq6.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq6.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq6.jms.bridge.impl.JNDIConnectionFactoryFactory;
-import org.apache.activemq6.jms.bridge.impl.JNDIDestinationFactory;
+import org.apache.activemq.jms.bridge.JMSBridge;
+import org.apache.activemq.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.jms.bridge.impl.JNDIConnectionFactoryFactory;
+import org.apache.activemq.jms.bridge.impl.JNDIDestinationFactory;
 
 import java.util.Hashtable;
 

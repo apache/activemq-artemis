@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.config.impl;
+package org.apache.activemq.jms.server.config.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.utils.BufferHelper;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.utils.BufferHelper;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * This class contains the configuration properties of a connection factory.

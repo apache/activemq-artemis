@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 
 import javax.jms.IllegalStateException;
@@ -21,10 +21,10 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.api.core.HornetQInvalidFilterExpressionException;
-import org.apache.activemq6.api.core.HornetQNonExistentQueueException;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.HornetQInvalidFilterExpressionException;
+import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.SimpleString;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;

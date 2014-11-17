@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
 import org.junit.Test;
 
 import org.junit.Assert;
-import org.apache.activemq6.api.core.Pair;
+import org.apache.activemq.api.core.Pair;
 
 
 public class PairTest extends Assert

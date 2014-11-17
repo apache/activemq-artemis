@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.InvalidDestinationException;
 import javax.jms.InvalidSelectorException;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
-import org.apache.activemq6.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQException;
 
 /**
  *

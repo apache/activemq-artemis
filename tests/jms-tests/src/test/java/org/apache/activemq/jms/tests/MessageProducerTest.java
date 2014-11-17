@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
@@ -27,10 +27,10 @@ import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.jms.tests.message.SimpleJMSMessage;
-import org.apache.activemq6.jms.tests.message.SimpleJMSTextMessage;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.jms.tests.message.SimpleJMSMessage;
+import org.apache.activemq.jms.tests.message.SimpleJMSTextMessage;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 /**

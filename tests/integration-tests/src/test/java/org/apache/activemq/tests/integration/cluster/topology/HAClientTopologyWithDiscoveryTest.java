@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.topology;
+package org.apache.activemq.tests.integration.cluster.topology;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

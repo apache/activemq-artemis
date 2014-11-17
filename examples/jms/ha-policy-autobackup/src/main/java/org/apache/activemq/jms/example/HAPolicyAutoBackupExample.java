@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -21,12 +21,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.common.example.HornetQExample;
-import org.apache.activemq6.jms.client.HornetQConnection;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.jms.client.HornetQConnection;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.service;
+package org.apache.activemq.service;
 
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

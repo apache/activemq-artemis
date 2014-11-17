@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.transaction;
+package org.apache.activemq.jms.transaction;
 
 import java.util.Map;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionDetail;
-import org.apache.activemq6.jms.client.HornetQBytesMessage;
-import org.apache.activemq6.jms.client.HornetQMapMessage;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.jms.client.HornetQObjectMessage;
-import org.apache.activemq6.jms.client.HornetQStreamMessage;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionDetail;
+import org.apache.activemq.jms.client.HornetQBytesMessage;
+import org.apache.activemq.jms.client.HornetQMapMessage;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.HornetQObjectMessage;
+import org.apache.activemq.jms.client.HornetQStreamMessage;
+import org.apache.activemq.jms.client.HornetQTextMessage;
 
 /**
  * A JMSTransactionDetail

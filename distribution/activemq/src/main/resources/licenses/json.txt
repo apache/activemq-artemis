@@ -1,4 +1,4 @@
-For classes org.apache.activemq6.utils.json.*
+For classes org.apache.activemq.utils.json.*
 
 Copyright (c) 2002 JSON.org
 

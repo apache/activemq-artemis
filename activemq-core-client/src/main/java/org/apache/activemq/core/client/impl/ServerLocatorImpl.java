@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,35 +35,35 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.api.core.client.loadbalance.ConnectionLoadBalancingPolicy;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.cluster.DiscoveryEntry;
-import org.apache.activemq6.core.cluster.DiscoveryGroup;
-import org.apache.activemq6.core.cluster.DiscoveryListener;
-import org.apache.activemq6.core.protocol.core.impl.HornetQClientProtocolManagerFactory;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManagerFactory;
-import org.apache.activemq6.spi.core.remoting.Connector;
-import org.apache.activemq6.utils.ClassloadingUtil;
-import org.apache.activemq6.utils.HornetQThreadFactory;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.cluster.DiscoveryEntry;
+import org.apache.activemq.core.cluster.DiscoveryGroup;
+import org.apache.activemq.core.cluster.DiscoveryListener;
+import org.apache.activemq.core.protocol.core.impl.HornetQClientProtocolManagerFactory;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
+import org.apache.activemq.spi.core.remoting.Connector;
+import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
- * This is the implementation of {@link org.apache.activemq6.api.core.client.ServerLocator} and all
+ * This is the implementation of {@link org.apache.activemq.api.core.client.ServerLocator} and all
  * the proper javadoc is located on that interface.
  *
  * @author Tim Fox

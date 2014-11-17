@@ -11,29 +11,29 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.HornetQAddressFullException;
-import org.apache.activemq6.api.core.HornetQClusterSecurityException;
-import org.apache.activemq6.api.core.HornetQConnectionTimedOutException;
-import org.apache.activemq6.api.core.HornetQDisconnectedException;
-import org.apache.activemq6.api.core.HornetQDuplicateMetaDataException;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQIOErrorException;
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.api.core.HornetQIncompatibleClientServerException;
-import org.apache.activemq6.api.core.HornetQInternalErrorException;
-import org.apache.activemq6.api.core.HornetQInvalidFilterExpressionException;
-import org.apache.activemq6.api.core.HornetQInvalidTransientQueueUseException;
-import org.apache.activemq6.api.core.HornetQNonExistentQueueException;
-import org.apache.activemq6.api.core.HornetQQueueExistsException;
-import org.apache.activemq6.api.core.HornetQSecurityException;
-import org.apache.activemq6.api.core.HornetQSessionCreationException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
-import org.apache.activemq6.core.security.CheckType;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.HornetQAddressFullException;
+import org.apache.activemq.api.core.HornetQClusterSecurityException;
+import org.apache.activemq.api.core.HornetQConnectionTimedOutException;
+import org.apache.activemq.api.core.HornetQDisconnectedException;
+import org.apache.activemq.api.core.HornetQDuplicateMetaDataException;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQIOErrorException;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.HornetQIncompatibleClientServerException;
+import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.HornetQInvalidFilterExpressionException;
+import org.apache.activemq.api.core.HornetQInvalidTransientQueueUseException;
+import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.HornetQQueueExistsException;
+import org.apache.activemq.api.core.HornetQSecurityException;
+import org.apache.activemq.api.core.HornetQSessionCreationException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
+import org.apache.activemq.core.security.CheckType;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
@@ -292,25 +292,25 @@ public interface HornetQMessageBundle
    IllegalArgumentException autoConvertError(Class<? extends Object> aClass);
 
    /**
-    * Message used on on {@link org.apache.activemq6.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on {@link org.apache.activemq.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119076, value = "Executing destroyConnection with {0}={1} through management''s request", format = Message.Format.MESSAGE_FORMAT)
    String destroyConnectionWithSessionMetadataHeader(String key, String value);
 
    /**
-    * Message used on on {@link org.apache.activemq6.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on {@link org.apache.activemq.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119077, value = "Closing connection {0}", format = Message.Format.MESSAGE_FORMAT)
    String destroyConnectionWithSessionMetadataClosingConnection(String serverSessionString);
 
    /**
-    * Exception used on on {@link org.apache.activemq6.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Exception used on on {@link org.apache.activemq.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119078, value = "Disconnected per admin''s request on {0}={1}", format = Message.Format.MESSAGE_FORMAT)
    HornetQDisconnectedException destroyConnectionWithSessionMetadataSendException(String key, String value);
 
    /**
-    * Message used on on {@link org.apache.activemq6.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on {@link org.apache.activemq.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119079, value = "No session found with {0}={1}", format = Message.Format.MESSAGE_FORMAT)
    String destroyConnectionWithSessionMetadataNoSessionFound(String key, String value);

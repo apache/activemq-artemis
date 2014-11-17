@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.list;
+package org.apache.activemq.core.list;
 import org.junit.Before;
 import org.junit.After;
 
@@ -19,8 +19,8 @@ import org.junit.Test;
 import org.junit.Assert;
 
 
-import org.apache.activemq6.utils.LinkedListIterator;
-import org.apache.activemq6.utils.PriorityLinkedListImpl;
+import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.utils.PriorityLinkedListImpl;
 
 /**
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>

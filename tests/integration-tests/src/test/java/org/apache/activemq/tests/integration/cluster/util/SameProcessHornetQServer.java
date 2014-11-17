@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.util;
+package org.apache.activemq.tests.integration.cluster.util;
 
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.cluster.ClusterManager;
-import org.apache.activemq6.tests.util.CountDownSessionFailureListener;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.cluster.ClusterManager;
+import org.apache.activemq.tests.util.CountDownSessionFailureListener;
 import org.junit.Assert;
 
 import java.util.concurrent.CountDownLatch;

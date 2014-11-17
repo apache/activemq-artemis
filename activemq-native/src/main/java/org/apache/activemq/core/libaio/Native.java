@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.libaio;
+package org.apache.activemq.core.libaio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq6.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQException;
 
 /**
  * @author Clebert Suconic
@@ -53,7 +53,7 @@ public class Native
    public static native void writeInternal(ByteBuffer handle, long positionToWrite, long size, ByteBuffer bytes) throws HornetQException;
 
    /**
-    *This is using org.apache.activemq6.core.asyncio.AIOCallback
+    *This is using org.apache.activemq.core.asyncio.AIOCallback
      */
    public static native void read(Object thisObject, ByteBuffer handle, long position, long size, ByteBuffer buffer, Object aioPackageCallback) throws HornetQException;
 

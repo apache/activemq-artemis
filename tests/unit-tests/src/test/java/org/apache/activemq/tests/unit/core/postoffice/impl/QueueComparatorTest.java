@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.postoffice.impl;
+package org.apache.activemq.tests.unit.core.postoffice.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.impl.ScaleDownHandler;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.impl.ScaleDownHandler;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration;
+package org.apache.activemq.tests.integration;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationListener;
-import org.apache.activemq6.core.server.management.NotificationService;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationListener;
+import org.apache.activemq.core.server.management.NotificationService;
 
 /**
  * A SimpleNotificationService

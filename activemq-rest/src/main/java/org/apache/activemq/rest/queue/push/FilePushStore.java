@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue.push;
+package org.apache.activemq.rest.queue.push;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
-import org.apache.activemq6.rest.topic.PushTopicRegistration;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.rest.topic.PushTopicRegistration;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

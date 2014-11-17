@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.spring;
+package org.apache.activemq.tests.integration.spring;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

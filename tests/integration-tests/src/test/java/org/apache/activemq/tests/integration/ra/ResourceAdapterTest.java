@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.ra;
+package org.apache.activemq.tests.integration.ra;
 
 import javax.jms.Connection;
 import javax.resource.ResourceException;
@@ -23,25 +23,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.server.recovery.RecoveryDiscovery;
-import org.apache.activemq6.jms.server.recovery.XARecoveryConfig;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.inflow.HornetQActivation;
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
-import org.apache.activemq6.tests.unit.ra.MessageEndpointFactory;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.server.recovery.RecoveryDiscovery;
+import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.inflow.HornetQActivation;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.tests.unit.ra.MessageEndpointFactory;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Test;
 
 /**
@@ -62,12 +62,12 @@ public class ResourceAdapterTest extends HornetQRATestBase
 
       HornetQResourceAdapter ra = new HornetQResourceAdapter();
 
-      ra.setConnectorClassName("org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory");
+      ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
       ra.setUserName("userGlobal");
       ra.setPassword("passwordGlobal");
       ra.setTransactionManagerLocatorClass("");
       ra.setTransactionManagerLocatorMethod("");
-      ra.start(new org.apache.activemq6.tests.unit.ra.BootstrapContext());
+      ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
       Connection conn = ra.getDefaultHornetQConnectionFactory().createConnection();
 
@@ -724,7 +724,7 @@ public class ResourceAdapterTest extends HornetQRATestBase
    public void testRecoveryDiscoveryAsKey() throws Exception
    {
       Set<RecoveryDiscovery> discoverySet = new HashSet<RecoveryDiscovery>();
-      String factClass = "org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory";
+      String factClass = "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory";
       TransportConfiguration transportConfig = new TransportConfiguration(factClass, null, "netty");
       XARecoveryConfig config = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig},
                                                      null, null);

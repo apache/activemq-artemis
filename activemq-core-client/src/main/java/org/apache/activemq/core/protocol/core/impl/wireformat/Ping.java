@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
- * Ping is sent on the client side by {@link org.apache.activemq6.core.client.impl.ClientSessionFactoryImpl}. At the server's
- * side it is handled by {@link org.apache.activemq6.core.remoting.server.impl.RemotingServiceImpl}
- * @see org.apache.activemq6.spi.core.protocol.RemotingConnection#checkDataReceived()
+ * Ping is sent on the client side by {@link org.apache.activemq.core.client.impl.ClientSessionFactoryImpl}. At the server's
+ * side it is handled by {@link org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl}
+ * @see org.apache.activemq.spi.core.protocol.RemotingConnection#checkDataReceived()
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class Ping extends PacketImpl

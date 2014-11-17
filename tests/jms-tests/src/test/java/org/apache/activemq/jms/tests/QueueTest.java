@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -22,7 +22,7 @@ import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 /**

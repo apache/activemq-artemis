@@ -11,15 +11,15 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.jms.server.impl;
+package org.apache.activemq.jms.server.impl;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.activemq6.core.server.ActivateCallback;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActivateCallback;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
 import org.jnp.server.Main;
 import org.jnp.server.NamingBeanImpl;
 

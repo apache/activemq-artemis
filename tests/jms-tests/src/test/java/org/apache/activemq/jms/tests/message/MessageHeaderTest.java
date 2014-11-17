@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.jms.tests.message;
+package org.apache.activemq.jms.tests.message;
 
 import java.io.File;
 import java.io.Serializable;
@@ -34,26 +34,26 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.FailoverEventListener;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.core.client.impl.ClientMessageImpl;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.jms.client.HornetQBytesMessage;
-import org.apache.activemq6.jms.client.HornetQMapMessage;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.jms.client.HornetQObjectMessage;
-import org.apache.activemq6.jms.client.HornetQStreamMessage;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.FailoverEventListener;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.jms.client.HornetQBytesMessage;
+import org.apache.activemq.jms.client.HornetQMapMessage;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.HornetQObjectMessage;
+import org.apache.activemq.jms.client.HornetQStreamMessage;
+import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 /**
@@ -1388,7 +1388,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.ClientSession#createBuffer(byte[])
+       * @see org.apache.activemq.api.core.client.ClientSession#createBuffer(byte[])
        */
       public HornetQBuffer createBuffer(final byte[] bytes)
       {
@@ -1397,7 +1397,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.ClientSession#createBuffer(int)
+       * @see org.apache.activemq.api.core.client.ClientSession#createBuffer(int)
        */
       public HornetQBuffer createBuffer(final int size)
       {
@@ -1419,7 +1419,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.ClientSession#createQueue(org.apache.activemq6.utils.SimpleString, org.apache.activemq6.utils.SimpleString)
+       * @see org.apache.activemq.api.core.client.ClientSession#createQueue(org.apache.activemq.utils.SimpleString, org.apache.activemq.utils.SimpleString)
        */
       public void createQueue(SimpleString address, SimpleString queueName) throws HornetQException
       {
@@ -1428,7 +1428,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.ClientSession#setClientID(java.lang.String)
+       * @see org.apache.activemq.api.core.client.ClientSession#setClientID(java.lang.String)
        */
       public void setClientID(String clientID)
       {
@@ -1437,7 +1437,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.ClientSession#addMetaData(java.lang.String, java.lang.String)
+       * @see org.apache.activemq.api.core.client.ClientSession#addMetaData(java.lang.String, java.lang.String)
        */
       public void addMetaData(String key, String data) throws HornetQException
       {
@@ -1446,7 +1446,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.api.core.client.ClientSession#addUniqueMetaData(java.lang.String, java.lang.String)
+       * @see org.apache.activemq.api.core.client.ClientSession#addUniqueMetaData(java.lang.String, java.lang.String)
        */
       public void addUniqueMetaData(String key, String data) throws HornetQException
       {

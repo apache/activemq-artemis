@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.persistence.impl;
+package org.apache.activemq.tests.unit.core.persistence.impl;
 import java.util.ArrayList;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.impl.journal.BatchingIDGenerator;
-import org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq6.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.impl.journal.BatchingIDGenerator;
+import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
+import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

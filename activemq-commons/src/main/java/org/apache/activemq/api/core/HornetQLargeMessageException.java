@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.LARGE_MESSAGE_ERROR_BODY;
+import static org.apache.activemq.api.core.HornetQExceptionType.LARGE_MESSAGE_ERROR_BODY;
 
 /**
  * A problem occurred while manipulating the body of a large message.

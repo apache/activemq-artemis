@@ -11,11 +11,11 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tools;
+package org.apache.activemq.tools;
 
 /**
- * The constants shared by <code>org.apache.activemq6.tools.XmlDataImporter</code> and
- * <code>org.apache.activemq6.tools.XmlDataExporter</code>.
+ * The constants shared by <code>org.apache.activemq.tools.XmlDataImporter</code> and
+ * <code>org.apache.activemq.tools.XmlDataExporter</code>.
  *
  * @author Justin Bertram
  */

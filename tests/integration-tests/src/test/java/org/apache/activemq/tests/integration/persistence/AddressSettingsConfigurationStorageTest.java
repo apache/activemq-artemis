@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.persistence;
+package org.apache.activemq.tests.integration.persistence;
 import org.junit.Before;
 import org.junit.After;
 
@@ -20,11 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.persistence.config.PersistedAddressSetting;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * A ConfigurationStorageTest

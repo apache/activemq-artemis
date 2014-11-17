@@ -13,14 +13,14 @@
 /**
  *
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
 import javax.management.MBeanServer;
 
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
 
 public final class InVMNodeManagerServer extends HornetQServerImpl
 {

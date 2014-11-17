@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config.impl;
+package org.apache.activemq.core.config.impl;
 
-import org.apache.activemq6.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.junit.Test;
 
 import java.util.Collections;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.journal.impl.JournalConstants;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.journal.impl.JournalConstants;
 
 /**
  *

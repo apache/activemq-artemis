@@ -3,7 +3,7 @@
 <xsl:stylesheet version="2.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                xmlns:hq="urn:org.apache.activemq6"
+                xmlns:hq="urn:org.apache.activemq"
                 xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <!-- This XSLT creates the class HornetQDefaultsConfiguration.java.

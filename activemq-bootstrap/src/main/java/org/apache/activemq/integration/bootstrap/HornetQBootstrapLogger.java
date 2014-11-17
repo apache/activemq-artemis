@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.integration.bootstrap;
+package org.apache.activemq.integration.bootstrap;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.cluster;
+package org.apache.activemq.tests.integration.jms.cluster;
 import org.junit.Before;
 import org.junit.After;
 
@@ -23,7 +23,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.tests.util.JMSClusteredTestBase;
+import org.apache.activemq.tests.util.JMSClusteredTestBase;
 
 /**
  * A TopicClusterTest

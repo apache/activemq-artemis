@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.cluster.qourum;
+package org.apache.activemq.core.server.cluster.qourum;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffer;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.remoting.impl.TransportConfigurationUtil;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.remoting.impl.TransportConfigurationUtil;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * A TransportConfiguration is used by a client to specify connections to a server and its backup if
@@ -86,7 +86,7 @@ public class TransportConfiguration implements Serializable
    }
 
    /**
-    * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq6.spi.core.remoting.ConnectorFactory}
+    * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq.spi.core.remoting.ConnectorFactory}
     * and any parameters needed.
     *
     * @param className The class name of the ConnectorFactory
@@ -110,7 +110,7 @@ public class TransportConfiguration implements Serializable
    }
 
    /**
-    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq6.spi.core.remoting.ConnectorFactory}
+    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq.spi.core.remoting.ConnectorFactory}
     * and any parameters needed.
     *
     * @param className The class name of the ConnectorFactory
@@ -122,7 +122,7 @@ public class TransportConfiguration implements Serializable
    }
 
    /**
-    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq6.spi.core.remoting.ConnectorFactory}
+    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq.spi.core.remoting.ConnectorFactory}
     *
     * @param className The class name of the ConnectorFactory
     */

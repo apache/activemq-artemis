@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.management.impl;
+package org.apache.activemq.core.management.impl;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -36,55 +36,55 @@ import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.AddressControl;
-import org.apache.activemq6.api.core.management.BridgeControl;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.DivertControl;
-import org.apache.activemq6.api.core.management.HornetQServerControl;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.core.config.BridgeConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.DivertConfiguration;
-import org.apache.activemq6.core.messagecounter.MessageCounterManager;
-import org.apache.activemq6.core.messagecounter.impl.MessageCounterManagerImpl;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.config.PersistedAddressSetting;
-import org.apache.activemq6.core.persistence.config.PersistedRoles;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.DuplicateIDCache;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.remoting.server.RemotingService;
-import org.apache.activemq6.core.security.CheckType;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.Consumer;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq6.core.server.cluster.ha.LiveOnlyPolicy;
-import org.apache.activemq6.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq6.core.server.cluster.ha.SharedStoreSlavePolicy;
-import org.apache.activemq6.core.server.group.GroupingHandler;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.settings.impl.SlowConsumerPolicy;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionDetail;
-import org.apache.activemq6.core.transaction.impl.CoreTransactionDetail;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.utils.SecurityFormatter;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.json.JSONArray;
-import org.apache.activemq6.utils.json.JSONObject;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.BridgeControl;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.DivertControl;
+import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.core.persistence.config.PersistedRoles;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.Consumer;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.core.server.group.GroupingHandler;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionDetail;
+import org.apache.activemq.core.transaction.impl.CoreTransactionDetail;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.utils.SecurityFormatter;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
@@ -92,7 +92,7 @@ import org.apache.activemq6.utils.json.JSONObject;
  *
  */
 public class HornetQServerControlImpl extends AbstractControl implements HornetQServerControl, NotificationEmitter,
-                                                                         org.apache.activemq6.core.server.management.NotificationListener
+                                                                         org.apache.activemq.core.server.management.NotificationListener
 {
    // Constants -----------------------------------------------------
 
@@ -1414,7 +1414,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
 
 
    /* (non-Javadoc)
-   * @see org.apache.activemq6.api.core.management.HornetQServerControl#listProducersInfoAsJSON()
+   * @see org.apache.activemq.api.core.management.HornetQServerControl#listProducersInfoAsJSON()
    */
    public String listProducersInfoAsJSON() throws Exception
    {
@@ -2173,7 +2173,7 @@ public class HornetQServerControlImpl extends AbstractControl implements HornetQ
    }
 
    @Override
-   public void onNotification(org.apache.activemq6.core.server.management.Notification notification)
+   public void onNotification(org.apache.activemq.core.server.management.Notification notification)
    {
       if (!(notification.getType() instanceof CoreNotificationType)) return;
       CoreNotificationType type = (CoreNotificationType) notification.getType();

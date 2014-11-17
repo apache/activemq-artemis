@@ -11,11 +11,11 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.client.impl.ClientLargeMessageInternal;
-import org.apache.activemq6.core.message.impl.MessageInternal;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
+import org.apache.activemq.core.message.impl.MessageInternal;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

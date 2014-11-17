@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

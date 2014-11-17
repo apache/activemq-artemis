@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -45,16 +45,16 @@ import javax.jms.TopicSubscriber;
 import javax.jms.TransactionInProgressException;
 import javax.transaction.xa.XAResource;
 
-import org.apache.activemq6.selector.filter.FilterException;
-import org.apache.activemq6.selector.SelectorParser;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQQueueExistsException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSession.AddressQuery;
-import org.apache.activemq6.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.selector.filter.FilterException;
+import org.apache.activemq.selector.SelectorParser;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQQueueExistsException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSession.AddressQuery;
+import org.apache.activemq.api.core.client.ClientSession.QueueQuery;
 
 /**
  * HornetQ implementation of a JMS Session.

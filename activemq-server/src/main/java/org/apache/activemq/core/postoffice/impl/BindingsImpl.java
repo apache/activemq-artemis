@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.postoffice.impl;
+package org.apache.activemq.core.postoffice.impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -23,21 +23,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.Bindings;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.cluster.RemoteQueueBinding;
-import org.apache.activemq6.core.server.group.GroupingHandler;
-import org.apache.activemq6.core.server.group.impl.Proposal;
-import org.apache.activemq6.core.server.group.impl.Response;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.Bindings;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.core.server.group.GroupingHandler;
+import org.apache.activemq.core.server.group.impl.Proposal;
+import org.apache.activemq.core.server.group.impl.Response;
 
 /**
  * A BindingsImpl
@@ -264,7 +264,7 @@ public final class BindingsImpl implements Bindings
    private void route(final ServerMessage message, final RoutingContext context, final boolean groupRouting) throws Exception
    {
       /* This is a special treatment for scaled-down messages involving SnF queues.
-       * See org.apache.activemq6.core.server.impl.ScaleDownHandler.scaleDownMessages() for the logic that sends messages with this property
+       * See org.apache.activemq.core.server.impl.ScaleDownHandler.scaleDownMessages() for the logic that sends messages with this property
        */
       if (message.containsProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS))
       {

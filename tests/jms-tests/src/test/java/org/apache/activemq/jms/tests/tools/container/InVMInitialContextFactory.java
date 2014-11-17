@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.tools.container;
+package org.apache.activemq.jms.tests.tools.container;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -51,7 +51,7 @@ public class InVMInitialContextFactory implements InitialContextFactory
    public static Hashtable<String, String> getJNDIEnvironment(final int serverIndex)
    {
       Hashtable<String, String> env = new Hashtable<String, String>();
-      env.put("java.naming.factory.initial", "org.apache.activemq6.jms.tests.tools.container.InVMInitialContextFactory");
+      env.put("java.naming.factory.initial", "org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory");
       env.put("java.naming.provider.url", "org.jboss.naming:org.jnp.interface");
       // env.put("java.naming.factory.url.pkgs", "");
       env.put(Constants.SERVER_INDEX_PROPERTY_NAME, Integer.toString(serverIndex));

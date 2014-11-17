@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 
 import java.util.UUID;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.client.impl.ClientMessageImpl;
 
 /**
  * The ClientRequestor class helps making requests.
@@ -23,9 +23,9 @@ import org.apache.activemq6.core.client.impl.ClientMessageImpl;
  * The ClientRequestor constructor is given a ClientSession and a request address.
  * It creates a temporary queue for the responses and provides a request method that sends the request message and waits for its reply.
  *
- * @apiviz.uses org.apache.activemq6.api.core.client.ClientSession
- * @apiviz.owns org.apache.activemq6.api.core.client.ClientProducer
- * @apiviz.owns org.apache.activemq6.api.core.client.ClientConsumer
+ * @apiviz.uses org.apache.activemq.api.core.client.ClientSession
+ * @apiviz.owns org.apache.activemq.api.core.client.ClientProducer
+ * @apiviz.owns org.apache.activemq.api.core.client.ClientConsumer
  *
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */

@@ -11,10 +11,10 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.javaee.examples;
+package org.apache.activemq.javaee.examples;
 
-import org.apache.activemq6.javaee.example.MDB_CMT_TxRequiredClientExample;
-import org.apache.activemq6.javaee.example.server.MDB_CMT_TxRequiredExample;
+import org.apache.activemq.javaee.example.MDB_CMT_TxRequiredClientExample;
+import org.apache.activemq.javaee.example.server.MDB_CMT_TxRequiredExample;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;

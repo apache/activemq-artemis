@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.journal.impl;
+package org.apache.activemq.tests.unit.core.journal.impl;
 
 import org.junit.Test;
 
@@ -18,12 +18,12 @@ import java.nio.ByteBuffer;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  *

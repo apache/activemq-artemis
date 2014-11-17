@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import java.io.Serializable;
 import java.util.Properties;

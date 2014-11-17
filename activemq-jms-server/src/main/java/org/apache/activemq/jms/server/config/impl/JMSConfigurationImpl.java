@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.config.impl;
+package org.apache.activemq.jms.server.config.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.Context;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq6.jms.server.config.TopicConfiguration;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.jms.server.config.TopicConfiguration;
 
 
 /**

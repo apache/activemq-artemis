@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.netty;
+package org.apache.activemq.core.remoting.impl.netty;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -48,29 +48,29 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq6.core.protocol.ProtocolHandler;
-import org.apache.activemq6.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq6.core.security.HornetQPrincipal;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationService;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.utils.ConfigurationHelper;
-import org.apache.activemq6.utils.HornetQThreadFactory;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.core.protocol.ProtocolHandler;
+import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationService;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A Netty TCP Acceptor that supports SSL

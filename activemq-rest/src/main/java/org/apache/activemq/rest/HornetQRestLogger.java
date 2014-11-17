@@ -11,10 +11,10 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.rest;
+package org.apache.activemq.rest;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.rest.queue.push.xml.XmlLink;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.rest.queue.push.xml.XmlLink;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

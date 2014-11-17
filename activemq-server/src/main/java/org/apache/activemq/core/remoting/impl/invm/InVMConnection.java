@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.invm;
+package org.apache.activemq.core.remoting.impl.invm;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,18 +20,18 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelFutureListener;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.security.HornetQPrincipal;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * A InVMConnection
@@ -283,7 +283,7 @@ public class InVMConnection implements Connection
    {
       Map<String, Object> params = new HashMap<String, Object>();
 
-      params.put(org.apache.activemq6.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, serverID);
+      params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, serverID);
 
       return new TransportConfiguration(InVMConnectorFactory.class.getName(), params);
    }

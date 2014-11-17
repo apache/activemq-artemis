@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.group.impl;
+package org.apache.activemq.core.server.group.impl;
 
 
 import javax.management.ObjectName;
@@ -20,40 +20,40 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.core.config.BridgeConfiguration;
-import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.DivertConfiguration;
-import org.apache.activemq6.core.management.impl.HornetQServerControlImpl;
-import org.apache.activemq6.core.messagecounter.MessageCounterManager;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.remoting.server.RemotingService;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.Divert;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.QueueFactory;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.cluster.Bridge;
-import org.apache.activemq6.core.server.cluster.BroadcastGroup;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationListener;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.management.impl.HornetQServerControlImpl;
+import org.apache.activemq.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.Divert;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueFactory;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.cluster.Bridge;
+import org.apache.activemq.core.server.cluster.BroadcastGroup;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationListener;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Test;
 

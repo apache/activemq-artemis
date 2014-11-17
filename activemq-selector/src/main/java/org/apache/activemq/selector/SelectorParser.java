@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq6.selector;
+package org.apache.activemq.selector;
 
 import java.io.StringReader;
 
-import org.apache.activemq6.selector.filter.BooleanExpression;
-import org.apache.activemq6.selector.filter.ComparisonExpression;
-import org.apache.activemq6.selector.filter.FilterException;
-import org.apache.activemq6.selector.hyphenated.HyphenatedParser;
-import org.apache.activemq6.selector.strict.StrictParser;
+import org.apache.activemq.selector.filter.BooleanExpression;
+import org.apache.activemq.selector.filter.ComparisonExpression;
+import org.apache.activemq.selector.filter.FilterException;
+import org.apache.activemq.selector.hyphenated.HyphenatedParser;
+import org.apache.activemq.selector.strict.StrictParser;
 
 /**
  */

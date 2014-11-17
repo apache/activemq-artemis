@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.utils.Base64;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.utils.Base64;
 
 /**
  * Use this class to import the journal data from a listed file. You can use it as a main class or
@@ -40,7 +40,7 @@ import org.apache.activemq6.utils.Base64;
  * Example:
  *
  * <pre>
- * java -cp hornetq-core.jar org.apache.activemq6.core.journal.impl.ExportJournal /journalDir hornetq-data hq 2 10485760 /tmp/export.dat
+ * java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.ExportJournal /journalDir hornetq-data hq 2 10485760 /tmp/export.dat
  * </pre>
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
@@ -61,7 +61,7 @@ public class ImportJournal
    {
       if (arg.length != 5)
       {
-         System.err.println("Use: java -cp hornetq-core.jar:netty.jar org.apache.activemq6.core.journal.impl.ImportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
+         System.err.println("Use: java -cp hornetq-core.jar:netty.jar org.apache.activemq.core.journal.impl.ImportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
          return;
       }
 

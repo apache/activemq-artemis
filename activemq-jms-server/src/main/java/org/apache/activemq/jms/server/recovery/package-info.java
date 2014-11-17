@@ -18,5 +18,5 @@
  * III - For each topology member found on the DiscoveryUnits, the RegistryBase will registry a HornetQResourceRecovery
  *       that will exist per server
   */
-package org.apache.activemq6.jms.server.recovery;
+package org.apache.activemq.jms.server.recovery;
 

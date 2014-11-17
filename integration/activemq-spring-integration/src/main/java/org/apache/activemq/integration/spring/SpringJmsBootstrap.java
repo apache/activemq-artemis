@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.spring;
+package org.apache.activemq.integration.spring;
 
-import org.apache.activemq6.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;

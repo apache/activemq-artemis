@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.util;
+package org.apache.activemq.util;
 
 import org.junit.Test;
 
@@ -19,9 +19,9 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Assert;
 
 
-import org.apache.activemq6.tests.CoreUnitTestCase;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.TimeAndCounterIDGenerator;
+import org.apache.activemq.tests.CoreUnitTestCase;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.TimeAndCounterIDGenerator;
 
 /**
  * A TimeAndCounterIDGeneratorTest

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue;
+package org.apache.activemq.rest.queue;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -25,17 +25,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQQueue;
-import org.apache.activemq6.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq6.jms.server.impl.JMSServerConfigParserImpl;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.queue.push.PushConsumerResource;
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
-import org.apache.activemq6.rest.util.Constants;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQQueue;
+import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.queue.push.PushConsumerResource;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.rest.util.Constants;
 import org.w3c.dom.Document;
 
 /**

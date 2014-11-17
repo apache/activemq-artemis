@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffer;
 
 /**
  * Used to send large messages

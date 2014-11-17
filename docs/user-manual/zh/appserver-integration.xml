@@ -275,12 +275,12 @@ public class MyMDB implements MessageListener
               <literal>META-INF/ra.xml</literal>。</para>
         <para>下面是它的具体配置内容：</para>
         <programlisting>&lt;resourceadapter>
-      &lt;resourceadapter-class>org.apache.activemq6.ra.HornetQResourceAdapter&lt;/resourceadapter-class>
+      &lt;resourceadapter-class>org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class>
       &lt;config-property>
          &lt;description>The transport type&lt;/description>
          &lt;config-property-name>ConnectorClassName&lt;/config-property-name>
          &lt;config-property-type>java.lang.String&lt;/config-property-type>
-         &lt;config-property-value>org.apache.activemq6.core.remoting.impl.invm.InVMConnectorF
+         &lt;config-property-value>org.apache.activemq.core.remoting.impl.invm.InVMConnectorF
          actory&lt;/config-property-value>
       &lt;/config-property>
       &lt;config-property>
@@ -292,7 +292,7 @@ public class MyMDB implements MessageListener
 
       &lt;outbound-resourceadapter>
          &lt;connection-definition>
-            &lt;managedconnectionfactory-class>org.apache.activemq6.ra.HornetQRAManagedConnection
+            &lt;managedconnectionfactory-class>org.apache.activemq.ra.HornetQRAManagedConnection
             Factory&lt;/managedconnectionfactory-class>
 
             &lt;config-property>
@@ -309,12 +309,12 @@ public class MyMDB implements MessageListener
                &lt;config-property-value>0&lt;/config-property-value>
             &lt;/config-property>
 
-            &lt;connectionfactory-interface>org.apache.activemq6.ra.HornetQRAConnectionFactory
+            &lt;connectionfactory-interface>org.apache.activemq.ra.HornetQRAConnectionFactory
             &lt;/connectionfactory-interface>
-            &lt;connectionfactororg.apache.activemq6.ra.HornetQConnectionFactoryImplonFactoryImpl
+            &lt;connectionfactororg.apache.activemq.ra.HornetQConnectionFactoryImplonFactoryImpl
             &lt;/connectionfactory-impl-class>
             &lt;connection-interface>javax.jms.Session&lt;/connection-interface>
-            &lt;connection-impl-class>org.apache.activemq6.ra.HornetQRASession
+            &lt;connection-impl-class>org.apache.activemq.ra.HornetQRASession
             &lt;/connection-impl-class>
          &lt;/connection-definition>
          &lt;transaction-support>XATransaction&lt;/transaction-support>
@@ -332,7 +332,7 @@ public class MyMDB implements MessageListener
             &lt;messagelistener>
                &lt;messagelistener-type>javax.jms.MessageListener&lt;/messagelistener-type>
                &lt;activationspec>
-                  &lt;activationspec-class>org.apache.activemq6.ra.inflow.HornetQActivationSpec
+                  &lt;activationspec-class>org.apache.activemq.ra.inflow.HornetQActivationSpec
                   &lt;/activationspec-class>
                   &lt;required-config-property>
                       &lt;config-property-name>destination&lt;/config-property-name>
@@ -657,12 +657,12 @@ public class MyMDB implements MessageListener
       &lt;jndi-name>RemoteJmsXA&lt;/jndi-name>
       &lt;xa-transaction/>
       &lt;rar-name>jms-ra.rar&lt;/rar-name>
-      &lt;connection-definition>org.apache.activemq6.ra.HornetQRAConnectionFactory
+      &lt;connection-definition>org.apache.activemq.ra.HornetQRAConnectionFactory
 &lt;/connection-definition>
       &lt;config-property name="SessionDefaultType" type="String">javax.jms.Topic
       &lt;/config-property>
       &lt;config-property name="ConnectorClassName" type="String">
-        org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory
+        org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory
       &lt;/config-property>
       &lt;config-property name="ConnectionParameters" type="String">
           port=5445&lt;/config-property>
@@ -806,12 +806,12 @@ private ConnectionFactory connectionFactory;</programlisting>
                 </para>
 
           <programlisting>
-            &lt;resourceadapter-class&gt;org.apache.activemq6.ra.HornetQResourceAdapter&lt;/resourceadapter-class&gt;
+            &lt;resourceadapter-class&gt;org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class&gt;
               &lt;config-property&gt;
                  &lt;description&gt;The transport type&lt;/description&gt;
                  &lt;config-property-name&gt;ConnectorClassName&lt;/config-property-name&gt;
                  &lt;config-property-type&gt;java.lang.String&lt;/config-property-type&gt;
-                 &lt;config-property-value&gt;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property-value&gt;
+                 &lt;config-property-value&gt;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property-value&gt;
               &lt;/config-property&gt;
               &lt;config-property&gt;
                  &lt;description&gt;The transport configuration. These values must be in the form of key=val;key=val;&lt;/description&gt;
@@ -836,9 +836,9 @@ private ConnectionFactory connectionFactory;</programlisting>
               &lt;jndi-name&gt;RemoteJmsXA&lt;/jndi-name&gt;
               &lt;xa-transaction/&gt;
               &lt;rar-name&gt;hornetq-ra.rar&lt;/rar-name&gt;
-              &lt;connection-definition&gt;org.apache.activemq6.ra.HornetQRAConnectionFactory&lt;/connection-definition&gt;
+              &lt;connection-definition&gt;org.apache.activemq.ra.HornetQRAConnectionFactory&lt;/connection-definition&gt;
               &lt;config-property name="SessionDefaultType" type="java.lang.String"&gt;javax.jms.Topic&lt;/config-property&gt;
-              &lt;config-property name="ConnectorClassName" type="java.lang.String"&gt;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property&gt;
+              &lt;config-property name="ConnectorClassName" type="java.lang.String"&gt;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property&gt;
               &lt;config-property name="ConnectionParameters" type="java.lang.String"&gt;host=127.0.0.1;port=5446&lt;/config-property&gt;
               &lt;max-pool-size&gt;20&lt;/max-pool-size&gt;
            &lt;/tx-connection-factory&gt;
@@ -926,7 +926,7 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
    ...
                      
    &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HornetQ1"
-                value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;[连接配置]"/&gt;
+                value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;[连接配置]"/&gt;
 &lt;/properties&gt;
             </programlisting>
             <para>其中<literal>[连接配置]</literal>包括连接HornetQ节点所必需的信息。
@@ -935,9 +935,9 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                 <listitem>
                     <para><literal>[连接工厂类名]</literal>指的是<literal>ConnectorFactory</literal>
                         的类名，用来连接HornetQ服务器。其值可以是<literal
-                            >org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory</literal> 或
+                            >org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</literal> 或
                             <literal
-                            >org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</literal></para>
+                            >org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</literal></para>
                 </listitem>
                 <listitem>
                     <para><literal>[用户名]</literal>是用于创建客户会话的用户名。是可选项。</para>
@@ -958,19 +958,19 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                 <para>如果HornetQ配置了一个默认的in-vm接受器：</para>
                 <programlisting>
 &lt;acceptor name="in-vm">
-    &lt;factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory&lt;/factory-class>
+    &lt;factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory&lt;/factory-class>
 &lt;/acceptor>
                 </programlisting>
                 <para>相应地在 <literal
                         >conf/jbossts-properties.xml</literal>文件中：</para>
                 <programlisting>
 &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-   value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory"/>        			
+   value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"/>
                 </programlisting>
                 <para>如果配置了一个netty接受器，并且端口不是默认的：</para>
                 <programlisting>
 &lt;acceptor name="netty">
-    &lt;factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
+    &lt;factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
     &lt;param key="port" value="8888"/>
 &lt;/acceptor>
                 </programlisting>
@@ -978,7 +978,7 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                         >conf/jbossts-properties.xml</literal>文件中：</para>
                 <programlisting>
 &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-       value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory, , , port=8888"/>        			                    
+       value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, , , port=8888"/>
                 </programlisting>
                 <note>
                     <para>注意在没有用户名和密码时，逗号是不能省略的。</para>
@@ -987,7 +987,7 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                     应为如下所示：</para>
                 <programlisting>
                     &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-                           value="org.apache.activemq6.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory, admin, adminpass, port=8888"/>        			                    
+                           value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, admin, adminpass, port=8888"/>
                 </programlisting>
                 <para>推荐在XA恢复中，将HornetQ配置一个invm接受器，并配置恢复管理器使用invm连接器。</para>
             </section>

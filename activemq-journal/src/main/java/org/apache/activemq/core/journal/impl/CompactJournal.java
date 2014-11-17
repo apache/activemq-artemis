@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
-import org.apache.activemq6.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.core.journal.IOCriticalErrorListener;
 
 /**
  * This is an undocumented class, that will open a journal and force compacting on it.
@@ -29,7 +29,7 @@ public final class CompactJournal // NO_UCD
    {
       if (arg.length != 4)
       {
-         System.err.println("Use: java -cp hornetq-core.jar org.apache.activemq6.core.journal.impl.CompactJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize>");
+         System.err.println("Use: java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.CompactJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize>");
          return;
       }
 

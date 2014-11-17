@@ -17,5 +17,5 @@
  * that secuity providers can implement to plug their
  * implementation into HornetQ.
  */
-package org.apache.activemq6.spi.core.security;
+package org.apache.activemq.spi.core.security;
 

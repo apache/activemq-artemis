@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.jms.management;
+package org.apache.activemq.api.jms.management;
 
 import java.util.Map;
 
 import javax.management.MBeanOperationInfo;
 
-import org.apache.activemq6.api.core.management.Operation;
-import org.apache.activemq6.api.core.management.Parameter;
+import org.apache.activemq.api.core.management.Operation;
+import org.apache.activemq.api.core.management.Parameter;
 
 /**
  * A TopicControl is used to manage a JMS Topic.

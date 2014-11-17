@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.ha;
+package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

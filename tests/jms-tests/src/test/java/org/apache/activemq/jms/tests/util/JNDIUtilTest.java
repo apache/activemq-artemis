@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.util;
+package org.apache.activemq.jms.tests.util;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -18,8 +18,8 @@ import org.junit.Test;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 
-import org.apache.activemq6.jms.tests.HornetQServerTestCase;
-import org.apache.activemq6.utils.JNDIUtil;
+import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.utils.JNDIUtil;
 
 /**
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>

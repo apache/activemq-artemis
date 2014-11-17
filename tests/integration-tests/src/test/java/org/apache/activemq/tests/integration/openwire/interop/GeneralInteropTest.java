@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.openwire.interop;
+package org.apache.activemq.tests.integration.openwire.interop;
 
 import java.io.Serializable;
 
@@ -28,8 +28,8 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.ActiveMQMessageProducer;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

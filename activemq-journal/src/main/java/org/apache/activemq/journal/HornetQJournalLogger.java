@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.journal;
+package org.apache.activemq.journal;
 
-import org.apache.activemq6.core.journal.impl.JournalFile;
+import org.apache.activemq.core.journal.impl.JournalFile;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

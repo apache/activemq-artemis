@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue.push;
+package org.apache.activemq.rest.queue.push;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -33,12 +33,12 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.queue.push.xml.BasicAuth;
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
-import org.apache.activemq6.rest.queue.push.xml.XmlHttpHeader;
-import org.apache.activemq6.rest.util.HttpMessageHelper;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.queue.push.xml.BasicAuth;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.rest.queue.push.xml.XmlHttpHeader;
+import org.apache.activemq.rest.util.HttpMessageHelper;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;

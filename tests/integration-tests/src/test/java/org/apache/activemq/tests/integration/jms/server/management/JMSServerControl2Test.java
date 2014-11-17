@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.server.management;
+package org.apache.activemq.tests.integration.jms.server.management;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -28,30 +28,30 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.management.JMSConnectionInfo;
-import org.apache.activemq6.api.jms.management.JMSConsumerInfo;
-import org.apache.activemq6.api.jms.management.JMSServerControl;
-import org.apache.activemq6.api.jms.management.JMSSessionInfo;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.inflow.HornetQActivation;
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
-import org.apache.activemq6.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq6.tests.integration.management.ManagementTestBase;
-import org.apache.activemq6.tests.unit.ra.MessageEndpointFactory;
-import org.apache.activemq6.tests.unit.util.InVMNamingContext;
-import org.apache.activemq6.tests.util.RandomUtil;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.management.JMSConnectionInfo;
+import org.apache.activemq.api.jms.management.JMSConsumerInfo;
+import org.apache.activemq.api.jms.management.JMSServerControl;
+import org.apache.activemq.api.jms.management.JMSSessionInfo;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.inflow.HornetQActivation;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.tests.unit.ra.MessageEndpointFactory;
+import org.apache.activemq.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -521,10 +521,10 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          ra = new HornetQResourceAdapter();
 
-         ra.setConnectorClassName("org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory");
+         ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
          ra.setUserName("userGlobal");
          ra.setPassword("passwordGlobal");
-         ra.start(new org.apache.activemq6.tests.unit.ra.BootstrapContext());
+         ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
          ra.setClientID("my-client-id");
          ra.setUserName("user");
          Connection conn = ra.getDefaultHornetQConnectionFactory().createConnection();
@@ -608,10 +608,10 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          ra = new HornetQResourceAdapter();
 
-         ra.setConnectorClassName("org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory");
+         ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
          ra.setUserName("userGlobal");
          ra.setPassword("passwordGlobal");
-         ra.start(new org.apache.activemq6.tests.unit.ra.BootstrapContext());
+         ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
          Connection conn = ra.getDefaultHornetQConnectionFactory().createConnection();
 

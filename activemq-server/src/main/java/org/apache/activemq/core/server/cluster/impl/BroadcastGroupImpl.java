@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.impl;
+package org.apache.activemq.core.server.cluster.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,20 +18,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.BroadcastEndpoint;
-import org.apache.activemq6.api.core.BroadcastEndpointFactory;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.cluster.BroadcastGroup;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationService;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.BroadcastEndpoint;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.cluster.BroadcastGroup;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationService;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * <p>This class will use the {@link BroadcastEndpoint} to send periodical updates on the list for connections

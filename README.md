@@ -116,7 +116,7 @@ do this with Eclipse Juno (4.2).
 
 The current recommended solution for Eclipse Kepler is to mark
 `javacc-maven-plugin` as ignored by Eclipse, run Maven from the
-command line and then modify the project `activemq6-core-client` adding
+command line and then modify the project `activemq-core-client` adding
 the folder `target/generated-sources/javacc` to its build path.
 
 [m2e connector for javacc-maven-plugin]: https://github.com/objectledge/maven-extensions
@@ -189,7 +189,7 @@ To setup repositories for reviewing and pushing:
   # Clone the GitHub Mirror of ActiveMQ6 Repo:
   git clone git@github.com:apache/activemq-6.git
 
-  # Add the following section to your <activemq6 repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
+  # Add the following section to your <activemq repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
   [remote "origin"]
         url = git@github.com:apache/activemq-6.git
         fetch = +refs/heads/*:refs/remotes/origin/*
@@ -206,7 +206,7 @@ To setup repositories for reviewing and pushing:
 To push commits from a pull request to the apache repository:
 
 ```
-  cd <activemq6 repo>
+  cd <activemq repo>
 
   # Download all the remote branches etc... including all the pull requests.
   git fetch --all

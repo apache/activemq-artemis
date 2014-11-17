@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.unit.core.config.impl.fakes;
+package org.apache.activemq.tests.unit.core.config.impl.fakes;
 
-import org.apache.activemq6.core.server.ConnectorService;
+import org.apache.activemq.core.server.ConnectorService;
 
 /**
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>

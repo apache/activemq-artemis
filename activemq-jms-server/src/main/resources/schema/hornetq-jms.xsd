@@ -3,7 +3,7 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             targetNamespace="urn:hornetq"
             xmlns="urn:hornetq"
-            xmlns:hq="urn:org.apache.activemq6"
+            xmlns:hq="urn:org.apache.activemq"
             elementFormDefault="qualified"
             attributeFormDefault="unqualified"
             version="1.0">
@@ -11,7 +11,7 @@
    <xsd:element name="configuration" hq:schema="hornetq-jms-configuration">
    	<xsd:complexType>
    	  <xsd:sequence>
-            <xsd:element name="jmx-domain" type="xsd:string" default="org.apache.activemq6"
+            <xsd:element name="jmx-domain" type="xsd:string" default="org.apache.activemq"
                          minOccurs="0" maxOccurs="1"/>
    	    <xsd:element ref="connection-factory" maxOccurs="unbounded" minOccurs="0"/>
    	    <xsd:choice maxOccurs="unbounded" minOccurs="0">

@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * This file represents how we are using Discovery.

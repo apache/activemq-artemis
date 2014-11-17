@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.activemq6.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.junit.Assert;
 
 import static java.util.concurrent.TimeUnit.SECONDS;

@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tools;
+package org.apache.activemq.tools;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -33,61 +33,61 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.TransactionFailureCallback;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.core.message.BodyEncoder;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.PagingStoreFactory;
-import org.apache.activemq6.core.paging.cursor.PagePosition;
-import org.apache.activemq6.core.paging.cursor.impl.PagePositionImpl;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.paging.impl.PageTransactionInfoImpl;
-import org.apache.activemq6.core.paging.impl.PagingManagerImpl;
-import org.apache.activemq6.core.paging.impl.PagingStoreFactoryNIO;
-import org.apache.activemq6.core.persistence.impl.journal.DescribeJournal;
-import org.apache.activemq6.core.persistence.impl.journal.DescribeJournal.MessageDescribe;
-import org.apache.activemq6.core.persistence.impl.journal.DescribeJournal.ReferenceDescribe;
-import org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager.AckDescribe;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager.CursorAckRecordEncoding;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager.PageUpdateTXEncoding;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager.PersistentQueueBindingEncoding;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq6.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq6.jms.persistence.config.PersistedDestination;
-import org.apache.activemq6.jms.persistence.config.PersistedJNDI;
-import org.apache.activemq6.jms.persistence.config.PersistedType;
-import org.apache.activemq6.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
-import org.apache.activemq6.utils.Base64;
-import org.apache.activemq6.utils.ExecutorFactory;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.TransactionFailureCallback;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.message.BodyEncoder;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.PagingStoreFactory;
+import org.apache.activemq.core.paging.cursor.PagePosition;
+import org.apache.activemq.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.core.paging.impl.PagingManagerImpl;
+import org.apache.activemq.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.core.persistence.impl.journal.DescribeJournal;
+import org.apache.activemq.core.persistence.impl.journal.DescribeJournal.MessageDescribe;
+import org.apache.activemq.core.persistence.impl.journal.DescribeJournal.ReferenceDescribe;
+import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.AckDescribe;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.CursorAckRecordEncoding;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.PageUpdateTXEncoding;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.PersistentQueueBindingEncoding;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
+import org.apache.activemq.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedType;
+import org.apache.activemq.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
+import org.apache.activemq.utils.Base64;
+import org.apache.activemq.utils.ExecutorFactory;
 
 /**
  * Read the journal, page, and large-message data from a stopped instance of HornetQ and save it in an XML format to
  * a file.  It uses the StAX <code>javax.xml.stream.XMLStreamWriter</code> for speed and simplicity.  Output can be
- * read by <code>org.apache.activemq6.core.persistence.impl.journal.XmlDataImporter</code>.
+ * read by <code>org.apache.activemq.core.persistence.impl.journal.XmlDataImporter</code>.
  *
  * @author Justin Bertram
  */

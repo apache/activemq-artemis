@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor;
+package org.apache.activemq.core.paging.cursor;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
 
 /**
  * A InternalReference
@@ -245,7 +245,7 @@ public class PagedReferenceImpl implements PagedReference
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.server.MessageReference#setConsumerId(java.lang.Long)
+    * @see org.apache.activemq.core.server.MessageReference#setConsumerId(java.lang.Long)
     */
    @Override
    public void setConsumerId(Long consumerID)
@@ -254,7 +254,7 @@ public class PagedReferenceImpl implements PagedReference
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.server.MessageReference#getConsumerId()
+    * @see org.apache.activemq.core.server.MessageReference#getConsumerId()
     */
    @Override
    public Long getConsumerId()

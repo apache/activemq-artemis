@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra.inflow;
+package org.apache.activemq.ra.inflow;
 
 import javax.jms.MessageListener;
 import javax.resource.ResourceException;
@@ -21,21 +21,21 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 import java.util.UUID;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession.QueueQuery;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.MessageHandler;
-import org.apache.activemq6.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.ra.HornetQRALogger;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.HornetQXAResourceWrapper;
-import org.apache.activemq6.utils.FutureLatch;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.MessageHandler;
+import org.apache.activemq.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.ra.HornetQRALogger;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.HornetQXAResourceWrapper;
+import org.apache.activemq.utils.FutureLatch;
 
 /**
  * The message handler

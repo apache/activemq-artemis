@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 
 import javax.transaction.xa.XAResource;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
 
 /**
  * A ClientSession is a single-thread object required for producing and consuming messages.
@@ -47,7 +47,7 @@ public interface ClientSession extends XAResource, AutoCloseable
    }
 
    /**
-    * @deprecated Use {@link org.apache.activemq6.api.core.client.ClientSession.AddressQuery} instead
+    * @deprecated Use {@link org.apache.activemq.api.core.client.ClientSession.AddressQuery} instead
     */
    @Deprecated
    public interface BindingQuery extends AddressQuery
@@ -487,7 +487,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Address must be specified every time a message is sent
     *
     * @return a ClientProducer
-    * @see ClientProducer#send(SimpleString, org.apache.activemq6.api.core.Message)
+    * @see ClientProducer#send(SimpleString, org.apache.activemq.api.core.Message)
     */
    ClientProducer createProducer() throws HornetQException;
 

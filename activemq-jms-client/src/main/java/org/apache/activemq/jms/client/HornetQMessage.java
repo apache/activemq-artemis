@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -31,16 +31,16 @@ import javax.jms.Message;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotWriteableException;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.jms.HornetQJMSConstants;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.reader.MessageUtil;
-import org.apache.activemq6.utils.UUID;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.reader.MessageUtil;
+import org.apache.activemq.utils.UUID;
 
 
 /**
@@ -63,7 +63,7 @@ import org.apache.activemq6.utils.UUID;
 public class HornetQMessage implements javax.jms.Message
 {
    // Constants -----------------------------------------------------
-   public static final byte TYPE = org.apache.activemq6.api.core.Message.DEFAULT_TYPE;
+   public static final byte TYPE = org.apache.activemq.api.core.Message.DEFAULT_TYPE;
 
    public static Map<String, Object> coreMaptoJMSMap(final Map<String, Object> coreMessage)
    {
@@ -642,7 +642,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          if (MessageUtil.JMSXGROUPID.equals(name))
          {
-            return message.getStringProperty(org.apache.activemq6.api.core.Message.HDR_GROUP_ID);
+            return message.getStringProperty(org.apache.activemq.api.core.Message.HDR_GROUP_ID);
          }
          else
          {
@@ -726,7 +726,7 @@ public class HornetQMessage implements javax.jms.Message
 
       if (MessageUtil.JMSXGROUPID.equals(name))
       {
-         message.putStringProperty(org.apache.activemq6.api.core.Message.HDR_GROUP_ID, SimpleString.toSimpleString(value));
+         message.putStringProperty(org.apache.activemq.api.core.Message.HDR_GROUP_ID, SimpleString.toSimpleString(value));
       }
       else
       {
@@ -794,7 +794,7 @@ public class HornetQMessage implements javax.jms.Message
       Long value;
       try
       {
-         value = message.getLongProperty(org.apache.activemq6.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME);
+         value = message.getLongProperty(org.apache.activemq.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME);
       }
       catch (Exception e)
       {
@@ -814,7 +814,7 @@ public class HornetQMessage implements javax.jms.Message
    @Override
    public void setJMSDeliveryTime(long deliveryTime) throws JMSException
    {
-      message.putLongProperty(org.apache.activemq6.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME, deliveryTime);
+      message.putLongProperty(org.apache.activemq.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME, deliveryTime);
    }
 
    @Override

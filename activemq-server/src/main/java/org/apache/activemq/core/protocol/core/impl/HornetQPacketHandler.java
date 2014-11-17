@@ -10,31 +10,31 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl;
+package org.apache.activemq.core.protocol.core.impl;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQInternalErrorException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.ChannelHandler;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.ServerSessionPacketHandler;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CheckFailoverMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CreateQueueMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CreateSessionMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ReattachSessionMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
-import org.apache.activemq6.core.security.HornetQPrincipal;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.core.version.Version;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.ChannelHandler;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.ServerSessionPacketHandler;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CreateQueueMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ReattachSessionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
+import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.core.version.Version;
 
 /**
  * A packet handler for all packets that need to be handled at the server level

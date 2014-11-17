@@ -16,5 +16,5 @@
  * This package defines base classes and interfaces used
  * throughout HornetQ API
  */
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 

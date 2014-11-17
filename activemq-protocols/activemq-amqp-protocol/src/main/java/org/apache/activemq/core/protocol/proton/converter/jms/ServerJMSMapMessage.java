@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.proton.converter.jms;
+package org.apache.activemq.core.protocol.proton.converter.jms;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -20,14 +20,14 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.utils.TypedProperties;
 
-import static org.apache.activemq6.reader.MapMessageUtil.readBodyMap;
-import static org.apache.activemq6.reader.MapMessageUtil.writeBodyMap;
+import static org.apache.activemq.reader.MapMessageUtil.readBodyMap;
+import static org.apache.activemq.reader.MapMessageUtil.writeBodyMap;
 
 /**
  * HornetQ implementation of a JMS MapMessage.

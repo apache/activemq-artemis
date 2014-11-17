@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.security.impl;
+package org.apache.activemq.tests.unit.core.security.impl;
 import org.junit.Before;
 import org.junit.After;
 
@@ -20,10 +20,10 @@ import java.util.HashSet;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.security.CheckType;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * tests HornetQSecurityManagerImpl

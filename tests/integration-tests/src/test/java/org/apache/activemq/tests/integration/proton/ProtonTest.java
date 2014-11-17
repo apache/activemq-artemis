@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.proton;
+package org.apache.activemq.tests.integration.proton;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -41,15 +41,15 @@ import org.apache.qpid.amqp_1_0.client.Sender;
 import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
 import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
 import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.utils.ByteUtil;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.utils.ByteUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -285,7 +285,7 @@ public class ProtonTest extends ServiceTestBase
 
       MessageConsumer cons = session.createConsumer(createQueue(address));
 
-      org.apache.activemq6.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(coreAddress));
+      org.apache.activemq.core.server.Queue serverQueue = server.locateQueue(SimpleString.toSimpleString(coreAddress));
 
       assertEquals(1, serverQueue.getConsumerCount());
 

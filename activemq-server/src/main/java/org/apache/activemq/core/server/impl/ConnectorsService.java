@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,17 +18,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.ConnectorService;
-import org.apache.activemq6.core.server.ConnectorServiceFactory;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.utils.ClassloadingUtil;
-import org.apache.activemq6.utils.ConfigurationHelper;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.core.server.ConnectorServiceFactory;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.utils.ConfigurationHelper;
 
 /**
  * ConnectorsService will pool some resource for updates, e.g. Twitter, then the changes are picked

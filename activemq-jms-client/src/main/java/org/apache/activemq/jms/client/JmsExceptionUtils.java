@@ -13,7 +13,7 @@
 /**
  *
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.IllegalStateRuntimeException;
 import javax.jms.InvalidClientIDException;

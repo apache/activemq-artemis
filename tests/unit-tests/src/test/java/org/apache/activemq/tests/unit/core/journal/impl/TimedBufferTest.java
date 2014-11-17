@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.journal.impl;
+package org.apache.activemq.tests.unit.core.journal.impl;
 
 import org.junit.Test;
 
@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.journal.impl.TimedBuffer;
-import org.apache.activemq6.core.journal.impl.TimedBufferObserver;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.journal.impl.TimedBuffer;
+import org.apache.activemq.core.journal.impl.TimedBufferObserver;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A TimedBufferTest
@@ -79,7 +79,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq6.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {
@@ -154,7 +154,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq6.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {
@@ -243,7 +243,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq6.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {
@@ -329,7 +329,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq6.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {

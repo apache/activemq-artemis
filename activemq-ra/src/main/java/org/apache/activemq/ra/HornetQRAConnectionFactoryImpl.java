@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.jms.Connection;
 import javax.jms.JMSContext;
@@ -30,9 +30,9 @@ import javax.naming.Reference;
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq6.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
+import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
 
 /**
  * The connection factory

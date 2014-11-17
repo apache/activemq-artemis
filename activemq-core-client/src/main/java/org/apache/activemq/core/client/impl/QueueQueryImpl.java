@@ -11,10 +11,10 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSession;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
 
 public class QueueQueryImpl implements ClientSession.QueueQuery
 {

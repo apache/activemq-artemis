@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.management.impl;
+package org.apache.activemq.core.management.impl;
 
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.apache.activemq6.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.StorageManager;
 
 /**
  * A AbstractControl

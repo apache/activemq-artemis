@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.jms.management;
+package org.apache.activemq.api.jms.management;
 
-import org.apache.activemq6.utils.json.JSONArray;
-import org.apache.activemq6.utils.json.JSONObject;
+import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * A JMSConnectionInfo

@@ -13,18 +13,18 @@
 /**
  *
  */
-package org.apache.activemq6.core.persistence.impl.journal;
+package org.apache.activemq.core.persistence.impl.journal;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.StorageManager.LargeMessageExtension;
-import org.apache.activemq6.core.replication.ReplicatedLargeMessage;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.LargeServerMessage;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.StorageManager.LargeMessageExtension;
+import org.apache.activemq.core.replication.ReplicatedLargeMessage;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.LargeServerMessage;
 
 public final class LargeServerMessageInSync implements ReplicatedLargeMessage
 {

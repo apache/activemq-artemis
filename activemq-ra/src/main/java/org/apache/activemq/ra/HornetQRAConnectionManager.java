@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
@@ -18,7 +18,7 @@ import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
 
-import org.apache.activemq6.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.ConcurrentHashSet;
 
 
 /**

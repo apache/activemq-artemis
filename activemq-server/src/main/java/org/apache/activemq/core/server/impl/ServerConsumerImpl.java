@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.math.BigDecimal;
 import java.util.Iterator;
@@ -23,37 +23,37 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.core.client.impl.ClientConsumerImpl;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.message.BodyEncoder;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.QueueBinding;
-import org.apache.activemq6.core.server.HandleStatus;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.impl.TransactionImpl;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
-import org.apache.activemq6.utils.FutureLatch;
-import org.apache.activemq6.utils.LinkedListIterator;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.core.client.impl.ClientConsumerImpl;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.message.BodyEncoder;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.QueueBinding;
+import org.apache.activemq.core.server.HandleStatus;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
+import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * Concrete implementation of a ClientConsumer.

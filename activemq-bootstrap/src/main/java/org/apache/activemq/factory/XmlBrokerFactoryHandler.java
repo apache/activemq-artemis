@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.factory;
+package org.apache.activemq.factory;
 
-import org.apache.activemq6.cli.ConfigurationException;
-import org.apache.activemq6.dto.BrokerDTO;
-import org.apache.activemq6.dto.XmlUtil;
+import org.apache.activemq.cli.ConfigurationException;
+import org.apache.activemq.dto.BrokerDTO;
+import org.apache.activemq.dto.XmlUtil;
 
 import java.io.File;
 import java.net.URI;

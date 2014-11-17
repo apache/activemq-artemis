@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 
 /**
  * A JournalTransaction

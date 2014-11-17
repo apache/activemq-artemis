@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.impl;
+package org.apache.activemq.core.paging.impl;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -18,18 +18,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.paging.PageTransactionInfo;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.cursor.PagePosition;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq6.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.paging.PageTransactionInfo;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.cursor.PagePosition;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
@@ -160,7 +160,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    /*
     * This is to be used after paging. We will update the PageTransactions until they get all the messages delivered. On that case we will delete the page TX
     * (non-Javadoc)
-    * @see org.apache.activemq6.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq6.core.persistence.StorageManager, org.apache.activemq6.core.transaction.Transaction, int)
+    * @see org.apache.activemq.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq.core.persistence.StorageManager, org.apache.activemq.core.transaction.Transaction, int)
     */
    public void storeUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx) throws Exception
    {

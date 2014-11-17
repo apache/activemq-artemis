@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.config.impl;
+package org.apache.activemq.jms.server.config.impl;
 
-import org.apache.activemq6.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 
 
 /**

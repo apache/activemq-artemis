@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.integration;
+package org.apache.activemq.rest.integration;
 
-import org.apache.activemq6.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;

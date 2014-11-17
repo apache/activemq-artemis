@@ -10,23 +10,23 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.postoffice.DuplicateIDCache;
-import org.apache.activemq6.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq6.core.remoting.server.RemotingService;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.LiveNodeLocator;
-import org.apache.activemq6.core.server.cluster.HornetQServerSideProtocolManagerFactory;
-import org.apache.activemq6.core.server.cluster.ha.LiveOnlyPolicy;
-import org.apache.activemq6.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.LiveNodeLocator;
+import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
 
 import java.util.HashMap;
 import java.util.List;

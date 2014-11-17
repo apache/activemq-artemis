@@ -31,7 +31,7 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.apache.activemq6.core.messagecounter;
+package org.apache.activemq.core.messagecounter;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.apache.activemq6.core.server.Queue;
+import org.apache.activemq.core.server.Queue;
 
 /**
  * This class stores message count informations for a given queue

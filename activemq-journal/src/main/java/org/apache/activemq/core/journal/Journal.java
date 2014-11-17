@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal;
+package org.apache.activemq.core.journal;
 
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.core.journal.impl.JournalFile;
-import org.apache.activemq6.core.server.HornetQComponent;
+import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.core.server.HornetQComponent;
 
 /**
  * Most methods on the journal provide a blocking version where you select the sync mode and a non
@@ -26,7 +26,7 @@ import org.apache.activemq6.core.server.HornetQComponent;
  * make sense on the NIO operations.
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @see org.apache.activemq6.utils.IDGenerator
+ * @see org.apache.activemq.utils.IDGenerator
  */
 public interface Journal extends HornetQComponent
 {

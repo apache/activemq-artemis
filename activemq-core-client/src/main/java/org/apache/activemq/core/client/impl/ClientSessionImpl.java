@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -23,28 +23,28 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.FailoverEventListener;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.ConsumerContext;
-import org.apache.activemq6.spi.core.remoting.SessionContext;
-import org.apache.activemq6.utils.ConfirmationWindowWarning;
-import org.apache.activemq6.utils.TokenBucketLimiterImpl;
-import org.apache.activemq6.utils.XidCodecSupport;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.FailoverEventListener;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.spi.core.remoting.SessionContext;
+import org.apache.activemq.utils.ConfirmationWindowWarning;
+import org.apache.activemq.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.utils.XidCodecSupport;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -359,7 +359,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    /**
-    * Use {@link #addressQuery(org.apache.activemq6.api.core.SimpleString)} instead
+    * Use {@link #addressQuery(org.apache.activemq.api.core.SimpleString)} instead
     *
     * @param address
     * @return

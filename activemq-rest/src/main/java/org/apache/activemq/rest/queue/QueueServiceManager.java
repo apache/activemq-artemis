@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue;
+package org.apache.activemq.rest.queue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.rest.queue.push.FilePushStore;
-import org.apache.activemq6.rest.queue.push.PushStore;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.rest.queue.push.FilePushStore;
+import org.apache.activemq.rest.queue.push.PushStore;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

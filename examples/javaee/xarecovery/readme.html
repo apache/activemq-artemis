@@ -53,7 +53,7 @@
 
          <li>We look up the EJB</li>
          <pre class="prettyprint">
-             <code>XARecoveryExampleService service = (XARecoveryExampleService) initialContext.lookup("ejb:/test//XARecoveryExampleBean!org.apache.activemq6.javaee.example.server.XARecoveryExampleService");</code>
+             <code>XARecoveryExampleService service = (XARecoveryExampleService) initialContext.lookup("ejb:/test//XARecoveryExampleBean!org.apache.activemq.javaee.example.server.XARecoveryExampleService");</code>
          </pre>
 
          <li>We invoke the EJB's <code>send</code> method. This method will send a JMS text message (with the text passed in parameter)

@@ -11,14 +11,14 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
 
 /**
  * A class that will locate a particular live server running in a cluster. How this live is chosen

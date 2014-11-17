@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.management;
+package org.apache.activemq.api.core.management;
 
 /**
  * A HornetQComponentControl is used to manage the life cycle of a HornetQ component.

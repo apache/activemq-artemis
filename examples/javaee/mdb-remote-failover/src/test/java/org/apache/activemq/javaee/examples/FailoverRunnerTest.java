@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.examples;
+package org.apache.activemq.javaee.examples;
 
-import org.apache.activemq6.javaee.example.MDBRemoteFailoverClientExample;
-import org.apache.activemq6.javaee.example.server.MDBRemoteFailoverExample;
-import org.apache.activemq6.javaee.example.server.ServerKiller;
+import org.apache.activemq.javaee.example.MDBRemoteFailoverClientExample;
+import org.apache.activemq.javaee.example.server.MDBRemoteFailoverExample;
+import org.apache.activemq.javaee.example.server.ServerKiller;
 import org.jboss.arquillian.container.test.api.*;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;

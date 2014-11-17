@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.QUEUE_DOES_NOT_EXIST;
+import static org.apache.activemq.api.core.HornetQExceptionType.QUEUE_DOES_NOT_EXIST;
 
 /**
  * An operation failed because a queue does not exist on the server.

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.tools.container;
+package org.apache.activemq.jms.tests.tools.container;
 
 import javax.naming.InitialContext;
 import java.rmi.Remote;
@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.jms.server.JMSServerManager;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.jms.server.JMSServerManager;
 
 /**
  * The remote interface exposed by TestServer.

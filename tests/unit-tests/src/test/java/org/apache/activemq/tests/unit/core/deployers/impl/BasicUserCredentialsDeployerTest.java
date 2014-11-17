@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.deployers.impl;
+package org.apache.activemq.tests.unit.core.deployers.impl;
 import org.junit.Before;
 import org.junit.After;
 
 import org.junit.Test;
 
 import org.junit.Assert;
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.deployers.impl.BasicUserCredentialsDeployer;
-import org.apache.activemq6.core.security.CheckType;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.impl.BasicUserCredentialsDeployer;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 

@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
 import java.util.HashSet;
 
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq6.tests.integration.cluster.util.SameProcessHornetQServer;
-import org.apache.activemq6.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.SESSION_CREATION_REJECTED;
+import static org.apache.activemq.api.core.HornetQExceptionType.SESSION_CREATION_REJECTED;
 
 /**
  * The creation of a session was rejected by the server (e.g. if the server is starting and has not

@@ -11,38 +11,38 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton.converter.jms;
+package org.apache.activemq.core.protocol.proton.converter.jms;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.message.impl.MessageInternal;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.message.impl.MessageInternal;
 
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesMessageReset;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadBoolean;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadByte;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadBytes;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadChar;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadDouble;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadFloat;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadInt;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadLong;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadShort;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadUTF;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadUnsignedByte;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesReadUnsignedShort;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteBoolean;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteByte;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteBytes;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteChar;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteDouble;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteFloat;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteInt;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteLong;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteObject;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteShort;
-import static org.apache.activemq6.reader.BytesMessageUtil.bytesWriteUTF;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesMessageReset;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadBoolean;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadByte;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadBytes;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadChar;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadDouble;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadFloat;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadInt;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadLong;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadShort;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadUTF;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadUnsignedByte;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesReadUnsignedShort;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteBoolean;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteByte;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteBytes;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteChar;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteDouble;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteFloat;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteInt;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteLong;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteObject;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteShort;
+import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteUTF;
 
 
 /**

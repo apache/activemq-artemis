@@ -10,23 +10,23 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.persistence.GroupingInfo;
-import org.apache.activemq6.core.persistence.QueueBindingInfo;
-import org.apache.activemq6.core.persistence.impl.PageCountPending;
-import org.apache.activemq6.core.persistence.impl.journal.AddMessageRecord;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.transaction.Transaction;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.persistence.GroupingInfo;
+import org.apache.activemq.core.persistence.QueueBindingInfo;
+import org.apache.activemq.core.persistence.impl.PageCountPending;
+import org.apache.activemq.core.persistence.impl.journal.AddMessageRecord;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.transaction.Transaction;
 
 public interface JournalLoader
 {

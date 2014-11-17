@@ -10,28 +10,28 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.message.BodyEncoder;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
-import org.apache.activemq6.spi.core.remoting.SessionContext;
-import org.apache.activemq6.utils.DeflaterReader;
-import org.apache.activemq6.utils.HornetQBufferInputStream;
-import org.apache.activemq6.utils.TokenBucketLimiter;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.message.BodyEncoder;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
+import org.apache.activemq.spi.core.remoting.SessionContext;
+import org.apache.activemq.utils.DeflaterReader;
+import org.apache.activemq.utils.HornetQBufferInputStream;
+import org.apache.activemq.utils.TokenBucketLimiter;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * The client-side Producer.

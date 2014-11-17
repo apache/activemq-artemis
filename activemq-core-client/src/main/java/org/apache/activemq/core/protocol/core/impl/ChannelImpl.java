@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl;
+package org.apache.activemq.core.protocol.core.impl;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -21,20 +21,20 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.ChannelHandler;
-import org.apache.activemq6.core.protocol.core.CommandConfirmationHandler;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.ChannelHandler;
+import org.apache.activemq.core.protocol.core.CommandConfirmationHandler;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * A ChannelImpl

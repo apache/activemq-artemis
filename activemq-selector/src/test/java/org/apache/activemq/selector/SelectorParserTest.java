@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq6.selector;
+package org.apache.activemq.selector;
 
-import org.apache.activemq6.selector.filter.BooleanExpression;
-import org.apache.activemq6.selector.filter.ComparisonExpression;
-import org.apache.activemq6.selector.filter.Expression;
-import org.apache.activemq6.selector.filter.LogicExpression;
-import org.apache.activemq6.selector.filter.PropertyExpression;
-import org.apache.activemq6.selector.filter.XPathExpression;
+import org.apache.activemq.selector.filter.BooleanExpression;
+import org.apache.activemq.selector.filter.ComparisonExpression;
+import org.apache.activemq.selector.filter.Expression;
+import org.apache.activemq.selector.filter.LogicExpression;
+import org.apache.activemq.selector.filter.PropertyExpression;
+import org.apache.activemq.selector.filter.XPathExpression;
 import org.junit.Assert;
 import org.junit.Test;
 

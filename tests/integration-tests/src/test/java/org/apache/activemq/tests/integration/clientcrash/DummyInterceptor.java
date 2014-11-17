@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.clientcrash;
+package org.apache.activemq.tests.integration.clientcrash;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.HornetQInternalErrorException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveMessage;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
 /**
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>

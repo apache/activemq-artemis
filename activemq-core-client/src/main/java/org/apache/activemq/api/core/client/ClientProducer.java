@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
 
 /**
  * A ClientProducer is used to send messages to a specific address. Messages are then routed on the
@@ -24,13 +24,13 @@ import org.apache.activemq6.api.core.SimpleString;
  * <p>
  * The sending semantics can change depending on what blocking semantics are set via
  * {@link ServerLocator#setBlockOnDurableSend(boolean)} and
- * {@link org.apache.activemq6.api.core.client.ServerLocator#setBlockOnNonDurableSend(boolean)} . If set to
+ * {@link org.apache.activemq.api.core.client.ServerLocator#setBlockOnNonDurableSend(boolean)} . If set to
  * true then for each message type, durable and non durable respectively, any exceptions such as the
  * address not existing or security exceptions will be thrown at the time of send. Alternatively if
  * set to false then exceptions will only be logged on the server. <br>
  * <p>
  * The send rate can also be controlled via {@link ServerLocator#setProducerMaxRate(int)} and the
- * {@link org.apache.activemq6.api.core.client.ServerLocator#setProducerWindowSize(int)}. <br>
+ * {@link org.apache.activemq.api.core.client.ServerLocator#setProducerWindowSize(int)}. <br>
  * <br>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>

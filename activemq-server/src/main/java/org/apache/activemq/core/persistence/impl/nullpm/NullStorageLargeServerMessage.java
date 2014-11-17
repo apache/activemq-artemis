@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.persistence.impl.nullpm;
+package org.apache.activemq.core.persistence.impl.nullpm;
 
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
 
 /**
  * A NullStorageLargeServerMessage

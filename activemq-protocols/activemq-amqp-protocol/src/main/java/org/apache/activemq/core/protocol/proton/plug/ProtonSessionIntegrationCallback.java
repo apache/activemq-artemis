@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton.plug;
+package org.apache.activemq.core.protocol.proton.plug;
 
 
 import io.netty.buffer.ByteBuf;
@@ -23,20 +23,20 @@ import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.message.ProtonJMessage;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.protocol.proton.ProtonProtocolManager;
-import org.apache.activemq6.core.server.QueueQueryResult;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
-import org.apache.activemq6.utils.ByteUtil;
-import org.apache.activemq6.utils.IDGenerator;
-import org.apache.activemq6.utils.SimpleIDGenerator;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.protocol.proton.ProtonProtocolManager;
+import org.apache.activemq.core.server.QueueQueryResult;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
+import org.apache.activemq.utils.ByteUtil;
+import org.apache.activemq.utils.IDGenerator;
+import org.apache.activemq.utils.SimpleIDGenerator;
+import org.apache.activemq.utils.UUIDGenerator;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;

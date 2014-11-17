@@ -10,22 +10,22 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.server.config;
+package org.apache.activemq.tests.integration.jms.server.config;
 
 import org.junit.Test;
 
 import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.jms.server.JMSServerConfigParser;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq6.jms.server.config.TopicConfiguration;
-import org.apache.activemq6.jms.server.impl.JMSServerConfigParserImpl;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.jms.server.JMSServerConfigParser;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.jms.server.config.TopicConfiguration;
+import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
+import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A JMSServerConfigParserTest

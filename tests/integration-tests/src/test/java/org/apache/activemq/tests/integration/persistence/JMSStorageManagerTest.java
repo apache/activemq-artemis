@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.persistence;
+package org.apache.activemq.tests.integration.persistence;
 
 import org.junit.Test;
 
 import java.util.List;
 
-import org.apache.activemq6.jms.persistence.config.PersistedDestination;
-import org.apache.activemq6.jms.persistence.config.PersistedJNDI;
-import org.apache.activemq6.jms.persistence.config.PersistedType;
+import org.apache.activemq.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedType;
 
 /**
  * A JMSStorageManagerTest

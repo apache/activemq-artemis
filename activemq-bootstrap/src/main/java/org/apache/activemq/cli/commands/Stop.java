@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.cli.commands;
+package org.apache.activemq.cli.commands;
 
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
-import org.apache.activemq6.dto.BrokerDTO;
-import org.apache.activemq6.factory.BrokerFactory;
+import org.apache.activemq.dto.BrokerDTO;
+import org.apache.activemq.factory.BrokerFactory;
 
 import java.io.File;
 

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -42,10 +42,10 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 
 /**
  * A AppletExample

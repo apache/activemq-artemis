@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.TopicConnectionFactory;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.jms.JMSFactoryType;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.jms.JMSFactoryType;
 
 /**
  * A class that represents a TopicConnectionFactory.

@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * ClientLargeMessageImpl is only created when receiving large messages.

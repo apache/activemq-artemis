@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.journal;
+package org.apache.activemq.journal;
 
 
-import org.apache.activemq6.api.core.HornetQIOErrorException;
+import org.apache.activemq.api.core.HornetQIOErrorException;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.Messages;

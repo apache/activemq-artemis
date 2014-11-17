@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +34,8 @@ import javax.transaction.xa.Xid;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.jboss.tm.TxUtils;
 import org.junit.After;
 import org.junit.Before;

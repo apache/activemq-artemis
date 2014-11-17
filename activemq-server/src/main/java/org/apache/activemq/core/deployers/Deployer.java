@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.deployers;
+package org.apache.activemq.core.deployers;
 
 import java.net.URI;
 
-import org.apache.activemq6.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQComponent;
 
 /**
  * abstract class that helps with deployment of messaging components.

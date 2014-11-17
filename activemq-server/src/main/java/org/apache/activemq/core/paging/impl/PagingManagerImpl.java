@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.impl;
+package org.apache.activemq.core.paging.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -19,14 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.paging.PageTransactionInfo;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.PagingStoreFactory;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.paging.PageTransactionInfo;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.PagingStoreFactory;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>

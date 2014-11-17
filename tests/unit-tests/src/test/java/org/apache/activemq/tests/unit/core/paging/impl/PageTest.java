@@ -10,25 +10,25 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.paging.impl;
+package org.apache.activemq.tests.unit.core.paging.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.paging.impl.PagedMessageImpl;
-import org.apache.activemq6.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.paging.impl.PagedMessageImpl;
+import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

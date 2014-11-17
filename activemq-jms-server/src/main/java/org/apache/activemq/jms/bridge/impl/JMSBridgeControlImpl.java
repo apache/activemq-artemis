@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.bridge.impl;
+package org.apache.activemq.jms.bridge.impl;
 
 import javax.management.StandardMBean;
 
-import org.apache.activemq6.jms.bridge.JMSBridge;
-import org.apache.activemq6.jms.bridge.JMSBridgeControl;
-import org.apache.activemq6.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.jms.bridge.JMSBridge;
+import org.apache.activemq.jms.bridge.JMSBridgeControl;
+import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 
 /**
  * A JMSBridgeControlImpl

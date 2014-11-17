@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue;
+package org.apache.activemq.rest.queue;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.rest.util.LinkStrategy;
-import org.apache.activemq6.rest.util.TimeoutTask;
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.rest.util.LinkStrategy;
+import org.apache.activemq.rest.util.TimeoutTask;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

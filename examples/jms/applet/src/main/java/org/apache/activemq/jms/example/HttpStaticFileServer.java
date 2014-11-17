@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.common.example.HornetQExample;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 

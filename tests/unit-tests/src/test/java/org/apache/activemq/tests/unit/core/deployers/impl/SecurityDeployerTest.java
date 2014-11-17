@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.deployers.impl;
+package org.apache.activemq.tests.unit.core.deployers.impl;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.deployers.impl.SecurityDeployer;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.impl.SecurityDeployer;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public class SecurityDeployerTest extends UnitTestCase
    @Test
    public void testSingle() throws Exception
    {
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(conf);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(conf);
       deployer.deploy(e);
       HashSet<Role> roles = (HashSet<Role>) repository.getMatch("jms.topic.testTopic");
       Assert.assertNotNull(roles);
@@ -147,7 +147,7 @@ public class SecurityDeployerTest extends UnitTestCase
 
    private void testWithWhiteSpace(String conf) throws Exception
    {
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(confWithWhiteSpace1);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(confWithWhiteSpace1);
       deployer.deploy(e);
       HashSet<Role> roles = (HashSet<Role>) repository.getMatch("jms.topic.testTopic");
       Assert.assertNotNull(roles);
@@ -194,8 +194,8 @@ public class SecurityDeployerTest extends UnitTestCase
    @Test
    public void testMultiple() throws Exception
    {
-      deployer.deploy(org.apache.activemq6.utils.XMLUtil.stringToElement(conf));
-      deployer.deploy(org.apache.activemq6.utils.XMLUtil.stringToElement(conf2));
+      deployer.deploy(org.apache.activemq.utils.XMLUtil.stringToElement(conf));
+      deployer.deploy(org.apache.activemq.utils.XMLUtil.stringToElement(conf2));
       HashSet<Role> roles = (HashSet<Role>) repository.getMatch("jms.topic.testTopic");
       Assert.assertNotNull(roles);
       Assert.assertEquals(3, roles.size());
@@ -281,7 +281,7 @@ public class SecurityDeployerTest extends UnitTestCase
    @Test
    public void testNoRolesAdded() throws Exception
    {
-      deployer.deploy(org.apache.activemq6.utils.XMLUtil.stringToElement(noRoles));
+      deployer.deploy(org.apache.activemq.utils.XMLUtil.stringToElement(noRoles));
       HashSet<Role> roles = (HashSet<Role>) repository.getMatch("jms.topic.testQueue");
       Assert.assertNull(roles);
    }
@@ -300,7 +300,7 @@ public class SecurityDeployerTest extends UnitTestCase
          + "</security-settings>"
          + "</configuration>";
 
-      Element rootNode = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
       deployer.validate(rootNode);
       NodeList securityNodes = rootNode.getElementsByTagName("security-setting");
       Assert.assertEquals(1, securityNodes.getLength());

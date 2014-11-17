@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.stress.remote;
+package org.apache.activemq.tests.stress.remote;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -18,21 +18,21 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
@@ -81,7 +81,7 @@ public class PingStressTest extends ServiceTestBase
     */
    private void internalTest() throws Exception
    {
-      final TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory");
+      final TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory");
 
       Interceptor noPongInterceptor = new Interceptor()
       {

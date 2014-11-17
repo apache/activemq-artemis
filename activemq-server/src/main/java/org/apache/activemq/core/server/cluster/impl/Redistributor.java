@@ -10,28 +10,28 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.impl;
+package org.apache.activemq.core.server.cluster.impl;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.Consumer;
-import org.apache.activemq6.core.server.HandleStatus;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.impl.TransactionImpl;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.Consumer;
+import org.apache.activemq.core.server.HandleStatus;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * A Redistributor
@@ -298,7 +298,7 @@ public class Redistributor implements Consumer
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.server.Consumer#getDeliveringMessages()
+    * @see org.apache.activemq.core.server.Consumer#getDeliveringMessages()
     */
    @Override
    public List<MessageReference> getDeliveringMessages()

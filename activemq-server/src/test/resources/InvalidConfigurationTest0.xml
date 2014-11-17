@@ -52,32 +52,32 @@
       <memory-measure-interval>54321</memory-measure-interval>
 
       <remoting-interceptors>
-         <class-name>org.apache.activemq6.tests.unit.core.config.impl.TestInterceptor1</class-name>
-         <class-name>org.apache.activemq6.tests.unit.core.config.impl.TestInterceptor2</class-name>
+         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1</class-name>
+         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2</class-name>
       </remoting-interceptors>
 
       <connectors>
          <connector name="connector1">
-            <factory-class>org.apache.activemq6.tests.unit.core.config.impl.TestConnectorFactory1</factory-class>
+            <factory-class>org.apache.activemq.tests.unit.core.config.impl.TestConnectorFactory1</factory-class>
             <param key="a1" value="v1"/>
             <param key="a2" value="123"/>
             <param key="a3" value="345"/>
             <param key="a4" value="v4"/>
          </connector>
          <connector name="connector2">
-            <factory-class>org.apache.activemq6.tests.unit.core.config.impl.TestConnectorFactory2</factory-class>
+            <factory-class>org.apache.activemq.tests.unit.core.config.impl.TestConnectorFactory2</factory-class>
             <param key="b1" value="w1"/>
             <param key="b2" value="234"/>
          </connector>
       </connectors>
       <acceptors>
          <acceptor name="acceptor1">
-            <factory-class>org.apache.activemq6.tests.unit.core.config.impl.TestAcceptorFactory1</factory-class>
+            <factory-class>org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory1</factory-class>
             <param key="d1" value="y1"/>
             <param key="d2" value="456"/>
          </acceptor>
    	     <acceptor name="acceptor2">
-   	        <factory-class>org.apache.activemq6.tests.unit.core.config.impl.TestAcceptorFactory2</factory-class>
+   	        <factory-class>org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory2</factory-class>
    	        <param key="e1" value="z1"/>
    	        <param key="e2" value="567"/>
    	     </acceptor>

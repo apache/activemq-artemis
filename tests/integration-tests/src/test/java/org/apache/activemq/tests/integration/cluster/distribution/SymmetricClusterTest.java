@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.distribution;
+package org.apache.activemq.tests.integration.cluster.distribution;
 import org.junit.Before;
 import org.junit.After;
 
 import org.junit.Test;
 
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A SymmetricClusterTest

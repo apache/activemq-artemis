@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton.converter.jms;
+package org.apache.activemq.core.protocol.proton.converter.jms;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -20,12 +20,12 @@ import javax.jms.Message;
 import java.util.Collections;
 import java.util.Enumeration;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQQueue;
-import org.apache.activemq6.reader.MessageUtil;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQQueue;
+import org.apache.activemq.reader.MessageUtil;
 
 /**
  * @author Clebert Suconic

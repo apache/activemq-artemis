@@ -10,20 +10,20 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.vertx;
+package org.apache.activemq.integration.vertx;
 
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.ConnectorService;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.utils.ConfigurationHelper;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.utils.ConfigurationHelper;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.eventbus.EventBus;
@@ -80,7 +80,7 @@ public class IncomingVertxEventHandler implements ConnectorService
       this.haGroup = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_HA_GROUP,
                "hornetq", configuration);
       this.vertxAddress = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_ADDRESS,
-               "org.apache.activemq6", configuration);
+               "org.apache.activemq", configuration);
 
       this.storageManager = storageManager;
       this.postOffice = postOffice;

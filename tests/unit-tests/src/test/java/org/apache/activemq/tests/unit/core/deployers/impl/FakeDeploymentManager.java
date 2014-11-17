@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.deployers.impl;
+package org.apache.activemq.tests.unit.core.deployers.impl;
 
-import org.apache.activemq6.core.deployers.Deployer;
-import org.apache.activemq6.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.Deployer;
+import org.apache.activemq.core.deployers.DeploymentManager;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

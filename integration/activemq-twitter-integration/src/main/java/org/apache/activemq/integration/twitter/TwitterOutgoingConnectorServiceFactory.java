@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.twitter;
+package org.apache.activemq.integration.twitter;
 
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.ConnectorService;
-import org.apache.activemq6.core.server.ConnectorServiceFactory;
-import org.apache.activemq6.integration.twitter.impl.OutgoingTweetsHandler;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.core.server.ConnectorServiceFactory;
+import org.apache.activemq.integration.twitter.impl.OutgoingTweetsHandler;
 
 import java.util.Map;
 import java.util.Set;

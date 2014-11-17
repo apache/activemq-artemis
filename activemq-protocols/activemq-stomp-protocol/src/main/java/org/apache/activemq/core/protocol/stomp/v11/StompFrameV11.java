@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.stomp.v11;
+package org.apache.activemq.core.protocol.stomp.v11;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.core.protocol.stomp.Stomp;
-import org.apache.activemq6.core.protocol.stomp.StompFrame;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.core.protocol.stomp.StompFrame;
 
 /**
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>

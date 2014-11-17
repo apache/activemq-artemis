@@ -11,17 +11,17 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.unit.core.config.impl.fakes;
+package org.apache.activemq.tests.unit.core.config.impl.fakes;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.ConnectorService;
-import org.apache.activemq6.core.server.ConnectorServiceFactory;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.core.server.ConnectorServiceFactory;
 
 /**
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>

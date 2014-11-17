@@ -10,31 +10,31 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.twitter;
+package org.apache.activemq.tests.integration.twitter;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.server.ConnectorService;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.integration.twitter.TwitterConstants;
-import org.apache.activemq6.integration.twitter.TwitterIncomingConnectorServiceFactory;
-import org.apache.activemq6.integration.twitter.TwitterOutgoingConnectorServiceFactory;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.integration.twitter.TwitterConstants;
+import org.apache.activemq.integration.twitter.TwitterIncomingConnectorServiceFactory;
+import org.apache.activemq.integration.twitter.TwitterOutgoingConnectorServiceFactory;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;

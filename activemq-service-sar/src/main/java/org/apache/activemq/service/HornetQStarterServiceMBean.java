@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.service;
+package org.apache.activemq.service;
 
-import org.apache.activemq6.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServer;
 
 /**
  * @author <a href="mailto:lucazamador@gmail.com">Lucaz Amador</a>

@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.remoting.impl.ssl;
+package org.apache.activemq.tests.unit.core.remoting.impl.ssl;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq6.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

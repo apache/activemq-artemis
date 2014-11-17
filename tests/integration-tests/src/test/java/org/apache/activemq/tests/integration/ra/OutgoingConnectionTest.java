@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.ra;
+package org.apache.activemq.tests.integration.ra;
 
 import javax.jms.Connection;
 import javax.jms.JMSContext;
@@ -35,23 +35,23 @@ import javax.transaction.xa.Xid;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.ra.HornetQRAConnectionFactory;
-import org.apache.activemq6.ra.HornetQRAConnectionFactoryImpl;
-import org.apache.activemq6.ra.HornetQRAConnectionManager;
-import org.apache.activemq6.ra.HornetQRAManagedConnectionFactory;
-import org.apache.activemq6.ra.HornetQRASession;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.utils.UUIDGenerator;
-import org.apache.activemq6.ra.HornetQXAResourceWrapper;
-import org.apache.activemq6.utils.VersionLoader;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.ra.HornetQRAConnectionFactory;
+import org.apache.activemq.ra.HornetQRAConnectionFactoryImpl;
+import org.apache.activemq.ra.HornetQRAConnectionManager;
+import org.apache.activemq.ra.HornetQRAManagedConnectionFactory;
+import org.apache.activemq.ra.HornetQRASession;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.ra.HornetQXAResourceWrapper;
+import org.apache.activemq.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

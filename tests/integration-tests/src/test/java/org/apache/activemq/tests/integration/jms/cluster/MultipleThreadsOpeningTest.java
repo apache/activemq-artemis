@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.cluster;
+package org.apache.activemq.tests.integration.jms.cluster;
 
 import javax.jms.Connection;
 import javax.jms.Session;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.tests.util.JMSClusteredTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 
 /**

@@ -11,19 +11,19 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton.plug;
+package org.apache.activemq.core.protocol.proton.plug;
 
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.apache.activemq6.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq6.core.protocol.proton.HornetQProtonRemotingConnection;
-import org.apache.activemq6.core.protocol.proton.ProtonProtocolManager;
-import org.apache.activemq6.core.protocol.proton.sasl.HornetQPlainSASL;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.core.protocol.proton.HornetQProtonRemotingConnection;
+import org.apache.activemq.core.protocol.proton.ProtonProtocolManager;
+import org.apache.activemq.core.protocol.proton.sasl.HornetQPlainSASL;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.utils.ReusableLatch;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPSessionCallback;

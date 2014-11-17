@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.factory;
+package org.apache.activemq.factory;
 
-import org.apache.activemq6.cli.ConfigurationException;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
-import org.apache.activemq6.dto.CoreDTO;
-import org.apache.activemq6.utils.FactoryFinder;
+import org.apache.activemq.cli.ConfigurationException;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.dto.CoreDTO;
+import org.apache.activemq.utils.FactoryFinder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,7 +31,7 @@ public class CoreFactory
          URI configURI = new URI(core.configuration.replace("\\", "/"));
          try
          {
-            FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq6/broker/core/");
+            FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/broker/core/");
             factory = (CoreFactoryHandler)finder.newInstance(configURI.getScheme());
          }
          catch (IOException ioe )

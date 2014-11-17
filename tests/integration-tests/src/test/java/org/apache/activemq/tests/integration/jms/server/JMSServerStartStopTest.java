@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.server;
+package org.apache.activemq.tests.integration.jms.server;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -21,19 +21,19 @@ import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.config.impl.FileConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.impl.FileConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

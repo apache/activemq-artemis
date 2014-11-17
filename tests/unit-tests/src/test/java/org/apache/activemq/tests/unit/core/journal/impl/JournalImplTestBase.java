@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.journal.impl;
+package org.apache.activemq.tests.unit.core.journal.impl;
 import org.junit.Before;
 import org.junit.After;
 
@@ -26,16 +26,16 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.TestableJournal;
-import org.apache.activemq6.core.journal.impl.ExportJournal;
-import org.apache.activemq6.core.journal.impl.ImportJournal;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.TestableJournal;
+import org.apache.activemq.core.journal.impl.ExportJournal;
+import org.apache.activemq.core.journal.impl.ImportJournal;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  *

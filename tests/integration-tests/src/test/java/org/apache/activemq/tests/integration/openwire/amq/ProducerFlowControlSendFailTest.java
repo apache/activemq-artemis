@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.openwire.amq;
+package org.apache.activemq.tests.integration.openwire.amq;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,9 +27,9 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

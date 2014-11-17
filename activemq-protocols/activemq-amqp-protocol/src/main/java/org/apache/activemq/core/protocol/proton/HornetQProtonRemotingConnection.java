@@ -11,15 +11,15 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton;
+package org.apache.activemq.core.protocol.proton;
 
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.spi.core.protocol.AbstractRemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Connection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.spi.core.protocol.AbstractRemotingConnection;
+import org.apache.activemq.spi.core.remoting.Connection;
 import org.proton.plug.AMQPConnectionContext;
 
 /**

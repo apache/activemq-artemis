@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.server;
+package org.apache.activemq.tests.integration.server;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.logging.AssertionLoggerHandler;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.logging.AssertionLoggerHandler;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

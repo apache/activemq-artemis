@@ -16,5 +16,5 @@
  * HornetQ JMS resources can be managed either using JMX or by sending JMS management messages to the
  * server's special management address. Please refer to the user manual for more information.
  */
-package org.apache.activemq6.api.jms.management;
+package org.apache.activemq.api.jms.management;
 

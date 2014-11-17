@@ -11,11 +11,11 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.reader;
+package org.apache.activemq.reader;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * @author Clebert Suconic

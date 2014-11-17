@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.embedded;
+package org.apache.activemq.jms.server.embedded;
 
 import javax.naming.Context;
 
-import org.apache.activemq6.core.registry.JndiBindingRegistry;
-import org.apache.activemq6.core.registry.MapBindingRegistry;
-import org.apache.activemq6.core.server.embedded.EmbeddedHornetQ;
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
+import org.apache.activemq.core.registry.MapBindingRegistry;
+import org.apache.activemq.core.server.embedded.EmbeddedHornetQ;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 /**
  * Simple bootstrap class that parses hornetq config files (server and jms and security) and starts

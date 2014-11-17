@@ -11,13 +11,13 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.unit.xa;
+package org.apache.activemq.tests.unit.xa;
 
 import javax.transaction.xa.XAResource;
 
-import org.apache.activemq6.ra.HornetQRAXAResource;
-import org.apache.activemq6.ra.HornetQXAResourceWrapper;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.ra.HornetQRAXAResource;
+import org.apache.activemq.ra.HornetQXAResourceWrapper;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.jboss.tm.XAResourceWrapper;
 import org.junit.Test;
 

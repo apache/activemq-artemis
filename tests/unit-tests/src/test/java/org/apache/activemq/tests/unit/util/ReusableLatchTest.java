@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Test;
 

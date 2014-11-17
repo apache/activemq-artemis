@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.timing.core.server.impl;
+package org.apache.activemq.tests.timing.core.server.impl;
 import org.junit.Before;
 import org.junit.After;
 
@@ -26,13 +26,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.server.Consumer;
-import org.apache.activemq6.core.server.HandleStatus;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.tests.unit.core.server.impl.fakes.FakeConsumer;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.Consumer;
+import org.apache.activemq.core.server.HandleStatus;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.tests.unit.core.server.impl.fakes.FakeConsumer;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>

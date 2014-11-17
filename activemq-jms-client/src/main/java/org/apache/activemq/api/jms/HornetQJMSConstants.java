@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.jms;
+package org.apache.activemq.api.jms;
 
 /**
  * Constants for HornetQ for property keys used for HornetQ specific extensions to JMS.

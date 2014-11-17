@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.SessionFailureListener;
 
 public final class CountDownSessionFailureListener implements SessionFailureListener
 {

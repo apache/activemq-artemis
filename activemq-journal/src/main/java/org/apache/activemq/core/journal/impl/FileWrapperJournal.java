@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -19,24 +19,24 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQUnsupportedPacketException;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.journal.IOCompletion;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.journal.JournalLoadInformation;
-import org.apache.activemq6.core.journal.LoaderCallback;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.TransactionFailureCallback;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalAddRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalAddRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalCompleteRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalCompleteRecordTX.TX_RECORD_TYPE;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalDeleteRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalDeleteRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQUnsupportedPacketException;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.journal.IOCompletion;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.journal.JournalLoadInformation;
+import org.apache.activemq.core.journal.LoaderCallback;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.TransactionFailureCallback;
+import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalCompleteRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalCompleteRecordTX.TX_RECORD_TYPE;
+import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 
 /**
  * Journal used at a replicating backup server during the synchronization of data with the 'live'

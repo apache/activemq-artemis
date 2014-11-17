@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.jms.client;
+package org.apache.activemq.tests.unit.jms.client;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.CONNECTION_TIMEDOUT;
-import static org.apache.activemq6.api.core.HornetQExceptionType.GENERIC_EXCEPTION;
-import static org.apache.activemq6.api.core.HornetQExceptionType.INVALID_FILTER_EXPRESSION;
+import static org.apache.activemq.api.core.HornetQExceptionType.CONNECTION_TIMEDOUT;
+import static org.apache.activemq.api.core.HornetQExceptionType.GENERIC_EXCEPTION;
+import static org.apache.activemq.api.core.HornetQExceptionType.INVALID_FILTER_EXPRESSION;
 
 import javax.jms.IllegalStateException;
 import javax.jms.InvalidDestinationException;
@@ -22,10 +22,10 @@ import javax.jms.InvalidSelectorException;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.jms.client.JMSExceptionHelper;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.jms.client.JMSExceptionHelper;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

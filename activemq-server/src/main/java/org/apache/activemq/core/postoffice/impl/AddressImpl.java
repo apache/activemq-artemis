@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.postoffice.impl;
+package org.apache.activemq.core.postoffice.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.postoffice.Address;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.postoffice.Address;
 
 /**
  * splits an address string into its hierarchical parts split by '.'

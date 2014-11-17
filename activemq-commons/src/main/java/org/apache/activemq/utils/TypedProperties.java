@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -20,21 +20,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.SimpleString;
 
-import static org.apache.activemq6.utils.DataConstants.BOOLEAN;
-import static org.apache.activemq6.utils.DataConstants.BYTE;
-import static org.apache.activemq6.utils.DataConstants.BYTES;
-import static org.apache.activemq6.utils.DataConstants.CHAR;
-import static org.apache.activemq6.utils.DataConstants.DOUBLE;
-import static org.apache.activemq6.utils.DataConstants.FLOAT;
-import static org.apache.activemq6.utils.DataConstants.INT;
-import static org.apache.activemq6.utils.DataConstants.LONG;
-import static org.apache.activemq6.utils.DataConstants.NULL;
-import static org.apache.activemq6.utils.DataConstants.SHORT;
-import static org.apache.activemq6.utils.DataConstants.STRING;
+import static org.apache.activemq.utils.DataConstants.BOOLEAN;
+import static org.apache.activemq.utils.DataConstants.BYTE;
+import static org.apache.activemq.utils.DataConstants.BYTES;
+import static org.apache.activemq.utils.DataConstants.CHAR;
+import static org.apache.activemq.utils.DataConstants.DOUBLE;
+import static org.apache.activemq.utils.DataConstants.FLOAT;
+import static org.apache.activemq.utils.DataConstants.INT;
+import static org.apache.activemq.utils.DataConstants.LONG;
+import static org.apache.activemq.utils.DataConstants.NULL;
+import static org.apache.activemq.utils.DataConstants.SHORT;
+import static org.apache.activemq.utils.DataConstants.STRING;
 
 /**
  * Property Value Conversion.

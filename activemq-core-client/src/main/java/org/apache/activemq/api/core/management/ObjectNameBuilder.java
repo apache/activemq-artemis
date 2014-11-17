@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.management;
+package org.apache.activemq.api.core.management;
 
 import javax.management.ObjectName;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.SimpleString;
 
 /**
  * Helper class to build ObjectNames for HornetQ resources.
@@ -157,7 +157,7 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by JMSServerControl.
-    * @see org.apache.activemq6.api.jms.management.JMSServerControl
+    * @see org.apache.activemq.api.jms.management.JMSServerControl
     */
    public ObjectName getJMSServerObjectName() throws Exception
    {
@@ -166,7 +166,7 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by JMSQueueControl.
-    * @see org.apache.activemq6.api.jms.management.JMSQueueControl
+    * @see org.apache.activemq.api.jms.management.JMSQueueControl
     */
    public ObjectName getJMSQueueObjectName(final String name) throws Exception
    {
@@ -185,7 +185,7 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by ConnectionFactoryControl.
-    * @see org.apache.activemq6.api.jms.management.ConnectionFactoryControl
+    * @see org.apache.activemq.api.jms.management.ConnectionFactoryControl
     */
    public ObjectName getConnectionFactoryObjectName(final String name) throws Exception
    {

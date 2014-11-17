@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.javaee.examples;
+package org.apache.activemq.javaee.examples;
 
-import org.apache.activemq6.javaee.example.JMSBridgeExample;
+import org.apache.activemq.javaee.example.JMSBridgeExample;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Test;

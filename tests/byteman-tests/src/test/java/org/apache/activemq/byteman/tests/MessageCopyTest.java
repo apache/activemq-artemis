@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionSendMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.tests.util.RandomUtil;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.tests.util.RandomUtil;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -43,7 +43,7 @@ public class MessageCopyTest
                @BMRule
                   (
                      name = "message-copy0",
-                     targetClass = "org.apache.activemq6.core.server.impl.ServerMessageImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.ServerMessageImpl",
                      targetMethod = "copy()",
                      targetLocation = "ENTRY",
                      action = "System.out.println(\"copy\"), waitFor(\"encode-done\")"
@@ -51,15 +51,15 @@ public class MessageCopyTest
                @BMRule
                   (
                      name = "message-copy-done",
-                     targetClass = "org.apache.activemq6.core.protocol.core.impl.wireformat.SessionSendMessage",
-                     targetMethod = "encode(org.apache.activemq6.spi.core.protocol.RemotingConnection)",
+                     targetClass = "org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage",
+                     targetMethod = "encode(org.apache.activemq.spi.core.protocol.RemotingConnection)",
                      targetLocation = "EXIT",
                      action = "System.out.println(\"encodeDone\"), signalWake(\"encode-done\", true)"
                   ),
                @BMRule
                   (
                      name = "message-copy1",
-                     targetClass = "org.apache.activemq6.core.buffers.impl.ChannelBufferWrapper",
+                     targetClass = "org.apache.activemq.core.buffers.impl.ChannelBufferWrapper",
                      targetMethod = "copy(int, int)",
                      condition = "Thread.currentThread().getName().equals(\"T1\")",
                      targetLocation = "EXIT",
@@ -67,7 +67,7 @@ public class MessageCopyTest
                   ),
                @BMRule(
                   name = "JMSServer.stop wait-init",
-                  targetClass = "org.apache.activemq6.byteman.tests.MessageCopyTest",
+                  targetClass = "org.apache.activemq.byteman.tests.MessageCopyTest",
                   targetMethod = "simulateRead",
                   targetLocation = "EXIT",
                   action = "signalWake(\"finish-read\", true)"

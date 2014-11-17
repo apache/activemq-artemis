@@ -13,7 +13,7 @@
 /**
  *
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -21,9 +21,9 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.Session;
 import javax.jms.XAJMSContext;
 
-import org.apache.activemq6.api.jms.HornetQJMSConstants;
-import org.apache.activemq6.utils.ReferenceCounter;
-import org.apache.activemq6.utils.ReferenceCounterUtil;
+import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.utils.ReferenceCounter;
+import org.apache.activemq.utils.ReferenceCounterUtil;
 
 public abstract class HornetQConnectionForContextImpl implements HornetQConnectionForContext
 {

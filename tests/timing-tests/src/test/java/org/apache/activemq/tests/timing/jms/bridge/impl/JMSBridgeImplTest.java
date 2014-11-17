@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.timing.jms.bridge.impl;
+package org.apache.activemq.tests.timing.jms.bridge.impl;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -38,26 +38,26 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq6.jms.bridge.DestinationFactory;
-import org.apache.activemq6.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq6.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq6.jms.client.HornetQJMSConnectionFactory;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.unit.util.InVMNamingContext;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.jms.bridge.DestinationFactory;
+import org.apache.activemq.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

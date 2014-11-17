@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire;
+package org.apache.activemq.core.protocol.openwire;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,27 +57,27 @@ import org.apache.activemq.state.SessionState;
 import org.apache.activemq.util.IdGenerator;
 import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQConnectionContext;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQPersistenceAdapter;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQProducerBrokerExchange;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQServerSession;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQTransportConnectionState;
-import org.apache.activemq6.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq6.core.security.CheckType;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq6.spi.core.protocol.MessageConverter;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.protocol.openwire.amq.AMQConnectionContext;
+import org.apache.activemq.core.protocol.openwire.amq.AMQPersistenceAdapter;
+import org.apache.activemq.core.protocol.openwire.amq.AMQProducerBrokerExchange;
+import org.apache.activemq.core.protocol.openwire.amq.AMQServerSession;
+import org.apache.activemq.core.protocol.openwire.amq.AMQSession;
+import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionState;
+import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.spi.core.protocol.MessageConverter;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
 
 public class OpenWireProtocolManager implements ProtocolManager
 {

@@ -11,28 +11,28 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.paging;
+package org.apache.activemq.tests.integration.paging;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.HAPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.HAPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * Support class for server that are using an external process on the testsuite
@@ -60,7 +60,7 @@ public class SpawnedServerSupport
       Configuration conf = ServiceTestBase.createBasicConfig(folder, 0)
          .setPersistenceEnabled(true)
          .addAddressesSetting("#", settings)
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory"));
+         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory"));
 
       return conf;
    }
@@ -134,7 +134,7 @@ public class SpawnedServerSupport
          className = NettyConnectorFactory.class.getName();
       }
       Map<String, Object> serverParams = new HashMap<String, Object>();
-      serverParams.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
+      serverParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
       return new TransportConfiguration(className, serverParams);
    }
 

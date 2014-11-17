@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.server;
+package org.apache.activemq.tests.integration.server;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq6.core.server.ServerMessage;
+import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.core.server.ServerMessage;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

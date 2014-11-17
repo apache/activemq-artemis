@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor.impl;
+package org.apache.activemq.core.paging.cursor.impl;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.cursor.PageCache;
-import org.apache.activemq6.core.paging.impl.Page;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.cursor.PageCache;
+import org.apache.activemq.core.paging.impl.Page;
 
 /**
  * The caching associated to a single page.

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.stomp;
+package org.apache.activemq.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -23,36 +23,36 @@ import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationListener;
-import org.apache.activemq6.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq6.spi.core.protocol.MessageConverter;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationListener;
+import org.apache.activemq.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.spi.core.protocol.MessageConverter;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.UUIDGenerator;
 
-import static org.apache.activemq6.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * StompProtocolManager

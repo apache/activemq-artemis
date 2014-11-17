@@ -11,11 +11,11 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.javaee.examples;
+package org.apache.activemq.javaee.examples;
 
-import org.apache.activemq6.javaee.example.MDBRemoteFailoverStaticClientExample;
-import org.apache.activemq6.javaee.example.server.MDBRemoteFailoverStaticExample;
-import org.apache.activemq6.javaee.example.server.ServerKiller;
+import org.apache.activemq.javaee.example.MDBRemoteFailoverStaticClientExample;
+import org.apache.activemq.javaee.example.server.MDBRemoteFailoverStaticExample;
+import org.apache.activemq.javaee.example.server.ServerKiller;
 import org.jboss.arquillian.container.test.api.ContainerController;
 import org.jboss.arquillian.container.test.api.Deployer;
 import org.jboss.arquillian.container.test.api.Deployment;

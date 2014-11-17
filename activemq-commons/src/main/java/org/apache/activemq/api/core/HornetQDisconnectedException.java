@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.DISCONNECTED;
+import static org.apache.activemq.api.core.HornetQExceptionType.DISCONNECTED;
 
 /**
  * A client was disconnected from HornetQ server when the server has shut down.

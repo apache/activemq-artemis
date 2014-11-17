@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -18,11 +18,11 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 
 public class BackupSyncPagingTest extends BackupSyncJournalTest
 {

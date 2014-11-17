@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.soak.example;
+package org.apache.activemq.jms.soak.example;
 
 import java.lang.Override;
 import java.lang.Runnable;

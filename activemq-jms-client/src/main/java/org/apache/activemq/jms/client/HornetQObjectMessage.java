@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.JMSException;
 import javax.jms.MessageFormatException;
@@ -21,10 +21,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
 
 /**
  * HornetQ implementation of a JMS ObjectMessage.
@@ -151,7 +151,7 @@ public class HornetQObjectMessage extends HornetQMessage implements ObjectMessag
       try
       {
          ByteArrayInputStream bais = new ByteArrayInputStream(data);
-         ObjectInputStream ois = new org.apache.activemq6.utils.ObjectInputStreamWithClassLoader(bais);
+         ObjectInputStream ois = new org.apache.activemq.utils.ObjectInputStreamWithClassLoader(bais);
          Serializable object = (Serializable)ois.readObject();
          return object;
       }

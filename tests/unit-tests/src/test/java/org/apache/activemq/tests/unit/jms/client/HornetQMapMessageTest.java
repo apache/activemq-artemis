@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.jms.client;
+package org.apache.activemq.tests.unit.jms.client;
 import javax.jms.MessageFormatException;
 
-import org.apache.activemq6.jms.client.HornetQMapMessage;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.jms.client.HornetQMapMessage;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

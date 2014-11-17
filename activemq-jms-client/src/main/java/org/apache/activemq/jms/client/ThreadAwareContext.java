@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
-import org.apache.activemq6.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.ConcurrentHashSet;
 
 import javax.jms.IllegalStateException;
 import java.util.Set;

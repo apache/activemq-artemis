@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config.impl;
+package org.apache.activemq.core.config.impl;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
-import org.apache.activemq6.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 
 /**
@@ -70,9 +70,9 @@ public final class FileConfiguration extends ConfigurationImpl
       HornetQServerLogger.LOGGER.debug("Loading server configuration from " + url);
 
       Reader reader = new InputStreamReader(url.openStream());
-      String xml = org.apache.activemq6.utils.XMLUtil.readerToString(reader);
+      String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
       xml = XMLUtil.replaceSystemProps(xml);
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
 
       FileConfigurationParser parser = new FileConfigurationParser();
 

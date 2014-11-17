@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 
 
 /**
  * The basic configuration used to determine how the server will broadcast members
- * This is analogous to {@link org.apache.activemq6.api.core.DiscoveryGroupConfiguration}
+ * This is analogous to {@link org.apache.activemq.api.core.DiscoveryGroupConfiguration}
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>

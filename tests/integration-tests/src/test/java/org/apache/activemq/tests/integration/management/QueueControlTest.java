@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.management;
+package org.apache.activemq.tests.integration.management;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -19,34 +19,34 @@ import java.util.concurrent.TimeUnit;
 
 import javax.management.Notification;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.MessageHandler;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.DayCounterInfo;
-import org.apache.activemq6.api.core.management.HornetQServerControl;
-import org.apache.activemq6.api.core.management.MessageCounterInfo;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.messagecounter.impl.MessageCounterManagerImpl;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.tests.integration.jms.server.management.JMSUtil;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.utils.json.JSONArray;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.MessageHandler;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.DayCounterInfo;
+import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.MessageCounterInfo;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.tests.integration.jms.server.management.JMSUtil;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.utils.json.JSONArray;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1735,7 +1735,7 @@ public class QueueControlTest extends ManagementTestBase
       {
          ClientMessage msg = session.createMessage(true);
 
-         msg.putStringProperty(org.apache.activemq6.api.core.Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
+         msg.putStringProperty(org.apache.activemq.api.core.Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
 
          prod1.send(msg);
       }
@@ -1808,7 +1808,7 @@ public class QueueControlTest extends ManagementTestBase
       {
          ClientMessage msg = session.createMessage(true);
 
-         msg.putStringProperty(org.apache.activemq6.api.core.Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
+         msg.putStringProperty(org.apache.activemq.api.core.Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
 
          prod1.send(msg);
       }

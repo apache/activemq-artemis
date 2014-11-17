@@ -16,4 +16,4 @@
 @javax.xml.bind.annotation.XmlSchema(
         namespace = "http://hornetq.org/schema",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.apache.activemq6.dto;
+package org.apache.activemq.dto;

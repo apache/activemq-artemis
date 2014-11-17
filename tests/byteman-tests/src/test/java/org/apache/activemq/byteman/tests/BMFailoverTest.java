@@ -11,34 +11,34 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.api.core.HornetQTransactionOutcomeUnknownException;
-import org.apache.activemq6.api.core.HornetQTransactionRolledBackException;
-import org.apache.activemq6.api.core.HornetQUnBlockedException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.client.impl.ClientMessageImpl;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.tests.integration.cluster.failover.FailoverTestBase;
-import org.apache.activemq6.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQTransactionOutcomeUnknownException;
+import org.apache.activemq.api.core.HornetQTransactionRolledBackException;
+import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase;
+import org.apache.activemq.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.utils.UUIDGenerator;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -109,10 +109,10 @@ public class BMFailoverTest extends FailoverTestBase
                      @BMRule
                            (
                                  name = "trace HornetQSessionContext xaEnd",
-                                 targetClass = "org.apache.activemq6.core.protocol.core.impl.HornetQSessionContext",
+                                 targetClass = "org.apache.activemq.core.protocol.core.impl.HornetQSessionContext",
                                  targetMethod = "xaEnd",
                                  targetLocation = "AT EXIT",
-                                 action = "org.apache.activemq6.byteman.tests.BMFailoverTest.stopAndThrow()"
+                                 action = "org.apache.activemq.byteman.tests.BMFailoverTest.stopAndThrow()"
                            )
                }
    )
@@ -200,10 +200,10 @@ public class BMFailoverTest extends FailoverTestBase
                @BMRule
                   (
                      name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq6.core.client.impl.ClientSessionImpl",
+                     targetClass = "org.apache.activemq.core.client.impl.ClientSessionImpl",
                      targetMethod = "start(javax.transaction.xa.Xid, int)",
                      targetLocation = "AT EXIT",
-                     action = "org.apache.activemq6.byteman.tests.BMFailoverTest.serverToStop.getServer().stop(true)"
+                     action = "org.apache.activemq.byteman.tests.BMFailoverTest.serverToStop.getServer().stop(true)"
                   )
             }
       )
@@ -303,10 +303,10 @@ public class BMFailoverTest extends FailoverTestBase
                @BMRule
                   (
                      name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq6.core.client.impl.ClientSessionImpl",
+                     targetClass = "org.apache.activemq.core.client.impl.ClientSessionImpl",
                      targetMethod = "commit",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq6.byteman.tests.BMFailoverTest.serverToStop.getServer().stop(true)"
+                     action = "org.apache.activemq.byteman.tests.BMFailoverTest.serverToStop.getServer().stop(true)"
                   )
             }
       )
@@ -344,10 +344,10 @@ public class BMFailoverTest extends FailoverTestBase
                @BMRule
                   (
                      name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq6.core.client.impl.ClientSessionImpl",
+                     targetClass = "org.apache.activemq.core.client.impl.ClientSessionImpl",
                      targetMethod = "commit",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq6.byteman.tests.BMFailoverTest.serverToStop.getServer().stop(true)"
+                     action = "org.apache.activemq.byteman.tests.BMFailoverTest.serverToStop.getServer().stop(true)"
                   )
             }
       )

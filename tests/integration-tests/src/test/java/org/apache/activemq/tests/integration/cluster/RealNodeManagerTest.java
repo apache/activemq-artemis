@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster;
+package org.apache.activemq.tests.integration.cluster;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.impl.FileLockNodeManager;
-import org.apache.activemq6.tests.util.SpawnedVMSupport;
-import org.apache.activemq6.utils.UUID;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.tests.util.SpawnedVMSupport;
+import org.apache.activemq.utils.UUID;
 import org.junit.Test;
 
 /**

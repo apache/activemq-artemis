@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.tools;
+package org.apache.activemq.jms.tests.tools;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.activemq6.jms.tests.JmsTestLogger;
-import org.apache.activemq6.jms.tests.tools.container.InVMInitialContextFactory;
-import org.apache.activemq6.jms.tests.tools.container.LocalTestServer;
-import org.apache.activemq6.jms.tests.tools.container.Server;
+import org.apache.activemq.jms.tests.JmsTestLogger;
+import org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory;
+import org.apache.activemq.jms.tests.tools.container.LocalTestServer;
+import org.apache.activemq.jms.tests.tools.container.Server;
 
 /**
  * Collection of static methods to use to start/stop and interact with the in-memory JMS server. It

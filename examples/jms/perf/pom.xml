@@ -3,24 +3,24 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6.examples.jms</groupId>
+      <groupId>org.apache.activemq.examples.jms</groupId>
       <artifactId>jms-examples</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq6-jms-perf-example</artifactId>
+   <artifactId>activemq-jms-perf-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ6 JMS PerfExample Example</name>
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-core-client</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-commons</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -39,8 +39,8 @@
          <version>5.0.5.Final</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6.examples.jms</groupId>
-         <artifactId>activemq6-jms-examples-common</artifactId>
+         <groupId>org.apache.activemq.examples.jms</groupId>
+         <artifactId>activemq-jms-examples-common</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -58,8 +58,8 @@
          <build>
             <plugins>
                <plugin>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-maven-plugin</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-maven-plugin</artifactId>
                   <executions>
                      <execution>
                         <id>start</id>
@@ -84,28 +84,28 @@
                   </configuration>
                   <dependencies>
                      <dependency>
-                        <groupId>org.apache.activemq6.examples.jms</groupId>
-                        <artifactId>activemq6-jms-perf-example</artifactId>
+                        <groupId>org.apache.activemq.examples.jms</groupId>
+                        <artifactId>activemq-jms-perf-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
-                        <groupId>org.apache.activemq6</groupId>
-                        <artifactId>activemq6-core-client</artifactId>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-core-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
-                        <groupId>org.apache.activemq6</groupId>
-                        <artifactId>activemq6-server</artifactId>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
-                        <groupId>org.apache.activemq6</groupId>
-                        <artifactId>activemq6-jms-client</artifactId>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-jms-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
-                        <groupId>org.apache.activemq6</groupId>
-                        <artifactId>activemq6-jms-server</artifactId>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-jms-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
@@ -145,7 +145,7 @@
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq6.jms.example.PerfListener</mainClass>
+                     <mainClass>org.apache.activemq.jms.example.PerfListener</mainClass>
                   </configuration>
                </plugin>
             </plugins>
@@ -168,7 +168,7 @@
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq6.jms.example.PerfSender</mainClass>
+                     <mainClass>org.apache.activemq.jms.example.PerfSender</mainClass>
                   </configuration>
                </plugin>
             </plugins>

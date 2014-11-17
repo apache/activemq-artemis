@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.concurrent.stomp;
+package org.apache.activemq.tests.concurrent.stomp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.core.protocol.stomp.Stomp;
-import org.apache.activemq6.tests.integration.stomp.StompTestBase;
+import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.tests.integration.stomp.StompTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 

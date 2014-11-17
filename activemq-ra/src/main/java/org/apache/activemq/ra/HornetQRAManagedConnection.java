@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -42,10 +42,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.jms.client.HornetQConnection;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQXAConnection;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.jms.client.HornetQConnection;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQXAConnection;
 
 /**
  * The managed connection

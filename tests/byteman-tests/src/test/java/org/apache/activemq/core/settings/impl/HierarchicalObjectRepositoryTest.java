@@ -13,7 +13,7 @@
 /**
  *
  */
-package org.apache.activemq6.core.settings.impl;
+package org.apache.activemq.core.settings.impl;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -31,9 +31,9 @@ import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 @BMRules(rules = { @BMRule(name = "modify map during iteration",
-         targetClass = "org.apache.activemq6.core.settings.impl.HierarchicalObjectRepository",
+         targetClass = "org.apache.activemq.core.settings.impl.HierarchicalObjectRepository",
          targetMethod = "getPossibleMatches(String)", targetLocation = "AT INVOKE java.util.HashMap.put",
-         action = "org.apache.activemq6.core.settings.impl.HierarchicalObjectRepositoryTest.bum()"), })
+         action = "org.apache.activemq.core.settings.impl.HierarchicalObjectRepositoryTest.bum()"), })
 public class HierarchicalObjectRepositoryTest
 {
    private static final String A = "a.";

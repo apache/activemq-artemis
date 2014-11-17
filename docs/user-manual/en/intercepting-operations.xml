@@ -35,7 +35,7 @@
       <title>Implementing The Interceptors</title>
       <para>An interceptor must implement the <literal>Interceptor interface</literal>:</para>
       <programlisting>
-package org.apache.activemq6.api.core.interceptor;
+package org.apache.activemq.api.core.interceptor;
 
 public interface Interceptor
 {   
@@ -58,13 +58,13 @@ public interface Interceptor
           <literal>hornetq-configuration.xml</literal>:</para>
       <programlisting>
 &lt;remoting-incoming-interceptors>
-   &lt;class-name>org.apache.activemq6.jms.example.LoginInterceptor&lt;/class-name>
-   &lt;class-name>org.apache.activemq6.jms.example.AdditionalPropertyInterceptor&lt;/class-name>
+   &lt;class-name>org.apache.activemq.jms.example.LoginInterceptor&lt;/class-name>
+   &lt;class-name>org.apache.activemq.jms.example.AdditionalPropertyInterceptor&lt;/class-name>
 &lt;/remoting-incoming-interceptors></programlisting>
       <programlisting>
 &lt;remoting-outgoing-interceptors>
-   &lt;class-name>org.apache.activemq6.jms.example.LogoutInterceptor&lt;/class-name>
-   &lt;class-name>org.apache.activemq6.jms.example.AdditionalPropertyInterceptor&lt;/class-name>
+   &lt;class-name>org.apache.activemq.jms.example.LogoutInterceptor&lt;/class-name>
+   &lt;class-name>org.apache.activemq.jms.example.AdditionalPropertyInterceptor&lt;/class-name>
 &lt;/remoting-outgoing-interceptors></programlisting>
       <para>The interceptors classes (and their dependencies) must be added to the server classpath
          to be properly instantiated and called.</para>

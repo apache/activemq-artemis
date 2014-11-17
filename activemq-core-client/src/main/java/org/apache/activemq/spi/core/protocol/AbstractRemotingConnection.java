@@ -11,21 +11,21 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.spi.core.protocol;
+package org.apache.activemq.spi.core.protocol;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.remoting.CloseListener;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.spi.core.remoting.Connection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.remoting.CloseListener;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.spi.core.remoting.Connection;
 
 /**
  * @author Clebert Suconic

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -34,15 +34,15 @@ import java.util.List;
 import java.util.Set;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.tests.tools.ServerManagement;
-import org.apache.activemq6.jms.tests.tools.container.Server;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.tests.tools.ServerManagement;
+import org.apache.activemq.jms.tests.tools.container.Server;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -58,7 +58,7 @@ import org.junit.runner.Description;
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @deprecated this infrastructure should not be used for new code. New tests should go into
- * org.apache.activemq6.tests.integration.jms at the integration-tests project.
+ * org.apache.activemq.tests.integration.jms at the integration-tests project.
  */
 @Deprecated
 public abstract class HornetQServerTestCase
@@ -188,7 +188,7 @@ public abstract class HornetQServerTestCase
 
    public String getContextFactory()
    {
-      return org.apache.activemq6.jms.tests.tools.container.InVMInitialContextFactory.class.getCanonicalName();
+      return org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory.class.getCanonicalName();
    }
 
    public void start() throws Exception

@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire;
+package org.apache.activemq.core.protocol.openwire;
 
 import java.io.DataInput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.utils.UTF8Util;
-import org.apache.activemq6.utils.UTF8Util.StringUtilBuffer;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.utils.UTF8Util;
+import org.apache.activemq.utils.UTF8Util.StringUtilBuffer;
 
 public class DataInputWrapper implements DataInput
 {

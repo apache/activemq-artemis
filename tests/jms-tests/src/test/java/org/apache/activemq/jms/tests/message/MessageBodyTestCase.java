@@ -13,13 +13,13 @@
 /**
  *
  */
-package org.apache.activemq6.jms.tests.message;
+package org.apache.activemq.jms.tests.message;
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import org.apache.activemq6.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.HornetQServerTestCase;
 import org.junit.Before;
 
 public abstract class MessageBodyTestCase extends HornetQServerTestCase

@@ -153,16 +153,16 @@
         <para>让我们看一段默认bean文件的内容：</para>
         <programlisting>           
 &lt;bean name="HornetQSecurityManager" 
-      class="org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl"&gt;
+      class="org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl"&gt;
     &lt;start ignored="true"/&gt;
     &lt;stop ignored="true"/&gt;
 &lt;/bean&gt;            
         </programlisting>
-        <para><literal>org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl</literal>
+        <para><literal>org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl</literal>
             类就是HornetQ服务器的在独立运行时的默认的安全管理器。</para>
         <para>HornetQ自带有另外两个安全管理器可供使用。一个是JAAS安全管理器，另一个是用来与JBoss应用服务
             器集成的安全管理器。此外，你还可以编写实现你自己的安全管理器。首先要实现
-            <literal>org.apache.activemq6.core.security.SecurityManager</literal>接口，再将你的实现
+            <literal>org.apache.activemq.core.security.SecurityManager</literal>接口，再将你的实现
             类定义到<literal>hornetq-beans.xml</literal>文件中即可（或者在JBoss应用服务器中
             使用<literal>hornetq-jboss-beans.xml</literal>文件）。</para>
         <para>以下分别介绍这两咱安全管理器</para>
@@ -175,11 +175,11 @@
             下面是一个例子：</para>
         <programlisting><![CDATA[
 &lt;bean name="HornetQSecurityManager"
-      class="org.apache.activemq6.integration.jboss.security.JAASSecurityManager"&gt;
+      class="org.apache.activemq.integration.jboss.security.JAASSecurityManager"&gt;
     &lt;start ignored="true"/&gt;
     &lt;stop ignored="true"/&gt;
 
-    &lt;property name="ConfigurationName"&gt;org.apache.activemq6.jms.example.ExampleLoginModule&lt;/property&gt;
+    &lt;property name="ConfigurationName"&gt;org.apache.activemq.jms.example.ExampleLoginModule&lt;/property&gt;
     &lt;property name="Configuration"&gt;
        &lt;inject bean="ExampleConfiguration"/&gt;
     &lt;/property&gt;
@@ -210,7 +210,7 @@
         <para>JBoss 应用服务器安全管理器适用于当HornetQ运行于JBoss应用服务器内时。它可以与JBoss应用服务器
             的安全模型紧密集成。</para>
         <para>此安全管理器的类是 <literal
-                >org.apache.activemq6.integration.jboss.security.JBossASSecurityManager</literal>。</para>
+                >org.apache.activemq.integration.jboss.security.JBossASSecurityManager</literal>。</para>
         <para>要了解如何配置JBoss安全管理器，可以看一眼HornetQ发布包中相关例子中的
             <literal>hornetq-jboss-beans.xml</literal>文件。</para>
        <section>

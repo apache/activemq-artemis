@@ -10,20 +10,20 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
 
 /**
  * A factory for creating acceptors.
  * <p/>
- * An Acceptor is an endpoint that a {@link org.apache.activemq6.spi.core.remoting.Connector} will connect to and is used by the remoting service.
+ * An Acceptor is an endpoint that a {@link org.apache.activemq.spi.core.remoting.Connector} will connect to and is used by the remoting service.
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>

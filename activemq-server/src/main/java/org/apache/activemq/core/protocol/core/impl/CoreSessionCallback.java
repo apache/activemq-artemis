@@ -10,23 +10,23 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl;
+package org.apache.activemq.core.protocol.core.impl;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionProducerCreditsFailMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveMessage;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsFailMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
 
 /**
  * A CoreSessionCallback

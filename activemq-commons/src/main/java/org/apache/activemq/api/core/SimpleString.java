@@ -11,13 +11,13 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * A simple String class that can store all characters, and stores as simple {@code byte[]}, this

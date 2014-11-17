@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -18,16 +18,16 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.utils.Base64;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.utils.Base64;
 
 /**
  * Use this class to export the journal data. You can use it as a main class or through its native method {@link ExportJournal#exportJournal(String, String, String, int, int, String)}
  *
  * If you use the main method, use it as  <JournalDirectory> <JournalPrefix> <FileExtension> <MinFiles> <FileSize> <FileOutput>
  *
- * Example: java -cp hornetq-core.jar org.apache.activemq6.core.journal.impl.ExportJournal /journalDir hornetq-data hq 2 10485760 /tmp/export.dat
+ * Example: java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.ExportJournal /journalDir hornetq-data hq 2 10485760 /tmp/export.dat
  *
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  *
@@ -50,7 +50,7 @@ public class ExportJournal
    {
       if (arg.length != 5)
       {
-         System.err.println("Use: java -cp hornetq-core.jar org.apache.activemq6.core.journal.impl.ExportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
+         System.err.println("Use: java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.ExportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
          return;
       }
 

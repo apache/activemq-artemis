@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy;
-import org.apache.activemq6.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy;
+import org.apache.activemq.core.client.impl.ServerLocatorImpl;
 
 /**
  * Utility class for creating HornetQ {@link ClientSessionFactory} objects.

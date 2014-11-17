@@ -10,36 +10,36 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.reattach;
+package org.apache.activemq.tests.integration.cluster.reattach;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.api.core.HornetQObjectClosedException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq6.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
+import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

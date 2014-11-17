@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire;
+package org.apache.activemq.core.protocol.openwire;
 
 
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.util.ByteSequence;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.SimpleString;
 
 public class OpenWireUtil
 {

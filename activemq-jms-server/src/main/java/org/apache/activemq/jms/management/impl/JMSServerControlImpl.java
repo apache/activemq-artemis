@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.management.impl;
+package org.apache.activemq.jms.management.impl;
 
 import javax.jms.JMSRuntimeException;
 import javax.management.ListenerNotFoundException;
@@ -29,35 +29,35 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.api.core.management.Parameter;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq6.api.jms.management.DestinationControl;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.api.jms.management.JMSServerControl;
-import org.apache.activemq6.api.jms.management.TopicControl;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.management.impl.AbstractControl;
-import org.apache.activemq6.core.management.impl.MBeanInfoHelper;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.server.HornetQJMSServerLogger;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq6.jms.server.management.JMSNotificationType;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.json.JSONArray;
-import org.apache.activemq6.utils.json.JSONObject;
+import org.apache.activemq.api.core.management.Parameter;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.api.jms.management.DestinationControl;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.api.jms.management.JMSServerControl;
+import org.apache.activemq.api.jms.management.TopicControl;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.management.impl.AbstractControl;
+import org.apache.activemq.core.management.impl.MBeanInfoHelper;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.jms.server.management.JMSNotificationType;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter,
-                                                                     org.apache.activemq6.core.server.management.NotificationListener
+                                                                     org.apache.activemq.core.server.management.NotificationListener
 {
 
    // Constants -----------------------------------------------------
@@ -888,7 +888,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    // Protected -----------------------------------------------------
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.management.impl.AbstractControl#fillMBeanOperationInfo()
+    * @see org.apache.activemq.core.management.impl.AbstractControl#fillMBeanOperationInfo()
     */
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo()
@@ -1036,7 +1036,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    }
 
    @Override
-   public void onNotification(org.apache.activemq6.core.server.management.Notification notification)
+   public void onNotification(org.apache.activemq.core.server.management.Notification notification)
    {
       if (!(notification.getType() instanceof JMSNotificationType)) return;
       JMSNotificationType type = (JMSNotificationType) notification.getType();

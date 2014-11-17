@@ -3,12 +3,12 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6.examples</groupId>
-      <artifactId>activemq6-examples</artifactId>
+      <groupId>org.apache.activemq.examples</groupId>
+      <artifactId>activemq-examples</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <groupId>org.apache.activemq6.examples.core</groupId>
+   <groupId>org.apache.activemq.examples.core</groupId>
    <artifactId>core-examples</artifactId>
    <packaging>pom</packaging>
    <name>ActiveMQ6 Core Examples</name>

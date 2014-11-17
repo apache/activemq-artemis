@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.config;
+package org.apache.activemq.jms.server.config;
 
 import java.util.List;
 
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.journal.EncodingSupport;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
  * A ConnectionFactoryConfiguration for {@link javax.jms.ConnectionFactory} objects.

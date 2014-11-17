@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra.inflow;
+package org.apache.activemq.ra.inflow;
 
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -27,10 +27,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.activemq6.ra.ConnectionFactoryProperties;
-import org.apache.activemq6.ra.HornetQRALogger;
-import org.apache.activemq6.ra.HornetQRaUtils;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.ConnectionFactoryProperties;
+import org.apache.activemq.ra.HornetQRALogger;
+import org.apache.activemq.ra.HornetQRaUtils;
+import org.apache.activemq.ra.HornetQResourceAdapter;
 
 /**
  * The activation spec

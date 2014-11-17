@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.replication.ReplicatedLargeMessage;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.replication.ReplicatedLargeMessage;
 
 
 /**

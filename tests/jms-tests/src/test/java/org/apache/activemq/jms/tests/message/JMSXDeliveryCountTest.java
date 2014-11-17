@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.message;
+package org.apache.activemq.jms.tests.message;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -29,8 +29,8 @@ import javax.transaction.xa.Xid;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 
-import org.apache.activemq6.jms.tests.HornetQServerTestCase;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 /**

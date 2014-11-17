@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 
 import java.util.Map;
 
-import org.apache.activemq6.core.security.HornetQPrincipal;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.management.NotificationService;
+import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.management.NotificationService;
 
 /**
  * An Acceptor is used by the RemotingService to allow clients to connect. It should take care of

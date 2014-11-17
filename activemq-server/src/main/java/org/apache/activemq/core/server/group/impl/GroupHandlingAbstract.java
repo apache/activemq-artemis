@@ -11,23 +11,23 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.group.impl;
+package org.apache.activemq.core.server.group.impl;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.group.GroupingHandler;
-import org.apache.activemq6.core.server.group.UnproposalListener;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.group.GroupingHandler;
+import org.apache.activemq.core.server.group.UnproposalListener;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * @author Clebert Suconic

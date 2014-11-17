@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.example;
+package org.apache.activemq.javaee.example;
 
-import org.apache.activemq6.javaee.example.server.MDB_CMT_SetRollbackOnlyExample;
+import org.apache.activemq.javaee.example.server.MDB_CMT_SetRollbackOnlyExample;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;

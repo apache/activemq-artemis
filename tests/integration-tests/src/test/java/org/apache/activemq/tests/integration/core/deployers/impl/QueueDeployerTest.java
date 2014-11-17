@@ -10,20 +10,20 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.core.deployers.impl;
+package org.apache.activemq.tests.integration.core.deployers.impl;
 import org.junit.Before;
 
 import org.junit.Test;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.deployers.impl.FileDeploymentManager;
-import org.apache.activemq6.core.deployers.impl.QueueDeployer;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.Bindings;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
+import org.apache.activemq.core.deployers.impl.QueueDeployer;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.Bindings;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -57,7 +57,7 @@ public class QueueDeployerTest extends ServiceTestBase
                    + "   </queues>"
                    + "</configuration>";
 
-      Element rootNode = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
       deployer.validate(rootNode);
       NodeList queueNodes = rootNode.getElementsByTagName("queue");
       assertEquals(1, queueNodes.getLength());

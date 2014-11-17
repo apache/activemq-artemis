@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnectionFactory;
@@ -18,7 +18,7 @@ import javax.resource.Referenceable;
 import javax.resource.ResourceException;
 import java.io.Serializable;
 
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
 
 /**
  * An aggregate interface for the JMS connection factories

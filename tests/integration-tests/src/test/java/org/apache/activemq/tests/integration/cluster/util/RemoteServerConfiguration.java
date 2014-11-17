@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.util;
+package org.apache.activemq.tests.integration.cluster.util;
 
-import org.apache.activemq6.core.config.Configuration;
+import org.apache.activemq.core.config.Configuration;
 
 /**
  * A RemoteServerConfiguration.

@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.asyncio.AsynchronousFile;
-import org.apache.activemq6.core.asyncio.BufferCallback;
-import org.apache.activemq6.core.asyncio.IOExceptionListener;
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.asyncio.AsynchronousFile;
+import org.apache.activemq.core.asyncio.BufferCallback;
+import org.apache.activemq.core.asyncio.IOExceptionListener;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
 
 /**
  *

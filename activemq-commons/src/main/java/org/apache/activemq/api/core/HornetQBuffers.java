@@ -11,12 +11,12 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.Unpooled;
-import org.apache.activemq6.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 
 /**
  * Factory class to create instances of {@link HornetQBuffer}.

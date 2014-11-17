@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.registry;
+package org.apache.activemq.core.registry;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

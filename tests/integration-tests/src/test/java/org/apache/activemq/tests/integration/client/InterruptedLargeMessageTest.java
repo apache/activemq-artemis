@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.client;
+package org.apache.activemq.tests.integration.client;
 
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -22,37 +22,37 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionContinuationMessage;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.QueueFactory;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.core.server.impl.ServerSessionImpl;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.integration.largemessage.LargeMessageTestBase;
-import org.apache.activemq6.utils.ExecutorFactory;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionContinuationMessage;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueFactory;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
+import org.apache.activemq.utils.ExecutorFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -586,7 +586,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq6.core.server.QueueFactory#setPostOffice(org.apache.activemq6.core.postoffice.PostOffice)
+          * @see org.apache.activemq.core.server.QueueFactory#setPostOffice(org.apache.activemq.core.postoffice.PostOffice)
           */
          public void setPostOffice(PostOffice postOffice)
          {

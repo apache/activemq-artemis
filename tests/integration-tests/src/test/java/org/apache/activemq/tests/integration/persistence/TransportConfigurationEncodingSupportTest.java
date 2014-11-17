@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.persistence;
+package org.apache.activemq.tests.integration.persistence;
 
 import org.junit.Test;
 
@@ -19,14 +19,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.jms.server.config.impl.TransportConfigurationEncodingSupport;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.api.core.Pair;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.jms.server.config.impl.TransportConfigurationEncodingSupport;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.api.core.Pair;
 
 import org.junit.Assert;
 

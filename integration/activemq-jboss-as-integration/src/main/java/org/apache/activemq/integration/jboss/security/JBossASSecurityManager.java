@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.jboss.security;
+package org.apache.activemq.integration.jboss.security;
 
 import java.security.AccessController;
 import java.security.Principal;
@@ -21,11 +21,11 @@ import java.util.Set;
 import javax.naming.InitialContext;
 import javax.security.auth.Subject;
 
-import org.apache.activemq6.core.security.CheckType;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.integration.jboss.HornetQJBossLogger;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.integration.jboss.HornetQJBossLogger;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
 import org.jboss.security.AuthenticationManager;
 import org.jboss.security.RealmMapping;
 import org.jboss.security.SecurityContext;

@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration;
+package org.apache.activemq.tests.integration;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;

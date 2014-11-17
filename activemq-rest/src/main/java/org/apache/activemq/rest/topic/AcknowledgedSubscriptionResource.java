@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.topic;
+package org.apache.activemq.rest.topic;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.rest.queue.AcknowledgedQueueConsumer;
-import org.apache.activemq6.rest.queue.DestinationServiceManager;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.rest.queue.AcknowledgedQueueConsumer;
+import org.apache.activemq.rest.queue.DestinationServiceManager;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

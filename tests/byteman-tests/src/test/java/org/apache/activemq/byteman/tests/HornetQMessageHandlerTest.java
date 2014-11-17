@@ -10,22 +10,22 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
-import org.apache.activemq6.tests.integration.ra.HornetQRATestBase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.tests.integration.ra.HornetQRATestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -74,10 +74,10 @@ public class HornetQMessageHandlerTest extends HornetQRATestBase
                @BMRule
                      (
                            name = "interrupt",
-                           targetClass = "org.apache.activemq6.core.protocol.core.impl.HornetQSessionContext",
+                           targetClass = "org.apache.activemq.core.protocol.core.impl.HornetQSessionContext",
                            targetMethod = "xaEnd",
                            targetLocation = "ENTRY",
-                           action = "org.apache.activemq6.byteman.tests.HornetQMessageHandlerTest.interrupt();"
+                           action = "org.apache.activemq.byteman.tests.HornetQMessageHandlerTest.interrupt();"
                      )
             }
    )
@@ -154,10 +154,10 @@ public class HornetQMessageHandlerTest extends HornetQRATestBase
                            @BMRule
                                  (
                                        name = "interrupt",
-                                       targetClass = "org.apache.activemq6.core.protocol.core.impl.HornetQSessionContext",
+                                       targetClass = "org.apache.activemq.core.protocol.core.impl.HornetQSessionContext",
                                        targetMethod = "xaEnd",
                                        targetLocation = "ENTRY",
-                                       action = "org.apache.activemq6.byteman.tests.HornetQMessageHandlerTest.interrupt();"
+                                       action = "org.apache.activemq.byteman.tests.HornetQMessageHandlerTest.interrupt();"
                                  )
                      }
          )

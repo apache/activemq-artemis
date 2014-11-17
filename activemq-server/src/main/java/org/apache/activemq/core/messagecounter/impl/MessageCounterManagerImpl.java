@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.messagecounter.impl;
+package org.apache.activemq.core.messagecounter.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,9 +21,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.core.messagecounter.MessageCounter;
-import org.apache.activemq6.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.core.messagecounter.MessageCounter;
+import org.apache.activemq.core.messagecounter.MessageCounterManager;
 
 /**
  *

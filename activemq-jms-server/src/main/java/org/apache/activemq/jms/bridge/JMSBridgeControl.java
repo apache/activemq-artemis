@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.bridge;
+package org.apache.activemq.jms.bridge;
 
-import org.apache.activemq6.api.core.management.HornetQComponentControl;
+import org.apache.activemq.api.core.management.HornetQComponentControl;
 
 /**
  * A JMSBridgeControl

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.asyncio.impl;
+package org.apache.activemq.core.asyncio.impl;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
@@ -24,15 +24,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.core.asyncio.AIOCallback;
-import org.apache.activemq6.core.asyncio.AsynchronousFile;
-import org.apache.activemq6.core.asyncio.BufferCallback;
-import org.apache.activemq6.core.asyncio.IOExceptionListener;
-import org.apache.activemq6.core.libaio.Native;
-import org.apache.activemq6.journal.HornetQJournalLogger;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.core.asyncio.AIOCallback;
+import org.apache.activemq.core.asyncio.AsynchronousFile;
+import org.apache.activemq.core.asyncio.BufferCallback;
+import org.apache.activemq.core.asyncio.IOExceptionListener;
+import org.apache.activemq.core.libaio.Native;
+import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * AsynchronousFile implementation

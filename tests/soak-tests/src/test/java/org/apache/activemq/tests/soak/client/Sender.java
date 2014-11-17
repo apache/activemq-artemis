@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.soak.client;
+package org.apache.activemq.tests.soak.client;
 
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
 
 /**
  * A Sender
@@ -85,7 +85,7 @@ public class Sender extends ClientAbstract
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.jms.example.ClientAbstract#onCommit()
+    * @see org.apache.activemq.jms.example.ClientAbstract#onCommit()
     */
    @Override
    protected void onCommit()
@@ -100,7 +100,7 @@ public class Sender extends ClientAbstract
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.jms.example.ClientAbstract#onRollback()
+    * @see org.apache.activemq.jms.example.ClientAbstract#onRollback()
     */
    @Override
    protected void onRollback()

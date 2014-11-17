@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

@@ -84,4 +84,4 @@ done
 JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Dhornetq.home=$HORNETQ_HOME -Ddata.dir=$HORNETQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration=file:$HORNETQ_HOME/config/logging.properties -Djava.library.path=$HORNETQ_HOME/bin/lib/linux-i686:$HORNETQ_HOME/bin/lib/linux-x86_64"
 #JAVA_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces"
 
-exec "$JAVACMD" $JAVA_ARGS -classpath $CLASSPATH org.apache.activemq6.cli.HornetQ $@
+exec "$JAVACMD" $JAVA_ARGS -classpath $CLASSPATH org.apache.activemq.cli.HornetQ $@

@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.service;
+package org.apache.activemq.service;
 
 import org.jboss.logging.annotations.MessageLogger;
 

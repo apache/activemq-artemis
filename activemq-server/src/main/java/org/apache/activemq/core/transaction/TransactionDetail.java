@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.transaction;
+package org.apache.activemq.core.transaction;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -19,11 +19,11 @@ import java.util.Map;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.utils.json.JSONArray;
-import org.apache.activemq6.utils.json.JSONObject;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * A TransactionDetail
@@ -86,11 +86,11 @@ public abstract class TransactionDetail
       {
          String opClassName = op.getClass().getName();
          String opType = null;
-         if (opClassName.equals("org.apache.activemq6.core.postoffice.impl.PostOfficeImpl$AddOperation"))
+         if (opClassName.equals("org.apache.activemq.core.postoffice.impl.PostOfficeImpl$AddOperation"))
          {
             opType = "(+) send";
          }
-         else if (opClassName.equals("org.apache.activemq6.core.server.impl.QueueImpl$RefsOperation"))
+         else if (opClassName.equals("org.apache.activemq.core.server.impl.QueueImpl$RefsOperation"))
          {
             opType = "(-) receive";
          }

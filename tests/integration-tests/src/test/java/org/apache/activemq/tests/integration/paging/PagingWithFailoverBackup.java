@@ -11,12 +11,12 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.paging;
+package org.apache.activemq.tests.integration.paging;
 
-import org.apache.activemq6.tests.util.SpawnedVMSupport;
+import org.apache.activemq.tests.util.SpawnedVMSupport;
 
 /**
- * There is no difference between this class and {@link org.apache.activemq6.tests.integration.paging.PagingWithFailoverServer}
+ * There is no difference between this class and {@link org.apache.activemq.tests.integration.paging.PagingWithFailoverServer}
  * other than helping us identify it on the logs, as it will show with a different name through spawned logs
  *
  * @author Clebert Suconic

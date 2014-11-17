@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.management.impl;
+package org.apache.activemq.core.management.impl;
 
 import javax.management.MBeanOperationInfo;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.management.ClusterConnectionControl;
-import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.utils.json.JSONArray;
+import org.apache.activemq.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.utils.json.JSONArray;
 
 /**
  * A ClusterConnectionControl

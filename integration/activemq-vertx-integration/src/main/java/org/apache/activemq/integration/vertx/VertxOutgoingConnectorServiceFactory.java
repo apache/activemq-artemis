@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.vertx;
+package org.apache.activemq.integration.vertx;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.ConnectorService;
-import org.apache.activemq6.core.server.ConnectorServiceFactory;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.core.server.ConnectorServiceFactory;
 
 public class VertxOutgoingConnectorServiceFactory implements ConnectorServiceFactory
 {

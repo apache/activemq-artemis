@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.persistence.impl.journal;
+package org.apache.activemq.core.persistence.impl.journal;
 
 import javax.transaction.xa.Xid;
 import java.io.File;
@@ -41,85 +41,85 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.api.core.HornetQInternalErrorException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.journal.IOCriticalErrorListener;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.journal.JournalLoadInformation;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.TransactionFailureCallback;
-import org.apache.activemq6.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.JournalFile;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.core.paging.PageTransactionInfo;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.cursor.PagePosition;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.paging.cursor.PagedReferenceImpl;
-import org.apache.activemq6.core.paging.cursor.impl.PagePositionImpl;
-import org.apache.activemq6.core.paging.impl.PageTransactionInfoImpl;
-import org.apache.activemq6.core.persistence.GroupingInfo;
-import org.apache.activemq6.core.persistence.OperationContext;
-import org.apache.activemq6.core.persistence.QueueBindingInfo;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.config.PersistedAddressSetting;
-import org.apache.activemq6.core.persistence.config.PersistedRoles;
-import org.apache.activemq6.core.persistence.impl.PageCountPending;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.DuplicateIDCache;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
-import org.apache.activemq6.core.replication.ReplicatedJournal;
-import org.apache.activemq6.core.replication.ReplicationManager;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RouteContextList;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.group.impl.GroupBinding;
-import org.apache.activemq6.core.server.impl.JournalLoader;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.Transaction.State;
-import org.apache.activemq6.core.transaction.TransactionOperation;
-import org.apache.activemq6.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq6.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq6.core.transaction.impl.TransactionImpl;
-import org.apache.activemq6.utils.Base64;
-import org.apache.activemq6.utils.ByteUtil;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.ExecutorFactory;
-import org.apache.activemq6.utils.HornetQThreadFactory;
-import org.apache.activemq6.utils.XidCodecSupport;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.journal.JournalLoadInformation;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.TransactionFailureCallback;
+import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.core.paging.PageTransactionInfo;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.cursor.PagePosition;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.paging.cursor.PagedReferenceImpl;
+import org.apache.activemq.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.core.persistence.GroupingInfo;
+import org.apache.activemq.core.persistence.OperationContext;
+import org.apache.activemq.core.persistence.QueueBindingInfo;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.core.persistence.config.PersistedRoles;
+import org.apache.activemq.core.persistence.impl.PageCountPending;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
+import org.apache.activemq.core.replication.ReplicatedJournal;
+import org.apache.activemq.core.replication.ReplicationManager;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RouteContextList;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.group.impl.GroupBinding;
+import org.apache.activemq.core.server.impl.JournalLoader;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.Transaction.State;
+import org.apache.activemq.core.transaction.TransactionOperation;
+import org.apache.activemq.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.utils.Base64;
+import org.apache.activemq.utils.ByteUtil;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.XidCodecSupport;
 
-import static org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
-import static org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
-import static org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
-import static org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
-import static org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
-import static org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
-import static org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
+import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
+import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
+import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
+import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
+import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
+import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
+import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 
 /**
  * Controls access to the journals and other storage files such as the ones used to store pages and
@@ -352,7 +352,7 @@ public class JournalStorageManager implements StorageManager
     * To achieve (2), instead of writing directly to instances of {@link JournalImpl}, we write to
     * instances of {@link ReplicatedJournal}.
     * <p/>
-    * At the backup-side replication is handled by {@link org.apache.activemq6.core.replication.ReplicationEndpoint}.
+    * At the backup-side replication is handled by {@link org.apache.activemq.core.replication.ReplicationEndpoint}.
     *
     * @param replicationManager
     * @param pagingManager
@@ -3110,7 +3110,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
       public void decode(final HornetQBuffer buffer)
       {
@@ -3118,7 +3118,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
       public void encode(final HornetQBuffer buffer)
       {
@@ -3126,7 +3126,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#getEncodeSize()
+       * @see org.apache.activemq.core.journal.EncodingSupport#getEncodeSize()
        */
       public int getEncodeSize()
       {
@@ -3149,7 +3149,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
       public void decode(final HornetQBuffer buffer)
       {
@@ -3157,7 +3157,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.apache.activemq6.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
       public void encode(final HornetQBuffer buffer)
       {
@@ -3165,7 +3165,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#getEncodeSize()
+       * @see org.apache.activemq.core.journal.EncodingSupport#getEncodeSize()
        */
       public int getEncodeSize()
       {
@@ -3274,7 +3274,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#getEncodeSize()
+       * @see org.apache.activemq.core.journal.EncodingSupport#getEncodeSize()
        */
       @Override
       public int getEncodeSize()
@@ -3283,7 +3283,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#encode(org.apache.activemq6.api.core.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.api.core.HornetQBuffer)
        */
       @Override
       public void encode(HornetQBuffer buffer)
@@ -3293,7 +3293,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.EncodingSupport#decode(org.apache.activemq6.api.core.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.api.core.HornetQBuffer)
        */
       @Override
       public void decode(HornetQBuffer buffer)
@@ -3466,7 +3466,7 @@ public class JournalStorageManager implements StorageManager
     * This is only used when loading a transaction.
     * <p/>
     * it might be possible to merge the functionality of this class with
-    * {@link org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager.FinishPageMessageOperation}
+    * {@link org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.FinishPageMessageOperation}
     */
    // TODO: merge this class with the one on the PagingStoreImpl
    private static class FinishPageMessageOperation extends TransactionOperationAbstract implements TransactionOperation

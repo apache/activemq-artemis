@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 import javax.jms.*;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.utils.TokenBucketLimiter;
-import org.apache.activemq6.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.utils.TokenBucketLimiter;
+import org.apache.activemq.utils.TokenBucketLimiterImpl;
 
 /**
  *

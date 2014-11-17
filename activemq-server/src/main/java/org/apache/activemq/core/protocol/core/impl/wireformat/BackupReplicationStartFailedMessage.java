@@ -13,10 +13,10 @@
 /**
  *
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * Informs the Backup trying to start replicating of an error.
- * @see org.apache.activemq6.core.server.impl.ReplicationError
+ * @see org.apache.activemq.core.server.impl.ReplicationError
  */
 public final class BackupReplicationStartFailedMessage extends PacketImpl
 {

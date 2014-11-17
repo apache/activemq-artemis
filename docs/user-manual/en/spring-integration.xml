@@ -27,7 +27,7 @@
   <title>Spring Integration</title>
 
   <para>HornetQ provides a simple bootstrap class,
-  <literal>org.apache.activemq6.integration.spring.SpringJmsBootstrap</literal>, for
+  <literal>org.apache.activemq.integration.spring.SpringJmsBootstrap</literal>, for
   integration with Spring. To use it, you configure HornetQ as you always
   would, through its various configuration files like
   <literal>hornetq-configuration.xml</literal>,
@@ -70,9 +70,9 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-   &lt;bean id="EmbeddedJms" class="org.apache.activemq6.integration.spring.SpringJmsBootstrap" init-method="start"/>
+   &lt;bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start"/>
 
-   &lt;bean id="listener" class="org.apache.activemq6.tests.integration.spring.ExampleListener"/>
+   &lt;bean id="listener" class="org.apache.activemq.tests.integration.spring.ExampleListener"/>
     
    &lt;bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
       &lt;property name="connectionFactory" ref="ConnectionFactory"/>

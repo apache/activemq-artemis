@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.client;
+package org.apache.activemq.tests.integration.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -19,14 +19,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.impl.FilterImpl;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.impl.FilterImpl;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
 /**

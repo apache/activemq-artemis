@@ -11,15 +11,15 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.remoting.impl;
+package org.apache.activemq.core.remoting.impl;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.TransportConfigurationHelper;
-import org.apache.activemq6.utils.ClassloadingUtil;
+import org.apache.activemq.api.core.TransportConfigurationHelper;
+import org.apache.activemq.utils.ClassloadingUtil;
 
 /**
  * Stores static mappings of class names to ConnectorFactory instances to act as a central repo for ConnectorFactory

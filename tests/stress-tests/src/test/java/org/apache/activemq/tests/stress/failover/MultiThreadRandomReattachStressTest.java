@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.stress.failover;
+package org.apache.activemq.tests.stress.failover;
 
-import org.apache.activemq6.tests.integration.cluster.reattach.MultiThreadRandomReattachTest;
+import org.apache.activemq.tests.integration.cluster.reattach.MultiThreadRandomReattachTest;
 
 /**
  * A MultiThreadRandomFailoverStressTest

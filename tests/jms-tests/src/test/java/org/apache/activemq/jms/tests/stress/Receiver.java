@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.stress;
+package org.apache.activemq.jms.tests.stress;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,7 @@ import javax.jms.ServerSession;
 import javax.jms.ServerSessionPool;
 import javax.jms.Session;
 
-import org.apache.activemq6.jms.tests.JmsTestLogger;
+import org.apache.activemq.jms.tests.JmsTestLogger;
 
 /**
  * Receives messages from a destination for stress testing

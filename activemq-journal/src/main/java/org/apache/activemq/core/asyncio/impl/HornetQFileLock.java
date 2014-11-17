@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.asyncio.impl;
+package org.apache.activemq.core.asyncio.impl;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
-import org.apache.activemq6.core.libaio.Native;
+import org.apache.activemq.core.libaio.Native;
 
 /**
  * A HornetQFileLock

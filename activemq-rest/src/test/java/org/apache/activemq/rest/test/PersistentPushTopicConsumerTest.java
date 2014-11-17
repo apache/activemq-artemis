@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.test;
+package org.apache.activemq.rest.test;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -18,18 +18,18 @@ import javax.ws.rs.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
-import org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.rest.MessageServiceManager;
-import org.apache.activemq6.rest.queue.push.xml.XmlLink;
-import org.apache.activemq6.rest.topic.PushTopicRegistration;
-import org.apache.activemq6.rest.topic.TopicDeployment;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.rest.MessageServiceManager;
+import org.apache.activemq.rest.queue.push.xml.XmlLink;
+import org.apache.activemq.rest.topic.PushTopicRegistration;
+import org.apache.activemq.rest.topic.TopicDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;

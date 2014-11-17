@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq6.selector;
+package org.apache.activemq.selector;
 
 import java.util.HashMap;
 
-import org.apache.activemq6.selector.filter.BooleanExpression;
-import org.apache.activemq6.selector.filter.FilterException;
-import org.apache.activemq6.selector.filter.Filterable;
+import org.apache.activemq.selector.filter.BooleanExpression;
+import org.apache.activemq.selector.filter.FilterException;
+import org.apache.activemq.selector.filter.Filterable;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.postoffice.impl;
+package org.apache.activemq.tests.unit.core.postoffice.impl;
 
-import org.apache.activemq6.core.server.impl.RefsOperation;
+import org.apache.activemq.core.server.impl.RefsOperation;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -21,22 +21,22 @@ import java.util.Set;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.postoffice.Bindings;
-import org.apache.activemq6.core.postoffice.impl.BindingsImpl;
-import org.apache.activemq6.core.server.Bindable;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.RoutingContextImpl;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionOperation;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.postoffice.Bindings;
+import org.apache.activemq.core.postoffice.impl.BindingsImpl;
+import org.apache.activemq.core.server.Bindable;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.RoutingContextImpl;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionOperation;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A BindingImplTest
@@ -204,7 +204,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.transaction.Transaction#rollback()
+       * @see org.apache.activemq.core.transaction.Transaction#rollback()
        */
       public void rollback() throws Exception
       {
@@ -212,7 +212,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.transaction.Transaction#setState(org.apache.activemq6.core.transaction.Transaction.State)
+       * @see org.apache.activemq.core.transaction.Transaction#setState(org.apache.activemq.core.transaction.Transaction.State)
        */
       public void setState(final State state)
       {
@@ -220,7 +220,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.transaction.Transaction#suspend()
+       * @see org.apache.activemq.core.transaction.Transaction#suspend()
        */
       public void suspend()
       {
@@ -228,7 +228,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.transaction.Transaction#getDistinctQueues()
+       * @see org.apache.activemq.core.transaction.Transaction#getDistinctQueues()
        */
       public Set<Queue> getDistinctQueues()
       {
@@ -267,7 +267,7 @@ public class BindingsImplTest extends UnitTestCase
    {
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.filter.Filter#getFilterString()
+       * @see org.apache.activemq.core.filter.Filter#getFilterString()
        */
       public SimpleString getFilterString()
       {
@@ -275,7 +275,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.filter.Filter#match(org.apache.activemq6.core.server.ServerMessage)
+       * @see org.apache.activemq.core.filter.Filter#match(org.apache.activemq.core.server.ServerMessage)
        */
       public boolean match(final ServerMessage message)
       {
@@ -312,7 +312,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#getBindable()
+       * @see org.apache.activemq.core.postoffice.Binding#getBindable()
        */
       public Bindable getBindable()
       {
@@ -321,7 +321,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#getClusterName()
+       * @see org.apache.activemq.core.postoffice.Binding#getClusterName()
        */
       public SimpleString getClusterName()
       {
@@ -330,7 +330,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#getDistance()
+       * @see org.apache.activemq.core.postoffice.Binding#getDistance()
        */
       public int getDistance()
       {
@@ -338,7 +338,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#getFilter()
+       * @see org.apache.activemq.core.postoffice.Binding#getFilter()
        */
       public Filter getFilter()
       {
@@ -351,7 +351,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#getRoutingName()
+       * @see org.apache.activemq.core.postoffice.Binding#getRoutingName()
        */
       public SimpleString getRoutingName()
       {
@@ -359,7 +359,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#getType()
+       * @see org.apache.activemq.core.postoffice.Binding#getType()
        */
       public BindingType getType()
       {
@@ -368,7 +368,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#getUniqueName()
+       * @see org.apache.activemq.core.postoffice.Binding#getUniqueName()
        */
       public SimpleString getUniqueName()
       {
@@ -391,7 +391,7 @@ public class BindingsImplTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.postoffice.Binding#toManagementString()
+       * @see org.apache.activemq.core.postoffice.Binding#toManagementString()
        */
       @Override
       public String toManagementString()

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.remoting.impl.netty;
+package org.apache.activemq.tests.unit.core.remoting.impl.netty;
 
 import org.junit.Test;
 
@@ -20,15 +20,15 @@ import java.util.concurrent.Executors;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnector;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

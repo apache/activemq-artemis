@@ -11,18 +11,18 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.reader;
+package org.apache.activemq.reader;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
 
 /**
  * static methods intended for import static on JMS like messages.
@@ -196,6 +196,6 @@ public class MessageUtil
    {
       return message.containsProperty(new SimpleString(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
          MessageUtil.JMSXGROUPID.equals(name) &&
-            message.containsProperty(org.apache.activemq6.api.core.Message.HDR_GROUP_ID);
+            message.containsProperty(org.apache.activemq.api.core.Message.HDR_GROUP_ID);
    }
 }

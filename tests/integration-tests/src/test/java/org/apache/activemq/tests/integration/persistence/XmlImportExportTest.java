@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.persistence;
+package org.apache.activemq.tests.integration.persistence;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.tests.unit.util.InVMContext;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.tests.unit.util.InVMContext;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -25,24 +25,24 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq6.core.persistence.impl.journal.LargeServerMessageImpl;
-import org.apache.activemq6.tools.XmlDataConstants;
-import org.apache.activemq6.tools.XmlDataExporter;
-import org.apache.activemq6.tools.XmlDataImporter;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.core.persistence.impl.journal.LargeServerMessageImpl;
+import org.apache.activemq.tools.XmlDataConstants;
+import org.apache.activemq.tools.XmlDataExporter;
+import org.apache.activemq.tools.XmlDataImporter;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.utils.UUIDGenerator;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -431,10 +431,10 @@ public class XmlImportExportTest extends ServiceTestBase
       assertEquals(clientFailureCheckPeriod, hcf1.getClientFailureCheckPeriod());
       assertEquals(connectionTTl, hcf1.getConnectionTTL());
       assertEquals(callTimeout, hcf1.getCallTimeout());
-//      Assert.assertEquals(callFailoverTimeout, hcf1.getCallFailoverTimeout());  // this value isn't currently persisted by org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl.encode()
-//      Assert.assertEquals(cacheLargeMessagesClient, hcf1.isCacheLargeMessagesClient()); // this value isn't currently supported by org.apache.activemq6.api.jms.management.JMSServerControl.createConnectionFactory(java.lang.String, boolean, boolean, int, java.lang.String, java.lang.String, java.lang.String, long, long, long, long, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String)
+//      Assert.assertEquals(callFailoverTimeout, hcf1.getCallFailoverTimeout());  // this value isn't currently persisted by org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl.encode()
+//      Assert.assertEquals(cacheLargeMessagesClient, hcf1.isCacheLargeMessagesClient()); // this value isn't currently supported by org.apache.activemq.api.jms.management.JMSServerControl.createConnectionFactory(java.lang.String, boolean, boolean, int, java.lang.String, java.lang.String, java.lang.String, long, long, long, long, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String)
       assertEquals(minLargeMessageSize, hcf1.getMinLargeMessageSize());
-//      Assert.assertEquals(compressLargeMessages, hcf1.isCompressLargeMessage());  // this value isn't currently handled properly by org.apache.activemq6.jms.server.impl.JMSServerManagerImpl.createConnectionFactory(java.lang.String, boolean, org.apache.activemq6.api.jms.JMSFactoryType, java.util.List<java.lang.String>, java.lang.String, long, long, long, long, boolean, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String, java.lang.String...)()
+//      Assert.assertEquals(compressLargeMessages, hcf1.isCompressLargeMessage());  // this value isn't currently handled properly by org.apache.activemq.jms.server.impl.JMSServerManagerImpl.createConnectionFactory(java.lang.String, boolean, org.apache.activemq.api.jms.JMSFactoryType, java.util.List<java.lang.String>, java.lang.String, long, long, long, long, boolean, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String, java.lang.String...)()
       assertEquals(consumerWindowSize, hcf1.getConsumerWindowSize());
       assertEquals(consumerMaxRate, hcf1.getConsumerMaxRate());
       assertEquals(confirmationWindowSize, hcf1.getConfirmationWindowSize());

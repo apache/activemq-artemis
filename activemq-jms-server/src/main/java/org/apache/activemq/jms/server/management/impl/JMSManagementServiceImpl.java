@@ -10,32 +10,32 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.management.impl;
+package org.apache.activemq.jms.server.management.impl;
 
 import javax.management.ObjectName;
 
-import org.apache.activemq6.api.core.management.AddressControl;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.api.jms.management.JMSServerControl;
-import org.apache.activemq6.api.jms.management.TopicControl;
-import org.apache.activemq6.core.messagecounter.MessageCounter;
-import org.apache.activemq6.core.messagecounter.MessageCounterManager;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQQueue;
-import org.apache.activemq6.jms.client.HornetQTopic;
-import org.apache.activemq6.jms.management.impl.JMSConnectionFactoryControlImpl;
-import org.apache.activemq6.jms.management.impl.JMSQueueControlImpl;
-import org.apache.activemq6.jms.management.impl.JMSServerControlImpl;
-import org.apache.activemq6.jms.management.impl.JMSTopicControlImpl;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.management.JMSManagementService;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.api.jms.management.JMSServerControl;
+import org.apache.activemq.api.jms.management.TopicControl;
+import org.apache.activemq.core.messagecounter.MessageCounter;
+import org.apache.activemq.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQQueue;
+import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.management.impl.JMSConnectionFactoryControlImpl;
+import org.apache.activemq.jms.management.impl.JMSQueueControlImpl;
+import org.apache.activemq.jms.management.impl.JMSServerControlImpl;
+import org.apache.activemq.jms.management.impl.JMSTopicControlImpl;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.management.JMSManagementService;
 
 /*
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

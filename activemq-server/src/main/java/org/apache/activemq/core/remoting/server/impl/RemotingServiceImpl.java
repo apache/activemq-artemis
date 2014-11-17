@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.server.impl;
+package org.apache.activemq.core.remoting.server.impl;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -31,39 +31,39 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.impl.CoreProtocolManagerFactory;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.remoting.server.RemotingService;
-import org.apache.activemq6.core.security.HornetQPrincipal;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.cluster.ClusterManager;
-import org.apache.activemq6.core.server.impl.ServiceRegistry;
-import org.apache.activemq6.core.server.impl.ServerSessionImpl;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.protocol.ProtocolManagerFactory;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.AcceptorFactory;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.utils.ClassloadingUtil;
-import org.apache.activemq6.utils.ConfigurationHelper;
-import org.apache.activemq6.utils.HornetQThreadFactory;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.impl.CoreProtocolManagerFactory;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.cluster.ClusterManager;
+import org.apache.activemq.core.server.impl.ServiceRegistry;
+import org.apache.activemq.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.AcceptorFactory;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.utils.HornetQThreadFactory;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
@@ -631,7 +631,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private ClusterConnection lookupClusterConnection(TransportConfiguration acceptorConfig)
    {
-      String clusterConnectionName = (String) acceptorConfig.getParams().get(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.CLUSTER_CONNECTION);
+      String clusterConnectionName = (String) acceptorConfig.getParams().get(org.apache.activemq.core.remoting.impl.netty.TransportConstants.CLUSTER_CONNECTION);
 
       ClusterConnection clusterConnection = null;
       if (clusterConnectionName != null)

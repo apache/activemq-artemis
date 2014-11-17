@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tools;
+package org.apache.activemq.tools;
 
 public class Main
 {

@@ -10,23 +10,23 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.postoffice.impl;
+package org.apache.activemq.core.postoffice.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.postoffice.Address;
-import org.apache.activemq6.core.postoffice.AddressManager;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.Bindings;
-import org.apache.activemq6.core.postoffice.BindingsFactory;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq6.utils.ConcurrentHashSet;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.postoffice.Address;
+import org.apache.activemq.core.postoffice.AddressManager;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.Bindings;
+import org.apache.activemq.core.postoffice.BindingsFactory;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.utils.ConcurrentHashSet;
 
 /**
  * A simple address manager that maintains the addresses and bindings.

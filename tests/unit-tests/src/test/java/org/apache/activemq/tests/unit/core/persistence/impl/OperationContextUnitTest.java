@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.persistence.impl;
+package org.apache.activemq.tests.unit.core.persistence.impl;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -18,10 +18,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

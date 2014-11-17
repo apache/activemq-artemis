@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.journal;
+package org.apache.activemq.tests.integration.journal;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.apache.activemq.utils.DataConstants;
 import org.junit.Test;
 
 /**
@@ -139,7 +139,7 @@ public class OldFormatTest extends JournalImplTestBase
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.tests.unit.core.journal.impl.JournalImplTestBase#getFileFactory()
+    * @see org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase#getFileFactory()
     */
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception

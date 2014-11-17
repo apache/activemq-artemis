@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.management;
+package org.apache.activemq.api.core.management;
 
 import javax.management.MBeanOperationInfo;
 
@@ -38,7 +38,7 @@ public interface HornetQServerControl
     * Returns the list of interceptors used by this server. Invoking this method is the same as invoking
     * <code>getIncomingInterceptorClassNames().</code>
     *
-    * @see org.apache.activemq6.api.core.Interceptor
+    * @see org.apache.activemq.api.core.Interceptor
     * @deprecated As of HornetQ 2.3.0.Final, replaced by
     * {@link #getIncomingInterceptorClassNames()} and
     * {@link #getOutgoingInterceptorClassNames()}
@@ -49,14 +49,14 @@ public interface HornetQServerControl
    /**
     * Returns the list of interceptors used by this server for incoming messages.
     *
-    * @see org.apache.activemq6.api.core.Interceptor
+    * @see org.apache.activemq.api.core.Interceptor
     */
    String[] getIncomingInterceptorClassNames();
 
    /**
     * Returns the list of interceptors used by this server for outgoing messages.
     *
-    * @see org.apache.activemq6.api.core.Interceptor
+    * @see org.apache.activemq.api.core.Interceptor
     */
    String[] getOutgoingInterceptorClassNames();
 
@@ -316,7 +316,7 @@ public interface HornetQServerControl
    /**
     * Create a durable queue.
     * <br>
-    * This method throws a {@link org.apache.activemq6.api.core.HornetQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.api.core.HornetQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
@@ -328,7 +328,7 @@ public interface HornetQServerControl
    /**
     * Create a queue.
     * <br>
-    * This method throws a {@link org.apache.activemq6.api.core.HornetQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.api.core.HornetQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
@@ -344,7 +344,7 @@ public interface HornetQServerControl
    /**
     * Create a queue.
     * <br>
-    * This method throws a {@link org.apache.activemq6.api.core.HornetQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.api.core.HornetQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue

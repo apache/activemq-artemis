@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.embedded;
+package org.apache.activemq.core.server.embedded;
 
 import javax.management.MBeanServer;
 
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.impl.FileConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.FileConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
 
 /**
  * Helper class to simplify bootstrap of HornetQ server.  Bootstraps from classpath-based config files.
@@ -46,7 +46,7 @@ public class EmbeddedHornetQ
    }
 
    /**
-    * Set the hornetq security manager.  This defaults to org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl
+    * Set the hornetq security manager.  This defaults to org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl
     *
     * @param securityManager
     */

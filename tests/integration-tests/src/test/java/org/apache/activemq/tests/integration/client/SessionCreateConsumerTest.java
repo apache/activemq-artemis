@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.client;
+package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInvalidFilterExpressionException;
-import org.apache.activemq6.api.core.HornetQNonExistentQueueException;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInvalidFilterExpressionException;
+import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

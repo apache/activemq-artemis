@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.util;
+package org.apache.activemq.util;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.tests.util.SilentTestCase;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.tests.util.SilentTestCase;
+import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -36,9 +36,9 @@ public class XMLUtilTest extends SilentTestCase
    {
       String document = "<blah>foo</blah>";
 
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(document);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(document);
 
-      Assert.assertEquals("foo", org.apache.activemq6.utils.XMLUtil.getTextContent(e));
+      Assert.assertEquals("foo", org.apache.activemq.utils.XMLUtil.getTextContent(e));
    }
 
    @Test
@@ -48,7 +48,7 @@ public class XMLUtilTest extends SilentTestCase
 
       Element e = XMLUtil.stringToElement(document);
 
-      Assert.assertEquals("foo", org.apache.activemq6.utils.XMLUtil.getTextContent(e));
+      Assert.assertEquals("foo", org.apache.activemq.utils.XMLUtil.getTextContent(e));
    }
 
    @Test
@@ -56,11 +56,11 @@ public class XMLUtilTest extends SilentTestCase
    {
       String document = "<blah someattribute=\"somevalue\"><a/></blah>";
 
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(document);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(document);
 
-      String s = org.apache.activemq6.utils.XMLUtil.getTextContent(e);
+      String s = org.apache.activemq.utils.XMLUtil.getTextContent(e);
 
-      Element subelement = org.apache.activemq6.utils.XMLUtil.stringToElement(s);
+      Element subelement = org.apache.activemq.utils.XMLUtil.stringToElement(s);
 
       Assert.assertEquals("a", subelement.getNodeName());
    }
@@ -70,11 +70,11 @@ public class XMLUtilTest extends SilentTestCase
    {
       String document = "<blah someattribute=\"somevalue\"><a></a></blah>";
 
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(document);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(document);
 
-      String s = org.apache.activemq6.utils.XMLUtil.getTextContent(e);
+      String s = org.apache.activemq.utils.XMLUtil.getTextContent(e);
 
-      Element subelement = org.apache.activemq6.utils.XMLUtil.stringToElement(s);
+      Element subelement = org.apache.activemq.utils.XMLUtil.stringToElement(s);
 
       Assert.assertEquals("a", subelement.getNodeName());
    }
@@ -84,11 +84,11 @@ public class XMLUtilTest extends SilentTestCase
    {
       String document = "<blah someattribute=\"somevalue\"><a><b/></a></blah>";
 
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(document);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(document);
 
-      String s = org.apache.activemq6.utils.XMLUtil.getTextContent(e);
+      String s = org.apache.activemq.utils.XMLUtil.getTextContent(e);
 
-      Element subelement = org.apache.activemq6.utils.XMLUtil.stringToElement(s);
+      Element subelement = org.apache.activemq.utils.XMLUtil.stringToElement(s);
 
       Assert.assertEquals("a", subelement.getNodeName());
       NodeList nl = subelement.getChildNodes();
@@ -112,7 +112,7 @@ public class XMLUtilTest extends SilentTestCase
       String s = "<a/>";
       String s2 = "<a/>";
 
-      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), org.apache.activemq6.utils.XMLUtil.stringToElement(s2));
+      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), org.apache.activemq.utils.XMLUtil.stringToElement(s2));
    }
 
    @Test
@@ -121,7 +121,7 @@ public class XMLUtilTest extends SilentTestCase
       String s = "<a></a>";
       String s2 = "<a/>";
 
-      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), org.apache.activemq6.utils.XMLUtil.stringToElement(s2));
+      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), org.apache.activemq.utils.XMLUtil.stringToElement(s2));
    }
 
    @Test
@@ -132,7 +132,7 @@ public class XMLUtilTest extends SilentTestCase
 
       try
       {
-         org.apache.activemq6.utils.XMLUtil.assertEquivalent(org.apache.activemq6.utils.XMLUtil.stringToElement(s),
+         org.apache.activemq.utils.XMLUtil.assertEquivalent(org.apache.activemq.utils.XMLUtil.stringToElement(s),
                                                     XMLUtil.stringToElement(s2));
          Assert.fail("this should throw exception");
       }
@@ -148,8 +148,8 @@ public class XMLUtilTest extends SilentTestCase
       String s = "<a attr1=\"val1\" attr2=\"val2\"/>";
       String s2 = "<a attr2=\"val2\" attr1=\"val1\"/>";
 
-      org.apache.activemq6.utils.XMLUtil.assertEquivalent(org.apache.activemq6.utils.XMLUtil.stringToElement(s),
-                                                 org.apache.activemq6.utils.XMLUtil.stringToElement(s2));
+      org.apache.activemq.utils.XMLUtil.assertEquivalent(org.apache.activemq.utils.XMLUtil.stringToElement(s),
+                                                 org.apache.activemq.utils.XMLUtil.stringToElement(s2));
    }
 
    @Test
@@ -158,8 +158,8 @@ public class XMLUtilTest extends SilentTestCase
       String s = "<a><b/></a>";
       String s2 = "<a><b/></a>";
 
-      org.apache.activemq6.utils.XMLUtil.assertEquivalent(org.apache.activemq6.utils.XMLUtil.stringToElement(s),
-                                                 org.apache.activemq6.utils.XMLUtil.stringToElement(s2));
+      org.apache.activemq.utils.XMLUtil.assertEquivalent(org.apache.activemq.utils.XMLUtil.stringToElement(s),
+                                                 org.apache.activemq.utils.XMLUtil.stringToElement(s2));
    }
 
    @Test
@@ -168,8 +168,8 @@ public class XMLUtilTest extends SilentTestCase
       String s = "<enclosing><a attr1=\"val1\" attr2=\"val2\"/></enclosing>";
       String s2 = "<enclosing><a attr2=\"val2\" attr1=\"val1\"/></enclosing>";
 
-      org.apache.activemq6.utils.XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-                                                 org.apache.activemq6.utils.XMLUtil.stringToElement(s2));
+      org.apache.activemq.utils.XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
+                                                 org.apache.activemq.utils.XMLUtil.stringToElement(s2));
    }
 
    @Test
@@ -180,8 +180,8 @@ public class XMLUtilTest extends SilentTestCase
 
       try
       {
-         org.apache.activemq6.utils.XMLUtil.assertEquivalent(org.apache.activemq6.utils.XMLUtil.stringToElement(s),
-                                                    org.apache.activemq6.utils.XMLUtil.stringToElement(s2));
+         org.apache.activemq.utils.XMLUtil.assertEquivalent(org.apache.activemq.utils.XMLUtil.stringToElement(s),
+                                                    org.apache.activemq.utils.XMLUtil.stringToElement(s2));
          Assert.fail("this should throw exception");
       }
       catch (IllegalArgumentException e)
@@ -197,25 +197,25 @@ public class XMLUtilTest extends SilentTestCase
       String s = "<a><!-- some comment --><b/><!--some other comment --><c/><!-- blah --></a>";
       String s2 = "<a><b/><!--blah blah--><c/></a>";
 
-      org.apache.activemq6.utils.XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-                                                 org.apache.activemq6.utils.XMLUtil.stringToElement(s2));
+      org.apache.activemq.utils.XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
+                                                 org.apache.activemq.utils.XMLUtil.stringToElement(s2));
    }
 
    @Test
    public void testElementToString_1() throws Exception
    {
       String s = "<a b=\"something\">somethingelse</a>";
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(s);
-      String tostring = org.apache.activemq6.utils.XMLUtil.elementToString(e);
-      Element convertedAgain = org.apache.activemq6.utils.XMLUtil.stringToElement(tostring);
-      org.apache.activemq6.utils.XMLUtil.assertEquivalent(e, convertedAgain);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(s);
+      String tostring = org.apache.activemq.utils.XMLUtil.elementToString(e);
+      Element convertedAgain = org.apache.activemq.utils.XMLUtil.stringToElement(tostring);
+      org.apache.activemq.utils.XMLUtil.assertEquivalent(e, convertedAgain);
    }
 
    @Test
    public void testElementToString_2() throws Exception
    {
       String s = "<a b=\"something\"></a>";
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(s);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(s);
       String tostring = XMLUtil.elementToString(e);
       Element convertedAgain = XMLUtil.stringToElement(tostring);
       XMLUtil.assertEquivalent(e, convertedAgain);
@@ -225,20 +225,20 @@ public class XMLUtilTest extends SilentTestCase
    public void testElementToString_3() throws Exception
    {
       String s = "<a b=\"something\"/>";
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(s);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(s);
       String tostring = XMLUtil.elementToString(e);
-      Element convertedAgain = org.apache.activemq6.utils.XMLUtil.stringToElement(tostring);
-      org.apache.activemq6.utils.XMLUtil.assertEquivalent(e, convertedAgain);
+      Element convertedAgain = org.apache.activemq.utils.XMLUtil.stringToElement(tostring);
+      org.apache.activemq.utils.XMLUtil.assertEquivalent(e, convertedAgain);
    }
 
    @Test
    public void testElementToString_4() throws Exception
    {
       String s = "<a><![CDATA[somedata]]></a>";
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(s);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(s);
       String tostring = XMLUtil.elementToString(e);
-      Element convertedAgain = org.apache.activemq6.utils.XMLUtil.stringToElement(tostring);
-      org.apache.activemq6.utils.XMLUtil.assertEquivalent(e, convertedAgain);
+      Element convertedAgain = org.apache.activemq.utils.XMLUtil.stringToElement(tostring);
+      org.apache.activemq.utils.XMLUtil.assertEquivalent(e, convertedAgain);
    }
 
    @Test
@@ -260,7 +260,7 @@ public class XMLUtilTest extends SilentTestCase
                      + "</configuration>";
       System.setProperty("sysprop1", "test1");
       System.setProperty("sysprop2", "content4");
-      String replaced = org.apache.activemq6.utils.XMLUtil.replaceSystemProps(before);
+      String replaced = org.apache.activemq.utils.XMLUtil.replaceSystemProps(before);
       Assert.assertEquals(after, replaced);
    }
 

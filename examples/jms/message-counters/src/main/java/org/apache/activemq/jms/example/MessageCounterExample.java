@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import java.util.HashMap;
 
@@ -30,10 +30,10 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.core.management.MessageCounterInfo;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.api.core.management.MessageCounterInfo;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.common.example.HornetQExample;
 
 /**
  * An example showing how to use message counters to have information on a queue.

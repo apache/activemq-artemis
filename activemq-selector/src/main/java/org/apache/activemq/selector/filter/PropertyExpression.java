@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq6.selector.filter;
+package org.apache.activemq.selector.filter;
 
 
 /**

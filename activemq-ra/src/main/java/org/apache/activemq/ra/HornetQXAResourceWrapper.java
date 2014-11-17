@@ -11,14 +11,14 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.core.client.impl.HornetQXAResource;
-import org.apache.activemq6.utils.VersionLoader;
+import org.apache.activemq.core.client.impl.HornetQXAResource;
+import org.apache.activemq.utils.VersionLoader;
 
 /**
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>

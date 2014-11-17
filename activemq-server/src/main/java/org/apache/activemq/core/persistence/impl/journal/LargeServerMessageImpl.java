@@ -10,25 +10,25 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.persistence.impl.journal;
+package org.apache.activemq.core.persistence.impl.journal;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQInternalErrorException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.message.BodyEncoder;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.message.BodyEncoder;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A LargeServerMessageImpl
@@ -510,7 +510,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.message.BodyEncoder#getLargeBodySize()
+       * @see org.apache.activemq.core.message.BodyEncoder#getLargeBodySize()
        */
       public long getLargeBodySize()
       {

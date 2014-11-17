@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQNonExistentQueueException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq6.core.server.group.impl.Response;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.core.server.group.impl.Response;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -47,18 +47,18 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq6.core.server.group.impl.LocalGroupingHandler",
+                     targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
                      targetMethod = "removeGrouping",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.pause($1);"
+                     action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.pause($1);"
                   ),
                @BMRule
                   (
                      name = "blow-up2",
-                     targetClass = "org.apache.activemq6.core.server.group.impl.GroupHandlingAbstract",
+                     targetClass = "org.apache.activemq.core.server.group.impl.GroupHandlingAbstract",
                      targetMethod = "forceRemove",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.restart2();"
+                     action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.restart2();"
                   )
             }
       )
@@ -124,16 +124,16 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq6.core.server.group.impl.RemoteGroupingHandler",
+                     targetClass = "org.apache.activemq.core.server.group.impl.RemoteGroupingHandler",
                      targetMethod = "onNotification",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.pause2($1);"
+                     action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.pause2($1);"
                   ),
                @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq6.core.server.group.impl.RemoteGroupingHandler",
+                       targetClass = "org.apache.activemq.core.server.group.impl.RemoteGroupingHandler",
                        targetMethod = "remove",
                        targetLocation = "ENTRY",
-                       action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.restart2();")
+                       action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.restart2();")
             }
       )
    public void test3serversLocalGoesDown() throws Exception
@@ -209,16 +209,16 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq6.core.server.group.impl.LocalGroupingHandler",
+                     targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
                      targetMethod = "onNotification",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.pause2($1);"
+                     action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.pause2($1);"
                   ),
                @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq6.core.server.group.impl.LocalGroupingHandler",
+                       targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
                        targetMethod = "remove",
                        targetLocation = "ENTRY",
-                       action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.restart2();")
+                       action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.restart2();")
             }
       )
    public void testLocal3serversLocalGoesDown() throws Exception
@@ -294,16 +294,16 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq6.core.server.group.impl.LocalGroupingHandler",
+                     targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
                      targetMethod = "onNotification",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.pause2($1);"
+                     action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.pause2($1);"
                   ),
                @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq6.core.server.group.impl.LocalGroupingHandler",
+                       targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
                        targetMethod = "remove",
                        targetLocation = "ENTRY",
-                       action = "org.apache.activemq6.byteman.tests.ClusteredGroupingTest.restart2();")
+                       action = "org.apache.activemq.byteman.tests.ClusteredGroupingTest.restart2();")
             }
       )
    public void testLocal4serversLocalGoesDown() throws Exception

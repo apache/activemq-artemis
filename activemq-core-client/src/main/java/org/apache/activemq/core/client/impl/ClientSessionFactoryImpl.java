@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.lang.ref.WeakReference;
 import java.security.AccessController;
@@ -28,40 +28,40 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.FailoverEventListener;
-import org.apache.activemq6.api.core.client.FailoverEventType;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.spi.core.remoting.Connector;
-import org.apache.activemq6.spi.core.remoting.ConnectorFactory;
-import org.apache.activemq6.spi.core.remoting.TopologyResponseHandler;
-import org.apache.activemq6.spi.core.remoting.SessionContext;
-import org.apache.activemq6.utils.ClassloadingUtil;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.ConfigurationHelper;
-import org.apache.activemq6.utils.ConfirmationWindowWarning;
-import org.apache.activemq6.utils.ExecutorFactory;
-import org.apache.activemq6.utils.OrderedExecutorFactory;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.FailoverEventListener;
+import org.apache.activemq.api.core.client.FailoverEventType;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.spi.core.remoting.Connector;
+import org.apache.activemq.spi.core.remoting.ConnectorFactory;
+import org.apache.activemq.spi.core.remoting.TopologyResponseHandler;
+import org.apache.activemq.spi.core.remoting.SessionContext;
+import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.utils.ConfirmationWindowWarning;
+import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.utils.OrderedExecutorFactory;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * @author Tim Fox

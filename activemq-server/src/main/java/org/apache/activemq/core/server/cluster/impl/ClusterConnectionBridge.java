@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.impl;
+package org.apache.activemq.core.server.cluster.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,32 +19,32 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.cluster.ClusterManager;
-import org.apache.activemq6.core.server.cluster.HornetQServerSideProtocolManagerFactory;
-import org.apache.activemq6.core.server.cluster.MessageFlowRecord;
-import org.apache.activemq6.core.server.cluster.Transformer;
-import org.apache.activemq6.utils.UUID;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.cluster.ClusterManager;
+import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.MessageFlowRecord;
+import org.apache.activemq.core.server.cluster.Transformer;
+import org.apache.activemq.utils.UUID;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * A bridge with extra functionality only available when the server is clustered.

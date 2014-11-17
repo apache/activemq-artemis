@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.ALREADY_REPLICATING;
+import static org.apache.activemq.api.core.HornetQExceptionType.ALREADY_REPLICATING;
 
 /**
  * The server is already paired with a replicating backup.

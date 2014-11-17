@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq6.selector.filter;
+package org.apache.activemq.selector.filter;
 
 import java.math.BigDecimal;
 import java.util.Collection;

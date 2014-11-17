@@ -10,39 +10,39 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.config.BridgeConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.DivertConfiguration;
-import org.apache.activemq6.core.management.impl.HornetQServerControlImpl;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.remoting.server.RemotingService;
-import org.apache.activemq6.core.replication.ReplicationManager;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.security.SecurityStore;
-import org.apache.activemq6.core.server.cluster.ClusterManager;
-import org.apache.activemq6.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq6.core.server.group.GroupingHandler;
-import org.apache.activemq6.core.server.impl.Activation;
-import org.apache.activemq6.core.server.impl.ConnectorsService;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.version.Version;
-import org.apache.activemq6.spi.core.protocol.ProtocolManagerFactory;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.utils.ExecutorFactory;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.management.impl.HornetQServerControlImpl;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.replication.ReplicationManager;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.security.SecurityStore;
+import org.apache.activemq.core.server.cluster.ClusterManager;
+import org.apache.activemq.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.core.server.group.GroupingHandler;
+import org.apache.activemq.core.server.impl.Activation;
+import org.apache.activemq.core.server.impl.ConnectorsService;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.version.Version;
+import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.utils.ExecutorFactory;
 
 /**
  * This interface defines the internal interface of the HornetQ Server exposed to other components

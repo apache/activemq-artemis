@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.example;
+package org.apache.activemq.javaee.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -23,7 +23,7 @@ import javax.naming.InitialContext;
 import java.util.Date;
 import java.util.Properties;
 
-import org.apache.activemq6.javaee.example.server.XARecoveryExampleService;
+import org.apache.activemq.javaee.example.server.XARecoveryExampleService;
 
 /**
  * An example which invokes an EJB. The EJB will be involved in a

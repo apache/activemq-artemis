@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire;
+package org.apache.activemq.core.protocol.openwire;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,29 +75,29 @@ import org.apache.activemq.thread.TaskRunnerFactory;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.wireformat.WireFormat;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQSecurityException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQBrokerStoppedException;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQConnectionContext;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQMapTransportConnectionStateRegister;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQProducerBrokerExchange;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQSingleTransportConnectionStateRegister;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQTransaction;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQTransportConnectionState;
-import org.apache.activemq6.core.protocol.openwire.amq.AMQTransportConnectionStateRegister;
-import org.apache.activemq6.core.remoting.CloseListener;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.utils.ConcurrentHashSet;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQSecurityException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.protocol.openwire.amq.AMQBrokerStoppedException;
+import org.apache.activemq.core.protocol.openwire.amq.AMQConnectionContext;
+import org.apache.activemq.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
+import org.apache.activemq.core.protocol.openwire.amq.AMQMapTransportConnectionStateRegister;
+import org.apache.activemq.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
+import org.apache.activemq.core.protocol.openwire.amq.AMQProducerBrokerExchange;
+import org.apache.activemq.core.protocol.openwire.amq.AMQSession;
+import org.apache.activemq.core.protocol.openwire.amq.AMQSingleTransportConnectionStateRegister;
+import org.apache.activemq.core.protocol.openwire.amq.AMQTransaction;
+import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionState;
+import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionStateRegister;
+import org.apache.activemq.core.remoting.CloseListener;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.utils.ConcurrentHashSet;
 
 /**
  * Represents an activemq connection.

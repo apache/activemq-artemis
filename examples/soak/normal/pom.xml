@@ -2,20 +2,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>activemq6-jms-soak-example</artifactId>
+   <artifactId>activemq-jms-soak-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ6 Soak Normal Example</name>
 
    <parent>
-      <groupId>org.apache.activemq6.example.soak</groupId>
+      <groupId>org.apache.activemq.example.soak</groupId>
       <artifactId>soak-examples</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-jms-client</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-jms-client</artifactId>
          <version>${project.version}</version>
       </dependency>
    </dependencies>
@@ -27,22 +27,22 @@
    <build>
       <plugins>
          <plugin>
-            <groupId>org.apache.activemq6</groupId>
-            <artifactId>activemq6-maven-plugin</artifactId>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-maven-plugin</artifactId>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.activemq6.example.soak</groupId>
-                  <artifactId>activemq6-jms-soak-example</artifactId>
+                  <groupId>org.apache.activemq.example.soak</groupId>
+                  <artifactId>activemq-jms-soak-example</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-server</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-server</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-jms-server</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-jms-server</artifactId>
                   <version>${project.version}</version>
                </dependency>
                <dependency>
@@ -78,8 +78,8 @@
          <build>
             <plugins>
                <plugin>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-maven-plugin</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-maven-plugin</artifactId>
                   <executions>
                      <execution>
                         <id>start</id>
@@ -97,7 +97,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq6.jms.soak.example.SoakReceiver</clientClass>
+                           <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>
@@ -109,7 +109,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq6.jms.soak.example.SoakSender</clientClass>
+                           <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>
@@ -134,8 +134,8 @@
          <build>
             <plugins>
                <plugin>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-maven-plugin</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-maven-plugin</artifactId>
                   <executions>
                      <execution>
                         <id>runConsumer</id>
@@ -143,7 +143,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq6.jms.soak.example.SoakReceiver</clientClass>
+                           <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>
@@ -155,7 +155,7 @@
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq6.jms.soak.example.SoakSender</clientClass>
+                           <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
                            <args>
                               <param>jnp://localhost:1099</param>
                            </args>
@@ -171,8 +171,8 @@
          <build>
             <plugins>
                <plugin>
-                  <groupId>org.apache.activemq6</groupId>
-                  <artifactId>activemq6-maven-plugin</artifactId>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>activemq-maven-plugin</artifactId>
                   <executions>
                      <execution>
                         <id>start</id>

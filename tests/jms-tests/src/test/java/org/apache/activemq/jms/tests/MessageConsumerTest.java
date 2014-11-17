@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -40,8 +40,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

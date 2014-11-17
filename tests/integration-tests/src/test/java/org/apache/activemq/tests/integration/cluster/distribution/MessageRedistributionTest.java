@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.distribution;
+package org.apache.activemq.tests.integration.cluster.distribution;
 
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -18,20 +18,20 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.server.Bindable;
-import org.apache.activemq6.core.server.cluster.impl.Redistributor;
-import org.apache.activemq6.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.server.Bindable;
+import org.apache.activemq.core.server.cluster.impl.Redistributor;
+import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 

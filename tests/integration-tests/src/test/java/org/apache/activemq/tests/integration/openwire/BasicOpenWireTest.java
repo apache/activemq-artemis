@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.openwire;
+package org.apache.activemq.tests.integration.openwire;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,7 +27,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.SimpleString;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

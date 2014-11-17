@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import javax.transaction.xa.Xid;
 import java.util.Collection;
@@ -20,40 +20,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.filter.impl.FilterImpl;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.persistence.GroupingInfo;
-import org.apache.activemq6.core.persistence.QueueBindingInfo;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.impl.PageCountPending;
-import org.apache.activemq6.core.persistence.impl.journal.AddMessageRecord;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.DuplicateIDCache;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.QueueFactory;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.group.GroupingHandler;
-import org.apache.activemq6.core.server.group.impl.GroupBinding;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.filter.impl.FilterImpl;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.persistence.GroupingInfo;
+import org.apache.activemq.core.persistence.QueueBindingInfo;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.impl.PageCountPending;
+import org.apache.activemq.core.persistence.impl.journal.AddMessageRecord;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueFactory;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.group.GroupingHandler;
+import org.apache.activemq.core.server.group.impl.GroupBinding;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
 
 public class PostOfficeJournalLoader implements JournalLoader
 {
@@ -278,7 +278,7 @@ public class PostOfficeJournalLoader implements JournalLoader
          queue.resume();
       }
 
-      if (System.getProperty("org.apache.activemq6.opt.directblast") != null)
+      if (System.getProperty("org.apache.activemq.opt.directblast") != null)
       {
          messageJournal.runDirectJournalBlast();
       }

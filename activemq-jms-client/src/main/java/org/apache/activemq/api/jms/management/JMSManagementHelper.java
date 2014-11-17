@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.jms.management;
+package org.apache.activemq.api.jms.management;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.jms.client.HornetQMessage;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.jms.client.HornetQMessage;
 
 /**
  * Helper class to use JMS messages to manage HornetQ server resources.
@@ -25,7 +25,7 @@ import org.apache.activemq6.jms.client.HornetQMessage;
  */
 public class JMSManagementHelper
 {
-   private static org.apache.activemq6.api.core.Message getCoreMessage(final Message jmsMessage)
+   private static org.apache.activemq.api.core.Message getCoreMessage(final Message jmsMessage)
    {
       if (jmsMessage instanceof HornetQMessage == false)
       {
@@ -44,7 +44,7 @@ public class JMSManagementHelper
     * @param attribute the name of the attribute
     * @throws JMSException if an exception occurs while putting the information in the message
     *
-    * @see org.apache.activemq6.api.core.management.ResourceNames
+    * @see org.apache.activemq.api.core.management.ResourceNames
     */
    public static void putAttribute(final Message message, final String resourceName, final String attribute) throws JMSException
    {
@@ -59,7 +59,7 @@ public class JMSManagementHelper
     * @param operationName the name of the operation to invoke on the resource
     * @throws JMSException if an exception occurs while putting the information in the message
     *
-    * @see org.apache.activemq6.api.core.management.ResourceNames
+    * @see org.apache.activemq.api.core.management.ResourceNames
     */
    public static void putOperationInvocation(final Message message,
                                              final String resourceName,
@@ -95,7 +95,7 @@ public class JMSManagementHelper
     * @param parameters the parameters to use to invoke the server resource
     * @throws JMSException if an exception occurs while putting the information in the message
     *
-    * @see org.apache.activemq6.api.core.management.ResourceNames
+    * @see org.apache.activemq.api.core.management.ResourceNames
     */
    public static void putOperationInvocation(final Message message,
                                              final String resourceName,

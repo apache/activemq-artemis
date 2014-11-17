@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.utils.XidCodecSupport;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.utils.XidCodecSupport;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.cli.commands;
+package org.apache.activemq.cli.commands;
 
 import java.io.InputStream;
 import java.io.PrintStream;

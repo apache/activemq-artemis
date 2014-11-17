@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.persistence.config;
+package org.apache.activemq.core.persistence.config;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * A PersistedAddressSetting

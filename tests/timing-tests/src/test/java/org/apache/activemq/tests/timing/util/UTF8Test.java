@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.timing.util;
+package org.apache.activemq.tests.timing.util;
 import org.junit.After;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.UTF8Util;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.UTF8Util;
 
 /**
  *

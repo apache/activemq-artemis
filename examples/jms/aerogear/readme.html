@@ -26,7 +26,7 @@
 
      <p>Now before we run the example we need a mobile application to receive it. Writing a mobile app is beyond the scope
      of this example but for testing purposes we have supplied an Android app you can use, simply install on your android phone.
-     It can be found <a href="http://downloads.jboss.org.apache.activemq6/HornetQAeroGear.apk">here</a>. For a more in depth mobile
+     It can be found <a href="http://downloads.jboss.org.apache.activemq/HornetQAeroGear.apk">here</a>. For a more in depth mobile
          app example visit the AeroGear site.</p>
 
      <p>Once you have installed the mobile app you will need to configure the following:</p>
@@ -72,7 +72,7 @@
 
    &lt;connector-services>
        &lt;connector-service name="aerogear-connector">
-           &lt;factory-class>org.apache.activemq6.integration.aerogear.AeroGearConnectorServiceFactory&lt;/factory-class>
+           &lt;factory-class>org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory&lt;/factory-class>
            &lt;param key="endpoint" value="${endpoint}"/>
            &lt;param key="queue" value="jms.queue.aerogearQueue"/>
            &lt;param key="application-id" value="${applicationid}"/>

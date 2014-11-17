@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.transaction.impl;
+package org.apache.activemq.core.transaction.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.transaction.Transaction;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * A ResourceManagerImpl

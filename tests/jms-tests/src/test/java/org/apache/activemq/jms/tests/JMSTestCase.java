@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 import java.util.ArrayList;
 
 import javax.jms.Connection;
@@ -22,17 +22,17 @@ import javax.jms.TopicConnection;
 import javax.jms.XAConnection;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.jms.client.HornetQJMSConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQQueueConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQTopicConnectionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.HornetQQueueConnectionFactory;
+import org.apache.activemq.jms.client.HornetQTopicConnectionFactory;
 import org.junit.After;
 import org.junit.Before;
 
 /**
  * @deprecated this infrastructure should not be used for new code. New tests should go into
- *             org.apache.activemq6.tests.integration.jms at the integration-tests project.
+ *             org.apache.activemq.tests.integration.jms at the integration-tests project.
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 @Deprecated

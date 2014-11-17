@@ -10,20 +10,20 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire.amq;
+package org.apache.activemq.core.protocol.openwire.amq;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.persistence.OperationContext;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.security.SecurityStore;
-import org.apache.activemq6.core.server.ServerSessionFactory;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.ServerSessionImpl;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.persistence.OperationContext;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.security.SecurityStore;
+import org.apache.activemq.core.server.ServerSessionFactory;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
 
 public class AMQServerSessionFactory implements ServerSessionFactory
 {

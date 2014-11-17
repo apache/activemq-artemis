@@ -11,15 +11,15 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tools;
+package org.apache.activemq.tools;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 
 /**
  * @author Clebert Suconic

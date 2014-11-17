@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,21 +20,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.dataformat.ByteArrayEncoding;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalAddRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalAddRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalCompleteRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalCompleteRecordTX.TX_RECORD_TYPE;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalDeleteRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalInternalRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalRollbackRecordTX;
-import org.apache.activemq6.journal.HornetQJournalLogger;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
+import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalCompleteRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalCompleteRecordTX.TX_RECORD_TYPE;
+import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalRollbackRecordTX;
+import org.apache.activemq.journal.HornetQJournalLogger;
 
 /**
  * A JournalCompactor

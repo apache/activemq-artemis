@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.activemq6.core.version.Version;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.VersionLoader;
+import org.apache.activemq.core.version.Version;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.VersionLoader;
 import org.junit.Assert;
 import org.junit.Test;
 

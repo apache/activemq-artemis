@@ -23,7 +23,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.netty;
+package org.apache.activemq.core.remoting.impl.netty;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -95,23 +95,23 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq6.core.protocol.core.impl.HornetQClientProtocolManager;
-import org.apache.activemq6.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.spi.core.remoting.AbstractConnector;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq6.utils.ConfigurationHelper;
-import org.apache.activemq6.utils.FutureLatch;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.core.protocol.core.impl.HornetQClientProtocolManager;
+import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.spi.core.remoting.AbstractConnector;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.utils.FutureLatch;
 
-import static org.apache.activemq6.utils.Base64.encodeBytes;
+import static org.apache.activemq.utils.Base64.encodeBytes;
 
 /**
  * A NettyConnector
@@ -128,12 +128,12 @@ public class NettyConnector extends AbstractConnector
    public static final String JAVAX_KEYSTORE_PASSWORD_PROP_NAME = "javax.net.ssl.keyStorePassword";
    public static final String JAVAX_TRUSTSTORE_PATH_PROP_NAME = "javax.net.ssl.trustStore";
    public static final String JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME = "javax.net.ssl.trustStorePassword";
-   public static final String HORNETQ_KEYSTORE_PROVIDER_PROP_NAME = "org.apache.activemq6.ssl.keyStoreProvider";
-   public static final String HORNETQ_KEYSTORE_PATH_PROP_NAME = "org.apache.activemq6.ssl.keyStore";
-   public static final String HORNETQ_KEYSTORE_PASSWORD_PROP_NAME = "org.apache.activemq6.ssl.keyStorePassword";
-   public static final String HORNETQ_TRUSTSTORE_PROVIDER_PROP_NAME = "org.apache.activemq6.ssl.trustStoreProvider";
-   public static final String HORNETQ_TRUSTSTORE_PATH_PROP_NAME = "org.apache.activemq6.ssl.trustStore";
-   public static final String HORNETQ_TRUSTSTORE_PASSWORD_PROP_NAME = "org.apache.activemq6.ssl.trustStorePassword";
+   public static final String HORNETQ_KEYSTORE_PROVIDER_PROP_NAME = "org.apache.activemq.ssl.keyStoreProvider";
+   public static final String HORNETQ_KEYSTORE_PATH_PROP_NAME = "org.apache.activemq.ssl.keyStore";
+   public static final String HORNETQ_KEYSTORE_PASSWORD_PROP_NAME = "org.apache.activemq.ssl.keyStorePassword";
+   public static final String HORNETQ_TRUSTSTORE_PROVIDER_PROP_NAME = "org.apache.activemq.ssl.trustStoreProvider";
+   public static final String HORNETQ_TRUSTSTORE_PATH_PROP_NAME = "org.apache.activemq.ssl.trustStore";
+   public static final String HORNETQ_TRUSTSTORE_PASSWORD_PROP_NAME = "org.apache.activemq.ssl.trustStorePassword";
 
    // Constants for HTTP upgrade
    // These constants are exposed publicly as they are used on the server-side to fetch

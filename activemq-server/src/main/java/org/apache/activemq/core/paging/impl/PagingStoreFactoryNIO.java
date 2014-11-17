@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.impl;
+package org.apache.activemq.core.paging.impl;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,19 +24,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.IOCriticalErrorListener;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.PagingStoreFactory;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.utils.ExecutorFactory;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.PagingStoreFactory;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  *

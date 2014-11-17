@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.ConnectionConsumer;
 import javax.jms.ConnectionMetaData;
@@ -32,21 +32,21 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.FailoverEventListener;
-import org.apache.activemq6.api.core.client.FailoverEventType;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.api.jms.HornetQJMSConstants;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.core.version.Version;
-import org.apache.activemq6.reader.MessageUtil;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.UUIDGenerator;
-import org.apache.activemq6.utils.VersionLoader;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.FailoverEventListener;
+import org.apache.activemq.api.core.client.FailoverEventType;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.core.version.Version;
+import org.apache.activemq.reader.MessageUtil;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.utils.VersionLoader;
 
 /**
  * HornetQ implementation of a JMS Connection.
@@ -79,9 +79,9 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
 
    private final int connectionType;
 
-   private final Set<HornetQSession> sessions = new org.apache.activemq6.utils.ConcurrentHashSet<HornetQSession>();
+   private final Set<HornetQSession> sessions = new org.apache.activemq.utils.ConcurrentHashSet<HornetQSession>();
 
-   private final Set<SimpleString> tempQueues = new org.apache.activemq6.utils.ConcurrentHashSet<SimpleString>();
+   private final Set<SimpleString> tempQueues = new org.apache.activemq.utils.ConcurrentHashSet<SimpleString>();
 
    private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<SimpleString>();
 

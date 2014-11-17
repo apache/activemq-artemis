@@ -12,16 +12,16 @@
  */
 
 
-package org.apache.activemq6.tests.unit.ra;
+package org.apache.activemq.tests.unit.ra;
 
 import java.beans.PropertyDescriptor;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import static java.beans.Introspector.getBeanInfo;

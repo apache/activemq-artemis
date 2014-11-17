@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.activemq6.core.journal.IOAsyncTask;
+import org.apache.activemq.core.journal.IOAsyncTask;
 
 /**
  * A TimedBufferObserver

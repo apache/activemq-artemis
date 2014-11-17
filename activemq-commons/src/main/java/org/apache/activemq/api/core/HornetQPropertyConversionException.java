@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 /**
- * A PropertyConversionException is thrown by {@code org.apache.activemq6.api.core.Message} methods when a
+ * A PropertyConversionException is thrown by {@code org.apache.activemq.api.core.Message} methods when a
  * property can not be converted to the expected type.
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @see org.apache.activemq6.api.core.Message
+ * @see org.apache.activemq.api.core.Message
  */
 public final class HornetQPropertyConversionException extends RuntimeException
 {

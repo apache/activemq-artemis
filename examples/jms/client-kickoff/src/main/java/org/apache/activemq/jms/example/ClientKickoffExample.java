@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,9 +27,9 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.core.management.HornetQServerControl;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.common.example.HornetQExample;
 
 /**
  * An example that shows how to kick off a client connected to HornetQ by using JMX.

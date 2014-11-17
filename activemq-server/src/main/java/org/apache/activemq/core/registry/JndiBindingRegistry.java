@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.registry;
+package org.apache.activemq.core.registry;
 
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -140,7 +140,7 @@ public class JndiBindingRegistry implements BindingRegistry
             // OK
          }
 
-         Context c = org.apache.activemq6.utils.JNDIUtil.createContext(context, parentContext);
+         Context c = org.apache.activemq.utils.JNDIUtil.createContext(context, parentContext);
 
          c.rebind(jndiNameInContext, objectToBind);
       }

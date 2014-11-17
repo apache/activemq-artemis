@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client;
+package org.apache.activemq.core.client;
 
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.core.protocol.core.Packet;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.core.protocol.core.Packet;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
@@ -293,7 +293,7 @@ public interface HornetQClientLogger extends BasicLogger
    void packetOutOfOrder(Object obj, @Cause Throwable t);
 
    /**
-    * Warns about usage of {@link org.apache.activemq6.api.core.client.SendAcknowledgementHandler} or JMS's {@code CompletionWindow} with
+    * Warns about usage of {@link org.apache.activemq.api.core.client.SendAcknowledgementHandler} or JMS's {@code CompletionWindow} with
     * confirmations disabled (confirmationWindowSize=-1).
     */
    @LogMessage(level = Logger.Level.WARN)

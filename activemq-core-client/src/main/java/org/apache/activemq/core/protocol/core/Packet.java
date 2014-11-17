@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core;
+package org.apache.activemq.core.protocol.core;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * A Packet represents a packet of data transmitted over a connection.
@@ -54,7 +54,7 @@ public interface Packet
    byte getType();
 
    /**
-    * Encodes the packet and returns a {@link org.apache.activemq6.api.core.HornetQBuffer} containing the data
+    * Encodes the packet and returns a {@link org.apache.activemq.api.core.HornetQBuffer} containing the data
     *
     * @param connection the connection
     * @return the buffer to encode to

@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import java.io.Serializable;
 import java.util.Hashtable;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq6.utils.PasswordMaskingUtil;
-import org.apache.activemq6.utils.SensitiveDataCodec;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.utils.PasswordMaskingUtil;
+import org.apache.activemq.utils.SensitiveDataCodec;
 
 
 /**
@@ -59,7 +59,7 @@ public class HornetQRAProperties extends ConnectionFactoryProperties implements 
     * Class used to locate the Transaction Manager.
     * Using JBoss5 as the default locator
     */
-   private String transactionManagerLocatorClass = "org.apache.activemq6.integration.jboss.tm.JBoss5TransactionManagerLocator;org.apache.activemq6.integration.jboss.tm.JBoss4TransactionManagerLocator";
+   private String transactionManagerLocatorClass = "org.apache.activemq.integration.jboss.tm.JBoss5TransactionManagerLocator;org.apache.activemq.integration.jboss.tm.JBoss4TransactionManagerLocator";
 
    /**
     * Method used to locate the TM

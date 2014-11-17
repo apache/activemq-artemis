@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -39,33 +39,33 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.journal.IOCompletion;
-import org.apache.activemq6.core.journal.JournalLoadInformation;
-import org.apache.activemq6.core.journal.LoaderCallback;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.TestableJournal;
-import org.apache.activemq6.core.journal.TransactionFailureCallback;
-import org.apache.activemq6.core.journal.impl.dataformat.ByteArrayEncoding;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalAddRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalAddRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalCompleteRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalCompleteRecordTX.TX_RECORD_TYPE;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalDeleteRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalDeleteRecordTX;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalInternalRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalRollbackRecordTX;
-import org.apache.activemq6.journal.HornetQJournalBundle;
-import org.apache.activemq6.journal.HornetQJournalLogger;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.journal.IOCompletion;
+import org.apache.activemq.core.journal.JournalLoadInformation;
+import org.apache.activemq.core.journal.LoaderCallback;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.TestableJournal;
+import org.apache.activemq.core.journal.TransactionFailureCallback;
+import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
+import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalCompleteRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalCompleteRecordTX.TX_RECORD_TYPE;
+import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecordTX;
+import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalRollbackRecordTX;
+import org.apache.activemq.journal.HornetQJournalBundle;
+import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * <p>A circular log implementation.</p

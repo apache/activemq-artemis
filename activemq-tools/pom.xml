@@ -3,12 +3,12 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6</groupId>
-      <artifactId>activemq6-pom</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pom</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq6-tools</artifactId>
+   <artifactId>activemq-tools</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ6 Tools</name>
 
@@ -22,13 +22,13 @@
          <artifactId>jboss-logging-processor</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-server</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-server</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-jms-server</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-jms-server</artifactId>
          <version>${project.version}</version>
       </dependency>
    </dependencies>
@@ -44,7 +44,7 @@
             <configuration>
                <archive>
                   <manifest>
-                     <mainClass>org.apache.activemq6.tools.Main</mainClass>
+                     <mainClass>org.apache.activemq.tools.Main</mainClass>
                   </manifest>
                </archive>
                <descriptorRefs>

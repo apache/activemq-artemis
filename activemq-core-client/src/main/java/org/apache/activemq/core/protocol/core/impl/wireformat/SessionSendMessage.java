@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -27,12 +27,12 @@ public class SessionSendMessage extends MessagePacket
    private boolean requiresResponse;
 
    /**
-    * In case, we are using a different handler than the one set on the {@link org.apache.activemq6.api.core.client.ClientSession}
+    * In case, we are using a different handler than the one set on the {@link org.apache.activemq.api.core.client.ClientSession}
     * <p/>
     * This field is only used at the client side.
     *
-    * @see org.apache.activemq6.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
-    * @see org.apache.activemq6.api.core.client.ClientProducer#send(org.apache.activemq6.api.core.SimpleString, org.apache.activemq6.api.core.Message, SendAcknowledgementHandler)
+    * @see org.apache.activemq.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
+    * @see org.apache.activemq.api.core.client.ClientProducer#send(org.apache.activemq.api.core.SimpleString, org.apache.activemq.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
 

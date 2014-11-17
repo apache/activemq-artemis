@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.message;
+package org.apache.activemq.jms.tests.message;
 import org.junit.Before;
 import org.junit.After;
 
@@ -20,7 +20,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 
 /**
  * A test that sends/receives text messages to the JMS provider and verifies their integrity.

@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.impl;
+package org.apache.activemq.core.paging.impl;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.persistence.OperationContext;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.persistence.OperationContext;
 
 /**
  * This will batch multiple calls waiting to perform a sync in a single call.

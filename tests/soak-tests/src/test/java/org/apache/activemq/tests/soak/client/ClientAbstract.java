@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.soak.client;
+package org.apache.activemq.tests.soak.client;
 
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * WARNING: This is not a sample on how you should handle XA. You are supposed to use a

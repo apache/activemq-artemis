@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire.amq;
+package org.apache.activemq.core.protocol.openwire.amq;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,21 +43,21 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.wireformat.WireFormat;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.paging.impl.PagingStoreImpl;
-import org.apache.activemq6.core.protocol.openwire.OpenWireConnection;
-import org.apache.activemq6.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq6.core.protocol.openwire.OpenWireProtocolManager;
-import org.apache.activemq6.core.protocol.openwire.OpenWireUtil;
-import org.apache.activemq6.core.protocol.openwire.SendingResult;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.paging.impl.PagingStoreImpl;
+import org.apache.activemq.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.core.protocol.openwire.OpenWireProtocolManager;
+import org.apache.activemq.core.protocol.openwire.OpenWireUtil;
+import org.apache.activemq.core.protocol.openwire.SendingResult;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
 
 public class AMQSession implements SessionCallback
 {

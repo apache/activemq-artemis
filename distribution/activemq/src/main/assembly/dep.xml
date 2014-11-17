@@ -25,8 +25,8 @@
       <dependencySet>
          <includes>
             <!-- modules -->
-            <include>org.apache.activemq6:*</include>
-            <include>org.apache.activemq6.rest:activemq6-rest</include>
+            <include>org.apache.activemq:*</include>
+            <include>org.apache.activemq.rest:activemq-rest</include>
             <!-- dependencies -->
             <include>org.jboss.spec.javax.jms:jboss-jms-api_2.0_spec</include>
             <include>org.jboss.naming:jnpserver</include>
@@ -51,7 +51,7 @@
       <!-- native -->
       <dependencySet>
          <includes>
-            <include>org.apache.activemq6:activemq6-native</include>
+            <include>org.apache.activemq:activemq-native</include>
          </includes>
          <outputDirectory>bin</outputDirectory>
          <unpack>true</unpack>
@@ -64,10 +64,10 @@
       <!-- javadoc -->
       <dependencySet>
         <includes>
-          <include>org.apache.activemq6:activemq6-core-client:*:javadoc</include>
-          <include>org.apache.activemq6:activemq6-server:*:javadoc</include>
-          <include>org.apache.activemq6:activemq6-jms-server:*:javadoc</include>
-          <include>org.apache.activemq6:activemq6-jms-client:*:javadoc</include>
+          <include>org.apache.activemq:activemq-core-client:*:javadoc</include>
+          <include>org.apache.activemq:activemq-server:*:javadoc</include>
+          <include>org.apache.activemq:activemq-jms-server:*:javadoc</include>
+          <include>org.apache.activemq:activemq-jms-client:*:javadoc</include>
         </includes>
         <outputDirectory>docs/api/${artifact.artifactId}</outputDirectory>
         <unpack>true</unpack>
@@ -76,12 +76,12 @@
    <fileSets>
      <!-- schema -->
      <fileSet>
-       <directory>../../activemq6-server/src/main/resources/schema/</directory>
+       <directory>../../activemq-server/src/main/resources/schema/</directory>
        <outputDirectory>schema</outputDirectory>
        <lineEnding>keep</lineEnding>
      </fileSet>
      <fileSet>
-       <directory>../../activemq6-jms-server/src/main/resources/schema/</directory>
+       <directory>../../activemq-jms-server/src/main/resources/schema/</directory>
        <outputDirectory>schema</outputDirectory>
        <lineEnding>keep</lineEnding>
      </fileSet>

@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.MemorySize;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.MemorySize;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A ServerMessageImpl
@@ -51,7 +51,7 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage
    {
       // This is an estimate of how much memory a ServerMessageImpl takes up, exclusing body and properties
       // Note, it is only an estimate, it's not possible to be entirely sure with Java
-      // This figure is calculated using the test utilities in org.apache.activemq6.tests.unit.util.sizeof
+      // This figure is calculated using the test utilities in org.apache.activemq.tests.unit.util.sizeof
       // The value is somewhat higher on 64 bit architectures, probably due to different alignment
 
       if (MemorySize.is64bitArch())

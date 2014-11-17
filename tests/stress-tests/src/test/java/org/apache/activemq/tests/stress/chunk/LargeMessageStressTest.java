@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.stress.chunk;
+package org.apache.activemq.tests.stress.chunk;
 
 import org.junit.Test;
 
-import org.apache.activemq6.tests.integration.largemessage.LargeMessageTestBase;
+import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
 
 /**
  * A MessageChunkSoakTest

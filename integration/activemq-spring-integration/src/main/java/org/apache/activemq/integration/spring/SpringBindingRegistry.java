@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.spring;
+package org.apache.activemq.integration.spring;
 
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 

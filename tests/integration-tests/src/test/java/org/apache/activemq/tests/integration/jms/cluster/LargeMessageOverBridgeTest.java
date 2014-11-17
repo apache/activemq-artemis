@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.cluster;
+package org.apache.activemq.tests.integration.jms.cluster;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -20,13 +20,13 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.tests.util.JMSClusteredTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 
 /**

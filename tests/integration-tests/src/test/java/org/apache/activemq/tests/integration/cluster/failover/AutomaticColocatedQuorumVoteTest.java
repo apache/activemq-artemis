@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,24 +21,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.config.ScaleDownConfiguration;
-import org.apache.activemq6.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.config.ScaleDownConfiguration;
+import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

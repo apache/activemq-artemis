@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.impl;
+package org.apache.activemq.core.server.cluster.impl;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -19,17 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.filter.impl.FilterImpl;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.server.Bindable;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.filter.impl.FilterImpl;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.server.Bindable;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
 
 /**
  * A RemoteQueueBindingImpl

@@ -11,12 +11,12 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.unit.core.remoting.server.impl.fake;
+package org.apache.activemq.tests.unit.core.remoting.server.impl.fake;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>

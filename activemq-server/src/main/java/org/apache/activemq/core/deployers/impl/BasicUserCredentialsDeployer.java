@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.deployers.impl;
+package org.apache.activemq.core.deployers.impl;
 
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.utils.PasswordMaskingUtil;
-import org.apache.activemq6.utils.SensitiveDataCodec;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.utils.PasswordMaskingUtil;
+import org.apache.activemq.utils.SensitiveDataCodec;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -63,7 +63,7 @@ public class BasicUserCredentialsDeployer extends XmlDeployer
    @Override
    public void validate(final Node rootNode) throws Exception
    {
-      org.apache.activemq6.utils.XMLUtil.validate(rootNode, "schema/hornetq-users.xsd");
+      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/hornetq-users.xsd");
    }
 
    @Override

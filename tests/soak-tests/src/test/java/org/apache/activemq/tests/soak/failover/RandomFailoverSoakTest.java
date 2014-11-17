@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.soak.failover;
+package org.apache.activemq.tests.soak.failover;
 
-import org.apache.activemq6.tests.integration.cluster.reattach.RandomReattachTest;
+import org.apache.activemq.tests.integration.cluster.reattach.RandomReattachTest;
 
 /**
  * A RandomFailoverSoakTest

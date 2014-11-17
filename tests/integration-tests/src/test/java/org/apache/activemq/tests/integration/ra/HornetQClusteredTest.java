@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.ra;
+package org.apache.activemq.tests.integration.ra;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.inflow.HornetQActivation;
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.inflow.HornetQActivation;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;

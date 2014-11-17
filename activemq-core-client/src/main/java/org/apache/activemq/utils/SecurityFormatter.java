@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
-import org.apache.activemq6.core.security.Role;
+import org.apache.activemq.core.security.Role;
 
 import java.util.ArrayList;
 import java.util.HashSet;

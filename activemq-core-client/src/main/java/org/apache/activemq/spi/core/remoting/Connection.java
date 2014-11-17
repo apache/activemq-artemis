@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 
 import io.netty.channel.ChannelFutureListener;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.security.HornetQPrincipal;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * The connection used by a channel to write data to.

@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging;
+package org.apache.activemq.core.paging;
 
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.ServerMessage;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.ServerMessage;
 
 /**
  * A Paged message.

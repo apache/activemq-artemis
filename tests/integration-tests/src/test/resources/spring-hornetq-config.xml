@@ -8,13 +8,13 @@
 
     <connectors>
         <connector name="in-vm">
-            <factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory</factory-class>
+            <factory-class>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</factory-class>
         </connector>
     </connectors>
 
     <acceptors>
         <acceptor name="in-vm">
-            <factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>
+            <factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>
         </acceptor>
     </acceptors>
 

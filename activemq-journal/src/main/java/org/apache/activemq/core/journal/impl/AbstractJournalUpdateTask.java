@@ -10,22 +10,22 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.dataformat.ByteArrayEncoding;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalAddRecord;
-import org.apache.activemq6.core.journal.impl.dataformat.JournalInternalRecord;
-import org.apache.activemq6.utils.ConcurrentHashSet;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
+import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecord;
+import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.utils.ConcurrentHashSet;
 
 /**
  *

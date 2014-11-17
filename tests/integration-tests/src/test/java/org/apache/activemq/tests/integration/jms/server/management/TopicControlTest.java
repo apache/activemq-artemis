@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.server.management;
+package org.apache.activemq.tests.integration.jms.server.management;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -25,27 +25,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.ObjectNameBuilder;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.management.JMSServerControl;
-import org.apache.activemq6.api.jms.management.SubscriptionInfo;
-import org.apache.activemq6.api.jms.management.TopicControl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQTopic;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.jms.server.management.JMSNotificationType;
-import org.apache.activemq6.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq6.tests.integration.management.ManagementTestBase;
-import org.apache.activemq6.tests.unit.util.InVMNamingContext;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.utils.json.JSONArray;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.management.JMSServerControl;
+import org.apache.activemq.api.jms.management.SubscriptionInfo;
+import org.apache.activemq.api.jms.management.TopicControl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.jms.server.management.JMSNotificationType;
+import org.apache.activemq.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.utils.json.JSONArray;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -597,7 +597,7 @@ public class TopicControlTest extends ManagementTestBase
       super.setUp();
 
       Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory"));
+         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory"));
       server = HornetQServers.newHornetQServer(conf, mbeanServer, false);
       server.start();
 

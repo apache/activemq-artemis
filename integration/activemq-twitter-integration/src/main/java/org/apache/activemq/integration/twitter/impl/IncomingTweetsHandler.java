@@ -10,23 +10,23 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.twitter.impl;
+package org.apache.activemq.integration.twitter.impl;
 
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.ConnectorService;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.integration.twitter.TwitterConstants;
-import org.apache.activemq6.twitter.HornetQTwitterLogger;
-import org.apache.activemq6.utils.ConfigurationHelper;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.integration.twitter.TwitterConstants;
+import org.apache.activemq.twitter.HornetQTwitterLogger;
+import org.apache.activemq.utils.ConfigurationHelper;
 import twitter4j.GeoLocation;
 import twitter4j.Paging;
 import twitter4j.Place;

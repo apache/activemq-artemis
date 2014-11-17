@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.test;
+package org.apache.activemq.rest.test;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -20,9 +20,9 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import java.io.Serializable;
 
-import org.apache.activemq6.rest.HttpHeaderProperty;
-import org.apache.activemq6.rest.integration.EmbeddedRestHornetQJMS;
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
+import org.apache.activemq.rest.HttpHeaderProperty;
+import org.apache.activemq.rest.integration.EmbeddedRestHornetQJMS;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -22,7 +22,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.common.example.HornetQExample;
 
 /**
  * This example demonstrates how sessions created from a single connection can be load
@@ -75,9 +75,9 @@ public class ClientSideLoadBalancingExample extends HornetQExample
          Session sessionB = connectionB.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session sessionC = connectionC.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         System.out.println("Session A - " + ((org.apache.activemq6.core.client.impl.DelegatingSession) ((org.apache.activemq6.jms.client.HornetQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress() );
-         System.out.println("Session B - " + ((org.apache.activemq6.core.client.impl.DelegatingSession) ((org.apache.activemq6.jms.client.HornetQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress() );
-         System.out.println("Session C - " + ((org.apache.activemq6.core.client.impl.DelegatingSession) ((org.apache.activemq6.jms.client.HornetQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress() );
+         System.out.println("Session A - " + ((org.apache.activemq.core.client.impl.DelegatingSession) ((org.apache.activemq.jms.client.HornetQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress() );
+         System.out.println("Session B - " + ((org.apache.activemq.core.client.impl.DelegatingSession) ((org.apache.activemq.jms.client.HornetQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress() );
+         System.out.println("Session C - " + ((org.apache.activemq.core.client.impl.DelegatingSession) ((org.apache.activemq.jms.client.HornetQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress() );
 
          // Step 6. We create JMS MessageProducer objects on the sessions
          MessageProducer producerA = sessionA.createProducer(queue);

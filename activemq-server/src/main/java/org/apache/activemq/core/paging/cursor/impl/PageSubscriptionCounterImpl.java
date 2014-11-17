@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor.impl;
+package org.apache.activemq.core.paging.cursor.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,17 +20,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionOperation;
-import org.apache.activemq6.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq6.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq6.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionOperation;
+import org.apache.activemq.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
 
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription

@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 
 public final class ReplicatedBackupUtils
 {

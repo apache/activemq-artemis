@@ -13,24 +13,24 @@
 /**
  *
  */
-package org.apache.activemq6.tests.integration.cluster.util;
+package org.apache.activemq.tests.integration.cluster.util;
 
 import java.util.concurrent.locks.Lock;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.ChannelHandler;
-import org.apache.activemq6.core.protocol.core.CommandConfirmationHandler;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
-import org.apache.activemq6.core.replication.ReplicationEndpoint;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.impl.SharedNothingBackupActivation;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.ChannelHandler;
+import org.apache.activemq.core.protocol.core.CommandConfirmationHandler;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
+import org.apache.activemq.core.replication.ReplicationEndpoint;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * An interceptor to keep a replicated backup server from reaching "up-to-date" status.

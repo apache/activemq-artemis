@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.service;
+package org.apache.activemq.service;
 
-import org.apache.activemq6.integration.jboss.security.JBossASSecurityManager;
+import org.apache.activemq.integration.jboss.security.JBossASSecurityManager;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

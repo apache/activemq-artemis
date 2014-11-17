@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq6.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;

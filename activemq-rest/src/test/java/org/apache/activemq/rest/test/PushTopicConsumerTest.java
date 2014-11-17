@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.test;
+package org.apache.activemq.rest.test;
 
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.rest.queue.QueueDeployment;
-import org.apache.activemq6.rest.queue.push.HornetQPushStrategy;
-import org.apache.activemq6.rest.queue.push.xml.XmlLink;
-import org.apache.activemq6.rest.topic.PushTopicRegistration;
-import org.apache.activemq6.rest.topic.TopicDeployment;
+import org.apache.activemq.rest.queue.QueueDeployment;
+import org.apache.activemq.rest.queue.push.HornetQPushStrategy;
+import org.apache.activemq.rest.queue.push.xml.XmlLink;
+import org.apache.activemq.rest.topic.PushTopicRegistration;
+import org.apache.activemq.rest.topic.TopicDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;

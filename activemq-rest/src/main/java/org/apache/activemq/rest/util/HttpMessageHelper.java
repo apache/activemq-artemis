@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.util;
+package org.apache.activemq.rest.util;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.HttpHeaderProperty;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.HttpHeaderProperty;
 import org.jboss.resteasy.client.ClientRequest;
 
 import javax.ws.rs.core.HttpHeaders;

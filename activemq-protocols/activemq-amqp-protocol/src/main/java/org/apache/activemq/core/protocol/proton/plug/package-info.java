@@ -15,4 +15,4 @@
  * This package contains classes for integration with the ProtonPlug
  * @author Clebert Suconic
  */
-package org.apache.activemq6.core.protocol.proton.plug;
+package org.apache.activemq.core.protocol.proton.plug;

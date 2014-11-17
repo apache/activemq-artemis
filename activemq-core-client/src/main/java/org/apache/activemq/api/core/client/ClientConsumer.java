@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.spi.core.remoting.ConsumerContext;
 
 /**
  * A ClientConsumer receives messages from HornetQ queues.

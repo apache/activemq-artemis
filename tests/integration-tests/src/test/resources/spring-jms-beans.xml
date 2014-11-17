@@ -4,14 +4,14 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-   <bean id="EmbeddedJms" class="org.apache.activemq6.integration.spring.SpringJmsBootstrap" init-method="start">
+   <bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start">
        <property name="configResourcePath" value="spring-hornetq-config.xml"/>
        <property name="jmsConfigResourcePath" value="spring-hornetq-jms.xml"/>
    </bean>
 
-    <bean id="listener" class="org.apache.activemq6.tests.integration.spring.ExampleListener"/>
+    <bean id="listener" class="org.apache.activemq.tests.integration.spring.ExampleListener"/>
     
-    <bean id="MessageSender" class="org.apache.activemq6.tests.integration.spring.MessageSender">
+    <bean id="MessageSender" class="org.apache.activemq.tests.integration.spring.MessageSender">
         <property name="connectionFactory" ref="ConnectionFactory"/>
         <property name="destination" ref="/queue/exampleQueue"/>
     </bean>

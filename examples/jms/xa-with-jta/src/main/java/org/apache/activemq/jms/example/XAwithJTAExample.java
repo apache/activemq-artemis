@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -28,7 +28,7 @@ import javax.transaction.xa.Xid;
 
 import com.arjuna.ats.jta.TransactionManager;
 
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.common.example.HornetQExample;
 
 /**
  * A simple JMS example showing the HornetQ XA support with JTA.

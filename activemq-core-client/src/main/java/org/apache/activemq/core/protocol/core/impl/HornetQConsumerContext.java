@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.core.impl;
+package org.apache.activemq.core.protocol.core.impl;
 
-import org.apache.activemq6.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.spi.core.remoting.ConsumerContext;
 
 /**
  * @author Clebert Suconic

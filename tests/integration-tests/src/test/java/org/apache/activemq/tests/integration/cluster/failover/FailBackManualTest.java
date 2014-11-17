@@ -10,26 +10,26 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.server.impl.InVMNodeManager;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
-import org.apache.activemq6.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq6.tests.util.CountDownSessionFailureListener;
-import org.apache.activemq6.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.server.impl.InVMNodeManager;
+import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.tests.util.CountDownSessionFailureListener;
+import org.apache.activemq.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

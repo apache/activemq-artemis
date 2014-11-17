@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.protocol;
+package org.apache.activemq.spi.core.protocol;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.Connection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.Connection;
 
 /**
  * A ProtocolManager

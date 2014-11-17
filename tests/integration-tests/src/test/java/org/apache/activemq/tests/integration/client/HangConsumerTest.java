@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.client;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.ServerConsumer;
+package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.ServerConsumer;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
@@ -29,47 +29,47 @@ import java.util.concurrent.TimeUnit;
 import javax.management.MBeanServer;
 
 import org.junit.Assert;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.persistence.OperationContext;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveMessage;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.ServerSessionFactory;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.QueueFactoryImpl;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.core.server.impl.ServerSessionImpl;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.utils.ExecutorFactory;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.persistence.OperationContext;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.ServerSessionFactory;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.QueueFactoryImpl;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * This test will simulate a consumer hanging on the delivery packet due to unbehaved clients
@@ -536,7 +536,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendProducerCreditsMessage(int, org.apache.activemq6.api.core.SimpleString)
+       * @see org.apache.activemq.spi.core.protocol.SessionCallback#sendProducerCreditsMessage(int, org.apache.activemq.api.core.SimpleString)
        */
       @Override
       public void sendProducerCreditsMessage(int credits, SimpleString address)
@@ -550,7 +550,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendMessage(org.apache.activemq6.core.server.ServerMessage, long, int)
+       * @see org.apache.activemq.spi.core.protocol.SessionCallback#sendMessage(org.apache.activemq.core.server.ServerMessage, long, int)
        */
       @Override
       public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount)
@@ -578,7 +578,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendLargeMessage(org.apache.activemq6.core.server.ServerMessage, long, long, int)
+       * @see org.apache.activemq.spi.core.protocol.SessionCallback#sendLargeMessage(org.apache.activemq.core.server.ServerMessage, long, long, int)
        */
       @Override
       public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount)
@@ -587,7 +587,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#sendLargeMessageContinuation(long, byte[], boolean, boolean)
+       * @see org.apache.activemq.spi.core.protocol.SessionCallback#sendLargeMessageContinuation(long, byte[], boolean, boolean)
        */
       @Override
       public int sendLargeMessageContinuation(ServerConsumer consumer, byte[] body, boolean continues, boolean requiresResponse)
@@ -596,7 +596,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#closed()
+       * @see org.apache.activemq.spi.core.protocol.SessionCallback#closed()
        */
       @Override
       public void closed()
@@ -605,7 +605,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#addReadyListener(org.apache.activemq6.spi.core.remoting.ReadyListener)
+       * @see org.apache.activemq.spi.core.protocol.SessionCallback#addReadyListener(org.apache.activemq.spi.core.remoting.ReadyListener)
        */
       @Override
       public void addReadyListener(ReadyListener listener)
@@ -614,7 +614,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.spi.core.protocol.SessionCallback#removeReadyListener(org.apache.activemq6.spi.core.remoting.ReadyListener)
+       * @see org.apache.activemq.spi.core.protocol.SessionCallback#removeReadyListener(org.apache.activemq.spi.core.remoting.ReadyListener)
        */
       @Override
       public void removeReadyListener(ReadyListener listener)

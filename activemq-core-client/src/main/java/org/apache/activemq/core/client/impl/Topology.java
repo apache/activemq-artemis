@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,10 +23,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.spi.core.remoting.Connector;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.spi.core.remoting.Connector;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

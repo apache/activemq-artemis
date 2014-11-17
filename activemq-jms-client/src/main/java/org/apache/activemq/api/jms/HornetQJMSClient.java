@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.jms;
+package org.apache.activemq.api.jms;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQJMSConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQQueueConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQTopicConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQXAConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQXAQueueConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQXATopicConnectionFactory;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.HornetQQueueConnectionFactory;
+import org.apache.activemq.jms.client.HornetQTopicConnectionFactory;
+import org.apache.activemq.jms.client.HornetQXAConnectionFactory;
+import org.apache.activemq.jms.client.HornetQXAQueueConnectionFactory;
+import org.apache.activemq.jms.client.HornetQXATopicConnectionFactory;
 
 /**
  * A utility class for creating HornetQ client-side JMS managed resources.

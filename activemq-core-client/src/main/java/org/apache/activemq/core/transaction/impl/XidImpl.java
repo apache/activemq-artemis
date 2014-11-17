@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.transaction.impl;
+package org.apache.activemq.core.transaction.impl;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.utils.Base64;
+import org.apache.activemq.utils.Base64;
 
 /**
  *

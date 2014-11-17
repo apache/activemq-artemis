@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import java.util.Enumeration;
 import java.util.Vector;
@@ -18,7 +18,7 @@ import java.util.Vector;
 import javax.jms.ConnectionMetaData;
 import javax.jms.JMSException;
 
-import org.apache.activemq6.core.version.Version;
+import org.apache.activemq.core.version.Version;
 
 /**
  * HornetQ implementation of a JMS ConnectionMetaData.

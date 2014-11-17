@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.persistence.config;
+package org.apache.activemq.jms.persistence.config;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.utils.BufferHelper;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.utils.BufferHelper;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * A PersistedJNDI

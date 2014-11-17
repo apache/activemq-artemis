@@ -10,28 +10,28 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.impl.InVMNodeManager;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.integration.cluster.util.SameProcessHornetQServer;
-import org.apache.activemq6.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.impl.InVMNodeManager;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.junit.After;
 import org.junit.Test;
 

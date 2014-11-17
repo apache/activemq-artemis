@@ -10,8 +10,8 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.rest.Jms;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.rest.Jms;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;

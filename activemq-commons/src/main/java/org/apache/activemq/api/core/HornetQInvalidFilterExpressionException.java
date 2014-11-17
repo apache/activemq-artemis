@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.INVALID_FILTER_EXPRESSION;
+import static org.apache.activemq.api.core.HornetQExceptionType.INVALID_FILTER_EXPRESSION;
 
 /**
  * A filter expression was found to be invalid.

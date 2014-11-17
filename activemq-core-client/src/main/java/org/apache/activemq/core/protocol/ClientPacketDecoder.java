@@ -11,18 +11,18 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol;
+package org.apache.activemq.core.protocol;
 
-import static org.apache.activemq6.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
-import static org.apache.activemq6.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
+import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
+import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.client.impl.ClientLargeMessageImpl;
-import org.apache.activemq6.core.client.impl.ClientMessageImpl;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.PacketDecoder;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveClientLargeMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.client.impl.ClientLargeMessageImpl;
+import org.apache.activemq.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.PacketDecoder;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveClientLargeMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  *         10/12/12

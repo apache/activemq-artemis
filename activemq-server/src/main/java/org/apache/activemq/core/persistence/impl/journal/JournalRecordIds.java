@@ -13,7 +13,7 @@
 /**
  *
  */
-package org.apache.activemq6.core.persistence.impl.journal;
+package org.apache.activemq.core.persistence.impl.journal;
 
 /**
  * These record IDs definitions are meant to be public.
@@ -33,7 +33,7 @@ public final class JournalRecordIds
 
    /**
     * Records storing the current recordID number.
-    * @see org.apache.activemq6.utils.IDGenerator
+    * @see org.apache.activemq.utils.IDGenerator
     * @see BatchingIDGenerator
     */
    public static final byte ID_COUNTER_RECORD = 24;

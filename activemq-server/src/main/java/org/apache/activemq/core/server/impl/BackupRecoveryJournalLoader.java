@@ -10,28 +10,28 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.persistence.GroupingInfo;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.QueueFactory;
-import org.apache.activemq6.core.server.cluster.ClusterController;
-import org.apache.activemq6.core.server.cluster.HornetQServerSideProtocolManagerFactory;
-import org.apache.activemq6.core.server.group.GroupingHandler;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.transaction.ResourceManager;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.persistence.GroupingInfo;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.QueueFactory;
+import org.apache.activemq.core.server.cluster.ClusterController;
+import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.group.GroupingHandler;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.transaction.ResourceManager;
 
 import java.util.List;
 import java.util.Map;

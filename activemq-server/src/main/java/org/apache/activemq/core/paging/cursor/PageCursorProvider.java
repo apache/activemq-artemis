@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor;
+package org.apache.activemq.core.paging.cursor;
 
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.paging.PagedMessage;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.paging.PagedMessage;
 
 /**
  * The provider of Cursor for a given Address

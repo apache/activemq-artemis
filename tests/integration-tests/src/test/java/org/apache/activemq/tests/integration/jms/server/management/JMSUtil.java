@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.server.management;
+package org.apache.activemq.tests.integration.jms.server.management;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -32,25 +32,25 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.junit.Assert;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.cluster.ClusterManager;
-import org.apache.activemq6.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq6.jms.client.HornetQConnection;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQJMSConnectionFactory;
-import org.apache.activemq6.tests.integration.cluster.failover.FailoverTestBase;
-import org.apache.activemq6.tests.util.RandomUtil;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.cluster.ClusterManager;
+import org.apache.activemq.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.jms.client.HornetQConnection;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase;
+import org.apache.activemq.tests.util.RandomUtil;
 
 /**
  * A JMSUtil

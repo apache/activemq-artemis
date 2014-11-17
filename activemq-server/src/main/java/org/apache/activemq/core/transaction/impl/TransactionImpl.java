@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.transaction.impl;
+package org.apache.activemq.core.transaction.impl;
 
 import javax.transaction.xa.Xid;
 
@@ -31,14 +31,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.impl.RefsOperation;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionOperation;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.impl.RefsOperation;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionOperation;
 
 /**
  * A TransactionImpl

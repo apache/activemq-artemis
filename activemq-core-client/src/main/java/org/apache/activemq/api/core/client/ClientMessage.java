@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
 
 /**
  *
@@ -120,112 +120,112 @@ public interface ClientMessage extends Message
 
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putBooleanProperty(SimpleString key, boolean value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putBooleanProperty(String key, boolean value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putByteProperty(SimpleString key, byte value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putByteProperty(String key, byte value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putBytesProperty(SimpleString key, byte[] value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putBytesProperty(String key, byte[] value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putShortProperty(SimpleString key, short value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putShortProperty(String key, short value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putCharProperty(SimpleString key, char value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putCharProperty(String key, char value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putIntProperty(SimpleString key, int value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putIntProperty(String key, int value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putLongProperty(SimpleString key, long value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putLongProperty(String key, long value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putFloatProperty(SimpleString key, float value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putFloatProperty(String key, float value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putDoubleProperty(SimpleString key, double value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putDoubleProperty(String key, double value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putStringProperty(SimpleString key, SimpleString value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage putStringProperty(String key, String value);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage writeBodyBufferBytes(byte[] bytes);
 
    /**
-    * Overridden from {@link org.apache.activemq6.api.core.Message} to enable fluent API
+    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
     */
    ClientMessage writeBodyBufferString(String string);
 

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.deployers.impl;
+package org.apache.activemq.core.deployers.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +30,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.deployers.Deployer;
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.deployers.Deployer;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
 
 /**
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>

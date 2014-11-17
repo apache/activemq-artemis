@@ -10,25 +10,25 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config;
+package org.apache.activemq.core.config;
 
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.cluster.ha.BackupPolicy;
-import org.apache.activemq6.core.server.cluster.ha.ColocatedPolicy;
-import org.apache.activemq6.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq6.core.server.cluster.ha.LiveOnlyPolicy;
-import org.apache.activemq6.core.server.cluster.ha.ReplicaPolicy;
-import org.apache.activemq6.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq6.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq6.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq6.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.cluster.ha.BackupPolicy;
+import org.apache.activemq.core.server.cluster.ha.ColocatedPolicy;
+import org.apache.activemq.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.core.server.cluster.ha.ReplicaPolicy;
+import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.core.server.cluster.ha.SharedStoreMasterPolicy;
+import org.apache.activemq.core.server.cluster.ha.SharedStoreSlavePolicy;
 
 public final class ConfigurationUtils
 {

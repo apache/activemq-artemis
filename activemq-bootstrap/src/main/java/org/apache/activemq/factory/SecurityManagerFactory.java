@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.factory;
+package org.apache.activemq.factory;
 
-import org.apache.activemq6.dto.SecurityDTO;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.utils.FactoryFinder;
+import org.apache.activemq.dto.SecurityDTO;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.utils.FactoryFinder;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -25,7 +25,7 @@ public class SecurityManagerFactory
    {
       if (config != null)
       {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq6/security/");
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/security/");
          HornetQSecurityManager manager = (HornetQSecurityManager)finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
          return manager;
       }

@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.remoting.impl.netty;
+package org.apache.activemq.tests.unit.core.remoting.impl.netty;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.tests.unit.core.remoting.HornetQBufferTestBase;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.tests.unit.core.remoting.HornetQBufferTestBase;
 
 /**
  * Same as ChannelBufferWrapperTest, but using a different constructor

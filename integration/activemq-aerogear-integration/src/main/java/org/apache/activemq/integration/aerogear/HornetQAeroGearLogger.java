@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.integration.aerogear;
+package org.apache.activemq.integration.aerogear;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;

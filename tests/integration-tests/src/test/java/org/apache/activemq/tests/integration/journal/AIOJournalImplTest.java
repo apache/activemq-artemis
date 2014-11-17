@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.journal;
+package org.apache.activemq.tests.integration.journal;
 import java.io.File;
 
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.JournalConstants;
-import org.apache.activemq6.tests.unit.core.journal.impl.JournalImplTestUnit;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalConstants;
+import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestUnit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;

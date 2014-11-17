@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue.push.xml;
+package org.apache.activemq.rest.queue.push.xml;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

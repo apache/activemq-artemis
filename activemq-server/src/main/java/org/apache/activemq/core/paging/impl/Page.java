@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.impl;
+package org.apache.activemq.core.paging.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -18,20 +18,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.cursor.LivePageCache;
-import org.apache.activemq6.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.cursor.LivePageCache;
+import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>

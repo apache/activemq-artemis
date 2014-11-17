@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.utils.DataConstants;
 
 /**
  * A SessionContinuationMessage

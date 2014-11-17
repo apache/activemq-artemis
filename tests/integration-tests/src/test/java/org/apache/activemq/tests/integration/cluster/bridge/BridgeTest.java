@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.bridge;
+package org.apache.activemq.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,38 +23,38 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.BridgeConfiguration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.postoffice.DuplicateIDCache;
-import org.apache.activemq6.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SessionSendMessage;
-import org.apache.activemq6.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq6.core.transaction.impl.TransactionImpl;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.LinkedListIterator;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -456,7 +456,7 @@ public class BridgeTest extends ServiceTestBase
    {
       if (isNetty())
       {
-         server1Params.put("port", org.apache.activemq6.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+         server1Params.put("port", org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
       else
       {

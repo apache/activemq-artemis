@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.jms.bridge;
+package org.apache.activemq.jms.bridge;
 
 import javax.management.ObjectName;
 

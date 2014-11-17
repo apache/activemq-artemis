@@ -11,22 +11,22 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.cluster.qourum;
+package org.apache.activemq.core.server.cluster.qourum;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.NodeManager;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.NodeManager;
 
 /**
  * @author Andy Taylor
@@ -56,8 +56,8 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
 
    /**
     * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
-    * with code {@link org.apache.activemq6.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
-    * {@link org.apache.activemq6.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#FAIL_OVER}.
+    * with code {@link org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
+    * {@link org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#FAIL_OVER}.
     * <p/>
     * If the second message does come within this dead line, we fail over anyway.
     */

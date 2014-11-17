@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.NOT_CONNECTED;
+import static org.apache.activemq.api.core.HornetQExceptionType.NOT_CONNECTED;
 
 /**
  * A client is not able to connect to HornetQ server.

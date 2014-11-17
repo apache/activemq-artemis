@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.xa;
+package org.apache.activemq.tests.integration.xa;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,26 +20,26 @@ import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.jms.client.HornetQBytesMessage;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.jms.client.HornetQBytesMessage;
+import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

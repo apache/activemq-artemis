@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.message.foreign;
+package org.apache.activemq.jms.tests.message.foreign;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.StreamMessage;
 
-import org.apache.activemq6.jms.tests.message.SimpleJMSStreamMessage;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.jms.tests.message.SimpleJMSStreamMessage;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 
 /**
  * Tests the delivery/receipt of a foreign stream message

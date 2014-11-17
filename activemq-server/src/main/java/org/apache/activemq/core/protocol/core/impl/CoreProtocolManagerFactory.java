@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl;
+package org.apache.activemq.core.protocol.core.impl;
 
 import java.util.List;
 
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
 /**
  * A CoreProtocolManagerFactory

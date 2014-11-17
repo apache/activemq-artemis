@@ -6,12 +6,12 @@
       <connectors>
 
          <connector name="netty">
-            <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          </connector>
 
 
          <connector name="in-vm">
-            <factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory</factory-class>
+            <factory-class>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</factory-class>
          </connector>
       </connectors>
 
@@ -19,13 +19,13 @@
       <acceptors>
          <!-- In VM acceptor -->
          <acceptor name="in-vm">
-            <factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>
+            <factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>
             <param key="server-id" value="0"/>
          </acceptor>
 
          <!-- Netty TCP Acceptor -->
          <acceptor name="netty">
-            <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          </acceptor>
 
       </acceptors>

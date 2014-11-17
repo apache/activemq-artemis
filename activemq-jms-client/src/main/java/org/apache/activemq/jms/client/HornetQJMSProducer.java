@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * NOTE: this class forwards {@link #setDisableMessageID(boolean)} and

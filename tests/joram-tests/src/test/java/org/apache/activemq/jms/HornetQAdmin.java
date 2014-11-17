@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms;
+package org.apache.activemq.jms;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -20,18 +20,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Hashtable;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientRequestor;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.tests.util.SpawnedVMSupport;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientRequestor;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.objectweb.jtests.jms.admin.Admin;
 
@@ -62,7 +62,7 @@ public class HornetQAdmin implements Admin
     * @see https://github.com/hornetq/hornetq-version-tests
     */
    private final boolean serverLifeCycleActive;
-   private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq6.jms.HornetQAdmin.serverLifeCycle";
+   private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq.jms.HornetQAdmin.serverLifeCycle";
 
    public HornetQAdmin()
    {

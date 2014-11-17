@@ -34,7 +34,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package org.apache.activemq6.utils.json;
+package org.apache.activemq.utils.json;
 
 /**
  * The JSONException is thrown by the JSON.org classes then things are amiss.

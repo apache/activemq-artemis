@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.security;
+package org.apache.activemq.core.security;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

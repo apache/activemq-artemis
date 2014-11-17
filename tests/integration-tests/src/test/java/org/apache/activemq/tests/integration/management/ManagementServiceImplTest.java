@@ -10,29 +10,29 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.management;
+package org.apache.activemq.tests.integration.management;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.AddressControl;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.core.server.management.impl.ManagementServiceImpl;
-import org.apache.activemq6.tests.integration.server.FakeStorageManager;
-import org.apache.activemq6.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.server.management.impl.ManagementServiceImpl;
+import org.apache.activemq.tests.integration.server.FakeStorageManager;
+import org.apache.activemq.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /*
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

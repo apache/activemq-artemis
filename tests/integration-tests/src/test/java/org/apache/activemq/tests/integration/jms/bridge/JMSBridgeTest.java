@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.bridge;
+package org.apache.activemq.tests.integration.jms.bridge;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -30,13 +30,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.jms.HornetQJMSConstants;
-import org.apache.activemq6.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq6.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq6.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
 import org.junit.Test;
 

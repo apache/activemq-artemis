@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.example;
+package org.apache.activemq.javaee.example;
 
-import org.apache.activemq6.javaee.example.server2.StatelessSenderService;
+import org.apache.activemq.javaee.example.server2.StatelessSenderService;
 
 import javax.jms.Connection;
 import javax.naming.Context;
@@ -39,7 +39,7 @@ public class MDBRemoteClientExample
          initialContext = new InitialContext(env);
 
          // Step 2. Lookup the EJB
-         StatelessSenderService sender = (StatelessSenderService)initialContext.lookup("ejb:/test//StatelessSender!org.apache.activemq6.javaee.example.server2.StatelessSenderService");
+         StatelessSenderService sender = (StatelessSenderService)initialContext.lookup("ejb:/test//StatelessSender!org.apache.activemq.javaee.example.server2.StatelessSenderService");
 
          //Step 3. Calling a Stateless Session Bean. You will have more steps on the SessionBean
          sender.sendHello("Hello there MDB!");

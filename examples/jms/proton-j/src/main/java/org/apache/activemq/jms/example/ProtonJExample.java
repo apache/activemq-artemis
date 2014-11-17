@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 
 import org.apache.qpid.amqp_1_0.client.Connection;
@@ -19,7 +19,7 @@ import org.apache.qpid.amqp_1_0.client.Receiver;
 import org.apache.qpid.amqp_1_0.client.Sender;
 import org.apache.qpid.amqp_1_0.client.Session;
 import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.common.example.HornetQExample;
 
 public class ProtonJExample extends HornetQExample
 {

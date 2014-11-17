@@ -10,19 +10,19 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.server.impl.fakes;
+package org.apache.activemq.tests.unit.core.server.impl.fakes;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.QueueFactory;
-import org.apache.activemq6.core.server.impl.QueueImpl;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueFactory;
+import org.apache.activemq.core.server.impl.QueueImpl;
 
 /**
  *

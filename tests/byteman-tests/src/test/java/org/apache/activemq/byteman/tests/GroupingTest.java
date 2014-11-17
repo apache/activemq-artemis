@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -21,10 +21,10 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -74,10 +74,10 @@ public class GroupingTest extends JMSTestBase
                @BMRule
                   (
                      name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq6.core.server.impl.ServerSessionImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.ServerSessionImpl",
                      targetMethod = "rollback",
                      targetLocation = "EXIT",
-                     action = "org.apache.activemq6.byteman.tests.GroupingTest.pause();"
+                     action = "org.apache.activemq.byteman.tests.GroupingTest.pause();"
                   )
             }
       )

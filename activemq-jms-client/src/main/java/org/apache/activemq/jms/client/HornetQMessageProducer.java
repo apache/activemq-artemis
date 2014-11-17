@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.client;
+package org.apache.activemq.jms.client;
 
 import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
@@ -30,14 +30,14 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.utils.UUID;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.utils.UUID;
+import org.apache.activemq.utils.UUIDGenerator;
 /**
  * HornetQ implementation of a JMS MessageProducer.
  *
@@ -556,7 +556,7 @@ public class HornetQMessageProducer implements MessageProducer, QueueSender, Top
       }
 
       @Override
-      public void sendAcknowledged(org.apache.activemq6.api.core.Message clientMessage)
+      public void sendAcknowledged(org.apache.activemq.api.core.Message clientMessage)
       {
          if (jmsMessage instanceof StreamMessage)
          {

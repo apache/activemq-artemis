@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.message;
+package org.apache.activemq.jms.tests.message;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

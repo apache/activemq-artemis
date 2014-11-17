@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.group.impl;
+package org.apache.activemq.core.server.group.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,17 +24,17 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.core.persistence.OperationContext;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.utils.ExecutorFactory;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.core.persistence.OperationContext;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A Local Grouping handler. All the Remote handlers will talk with us

@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.util.concurrent.locks.Lock;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.utils.ConfirmationWindowWarning;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.utils.ConfirmationWindowWarning;
 
 /**
  * A ClientSessionFactoryInternal

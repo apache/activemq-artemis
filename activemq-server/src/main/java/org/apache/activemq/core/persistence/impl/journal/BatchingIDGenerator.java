@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.persistence.impl.journal;
+package org.apache.activemq.core.persistence.impl.journal;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.IDGenerator;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.IDGenerator;
 
 /**
  * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID

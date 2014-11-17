@@ -10,8 +10,8 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
+package org.apache.activemq.tests.integration.jms;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -27,20 +27,20 @@ import javax.jms.Session;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  *

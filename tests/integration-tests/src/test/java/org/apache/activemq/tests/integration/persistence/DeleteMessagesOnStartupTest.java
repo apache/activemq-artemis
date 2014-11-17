@@ -10,22 +10,22 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.persistence;
+package org.apache.activemq.tests.integration.persistence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.persistence.GroupingInfo;
-import org.apache.activemq6.core.persistence.QueueBindingInfo;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.PostOfficeJournalLoader;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq6.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.persistence.GroupingInfo;
+import org.apache.activemq.core.persistence.QueueBindingInfo;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.PostOfficeJournalLoader;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.junit.Test;
 
 /**

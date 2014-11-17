@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.jms.client.HornetQBytesMessage;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.jms.client.HornetQBytesMessage;
+import org.apache.activemq.jms.client.HornetQTextMessage;
 
 public final class CreateMessage
 {

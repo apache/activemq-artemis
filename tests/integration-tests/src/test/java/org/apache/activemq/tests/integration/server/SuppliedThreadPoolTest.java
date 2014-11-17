@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.server;
+package org.apache.activemq.tests.integration.server;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ExecutorService;
@@ -21,10 +21,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.ServiceRegistry;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ServiceRegistry;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

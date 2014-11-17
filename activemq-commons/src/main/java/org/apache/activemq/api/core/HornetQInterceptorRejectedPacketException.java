@@ -11,13 +11,13 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.INTERCEPTOR_REJECTED_PACKET;
+import static org.apache.activemq.api.core.HornetQExceptionType.INTERCEPTOR_REJECTED_PACKET;
 
 /**
  * An outgoing interceptor returned false.
- * @see org.apache.activemq6.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq6.api.core.Interceptor)
+ * @see org.apache.activemq.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq.api.core.Interceptor)
  * @author Justin Bertram
  */
 // XXX I doubt any reader will make much sense of this Javadoc's text.

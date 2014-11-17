@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -23,14 +23,14 @@ import javax.naming.Reference;
 import javax.naming.Referenceable;
 import java.io.Serializable;
 
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQJMSConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQQueue;
-import org.apache.activemq6.jms.client.HornetQTopic;
-import org.apache.activemq6.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq6.jms.referenceable.DestinationObjectFactory;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.HornetQQueue;
+import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
+import org.apache.activemq.jms.referenceable.DestinationObjectFactory;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 /**

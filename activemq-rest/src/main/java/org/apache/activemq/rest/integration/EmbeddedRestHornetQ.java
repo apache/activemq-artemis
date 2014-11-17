@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.integration;
+package org.apache.activemq.rest.integration;
 
-import org.apache.activemq6.core.server.embedded.EmbeddedHornetQ;
+import org.apache.activemq.core.server.embedded.EmbeddedHornetQ;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
-import org.apache.activemq6.rest.MessageServiceManager;
+import org.apache.activemq.rest.MessageServiceManager;
 import org.jboss.resteasy.test.TestPortProvider;
 
 /**

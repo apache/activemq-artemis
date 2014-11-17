@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.stomp;
+package org.apache.activemq.core.protocol.stomp;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffer;
 
-import static org.apache.activemq6.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * A StompDecoder

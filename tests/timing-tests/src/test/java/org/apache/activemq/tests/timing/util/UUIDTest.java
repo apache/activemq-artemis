@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.timing.util;
+package org.apache.activemq.tests.timing.util;
 
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  *
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  *
  */
-public class UUIDTest extends org.apache.activemq6.tests.unit.util.UUIDTest
+public class UUIDTest extends org.apache.activemq.tests.unit.util.UUIDTest
 {
 
    // Constants -----------------------------------------------------

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.messagecounter.impl;
+package org.apache.activemq.core.messagecounter.impl;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -18,9 +18,9 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.activemq6.api.core.management.DayCounterInfo;
-import org.apache.activemq6.core.messagecounter.MessageCounter;
-import org.apache.activemq6.core.messagecounter.MessageCounter.DayCounter;
+import org.apache.activemq.api.core.management.DayCounterInfo;
+import org.apache.activemq.core.messagecounter.MessageCounter;
+import org.apache.activemq.core.messagecounter.MessageCounter.DayCounter;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

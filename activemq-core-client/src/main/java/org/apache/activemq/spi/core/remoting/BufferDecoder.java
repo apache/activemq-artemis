@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffer;
 
 /**
  * A BufferDecoder
@@ -24,7 +24,7 @@ import org.apache.activemq6.api.core.HornetQBuffer;
 public interface BufferDecoder
 {
    /**
-    * called by the remoting system prior to {@link org.apache.activemq6.spi.core.remoting.BufferHandler#bufferReceived(Object, org.apache.activemq6.api.core.HornetQBuffer)}.
+    * called by the remoting system prior to {@link org.apache.activemq.spi.core.remoting.BufferHandler#bufferReceived(Object, org.apache.activemq.api.core.HornetQBuffer)}.
     * <p>
     * The implementation should return true if there is enough data in the buffer to decode. otherwise false.
     *                  * @param buffer the buffer

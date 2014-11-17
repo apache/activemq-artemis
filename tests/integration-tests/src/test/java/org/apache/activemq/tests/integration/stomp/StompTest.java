@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.stomp;
+package org.apache.activemq.tests.integration.stomp;
 
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.activemq6.core.protocol.stomp.Stomp;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.junit.Assert;
 import org.junit.Test;
 

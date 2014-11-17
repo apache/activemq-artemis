@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.jms.management;
+package org.apache.activemq.api.jms.management;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.Operation;
-import org.apache.activemq6.api.core.management.Parameter;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.Operation;
+import org.apache.activemq.api.core.management.Parameter;
 
 /**
  * A ConnectionFactoryControl is used to manage a JMS ConnectionFactory. <br>
@@ -281,7 +281,7 @@ public interface ConnectionFactoryControl
 
 
    /**
-    * @see org.apache.activemq6.api.core.client.ServerLocator#getProducerWindowSize()
+    * @see org.apache.activemq.api.core.client.ServerLocator#getProducerWindowSize()
     */
    int getProducerWindowSize();
 

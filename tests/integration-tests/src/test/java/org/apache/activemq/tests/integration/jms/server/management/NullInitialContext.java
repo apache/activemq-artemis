@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.server.management;
+package org.apache.activemq.tests.integration.jms.server.management;
 
 import javax.naming.InitialContext;
 import javax.naming.Name;

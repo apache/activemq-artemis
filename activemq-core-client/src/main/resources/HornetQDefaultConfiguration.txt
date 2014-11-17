@@ -1,7 +1,7 @@
-package org.apache.activemq6.api.config;
+package org.apache.activemq.api.config;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.impl.JournalConstants;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.impl.JournalConstants;
 
 /**
  * Default values of HornetQ configuration parameters.

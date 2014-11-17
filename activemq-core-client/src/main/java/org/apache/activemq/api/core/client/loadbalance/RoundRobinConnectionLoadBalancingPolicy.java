@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.client.loadbalance;
+package org.apache.activemq.api.core.client.loadbalance;
 
 import java.io.Serializable;
 
-import org.apache.activemq6.utils.Random;
+import org.apache.activemq.utils.Random;
 
 /**
  * RoundRobinConnectionLoadBalancingPolicy corresponds to a round-robin load-balancing policy.

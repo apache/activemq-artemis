@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.server.impl.MessageReferenceImpl;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.utils.MemorySize;
+import org.apache.activemq.core.server.impl.MessageReferenceImpl;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.utils.MemorySize;
 
 /**
  * A MemorySizeTest

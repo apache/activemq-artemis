@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.concurrent.server.impl;
+package org.apache.activemq.tests.concurrent.server.impl;
 import org.junit.Before;
 import org.junit.After;
 
@@ -19,16 +19,16 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.server.HandleStatus;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.unit.core.server.impl.fakes.FakeConsumer;
-import org.apache.activemq6.tests.unit.core.server.impl.fakes.FakeQueueFactory;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.HandleStatus;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.unit.core.server.impl.fakes.FakeConsumer;
+import org.apache.activemq.tests.unit.core.server.impl.fakes.FakeQueueFactory;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  *

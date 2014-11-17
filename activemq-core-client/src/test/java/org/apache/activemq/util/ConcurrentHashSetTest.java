@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.util;
+package org.apache.activemq.util;
 import org.junit.Before;
 import org.junit.After;
 
@@ -21,9 +21,9 @@ import java.util.Iterator;
 import org.junit.Assert;
 
 
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.ConcurrentSet;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.ConcurrentSet;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

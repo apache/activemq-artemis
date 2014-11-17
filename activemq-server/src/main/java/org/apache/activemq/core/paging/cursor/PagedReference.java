@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor;
+package org.apache.activemq.core.paging.cursor;
 
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.server.MessageReference;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.server.MessageReference;
 
 /**
  * A PagedReference

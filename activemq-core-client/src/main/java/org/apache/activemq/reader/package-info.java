@@ -18,4 +18,4 @@
  * this is done at the server's
  * @author Clebert Suconic
  */
-package org.apache.activemq6.reader;
+package org.apache.activemq.reader;

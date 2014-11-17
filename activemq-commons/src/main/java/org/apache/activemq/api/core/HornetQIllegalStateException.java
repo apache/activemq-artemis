@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
-import static org.apache.activemq6.api.core.HornetQExceptionType.ILLEGAL_STATE;
+import static org.apache.activemq.api.core.HornetQExceptionType.ILLEGAL_STATE;
 
 /**
  * A HornetQ resource is not in a legal state (e.g. calling ClientConsumer.receive() if a

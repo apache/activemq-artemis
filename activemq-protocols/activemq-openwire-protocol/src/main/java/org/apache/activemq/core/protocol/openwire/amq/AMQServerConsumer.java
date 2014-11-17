@@ -10,22 +10,22 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire.amq;
+package org.apache.activemq.core.protocol.openwire.amq;
 
 import java.util.List;
 
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.QueueBinding;
-import org.apache.activemq6.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq6.core.server.HandleStatus;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.core.server.impl.ServerConsumerImpl;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.QueueBinding;
+import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.core.server.HandleStatus;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
 
 public class AMQServerConsumer extends ServerConsumerImpl
 {

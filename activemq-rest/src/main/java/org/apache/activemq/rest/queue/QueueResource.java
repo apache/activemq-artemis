@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue;
+package org.apache.activemq.rest.queue;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -23,10 +23,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.queue.push.PushConsumerResource;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.queue.push.PushConsumerResource;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

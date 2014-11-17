@@ -11,12 +11,12 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.tests.integration.cluster.util.SameProcessHornetQServer;
-import org.apache.activemq6.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
 /**
  * A NettyReplicatedFailoverTest

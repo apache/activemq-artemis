@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.netty;
+package org.apache.activemq.core.remoting.impl.netty;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import io.netty.util.Version;
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
 
 /**
  * A TransportConstants

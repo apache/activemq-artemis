@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.client;
+package org.apache.activemq.tests.integration.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -21,9 +21,9 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 

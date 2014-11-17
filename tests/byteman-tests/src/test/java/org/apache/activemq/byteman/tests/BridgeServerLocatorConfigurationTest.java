@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.BridgeConfiguration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
 
    @Test
    @BMRule(name = "check connection ttl",
-            targetClass = "org.apache.activemq6.byteman.tests.BridgeServerLocatorConfigurationTest",
+            targetClass = "org.apache.activemq.byteman.tests.BridgeServerLocatorConfigurationTest",
             targetMethod = "getBridgeTTL(HornetQServer, String)", targetLocation = "EXIT",
             action = "$! = $0.getConfiguredBridge($1).serverLocator.getConnectionTTL();")
    /**
@@ -72,7 +72,7 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
       {
-         server1Params.put("port", org.apache.activemq6.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+         server1Params.put("port", org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
       else
       {

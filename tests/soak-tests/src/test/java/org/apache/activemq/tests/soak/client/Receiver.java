@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.soak.client;
+package org.apache.activemq.tests.soak.client;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * A Receiver
@@ -112,7 +112,7 @@ public class Receiver extends ClientAbstract
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.jms.example.ClientAbstract#connectClients()
+    * @see org.apache.activemq.jms.example.ClientAbstract#connectClients()
     */
    @Override
    protected void connectClients() throws Exception
@@ -124,7 +124,7 @@ public class Receiver extends ClientAbstract
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.jms.example.ClientAbstract#onCommit()
+    * @see org.apache.activemq.jms.example.ClientAbstract#onCommit()
     */
    @Override
    protected void onCommit()
@@ -136,7 +136,7 @@ public class Receiver extends ClientAbstract
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.jms.example.ClientAbstract#onRollback()
+    * @see org.apache.activemq.jms.example.ClientAbstract#onRollback()
     */
    @Override
    protected void onRollback()

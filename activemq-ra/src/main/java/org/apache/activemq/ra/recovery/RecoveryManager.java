@@ -11,18 +11,18 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.ra.recovery;
+package org.apache.activemq.ra.recovery;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Set;
 
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.server.recovery.HornetQRegistryBase;
-import org.apache.activemq6.jms.server.recovery.XARecoveryConfig;
-import org.apache.activemq6.ra.HornetQRALogger;
-import org.apache.activemq6.utils.ClassloadingUtil;
-import org.apache.activemq6.utils.ConcurrentHashSet;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.server.recovery.HornetQRegistryBase;
+import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
+import org.apache.activemq.ra.HornetQRALogger;
+import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.utils.ConcurrentHashSet;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

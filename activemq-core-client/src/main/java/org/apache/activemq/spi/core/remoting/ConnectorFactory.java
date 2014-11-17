@@ -10,19 +10,19 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.TransportConfigurationHelper;
+import org.apache.activemq.api.core.TransportConfigurationHelper;
 
 /**
  * A ConnectorFactory is used by the client for creating connectors.
  * <p>
- * A Connector is used to connect to an {@link org.apache.activemq6.spi.core.remoting.Acceptor}.
+ * A Connector is used to connect to an {@link org.apache.activemq.spi.core.remoting.Acceptor}.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */

@@ -10,29 +10,29 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * A queue that will discard messages if a newer message with the same
- * {@link org.apache.activemq6.core.message.impl.MessageImpl#HDR_LAST_VALUE_NAME} property value. In other words it only retains the last
+ * {@link org.apache.activemq.core.message.impl.MessageImpl#HDR_LAST_VALUE_NAME} property value. In other words it only retains the last
  * value
  * <p>
  * This is useful for example, for stock prices, where you're only interested in the latest value
@@ -275,7 +275,7 @@ public class LastValueQueue extends QueueImpl
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.server.MessageReference#acknowledge(org.apache.activemq6.core.server.MessageReference)
+       * @see org.apache.activemq.core.server.MessageReference#acknowledge(org.apache.activemq.core.server.MessageReference)
        */
       @Override
       public void acknowledge() throws Exception
@@ -284,7 +284,7 @@ public class LastValueQueue extends QueueImpl
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.server.MessageReference#getMessageMemoryEstimate()
+       * @see org.apache.activemq.core.server.MessageReference#getMessageMemoryEstimate()
        */
       public int getMessageMemoryEstimate()
       {
@@ -292,7 +292,7 @@ public class LastValueQueue extends QueueImpl
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.server.MessageReference#setConsumerId(java.lang.Long)
+       * @see org.apache.activemq.core.server.MessageReference#setConsumerId(java.lang.Long)
        */
       @Override
       public void setConsumerId(Long consumerID)
@@ -301,7 +301,7 @@ public class LastValueQueue extends QueueImpl
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.server.MessageReference#getConsumerId()
+       * @see org.apache.activemq.core.server.MessageReference#getConsumerId()
        */
       @Override
       public Long getConsumerId()

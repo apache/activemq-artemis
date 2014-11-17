@@ -11,24 +11,24 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.client;
+package org.apache.activemq.core.client;
 
 
-import org.apache.activemq6.api.core.HornetQAddressFullException;
-import org.apache.activemq6.api.core.HornetQConnectionTimedOutException;
-import org.apache.activemq6.api.core.HornetQDisconnectedException;
-import org.apache.activemq6.api.core.HornetQIllegalStateException;
-import org.apache.activemq6.api.core.HornetQInterceptorRejectedPacketException;
-import org.apache.activemq6.api.core.HornetQInternalErrorException;
-import org.apache.activemq6.api.core.HornetQLargeMessageException;
-import org.apache.activemq6.api.core.HornetQLargeMessageInterruptedException;
-import org.apache.activemq6.api.core.HornetQNotConnectedException;
-import org.apache.activemq6.api.core.HornetQObjectClosedException;
-import org.apache.activemq6.api.core.HornetQTransactionOutcomeUnknownException;
-import org.apache.activemq6.api.core.HornetQTransactionRolledBackException;
-import org.apache.activemq6.api.core.HornetQUnBlockedException;
-import org.apache.activemq6.core.cluster.DiscoveryGroup;
-import org.apache.activemq6.spi.core.remoting.Connection;
+import org.apache.activemq.api.core.HornetQAddressFullException;
+import org.apache.activemq.api.core.HornetQConnectionTimedOutException;
+import org.apache.activemq.api.core.HornetQDisconnectedException;
+import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.HornetQInterceptorRejectedPacketException;
+import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.HornetQLargeMessageException;
+import org.apache.activemq.api.core.HornetQLargeMessageInterruptedException;
+import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.HornetQTransactionOutcomeUnknownException;
+import org.apache.activemq.api.core.HornetQTransactionRolledBackException;
+import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.core.cluster.DiscoveryGroup;
+import org.apache.activemq.spi.core.remoting.Connection;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;

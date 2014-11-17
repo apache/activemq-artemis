@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.message;
+package org.apache.activemq.jms.tests.message;
 import java.util.Arrays;
 import java.util.Enumeration;
 
@@ -28,15 +28,15 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.jms.client.HornetQBytesMessage;
-import org.apache.activemq6.jms.client.HornetQMapMessage;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.jms.client.HornetQObjectMessage;
-import org.apache.activemq6.jms.client.HornetQStreamMessage;
-import org.apache.activemq6.jms.client.HornetQTextMessage;
-import org.apache.activemq6.jms.tests.HornetQServerTestCase;
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.jms.client.HornetQBytesMessage;
+import org.apache.activemq.jms.client.HornetQMapMessage;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.HornetQObjectMessage;
+import org.apache.activemq.jms.client.HornetQStreamMessage;
+import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Before;
 
 /**

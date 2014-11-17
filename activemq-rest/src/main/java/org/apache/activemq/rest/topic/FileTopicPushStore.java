@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.topic;
+package org.apache.activemq.rest.topic;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.rest.queue.push.FilePushStore;
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.rest.queue.push.FilePushStore;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

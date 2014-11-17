@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.ha;
+package org.apache.activemq.tests.integration.cluster.ha;
 
-import org.apache.activemq6.core.config.HAPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.core.config.HAPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Before;
 import org.junit.Test;
 

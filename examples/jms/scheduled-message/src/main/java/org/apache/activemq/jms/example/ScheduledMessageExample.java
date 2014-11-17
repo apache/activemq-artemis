@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,8 +24,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.common.example.HornetQExample;
 
 /**
  * A simple JMS scheduled delivery example that delivers a message in 5 seconds.

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.postoffice.impl;
+package org.apache.activemq.tests.unit.core.postoffice.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,23 +19,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.persistence.GroupingInfo;
-import org.apache.activemq6.core.persistence.QueueBindingInfo;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.postoffice.impl.DuplicateIDCacheImpl;
-import org.apache.activemq6.core.server.impl.PostOfficeJournalLoader;
-import org.apache.activemq6.core.transaction.impl.ResourceManagerImpl;
-import org.apache.activemq6.tests.unit.core.server.impl.fakes.FakePostOffice;
-import org.apache.activemq6.tests.unit.util.FakePagingManager;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.utils.ExecutorFactory;
-import org.apache.activemq6.utils.OrderedExecutorFactory;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.persistence.GroupingInfo;
+import org.apache.activemq.core.persistence.QueueBindingInfo;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.postoffice.impl.DuplicateIDCacheImpl;
+import org.apache.activemq.core.server.impl.PostOfficeJournalLoader;
+import org.apache.activemq.core.transaction.impl.ResourceManagerImpl;
+import org.apache.activemq.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.tests.unit.util.FakePagingManager;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.utils.OrderedExecutorFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

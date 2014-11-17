@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.deployers;
+package org.apache.activemq.core.deployers;
 
-import org.apache.activemq6.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQComponent;
 
 /**
  * This class manages any configuration files available. It will notify any deployers registered with it on changes.

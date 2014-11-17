@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.example;
+package org.apache.activemq.javaee.example;
 
-import org.apache.activemq6.javaee.example.server.ServerKiller;
+import org.apache.activemq.javaee.example.server.ServerKiller;
 
 import javax.jms.*;
 import javax.naming.Context;

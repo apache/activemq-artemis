@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.client.impl;
+package org.apache.activemq.core.client.impl;
 
 import java.io.DataInputStream;
 import java.io.InputStream;
@@ -18,16 +18,16 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.HornetQBufferInputStream;
-import org.apache.activemq6.utils.InflaterReader;
-import org.apache.activemq6.utils.InflaterWriter;
-import org.apache.activemq6.utils.UTF8Util;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.HornetQBufferInputStream;
+import org.apache.activemq.utils.InflaterReader;
+import org.apache.activemq.utils.InflaterWriter;
+import org.apache.activemq.utils.UTF8Util;
 
 /**
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>

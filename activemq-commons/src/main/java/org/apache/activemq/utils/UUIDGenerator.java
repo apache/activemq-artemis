@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
 import java.lang.reflect.Method;
 import java.net.NetworkInterface;
@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.SimpleString;
 
 public final class UUIDGenerator
 {

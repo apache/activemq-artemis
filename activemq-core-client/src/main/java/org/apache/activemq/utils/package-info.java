@@ -15,5 +15,5 @@
  * <br>
  * This package defines the utilities class used by HornetQ.
  */
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 

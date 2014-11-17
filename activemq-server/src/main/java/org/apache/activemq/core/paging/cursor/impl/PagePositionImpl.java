@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor.impl;
+package org.apache.activemq.core.paging.cursor.impl;
 
-import org.apache.activemq6.core.paging.cursor.PagePosition;
+import org.apache.activemq.core.paging.cursor.PagePosition;
 
 /**
  * A PagePosition

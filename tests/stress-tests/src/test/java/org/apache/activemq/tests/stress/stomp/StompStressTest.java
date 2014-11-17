@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.stress.stomp;
+package org.apache.activemq.tests.stress.stomp;
 import org.junit.Before;
 import org.junit.After;
 
@@ -27,17 +27,17 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.protocol.stomp.StompProtocolManagerFactory;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.protocol.stomp.Stomp;
-import org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 public class StompStressTest extends UnitTestCase
 {

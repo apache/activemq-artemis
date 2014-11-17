@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.timing.core.journal.impl;
+package org.apache.activemq.tests.timing.core.journal.impl;
 
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 
 /**
  *

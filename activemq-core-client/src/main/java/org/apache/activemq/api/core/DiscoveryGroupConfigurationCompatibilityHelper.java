@@ -11,12 +11,12 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.api.core;
+package org.apache.activemq.api.core;
 
 /**
  * This interface is needed for making a DiscoveryGroupConfiguration backward
  * compatible with version 2.2 clients. It is used to extract from new
- * {@link org.apache.activemq6.api.core.BroadcastEndpointFactoryConfiguration} the four
+ * {@link org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration} the four
  * UDP attributes in order to form a version 2.2 DiscoveryGroupConfiguration
  * in time of serialization.
  *

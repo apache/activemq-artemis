@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.impl;
+package org.apache.activemq.jms.server.impl;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -31,62 +31,62 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.AddressControl;
-import org.apache.activemq6.api.core.management.ResourceNames;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.deployers.impl.FileDeploymentManager;
-import org.apache.activemq6.core.deployers.impl.XmlDeployer;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.BindingType;
-import org.apache.activemq6.core.registry.JndiBindingRegistry;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.ActivateCallback;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionDetail;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQQueue;
-import org.apache.activemq6.jms.client.HornetQTopic;
-import org.apache.activemq6.jms.client.SelectorTranslator;
-import org.apache.activemq6.jms.persistence.JMSStorageManager;
-import org.apache.activemq6.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq6.jms.persistence.config.PersistedDestination;
-import org.apache.activemq6.jms.persistence.config.PersistedJNDI;
-import org.apache.activemq6.jms.persistence.config.PersistedType;
-import org.apache.activemq6.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
-import org.apache.activemq6.jms.persistence.impl.nullpm.NullJMSStorageManagerImpl;
-import org.apache.activemq6.jms.server.HornetQJMSServerBundle;
-import org.apache.activemq6.jms.server.HornetQJMSServerLogger;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq6.jms.server.config.TopicConfiguration;
-import org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq6.jms.server.management.JMSManagementService;
-import org.apache.activemq6.jms.server.management.JMSNotificationType;
-import org.apache.activemq6.jms.server.management.impl.JMSManagementServiceImpl;
-import org.apache.activemq6.jms.transaction.JMSTransactionDetail;
-import org.apache.activemq6.spi.core.naming.BindingRegistry;
-import org.apache.activemq6.utils.TimeAndCounterIDGenerator;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.json.JSONArray;
-import org.apache.activemq6.utils.json.JSONObject;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
+import org.apache.activemq.core.deployers.impl.XmlDeployer;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.BindingType;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.ActivateCallback;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionDetail;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQQueue;
+import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.client.SelectorTranslator;
+import org.apache.activemq.jms.persistence.JMSStorageManager;
+import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
+import org.apache.activemq.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedType;
+import org.apache.activemq.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
+import org.apache.activemq.jms.persistence.impl.nullpm.NullJMSStorageManagerImpl;
+import org.apache.activemq.jms.server.HornetQJMSServerBundle;
+import org.apache.activemq.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.jms.server.config.TopicConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.jms.server.management.JMSManagementService;
+import org.apache.activemq.jms.server.management.JMSNotificationType;
+import org.apache.activemq.jms.server.management.impl.JMSManagementServiceImpl;
+import org.apache.activemq.jms.transaction.JMSTransactionDetail;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.utils.TimeAndCounterIDGenerator;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * A Deployer used to create and add to JNDI queues, topics and connection
@@ -514,7 +514,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       // We have to perform the server.stop outside of the lock because of backup activation issues.
       // See https://bugzilla.redhat.com/show_bug.cgi?id=959616
-      // And org.apache.activemq6.byteman.tests.StartStopDeadlockTest which is validating for this case here
+      // And org.apache.activemq.byteman.tests.StartStopDeadlockTest which is validating for this case here
       server.stop();
    }
 
@@ -849,7 +849,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    }
 
    /* (non-Javadoc)
-   * @see org.apache.activemq6.jms.server.JMSServerManager#removeTopicFromJNDI(java.lang.String, java.lang.String)
+   * @see org.apache.activemq.jms.server.JMSServerManager#removeTopicFromJNDI(java.lang.String, java.lang.String)
    */
    public boolean removeTopicFromJNDI(final String name) throws Exception
    {

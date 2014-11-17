@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
 import javax.management.MBeanServer;
 import java.io.File;
@@ -23,52 +23,52 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.JournalFile;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.JournalReaderCallback;
-import org.apache.activemq6.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.Bindings;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.postoffice.QueueBinding;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq6.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.cluster.RemoteQueueBinding;
-import org.apache.activemq6.core.server.impl.Activation;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.SharedNothingBackupActivation;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.JournalReaderCallback;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.Bindings;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.postoffice.QueueBinding;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
+import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.core.server.impl.Activation;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -249,12 +249,12 @@ public abstract class ServiceTestBase extends UnitTestCase
 
       if (netty)
       {
-         params.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    org.apache.activemq6.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
+         params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                    org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
       }
       else
       {
-         params.put(org.apache.activemq6.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
+         params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
       }
 
       return params;
@@ -269,8 +269,8 @@ public abstract class ServiceTestBase extends UnitTestCase
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
 
-      server1Params.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                        org.apache.activemq6.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                        org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
 
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, server1Params);
    }
@@ -284,8 +284,8 @@ public abstract class ServiceTestBase extends UnitTestCase
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
 
-      server1Params.put(org.apache.activemq6.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                        org.apache.activemq6.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                        org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
    }
 

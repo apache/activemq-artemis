@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.utils.ReferenceCounter;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.utils.ReferenceCounter;
 
 /**
  * @author Clebert Suconic

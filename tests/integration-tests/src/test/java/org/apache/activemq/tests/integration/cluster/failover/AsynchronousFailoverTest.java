@@ -10,31 +10,31 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQDuplicateIdException;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQTransactionOutcomeUnknownException;
-import org.apache.activemq6.api.core.HornetQTransactionRolledBackException;
-import org.apache.activemq6.api.core.HornetQUnBlockedException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.core.client.impl.DelegatingSession;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.CountDownSessionFailureListener;
-import org.apache.activemq6.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.api.core.HornetQDuplicateIdException;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQTransactionOutcomeUnknownException;
+import org.apache.activemq.api.core.HornetQTransactionRolledBackException;
+import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.core.client.impl.DelegatingSession;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.CountDownSessionFailureListener;
+import org.apache.activemq.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.version.impl;
+package org.apache.activemq.core.version.impl;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.apache.activemq6.core.version.Version;
+import org.apache.activemq.core.version.Version;
 
 /**
  * A VersionImpl

@@ -11,11 +11,11 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.cluster.qourum;
+package org.apache.activemq.core.server.cluster.qourum;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.persistence.StorageManager;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.persistence.StorageManager;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

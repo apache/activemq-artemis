@@ -11,16 +11,16 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton.converter;
+package org.apache.activemq.core.protocol.proton.converter;
 
 import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.jms.InboundTransformer;
 import org.apache.qpid.proton.jms.JMSMappingInboundTransformer;
 import org.apache.qpid.proton.jms.JMSMappingOutboundTransformer;
-import org.apache.activemq6.core.protocol.proton.converter.jms.ServerJMSMessage;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.spi.core.protocol.MessageConverter;
-import org.apache.activemq6.utils.IDGenerator;
+import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSMessage;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.spi.core.protocol.MessageConverter;
+import org.apache.activemq.utils.IDGenerator;
 
 /**
  * @author Clebert Suconic

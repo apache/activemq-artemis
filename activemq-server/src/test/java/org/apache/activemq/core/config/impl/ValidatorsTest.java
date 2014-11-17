@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config.impl;
+package org.apache.activemq.core.config.impl;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
 
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.tests.util.RandomUtil;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.tests.util.RandomUtil;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

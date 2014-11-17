@@ -13,15 +13,15 @@
    <!-- Connectors -->
    <connectors>
       <connector name="invm-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</factory-class>
       </connector>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5446"/>
       </connector>
       <!-- connector to the server0 -->
       <connector name="server0-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5445"/>
       </connector>
    </connectors>
@@ -29,10 +29,10 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="invm-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>
       </acceptor>
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="5446"/>
       </acceptor>
    </acceptors>

@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.cli;
+package org.apache.activemq.cli;
 
 import io.airlift.command.Cli;
 import io.airlift.command.ParseArgumentsUnexpectedException;
-import org.apache.activemq6.cli.commands.Action;
-import org.apache.activemq6.cli.commands.ActionContext;
-import org.apache.activemq6.cli.commands.HelpAction;
-import org.apache.activemq6.cli.commands.Run;
-import org.apache.activemq6.cli.commands.Stop;
+import org.apache.activemq.cli.commands.Action;
+import org.apache.activemq.cli.commands.ActionContext;
+import org.apache.activemq.cli.commands.HelpAction;
+import org.apache.activemq.cli.commands.Run;
+import org.apache.activemq.cli.commands.Stop;
 
 import java.io.InputStream;
 import java.io.OutputStream;

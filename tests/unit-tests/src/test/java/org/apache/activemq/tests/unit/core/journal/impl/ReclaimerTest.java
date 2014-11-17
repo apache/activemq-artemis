@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.journal.impl;
+package org.apache.activemq.tests.unit.core.journal.impl;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -22,11 +22,11 @@ import java.util.Set;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.journal.impl.JournalFile;
-import org.apache.activemq6.core.journal.impl.JournalImpl;
-import org.apache.activemq6.core.journal.impl.Reclaimer;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.Reclaimer;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  *
@@ -913,14 +913,14 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#decPendingTransaction()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#decPendingTransaction()
        */
       public void decPendingTransaction()
       {
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#getPendingTransactions()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#getPendingTransactions()
        */
       public int getPendingTransactions()
       {
@@ -928,14 +928,14 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#incPendingTransaction()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#incPendingTransaction()
        */
       public void incPendingTransaction()
       {
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#getOrderingID()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#getOrderingID()
        */
       public int getOrderingID()
       {
@@ -952,7 +952,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#getSize()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#getSize()
        */
       public int getLiveSize()
       {
@@ -960,7 +960,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#isNeedCleanup()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#isNeedCleanup()
        */
       public boolean isNeedCleanup()
       {
@@ -968,7 +968,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#resetNegCount(org.apache.activemq6.core.journal.impl.JournalFile)
+       * @see org.apache.activemq.core.journal.impl.JournalFile#resetNegCount(org.apache.activemq.core.journal.impl.JournalFile)
        */
       public boolean resetNegCount(final JournalFile file)
       {
@@ -976,7 +976,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#setNeedCleanup(boolean)
+       * @see org.apache.activemq.core.journal.impl.JournalFile#setNeedCleanup(boolean)
        */
       public void setNeedCleanup(final boolean needCleanup)
       {
@@ -985,7 +985,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#getRecordID()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#getRecordID()
        */
       public int getRecordID()
       {
@@ -993,7 +993,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#getTotalNegativeToOthers()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#getTotalNegativeToOthers()
        */
       public int getTotalNegativeToOthers()
       {
@@ -1001,7 +1001,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#getJournalVersion()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#getJournalVersion()
        */
       public int getJournalVersion()
       {
@@ -1009,7 +1009,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#getTotNeg()
+       * @see org.apache.activemq.core.journal.impl.JournalFile#getTotNeg()
        */
       public int getTotNeg()
       {
@@ -1018,7 +1018,7 @@ public class ReclaimerTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.core.journal.impl.JournalFile#setTotNeg(int)
+       * @see org.apache.activemq.core.journal.impl.JournalFile#setTotNeg(int)
        */
       public void setTotNeg(int totNeg)
       {

@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.core.impl;
+package org.apache.activemq.core.protocol.core.impl;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -19,43 +19,43 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.client.HornetQClientLogger;
-import org.apache.activemq6.core.client.HornetQClientMessageBundle;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.protocol.ClientPacketDecoder;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.ChannelHandler;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CheckFailoverMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CreateSessionMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.DisconnectMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.Ping;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
-import org.apache.activemq6.core.remoting.impl.netty.HornetQFrameDecoder2;
-import org.apache.activemq6.core.version.Version;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq6.spi.core.remoting.Connection;
-import org.apache.activemq6.spi.core.remoting.TopologyResponseHandler;
-import org.apache.activemq6.spi.core.remoting.SessionContext;
-import org.apache.activemq6.utils.VersionLoader;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.protocol.ClientPacketDecoder;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.ChannelHandler;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.core.protocol.core.impl.wireformat.Ping;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
+import org.apache.activemq.core.remoting.impl.netty.HornetQFrameDecoder2;
+import org.apache.activemq.core.version.Version;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.spi.core.remoting.TopologyResponseHandler;
+import org.apache.activemq.spi.core.remoting.SessionContext;
+import org.apache.activemq.utils.VersionLoader;
 
 /**
  * This class will return specific packets for different types of actions happening on a messaging protocol.

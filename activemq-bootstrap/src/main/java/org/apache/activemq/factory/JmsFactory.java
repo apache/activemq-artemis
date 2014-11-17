@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.factory;
+package org.apache.activemq.factory;
 
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.activemq6.cli.ConfigurationException;
-import org.apache.activemq6.dto.JmsDTO;
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.utils.FactoryFinder;
+import org.apache.activemq.cli.ConfigurationException;
+import org.apache.activemq.dto.JmsDTO;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.utils.FactoryFinder;
 
 public class JmsFactory
 {
@@ -30,7 +30,7 @@ public class JmsFactory
          URI configURI = new URI(jms.configuration.replace("\\", "/"));
          try
          {
-            FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq6/broker/jms/");
+            FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/broker/jms/");
             factory = (JmsFactoryHandler)finder.newInstance(configURI.getScheme());
          }
          catch (IOException ioe )

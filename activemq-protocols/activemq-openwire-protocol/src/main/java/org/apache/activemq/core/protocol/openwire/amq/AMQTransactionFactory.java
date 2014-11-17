@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire.amq;
+package org.apache.activemq.core.protocol.openwire.amq;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.protocol.openwire.AMQTransactionImpl;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionFactory;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.protocol.openwire.AMQTransactionImpl;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionFactory;
 
 public class AMQTransactionFactory implements TransactionFactory
 {

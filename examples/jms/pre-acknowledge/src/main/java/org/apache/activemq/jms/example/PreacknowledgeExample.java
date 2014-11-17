@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,10 +25,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.HornetQJMSConstants;
-import org.apache.activemq6.api.jms.management.JMSManagementHelper;
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.common.example.HornetQExample;
 
 /**
  *

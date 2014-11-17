@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.recovery;
+package org.apache.activemq.jms.server.recovery;
 
 import javax.transaction.xa.XAResource;
 import java.util.HashSet;
@@ -18,9 +18,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.jms.server.HornetQJMSServerLogger;
 import org.jboss.tm.XAResourceRecovery;
 
 /**

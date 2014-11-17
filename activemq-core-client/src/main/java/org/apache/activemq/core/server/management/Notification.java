@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.management;
+package org.apache.activemq.core.server.management;
 
-import org.apache.activemq6.api.core.management.NotificationType;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.management.NotificationType;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A Notification
- * @see org.apache.activemq6.core.server.management.NotificationListener
+ * @see org.apache.activemq.core.server.management.NotificationListener
  * @see NotificationType
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> Created 22 Jan 2009 16:41:12
  */

@@ -10,19 +10,19 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.postoffice.impl;
+package org.apache.activemq.core.postoffice.impl;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.postoffice.Address;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.Bindings;
-import org.apache.activemq6.core.postoffice.BindingsFactory;
-import org.apache.activemq6.core.transaction.Transaction;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.postoffice.Address;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.Bindings;
+import org.apache.activemq.core.postoffice.BindingsFactory;
+import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * extends the simple manager to allow wildcard addresses to be used.

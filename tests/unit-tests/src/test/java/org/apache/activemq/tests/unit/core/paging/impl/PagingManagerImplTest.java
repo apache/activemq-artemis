@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.paging.impl;
+package org.apache.activemq.tests.unit.core.paging.impl;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -18,23 +18,23 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.paging.impl.PagingManagerImpl;
-import org.apache.activemq6.core.paging.impl.PagingStoreFactoryNIO;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.RoutingContextImpl;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.paging.impl.PagingManagerImpl;
+import org.apache.activemq.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.RoutingContextImpl;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

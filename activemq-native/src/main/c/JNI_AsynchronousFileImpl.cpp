@@ -94,14 +94,14 @@ JNIEXPORT jobject JNICALL Java_org.apache.activemq6_core_libaio_Native_init
 		std::string fileName = convertJavaString(env, jstrFileName);
 
 		controller = new AIOController(fileName, (int) maxIO);
-		controller->done = env->GetMethodID(controllerClazz,"callbackDone","(Lorg.apache.activemq6/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;)V");
+		controller->done = env->GetMethodID(controllerClazz,"callbackDone","(Lorg.apache.activemq/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;)V");
 		if (!controller->done)
 		{
 		   throwException (env, -1, "can't get callbackDone method");
 		   return 0;
 		}
 
-		controller->error = env->GetMethodID(controllerClazz, "callbackError", "(Lorg.apache.activemq6/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;ILjava/lang/String;)V");
+		controller->error = env->GetMethodID(controllerClazz, "callbackError", "(Lorg.apache.activemq/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;ILjava/lang/String;)V");
 		if (!controller->done)
 		{
 		   throwException (env, -1, "can't get callbackError method");

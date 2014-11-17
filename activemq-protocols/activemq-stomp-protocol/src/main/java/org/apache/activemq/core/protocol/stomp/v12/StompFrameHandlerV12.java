@@ -10,21 +10,21 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.stomp.v12;
+package org.apache.activemq.core.protocol.stomp.v12;
 
-import org.apache.activemq6.core.protocol.stomp.FrameEventListener;
-import org.apache.activemq6.core.protocol.stomp.HornetQStompException;
-import org.apache.activemq6.core.protocol.stomp.Stomp;
-import org.apache.activemq6.core.protocol.stomp.StompConnection;
-import org.apache.activemq6.core.protocol.stomp.StompDecoder;
-import org.apache.activemq6.core.protocol.stomp.StompFrame;
-import org.apache.activemq6.core.protocol.stomp.StompSubscription;
-import org.apache.activemq6.core.protocol.stomp.v11.StompFrameHandlerV11;
-import org.apache.activemq6.core.protocol.stomp.v11.StompFrameV11;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.ServerMessage;
+import org.apache.activemq.core.protocol.stomp.FrameEventListener;
+import org.apache.activemq.core.protocol.stomp.HornetQStompException;
+import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.core.protocol.stomp.StompConnection;
+import org.apache.activemq.core.protocol.stomp.StompDecoder;
+import org.apache.activemq.core.protocol.stomp.StompFrame;
+import org.apache.activemq.core.protocol.stomp.StompSubscription;
+import org.apache.activemq.core.protocol.stomp.v11.StompFrameHandlerV11;
+import org.apache.activemq.core.protocol.stomp.v11.StompFrameV11;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ServerMessage;
 
-import static org.apache.activemq6.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.api.core.management;
+package org.apache.activemq.api.core.management;
 
 
 /**
@@ -42,7 +42,7 @@ public interface BridgeControl extends HornetQComponentControl
    String getFilterString();
 
    /**
-    * Return the name of the org.apache.activemq6.core.server.cluster.Transformer implementation associated to this bridge.
+    * Return the name of the org.apache.activemq.core.server.cluster.Transformer implementation associated to this bridge.
     */
    String getTransformerClassName();
 

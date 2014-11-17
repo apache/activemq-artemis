@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton;
+package org.apache.activemq.core.protocol.proton;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -30,17 +30,17 @@ import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.EncodingSupport;
-import org.apache.activemq6.core.protocol.proton.converter.ProtonMessageConverter;
-import org.apache.activemq6.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
-import org.apache.activemq6.core.protocol.proton.converter.jms.ServerJMSMapMessage;
-import org.apache.activemq6.core.protocol.proton.converter.jms.ServerJMSMessage;
-import org.apache.activemq6.core.protocol.proton.converter.jms.ServerJMSStreamMessage;
-import org.apache.activemq6.core.protocol.proton.converter.jms.ServerJMSTextMessage;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.utils.SimpleIDGenerator;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
+import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
+import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSMapMessage;
+import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSMessage;
+import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSStreamMessage;
+import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.utils.SimpleIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.proton.plug.util.NettyWritable;

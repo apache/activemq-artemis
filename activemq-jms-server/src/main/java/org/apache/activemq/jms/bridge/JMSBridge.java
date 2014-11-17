@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.bridge;
+package org.apache.activemq.jms.bridge;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.activemq6.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQComponent;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

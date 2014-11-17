@@ -10,27 +10,27 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.vertx;
+package org.apache.activemq.tests.integration.vertx;
 
 import java.util.HashMap;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.integration.vertx.VertxConstants;
-import org.apache.activemq6.integration.vertx.VertxIncomingConnectorServiceFactory;
-import org.apache.activemq6.integration.vertx.VertxOutgoingConnectorServiceFactory;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.integration.vertx.VertxConstants;
+import org.apache.activemq.integration.vertx.VertxIncomingConnectorServiceFactory;
+import org.apache.activemq.integration.vertx.VertxOutgoingConnectorServiceFactory;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,17 +57,17 @@ public class HornetQVertxUnitTest extends ServiceTestBase
    protected String port = "0";
 
    protected String incomingQueue1 = "vertxTestIncomingQueue1";
-   protected String incomingVertxAddress1 = "org.apache.activemq6.test.incoming1";
+   protected String incomingVertxAddress1 = "org.apache.activemq.test.incoming1";
 
    //outgoing using send
    protected String inOutQueue1 = "vertxTestInOutQueue1";
-   protected String incomingVertxAddress2 = "org.apache.activemq6.test.incoming2";
-   protected String outgoingVertxAddress1 = "org.apache.activemq6.test.outgoing1";
+   protected String incomingVertxAddress2 = "org.apache.activemq.test.incoming2";
+   protected String outgoingVertxAddress1 = "org.apache.activemq.test.outgoing1";
 
    //outgoing using publish
    protected String inOutQueue2 = "vertxTestInOutQueue2";
-   protected String incomingVertxAddress3 = "org.apache.activemq6.test.incoming3";
-   protected String outgoingVertxAddress2 = "org.apache.activemq6.test.outgoing2";
+   protected String incomingVertxAddress3 = "org.apache.activemq.test.incoming3";
+   protected String outgoingVertxAddress2 = "org.apache.activemq.test.outgoing2";
 
 
    // Vertx is changing the classLoader to null.. this will preserve the original classloader

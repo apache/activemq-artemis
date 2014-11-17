@@ -10,32 +10,32 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.topology;
+package org.apache.activemq.tests.integration.cluster.topology;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.HornetQObjectClosedException;
-import org.apache.activemq6.api.core.HornetQUnBlockedException;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.cluster.ClusterManager;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq6.tests.util.RandomUtil;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.cluster.ClusterManager;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

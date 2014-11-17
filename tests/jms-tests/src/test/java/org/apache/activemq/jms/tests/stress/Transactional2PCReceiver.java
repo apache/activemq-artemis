@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests.stress;
+package org.apache.activemq.jms.tests.stress;
 
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.XASession;
 import javax.transaction.xa.XAResource;
 
-import org.apache.activemq6.core.transaction.impl.XidImpl;
-import org.apache.activemq6.jms.tests.JmsTestLogger;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.jms.tests.JmsTestLogger;
+import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  *

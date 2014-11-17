@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.impl;
+package org.apache.activemq.jms.server.impl;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,24 +18,24 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.config.impl.Validators;
-import org.apache.activemq6.jms.server.HornetQJMSServerBundle;
-import org.apache.activemq6.jms.server.HornetQJMSServerLogger;
-import org.apache.activemq6.jms.server.JMSServerConfigParser;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq6.jms.server.config.TopicConfiguration;
-import org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq6.jms.server.config.impl.JMSConfigurationImpl;
-import org.apache.activemq6.jms.server.config.impl.JMSQueueConfigurationImpl;
-import org.apache.activemq6.jms.server.config.impl.TopicConfigurationImpl;
-import org.apache.activemq6.utils.XMLConfigurationUtil;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.impl.Validators;
+import org.apache.activemq.jms.server.HornetQJMSServerBundle;
+import org.apache.activemq.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.jms.server.JMSServerConfigParser;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.jms.server.config.TopicConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.jms.server.config.impl.JMSQueueConfigurationImpl;
+import org.apache.activemq.jms.server.config.impl.TopicConfigurationImpl;
+import org.apache.activemq.utils.XMLConfigurationUtil;
+import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -60,7 +60,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
    public JMSConfiguration parseConfiguration(final InputStream stream) throws Exception
    {
       Reader reader = new InputStreamReader(stream);
-      String xml = org.apache.activemq6.utils.XMLUtil.readerToString(reader);
+      String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
       xml = XMLUtil.replaceSystemProps(xml);
       return parseConfiguration(XMLUtil.stringToElement(xml));
    }
@@ -78,7 +78,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
 
       Element e = (Element) rootnode;
 
-      org.apache.activemq6.utils.XMLUtil.validate(rootnode, "schema/hornetq-jms.xsd");
+      org.apache.activemq.utils.XMLUtil.validate(rootnode, "schema/hornetq-jms.xsd");
 
       String[] elements = new String[]{JMSServerDeployer.QUEUE_NODE_NAME,
          JMSServerDeployer.TOPIC_NODE_NAME,

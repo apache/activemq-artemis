@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.impl;
+package org.apache.activemq.core.server.cluster.impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -25,47 +25,47 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.api.core.management.ManagementHelper;
-import org.apache.activemq6.core.client.impl.AfterConnectInternalListener;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.Bindings;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.NodeManager;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.cluster.Bridge;
-import org.apache.activemq6.core.server.cluster.ClusterConnection;
-import org.apache.activemq6.core.server.cluster.ClusterControl;
-import org.apache.activemq6.core.server.cluster.ClusterManager;
-import org.apache.activemq6.core.server.cluster.ClusterManager.IncomingInterceptorLookingForExceptionMessage;
-import org.apache.activemq6.core.server.cluster.HornetQServerSideProtocolManagerFactory;
-import org.apache.activemq6.core.server.cluster.MessageFlowRecord;
-import org.apache.activemq6.core.server.cluster.RemoteQueueBinding;
-import org.apache.activemq6.core.server.group.impl.Proposal;
-import org.apache.activemq6.core.server.group.impl.Response;
-import org.apache.activemq6.core.server.management.ManagementService;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.utils.ExecutorFactory;
-import org.apache.activemq6.utils.FutureLatch;
-import org.apache.activemq6.utils.TypedProperties;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.core.client.impl.AfterConnectInternalListener;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.Bindings;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.NodeManager;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.cluster.Bridge;
+import org.apache.activemq.core.server.cluster.ClusterConnection;
+import org.apache.activemq.core.server.cluster.ClusterControl;
+import org.apache.activemq.core.server.cluster.ClusterManager;
+import org.apache.activemq.core.server.cluster.ClusterManager.IncomingInterceptorLookingForExceptionMessage;
+import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.MessageFlowRecord;
+import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.core.server.group.impl.Proposal;
+import org.apache.activemq.core.server.group.impl.Response;
+import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A ClusterConnectionImpl

@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.spi.core.protocol;
+package org.apache.activemq.spi.core.protocol;
 
-import org.apache.activemq6.core.server.ServerMessage;
+import org.apache.activemq.core.server.ServerMessage;
 
 /**
  * @author Clebert Suconic

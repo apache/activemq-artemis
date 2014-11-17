@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.client;
+package org.apache.activemq.tests.integration.jms.client;
 
 import org.junit.Test;
 
@@ -26,9 +26,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.NamingException;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
  * A CreateCFTest

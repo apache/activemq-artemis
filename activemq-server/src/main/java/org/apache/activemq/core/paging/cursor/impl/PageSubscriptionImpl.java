@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor.impl;
+package org.apache.activemq.core.paging.cursor.impl;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -28,30 +28,30 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.paging.PageTransactionInfo;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.cursor.PageCache;
-import org.apache.activemq6.core.paging.cursor.PageCursorProvider;
-import org.apache.activemq6.core.paging.cursor.PagePosition;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq6.core.paging.cursor.PagedReference;
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq6.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq6.core.transaction.impl.TransactionImpl;
-import org.apache.activemq6.utils.ConcurrentHashSet;
-import org.apache.activemq6.utils.FutureLatch;
-import org.apache.activemq6.utils.LinkedListIterator;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.paging.PageTransactionInfo;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.cursor.PageCache;
+import org.apache.activemq.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.core.paging.cursor.PagePosition;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
+import org.apache.activemq.core.paging.cursor.PagedReference;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.utils.LinkedListIterator;
 
 /**
  * A PageCursorImpl

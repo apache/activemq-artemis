@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.ssl;
+package org.apache.activemq.core.remoting.impl.ssl;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.activemq6.utils.ClassloadingUtil;
+import org.apache.activemq.utils.ClassloadingUtil;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

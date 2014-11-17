@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.aerogear;
+package org.apache.activemq.tests.integration.aerogear;
 
 
 import javax.servlet.ServletException;
@@ -21,27 +21,27 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.integration.aerogear.AeroGearConnectorServiceFactory;
-import org.apache.activemq6.integration.aerogear.AeroGearConstants;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.json.JSONArray;
-import org.apache.activemq6.utils.json.JSONException;
-import org.apache.activemq6.utils.json.JSONObject;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory;
+import org.apache.activemq.integration.aerogear.AeroGearConstants;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.utils.json.JSONException;
+import org.apache.activemq.utils.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

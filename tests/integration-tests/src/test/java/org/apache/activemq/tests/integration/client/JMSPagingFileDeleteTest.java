@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.client;
+package org.apache.activemq.tests.integration.client;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -20,11 +20,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

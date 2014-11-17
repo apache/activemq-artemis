@@ -11,21 +11,21 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tools;
+package org.apache.activemq.tools;
 
 import java.io.File;
 
-import org.apache.activemq6.core.persistence.impl.journal.DescribeJournal;
-import org.apache.activemq6.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.core.persistence.impl.journal.DescribeJournal;
+import org.apache.activemq.core.server.impl.FileLockNodeManager;
 
 /**
- * Writes a human-readable interpretation of the contents of a HornetQ {@link org.apache.activemq6.core.journal.Journal}.
+ * Writes a human-readable interpretation of the contents of a HornetQ {@link org.apache.activemq.core.journal.Journal}.
  * <p>
  * To run this class with Maven, use:
  *
  * <pre>
  * cd hornetq-server
- * mvn -q exec:java -Dexec.args="/foo/hornetq/bindings /foo/hornetq/journal" -Dexec.mainClass="org.apache.activemq6.tools.PrintData"
+ * mvn -q exec:java -Dexec.args="/foo/hornetq/bindings /foo/hornetq/journal" -Dexec.mainClass="org.apache.activemq.tools.PrintData"
  * </pre>
  * @author clebertsuconic
  */

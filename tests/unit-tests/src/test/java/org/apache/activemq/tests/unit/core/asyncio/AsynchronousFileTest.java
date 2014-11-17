@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.asyncio;
+package org.apache.activemq.tests.unit.core.asyncio;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -29,14 +29,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.asyncio.AIOCallback;
-import org.apache.activemq6.core.asyncio.BufferCallback;
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.HornetQThreadFactory;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.asyncio.AIOCallback;
+import org.apache.activemq.core.asyncio.BufferCallback;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.HornetQThreadFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

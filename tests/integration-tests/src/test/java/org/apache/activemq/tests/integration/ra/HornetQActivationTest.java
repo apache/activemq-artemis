@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.ra;
+package org.apache.activemq.tests.integration.ra;
 
 import org.junit.Test;
 
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A HornetQActivationTest

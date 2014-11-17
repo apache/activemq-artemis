@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.cluster.distribution;
+package org.apache.activemq.tests.integration.cluster.distribution;
 
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 

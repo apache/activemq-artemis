@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.remoting;
+package org.apache.activemq.tests.integration.remoting;
 
 import org.junit.Test;
 
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.tests.util.ServiceTestBase;
 
 public class DestroyConsumerTest extends ServiceTestBase
 {

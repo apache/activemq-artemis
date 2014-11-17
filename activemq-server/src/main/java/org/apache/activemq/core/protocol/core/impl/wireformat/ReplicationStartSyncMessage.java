@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.journal.impl.JournalFile;
-import org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager.JournalContent;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.JournalContent;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * This message may signal start or end of the replication synchronization.

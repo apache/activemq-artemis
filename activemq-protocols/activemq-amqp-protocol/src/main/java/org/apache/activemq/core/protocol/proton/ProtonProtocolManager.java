@@ -11,25 +11,25 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.proton;
+package org.apache.activemq.core.protocol.proton;
 
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.protocol.proton.converter.ProtonMessageConverter;
-import org.apache.activemq6.core.protocol.proton.plug.HornetQProtonConnectionCallback;
-import org.apache.activemq6.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationListener;
-import org.apache.activemq6.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq6.spi.core.protocol.MessageConverter;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
-import org.apache.activemq6.spi.core.remoting.Connection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
+import org.apache.activemq.core.protocol.proton.plug.HornetQProtonConnectionCallback;
+import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationListener;
+import org.apache.activemq.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.spi.core.protocol.MessageConverter;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.spi.core.remoting.Connection;
 import org.proton.plug.AMQPServerConnectionContext;
 import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 

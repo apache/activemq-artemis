@@ -11,13 +11,13 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.cluster;
+package org.apache.activemq.core.server.cluster;
 
-import org.apache.activemq6.core.protocol.ServerPacketDecoder;
-import org.apache.activemq6.core.protocol.core.impl.HornetQClientProtocolManager;
-import org.apache.activemq6.core.protocol.core.impl.PacketDecoder;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq6.spi.core.remoting.ClientProtocolManagerFactory;
+import org.apache.activemq.core.protocol.ServerPacketDecoder;
+import org.apache.activemq.core.protocol.core.impl.HornetQClientProtocolManager;
+import org.apache.activemq.core.protocol.core.impl.PacketDecoder;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
 
 /**
  * A protocol manager that will replace the packet manager for inter-server communications

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.stomp;
+package org.apache.activemq.core.protocol.stomp;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -18,30 +18,30 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.Inflater;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.message.BodyEncoder;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.persistence.OperationContext;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.persistence.impl.journal.LargeServerMessageImpl;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.QueueQueryResult;
-import org.apache.activemq6.core.server.ServerConsumer;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.ServerSession;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.core.server.impl.ServerSessionImpl;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.spi.core.protocol.SessionCallback;
-import org.apache.activemq6.spi.core.remoting.ReadyListener;
-import org.apache.activemq6.utils.ConfigurationHelper;
-import org.apache.activemq6.utils.UUIDGenerator;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.message.BodyEncoder;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.persistence.OperationContext;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.persistence.impl.journal.LargeServerMessageImpl;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.QueueQueryResult;
+import org.apache.activemq.core.server.ServerConsumer;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.ServerSession;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.spi.core.remoting.ReadyListener;
+import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.utils.UUIDGenerator;
 
-import static org.apache.activemq6.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * A StompSession

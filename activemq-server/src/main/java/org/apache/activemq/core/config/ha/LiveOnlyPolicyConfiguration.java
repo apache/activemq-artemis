@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.config.ha;
+package org.apache.activemq.core.config.ha;
 
-import org.apache.activemq6.core.config.HAPolicyConfiguration;
-import org.apache.activemq6.core.config.ScaleDownConfiguration;
+import org.apache.activemq.core.config.HAPolicyConfiguration;
+import org.apache.activemq.core.config.ScaleDownConfiguration;
 
 public class LiveOnlyPolicyConfiguration implements HAPolicyConfiguration
 {

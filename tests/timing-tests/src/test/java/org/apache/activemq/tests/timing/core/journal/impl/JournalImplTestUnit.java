@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.timing.core.journal.impl;
+package org.apache.activemq.tests.timing.core.journal.impl;
 import org.junit.After;
 
 import org.junit.Test;
@@ -19,11 +19,11 @@ import java.util.ArrayList;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq6.core.journal.PreparedTransactionInfo;
-import org.apache.activemq6.core.journal.RecordInfo;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
 
 /**
  *

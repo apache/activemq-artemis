@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.spi.core.protocol;
+package org.apache.activemq.spi.core.protocol;
 
 import java.util.List;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.remoting.CloseListener;
-import org.apache.activemq6.core.remoting.FailureListener;
-import org.apache.activemq6.spi.core.remoting.BufferHandler;
-import org.apache.activemq6.spi.core.remoting.Connection;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.remoting.CloseListener;
+import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.spi.core.remoting.BufferHandler;
+import org.apache.activemq.spi.core.remoting.Connection;
 
 /**
  * A RemotingConnection is a connection between a client and a server.

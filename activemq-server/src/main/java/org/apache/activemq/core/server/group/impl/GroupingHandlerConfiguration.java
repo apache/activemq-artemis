@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.group.impl;
+package org.apache.activemq.core.server.group.impl;
 
 import java.io.Serializable;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.SimpleString;
 
 /**
  * A remote Grouping handler configuration
@@ -26,9 +26,9 @@ public final class GroupingHandlerConfiguration implements Serializable
 {
    public static final long serialVersionUID = -4600283023652477326L;
 
-   public static final String GROUP_TIMEOUT_PROP_NAME = "org.apache.activemq6.GroupingHandlerConfiguration.groupTimeout";
+   public static final String GROUP_TIMEOUT_PROP_NAME = "org.apache.activemq.GroupingHandlerConfiguration.groupTimeout";
 
-   public static final String REAPER_PERIOD_PROP_NAME = "org.apache.activemq6.GroupingHandlerConfiguration.reaperPeriod";
+   public static final String REAPER_PERIOD_PROP_NAME = "org.apache.activemq.GroupingHandlerConfiguration.reaperPeriod";
 
    private SimpleString name = null;
 

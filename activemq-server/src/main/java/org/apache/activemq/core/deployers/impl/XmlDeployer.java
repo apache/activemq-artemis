@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.deployers.impl;
+package org.apache.activemq.core.deployers.impl;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.deployers.Deployer;
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.deployers.Deployer;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -286,9 +286,9 @@ public abstract class XmlDeployer implements Deployer
    protected Element getRootElement(final URI url) throws Exception
    {
       Reader reader = new InputStreamReader(url.toURL().openStream());
-      String xml = org.apache.activemq6.utils.XMLUtil.readerToString(reader);
-      xml = org.apache.activemq6.utils.XMLUtil.replaceSystemProps(xml);
-      return org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
+      xml = org.apache.activemq.utils.XMLUtil.replaceSystemProps(xml);
+      return org.apache.activemq.utils.XMLUtil.stringToElement(xml);
    }
 
    private boolean hasNodeChanged(final URI url, final Node child, final String name)

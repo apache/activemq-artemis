@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import java.security.Principal;
 import java.security.acl.Group;
@@ -26,7 +26,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.activemq6.spi.core.security.JAASSecurityManager;
+import org.apache.activemq.spi.core.security.JAASSecurityManager;
 
 /**
  * A ExampleLoginModule

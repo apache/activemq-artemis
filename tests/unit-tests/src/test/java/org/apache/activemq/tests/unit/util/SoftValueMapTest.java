@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.SoftValueHashMap;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.SoftValueHashMap;
 import org.junit.Test;
 
 /**
@@ -134,7 +134,7 @@ public class SoftValueMapTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq6.utils.SoftValueHashMap.ValueCache#isLive()
+       * @see org.apache.activemq.utils.SoftValueHashMap.ValueCache#isLive()
        */
       public boolean isLive()
       {

@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.management.impl;
+package org.apache.activemq.core.management.impl;
 
 import javax.management.MBeanOperationInfo;
 
-import org.apache.activemq6.api.core.management.DivertControl;
-import org.apache.activemq6.core.config.DivertConfiguration;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.Divert;
+import org.apache.activemq.api.core.management.DivertControl;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.Divert;
 
 /**
  * A DivertControl

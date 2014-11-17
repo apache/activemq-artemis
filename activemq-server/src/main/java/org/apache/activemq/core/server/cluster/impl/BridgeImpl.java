@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.impl;
+package org.apache.activemq.core.server.cluster.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -22,41 +22,41 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQExceptionType;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq6.api.core.client.SessionFailureListener;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ClientSessionInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.persistence.StorageManager;
-import org.apache.activemq6.core.server.HandleStatus;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.cluster.Bridge;
-import org.apache.activemq6.core.server.cluster.Transformer;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.core.server.management.NotificationService;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
-import org.apache.activemq6.utils.FutureLatch;
-import org.apache.activemq6.utils.ReusableLatch;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.UUID;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.core.server.HandleStatus;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.cluster.Bridge;
+import org.apache.activemq.core.server.cluster.Transformer;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.core.server.management.NotificationService;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.UUID;
 
 /**
  * A Core BridgeImpl
@@ -223,7 +223,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq6.core.server.Consumer#getDeliveringMessages()
+    * @see org.apache.activemq.core.server.Consumer#getDeliveringMessages()
     */
    @Override
    public List<MessageReference> getDeliveringMessages()

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.exception;
+package org.apache.activemq.core.exception;
 
 import javax.transaction.xa.XAException;
 

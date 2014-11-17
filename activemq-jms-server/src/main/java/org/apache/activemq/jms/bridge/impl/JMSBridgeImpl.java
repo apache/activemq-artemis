@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.bridge.impl;
+package org.apache.activemq.jms.bridge.impl;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -45,27 +45,27 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQInterruptedException;
-import org.apache.activemq6.api.core.client.FailoverEventListener;
-import org.apache.activemq6.api.core.client.FailoverEventType;
-import org.apache.activemq6.api.jms.HornetQJMSConstants;
-import org.apache.activemq6.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq6.jms.bridge.DestinationFactory;
-import org.apache.activemq6.jms.bridge.HornetQJMSBridgeLogger;
-import org.apache.activemq6.jms.bridge.JMSBridge;
-import org.apache.activemq6.jms.bridge.JMSBridgeControl;
-import org.apache.activemq6.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq6.jms.client.HornetQConnection;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.jms.server.HornetQJMSServerBundle;
-import org.apache.activemq6.jms.server.recovery.HornetQRegistryBase;
-import org.apache.activemq6.jms.server.recovery.XARecoveryConfig;
-import org.apache.activemq6.utils.ClassloadingUtil;
-import org.apache.activemq6.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq6.utils.PasswordMaskingUtil;
-import org.apache.activemq6.utils.SensitiveDataCodec;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.client.FailoverEventListener;
+import org.apache.activemq.api.core.client.FailoverEventType;
+import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.jms.bridge.DestinationFactory;
+import org.apache.activemq.jms.bridge.HornetQJMSBridgeLogger;
+import org.apache.activemq.jms.bridge.JMSBridge;
+import org.apache.activemq.jms.bridge.JMSBridgeControl;
+import org.apache.activemq.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.jms.client.HornetQConnection;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.server.HornetQJMSServerBundle;
+import org.apache.activemq.jms.server.recovery.HornetQRegistryBase;
+import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
+import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.utils.PasswordMaskingUtil;
+import org.apache.activemq.utils.SensitiveDataCodec;
 
 /**
  * A JMSBridge
@@ -163,7 +163,7 @@ public final class JMSBridgeImpl implements JMSBridge
 
    private int forwardMode;
 
-   private String transactionManagerLocatorClass = "org.apache.activemq6.integration.jboss.tm.JBoss5TransactionManagerLocator";
+   private String transactionManagerLocatorClass = "org.apache.activemq.integration.jboss.tm.JBoss5TransactionManagerLocator";
 
    private String transactionManagerLocatorMethod = "getTm";
 

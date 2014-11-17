@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.example;
+package org.apache.activemq.jms.example;
 
 import javax.jms.*;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.common.example.HornetQExample;
+import org.apache.activemq.common.example.HornetQExample;
 
 /**
  * A simple JMS example that shows how AutoCloseable is used by JMS 2 resources.

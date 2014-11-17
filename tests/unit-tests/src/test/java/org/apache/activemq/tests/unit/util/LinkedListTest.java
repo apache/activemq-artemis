@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.LinkedListImpl;
-import org.apache.activemq6.utils.LinkedListIterator;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.LinkedListImpl;
+import org.apache.activemq.utils.LinkedListIterator;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.cluster;
+package org.apache.activemq.core.server.cluster;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,38 +20,38 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.Interceptor;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq6.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq6.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq6.core.client.impl.Topology;
-import org.apache.activemq6.core.protocol.core.Channel;
-import org.apache.activemq6.core.protocol.core.ChannelHandler;
-import org.apache.activemq6.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq6.core.protocol.core.Packet;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterConnectMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.QuorumVoteMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
-import org.apache.activemq6.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.cluster.qourum.QuorumManager;
-import org.apache.activemq6.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq6.core.server.cluster.qourum.Vote;
-import org.apache.activemq6.core.server.impl.Activation;
-import org.apache.activemq6.spi.core.remoting.Acceptor;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.protocol.core.Channel;
+import org.apache.activemq.core.protocol.core.ChannelHandler;
+import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.cluster.qourum.QuorumManager;
+import org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler;
+import org.apache.activemq.core.server.cluster.qourum.Vote;
+import org.apache.activemq.core.server.impl.Activation;
+import org.apache.activemq.spi.core.remoting.Acceptor;
 
 /**
  * used for creating and managing cluster control connections for each cluster connection and the replication connection

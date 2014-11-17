@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import org.junit.Test;
 
@@ -33,8 +33,8 @@ import java.util.StringTokenizer;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.ObjectInputStreamWithClassLoader;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.ObjectInputStreamWithClassLoader;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
@@ -96,7 +96,7 @@ public class ObjectInputStreamWithClassLoaderTest extends UnitTestCase
          Thread.currentThread().setContextClassLoader(testClassLoader);
 
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         org.apache.activemq6.utils.ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
+         org.apache.activemq.utils.ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
 
          Object deserializedObj = ois.readObject();
 
@@ -132,7 +132,7 @@ public class ObjectInputStreamWithClassLoaderTest extends UnitTestCase
                .newClassLoader(this.getClass());
          Thread.currentThread().setContextClassLoader(testClassLoader);
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         org.apache.activemq6.utils.ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(
+         org.apache.activemq.utils.ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(
                bais);
 
          Runnable toRun = (Runnable) testClassLoader.loadClass(

@@ -11,24 +11,24 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.tools;
+package org.apache.activemq.tests.integration.tools;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq6.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.server.Consumer;
-import org.apache.activemq6.core.server.cluster.impl.ClusterConnectionBridge;
-import org.apache.activemq6.core.server.impl.QueueImpl;
-import org.apache.activemq6.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq6.tools.Main;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.server.Consumer;
+import org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge;
+import org.apache.activemq.core.server.impl.QueueImpl;
+import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.tools.Main;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

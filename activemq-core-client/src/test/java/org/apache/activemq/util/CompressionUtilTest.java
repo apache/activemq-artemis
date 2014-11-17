@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.util;
+package org.apache.activemq.util;
 
 import org.junit.Test;
 
@@ -23,9 +23,9 @@ import java.util.zip.Deflater;
 
 import org.junit.Assert;
 
-import org.apache.activemq6.utils.DeflaterReader;
-import org.apache.activemq6.utils.InflaterReader;
-import org.apache.activemq6.utils.InflaterWriter;
+import org.apache.activemq.utils.DeflaterReader;
+import org.apache.activemq.utils.InflaterReader;
+import org.apache.activemq.utils.InflaterWriter;
 
 /**
  * A CompressionUtilTest

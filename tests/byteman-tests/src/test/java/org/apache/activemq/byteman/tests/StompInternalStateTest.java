@@ -10,25 +10,25 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.api.core.management.CoreNotificationType;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.protocol.stomp.StompProtocolManagerFactory;
-import org.apache.activemq6.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.management.Notification;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.api.core.management.CoreNotificationType;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.management.Notification;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -54,10 +54,10 @@ public class StompInternalStateTest extends ServiceTestBase
                @BMRule
                   (
                      name = "StompProtocolManager Leak Server Rule",
-                     targetClass = "org.apache.activemq6.core.protocol.stomp.StompProtocolManager",
-                     targetMethod = "onNotification(org.apache.activemq6.core.server.management.Notification)",
+                     targetClass = "org.apache.activemq.core.protocol.stomp.StompProtocolManager",
+                     targetMethod = "onNotification(org.apache.activemq.core.server.management.Notification)",
                      targetLocation = "EXIT",
-                     helper = "org.apache.activemq6.byteman.tests.StompInternalStateTest",
+                     helper = "org.apache.activemq.byteman.tests.StompInternalStateTest",
                      action = "verifyBindingAddRemove($1, $0.destinations)"
                   )
             }

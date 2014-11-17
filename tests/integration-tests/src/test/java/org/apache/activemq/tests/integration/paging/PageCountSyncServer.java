@@ -11,13 +11,13 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.paging;
+package org.apache.activemq.tests.integration.paging;
 
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.tests.util.SpawnedVMSupport;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.tests.util.SpawnedVMSupport;
 
 /**
- * This is a sub process of the test {@link org.apache.activemq6.tests.integration.paging.PageCountSyncOnNonTXTest}
+ * This is a sub process of the test {@link org.apache.activemq.tests.integration.paging.PageCountSyncOnNonTXTest}
  *  The System.out calls here are meant to be here as they will appear on the process output and test output.
  *  It helps to identify what happened on the test in case of failures.
  * @author Clebert Suconic

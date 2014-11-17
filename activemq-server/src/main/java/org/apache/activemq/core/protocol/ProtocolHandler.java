@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol;
+package org.apache.activemq.core.protocol;
 
 import java.util.List;
 import java.util.Map;
@@ -31,18 +31,18 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq6.core.protocol.stomp.WebSocketServerHandler;
-import org.apache.activemq6.core.remoting.impl.netty.ConnectionCreator;
-import org.apache.activemq6.core.remoting.impl.netty.HttpAcceptorHandler;
-import org.apache.activemq6.core.remoting.impl.netty.HttpKeepAliveRunnable;
-import org.apache.activemq6.core.remoting.impl.netty.NettyAcceptor;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnector;
-import org.apache.activemq6.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq6.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq6.spi.core.protocol.ProtocolManager;
-import org.apache.activemq6.utils.ConfigurationHelper;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.core.protocol.stomp.WebSocketServerHandler;
+import org.apache.activemq.core.remoting.impl.netty.ConnectionCreator;
+import org.apache.activemq.core.remoting.impl.netty.HttpAcceptorHandler;
+import org.apache.activemq.core.remoting.impl.netty.HttpKeepAliveRunnable;
+import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.utils.ConfigurationHelper;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;

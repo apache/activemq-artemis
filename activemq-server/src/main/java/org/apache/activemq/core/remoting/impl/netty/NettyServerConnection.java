@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.remoting.impl.netty;
+package org.apache.activemq.core.remoting.impl.netty;
 
 import java.util.Map;
 
 import io.netty.channel.Channel;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq6.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 
 /**
  * @author <a href="mailto:nmaurer@redhat.com">Norman Maurer</a>

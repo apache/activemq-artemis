@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal;
+package org.apache.activemq.core.journal;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.core.journal.impl.TimedBuffer;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.core.journal.impl.TimedBuffer;
 
 /**
  * A SequentialFile

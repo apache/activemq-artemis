@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.factory;
+package org.apache.activemq.factory;
 
-import org.apache.activemq6.cli.ConfigurationException;
-import org.apache.activemq6.dto.BrokerDTO;
-import org.apache.activemq6.utils.FactoryFinder;
+import org.apache.activemq.cli.ConfigurationException;
+import org.apache.activemq.dto.BrokerDTO;
+import org.apache.activemq.utils.FactoryFinder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,7 +32,7 @@ public class BrokerFactory
       BrokerFactoryHandler factory = null;
       try
       {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq6/broker/");
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/broker/");
          factory = (BrokerFactoryHandler)finder.newInstance(configURI.getScheme());
       }
       catch (IOException ioe )

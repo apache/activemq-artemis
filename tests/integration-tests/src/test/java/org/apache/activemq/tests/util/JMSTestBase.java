@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.util;
+package org.apache.activemq.tests.util;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -30,16 +30,16 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.management.QueueControl;
-import org.apache.activemq6.api.jms.management.JMSQueueControl;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.jms.management.JMSQueueControl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

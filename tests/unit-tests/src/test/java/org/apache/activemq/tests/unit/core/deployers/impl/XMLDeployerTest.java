@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.deployers.impl;
+package org.apache.activemq.tests.unit.core.deployers.impl;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.activemq6.core.deployers.impl.XmlDeployer;
-import org.apache.activemq6.tests.util.UnitTestCase;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.core.deployers.impl.XmlDeployer;
+import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.utils.XMLUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,7 +91,7 @@ public class XMLDeployerTest extends UnitTestCase
       TestDeployer testDeployer = new TestDeployer();
       testDeployer.setElement(e);
       testDeployer.deploy(url);
-      e = org.apache.activemq6.utils.XMLUtil.stringToElement(XMLDeployerTest.conf2);
+      e = org.apache.activemq.utils.XMLUtil.stringToElement(XMLDeployerTest.conf2);
       testDeployer.setElement(e);
       testDeployer.redeploy(url);
       Assert.assertEquals(testDeployer.getDeployments(), 4);
@@ -112,7 +112,7 @@ public class XMLDeployerTest extends UnitTestCase
       TestDeployer testDeployer = new TestDeployer();
       testDeployer.setElement(e);
       testDeployer.deploy(url);
-      e = org.apache.activemq6.utils.XMLUtil.stringToElement(XMLDeployerTest.conf3);
+      e = org.apache.activemq.utils.XMLUtil.stringToElement(XMLDeployerTest.conf3);
       testDeployer.setElement(e);
       testDeployer.redeploy(url);
       Assert.assertEquals(testDeployer.getDeployments(), 2);
@@ -131,7 +131,7 @@ public class XMLDeployerTest extends UnitTestCase
       TestDeployer testDeployer = new TestDeployer();
       testDeployer.setElement(e);
       testDeployer.deploy(url);
-      e = org.apache.activemq6.utils.XMLUtil.stringToElement(XMLDeployerTest.conf4);
+      e = org.apache.activemq.utils.XMLUtil.stringToElement(XMLDeployerTest.conf4);
       testDeployer.setElement(e);
       testDeployer.redeploy(url);
       Assert.assertEquals(testDeployer.getDeployments(), 6);
@@ -152,7 +152,7 @@ public class XMLDeployerTest extends UnitTestCase
    @Test
    public void testUndeploy() throws Exception
    {
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(XMLDeployerTest.conf1);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(XMLDeployerTest.conf1);
       TestDeployer testDeployer = new TestDeployer();
       testDeployer.setElement(e);
       testDeployer.deploy(url);

@@ -4,17 +4,17 @@
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6</groupId>
-      <artifactId>activemq6-pom</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pom</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq6-native</artifactId>
+   <artifactId>activemq-native</artifactId>
    <packaging>${native-package-type}</packaging>
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq6</groupId>
-         <artifactId>activemq6-commons</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
    </dependencies>
@@ -108,7 +108,7 @@
                      <libraries>
                         <library>
                            <type>jni</type>
-                           <narSystemPackage>org.apache.activemq6.core.libaio</narSystemPackage>
+                           <narSystemPackage>org.apache.activemq.core.libaio</narSystemPackage>
                         </library>
                      </libraries>
                   </configuration>

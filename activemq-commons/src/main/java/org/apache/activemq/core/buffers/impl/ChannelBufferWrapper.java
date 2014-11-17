@@ -11,16 +11,16 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.buffers.impl;
+package org.apache.activemq.core.buffers.impl;
 
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.UTF8Util;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.UTF8Util;
 
 /**
  * A ChannelBufferWrapper

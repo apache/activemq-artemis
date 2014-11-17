@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.ra;
+package org.apache.activemq.ra;
 
 import javax.jms.Session;
 import javax.resource.ResourceException;
@@ -34,22 +34,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.activemq6.api.core.BroadcastEndpointFactoryConfiguration;
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.JGroupsBroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.ra.inflow.HornetQActivation;
-import org.apache.activemq6.ra.inflow.HornetQActivationSpec;
-import org.apache.activemq6.ra.recovery.RecoveryManager;
-import org.apache.activemq6.utils.SensitiveDataCodec;
+import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.ra.inflow.HornetQActivation;
+import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.ra.recovery.RecoveryManager;
+import org.apache.activemq.utils.SensitiveDataCodec;
 import org.jgroups.JChannel;
 
 /**
@@ -1808,7 +1808,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @param transactionManagerLocatorClass
-    * @see org.apache.activemq6.ra.HornetQRAProperties#setTransactionManagerLocatorClass(java.lang.String)
+    * @see org.apache.activemq.ra.HornetQRAProperties#setTransactionManagerLocatorClass(java.lang.String)
     */
    public void setTransactionManagerLocatorClass(String transactionManagerLocatorClass)
    {
@@ -1817,7 +1817,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @return
-    * @see org.apache.activemq6.ra.HornetQRAProperties#getTransactionManagerLocatorClass()
+    * @see org.apache.activemq.ra.HornetQRAProperties#getTransactionManagerLocatorClass()
     */
    public String getTransactionManagerLocatorClass()
    {
@@ -1826,7 +1826,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @return
-    * @see org.apache.activemq6.ra.HornetQRAProperties#getJgroupsChannelLocatorClass()
+    * @see org.apache.activemq.ra.HornetQRAProperties#getJgroupsChannelLocatorClass()
     */
    public String getJgroupsChannelLocatorClass()
    {
@@ -1835,7 +1835,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @return
-    * @see org.apache.activemq6.ra.HornetQRAProperties#setJgroupsChannelLocatorClass()
+    * @see org.apache.activemq.ra.HornetQRAProperties#setJgroupsChannelLocatorClass()
     */
    public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass)
    {
@@ -1844,7 +1844,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @return
-    * @see org.apache.activemq6.ra.HornetQRAProperties#getJgroupsChannelRefName()
+    * @see org.apache.activemq.ra.HornetQRAProperties#getJgroupsChannelRefName()
     */
    public String getJgroupsChannelRefName()
    {
@@ -1853,7 +1853,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @return
-    * @see org.apache.activemq6.ra.HornetQRAProperties#setJgroupsChannelRefName()
+    * @see org.apache.activemq.ra.HornetQRAProperties#setJgroupsChannelRefName()
     */
    public void setJgroupsChannelRefName(String jgroupsChannelRefName)
    {
@@ -1862,7 +1862,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @return
-    * @see org.apache.activemq6.ra.HornetQRAProperties#getTransactionManagerLocatorMethod()
+    * @see org.apache.activemq.ra.HornetQRAProperties#getTransactionManagerLocatorMethod()
     */
    public String getTransactionManagerLocatorMethod()
    {
@@ -1871,7 +1871,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
 
    /**
     * @param transactionManagerLocatorMethod
-    * @see org.apache.activemq6.ra.HornetQRAProperties#setTransactionManagerLocatorMethod(java.lang.String)
+    * @see org.apache.activemq.ra.HornetQRAProperties#setTransactionManagerLocatorMethod(java.lang.String)
     */
    public void setTransactionManagerLocatorMethod(String transactionManagerLocatorMethod)
    {

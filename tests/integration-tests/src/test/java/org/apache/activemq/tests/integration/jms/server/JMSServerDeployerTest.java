@@ -10,29 +10,29 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.jms.server;
+package org.apache.activemq.tests.integration.jms.server;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.Context;
 import java.net.URI;
 
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.deployers.impl.FileDeploymentManager;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.impl.JMSServerDeployer;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.tests.integration.IntegrationTestLogger;
-import org.apache.activemq6.tests.unit.util.InVMNamingContext;
-import org.apache.activemq6.tests.util.ServiceTestBase;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.impl.JMSServerDeployer;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,7 +73,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
       String xml = "<configuration xmlns='urn:hornetq'> " + "</configuration>";
 
-      Element rootNode = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
       deployer.validate(rootNode);
    }
 
@@ -117,7 +117,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
       String xml = "<queue name=\"" + htmlEncodedName + "\">" + "<entry name=\"" + jndiName + "\"/>" + "</queue>";
 
-      Element rootNode = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
 
       deployer.deploy(rootNode);
 
@@ -136,7 +136,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
          "<topic name=\"" + htmlEncodedName + "\">" + "<entry name=\"" + jndiName + "\"/>" + "</topic>";
 
-      Element rootNode = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
 
       deployer.deploy(rootNode);
 

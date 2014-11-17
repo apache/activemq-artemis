@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.ra;
+package org.apache.activemq.tests.integration.ra;
 
 import javax.jms.JMSContext;
 import javax.jms.JMSRuntimeException;
@@ -18,13 +18,13 @@ import javax.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.ra.HornetQRAConnectionFactory;
-import org.apache.activemq6.ra.HornetQRAConnectionFactoryImpl;
-import org.apache.activemq6.ra.HornetQRAConnectionManager;
-import org.apache.activemq6.ra.HornetQRAManagedConnectionFactory;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
+import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.ra.HornetQRAConnectionFactory;
+import org.apache.activemq.ra.HornetQRAConnectionFactoryImpl;
+import org.apache.activemq.ra.HornetQRAConnectionManager;
+import org.apache.activemq.ra.HornetQRAManagedConnectionFactory;
+import org.apache.activemq.ra.HornetQResourceAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

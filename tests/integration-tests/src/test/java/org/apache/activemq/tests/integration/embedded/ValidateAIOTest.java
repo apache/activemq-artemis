@@ -11,13 +11,13 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.embedded;
+package org.apache.activemq.tests.integration.embedded;
 
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.HornetQServers;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 /**

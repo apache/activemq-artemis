@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging;
+package org.apache.activemq.core.paging;
 
 import java.util.List;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.SequentialFileFactory;
-import org.apache.activemq6.core.settings.HierarchicalRepository;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * The integration point between the PagingManger and the File System (aka SequentialFiles)

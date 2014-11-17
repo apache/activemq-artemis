@@ -13,12 +13,12 @@
 /**
  *
  */
-package org.apache.activemq6.api.core.client;
+package org.apache.activemq.api.core.client;
 
 import java.io.Serializable;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * A member of the topology.

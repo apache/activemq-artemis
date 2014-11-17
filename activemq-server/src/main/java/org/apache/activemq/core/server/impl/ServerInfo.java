@@ -10,17 +10,17 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Date;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.utils.SizeFormatterUtil;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.utils.SizeFormatterUtil;
 
 /**
  * A ServerInfo

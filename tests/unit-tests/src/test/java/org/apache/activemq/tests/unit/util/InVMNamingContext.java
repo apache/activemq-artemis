@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.util;
+package org.apache.activemq.tests.unit.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 
-import org.apache.activemq6.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.unit.UnitTestLogger;
 
 /**
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
@@ -271,7 +271,7 @@ public class InVMNamingContext implements Context, Serializable
    public Hashtable<String, String> getEnvironment() throws NamingException
    {
       Hashtable<String, String> env = new Hashtable<String, String>();
-      env.put("java.naming.factory.initial", "org.apache.activemq6.jms.tests.tools.container.InVMInitialContextFactory");
+      env.put("java.naming.factory.initial", "org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory");
       env.put("java.naming.provider.url", "org.jboss.naming:org.jnp.interface");
       return env;
    }

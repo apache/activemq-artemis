@@ -10,26 +10,26 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.message.impl;
+package org.apache.activemq.core.message.impl;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQBuffers;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
-import org.apache.activemq6.core.message.BodyEncoder;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq6.utils.ByteUtil;
-import org.apache.activemq6.utils.DataConstants;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.UUID;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
+import org.apache.activemq.core.message.BodyEncoder;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.utils.ByteUtil;
+import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.UUID;
 
 /**
  * A concrete implementation of a message

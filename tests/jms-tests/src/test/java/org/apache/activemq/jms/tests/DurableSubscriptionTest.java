@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.tests;
+package org.apache.activemq.jms.tests;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -26,7 +26,7 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import java.util.List;
 
-import org.apache.activemq6.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 /**

@@ -17,5 +17,5 @@
  * HornetQ to load-balance client connections across
  * HornetQ servers.
  */
-package org.apache.activemq6.api.core.client.loadbalance;
+package org.apache.activemq.api.core.client.loadbalance;
 

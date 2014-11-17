@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.topic;
+package org.apache.activemq.rest.topic;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -25,18 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.jms.client.HornetQDestination;
-import org.apache.activemq6.jms.client.HornetQTopic;
-import org.apache.activemq6.jms.server.config.TopicConfiguration;
-import org.apache.activemq6.jms.server.impl.JMSServerConfigParserImpl;
-import org.apache.activemq6.rest.HornetQRestLogger;
-import org.apache.activemq6.rest.queue.DestinationSettings;
-import org.apache.activemq6.rest.queue.PostMessage;
-import org.apache.activemq6.rest.queue.PostMessageDupsOk;
-import org.apache.activemq6.rest.queue.PostMessageNoDups;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.server.config.TopicConfiguration;
+import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
+import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.queue.DestinationSettings;
+import org.apache.activemq.rest.queue.PostMessage;
+import org.apache.activemq.rest.queue.PostMessageDupsOk;
+import org.apache.activemq.rest.queue.PostMessageNoDups;
 import org.w3c.dom.Document;
 
 /**

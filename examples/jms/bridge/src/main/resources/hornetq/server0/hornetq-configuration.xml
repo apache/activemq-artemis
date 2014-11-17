@@ -13,13 +13,13 @@
    <!-- Connectors -->
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5445"/>
       </connector>
    
       <!-- Connector to the other node -->
       <connector name="remote-connector">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5446"/>
       </connector>
    </connectors>
@@ -27,7 +27,7 @@
    <!-- Acceptors -->     
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq6.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="5445"/>
       </acceptor>
    </acceptors>
@@ -47,7 +47,7 @@
           <queue-name>jms.queue.sausage-factory</queue-name>
           <forwarding-address>jms.queue.mincing-machine</forwarding-address>
           <filter string="name='aardvark'"/>
-          <transformer-class-name>org.apache.activemq6.jms.example.HatColourChangeTransformer</transformer-class-name>
+          <transformer-class-name>org.apache.activemq.jms.example.HatColourChangeTransformer</transformer-class-name>
           <reconnect-attempts>-1</reconnect-attempts> 
           <static-connectors>
              <connector-ref>remote-connector</connector-ref>

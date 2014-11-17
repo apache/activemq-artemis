@@ -10,12 +10,12 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.journal.impl;
+package org.apache.activemq.core.journal.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.utils.ReusableLatch;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * A TransactionCallback

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class FactoryFinder
    /**
     * The strategy that the FactoryFinder uses to find load and instantiate Objects
     * can be changed out by calling the
-    * {@link org.apache.activemq6.utils.FactoryFinder#setObjectFactory(org.apache.activemq6.utils.FactoryFinder.ObjectFactory)}
+    * {@link org.apache.activemq.utils.FactoryFinder#setObjectFactory(org.apache.activemq.utils.FactoryFinder.ObjectFactory)}
     * method with a custom implementation of ObjectFactory.
     * <p/>
     * The default ObjectFactory is typically changed out when running in a specialized container

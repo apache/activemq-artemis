@@ -6,12 +6,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq6.docs</groupId>
-      <artifactId>activemq6-docs</artifactId>
+      <groupId>org.apache.activemq.docs</groupId>
+      <artifactId>activemq-docs</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
 
-	<groupId>org.apache.activemq6.docs</groupId>
+	<groupId>org.apache.activemq.docs</groupId>
 	<artifactId>quickstart-guide</artifactId>
 	<version>1.0</version>
 	<packaging>jdocbook</packaging>

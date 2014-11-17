@@ -16,5 +16,5 @@
  * This package defines the Service Provide Interface that
  * remoting providers must implement to be supported by HornetQ.
  */
-package org.apache.activemq6.spi.core.remoting;
+package org.apache.activemq.spi.core.remoting;
 

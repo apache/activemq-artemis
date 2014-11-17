@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.server.group.impl;
+package org.apache.activemq.tests.unit.core.server.group.impl;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.tests.util.UnitTestCase;
 
 public class SystemPropertyOverrideTest extends UnitTestCase
 {

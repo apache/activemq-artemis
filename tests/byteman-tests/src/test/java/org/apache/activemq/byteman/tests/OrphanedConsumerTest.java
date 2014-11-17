@@ -11,19 +11,19 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.byteman.tests;
+package org.apache.activemq.byteman.tests;
 
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.tests.util.ServiceTestBase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -126,20 +126,20 @@ public class OrphanedConsumerTest extends ServiceTestBase
                @BMRule
                   (
                      name = "closeExit",
-                     targetClass = "org.apache.activemq6.core.server.impl.ServerConsumerImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "AT EXIT",
-                     condition = "org.apache.activemq6.byteman.tests.OrphanedConsumerTest.isConditionActive()",
+                     condition = "org.apache.activemq.byteman.tests.OrphanedConsumerTest.isConditionActive()",
                      action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"
                   ),
                @BMRule
                   (
                      name = "closeEnter",
-                     targetClass = "org.apache.activemq6.core.server.impl.ServerConsumerImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "ENTRY",
-                     condition = "org.apache.activemq6.byteman.tests.OrphanedConsumerTest.isConditionActive()",
-                     action = "org.apache.activemq6.byteman.tests.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
+                     condition = "org.apache.activemq.byteman.tests.OrphanedConsumerTest.isConditionActive()",
+                     action = "org.apache.activemq.byteman.tests.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
                   )
 
             }
@@ -165,20 +165,20 @@ public class OrphanedConsumerTest extends ServiceTestBase
                @BMRule
                   (
                      name = "closeExit",
-                     targetClass = "org.apache.activemq6.core.server.impl.ServerConsumerImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "AT EXIT",
-                     condition = "org.apache.activemq6.byteman.tests.OrphanedConsumerTest.isConditionActive()",
+                     condition = "org.apache.activemq.byteman.tests.OrphanedConsumerTest.isConditionActive()",
                      action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"
                   ),
                @BMRule
                   (
                      name = "closeEnter",
-                     targetClass = "org.apache.activemq6.core.server.impl.ServerConsumerImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "ENTRY",
-                     condition = "org.apache.activemq6.byteman.tests.OrphanedConsumerTest.isConditionActive()",
-                     action = "org.apache.activemq6.byteman.tests.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
+                     condition = "org.apache.activemq.byteman.tests.OrphanedConsumerTest.isConditionActive()",
+                     action = "org.apache.activemq.byteman.tests.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
                   )
 
             }

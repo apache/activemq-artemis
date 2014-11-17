@@ -10,16 +10,16 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server;
+package org.apache.activemq.core.server;
 
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
 
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
 
 /**
  * HornetQServers is a factory class for instantiating HornetQServer instances.

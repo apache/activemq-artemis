@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.ha;
+package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq6.core.server.impl.Activation;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.core.server.impl.LiveOnlyActivation;
+import org.apache.activemq.core.server.impl.Activation;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.LiveOnlyActivation;
 
 import java.util.Map;
 

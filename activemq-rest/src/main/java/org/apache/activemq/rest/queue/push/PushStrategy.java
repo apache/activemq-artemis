@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.queue.push;
+package org.apache.activemq.rest.queue.push;
 
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>

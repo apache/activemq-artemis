@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 
 import java.io.InputStream;
@@ -28,27 +28,27 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.HornetQPropertyConversionException;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.message.BodyEncoder;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.cursor.PageSubscription;
-import org.apache.activemq6.core.server.Consumer;
-import org.apache.activemq6.core.server.HornetQServer;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.RoutingContext;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.tests.util.RandomUtil;
-import org.apache.activemq6.utils.LinkedListIterator;
-import org.apache.activemq6.utils.ReferenceCounter;
-import org.apache.activemq6.utils.TypedProperties;
-import org.apache.activemq6.utils.UUID;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.message.BodyEncoder;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.cursor.PageSubscription;
+import org.apache.activemq.core.server.Consumer;
+import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.RoutingContext;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.utils.ReferenceCounter;
+import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 

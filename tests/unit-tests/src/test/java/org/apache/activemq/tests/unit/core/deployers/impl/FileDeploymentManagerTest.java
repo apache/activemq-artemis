@@ -10,18 +10,18 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.unit.core.deployers.impl;
+package org.apache.activemq.tests.unit.core.deployers.impl;
 
 import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.core.deployers.Deployer;
-import org.apache.activemq6.core.deployers.impl.FileDeploymentManager;
-import org.apache.activemq6.core.deployers.impl.FileDeploymentManager.DeployInfo;
-import org.apache.activemq6.tests.unit.UnitTestLogger;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.core.deployers.Deployer;
+import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
+import org.apache.activemq.core.deployers.impl.FileDeploymentManager.DeployInfo;
+import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

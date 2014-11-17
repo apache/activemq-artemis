@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.protocol.stomp;
+package org.apache.activemq.core.protocol.stomp;
 
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;

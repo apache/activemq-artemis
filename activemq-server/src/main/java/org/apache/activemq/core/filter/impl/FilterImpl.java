@@ -10,19 +10,19 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.filter.impl;
+package org.apache.activemq.core.filter.impl;
 
-import org.apache.activemq6.selector.filter.BooleanExpression;
-import org.apache.activemq6.selector.filter.FilterException;
-import org.apache.activemq6.selector.filter.Filterable;
-import org.apache.activemq6.selector.SelectorParser;
-import org.apache.activemq6.api.core.FilterConstants;
-import org.apache.activemq6.api.core.HornetQException;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.filter.Filter;
-import org.apache.activemq6.core.server.HornetQMessageBundle;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.ServerMessage;
+import org.apache.activemq.selector.filter.BooleanExpression;
+import org.apache.activemq.selector.filter.FilterException;
+import org.apache.activemq.selector.filter.Filterable;
+import org.apache.activemq.selector.SelectorParser;
+import org.apache.activemq.api.core.FilterConstants;
+import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.filter.Filter;
+import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ServerMessage;
 
 /**
 * This class implements a HornetQ filter

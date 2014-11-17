@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.utils;
+package org.apache.activemq.utils;
 
 import org.junit.Assert;
 import org.junit.Test;

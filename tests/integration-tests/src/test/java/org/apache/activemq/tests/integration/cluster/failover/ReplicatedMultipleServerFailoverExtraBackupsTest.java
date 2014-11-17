@@ -11,19 +11,19 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.tests.integration.cluster.failover;
+package org.apache.activemq.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq6.api.core.client.ClientConsumer;
-import org.apache.activemq6.api.core.client.ClientMessage;
-import org.apache.activemq6.api.core.client.ClientProducer;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.core.client.ClientSessionFactory;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq6.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.junit.Assert;
 import org.junit.Test;
 

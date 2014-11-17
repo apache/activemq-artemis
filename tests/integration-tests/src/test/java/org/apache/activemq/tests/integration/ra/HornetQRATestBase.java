@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.ra;
+package org.apache.activemq.tests.integration.ra;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -32,14 +32,14 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.client.ServerLocator;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.jms.client.HornetQMessage;
-import org.apache.activemq6.ra.HornetQResourceAdapter;
-import org.apache.activemq6.ra.inflow.HornetQActivation;
-import org.apache.activemq6.tests.util.JMSTestBase;
-import org.apache.activemq6.tests.util.UnitTestCase;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.inflow.HornetQActivation;
+import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 

@@ -10,9 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.rest.test;
+package org.apache.activemq.rest.test;
 
-import org.apache.activemq6.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;

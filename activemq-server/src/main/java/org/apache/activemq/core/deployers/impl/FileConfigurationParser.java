@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.deployers.impl;
+package org.apache.activemq.core.deployers.impl;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,47 +22,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq6.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq6.api.core.BroadcastEndpointFactoryConfiguration;
-import org.apache.activemq6.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq6.api.core.JGroupsBroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq6.api.core.client.HornetQClient;
-import org.apache.activemq6.core.config.BridgeConfiguration;
-import org.apache.activemq6.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq6.core.config.CoreQueueConfiguration;
-import org.apache.activemq6.core.config.DivertConfiguration;
-import org.apache.activemq6.core.config.HAPolicyConfiguration;
-import org.apache.activemq6.core.config.ScaleDownConfiguration;
-import org.apache.activemq6.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq6.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq6.core.config.impl.ConfigurationImpl;
-import org.apache.activemq6.core.config.impl.FileConfiguration;
-import org.apache.activemq6.core.config.impl.Validators;
-import org.apache.activemq6.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq6.core.journal.impl.JournalConstants;
-import org.apache.activemq6.core.security.Role;
-import org.apache.activemq6.core.server.HornetQServerLogger;
-import org.apache.activemq6.core.server.JournalType;
-import org.apache.activemq6.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq6.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq6.core.settings.impl.AddressSettings;
-import org.apache.activemq6.core.settings.impl.SlowConsumerPolicy;
-import org.apache.activemq6.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq6.utils.PasswordMaskingUtil;
-import org.apache.activemq6.utils.SensitiveDataCodec;
-import org.apache.activemq6.utils.XMLConfigurationUtil;
-import org.apache.activemq6.utils.XMLUtil;
+import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.config.HAPolicyConfiguration;
+import org.apache.activemq.core.config.ScaleDownConfiguration;
+import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.config.impl.FileConfiguration;
+import org.apache.activemq.core.config.impl.Validators;
+import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalConstants;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.utils.PasswordMaskingUtil;
+import org.apache.activemq.utils.SensitiveDataCodec;
+import org.apache.activemq.utils.XMLConfigurationUtil;
+import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -172,9 +172,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
    {
 
       Reader reader = new InputStreamReader(input);
-      String xml = org.apache.activemq6.utils.XMLUtil.readerToString(reader);
+      String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
       xml = XMLUtil.replaceSystemProps(xml);
-      Element e = org.apache.activemq6.utils.XMLUtil.stringToElement(xml);
+      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
 
       Configuration config = new ConfigurationImpl();
 

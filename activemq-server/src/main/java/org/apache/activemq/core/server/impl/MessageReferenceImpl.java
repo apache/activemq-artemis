@@ -10,14 +10,14 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.impl;
+package org.apache.activemq.core.server.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.Queue;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.utils.MemorySize;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.utils.MemorySize;
 
 /**
  * Implementation of a MessageReference
@@ -49,7 +49,7 @@ public class MessageReferenceImpl implements MessageReference
    {
       // This is an estimate of how much memory a ServerMessageImpl takes up, exclusing body and properties
       // Note, it is only an estimate, it's not possible to be entirely sure with Java
-      // This figure is calculated using the test utilities in org.apache.activemq6.tests.unit.util.sizeof
+      // This figure is calculated using the test utilities in org.apache.activemq.tests.unit.util.sizeof
       // The value is somewhat higher on 64 bit architectures, probably due to different alignment
 
       if (MemorySize.is64bitArch())

@@ -10,25 +10,25 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.cli.commands;
+package org.apache.activemq.cli.commands;
 
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 
-import org.apache.activemq6.cli.HornetQ;
-import org.apache.activemq6.core.config.Configuration;
-import org.apache.activemq6.core.server.impl.HornetQServerImpl;
-import org.apache.activemq6.dto.BrokerDTO;
-import org.apache.activemq6.factory.BrokerFactory;
-import org.apache.activemq6.factory.CoreFactory;
-import org.apache.activemq6.factory.JmsFactory;
-import org.apache.activemq6.factory.SecurityManagerFactory;
-import org.apache.activemq6.integration.bootstrap.HornetQBootstrapLogger;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.config.JMSConfiguration;
-import org.apache.activemq6.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq6.jms.server.impl.StandaloneNamingServer;
-import org.apache.activemq6.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.cli.HornetQ;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.dto.BrokerDTO;
+import org.apache.activemq.factory.BrokerFactory;
+import org.apache.activemq.factory.CoreFactory;
+import org.apache.activemq.factory.JmsFactory;
+import org.apache.activemq.factory.SecurityManagerFactory;
+import org.apache.activemq.integration.bootstrap.HornetQBootstrapLogger;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.jms.server.impl.StandaloneNamingServer;
+import org.apache.activemq.spi.core.security.HornetQSecurityManager;
 
 import javax.management.MBeanServer;
 

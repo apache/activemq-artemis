@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.openwire.amq;
+package org.apache.activemq.core.protocol.openwire.amq;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,8 +24,8 @@ import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.filter.MessageEvaluationContext;
 import org.apache.activemq.state.ConnectionState;
-import org.apache.activemq6.core.protocol.openwire.OpenWireConnection;
-import org.apache.activemq6.core.protocol.openwire.OpenWireProtocolManager;
+import org.apache.activemq.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.core.protocol.openwire.OpenWireProtocolManager;
 
 public class AMQConnectionContext
 {

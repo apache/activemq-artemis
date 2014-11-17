@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.tests.integration.persistence;
+package org.apache.activemq.tests.integration.persistence;
 
 import org.junit.Test;
 
@@ -18,10 +18,10 @@ import java.util.ArrayList;
 
 import javax.naming.NamingException;
 
-import org.apache.activemq6.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq6.tests.util.JMSTestBase;
+import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
  * A JMSDynamicConfigTest

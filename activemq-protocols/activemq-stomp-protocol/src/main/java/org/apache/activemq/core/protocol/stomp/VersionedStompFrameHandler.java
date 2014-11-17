@@ -10,23 +10,23 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.protocol.stomp;
+package org.apache.activemq.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.api.core.Message;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.message.impl.MessageImpl;
-import org.apache.activemq6.core.protocol.stomp.Stomp.Headers;
-import org.apache.activemq6.core.protocol.stomp.v10.StompFrameHandlerV10;
-import org.apache.activemq6.core.protocol.stomp.v11.StompFrameHandlerV11;
-import org.apache.activemq6.core.protocol.stomp.v12.StompFrameHandlerV12;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.impl.ServerMessageImpl;
-import org.apache.activemq6.utils.DataConstants;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.Message;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.core.protocol.stomp.Stomp.Headers;
+import org.apache.activemq.core.protocol.stomp.v10.StompFrameHandlerV10;
+import org.apache.activemq.core.protocol.stomp.v11.StompFrameHandlerV11;
+import org.apache.activemq.core.protocol.stomp.v12.StompFrameHandlerV12;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.utils.DataConstants;
 
-import static org.apache.activemq6.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>

@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.javaee.example.server2;
+package org.apache.activemq.javaee.example.server2;
 
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.ra.HornetQRAConnectionFactoryImpl;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.ra.HornetQRAConnectionFactoryImpl;
 
 import javax.annotation.Resource;
 import javax.ejb.Remote;

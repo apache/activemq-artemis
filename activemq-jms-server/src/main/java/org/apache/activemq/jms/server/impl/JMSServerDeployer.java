@@ -10,15 +10,15 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.jms.server.impl;
+package org.apache.activemq.jms.server.impl;
 
-import org.apache.activemq6.core.deployers.DeploymentManager;
-import org.apache.activemq6.core.deployers.impl.XmlDeployer;
-import org.apache.activemq6.jms.server.JMSServerConfigParser;
-import org.apache.activemq6.jms.server.JMSServerManager;
-import org.apache.activemq6.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq6.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq6.jms.server.config.TopicConfiguration;
+import org.apache.activemq.core.deployers.DeploymentManager;
+import org.apache.activemq.core.deployers.impl.XmlDeployer;
+import org.apache.activemq.jms.server.JMSServerConfigParser;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.jms.server.config.TopicConfiguration;
 import org.w3c.dom.Node;
 
 /**
@@ -80,7 +80,7 @@ public class JMSServerDeployer extends XmlDeployer
    @Override
    public void validate(final Node rootNode) throws Exception
    {
-      org.apache.activemq6.utils.XMLUtil.validate(rootNode, "schema/hornetq-jms.xsd");
+      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/hornetq-jms.xsd");
    }
 
    /**

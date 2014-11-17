@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq6.core.server.group;
+package org.apache.activemq.core.server.group;
 
-import org.apache.activemq6.api.core.SimpleString;
+import org.apache.activemq.api.core.SimpleString;
 
 /**
  * @author Clebert Suconic

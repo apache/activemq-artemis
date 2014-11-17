@@ -10,10 +10,10 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.paging.cursor;
+package org.apache.activemq.core.paging.cursor;
 
-import org.apache.activemq6.core.paging.impl.Page;
-import org.apache.activemq6.core.transaction.Transaction;
+import org.apache.activemq.core.paging.impl.Page;
+import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * A PagingSubscriptionCounterInterface

@@ -10,26 +10,26 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.server.cluster.qourum;
+package org.apache.activemq.core.server.cluster.qourum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClusterTopologyListener;
-import org.apache.activemq6.api.core.client.TopologyMember;
-import org.apache.activemq6.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.cluster.ClusterControl;
-import org.apache.activemq6.core.server.cluster.ClusterController;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.api.core.client.TopologyMember;
+import org.apache.activemq.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.cluster.ClusterControl;
+import org.apache.activemq.core.server.cluster.ClusterController;
 
 /**
- * A QourumManager can be used to register a {@link org.apache.activemq6.core.server.cluster.qourum.Quorum} to receive notifications
- * about changes to the cluster. A {@link org.apache.activemq6.core.server.cluster.qourum.Quorum} can then issue a vote to the
+ * A QourumManager can be used to register a {@link org.apache.activemq.core.server.cluster.qourum.Quorum} to receive notifications
+ * about changes to the cluster. A {@link org.apache.activemq.core.server.cluster.qourum.Quorum} can then issue a vote to the
  * remaining nodes in a cluster for a specific outcome
  */
 public final class QuorumManager implements ClusterTopologyListener, HornetQComponent
@@ -39,7 +39,7 @@ public final class QuorumManager implements ClusterTopologyListener, HornetQComp
    private final ClusterController clusterController;
 
    /**
-    * all the current registered {@link org.apache.activemq6.core.server.cluster.qourum.Quorum}'s
+    * all the current registered {@link org.apache.activemq.core.server.cluster.qourum.Quorum}'s
     */
    private Map<String, Quorum> quorums = new HashMap<>();
 
@@ -113,7 +113,7 @@ public final class QuorumManager implements ClusterTopologyListener, HornetQComp
    }
 
    /**
-    * registers a {@link org.apache.activemq6.core.server.cluster.qourum.Quorum} so that it can be notified of changes in the cluster.
+    * registers a {@link org.apache.activemq.core.server.cluster.qourum.Quorum} so that it can be notified of changes in the cluster.
     * @param quorum
     */
    public void registerQuorum(Quorum quorum)
@@ -123,7 +123,7 @@ public final class QuorumManager implements ClusterTopologyListener, HornetQComp
    }
 
    /**
-    * unregisters a {@link org.apache.activemq6.core.server.cluster.qourum.Quorum}.
+    * unregisters a {@link org.apache.activemq.core.server.cluster.qourum.Quorum}.
     * @param quorum
     */
    public void unRegisterQuorum(Quorum quorum)
@@ -132,8 +132,8 @@ public final class QuorumManager implements ClusterTopologyListener, HornetQComp
    }
 
    /**
-    * called by the {@link org.apache.activemq6.core.client.impl.ServerLocatorInternal} when the topology changes. we update the
-    * {@code maxClusterSize} if needed and inform the {@link org.apache.activemq6.core.server.cluster.qourum.Quorum}'s.
+    * called by the {@link org.apache.activemq.core.client.impl.ServerLocatorInternal} when the topology changes. we update the
+    * {@code maxClusterSize} if needed and inform the {@link org.apache.activemq.core.server.cluster.qourum.Quorum}'s.
     *
     * @param topologyMember the topolgy changed
     * @param last if the whole cluster topology is being transmitted (after adding the listener to
@@ -151,7 +151,7 @@ public final class QuorumManager implements ClusterTopologyListener, HornetQComp
    }
 
    /**
-    * notify the {@link org.apache.activemq6.core.server.cluster.qourum.Quorum} of a topology change.
+    * notify the {@link org.apache.activemq.core.server.cluster.qourum.Quorum} of a topology change.
     * @param eventUID
     * @param nodeID the id of the node leaving the cluster
     */
@@ -292,7 +292,7 @@ public final class QuorumManager implements ClusterTopologyListener, HornetQComp
    }
    /**
     * this will connect to a node and then cast a vote. whether or not this vote is asked of the target node is dependant
-    * on {@link org.apache.activemq6.core.server.cluster.qourum.Vote#isRequestServerVote()}
+    * on {@link org.apache.activemq.core.server.cluster.qourum.Vote#isRequestServerVote()}
     */
    private final class VoteRunnable implements Runnable
    {

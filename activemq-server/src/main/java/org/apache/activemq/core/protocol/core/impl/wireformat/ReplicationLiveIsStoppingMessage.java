@@ -13,10 +13,10 @@
 /**
  *
  */
-package org.apache.activemq6.core.protocol.core.impl.wireformat;
+package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq6.api.core.HornetQBuffer;
-import org.apache.activemq6.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * Message indicating that the live is stopping (a scheduled stop).

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.core.persistence;
+package org.apache.activemq.core.persistence;
 
 import javax.transaction.xa.Xid;
 import java.nio.ByteBuffer;
@@ -19,34 +19,34 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq6.api.core.Pair;
-import org.apache.activemq6.api.core.SimpleString;
-import org.apache.activemq6.core.journal.IOAsyncTask;
-import org.apache.activemq6.core.journal.Journal;
-import org.apache.activemq6.core.journal.JournalLoadInformation;
-import org.apache.activemq6.core.journal.SequentialFile;
-import org.apache.activemq6.core.message.impl.MessageInternal;
-import org.apache.activemq6.core.paging.PageTransactionInfo;
-import org.apache.activemq6.core.paging.PagedMessage;
-import org.apache.activemq6.core.paging.PagingManager;
-import org.apache.activemq6.core.paging.PagingStore;
-import org.apache.activemq6.core.paging.cursor.PagePosition;
-import org.apache.activemq6.core.persistence.config.PersistedAddressSetting;
-import org.apache.activemq6.core.persistence.config.PersistedRoles;
-import org.apache.activemq6.core.persistence.impl.PageCountPending;
-import org.apache.activemq6.core.postoffice.Binding;
-import org.apache.activemq6.core.postoffice.PostOffice;
-import org.apache.activemq6.core.replication.ReplicationManager;
-import org.apache.activemq6.core.server.HornetQComponent;
-import org.apache.activemq6.core.server.LargeServerMessage;
-import org.apache.activemq6.core.server.MessageReference;
-import org.apache.activemq6.core.server.RouteContextList;
-import org.apache.activemq6.core.server.ServerMessage;
-import org.apache.activemq6.core.server.group.impl.GroupBinding;
-import org.apache.activemq6.core.server.impl.JournalLoader;
-import org.apache.activemq6.core.transaction.ResourceManager;
-import org.apache.activemq6.core.transaction.Transaction;
-import org.apache.activemq6.utils.IDGenerator;
+import org.apache.activemq.api.core.Pair;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.core.journal.Journal;
+import org.apache.activemq.core.journal.JournalLoadInformation;
+import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.core.paging.PageTransactionInfo;
+import org.apache.activemq.core.paging.PagedMessage;
+import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.PagingStore;
+import org.apache.activemq.core.paging.cursor.PagePosition;
+import org.apache.activemq.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.core.persistence.config.PersistedRoles;
+import org.apache.activemq.core.persistence.impl.PageCountPending;
+import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.replication.ReplicationManager;
+import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.RouteContextList;
+import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.core.server.group.impl.GroupBinding;
+import org.apache.activemq.core.server.impl.JournalLoader;
+import org.apache.activemq.core.transaction.ResourceManager;
+import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.utils.IDGenerator;
 
 /**
  * A StorageManager
@@ -342,7 +342,7 @@ public interface StorageManager extends IDGenerator, HornetQComponent
    Journal getMessageJournal();
 
    /**
-    * @see org.apache.activemq6.core.persistence.impl.journal.JournalStorageManager#startReplication(org.apache.activemq6.core.replication.ReplicationManager, org.apache.activemq6.core.paging.PagingManager, String, boolean)
+    * @see org.apache.activemq.core.persistence.impl.journal.JournalStorageManager#startReplication(org.apache.activemq.core.replication.ReplicationManager, org.apache.activemq.core.paging.PagingManager, String, boolean)
     */
    void startReplication(ReplicationManager replicationManager, PagingManager pagingManager, String nodeID,
                          boolean autoFailBack) throws Exception;
@@ -402,10 +402,10 @@ public interface StorageManager extends IDGenerator, HornetQComponent
    void readUnLock();
 
    /**
-    * Closes the {@link org.apache.activemq6.utils.IDGenerator} persisting the current record ID.
+    * Closes the {@link org.apache.activemq.utils.IDGenerator} persisting the current record ID.
     * <p/>
     * Effectively a "pre-stop" method. Necessary due to the "stop"-order at
-    * {@link org.apache.activemq6.core.server.impl.HornetQServerImpl}
+    * {@link org.apache.activemq.core.server.impl.HornetQServerImpl}
     */
    void persistIdGenerator();
 }
