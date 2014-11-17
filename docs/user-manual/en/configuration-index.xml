@@ -48,7 +48,7 @@
                     <!-- The options reference is generated from the schema.  If something is wrong
                          in the reference, it must be fixed in the annotations present in the
                          schema. -->
-                      <xi:include href="../target/generated-resources/xml/xslt/hornetq-configuration.xml"
+                      <xi:include href="../target/generated-resources/xml/xslt/activemq-configuration.xml"
                                   xmlns:xi="http://www.w3.org/2001/XInclude"/>
                 </tgroup>
             </table>

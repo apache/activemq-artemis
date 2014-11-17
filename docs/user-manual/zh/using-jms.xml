@@ -44,7 +44,7 @@
         <para>这里我们将要在服务器端部署一个JMS队列和一个JMS ConnectionFactory （连接工厂）。当然完全可以部署多个JMS对象。
               下面给出了具体的配置内容：</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd "&gt;
     
@@ -127,7 +127,7 @@
             </table>
             <para>下面的例子配置了一个XAQueueConnectionFactory:</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd "&gt;
     

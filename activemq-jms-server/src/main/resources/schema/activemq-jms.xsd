@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="urn:hornetq"
-            xmlns="urn:hornetq"
-            xmlns:hq="urn:org.apache.activemq"
+            targetNamespace="urn:activemq"
+            xmlns="urn:activemq"
+            xmlns:amq="urn:org.apache.activemq"
             elementFormDefault="qualified"
             attributeFormDefault="unqualified"
             version="1.0">
 
-   <xsd:element name="configuration" hq:schema="hornetq-jms-configuration">
+   <xsd:element name="configuration" amq:schema="hornetq-jms-configuration">
    	<xsd:complexType>
    	  <xsd:sequence>
             <xsd:element name="jmx-domain" type="xsd:string" default="org.apache.activemq"
@@ -23,15 +23,15 @@
    </xsd:element>
 
    <xsd:element name="connection-factory">
-        <xsd:annotation hq:linkend="using-jms.server.configuration">
+        <xsd:annotation amq:linkend="using-jms.server.configuration">
           <xsd:documentation>a list of connection factories to create and add to
           JNDI</xsd:documentation>
         </xsd:annotation>
    	<xsd:complexType>
           <xsd:all>
             <xsd:element name="xa" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:linkend="using-jms.configure.factory.types"
-                              hq:id="configuration.connection-factory.signature.xa">
+              <xsd:annotation amq:linkend="using-jms.configure.factory.types"
+                              amq:id="configuration.connection-factory.signature.xa">
                 <xsd:documentation>Whether this is an XA connection factory</xsd:documentation>
               </xsd:annotation>
             </xsd:element>
@@ -39,7 +39,7 @@
             </xsd:element>
 
             <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:linkend="clusters">
+              <xsd:annotation amq:linkend="clusters">
                 <xsd:documentation>A sequence of connectors used by the connection factory
                 </xsd:documentation>
               </xsd:annotation>
@@ -74,8 +74,8 @@
 
             <xsd:element name="client-failure-check-period" type="xsd:long" default="30000"
                          maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:id="configuration.connection-factory.client-failure-check-period"
-                              hq:linkend="dead.connections" hq:default="(ms)">
+              <xsd:annotation amq:id="configuration.connection-factory.client-failure-check-period"
+                              amq:linkend="dead.connections" amq:default="(ms)">
                 <xsd:documentation>
                   the period (in ms) after which the client will consider the connection failed
                   after not receiving packets from the server. -1 disables this setting.
@@ -84,8 +84,8 @@
             </xsd:element>
 
             <xsd:element name="connection-ttl" type="xsd:long" maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:id="configuration.connection-factory.connection-ttl"
-                              hq:linkend="dead.connections">
+              <xsd:annotation amq:id="configuration.connection-factory.connection-ttl"
+                              amq:linkend="dead.connections">
                 <xsd:documentation>the time to live (in ms) for connections
                 </xsd:documentation>
               </xsd:annotation>
@@ -93,7 +93,7 @@
 
             <xsd:element name="call-timeout" type="xsd:long" default="30000"
                          maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:id="configuration.connection-factory.call-timeout">
+              <xsd:annotation amq:id="configuration.connection-factory.call-timeout">
                 <xsd:documentation>
                   the timeout (in ms) for remote calls
                 </xsd:documentation>
@@ -128,8 +128,8 @@
             </xsd:element>
 
             <xsd:element name="client-id" type="xsd:string" maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:id="configuration.connection-factory.client-id"
-                              hq:linkend="using-jms.clientid">
+              <xsd:annotation amq:id="configuration.connection-factory.client-id"
+                              amq:linkend="using-jms.clientid">
                 <xsd:documentation>
                   the pre-configured client ID for the connection factory
                 </xsd:documentation>
@@ -144,8 +144,8 @@
             </xsd:element>
          <xsd:element name="block-on-acknowledge" type="xsd:boolean" default="false"
                       maxOccurs="1" minOccurs="0">
-           <xsd:annotation hq:linkend="send-guarantees.nontrans.acks"
-                           hq:id="configuration.connection-factory.block-on-acknowledge">
+           <xsd:annotation amq:linkend="send-guarantees.nontrans.acks"
+                           amq:id="configuration.connection-factory.block-on-acknowledge">
              <xsd:documentation>
                whether or not messages are acknowledged synchronously
              </xsd:documentation>
@@ -153,8 +153,8 @@
          </xsd:element>
          <xsd:element name="block-on-non-durable-send" type="xsd:boolean" default="false"
                       maxOccurs="1" minOccurs="0">
-           <xsd:annotation hq:id="configuration.connection-factory.block-on-non-durable-send"
-                           hq:linkend="non-transactional-sends">
+           <xsd:annotation amq:id="configuration.connection-factory.block-on-non-durable-send"
+                           amq:linkend="non-transactional-sends">
              <xsd:documentation>
                whether or not non-durable messages are sent synchronously
              </xsd:documentation>
@@ -162,16 +162,16 @@
          </xsd:element>
             <xsd:element name="block-on-durable-send" type="xsd:boolean" default="true"
                          maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:id="configuration.connection-factory.block-on-durable-send"
-                              hq:linkend="non-transactional-sends">
+              <xsd:annotation amq:id="configuration.connection-factory.block-on-durable-send"
+                              amq:linkend="non-transactional-sends">
                 <xsd:documentation>
                   whether or not durable messages are sent synchronously
                 </xsd:documentation>
               </xsd:annotation>
             </xsd:element>
             <xsd:element name="auto-group" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-              <xsd:annotation hq:id="configuration.connection-factory.auto-group"
-                              hq:linkend="message-grouping.jmsconfigure">
+              <xsd:annotation amq:id="configuration.connection-factory.auto-group"
+                              amq:linkend="message-grouping.jmsconfigure">
                 <xsd:documentation>whether or not message grouping is automatically used
                 </xsd:documentation>
               </xsd:annotation>
@@ -218,9 +218,9 @@
    		</xsd:all>
    		<xsd:attribute name="name" type="xsd:string"></xsd:attribute>
    		<xsd:attribute name="signature" type="xsd:string">
-                  <xsd:annotation hq:id="configuration.connection-factory.signature"
-                                  hq:linkend="using-jms.configure.factory.types"
-                                  hq:default="generic"> <!-- XXX -->
+                  <xsd:annotation amq:id="configuration.connection-factory.signature"
+                                  amq:linkend="using-jms.configure.factory.types"
+                                  amq:default="generic"> <!-- XXX -->
                     <xsd:documentation>Type of connection factory</xsd:documentation>
                   </xsd:annotation>
                 </xsd:attribute>

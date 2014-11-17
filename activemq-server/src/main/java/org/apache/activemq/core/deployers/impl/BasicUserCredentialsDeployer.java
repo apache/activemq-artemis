@@ -63,7 +63,7 @@ public class BasicUserCredentialsDeployer extends XmlDeployer
    @Override
    public void validate(final Node rootNode) throws Exception
    {
-      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/hornetq-users.xsd");
+      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/activemq-users.xsd");
    }
 
    @Override

@@ -60,7 +60,7 @@ public class SecurityDeployer extends XmlDeployer
    @Override
    public void validate(final Node rootNode) throws Exception
    {
-      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/hornetq-configuration.xsd");
+      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/activemq-configuration.xsd");
    }
 
    /**

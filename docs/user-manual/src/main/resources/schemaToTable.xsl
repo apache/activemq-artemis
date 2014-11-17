@@ -3,11 +3,11 @@
 <xsl:stylesheet version="2.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                xmlns:hq="urn:org.apache.activemq"
+                xmlns:amq="urn:org.apache.activemq"
                 xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
    <!--
-    XSL to transform HornetQ schemas into DocBook tables to be used in our user manual reference.
+    XSL to transform ActiveMQ schemas into DocBook tables to be used in our user manual reference.
 
     For each option element defined in the schema, it tries to create something like
 
@@ -26,7 +26,7 @@
 
    <xsl:output method="xml" indent="yes"/>
 
-   <xsl:function name="hq:name-or-ref">
+   <xsl:function name="amq:name-or-ref">
       <xsl:param name="ename"/>
       <xsl:param name="eref"/>
       <xsl:choose>
@@ -45,8 +45,8 @@
          <xsl:comment>
             THIS IS A GENERATED FILE. DO NOT EDIT IT DIRECTLY!
 
-            HornetQ options reference table generated from:
-            <xsl:copy-of select="concat('hornetq-', substring-after(base-uri(), 'hornetq-'))"/>
+            ActiveMQ options reference table generated from:
+            <xsl:copy-of select="concat('activemq-', substring-after(base-uri(), 'activemq-'))"/>
 
             =======================================================================
 
@@ -60,9 +60,9 @@
          <xsl:text>&#xa;</xsl:text>
          <xsl:text>&#xa;</xsl:text>
 
-         <!-- main 'for-each' for "hornetq-configuration.xsd". Notice the attribute matching at the
-              select which ensures this only matches "hornetq-configuration.xsd". -->
-         <xsl:for-each-group select="xsd:schema/xsd:element[@hq:schema='hornetq-configuration']"
+         <!-- main 'for-each' for "activemq-configuration.xsd". Notice the attribute matching at the
+              select which ensures this only matches "activemq-configuration.xsd". -->
+         <xsl:for-each-group select="xsd:schema/xsd:element[@amq:schema='activemq-configuration']"
                              group-by="@name">
             <!-- the manual reference should list options in sorted order.
                  Notice that this is only OK because the first level of options is "xsd:all".
@@ -72,15 +72,15 @@
             -->
             <xsl:sort select="@name" data-type="text" />
 
-            <!-- <xsl:if test="not(./xsd:annotation/@hq:linkend)"> -->
+            <!-- <xsl:if test="not(./xsd:annotation/@amq:linkend)"> -->
             <!--   <xsl:message terminate="yes"> -->
-            <!--     Error: Lacks proper Docbook link: xsd:annotation/@hq:linkend -->
+            <!--     Error: Lacks proper Docbook link: xsd:annotation/@amq:linkend -->
             <!--     <xsl:copy-of select="."/> -->
             <!--   </xsl:message> -->
             <!-- </xsl:if> -->
             <xsl:call-template name="xsd_element">
                <xsl:with-param name="prefix"/>
-               <xsl:with-param name="parentLinkend" select="xsd:annotation/@hq:linkend"/>
+               <xsl:with-param name="parentLinkend" select="xsd:annotation/@amq:linkend"/>
             </xsl:call-template>
 
             <!-- Add 2 new lines between each option -->
@@ -88,13 +88,13 @@
             <xsl:text>&#xa;</xsl:text>
          </xsl:for-each-group>
 
-         <!-- JMS: main 'for-each' for "hornetq-jms.xsd". Notice the attribute matching at the
-              select which ensures this only matches "hornetq-jms.xsd". -->
-         <xsl:for-each select="xsd:schema/xsd:element[@hq:schema='hornetq-jms-configuration']/xsd:complexType/xsd:sequence/xsd:element">
+         <!-- JMS: main 'for-each' for "activemq-jms.xsd". Notice the attribute matching at the
+              select which ensures this only matches "activemq-jms.xsd". -->
+         <xsl:for-each select="xsd:schema/xsd:element[@amq:schema='activemq-jms-configuration']/xsd:complexType/xsd:sequence/xsd:element">
 
             <xsl:call-template name="xsd_element">
                <xsl:with-param name="prefix"/>
-               <xsl:with-param name="parentLinkend" select="xsd:annotation/@hq:linkend"/>
+               <xsl:with-param name="parentLinkend" select="xsd:annotation/@amq:linkend"/>
             </xsl:call-template>
 
             <!-- Add 2 new lines between each option -->
@@ -128,7 +128,7 @@
 
    <xsl:template name="entry-for-default-value">
       <entry>
-         <xsl:value-of select="string-join((@default,xsd:annotation/@hq:default), ' ')"/>
+         <xsl:value-of select="string-join((@default,xsd:annotation/@amq:default), ' ')"/>
       </entry>
    </xsl:template>
 
@@ -149,7 +149,7 @@
          <xsl:choose>
             <xsl:when test="count(xsd:complexType/xsd:sequence/xsd:element)=1">
                <xsl:value-of
-                       select="concat('Sequence of &lt;', xsd:complexType/xsd:sequence/xsd:element/( hq:name-or-ref(@name,@ref) ), '/&gt;')"/>
+                       select="concat('Sequence of &lt;', xsd:complexType/xsd:sequence/xsd:element/( amq:name-or-ref(@name,@ref) ), '/&gt;')"/>
             </xsl:when>
             <xsl:otherwise>
                <xsl:text>Complex element</xsl:text>
@@ -164,8 +164,8 @@
 
       <xsl:variable name="linkend">
          <xsl:choose>
-            <xsl:when test="xsd:annotation/@hq:linkend">
-               <xsl:value-of select="xsd:annotation/@hq:linkend"/>
+            <xsl:when test="xsd:annotation/@amq:linkend">
+               <xsl:value-of select="xsd:annotation/@amq:linkend"/>
             </xsl:when>
             <xsl:otherwise>
                <xsl:value-of select="$parentLinkend"/>
@@ -218,8 +218,8 @@
 
       <xsl:variable name="linkend">
          <xsl:choose>
-            <xsl:when test="xsd:annotation/@hq:linkend">
-               <xsl:value-of select="xsd:annotation/@hq:linkend"/>
+            <xsl:when test="xsd:annotation/@amq:linkend">
+               <xsl:value-of select="xsd:annotation/@amq:linkend"/>
             </xsl:when>
             <xsl:otherwise>
                <xsl:value-of select="$parentLinkend"/>

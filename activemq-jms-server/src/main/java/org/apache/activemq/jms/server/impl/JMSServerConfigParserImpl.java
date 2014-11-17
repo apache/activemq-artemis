@@ -78,7 +78,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
 
       Element e = (Element) rootnode;
 
-      org.apache.activemq.utils.XMLUtil.validate(rootnode, "schema/hornetq-jms.xsd");
+      org.apache.activemq.utils.XMLUtil.validate(rootnode, "schema/activemq-jms.xsd");
 
       String[] elements = new String[]{JMSServerDeployer.QUEUE_NODE_NAME,
          JMSServerDeployer.TOPIC_NODE_NAME,

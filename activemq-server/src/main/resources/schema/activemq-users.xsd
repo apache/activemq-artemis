@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:hornetq" xmlns="urn:hornetq"
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:activemq" xmlns="urn:activemq"
             elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
 
    <xsd:element name="configuration">

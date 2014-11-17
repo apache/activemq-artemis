@@ -63,7 +63,7 @@
             Connection Factory instances you can deploy from the file. Here's our
             configuration:</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
     
@@ -149,7 +149,7 @@
             </table>
             <para>As an example, the following configures an XAQueueConnectionFactory:</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
 

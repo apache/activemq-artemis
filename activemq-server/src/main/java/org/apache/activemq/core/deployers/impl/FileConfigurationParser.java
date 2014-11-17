@@ -80,7 +80,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
    // Constants -----------------------------------------------------
 
-   private static final String CONFIGURATION_SCHEMA_URL = "schema/hornetq-configuration.xsd";
+   private static final String CONFIGURATION_SCHEMA_URL = "schema/activemq-configuration.xsd";
 
    // Security Parsing
    public static final String SECURITY_ELEMENT_NAME = "security-setting";

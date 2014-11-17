@@ -278,7 +278,7 @@
                   <dir>../../activemq-server/src/main/resources/schema</dir>
                   <stylesheet>./src/main/resources/schemaToTable.xsl</stylesheet>
                   <includes>
-                    <include>hornetq-configuration.xsd</include>
+                    <include>activemq-configuration.xsd</include>
                   </includes>
                   <fileMappers>
                     <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -287,10 +287,10 @@
                   </fileMappers>
                 </transformationSet>
                 <transformationSet>
-                  <dir>../../hornetq-jms-server/src/main/resources/schema</dir>
+                  <dir>../../activemq-jms-server/src/main/resources/schema</dir>
                   <stylesheet>./src/main/resources/schemaToTable.xsl</stylesheet>
                   <includes>
-                    <include>hornetq-jms.xsd</include>
+                    <include>activemq-jms.xsd</include>
                   </includes>
                   <fileMappers>
                     <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">

@@ -149,7 +149,7 @@
             be added into this file.</para>
         <para>Let's take a look at an example file:</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:hornetq ../schemas/hornetq-users.xsd ">
 

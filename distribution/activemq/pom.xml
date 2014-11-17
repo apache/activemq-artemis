@@ -230,86 +230,86 @@
                <validationSets>
                   <validationSet>
                      <dir>${configLocation}/clustered</dir>
-                     <systemId>${schemaLocation}/hornetq-configuration.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-configuration.xsd</systemId>
                      <includes>
-                        <include>hornetq-configuration.xml</include>
+                        <include>activemq-configuration.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/non-clustered</dir>
-                     <systemId>${schemaLocation}/hornetq-configuration.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-configuration.xsd</systemId>
                      <includes>
-                        <include>hornetq-configuration.xml</include>
+                        <include>activemq-configuration.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/replicated</dir>
-                     <systemId>${schemaLocation}/hornetq-configuration.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-configuration.xsd</systemId>
                      <includes>
-                        <include>hornetq-configuration.xml</include>
+                        <include>activemq-configuration.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/shared-store</dir>
-                     <systemId>${schemaLocation}/hornetq-configuration.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-configuration.xsd</systemId>
                      <includes>
-                        <include>hornetq-configuration.xml</include>
+                        <include>activemq-configuration.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/clustered</dir>
-                     <systemId>${schemaLocation}/hornetq-jms.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-jms.xsd</systemId>
                      <includes>
-                        <include>hornetq-jms.xml</include>
+                        <include>activemq-jms.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/non-clustered</dir>
-                     <systemId>${schemaLocation}/hornetq-jms.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-jms.xsd</systemId>
                      <includes>
-                        <include>hornetq-jms.xml</include>
+                        <include>activemq-jms.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/replicated</dir>
-                     <systemId>${schemaLocation}/hornetq-jms.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-jms.xsd</systemId>
                      <includes>
-                        <include>hornetq-jms.xml</include>
+                        <include>activemq-jms.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/shared-store</dir>
-                     <systemId>${schemaLocation}/hornetq-jms.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-jms.xsd</systemId>
                      <includes>
-                        <include>hornetq-jms.xml</include>
+                        <include>activemq-jms.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/clustered</dir>
-                     <systemId>${schemaLocation}/hornetq-users.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-users.xsd</systemId>
                      <includes>
-                        <include>hornetq-users.xml</include>
+                        <include>activemq-users.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/non-clustered</dir>
-                     <systemId>${schemaLocation}/hornetq-users.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-users.xsd</systemId>
                      <includes>
-                        <include>hornetq-users.xml</include>
+                        <include>activemq-users.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/replicated</dir>
-                     <systemId>${schemaLocation}/hornetq-users.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-users.xsd</systemId>
                      <includes>
-                        <include>hornetq-users.xml</include>
+                        <include>activemq-users.xml</include>
                      </includes>
                   </validationSet>
                   <validationSet>
                      <dir>${configLocation}/shared-store</dir>
-                     <systemId>${schemaLocation}/hornetq-users.xsd</systemId>
+                     <systemId>${schemaLocation}/activemq-users.xsd</systemId>
                      <includes>
-                        <include>hornetq-users.xml</include>
+                        <include>activemq-users.xml</include>
                      </includes>
                   </validationSet>
                </validationSets>

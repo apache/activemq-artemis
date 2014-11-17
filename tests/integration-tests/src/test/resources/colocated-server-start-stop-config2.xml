@@ -1,4 +1,4 @@
-<configuration xmlns="urn:hornetq"
+<configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:hornetq schema/hornetq-configuration.xsd">
 

@@ -112,7 +112,7 @@
         <para>如果你要使用这个安全管理器，就将用户名，密码，角色等信息加入到这个文件中。</para>
         <para>让我们看一个例子：</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="urn:hornetq ../schemas/hornetq-users.xsd "&gt;
     
