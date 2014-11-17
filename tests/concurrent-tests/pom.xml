@@ -88,7 +88,7 @@
                <includes>
                   <include>**/*Test.java</include>
                </includes>
-               <argLine>${hornetq-surefire-argline}</argLine>
+               <argLine>${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
       </plugins>

@@ -20,8 +20,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -444,7 +444,7 @@ public class ClusterController implements HornetQComponent
                replicationClusterConnectedLatch.countDown();
             }
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             if (!started)
                return;

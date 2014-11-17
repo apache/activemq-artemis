@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.spi.core.remoting;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 /**
  * A BufferHandler that will handle buffers received by an acceptor.
@@ -29,5 +29,5 @@ public interface BufferHandler
     * @param connectionID the connection the buffer was received on
     * @param buffer       the buffer to decode
     */
-   void bufferReceived(Object connectionID, HornetQBuffer buffer);
+   void bufferReceived(Object connectionID, ActiveMQBuffer buffer);
 }

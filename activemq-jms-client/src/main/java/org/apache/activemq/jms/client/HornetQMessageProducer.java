@@ -30,7 +30,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -175,7 +175,7 @@ public class HornetQMessageProducer implements MessageProducer, QueueSender, Top
       {
          clientProducer.close();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -418,7 +418,7 @@ public class HornetQMessageProducer implements MessageProducer, QueueSender, Top
                   connection.addKnownDestination(address);
                }
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                throw JMSExceptionHelper.convertFromHornetQException(e);
             }
@@ -524,7 +524,7 @@ public class HornetQMessageProducer implements MessageProducer, QueueSender, Top
             clientProducer.send(address, coreMessage);
          }
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }

@@ -45,8 +45,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.client.FailoverEventListener;
 import org.apache.activemq.api.core.client.FailoverEventType;
 import org.apache.activemq.api.jms.HornetQJMSConstants;
@@ -469,7 +469,7 @@ public final class JMSBridgeImpl implements JMSBridge
       }
    }
 
-   private void initPasswords() throws HornetQException
+   private void initPasswords() throws ActiveMQException
    {
       if (useMaskedPassword)
       {
@@ -1932,7 +1932,7 @@ public final class JMSBridgeImpl implements JMSBridge
                      {
                         return;
                      }
-                     throw new HornetQInterruptedException(e);
+                     throw new ActiveMQInterruptedException(e);
                   }
                   continue;
                }
@@ -1973,7 +1973,7 @@ public final class JMSBridgeImpl implements JMSBridge
                      {
                         return;
                      }
-                     throw new HornetQInterruptedException(e);
+                     throw new ActiveMQInterruptedException(e);
                   }
                   continue;
                }
@@ -2197,7 +2197,7 @@ public final class JMSBridgeImpl implements JMSBridge
                      {
                         return;
                      }
-                     throw new HornetQInterruptedException(e);
+                     throw new ActiveMQInterruptedException(e);
                   }
 
                }

@@ -14,7 +14,7 @@ package org.apache.activemq.tests.util;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.SessionFailureListener;
 
@@ -41,13 +41,13 @@ public final class CountDownSessionFailureListener implements SessionFailureList
    }
 
    @Override
-   public void connectionFailed(HornetQException exception, boolean failedOver, String scaleDownTargetNodeID)
+   public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID)
    {
       connectionFailed(exception, failedOver);
    }
 
    @Override
-   public void connectionFailed(HornetQException exception, boolean failedOver)
+   public void connectionFailed(ActiveMQException exception, boolean failedOver)
    {
       latch.countDown();
       session.removeFailureListener(this);
@@ -60,7 +60,7 @@ public final class CountDownSessionFailureListener implements SessionFailureList
    }
 
    @Override
-   public void beforeReconnect(HornetQException exception)
+   public void beforeReconnect(ActiveMQException exception)
    {
       // No-op
    }

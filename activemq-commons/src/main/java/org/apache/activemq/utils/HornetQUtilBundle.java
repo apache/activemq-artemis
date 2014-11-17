@@ -13,7 +13,7 @@
 package org.apache.activemq.utils;
 
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
@@ -35,7 +35,7 @@ public interface HornetQUtilBundle
    HornetQUtilBundle BUNDLE = Messages.getBundle(HornetQUtilBundle.class);
 
    @Message(id = 209000, value = "invalid property: {0}" , format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException invalidProperty(String part);
+   ActiveMQIllegalStateException invalidProperty(String part);
 
    @Message(id = 209001, value = "Invalid type: {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalStateException invalidType(Byte type);

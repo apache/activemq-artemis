@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -22,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -206,7 +206,7 @@ public class DeadLetterAddressTest extends ServiceTestBase
          {
             clientSession.rollback(true);
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
          }

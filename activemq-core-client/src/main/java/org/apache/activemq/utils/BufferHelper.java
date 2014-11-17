@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.utils;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
@@ -44,18 +44,18 @@ public class BufferHelper
       return DataConstants.SIZE_INT + str.length() * 2;
    }
 
-   public static void writeAsNullableSimpleString(HornetQBuffer buffer, String str)
+   public static void writeAsNullableSimpleString(ActiveMQBuffer buffer, String str)
    {
       buffer.writeNullableSimpleString(SimpleString.toSimpleString(str));
    }
 
-   public static String readNullableSimpleStringAsString(HornetQBuffer buffer)
+   public static String readNullableSimpleStringAsString(ActiveMQBuffer buffer)
    {
       SimpleString str = buffer.readNullableSimpleString();
       return str != null ? str.toString() : null;
    }
 
-   public static void writeAsSimpleString(HornetQBuffer buffer, String str)
+   public static void writeAsSimpleString(ActiveMQBuffer buffer, String str)
    {
       buffer.writeSimpleString(new SimpleString(str));
    }
@@ -63,7 +63,7 @@ public class BufferHelper
    /**
     * @param buffer
     */
-   public static void writeNullableBoolean(HornetQBuffer buffer, Boolean value)
+   public static void writeNullableBoolean(ActiveMQBuffer buffer, Boolean value)
    {
       buffer.writeBoolean(value != null);
 
@@ -78,7 +78,7 @@ public class BufferHelper
       return DataConstants.SIZE_BOOLEAN + (value != null ? DataConstants.SIZE_BOOLEAN : 0);
    }
 
-   public static Boolean readNullableBoolean(HornetQBuffer buffer)
+   public static Boolean readNullableBoolean(ActiveMQBuffer buffer)
    {
       boolean isNotNull = buffer.readBoolean();
 
@@ -95,7 +95,7 @@ public class BufferHelper
    /**
     * @param buffer
     */
-   public static void writeNullableLong(HornetQBuffer buffer, Long value)
+   public static void writeNullableLong(ActiveMQBuffer buffer, Long value)
    {
       buffer.writeBoolean(value != null);
 
@@ -108,7 +108,7 @@ public class BufferHelper
    /**
     * @param buffer
     */
-   public static void writeNullableDouble(HornetQBuffer buffer, Double value)
+   public static void writeNullableDouble(ActiveMQBuffer buffer, Double value)
    {
       buffer.writeBoolean(value != null);
 
@@ -129,7 +129,7 @@ public class BufferHelper
    }
 
 
-   public static Long readNullableLong(HornetQBuffer buffer)
+   public static Long readNullableLong(ActiveMQBuffer buffer)
    {
       boolean isNotNull = buffer.readBoolean();
 
@@ -146,7 +146,7 @@ public class BufferHelper
    /**
     * @param buffer
     */
-   public static void writeNullableInteger(HornetQBuffer buffer, Integer value)
+   public static void writeNullableInteger(ActiveMQBuffer buffer, Integer value)
    {
       buffer.writeBoolean(value != null);
 
@@ -161,7 +161,7 @@ public class BufferHelper
       return DataConstants.SIZE_BOOLEAN + (value != null ? DataConstants.SIZE_INT : 0);
    }
 
-   public static Integer readNullableInteger(HornetQBuffer buffer)
+   public static Integer readNullableInteger(ActiveMQBuffer buffer)
    {
       boolean isNotNull = buffer.readBoolean();
 
@@ -175,7 +175,7 @@ public class BufferHelper
       }
    }
 
-   public static Double readNullableDouble(HornetQBuffer buffer)
+   public static Double readNullableDouble(ActiveMQBuffer buffer)
    {
       boolean isNotNull = buffer.readBoolean();
 

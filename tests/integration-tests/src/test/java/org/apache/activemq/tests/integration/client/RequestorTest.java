@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -216,7 +216,7 @@ public class RequestorTest extends ServiceTestBase
       };
 
       UnitTestCase.expectHornetQException("ClientRequestor's session must not be closed",
-                                          HornetQExceptionType.OBJECT_CLOSED,
+                                          ActiveMQExceptionType.OBJECT_CLOSED,
                                           hornetQAction);
    }
 
@@ -260,7 +260,7 @@ public class RequestorTest extends ServiceTestBase
       };
 
       UnitTestCase.expectHornetQException("can not send a request on a closed ClientRequestor",
-                                          HornetQExceptionType.OBJECT_CLOSED, hornetQAction);
+                                          ActiveMQExceptionType.OBJECT_CLOSED, hornetQAction);
    }
 
    @Override
@@ -316,7 +316,7 @@ public class RequestorTest extends ServiceTestBase
             replyProducer.send(reply);
             request.acknowledge();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             e.printStackTrace();
          }

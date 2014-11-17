@@ -11,6 +11,8 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.jms.cluster;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.junit.Before;
 import org.junit.After;
 
@@ -31,8 +33,6 @@ import javax.jms.Topic;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -140,7 +140,7 @@ public class JMSReconnectTest extends UnitTestCase
 
       Thread.sleep(2000);
 
-      HornetQException me = new HornetQNotConnectedException();
+      ActiveMQException me = new ActiveMQNotConnectedException();
 
       coreConn.fail(me);
 

@@ -45,10 +45,10 @@ import javax.jms.TopicSubscriber;
 import javax.jms.TransactionInProgressException;
 import javax.transaction.xa.XAResource;
 
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.selector.filter.FilterException;
 import org.apache.activemq.selector.SelectorParser;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQQueueExistsException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -219,7 +219,7 @@ public class HornetQSession implements QueueSession, TopicSession
       {
          session.commit();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -240,7 +240,7 @@ public class HornetQSession implements QueueSession, TopicSession
       {
          session.rollback();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -263,7 +263,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
             connection.removeSession(this);
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw JMSExceptionHelper.convertFromHornetQException(e);
          }
@@ -281,7 +281,7 @@ public class HornetQSession implements QueueSession, TopicSession
       {
          session.rollback(true);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -332,7 +332,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          return new HornetQMessageProducer(connection, producer, jbd, session);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -399,7 +399,7 @@ public class HornetQSession implements QueueSession, TopicSession
             return queue;
          }
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -431,7 +431,7 @@ public class HornetQSession implements QueueSession, TopicSession
             return topic;
          }
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -641,7 +641,7 @@ public class HornetQSession implements QueueSession, TopicSession
             {
                session.createSharedQueue(dest.getSimpleAddress(), queueName, coreFilterString, true);
             }
-            catch (HornetQQueueExistsException ignored)
+            catch (ActiveMQQueueExistsException ignored)
             {
                // We ignore this because querying and then creating the queue wouldn't be idempotent
                // we could also add a parameter to ignore existence what would require a bigger work around to avoid
@@ -666,7 +666,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          return jbc;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -840,7 +840,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          return jbc;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -904,7 +904,7 @@ public class HornetQSession implements QueueSession, TopicSession
             throw new InvalidDestinationException(jbq.getAddress() + " does not exist");
          }
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -933,7 +933,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          return queue;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -964,7 +964,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          return topic;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -999,7 +999,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          session.deleteQueue(queueName);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -1122,7 +1122,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          connection.removeTemporaryQueue(address);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -1156,7 +1156,7 @@ public class HornetQSession implements QueueSession, TopicSession
 
          connection.removeTemporaryQueue(address);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -1168,7 +1168,7 @@ public class HornetQSession implements QueueSession, TopicSession
       {
          session.start();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -1180,7 +1180,7 @@ public class HornetQSession implements QueueSession, TopicSession
       {
          session.stop();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -1201,7 +1201,7 @@ public class HornetQSession implements QueueSession, TopicSession
          {
             session.deleteQueue(queueName);
          }
-         catch (HornetQException ignore)
+         catch (ActiveMQException ignore)
          {
             // Exception on deleting queue shouldn't prevent close from completing
          }
@@ -1220,7 +1220,7 @@ public class HornetQSession implements QueueSession, TopicSession
       }
    }
 
-   private HornetQQueue lookupQueue(final String queueName, boolean isTemporary) throws HornetQException
+   private HornetQQueue lookupQueue(final String queueName, boolean isTemporary) throws ActiveMQException
    {
       HornetQQueue queue;
 
@@ -1245,7 +1245,7 @@ public class HornetQSession implements QueueSession, TopicSession
       }
    }
 
-   private HornetQTopic lookupTopic(final String topicName, final boolean isTemporary) throws HornetQException
+   private HornetQTopic lookupTopic(final String topicName, final boolean isTemporary) throws ActiveMQException
    {
 
       HornetQTopic topic;

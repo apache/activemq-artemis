@@ -14,7 +14,7 @@ package org.apache.activemq.core.asyncio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  *
@@ -23,35 +23,35 @@ import org.apache.activemq.api.core.HornetQException;
  */
 public interface AsynchronousFile
 {
-   void close() throws InterruptedException, HornetQException;
+   void close() throws InterruptedException, ActiveMQException;
 
    /**
     *
     * Note: If you are using a native Linux implementation, maxIO can't be higher than what's defined on /proc/sys/fs/aio-max-nr, or you would get an error
     * @param fileName
     * @param maxIO The number of max concurrent asynchronous IO operations. It has to be balanced between the size of your writes and the capacity of your disk.
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   void open(String fileName, int maxIO) throws HornetQException;
+   void open(String fileName, int maxIO) throws ActiveMQException;
 
    /**
     * Warning: This function will perform a synchronous IO, probably translating to a fstat call
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * */
-   long size() throws HornetQException;
+   long size() throws ActiveMQException;
 
    /** Any error will be reported on the callback interface */
    void write(long position, long size, ByteBuffer directByteBuffer, AIOCallback aioCallback);
 
    /**
     * Performs an internal direct write.
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   void writeInternal(long positionToWrite, long size, ByteBuffer bytes) throws HornetQException;
+   void writeInternal(long positionToWrite, long size, ByteBuffer bytes) throws ActiveMQException;
 
-   void read(long position, long size, ByteBuffer directByteBuffer, AIOCallback aioCallback) throws HornetQException;
+   void read(long position, long size, ByteBuffer directByteBuffer, AIOCallback aioCallback) throws ActiveMQException;
 
-   void fill(long position, int blocks, long size, byte fillChar) throws HornetQException;
+   void fill(long position, int blocks, long size, byte fillChar) throws ActiveMQException;
 
    void setBufferCallback(BufferCallback callback);
 

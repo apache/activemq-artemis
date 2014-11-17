@@ -15,7 +15,7 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
@@ -63,7 +63,7 @@ public class SessionBindingQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeBoolean(exists);
       buffer.writeInt(queueNames.size());
@@ -74,7 +74,7 @@ public class SessionBindingQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       exists = buffer.readBoolean();
       int numQueues = buffer.readInt();

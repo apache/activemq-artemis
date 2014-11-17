@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.tests.integration.jms.cluster;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.HornetQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -438,18 +438,18 @@ public class BindingsClusterTest extends JMSClusteredTestBase
          forwardingConnection.addFailureListener(new FailureListener()
          {
             @Override
-            public void connectionFailed(HornetQException exception, boolean failedOver)
+            public void connectionFailed(ActiveMQException exception, boolean failedOver)
             {
                latch.countDown();
             }
 
             @Override
-            public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
             {
                connectionFailed(me, failedOver);
             }
          });
-         forwardingConnection.fail(new HornetQNotConnectedException());
+         forwardingConnection.fail(new ActiveMQNotConnectedException());
          assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
       }
    }

@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.core.server.cluster.ha;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
@@ -110,7 +110,7 @@ public class ScaleDownPolicy
       this.enabled = enabled;
    }
 
-   public static ServerLocatorInternal getScaleDownConnector(ScaleDownPolicy scaleDownPolicy, HornetQServer hornetQServer) throws HornetQException
+   public static ServerLocatorInternal getScaleDownConnector(ScaleDownPolicy scaleDownPolicy, HornetQServer hornetQServer) throws ActiveMQException
    {
       if (!scaleDownPolicy.getConnectors().isEmpty())
       {

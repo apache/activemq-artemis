@@ -15,8 +15,8 @@ package org.apache.activemq.core.protocol.proton;
 
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -52,7 +52,7 @@ public class HornetQProtonRemotingConnection extends AbstractRemotingConnection
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
-   public void fail(final HornetQException me, String scaleDownTargetNodeID)
+   public void fail(final ActiveMQException me, String scaleDownTargetNodeID)
    {
       if (destroyed)
       {
@@ -132,7 +132,7 @@ public class HornetQProtonRemotingConnection extends AbstractRemotingConnection
    }
 
    @Override
-   public void bufferReceived(Object connectionID, HornetQBuffer buffer)
+   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer)
    {
       amqpConnection.inputBuffer(buffer.byteBuf());
       super.bufferReceived(connectionID, buffer);

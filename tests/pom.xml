@@ -30,7 +30,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipUnitTests}</skipTests>
-               <argLine>${hornetq-surefire-argline}</argLine>
+               <argLine>${activemq-surefire-argline}</argLine>
                <excludes>
                   <!--todo this test is dependent on the jar so needs to be run post package as an integration test-->
                   <exclude>**/ManifestTest.java</exclude>

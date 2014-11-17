@@ -13,7 +13,7 @@
 
 package org.apache.activemq.tests.unit.core.remoting.server.impl.fake;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
@@ -26,7 +26,7 @@ public class FakeInterceptor implements Interceptor
 {
 
    @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
    {
       return false;
    }

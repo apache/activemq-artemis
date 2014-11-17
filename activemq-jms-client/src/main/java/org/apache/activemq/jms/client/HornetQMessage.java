@@ -31,9 +31,9 @@ import javax.jms.Message;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotWriteableException;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -354,7 +354,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          MessageUtil.setJMSCorrelationIDAsBytes(message, correlationID);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          JMSException ex = new JMSException(e.getMessage());
          ex.initCause(e);
@@ -543,7 +543,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.getBooleanProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -555,7 +555,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.getByteProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -567,7 +567,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.getShortProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -584,7 +584,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.getIntProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -601,7 +601,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.getLongProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -613,7 +613,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.getFloatProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -625,7 +625,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.getDoubleProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -649,7 +649,7 @@ public class HornetQMessage implements javax.jms.Message
             return message.getStringProperty(new SimpleString(name));
          }
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -762,7 +762,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          message.putObjectProperty(new SimpleString(name), value);
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -781,7 +781,7 @@ public class HornetQMessage implements javax.jms.Message
 
             session.commit();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw JMSExceptionHelper.convertFromHornetQException(e);
          }
@@ -892,11 +892,11 @@ public class HornetQMessage implements javax.jms.Message
       message.getBodyBuffer();
    }
 
-   public void doBeforeReceive() throws HornetQException
+   public void doBeforeReceive() throws ActiveMQException
    {
       message.checkCompletion();
 
-      HornetQBuffer body = message.getBodyBuffer();
+      ActiveMQBuffer body = message.getBodyBuffer();
 
       if (body != null)
       {
@@ -932,7 +932,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          message.setOutputStream(output);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -950,7 +950,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          message.saveToOutputStream(output);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -963,7 +963,7 @@ public class HornetQMessage implements javax.jms.Message
       {
          return message.waitOutputStreamCompletion(timeWait);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }

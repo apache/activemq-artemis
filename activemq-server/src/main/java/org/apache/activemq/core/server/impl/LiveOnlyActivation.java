@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -168,7 +168,7 @@ public class LiveOnlyActivation extends Activation
          }
          else
          {
-            throw new HornetQException("Unable to connect to server for scale-down");
+            throw new ActiveMQException("Unable to connect to server for scale-down");
          }
       }
       catch (Exception e)

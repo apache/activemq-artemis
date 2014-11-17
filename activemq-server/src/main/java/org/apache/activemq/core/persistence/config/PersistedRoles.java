@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.persistence.config;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.EncodingSupport;
 
@@ -164,7 +164,7 @@ public class PersistedRoles implements EncodingSupport
    }
 
    @Override
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       buffer.writeSimpleString(addressMatch);
       buffer.writeNullableSimpleString(sendRoles);
@@ -190,7 +190,7 @@ public class PersistedRoles implements EncodingSupport
    }
 
    @Override
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       addressMatch = buffer.readSimpleString();
       sendRoles = buffer.readNullableSimpleString();

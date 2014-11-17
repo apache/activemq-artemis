@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.rest.topic;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.rest.queue.AcknowledgedQueueConsumer;
 import org.apache.activemq.rest.queue.DestinationServiceManager;
@@ -27,7 +27,7 @@ public class AcknowledgedSubscriptionResource extends AcknowledgedQueueConsumer 
    private long timeout;
    private boolean deleteWhenIdle;
 
-   public AcknowledgedSubscriptionResource(ClientSessionFactory factory, String destination, String id, DestinationServiceManager serviceManager, String selector, boolean durable, Long timeout) throws HornetQException
+   public AcknowledgedSubscriptionResource(ClientSessionFactory factory, String destination, String id, DestinationServiceManager serviceManager, String selector, boolean durable, Long timeout) throws ActiveMQException
    {
       super(factory, destination, id, serviceManager, selector);
       this.timeout = timeout;

@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.tests.unit.jms.client;
 
-import static org.apache.activemq.api.core.HornetQExceptionType.CONNECTION_TIMEDOUT;
-import static org.apache.activemq.api.core.HornetQExceptionType.GENERIC_EXCEPTION;
-import static org.apache.activemq.api.core.HornetQExceptionType.INVALID_FILTER_EXPRESSION;
+import static org.apache.activemq.api.core.ActiveMQExceptionType.CONNECTION_TIMEDOUT;
+import static org.apache.activemq.api.core.ActiveMQExceptionType.GENERIC_EXCEPTION;
+import static org.apache.activemq.api.core.ActiveMQExceptionType.INVALID_FILTER_EXPRESSION;
 
 import javax.jms.IllegalStateException;
 import javax.jms.InvalidDestinationException;
@@ -22,8 +22,8 @@ import javax.jms.InvalidSelectorException;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.jms.client.JMSExceptionHelper;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
@@ -55,13 +55,13 @@ public class JMSExceptionHelperTest extends UnitTestCase
    @Test
    public void testILLEGAL_STATE() throws Exception
    {
-      doConvertException(HornetQExceptionType.ILLEGAL_STATE, IllegalStateException.class);
+      doConvertException(ActiveMQExceptionType.ILLEGAL_STATE, IllegalStateException.class);
    }
 
    @Test
    public void testINTERNAL_ERROR() throws Exception
    {
-      doConvertException(HornetQExceptionType.INTERNAL_ERROR, JMSException.class);
+      doConvertException(ActiveMQExceptionType.INTERNAL_ERROR, JMSException.class);
    }
 
    @Test
@@ -73,37 +73,37 @@ public class JMSExceptionHelperTest extends UnitTestCase
    @Test
    public void testNOT_CONNECTED() throws Exception
    {
-      doConvertException(HornetQExceptionType.NOT_CONNECTED, JMSException.class);
+      doConvertException(ActiveMQExceptionType.NOT_CONNECTED, JMSException.class);
    }
 
    @Test
    public void testOBJECT_CLOSED() throws Exception
    {
-      doConvertException(HornetQExceptionType.OBJECT_CLOSED, IllegalStateException.class);
+      doConvertException(ActiveMQExceptionType.OBJECT_CLOSED, IllegalStateException.class);
    }
 
    @Test
    public void testQUEUE_DOES_NOT_EXIST() throws Exception
    {
-      doConvertException(HornetQExceptionType.QUEUE_DOES_NOT_EXIST, InvalidDestinationException.class);
+      doConvertException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, InvalidDestinationException.class);
    }
 
    @Test
    public void testQUEUE_EXISTS() throws Exception
    {
-      doConvertException(HornetQExceptionType.QUEUE_EXISTS, InvalidDestinationException.class);
+      doConvertException(ActiveMQExceptionType.QUEUE_EXISTS, InvalidDestinationException.class);
    }
 
    @Test
    public void testSECURITY_EXCEPTION() throws Exception
    {
-      doConvertException(HornetQExceptionType.SECURITY_EXCEPTION, JMSSecurityException.class);
+      doConvertException(ActiveMQExceptionType.SECURITY_EXCEPTION, JMSSecurityException.class);
    }
 
    @Test
    public void testUNSUPPORTED_PACKET() throws Exception
    {
-      doConvertException(HornetQExceptionType.UNSUPPORTED_PACKET, IllegalStateException.class);
+      doConvertException(ActiveMQExceptionType.UNSUPPORTED_PACKET, IllegalStateException.class);
    }
 
    @Test
@@ -112,10 +112,10 @@ public class JMSExceptionHelperTest extends UnitTestCase
       doConvertException(GENERIC_EXCEPTION, JMSException.class);
    }
 
-   private void doConvertException(final HornetQExceptionType errorCode,
+   private void doConvertException(final ActiveMQExceptionType errorCode,
                                    final Class<? extends Throwable> expectedException)
    {
-      HornetQException me = new HornetQException(errorCode);
+      ActiveMQException me = new ActiveMQException(errorCode);
       Exception e = JMSExceptionHelper.convertFromHornetQException(me);
       Assert.assertNotNull(e);
       Assert.assertTrue(e.getClass().isAssignableFrom(expectedException));

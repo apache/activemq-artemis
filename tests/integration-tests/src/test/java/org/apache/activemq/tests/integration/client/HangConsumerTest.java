@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.junit.Before;
@@ -29,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import javax.management.MBeanServer;
 
 import org.junit.Assert;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -441,7 +441,7 @@ public class HangConsumerTest extends ServiceTestBase
 
          Assert.assertTrue(hangInt.reusableLatch.await(10, TimeUnit.SECONDS));
 
-         hangInt.pendingException = new HornetQException();
+         hangInt.pendingException = new ActiveMQException();
 
          hangInt.open();
 
@@ -676,7 +676,7 @@ public class HangConsumerTest extends ServiceTestBase
 
       ReusableLatch reusableLatch = new ReusableLatch(1);
 
-      volatile HornetQException pendingException = null;
+      volatile ActiveMQException pendingException = null;
 
       public void close() throws Exception
       {
@@ -689,7 +689,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       @Override
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet instanceof SessionReceiveMessage)
          {
@@ -709,7 +709,7 @@ public class HangConsumerTest extends ServiceTestBase
 
          if (pendingException != null)
          {
-            HornetQException exToThrow = pendingException;
+            ActiveMQException exToThrow = pendingException;
             pendingException = null;
             throw exToThrow;
          }

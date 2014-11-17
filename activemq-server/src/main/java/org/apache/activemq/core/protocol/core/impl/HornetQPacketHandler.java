@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.core.protocol.core.impl;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.ChannelHandler;
@@ -142,7 +142,7 @@ public class HornetQPacketHandler implements ChannelHandler
          // XXX HORNETQ-720 Taylor commented out this test. Should be verified.
          /*if (!server.checkActivate())
          {
-            throw new HornetQException(HornetQException.SESSION_CREATION_REJECTED,
+            throw new ActiveMQException(ActiveMQException.SESSION_CREATION_REJECTED,
                                        "Server will not accept create session requests");
          }*/
 
@@ -189,12 +189,12 @@ public class HornetQPacketHandler implements ChannelHandler
 
          response = new CreateSessionResponseMessage(server.getVersion().getIncrementingVersion());
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
-         if (e.getType() == HornetQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS)
+         if (e.getType() == ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS)
          {
             incompatibleVersion = true;
-            HornetQServerLogger.LOGGER.debug("Sending HornetQException after Incompatible client", e);
+            HornetQServerLogger.LOGGER.debug("Sending ActiveMQException after Incompatible client", e);
          }
          else
          {
@@ -207,7 +207,7 @@ public class HornetQPacketHandler implements ChannelHandler
       {
          HornetQServerLogger.LOGGER.failedToCreateSession(e);
 
-         response = new HornetQExceptionMessage(new HornetQInternalErrorException());
+         response = new HornetQExceptionMessage(new ActiveMQInternalErrorException());
       }
 
       // send the exception to the client and destroy
@@ -274,7 +274,7 @@ public class HornetQPacketHandler implements ChannelHandler
       {
          HornetQServerLogger.LOGGER.failedToReattachSession(e);
 
-         response = new HornetQExceptionMessage(new HornetQInternalErrorException());
+         response = new HornetQExceptionMessage(new ActiveMQInternalErrorException());
       }
 
       channel1.send(response);

@@ -19,7 +19,7 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -70,7 +70,7 @@ public final class HornetQQueueBrowser implements QueueBrowser
          {
             consumer.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw JMSExceptionHelper.convertFromHornetQException(e);
          }
@@ -87,7 +87,7 @@ public final class HornetQQueueBrowser implements QueueBrowser
 
          return new BrowserEnumeration();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -132,7 +132,7 @@ public final class HornetQQueueBrowser implements QueueBrowser
             {
                current = consumer.receiveImmediate();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                return false;
             }

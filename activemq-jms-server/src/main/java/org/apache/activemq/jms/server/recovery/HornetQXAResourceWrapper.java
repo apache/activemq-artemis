@@ -18,9 +18,9 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.HornetQClient;
@@ -251,9 +251,9 @@ public class HornetQXAResourceWrapper implements XAResource, SessionFailureListe
       }
    }
 
-   public void connectionFailed(final HornetQException me, boolean failedOver)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver)
    {
-      if (me.getType() == HornetQExceptionType.DISCONNECTED)
+      if (me.getType() == ActiveMQExceptionType.DISCONNECTED)
       {
          if (HornetQJMSServerLogger.LOGGER.isDebugEnabled())
          {
@@ -268,12 +268,12 @@ public class HornetQXAResourceWrapper implements XAResource, SessionFailureListe
    }
 
    @Override
-   public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
    {
       connectionFailed(me, failedOver);
    }
 
-   public void beforeReconnect(final HornetQException me)
+   public void beforeReconnect(final ActiveMQException me)
    {
    }
 
@@ -429,7 +429,7 @@ public class HornetQXAResourceWrapper implements XAResource, SessionFailureListe
          return delegate;
       }
       HornetQJMSServerLogger.LOGGER.recoveryConnectFailed(Arrays.toString(xaRecoveryConfigs));
-      throw new HornetQNotConnectedException();
+      throw new ActiveMQNotConnectedException();
    }
 
    /* (non-Javadoc)

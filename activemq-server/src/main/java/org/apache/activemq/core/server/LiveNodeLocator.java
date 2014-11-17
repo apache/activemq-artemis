@@ -13,7 +13,7 @@
 
 package org.apache.activemq.core.server;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
@@ -48,12 +48,12 @@ public abstract class LiveNodeLocator implements ClusterTopologyListener
    /**
     * Locates a possible live server in a cluster with a timeout
     */
-   public abstract void locateNode(long timeout) throws HornetQException;
+   public abstract void locateNode(long timeout) throws ActiveMQException;
 
    /**
     * Locates a possible live server in a cluster
     */
-   public abstract void locateNode() throws HornetQException;
+   public abstract void locateNode() throws ActiveMQException;
 
    /**
     * Returns the current connector
@@ -86,7 +86,7 @@ public abstract class LiveNodeLocator implements ClusterTopologyListener
    /**
     * connects to the cluster
     */
-   public void connectToCluster(ServerLocatorInternal serverLocator) throws HornetQException
+   public void connectToCluster(ServerLocatorInternal serverLocator) throws ActiveMQException
    {
       serverLocator.connect();
    }

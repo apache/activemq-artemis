@@ -13,7 +13,7 @@
 
 package org.apache.activemq.rest;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.rest.queue.push.xml.XmlLink;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
@@ -81,5 +81,5 @@ public interface HornetQRestLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 184003, value = "Error deleting Subscriber queue", format = Message.Format.MESSAGE_FORMAT)
-   void errorDeletingSubscriberQueue(@Cause HornetQException e);
+   void errorDeletingSubscriberQueue(@Cause ActiveMQException e);
 }

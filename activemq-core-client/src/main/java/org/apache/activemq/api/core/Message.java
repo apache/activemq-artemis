@@ -44,7 +44,7 @@ import org.apache.activemq.utils.UUID;
  * </pre>
  * <p>
  * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a
- * {@code boolean}), a {@link HornetQPropertyConversionException} will be thrown.
+ * {@code boolean}), a {@link ActiveMQPropertyConversionException} will be thrown.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:clebert.suconic@jboss.com">ClebertSuconic</a>
@@ -198,7 +198,7 @@ public interface Message
    /**
     * Returns the message body as a HornetQBuffer
     */
-   HornetQBuffer getBodyBuffer();
+   ActiveMQBuffer getBodyBuffer();
 
    /**
     * Writes the input byte array to the message body HornetQBuffer
@@ -214,7 +214,7 @@ public interface Message
     * Returns a <em>copy</em> of the message body as a HornetQBuffer. Any modification
     * of this buffer should not impact the underlying buffer.
     */
-   HornetQBuffer getBodyBufferCopy();
+   ActiveMQBuffer getBodyBufferCopy();
 
    // Properties
    // -----------------------------------------------------------------
@@ -371,15 +371,15 @@ public interface Message
     *
     * @param key   property name
     * @param value property value
-    * @throws HornetQPropertyConversionException if the value is not one of the accepted property
+    * @throws ActiveMQPropertyConversionException if the value is not one of the accepted property
     *                                            types.
     */
-   Message putObjectProperty(SimpleString key, Object value) throws HornetQPropertyConversionException;
+   Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #putObjectProperty(SimpleString, Object)
     */
-   Message putObjectProperty(String key, Object value) throws HornetQPropertyConversionException;
+   Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException;
 
    /**
     * Removes the property corresponding to the specified key.
@@ -410,62 +410,62 @@ public interface Message
    /**
     * Returns the property corresponding to the specified key as a Boolean.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a Boolean
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Boolean
     */
-   Boolean getBooleanProperty(SimpleString key) throws HornetQPropertyConversionException;
+   Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getBooleanProperty(SimpleString)
     */
-   Boolean getBooleanProperty(String key) throws HornetQPropertyConversionException;
+   Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as a Byte.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a Byte
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Byte
     */
-   Byte getByteProperty(SimpleString key) throws HornetQPropertyConversionException;
+   Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getByteProperty(SimpleString)
     */
-   Byte getByteProperty(String key) throws HornetQPropertyConversionException;
+   Byte getByteProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as a Double.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a Double
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Double
     */
-   Double getDoubleProperty(SimpleString key) throws HornetQPropertyConversionException;
+   Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getDoubleProperty(SimpleString)
     */
-   Double getDoubleProperty(String key) throws HornetQPropertyConversionException;
+   Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as an Integer.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to an Integer
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to an Integer
     */
-   Integer getIntProperty(SimpleString key) throws HornetQPropertyConversionException;
+   Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getIntProperty(SimpleString)
     */
-   Integer getIntProperty(String key) throws HornetQPropertyConversionException;
+   Integer getIntProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as a Long.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a Long
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Long
     */
-   Long getLongProperty(SimpleString key) throws HornetQPropertyConversionException;
+   Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getLongProperty(SimpleString)
     */
-   Long getLongProperty(String key) throws HornetQPropertyConversionException;
+   Long getLongProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key
@@ -480,62 +480,62 @@ public interface Message
    /**
     * Returns the property corresponding to the specified key as a Short.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a Short
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Short
     */
-   Short getShortProperty(SimpleString key) throws HornetQPropertyConversionException;
+   Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getShortProperty(SimpleString)
     */
-   Short getShortProperty(String key) throws HornetQPropertyConversionException;
+   Short getShortProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as a Float.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a Float
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a Float
     */
-   Float getFloatProperty(SimpleString key) throws HornetQPropertyConversionException;
+   Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getFloatProperty(SimpleString)
     */
-   Float getFloatProperty(String key) throws HornetQPropertyConversionException;
+   Float getFloatProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as a String.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a String
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a String
     */
-   String getStringProperty(SimpleString key) throws HornetQPropertyConversionException;
+   String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getStringProperty(SimpleString)
     */
-   String getStringProperty(String key) throws HornetQPropertyConversionException;
+   String getStringProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as a SimpleString.
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a SimpleString
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a SimpleString
     */
-   SimpleString getSimpleStringProperty(SimpleString key) throws HornetQPropertyConversionException;
+   SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getSimpleStringProperty(SimpleString)
     */
-   SimpleString getSimpleStringProperty(String key) throws HornetQPropertyConversionException;
+   SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns the property corresponding to the specified key as a byte[].
     *
-    * @throws HornetQPropertyConversionException if the value can not be converted to a byte[]
+    * @throws ActiveMQPropertyConversionException if the value can not be converted to a byte[]
     */
-   byte[] getBytesProperty(SimpleString key) throws HornetQPropertyConversionException;
+   byte[] getBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException;
 
    /**
     * @see #getBytesProperty(SimpleString)
     */
-   byte[] getBytesProperty(String key) throws HornetQPropertyConversionException;
+   byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException;
 
    /**
     * Returns all the names of the properties for this message.

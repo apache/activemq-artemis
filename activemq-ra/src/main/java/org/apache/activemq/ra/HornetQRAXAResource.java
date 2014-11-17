@@ -16,7 +16,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.client.impl.HornetQXAResource;
 
@@ -74,7 +74,7 @@ public class HornetQRAXAResource implements HornetQXAResource
          //this resets any tx stuff, we assume here that the tm and jca layer are well behaved when it comes to this
          sessionInternal.resetIfNeeded();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          HornetQRALogger.LOGGER.problemResettingXASession();
       }

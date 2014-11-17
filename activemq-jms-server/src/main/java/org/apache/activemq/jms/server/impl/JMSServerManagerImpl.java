@@ -31,8 +31,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.AddressControl;
@@ -1398,9 +1398,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    /**
     * @param cfConfig
     * @return
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   protected HornetQConnectionFactory internalCreateCFPOJO(final ConnectionFactoryConfiguration cfConfig) throws HornetQException
+   protected HornetQConnectionFactory internalCreateCFPOJO(final ConnectionFactoryConfiguration cfConfig) throws ActiveMQException
    {
       HornetQConnectionFactory cf;
       if (cfConfig.getDiscoveryGroupName() != null)

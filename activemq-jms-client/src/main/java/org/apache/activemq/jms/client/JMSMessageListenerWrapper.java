@@ -15,7 +15,7 @@ package org.apache.activemq.jms.client;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.MessageHandler;
@@ -91,7 +91,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
          {
             message.acknowledge();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             HornetQJMSClientLogger.LOGGER.errorProcessingMessage(e);
          }
@@ -141,7 +141,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
                message.acknowledge();
             }
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             HornetQJMSClientLogger.LOGGER.errorProcessingMessage(e);
          }

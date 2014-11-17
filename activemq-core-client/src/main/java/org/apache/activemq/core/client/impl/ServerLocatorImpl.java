@@ -35,11 +35,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -234,7 +234,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
          finally
          {
@@ -254,7 +254,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
          finally
          {
@@ -357,14 +357,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       });
    }
 
-   private synchronized void initialise() throws HornetQException
+   private synchronized void initialise() throws ActiveMQException
    {
       if (state == STATE.INITIALIZED)
          return;
       synchronized (stateGuard)
       {
          if (state == STATE.CLOSING)
-            throw new HornetQIllegalStateException();
+            throw new ActiveMQIllegalStateException();
          try
          {
             state = STATE.INITIALIZED;
@@ -669,12 +669,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
-   public ClientSessionFactoryInternal connect() throws HornetQException
+   public ClientSessionFactoryInternal connect() throws ActiveMQException
    {
       return connect(false);
    }
 
-   private ClientSessionFactoryInternal connect(final boolean skipWarnings) throws HornetQException
+   private ClientSessionFactoryInternal connect(final boolean skipWarnings) throws ActiveMQException
    {
       synchronized (this)
       {
@@ -691,7 +691,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
-   public ClientSessionFactoryInternal connectNoWarnings() throws HornetQException
+   public ClientSessionFactoryInternal connectNoWarnings() throws ActiveMQException
    {
       return connect(true);
    }
@@ -767,7 +767,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          {
             factory.connect(reconnectAttempts, failoverOnInitialConnection);
          }
-         catch (HornetQException e1)
+         catch (ActiveMQException e1)
          {
             //we need to make sure is closed just for garbage collection
             factory.close();
@@ -810,7 +810,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          {
             factory.connect(reconnectAttempts, failoverOnInitialConnection);
          }
-         catch (HornetQException e1)
+         catch (ActiveMQException e1)
          {
             //we need to make sure is closed just for garbage collection
             factory.close();
@@ -842,7 +842,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
-   public ClientSessionFactory createSessionFactory() throws HornetQException
+   public ClientSessionFactory createSessionFactory() throws ActiveMQException
    {
       assertOpen();
 
@@ -904,11 +904,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                   removeFromConnecting(factory);
                }
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                factory.close();
                factory = null;
-               if (e.getType() == HornetQExceptionType.NOT_CONNECTED)
+               if (e.getType() == ActiveMQExceptionType.NOT_CONNECTED)
                {
                   attempts++;
 
@@ -947,7 +947,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
 
@@ -1556,7 +1556,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
 
@@ -1573,7 +1573,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
       }
@@ -1755,7 +1755,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                {
                   connect();
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   HornetQClientLogger.LOGGER.errorConnectingToNodes(e);
                }
@@ -1860,7 +1860,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       private List<Connector> connectors;
 
-      public ClientSessionFactory connect(boolean skipWarnings) throws HornetQException
+      public ClientSessionFactory connect(boolean skipWarnings) throws ActiveMQException
       {
          assertOpen();
 
@@ -1893,9 +1893,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                         // Case the node where the cluster connection was connected is gone, we need to restart the
                         // connection
                         @Override
-                        public void connectionFailed(HornetQException exception, boolean failedOver)
+                        public void connectionFailed(ActiveMQException exception, boolean failedOver)
                         {
-                           if (clusterConnection && exception.getType() == HornetQExceptionType.DISCONNECTED)
+                           if (clusterConnection && exception.getType() == ActiveMQExceptionType.DISCONNECTED)
                            {
                               try
                               {
@@ -1910,7 +1910,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                         }
 
                         @Override
-                        public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+                        public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
                         {
                            connectionFailed(me, failedOver);
                         }
@@ -2049,7 +2049,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             this.factory = factory;
          }
 
-         public ClientSessionFactory tryConnect() throws HornetQException
+         public ClientSessionFactory tryConnect() throws ActiveMQException
          {
             if (HornetQClientLogger.LOGGER.isDebugEnabled())
             {
@@ -2073,7 +2073,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                }
                return factoryToUse;
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                HornetQClientLogger.LOGGER.debug(this + "::Exception on establish connector initial connection", e);
                return null;

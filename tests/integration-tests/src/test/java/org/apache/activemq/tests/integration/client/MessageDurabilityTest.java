@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -75,11 +75,11 @@ public class MessageDurabilityTest extends ServiceTestBase
       {
          session.createConsumer(queue);
       }
-      catch (HornetQNonExistentQueueException neqe)
+      catch (ActiveMQNonExistentQueueException neqe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -151,9 +151,9 @@ public class MessageDurabilityTest extends ServiceTestBase
 
       session.start();
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.QUEUE_DOES_NOT_EXIST, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.createConsumer(queue);
          }
@@ -179,9 +179,9 @@ public class MessageDurabilityTest extends ServiceTestBase
       restart();
 
       session.start();
-      UnitTestCase.expectHornetQException(HornetQExceptionType.QUEUE_DOES_NOT_EXIST, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.createConsumer(queue);
          }

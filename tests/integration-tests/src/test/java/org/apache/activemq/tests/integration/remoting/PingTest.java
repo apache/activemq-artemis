@@ -12,6 +12,7 @@
  */
 package org.apache.activemq.tests.integration.remoting;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.protocol.core.impl.wireformat.Ping;
 import org.junit.Before;
 
@@ -23,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -78,26 +78,26 @@ public class PingTest extends ServiceTestBase
 
    class Listener implements SessionFailureListener
    {
-      volatile HornetQException me;
+      volatile ActiveMQException me;
 
       @Override
-      public void connectionFailed(final HornetQException me, boolean failedOver)
+      public void connectionFailed(final ActiveMQException me, boolean failedOver)
       {
          this.me = me;
       }
 
       @Override
-      public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
       {
          connectionFailed(me, failedOver);
       }
 
-      public HornetQException getException()
+      public ActiveMQException getException()
       {
          return me;
       }
 
-      public void beforeReconnect(final HornetQException exception)
+      public void beforeReconnect(final ActiveMQException exception)
       {
       }
    }
@@ -235,7 +235,7 @@ public class PingTest extends ServiceTestBase
       final CountDownLatch unwantedPings = new CountDownLatch(2);
       server.getRemotingService().addIncomingInterceptor(new Interceptor()
       {
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
          {
             if (packet.getType() == PacketImpl.PING)
             {
@@ -358,7 +358,7 @@ public class PingTest extends ServiceTestBase
       server.getRemotingService().addIncomingInterceptor(new Interceptor()
       {
 
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
          {
             if (packet.getType() == PacketImpl.PING)
             {
@@ -383,18 +383,18 @@ public class PingTest extends ServiceTestBase
       SessionFailureListener clientListener = new SessionFailureListener()
       {
          @Override
-         public void connectionFailed(final HornetQException me, boolean failedOver)
+         public void connectionFailed(final ActiveMQException me, boolean failedOver)
          {
             clientLatch.countDown();
          }
 
          @Override
-         public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
          {
             connectionFailed(me, failedOver);
          }
 
-         public void beforeReconnect(final HornetQException exception)
+         public void beforeReconnect(final ActiveMQException exception)
          {
          }
       };

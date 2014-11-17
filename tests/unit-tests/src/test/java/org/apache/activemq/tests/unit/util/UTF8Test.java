@@ -11,6 +11,8 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.unit.util;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.junit.After;
 
 import org.junit.Test;
@@ -23,8 +25,6 @@ import java.nio.ByteBuffer;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.DataConstants;
@@ -46,7 +46,7 @@ public class UTF8Test extends UnitTestCase
    @Test
    public void testValidateUTF() throws Exception
    {
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(60 * 1024);
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(60 * 1024);
 
       byte[] bytes = new byte[20000];
 
@@ -78,16 +78,16 @@ public class UTF8Test extends UnitTestCase
 
          // The maximum size the encoded UTF string would reach is str.length * 3 (look at the UTF8 implementation)
          testValidateUTFOnDataInputStream(str,
-                                          HornetQBuffers.wrappedBuffer(ByteBuffer.allocate(str.length() * 3 +
-                                                                                           DataConstants.SIZE_SHORT)));
+                                          ActiveMQBuffers.wrappedBuffer(ByteBuffer.allocate(str.length() * 3 +
+                                                                                               DataConstants.SIZE_SHORT)));
 
-         testValidateUTFOnDataInputStream(str, HornetQBuffers.dynamicBuffer(100));
+         testValidateUTFOnDataInputStream(str, ActiveMQBuffers.dynamicBuffer(100));
 
-         testValidateUTFOnDataInputStream(str, HornetQBuffers.fixedBuffer(100 * 1024));
+         testValidateUTFOnDataInputStream(str, ActiveMQBuffers.fixedBuffer(100 * 1024));
       }
    }
 
-   private void testValidateUTFOnDataInputStream(final String str, final HornetQBuffer wrap) throws Exception
+   private void testValidateUTFOnDataInputStream(final String str, final ActiveMQBuffer wrap) throws Exception
    {
       UTF8Util.saveUTF(wrap, str);
 
@@ -102,7 +102,7 @@ public class UTF8Test extends UnitTestCase
 
       outData.writeUTF(str);
 
-      HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(byteOut.toByteArray());
+      ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(byteOut.toByteArray());
 
       newStr = UTF8Util.readUTF(buffer);
 
@@ -122,7 +122,7 @@ public class UTF8Test extends UnitTestCase
 
       String str = new String(chars);
 
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(0xffff + 4);
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(0xffff + 4);
 
       try
       {

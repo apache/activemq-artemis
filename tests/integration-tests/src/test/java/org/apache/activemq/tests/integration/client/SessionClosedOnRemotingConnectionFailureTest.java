@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -62,7 +62,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ServiceTestBas
 
       RemotingConnection connection = ((ClientSessionInternal) session).getConnection();
 
-      connection.fail(new HornetQNotConnectedException());
+      connection.fail(new ActiveMQNotConnectedException());
 
       Assert.assertTrue(session.isClosed());
 
@@ -78,11 +78,11 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ServiceTestBas
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQObjectClosedException oce)
+      catch (ActiveMQObjectClosedException oce)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -93,11 +93,11 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ServiceTestBas
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQObjectClosedException oce)
+      catch (ActiveMQObjectClosedException oce)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

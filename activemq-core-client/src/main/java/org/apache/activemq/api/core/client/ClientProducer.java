@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.api.core.client;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 
@@ -57,9 +57,9 @@ public interface ClientProducer extends AutoCloseable
     * {@link ServerLocator#setBlockOnNonDurableSend(boolean)} are set to <code>true</code> for the
     * specified message type.
     * @param message the message to send
-    * @throws HornetQException if an exception occurs while sending the message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
     */
-   void send(Message message) throws HornetQException;
+   void send(Message message) throws ActiveMQException;
 
    /**
     * Sends a message to the specified address instead of the ClientProducer's address. <br>
@@ -69,9 +69,9 @@ public interface ClientProducer extends AutoCloseable
     * The handler will only get called if {@link ServerLocator#setConfirmationWindowSize(int) -1}.
     * @param message the message to send
     * @param handler handler to call after receiving a SEND acknowledgement from the server
-    * @throws HornetQException if an exception occurs while sending the message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
     */
-   void send(Message message, SendAcknowledgementHandler handler) throws HornetQException;
+   void send(Message message, SendAcknowledgementHandler handler) throws ActiveMQException;
 
    /**
     * Sends a message to the specified address instead of the ClientProducer's address. <br>
@@ -82,9 +82,9 @@ public interface ClientProducer extends AutoCloseable
     * message type.
     * @param address the address where the message will be sent
     * @param message the message to send
-    * @throws HornetQException if an exception occurs while sending the message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
     */
-   void send(SimpleString address, Message message) throws HornetQException;
+   void send(SimpleString address, Message message) throws ActiveMQException;
 
    /**
     * Sends a message to the specified address instead of the ClientProducer's address. <br>
@@ -95,9 +95,9 @@ public interface ClientProducer extends AutoCloseable
     * @param address the address where the message will be sent
     * @param message the message to send
     * @param handler handler to call after receiving a SEND acknowledgement from the server
-    * @throws HornetQException if an exception occurs while sending the message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
     */
-   void send(SimpleString address, Message message, SendAcknowledgementHandler handler) throws HornetQException;
+   void send(SimpleString address, Message message, SendAcknowledgementHandler handler) throws ActiveMQException;
 
    /**
     * Sends a message to the specified address instead of the ClientProducer's address. <br>
@@ -108,16 +108,16 @@ public interface ClientProducer extends AutoCloseable
     * message type.
     * @param address the address where the message will be sent
     * @param message the message to send
-    * @throws HornetQException if an exception occurs while sending the message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
     */
-   void send(String address, Message message) throws HornetQException;
+   void send(String address, Message message) throws ActiveMQException;
 
    /**
     * Closes the ClientProducer. If already closed nothing is done.
     *
-    * @throws HornetQException if an exception occurs while closing the producer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while closing the producer
     */
-   void close() throws HornetQException;
+   void close() throws ActiveMQException;
 
    /**
     * Returns whether the producer is closed or not.

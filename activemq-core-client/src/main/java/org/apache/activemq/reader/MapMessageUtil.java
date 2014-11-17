@@ -13,7 +13,7 @@
 
 package org.apache.activemq.reader;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.utils.TypedProperties;
 
@@ -29,7 +29,7 @@ public class MapMessageUtil extends MessageUtil
     */
    public static void writeBodyMap(Message message, TypedProperties properties)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       buff.resetWriterIndex();
       properties.encode(buff);
    }
@@ -49,7 +49,7 @@ public class MapMessageUtil extends MessageUtil
     */
    public static void readBodyMap(Message message, TypedProperties map)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       buff.resetReaderIndex();
       map.decode(buff);
    }

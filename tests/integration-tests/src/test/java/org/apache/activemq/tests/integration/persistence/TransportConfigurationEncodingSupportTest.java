@@ -12,6 +12,8 @@
  */
 package org.apache.activemq.tests.integration.persistence;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
@@ -58,7 +58,7 @@ public class TransportConfigurationEncodingSupportTest extends Assert
       params.put(TransportConstants.HOST_PROP_NAME, RandomUtil.randomString());
       TransportConfiguration config = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
 
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(TransportConfigurationEncodingSupport.getEncodeSize(config));
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(TransportConfigurationEncodingSupport.getEncodeSize(config));
       TransportConfigurationEncodingSupport.encode(buffer, config);
 
       assertEquals(buffer.capacity(), buffer.writerIndex());
@@ -93,7 +93,7 @@ public class TransportConfigurationEncodingSupportTest extends Assert
       connectorConfigs.add(new Pair<TransportConfiguration, TransportConfiguration>(live1, backup1));
       connectorConfigs.add(new Pair<TransportConfiguration, TransportConfiguration>(live2, null));
 
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(TransportConfigurationEncodingSupport.getEncodeSize(connectorConfigs));
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(TransportConfigurationEncodingSupport.getEncodeSize(connectorConfigs));
       TransportConfigurationEncodingSupport.encodeConfigs(buffer, connectorConfigs);
 
       assertEquals(buffer.capacity(), buffer.writerIndex());

@@ -32,8 +32,8 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
@@ -232,9 +232,9 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
       {
          initialSession.addUniqueMetaData("jms-client-id", clientID);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
-         if (e.getType() == HornetQExceptionType.DUPLICATE_METADATA)
+         if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA)
          {
             throw new InvalidClientIDException("clientID=" + clientID + " was already set into another connection");
          }
@@ -245,7 +245,7 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
       {
          this.addSessionMetaData(initialSession);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          JMSException ex = new JMSException("Internal error setting metadata jms-client-id");
          ex.setLinkedException(e);
@@ -362,7 +362,7 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
                      {
                         initialSession.deleteQueue(queueName);
                      }
-                     catch (HornetQException ignore)
+                     catch (ActiveMQException ignore)
                      {
                         // Exception on deleting queue shouldn't prevent close from completing
                      }
@@ -380,7 +380,7 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
 
          closed = true;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -678,7 +678,7 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
 
          return jbs;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -724,13 +724,13 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
          initialSession.addFailureListener(listener);
          initialSession.addFailoverListener(failoverListener);
       }
-      catch (HornetQException me)
+      catch (ActiveMQException me)
       {
          throw JMSExceptionHelper.convertFromHornetQException(me);
       }
    }
 
-   private void addSessionMetaData(ClientSession session) throws HornetQException
+   private void addSessionMetaData(ClientSession session) throws ActiveMQException
    {
       session.addMetaData("jms-session", "");
       if (clientID != null)
@@ -762,7 +762,7 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
       }
 
       @Override
-      public synchronized void connectionFailed(final HornetQException me, boolean failedOver)
+      public synchronized void connectionFailed(final ActiveMQException me, boolean failedOver)
       {
          if (me == null)
          {
@@ -804,12 +804,12 @@ public class HornetQConnection extends HornetQConnectionForContextImpl implement
       }
 
       @Override
-      public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
       {
          connectionFailed(me, failedOver);
       }
 
-      public void beforeReconnect(final HornetQException me)
+      public void beforeReconnect(final ActiveMQException me)
       {
 
       }

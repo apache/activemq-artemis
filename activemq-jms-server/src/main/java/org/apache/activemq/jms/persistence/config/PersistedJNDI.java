@@ -15,7 +15,7 @@ package org.apache.activemq.jms.persistence.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.utils.BufferHelper;
 import org.apache.activemq.utils.DataConstants;
@@ -61,7 +61,7 @@ public class PersistedJNDI implements EncodingSupport
 
    // Public --------------------------------------------------------
    @Override
-   public void decode(HornetQBuffer buffer)
+   public void decode(ActiveMQBuffer buffer)
    {
       type = PersistedType.getType(buffer.readByte());
       name = buffer.readSimpleString().toString();
@@ -75,7 +75,7 @@ public class PersistedJNDI implements EncodingSupport
    }
 
    @Override
-   public void encode(HornetQBuffer buffer)
+   public void encode(ActiveMQBuffer buffer)
    {
       buffer.writeByte(type.getType());
       BufferHelper.writeAsSimpleString(buffer, name);

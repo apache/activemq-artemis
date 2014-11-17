@@ -29,10 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
@@ -723,11 +723,11 @@ public class HornetQActivation
     */
    public void handleFailure(Throwable failure)
    {
-      if (failure instanceof HornetQException && ((HornetQException) failure).getType() == HornetQExceptionType.QUEUE_DOES_NOT_EXIST)
+      if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST)
       {
          HornetQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
       }
-      else if (failure instanceof HornetQException && ((HornetQException) failure).getType() == HornetQExceptionType.NOT_CONNECTED)
+      else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED)
       {
          HornetQRALogger.LOGGER.awaitingJMSServerCreation();
       }
@@ -771,17 +771,17 @@ public class HornetQActivation
             }
             catch (Throwable t)
             {
-               if (failure instanceof HornetQException && ((HornetQException) failure).getType() == HornetQExceptionType.QUEUE_DOES_NOT_EXIST)
+               if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST)
                {
-                  if (lastException == null || !(t instanceof HornetQNonExistentQueueException))
+                  if (lastException == null || !(t instanceof ActiveMQNonExistentQueueException))
                   {
                      lastException = t;
                      HornetQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
                   }
                }
-               else if (failure instanceof HornetQException && ((HornetQException) failure).getType() == HornetQExceptionType.NOT_CONNECTED)
+               else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED)
                {
-                  if (lastException == null || !(t instanceof HornetQNotConnectedException))
+                  if (lastException == null || !(t instanceof ActiveMQNotConnectedException))
                   {
                      lastException = t;
                      HornetQRALogger.LOGGER.awaitingJMSServerCreation();

@@ -20,9 +20,9 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.core.protocol.stomp.v12.StompFrameHandlerV12;
@@ -93,7 +93,7 @@ public final class StompConnection implements RemotingConnection
 
    private int minLargeMessageSize;
 
-   public StompFrame decode(HornetQBuffer buffer) throws HornetQStompException
+   public StompFrame decode(ActiveMQBuffer buffer) throws HornetQStompException
    {
       StompFrame frame = null;
       try
@@ -248,9 +248,9 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public HornetQBuffer createBuffer(int size)
+   public ActiveMQBuffer createBuffer(int size)
    {
-      return HornetQBuffers.dynamicBuffer(size);
+      return ActiveMQBuffers.dynamicBuffer(size);
    }
 
    public void destroy()
@@ -285,7 +285,7 @@ public final class StompConnection implements RemotingConnection
       manager.cleanup(this);
    }
 
-   public void fail(final HornetQException me)
+   public void fail(final ActiveMQException me)
    {
       synchronized (failLock)
       {
@@ -306,7 +306,7 @@ public final class StompConnection implements RemotingConnection
       internalClose();
    }
 
-   public void fail(final HornetQException me, String scaleDownTargetNodeID)
+   public void fail(final ActiveMQException me, String scaleDownTargetNodeID)
    {
       fail(me);
    }
@@ -352,7 +352,7 @@ public final class StompConnection implements RemotingConnection
       return destroyed;
    }
 
-   public void bufferReceived(Object connectionID, HornetQBuffer buffer)
+   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer)
    {
       manager.handleBuffer(this, buffer);
    }
@@ -387,7 +387,7 @@ public final class StompConnection implements RemotingConnection
       this.valid = valid;
    }
 
-   private void callFailureListeners(final HornetQException me)
+   private void callFailureListeners(final ActiveMQException me)
    {
       final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
 
@@ -792,7 +792,7 @@ public final class StompConnection implements RemotingConnection
 
    public void physicalSend(StompFrame frame) throws Exception
    {
-      HornetQBuffer buffer = frame.toHornetQBuffer();
+      ActiveMQBuffer buffer = frame.toHornetQBuffer();
       synchronized (sendLock)
       {
          getTransportConnection().write(buffer, false, false);

@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.TopologyMember;
@@ -331,7 +331,7 @@ public final class SharedNothingBackupActivation extends Activation
    }
 
    @Override
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, HornetQServer parentServer) throws HornetQException
+   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, HornetQServer parentServer) throws ActiveMQException
    {
       if (replicaPolicy.getScaleDownPolicy() != null)
       {
@@ -425,15 +425,15 @@ public final class SharedNothingBackupActivation extends Activation
    }
 
    /**
-    * @throws org.apache.activemq.api.core.HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   public void remoteFailOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws HornetQException
+   public void remoteFailOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws ActiveMQException
    {
       HornetQServerLogger.LOGGER.trace("Remote fail-over, got message=" + finalMessage + ", backupUpToDate=" +
             backupUpToDate);
       if (!hornetQServer.getHAPolicy().isBackup() || hornetQServer.getHAPolicy().isSharedStore())
       {
-         throw new HornetQInternalErrorException();
+         throw new ActiveMQInternalErrorException();
       }
 
       if (!backupUpToDate)

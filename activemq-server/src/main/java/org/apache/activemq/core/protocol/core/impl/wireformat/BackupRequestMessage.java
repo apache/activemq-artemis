@@ -13,7 +13,7 @@
 
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
@@ -50,7 +50,7 @@ public class BackupRequestMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(HornetQBuffer buffer)
+   public void encodeRest(ActiveMQBuffer buffer)
    {
       super.encodeRest(buffer);
       buffer.writeInt(backupSize);
@@ -62,7 +62,7 @@ public class BackupRequestMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(HornetQBuffer buffer)
+   public void decodeRest(ActiveMQBuffer buffer)
    {
       super.decodeRest(buffer);
       backupSize = buffer.readInt();

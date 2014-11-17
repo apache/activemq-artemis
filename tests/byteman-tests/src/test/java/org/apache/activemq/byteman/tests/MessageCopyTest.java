@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
@@ -148,7 +148,7 @@ public class MessageCopyTest
                try
                {
                   SessionSendMessage ssm = new SessionSendMessage(msg);
-                  HornetQBuffer buf = ssm.encode(null);
+                  ActiveMQBuffer buf = ssm.encode(null);
                   System.out.println("reading at buf = " + buf);
                   simulateRead(buf);
                }
@@ -190,7 +190,7 @@ public class MessageCopyTest
       Assert.assertEquals(0, errors.get());
    }
 
-   private void simulateRead(HornetQBuffer buf)
+   private void simulateRead(ActiveMQBuffer buf)
    {
       buf.setIndex(buf.capacity() / 2, buf.capacity() / 2);
 

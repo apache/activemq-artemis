@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
@@ -63,11 +63,11 @@ public interface ClientProtocolManager
                                        final boolean autoCommitAcks,
                                        final boolean preAcknowledge,
                                        int minLargeMessageSize,
-                                       int confirmationWindowSize) throws HornetQException;
+                                       int confirmationWindowSize) throws ActiveMQException;
 
-   boolean cleanupBeforeFailover(HornetQException cause);
+   boolean cleanupBeforeFailover(ActiveMQException cause);
 
-   boolean checkForFailover(String liveNodeID) throws HornetQException;
+   boolean checkForFailover(String liveNodeID) throws ActiveMQException;
 
    void setSessionFactory(ClientSessionFactory factory);
 

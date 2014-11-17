@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -160,7 +160,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
     */
    protected static void assertLargeMessageBody(final int i, final ClientMessage message)
    {
-      HornetQBuffer buffer = message.getBodyBuffer();
+      ActiveMQBuffer buffer = message.getBodyBuffer();
 
       for (int j = 0; j < LARGE_MESSAGE_SIZE; j++)
       {

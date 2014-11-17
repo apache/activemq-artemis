@@ -14,8 +14,8 @@ package org.apache.activemq.core.paging.impl;
 
 import java.util.Arrays;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.core.paging.PagedMessage;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.LargeServerMessage;
@@ -69,7 +69,7 @@ public class PagedMessageImpl implements PagedMessage
       if (largeMessageLazyData != null)
       {
          LargeServerMessage lgMessage = storage.createLargeMessage();
-         HornetQBuffer buffer = HornetQBuffers.dynamicBuffer(largeMessageLazyData);
+         ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(largeMessageLazyData);
          lgMessage.decodeHeadersAndProperties(buffer);
          lgMessage.incrementDelayDeletionCount();
          lgMessage.setPaged();
@@ -90,7 +90,7 @@ public class PagedMessageImpl implements PagedMessage
 
    // EncodingSupport implementation --------------------------------
 
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       transactionID = buffer.readLong();
 
@@ -123,7 +123,7 @@ public class PagedMessageImpl implements PagedMessage
       }
    }
 
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       buffer.writeLong(transactionID);
 

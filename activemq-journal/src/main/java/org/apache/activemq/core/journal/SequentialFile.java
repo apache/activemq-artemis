@@ -16,8 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.journal.impl.TimedBuffer;
 
 /**
@@ -54,11 +54,11 @@ public interface SequentialFile
 
    void fill(int position, int size, byte fillCharacter) throws Exception;
 
-   void delete() throws IOException, InterruptedException, HornetQException;
+   void delete() throws IOException, InterruptedException, ActiveMQException;
 
-   void write(HornetQBuffer bytes, boolean sync, IOAsyncTask callback) throws Exception;
+   void write(ActiveMQBuffer bytes, boolean sync, IOAsyncTask callback) throws Exception;
 
-   void write(HornetQBuffer bytes, boolean sync) throws Exception;
+   void write(ActiveMQBuffer bytes, boolean sync) throws Exception;
 
    void write(EncodingSupport bytes, boolean sync, IOAsyncTask callback) throws Exception;
 

@@ -17,8 +17,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.Topology;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -105,9 +105,9 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
                sessionFactory.connect(RECONNECT_ATTEMPTS, false);
                return;
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
-               if (e.getType() != HornetQExceptionType.NOT_CONNECTED)
+               if (e.getType() != ActiveMQExceptionType.NOT_CONNECTED)
                   HornetQServerLogger.LOGGER.errorReConnecting(e);
             }
          }
@@ -157,13 +157,13 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
     * if the connection to our replicated live goes down then decide on an action
     */
    @Override
-   public void connectionFailed(HornetQException exception, boolean failedOver)
+   public void connectionFailed(ActiveMQException exception, boolean failedOver)
    {
       decideOnAction(sessionFactory.getServerLocator().getTopology());
    }
 
    @Override
-   public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
    {
       connectionFailed(me, failedOver);
    }

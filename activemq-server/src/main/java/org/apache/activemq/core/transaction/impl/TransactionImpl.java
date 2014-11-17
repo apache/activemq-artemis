@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.HornetQServerLogger;
@@ -63,7 +63,7 @@ public class TransactionImpl implements Transaction
 
    private volatile State state = State.ACTIVE;
 
-   private HornetQException exception;
+   private ActiveMQException exception;
 
    private final Object timeoutLock = new Object();
 
@@ -385,7 +385,7 @@ public class TransactionImpl implements Transaction
       return xid;
    }
 
-   public void markAsRollbackOnly(final HornetQException exception1)
+   public void markAsRollbackOnly(final ActiveMQException exception1)
    {
       if (HornetQServerLogger.LOGGER.isDebugEnabled())
       {

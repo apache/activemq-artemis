@@ -316,7 +316,7 @@ public interface HornetQServerControl
    /**
     * Create a durable queue.
     * <br>
-    * This method throws a {@link org.apache.activemq.api.core.HornetQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
@@ -328,7 +328,7 @@ public interface HornetQServerControl
    /**
     * Create a queue.
     * <br>
-    * This method throws a {@link org.apache.activemq.api.core.HornetQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
@@ -344,7 +344,7 @@ public interface HornetQServerControl
    /**
     * Create a queue.
     * <br>
-    * This method throws a {@link org.apache.activemq.api.core.HornetQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue

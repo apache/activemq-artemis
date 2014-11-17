@@ -16,8 +16,8 @@ import javax.management.MBeanInfo;
 import javax.management.StandardMBean;
 import java.util.Map;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.FilterConstants;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.management.MessageCounterInfo;
 import org.apache.activemq.api.core.management.Operation;
 import org.apache.activemq.api.core.management.QueueControl;
@@ -50,7 +50,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    /**
     * Returns null if the string is null or empty
     */
-   public static String createFilterFromJMSSelector(final String selectorStr) throws HornetQException
+   public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException
    {
       return selectorStr == null || selectorStr.trim().length() == 0 ? null
          : SelectorTranslator.convertToHornetQFilterString(selectorStr);
@@ -205,7 +205,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
          }
          return jmsMessages;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new IllegalStateException(e.getMessage());
       }

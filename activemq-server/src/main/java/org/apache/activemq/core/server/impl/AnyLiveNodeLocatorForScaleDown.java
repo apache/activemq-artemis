@@ -21,7 +21,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.TopologyMember;
@@ -52,13 +52,13 @@ public class AnyLiveNodeLocatorForScaleDown extends LiveNodeLocator
    }
 
    @Override
-   public void locateNode() throws HornetQException
+   public void locateNode() throws ActiveMQException
    {
       locateNode(-1L);
    }
 
    @Override
-   public void locateNode(long timeout) throws HornetQException
+   public void locateNode(long timeout) throws ActiveMQException
    {
       try
       {
@@ -71,7 +71,7 @@ public class AnyLiveNodeLocatorForScaleDown extends LiveNodeLocator
                {
                   if (!condition.await(timeout, TimeUnit.MILLISECONDS))
                   {
-                     throw new HornetQException("Timeout elapsed while waiting for cluster node");
+                     throw new ActiveMQException("Timeout elapsed while waiting for cluster node");
                   }
                }
                else

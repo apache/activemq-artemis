@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -420,10 +420,10 @@ public class BridgeReconnectTest extends BridgeTestBase
       RemotingConnection forwardingConnection = getForwardingConnection(bridge);
       InVMConnector.failOnCreateConnection = true;
       InVMConnector.numberOfFailures = reconnectAttempts - 1;
-      forwardingConnection.fail(new HornetQNotConnectedException());
+      forwardingConnection.fail(new ActiveMQNotConnectedException());
 
       forwardingConnection = getForwardingConnection(bridge);
-      forwardingConnection.fail(new HornetQNotConnectedException());
+      forwardingConnection.fail(new ActiveMQNotConnectedException());
 
       final ManagementService managementService = server0.getManagementService();
       QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
@@ -642,7 +642,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       RemotingConnection forwardingConnection = getForwardingConnection(bridge);
       InVMConnector.failOnCreateConnection = true;
       InVMConnector.numberOfFailures = reconnectAttempts - 1;
-      forwardingConnection.fail(new HornetQNotConnectedException());
+      forwardingConnection.fail(new ActiveMQNotConnectedException());
 
       final int numMessages = NUM_MESSAGES;
 
@@ -680,7 +680,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       forwardingConnection = ((BridgeImpl) bridge).getForwardingConnection();
       InVMConnector.failOnCreateConnection = true;
       InVMConnector.numberOfFailures = reconnectAttempts - 1;
-      forwardingConnection.fail(new HornetQException(HornetQExceptionType.UNBLOCKED));
+      forwardingConnection.fail(new ActiveMQException(ActiveMQExceptionType.UNBLOCKED));
 
       for (int i = 0; i < numMessages; i++)
       {
@@ -776,7 +776,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
          if (i == 50)
          {
-            forwardingConnection.fail(new HornetQException(HornetQExceptionType.UNBLOCKED));
+            forwardingConnection.fail(new ActiveMQException(ActiveMQExceptionType.UNBLOCKED));
          }
       }
 

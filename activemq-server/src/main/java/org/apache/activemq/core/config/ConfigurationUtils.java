@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.config;
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
@@ -38,7 +38,7 @@ public final class ConfigurationUtils
       // Utility class
    }
 
-   public static ClusterConnectionConfiguration getReplicationClusterConfiguration(Configuration conf, String replicationCluster) throws HornetQIllegalStateException
+   public static ClusterConnectionConfiguration getReplicationClusterConfiguration(Configuration conf, String replicationCluster) throws ActiveMQIllegalStateException
    {
       if (replicationCluster == null || replicationCluster.isEmpty())
          return conf.getClusterConfigurations().get(0);
@@ -47,10 +47,10 @@ public final class ConfigurationUtils
          if (replicationCluster.equals(clusterConf.getName()))
             return clusterConf;
       }
-      throw new HornetQIllegalStateException("Missing cluster-configuration for replication-clustername '" + replicationCluster + "'.");
+      throw new ActiveMQIllegalStateException("Missing cluster-configuration for replication-clustername '" + replicationCluster + "'.");
    }
 
-   public static HAPolicy getHAPolicy(HAPolicyConfiguration conf) throws HornetQIllegalStateException
+   public static HAPolicy getHAPolicy(HAPolicyConfiguration conf) throws ActiveMQIllegalStateException
    {
       if (conf == null)
       {

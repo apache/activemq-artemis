@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.server.HornetQComponent;
 import org.apache.activemq.core.server.HornetQServerLogger;
 import org.apache.activemq.core.server.HornetQMessageBundle;
@@ -239,7 +239,7 @@ public class InVMConnector extends AbstractConnector
          }
       }
 
-      public void connectionException(final Object connectionID, final HornetQException me)
+      public void connectionException(final Object connectionID, final ActiveMQException me)
       {
          // Execute on different thread to avoid deadlocks
          closeExecutor.execute(new Runnable()

@@ -28,8 +28,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQSecurityException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQSecurityException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -93,7 +93,7 @@ public class SecurityTest extends ServiceTestBase
 
          session.close();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          Assert.fail("should not throw exception");
       }
@@ -122,11 +122,11 @@ public class SecurityTest extends ServiceTestBase
          cf.createSession(false, true, true);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -146,11 +146,11 @@ public class SecurityTest extends ServiceTestBase
          cf.createSession("newuser", "awrongpass", false, true, true, false, -1);
          Assert.fail("should not throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -171,7 +171,7 @@ public class SecurityTest extends ServiceTestBase
 
          session.close();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          Assert.fail("should not throw exception");
       }
@@ -217,11 +217,11 @@ public class SecurityTest extends ServiceTestBase
          session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -269,11 +269,11 @@ public class SecurityTest extends ServiceTestBase
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -321,11 +321,11 @@ public class SecurityTest extends ServiceTestBase
          session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -373,11 +373,11 @@ public class SecurityTest extends ServiceTestBase
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -442,7 +442,7 @@ public class SecurityTest extends ServiceTestBase
       {
          cp.send(session.createMessage(true));
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          failed = true;
       }
@@ -474,11 +474,11 @@ public class SecurityTest extends ServiceTestBase
       {
          cp.send(session.createMessage(false));
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -567,11 +567,11 @@ public class SecurityTest extends ServiceTestBase
       {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -612,11 +612,11 @@ public class SecurityTest extends ServiceTestBase
       {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -669,11 +669,11 @@ public class SecurityTest extends ServiceTestBase
       {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -691,11 +691,11 @@ public class SecurityTest extends ServiceTestBase
       {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -742,11 +742,11 @@ public class SecurityTest extends ServiceTestBase
       {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -769,7 +769,7 @@ public class SecurityTest extends ServiceTestBase
          sendingSession.commit();
          Assert.fail("Expected exception");
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          // I would expect the commit to fail, since there were failures registered
       }
@@ -852,11 +852,11 @@ public class SecurityTest extends ServiceTestBase
       {
          cp.send(session.createMessage(false));
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -923,7 +923,7 @@ public class SecurityTest extends ServiceTestBase
 
          session.close();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          Assert.fail("should not throw exception");
       }
@@ -958,11 +958,11 @@ public class SecurityTest extends ServiceTestBase
          cf.createSession(false, true, true);
          Assert.fail("should not throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1028,11 +1028,11 @@ public class SecurityTest extends ServiceTestBase
          factory.createSession(false, true, true);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1043,11 +1043,11 @@ public class SecurityTest extends ServiceTestBase
          billConnection = factory.createSession("bill", "hornetq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1167,11 +1167,11 @@ public class SecurityTest extends ServiceTestBase
          factory.createSession(false, true, true);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1182,11 +1182,11 @@ public class SecurityTest extends ServiceTestBase
          billConnection = factory.createSession("bill", "hornetq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1272,7 +1272,7 @@ public class SecurityTest extends ServiceTestBase
             prod.send(m);
             Assert.fail("should throw exception");
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             // pass
          }
@@ -1303,7 +1303,7 @@ public class SecurityTest extends ServiceTestBase
             prod.send(m);
             Assert.fail("should throw exception");
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             // pass
          }
@@ -1316,7 +1316,7 @@ public class SecurityTest extends ServiceTestBase
             connection.createConsumer(queue);
             Assert.fail("should throw exception");
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             // pass
          }
@@ -1339,11 +1339,11 @@ public class SecurityTest extends ServiceTestBase
          connection.createConsumer(queue);
          Assert.fail("should throw exception");
       }
-      catch (HornetQSecurityException se)
+      catch (ActiveMQSecurityException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

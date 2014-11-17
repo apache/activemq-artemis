@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.tests.unit.core.remoting.impl.netty;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.tests.unit.core.remoting.HornetQBufferTestBase;
 
 /**
@@ -39,9 +39,9 @@ public class ChannelBufferWrapper2Test extends HornetQBufferTestBase
    // BufferWrapperBase overrides -----------------------------------
 
    @Override
-   protected HornetQBuffer createBuffer()
+   protected ActiveMQBuffer createBuffer()
    {
-      return HornetQBuffers.dynamicBuffer(512);
+      return ActiveMQBuffers.dynamicBuffer(512);
    }
 
    // Package protected ---------------------------------------------

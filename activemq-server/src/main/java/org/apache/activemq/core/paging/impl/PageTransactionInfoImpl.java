@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.paging.PageTransactionInfo;
 import org.apache.activemq.core.paging.PagingManager;
@@ -118,7 +118,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
 
    // EncodingSupport implementation
 
-   public synchronized void decode(final HornetQBuffer buffer)
+   public synchronized void decode(final ActiveMQBuffer buffer)
    {
       transactionID = buffer.readLong();
       numberOfMessages.set(buffer.readInt());
@@ -126,7 +126,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
       committed = true;
    }
 
-   public synchronized void encode(final HornetQBuffer buffer)
+   public synchronized void encode(final ActiveMQBuffer buffer)
    {
       buffer.writeLong(transactionID);
       buffer.writeInt(numberOfPersistentMessages.get());

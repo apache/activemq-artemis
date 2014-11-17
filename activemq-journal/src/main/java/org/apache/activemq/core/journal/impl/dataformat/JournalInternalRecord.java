@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.journal.impl.dataformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
@@ -39,7 +39,7 @@ public abstract class JournalInternalRecord implements EncodingSupport
       this.fileID = fileID;
    }
 
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
    }
 

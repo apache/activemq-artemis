@@ -21,9 +21,9 @@ import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
@@ -55,7 +55,7 @@ public class TimedBuffer
 
    private final int bufferSize;
 
-   private final HornetQBuffer buffer;
+   private final ActiveMQBuffer buffer;
 
    private int bufferLimit = 0;
 
@@ -110,7 +110,7 @@ public class TimedBuffer
       }
       // Setting the interval for nano-sleeps
 
-      buffer = HornetQBuffers.fixedBuffer(bufferSize);
+      buffer = ActiveMQBuffers.fixedBuffer(bufferSize);
 
       buffer.clear();
 
@@ -146,7 +146,7 @@ public class TimedBuffer
       }
       catch (InterruptedException e)
       {
-         throw new HornetQInterruptedException(e);
+         throw new ActiveMQInterruptedException(e);
       }
 
       timerRunnable = new CheckTimer();
@@ -193,7 +193,7 @@ public class TimedBuffer
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
       }
 
@@ -262,7 +262,7 @@ public class TimedBuffer
       }
    }
 
-   public synchronized void addBytes(final HornetQBuffer bytes, final boolean sync, final IOAsyncTask callback)
+   public synchronized void addBytes(final ActiveMQBuffer bytes, final boolean sync, final IOAsyncTask callback)
    {
       addBytes(new ByteArrayEncoding(bytes.toByteBuffer().array()), sync, callback);
    }
@@ -447,7 +447,7 @@ public class TimedBuffer
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
       }
@@ -472,7 +472,7 @@ public class TimedBuffer
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
             catch (Exception e)
             {
@@ -535,7 +535,7 @@ public class TimedBuffer
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
 
          spinning = false;

@@ -23,10 +23,10 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -171,7 +171,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final String groupID,
                      final SessionContext sessionContext,
                      final Executor executor,
-                     final Executor flowControlExecutor) throws HornetQException
+                     final Executor flowControlExecutor) throws ActiveMQException
    {
       this.sessionFactory = sessionFactory;
 
@@ -233,24 +233,24 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    // ClientSession implementation
    // -----------------------------------------------------------------
 
-   public void createQueue(final SimpleString address, final SimpleString queueName) throws HornetQException
+   public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
    {
       internalCreateQueue(address, queueName, null, false, false);
    }
 
-   public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws HornetQException
+   public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws ActiveMQException
    {
       internalCreateQueue(address, queueName, null, durable, false);
    }
 
-   public void createQueue(final String address, final String queueName, final boolean durable) throws HornetQException
+   public void createQueue(final String address, final String queueName, final boolean durable) throws ActiveMQException
    {
       createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), durable);
    }
 
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
-                                 boolean durable) throws HornetQException
+                                 boolean durable) throws ActiveMQException
    {
       createSharedQueue(address, queueName, null, durable);
    }
@@ -258,7 +258,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
                                  SimpleString filterString,
-                                 boolean durable) throws HornetQException
+                                 boolean durable) throws ActiveMQException
    {
 
       checkClosed();
@@ -280,7 +280,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final SimpleString filterString,
-                           final boolean durable) throws HornetQException
+                           final boolean durable) throws ActiveMQException
    {
       internalCreateQueue(address, queueName, filterString, durable, false);
    }
@@ -288,17 +288,17 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void createQueue(final String address,
                            final String queueName,
                            final String filterString,
-                           final boolean durable) throws HornetQException
+                           final boolean durable) throws ActiveMQException
    {
       createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), durable);
    }
 
-   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws HornetQException
+   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
    {
       internalCreateQueue(address, queueName, null, false, true);
    }
 
-   public void createTemporaryQueue(final String address, final String queueName) throws HornetQException
+   public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException
    {
       internalCreateQueue(SimpleString.toSimpleString(address),
                           SimpleString.toSimpleString(queueName),
@@ -307,12 +307,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           true);
    }
 
-   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName, final SimpleString filter) throws HornetQException
+   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName, final SimpleString filter) throws ActiveMQException
    {
       internalCreateQueue(address, queueName, filter, false, true);
    }
 
-   public void createTemporaryQueue(final String address, final String queueName, final String filter) throws HornetQException
+   public void createTemporaryQueue(final String address, final String queueName, final String filter) throws ActiveMQException
    {
       internalCreateQueue(SimpleString.toSimpleString(address),
                           SimpleString.toSimpleString(queueName),
@@ -321,7 +321,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                           true);
    }
 
-   public void deleteQueue(final SimpleString queueName) throws HornetQException
+   public void deleteQueue(final SimpleString queueName) throws ActiveMQException
    {
       checkClosed();
 
@@ -336,12 +336,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void deleteQueue(final String queueName) throws HornetQException
+   public void deleteQueue(final String queueName) throws ActiveMQException
    {
       deleteQueue(SimpleString.toSimpleString(queueName));
    }
 
-   public QueueQuery queueQuery(final SimpleString queueName) throws HornetQException
+   public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException
    {
       checkClosed();
 
@@ -363,15 +363,15 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     *
     * @param address
     * @return
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    @Deprecated
-   public BindingQuery bindingQuery(final SimpleString address) throws HornetQException
+   public BindingQuery bindingQuery(final SimpleString address) throws ActiveMQException
    {
       return (BindingQuery) addressQuery(address);
    }
 
-   public AddressQuery addressQuery(final SimpleString address) throws HornetQException
+   public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
    {
       checkClosed();
 
@@ -379,51 +379,51 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return sessionContext.addressQuery(address);
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName) throws HornetQException
+   public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException
    {
       return createConsumer(queueName, null, false);
    }
 
-   public ClientConsumer createConsumer(final String queueName) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName) throws ActiveMQException
    {
       return createConsumer(SimpleString.toSimpleString(queueName));
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws HornetQException
+   public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws ActiveMQException
    {
       return createConsumer(queueName, filterString, consumerWindowSize, consumerMaxRate, false);
    }
 
-   public void createQueue(final String address, final String queueName) throws HornetQException
+   public void createQueue(final String address, final String queueName) throws ActiveMQException
    {
       createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
    }
 
-   public ClientConsumer createConsumer(final String queueName, final String filterString) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException
    {
       return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString));
    }
 
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final SimpleString filterString,
-                                        final boolean browseOnly) throws HornetQException
+                                        final boolean browseOnly) throws ActiveMQException
    {
       return createConsumer(queueName, filterString, consumerWindowSize, consumerMaxRate, browseOnly);
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws HornetQException
+   public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws ActiveMQException
    {
       return createConsumer(queueName, null, consumerWindowSize, consumerMaxRate, browseOnly);
    }
 
-   public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws ActiveMQException
    {
       return createConsumer(SimpleString.toSimpleString(queueName),
                             SimpleString.toSimpleString(filterString),
                             browseOnly);
    }
 
-   public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException
    {
       return createConsumer(SimpleString.toSimpleString(queueName), null, browseOnly);
    }
@@ -442,7 +442,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                         final SimpleString filterString,
                                         final int windowSize,
                                         final int maxRate,
-                                        final boolean browseOnly) throws HornetQException
+                                        final boolean browseOnly) throws ActiveMQException
    {
       return internalCreateConsumer(queueName, filterString, windowSize, maxRate, browseOnly);
    }
@@ -451,32 +451,32 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                         final String filterString,
                                         final int windowSize,
                                         final int maxRate,
-                                        final boolean browseOnly) throws HornetQException
+                                        final boolean browseOnly) throws ActiveMQException
    {
       return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), windowSize, maxRate, browseOnly);
    }
 
-   public ClientProducer createProducer() throws HornetQException
+   public ClientProducer createProducer() throws ActiveMQException
    {
       return createProducer((SimpleString) null);
    }
 
-   public ClientProducer createProducer(final SimpleString address) throws HornetQException
+   public ClientProducer createProducer(final SimpleString address) throws ActiveMQException
    {
       return createProducer(address, producerMaxRate);
    }
 
-   public ClientProducer createProducer(final String address) throws HornetQException
+   public ClientProducer createProducer(final String address) throws ActiveMQException
    {
       return createProducer(SimpleString.toSimpleString(address));
    }
 
-   public ClientProducer createProducer(final SimpleString address, final int maxRate) throws HornetQException
+   public ClientProducer createProducer(final SimpleString address, final int maxRate) throws ActiveMQException
    {
       return internalCreateProducer(address, maxRate);
    }
 
-   public ClientProducer createProducer(final String address, final int rate) throws HornetQException
+   public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException
    {
       return createProducer(SimpleString.toSimpleString(address), rate);
    }
@@ -486,7 +486,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return this;
    }
 
-   private void rollbackOnFailover(boolean outcomeKnown) throws HornetQException
+   private void rollbackOnFailover(boolean outcomeKnown) throws ActiveMQException
    {
       rollback(false);
 
@@ -498,7 +498,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       throw HornetQClientMessageBundle.BUNDLE.txOutcomeUnknown();
    }
 
-   public void commit() throws HornetQException
+   public void commit() throws ActiveMQException
    {
       checkClosed();
 
@@ -528,9 +528,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       {
          sessionContext.simpleCommit();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
-         if (e.getType() == HornetQExceptionType.UNBLOCKED || rollbackOnly)
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || rollbackOnly)
          {
             // The call to commit was unlocked on failover, we therefore rollback the tx,
             // and throw a transaction rolled back exception instead
@@ -558,12 +558,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return rollbackOnly;
    }
 
-   public void rollback() throws HornetQException
+   public void rollback() throws ActiveMQException
    {
       rollback(false);
    }
 
-   public void rollback(final boolean isLastMessageAsDelivered) throws HornetQException
+   public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException
    {
       if (HornetQClientLogger.LOGGER.isTraceEnabled())
       {
@@ -647,7 +647,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return xa;
    }
 
-   public void resetIfNeeded() throws HornetQException
+   public void resetIfNeeded() throws ActiveMQException
    {
       if (rollbackOnly)
       {
@@ -656,7 +656,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public ClientSessionImpl start() throws HornetQException
+   public ClientSessionImpl start() throws ActiveMQException
    {
       checkClosed();
 
@@ -675,12 +675,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return this;
    }
 
-   public void stop() throws HornetQException
+   public void stop() throws ActiveMQException
    {
       stop(true);
    }
 
-   public void stop(final boolean waitForOnMessage) throws HornetQException
+   public void stop(final boolean waitForOnMessage) throws ActiveMQException
    {
       checkClosed();
 
@@ -762,7 +762,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    /**
     * Acknowledges all messages received by the consumer so far.
     */
-   public void acknowledge(final ClientConsumer consumer, final Message message) throws HornetQException
+   public void acknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException
    {
       // if we're pre-acknowledging then we don't need to do anything
       if (preAcknowledge)
@@ -787,7 +787,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws HornetQException
+   public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException
    {
       // if we're pre-acknowledging then we don't need to do anything
       if (preAcknowledge)
@@ -809,7 +809,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void expire(final ClientConsumer consumer, final Message message) throws HornetQException
+   public void expire(final ClientConsumer consumer, final Message message) throws ActiveMQException
    {
       checkClosed();
 
@@ -836,7 +836,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void removeConsumer(final ClientConsumerInternal consumer) throws HornetQException
+   public void removeConsumer(final ClientConsumerInternal consumer) throws ActiveMQException
    {
       synchronized (consumers)
       {
@@ -883,7 +883,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
-   public void handleConsumerDisconnect(ConsumerContext context) throws HornetQException
+   public void handleConsumerDisconnect(ConsumerContext context) throws ActiveMQException
    {
       final ClientConsumerInternal consumer = getConsumer(context);
 
@@ -898,7 +898,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                {
                   consumer.close();
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   HornetQClientLogger.LOGGER.unableToCloseConsumer(e);
                }
@@ -907,7 +907,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void close() throws HornetQException
+   public void close() throws ActiveMQException
    {
       if (closed)
       {
@@ -942,7 +942,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       doCleanup(false);
    }
 
-   public synchronized void cleanUp(boolean failingOver) throws HornetQException
+   public synchronized void cleanUp(boolean failingOver) throws ActiveMQException
    {
       if (closed)
       {
@@ -972,7 +972,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // Needs to be synchronized to prevent issues with occurring concurrently with close()
 
-   public void handleFailover(final RemotingConnection backupConnection, HornetQException cause)
+   public void handleFailover(final RemotingConnection backupConnection, ActiveMQException cause)
    {
       synchronized (this)
       {
@@ -1089,7 +1089,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    }
 
-   public void addMetaData(String key, String data) throws HornetQException
+   public void addMetaData(String key, String data) throws ActiveMQException
    {
       synchronized (metadata)
       {
@@ -1099,7 +1099,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       sessionContext.addSessionMetadata(key, data);
    }
 
-   public void addUniqueMetaData(String key, String data) throws HornetQException
+   public void addUniqueMetaData(String key, String data) throws ActiveMQException
    {
       sessionContext.addUniqueMetaData(key, data);
    }
@@ -1425,9 +1425,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       {
          throw xae;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
-         if (e.getType() == HornetQExceptionType.UNBLOCKED)
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED)
          {
             // Unblocked on failover
             try
@@ -1545,9 +1545,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       {
          throw xae;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
-         if (e.getType() == HornetQExceptionType.UNBLOCKED)
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED)
          {
             // Unblocked on failover
             throw new XAException(XAException.XA_RETRY);
@@ -1586,10 +1586,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       {
          throw xae;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          // we can retry this only because we know for sure that no work would have been done
-         if (e.getType() == HornetQExceptionType.UNBLOCKED)
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED)
          {
             try
             {
@@ -1624,7 +1624,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // FailureListener implementation --------------------------------------------
 
-   public void connectionFailed(final HornetQException me, boolean failedOver)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver)
    {
       try
       {
@@ -1636,7 +1636,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
    {
       connectionFailed(me, failedOver);
    }
@@ -1684,13 +1684,13 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param windowSize
     * @param browseOnly
     * @return
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private ClientConsumer internalCreateConsumer(final SimpleString queueName,
                                                  final SimpleString filterString,
                                                  final int windowSize,
                                                  final int maxRate,
-                                                 final boolean browseOnly) throws HornetQException
+                                                 final boolean browseOnly) throws ActiveMQException
    {
       checkClosed();
 
@@ -1712,7 +1712,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return consumer;
    }
 
-   private ClientProducer internalCreateProducer(final SimpleString address, final int maxRate) throws HornetQException
+   private ClientProducer internalCreateProducer(final SimpleString address, final int maxRate) throws ActiveMQException
    {
       checkClosed();
 
@@ -1736,7 +1736,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     final SimpleString queueName,
                                     final SimpleString filterString,
                                     final boolean durable,
-                                    final boolean temp) throws HornetQException
+                                    final boolean temp) throws ActiveMQException
    {
       checkClosed();
 
@@ -1765,7 +1765,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   private void checkClosed() throws HornetQException
+   private void checkClosed() throws ActiveMQException
    {
       if (closed || inClose)
       {
@@ -1799,7 +1799,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       sessionFactory.removeSession(this, failingOver);
    }
 
-   private void cleanUpChildren() throws HornetQException
+   private void cleanUpChildren() throws ActiveMQException
    {
       Set<ClientConsumerInternal> consumersClone = cloneConsumers();
 
@@ -1845,7 +1845,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   private void closeChildren() throws HornetQException
+   private void closeChildren() throws ActiveMQException
    {
       Set<ClientConsumerInternal> consumersClone = cloneConsumers();
 
@@ -1862,7 +1862,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   private void flushAcks() throws HornetQException
+   private void flushAcks() throws ActiveMQException
    {
       for (ClientConsumerInternal consumer : cloneConsumers())
       {
@@ -1882,7 +1882,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     */
    public static Object convert(Xid xid)
    {
-      HornetQBuffer buffer = HornetQBuffers.dynamicBuffer(200);
+      ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(200);
       XidCodecSupport.encodeXid(xid, buffer);
 
       Object obj = XidCodecSupport.decodeXid(buffer);

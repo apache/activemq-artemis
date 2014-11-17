@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.client;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -61,7 +61,7 @@ public class ProducerTest extends ServiceTestBase
       final CountDownLatch latch = new CountDownLatch(1);
       server.getRemotingService().addIncomingInterceptor(new Interceptor()
       {
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
          {
             if (packet.getType() == PacketImpl.SESS_SEND)
             {

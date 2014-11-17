@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.utils.DataConstants;
 
 /**
@@ -80,7 +80,7 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
    // Public --------------------------------------------------------
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       super.encodeRest(buffer);
       buffer.writeLong(consumerID);
@@ -102,7 +102,7 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
 
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       super.decodeRest(buffer);
       consumerID = buffer.readLong();

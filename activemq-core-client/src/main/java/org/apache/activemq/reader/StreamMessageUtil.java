@@ -13,7 +13,7 @@
 
 package org.apache.activemq.reader;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.utils.DataConstants;
@@ -33,7 +33,7 @@ public class StreamMessageUtil extends MessageUtil
     */
    public static boolean streamReadBoolean(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
 
       switch (type)
@@ -51,7 +51,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static byte streamReadByte(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       int index = buff.readerIndex();
       try
       {
@@ -77,7 +77,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static short streamReadShort(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
       switch (type)
       {
@@ -95,7 +95,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static char streamReadChar(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
       switch (type)
       {
@@ -119,7 +119,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static int streamReadInteger(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
       switch (type)
       {
@@ -140,7 +140,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static long streamReadLong(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
       switch (type)
       {
@@ -162,7 +162,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static float streamReadFloat(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
       switch (type)
       {
@@ -179,7 +179,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static double streamReadDouble(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
       switch (type)
       {
@@ -198,7 +198,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static String streamReadString(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
       switch (type)
       {
@@ -234,7 +234,7 @@ public class StreamMessageUtil extends MessageUtil
     */
    public static Pair<Integer, Integer> streamReadBytes(Message message, int remainingBytes, byte[] value)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
 
       if (remainingBytes == -1)
       {
@@ -262,7 +262,7 @@ public class StreamMessageUtil extends MessageUtil
 
    public static Object streamReadObject(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
 
       byte type = buff.readByte();
       switch (type)

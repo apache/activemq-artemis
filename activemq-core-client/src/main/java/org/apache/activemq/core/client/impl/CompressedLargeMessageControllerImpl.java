@@ -18,9 +18,9 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.utils.DataConstants;
@@ -69,12 +69,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       bufferDelegate.cancel();
    }
 
-   public void setOutputStream(final OutputStream output) throws HornetQException
+   public void setOutputStream(final OutputStream output) throws ActiveMQException
    {
       bufferDelegate.setOutputStream(new InflaterWriter(output));
    }
 
-   public synchronized void saveBuffer(final OutputStream output) throws HornetQException
+   public synchronized void saveBuffer(final OutputStream output) throws ActiveMQException
    {
       setOutputStream(output);
       waitCompletion(0);
@@ -83,7 +83,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    /**
     * @param timeWait Milliseconds to Wait. 0 means forever
     */
-   public synchronized boolean waitCompletion(final long timeWait) throws HornetQException
+   public synchronized boolean waitCompletion(final long timeWait) throws ActiveMQException
    {
       return bufferDelegate.waitCompletion(timeWait);
    }
@@ -140,7 +140,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    }
 
    @Override
-   public void getBytes(final int index, final HornetQBuffer dst, final int dstIndex, final int length)
+   public void getBytes(final int index, final ActiveMQBuffer dst, final int dstIndex, final int length)
    {
       positioningNotSupported();
    }
@@ -185,7 +185,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    }
 
    @Override
-   public void setBytes(final int index, final HornetQBuffer src, final int srcIndex, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
@@ -330,12 +330,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
-   public void getBytes(final int index, final HornetQBuffer dst)
+   public void getBytes(final int index, final ActiveMQBuffer dst)
    {
       getBytes(index, dst, dst.writableBytes());
    }
 
-   public void getBytes(final int index, final HornetQBuffer dst, final int length)
+   public void getBytes(final int index, final ActiveMQBuffer dst, final int length)
    {
       if (length > dst.writableBytes())
       {
@@ -350,12 +350,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public void setBytes(final int index, final HornetQBuffer src)
+   public void setBytes(final int index, final ActiveMQBuffer src)
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public void setBytes(final int index, final HornetQBuffer src, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int length)
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
@@ -446,12 +446,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       readBytes(dst, 0, dst.length);
    }
 
-   public void readBytes(final HornetQBuffer dst)
+   public void readBytes(final ActiveMQBuffer dst)
    {
       readBytes(dst, dst.writableBytes());
    }
 
-   public void readBytes(final HornetQBuffer dst, final int length)
+   public void readBytes(final ActiveMQBuffer dst, final int length)
    {
       if (length > dst.writableBytes())
       {
@@ -461,7 +461,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       dst.writerIndex(dst.writerIndex() + length);
    }
 
-   public void readBytes(final HornetQBuffer dst, final int dstIndex, final int length)
+   public void readBytes(final ActiveMQBuffer dst, final int dstIndex, final int length)
    {
       byte[] destBytes = new byte[length];
       readBytes(destBytes);
@@ -521,7 +521,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public void writeBytes(final HornetQBuffer src, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int length)
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
@@ -568,11 +568,11 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       return Float.intBitsToFloat(getInt(index));
    }
 
-   public HornetQBuffer readBytes(final int length)
+   public ActiveMQBuffer readBytes(final int length)
    {
       byte[] bytesToGet = new byte[length];
       readBytes(bytesToGet);
-      return HornetQBuffers.wrappedBuffer(bytesToGet);
+      return ActiveMQBuffers.wrappedBuffer(bytesToGet);
    }
 
    @Override
@@ -710,12 +710,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public HornetQBuffer copy()
+   public ActiveMQBuffer copy()
    {
       throw new UnsupportedOperationException();
    }
 
-   public HornetQBuffer slice(final int index, final int length)
+   public ActiveMQBuffer slice(final int index, final int length)
    {
       throw new UnsupportedOperationException();
    }
@@ -727,17 +727,17 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       return null;
    }
 
-   public HornetQBuffer copy(final int index, final int length)
+   public ActiveMQBuffer copy(final int index, final int length)
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public HornetQBuffer duplicate()
+   public ActiveMQBuffer duplicate()
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public HornetQBuffer readSlice(final int length)
+   public ActiveMQBuffer readSlice(final int length)
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
@@ -757,12 +757,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public HornetQBuffer slice()
+   public ActiveMQBuffer slice()
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public void writeBytes(final HornetQBuffer src, final int srcIndex, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }

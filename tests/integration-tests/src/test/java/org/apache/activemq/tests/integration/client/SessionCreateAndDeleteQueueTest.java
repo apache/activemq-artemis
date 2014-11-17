@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -139,11 +139,11 @@ public class SessionCreateAndDeleteQueueTest extends ServiceTestBase
          session.deleteQueue(queueName);
          Assert.fail("should throw exception");
       }
-      catch (HornetQNonExistentQueueException neqe)
+      catch (ActiveMQNonExistentQueueException neqe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

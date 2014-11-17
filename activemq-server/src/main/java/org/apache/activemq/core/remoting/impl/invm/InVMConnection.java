@@ -20,9 +20,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelFutureListener;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.security.HornetQPrincipal;
 import org.apache.activemq.core.server.HornetQServerLogger;
@@ -138,9 +138,9 @@ public class InVMConnection implements Connection
       }
    }
 
-   public HornetQBuffer createBuffer(final int size)
+   public ActiveMQBuffer createBuffer(final int size)
    {
-      return HornetQBuffers.dynamicBuffer(size);
+      return ActiveMQBuffers.dynamicBuffer(size);
    }
 
    public Object getID()
@@ -152,19 +152,19 @@ public class InVMConnection implements Connection
    {
    }
 
-   public void write(final HornetQBuffer buffer)
+   public void write(final ActiveMQBuffer buffer)
    {
       write(buffer, false, false, null);
    }
 
-   public void write(final HornetQBuffer buffer, final boolean flush, final boolean batch)
+   public void write(final ActiveMQBuffer buffer, final boolean flush, final boolean batch)
    {
       write(buffer, flush, batch, null);
    }
 
-   public void write(final HornetQBuffer buffer, final boolean flush, final boolean batch, final ChannelFutureListener futureListener)
+   public void write(final ActiveMQBuffer buffer, final boolean flush, final boolean batch, final ChannelFutureListener futureListener)
    {
-      final HornetQBuffer copied = buffer.copy(0, buffer.capacity());
+      final ActiveMQBuffer copied = buffer.copy(0, buffer.capacity());
 
       copied.setIndex(buffer.readerIndex(), buffer.writerIndex());
 
@@ -227,7 +227,7 @@ public class InVMConnection implements Connection
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
       }

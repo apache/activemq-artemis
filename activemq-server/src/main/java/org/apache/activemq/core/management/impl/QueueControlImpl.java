@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.MessageCounterInfo;
@@ -506,7 +506,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
             iterator.close();
          }
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new IllegalStateException(e.getMessage());
       }
@@ -613,7 +613,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
       {
          return queue.deleteReference(messageID);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new IllegalStateException(e.getMessage());
       }
@@ -670,7 +670,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
          Filter filter = FilterImpl.createFilter(filterStr);
          return queue.expireReferences(filter);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new IllegalStateException(e.getMessage());
       }

@@ -20,7 +20,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.impl.MessageInternal;
@@ -131,7 +131,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          TypedProperties.setObjectProperty(new SimpleString(name), value, map);
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -143,7 +143,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getBooleanProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -155,7 +155,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getByteProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -167,7 +167,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getShortProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -179,7 +179,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getCharProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -191,7 +191,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getIntProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -203,7 +203,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getLongProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -215,7 +215,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getFloatProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -227,7 +227,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getDoubleProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -247,7 +247,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
             return str.toString();
          }
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -259,7 +259,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       {
          return map.getBytesProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }

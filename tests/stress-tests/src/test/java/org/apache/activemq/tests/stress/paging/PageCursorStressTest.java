@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.filter.Filter;
@@ -422,7 +422,7 @@ public class PageCursorStressTest extends ServiceTestBase
          // if (i % 100 == 0)
          System.out.println("read/written " + i);
 
-         HornetQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
+         ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
 
          ServerMessage msg = new ServerMessageImpl(i, buffer.writerIndex());
          msg.putIntProperty("key", i);
@@ -457,7 +457,7 @@ public class PageCursorStressTest extends ServiceTestBase
          if (i >= NUM_MESSAGES)
          {
 
-            HornetQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
+            ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
 
             ServerMessage msg = new ServerMessageImpl(i, buffer.writerIndex());
             msg.putIntProperty("key", i);
@@ -489,7 +489,7 @@ public class PageCursorStressTest extends ServiceTestBase
          if (i >= NUM_MESSAGES * 2 - 1)
          {
 
-            HornetQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
+            ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
 
             ServerMessage msg = new ServerMessageImpl(i, buffer.writerIndex());
             msg.putIntProperty("key", i + 1);
@@ -585,7 +585,7 @@ public class PageCursorStressTest extends ServiceTestBase
                   for (int i = 0; i < MSGS_TX; i++)
                   {
                      //System.out.println("Sending " + count);
-                     HornetQBuffer buffer = RandomUtil.randomBuffer(messageSize, count);
+                     ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, count);
 
                      ServerMessage msg = new ServerMessageImpl(i, buffer.writerIndex());
                      msg.putIntProperty("key", count++);
@@ -829,7 +829,7 @@ public class PageCursorStressTest extends ServiceTestBase
       {
          if (i % 100 == 0)
             System.out.println("Paged " + i);
-         HornetQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
+         ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
 
          ServerMessage msg = new ServerMessageImpl(i, buffer.writerIndex());
          msg.putIntProperty("key", i);
@@ -953,7 +953,7 @@ public class PageCursorStressTest extends ServiceTestBase
 
       for (int i = start; i < start + NUM_MESSAGES; i++)
       {
-         HornetQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
+         ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
          ServerMessage msg = new ServerMessageImpl(storage.generateID(), buffer.writerIndex());
          msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());
          msg.putIntProperty("key", i);

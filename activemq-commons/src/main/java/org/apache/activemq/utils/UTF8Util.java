@@ -14,7 +14,7 @@ package org.apache.activemq.utils;
 
 import java.lang.ref.SoftReference;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 /**
  *
@@ -40,7 +40,7 @@ public final class UTF8Util
    private static final ThreadLocal<SoftReference<StringUtilBuffer>> currenBuffer =
             new ThreadLocal<SoftReference<StringUtilBuffer>>();
 
-   public static void saveUTF(final HornetQBuffer out, final String str)
+   public static void saveUTF(final ActiveMQBuffer out, final String str)
    {
       StringUtilBuffer buffer = UTF8Util.getThreadLocalBuffer();
 
@@ -106,7 +106,7 @@ public final class UTF8Util
       }
    }
 
-   public static String readUTF(final HornetQBuffer input)
+   public static String readUTF(final ActiveMQBuffer input)
    {
       StringUtilBuffer buffer = UTF8Util.getThreadLocalBuffer();
 

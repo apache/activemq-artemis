@@ -21,7 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -94,7 +94,7 @@ public class HornetQObjectMessage extends HornetQMessage implements ObjectMessag
    }
 
    @Override
-   public void doBeforeReceive() throws HornetQException
+   public void doBeforeReceive() throws ActiveMQException
    {
       super.doBeforeReceive();
       try

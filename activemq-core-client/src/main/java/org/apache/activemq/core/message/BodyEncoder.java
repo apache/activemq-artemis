@@ -14,8 +14,8 @@ package org.apache.activemq.core.message;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  * Class used to encode message body into buffers.
@@ -30,22 +30,22 @@ public interface BodyEncoder
    /**
     * This method must not be called directly by HornetQ clients.
     */
-   void open() throws HornetQException;
+   void open() throws ActiveMQException;
 
    /**
     * This method must not be called directly by HornetQ clients.
     */
-   void close() throws HornetQException;
+   void close() throws ActiveMQException;
 
    /**
     * This method must not be called directly by HornetQ clients.
     */
-   int encode(ByteBuffer bufferRead) throws HornetQException;
+   int encode(ByteBuffer bufferRead) throws ActiveMQException;
 
    /**
     * This method must not be called directly by HornetQ clients.
     */
-   int encode(HornetQBuffer bufferOut, int size) throws HornetQException;
+   int encode(ActiveMQBuffer bufferOut, int size) throws ActiveMQException;
 
    /**
     * This method must not be called directly by HornetQ clients.

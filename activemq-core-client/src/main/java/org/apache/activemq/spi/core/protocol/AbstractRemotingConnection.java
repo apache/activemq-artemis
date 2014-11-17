@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
 import org.apache.activemq.core.remoting.CloseListener;
@@ -52,7 +52,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
       return new ArrayList<FailureListener>(failureListeners);
    }
 
-   protected void callFailureListeners(final HornetQException me, String scaleDownTargetNodeID)
+   protected void callFailureListeners(final ActiveMQException me, String scaleDownTargetNodeID)
    {
       final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
 
@@ -62,7 +62,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
          {
             listener.connectionFailed(me, false, scaleDownTargetNodeID);
          }
-         catch (HornetQInterruptedException interrupted)
+         catch (ActiveMQInterruptedException interrupted)
          {
             // this is an expected behaviour.. no warn or error here
             HornetQClientLogger.LOGGER.debug("thread interrupted", interrupted);
@@ -179,7 +179,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
       closeListeners.addAll(listeners);
    }
 
-   public HornetQBuffer createBuffer(final int size)
+   public ActiveMQBuffer createBuffer(final int size)
    {
       return transportConnection.createBuffer(size);
    }
@@ -206,12 +206,12 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
-   public void fail(final HornetQException me)
+   public void fail(final ActiveMQException me)
    {
       fail(me, null);
    }
 
-   public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+   public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
    {
       dataReceived = true;
    }

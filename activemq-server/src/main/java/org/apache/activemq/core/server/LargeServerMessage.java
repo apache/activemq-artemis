@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.replication.ReplicatedLargeMessage;
 
@@ -47,7 +47,7 @@ public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessag
 
    /**
     * @return
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   SequentialFile getFile() throws HornetQException;
+   SequentialFile getFile() throws ActiveMQException;
 }

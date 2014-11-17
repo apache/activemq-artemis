@@ -18,10 +18,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.BroadcastEndpoint;
 import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.CoreNotificationType;
@@ -197,7 +197,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
 
    public synchronized void broadcastConnectors() throws Exception
    {
-      HornetQBuffer buff = HornetQBuffers.dynamicBuffer(4096);
+      ActiveMQBuffer buff = ActiveMQBuffers.dynamicBuffer(4096);
 
       buff.writeString(nodeManager.getNodeId().toString());
 

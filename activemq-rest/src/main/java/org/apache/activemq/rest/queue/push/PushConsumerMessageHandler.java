@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.rest.queue.push;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.MessageHandler;
@@ -39,7 +39,7 @@ public class PushConsumerMessageHandler implements MessageHandler
          clientMessage.acknowledge();
          HornetQRestLogger.LOGGER.debug(this + ": acknowledged " + clientMessage);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new RuntimeException(e.getMessage(), e);
       }
@@ -55,7 +55,7 @@ public class PushConsumerMessageHandler implements MessageHandler
             session.commit();
             return;
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new RuntimeException(e);
          }
@@ -66,7 +66,7 @@ public class PushConsumerMessageHandler implements MessageHandler
          {
             session.rollback();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new RuntimeException(e.getMessage(), e);
          }

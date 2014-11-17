@@ -26,11 +26,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
@@ -268,7 +268,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
       }
    }
 
-   public void setOutputStream(final OutputStream output) throws HornetQException
+   public void setOutputStream(final OutputStream output) throws ActiveMQException
    {
 
       int totalFlowControl = 0;
@@ -304,7 +304,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
       }
    }
 
-   public synchronized void saveBuffer(final OutputStream output) throws HornetQException
+   public synchronized void saveBuffer(final OutputStream output) throws ActiveMQException
    {
       if (streamClosed)
       {
@@ -316,9 +316,9 @@ public class LargeMessageControllerImpl implements LargeMessageController
 
    /**
     * @param timeWait Milliseconds to Wait. 0 means forever
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   public synchronized boolean waitCompletion(final long timeWait) throws HornetQException
+   public synchronized boolean waitCompletion(final long timeWait) throws ActiveMQException
    {
       if (outStream == null)
       {
@@ -347,23 +347,17 @@ public class LargeMessageControllerImpl implements LargeMessageController
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
 
          if (!streamEnded && handledException == null)
          {
             if (timeWait != 0 && System.currentTimeMillis() > timeOut)
             {
-
-               // TODO: what to do here?
-               //throw new HornetQException(HornetQException.LARGE_MESSAGE_ERROR_BODY,
-               //         "Timeout waiting for LargeMessage Body");
                throw HornetQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
             }
             else if (System.currentTimeMillis() > timeOut && !packetAdded)
             {
-               // throw new HornetQException(HornetQException.LARGE_MESSAGE_ERROR_BODY,
-               //                           "No packets have arrived within " + readTimeout + " milliseconds");
                throw HornetQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
             }
          }
@@ -376,21 +370,21 @@ public class LargeMessageControllerImpl implements LargeMessageController
    }
 
    /**
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void checkException() throws HornetQException
+   private void checkException() throws ActiveMQException
    {
       // it's not needed to copy it as we never set it back to null
       // once the exception is set, the controller is pretty much useless
       if (handledException != null)
       {
-         if (handledException instanceof HornetQException)
+         if (handledException instanceof ActiveMQException)
          {
-            throw (HornetQException)handledException;
+            throw (ActiveMQException)handledException;
          }
          else
          {
-            throw new HornetQException(HornetQExceptionType.LARGE_MESSAGE_ERROR_BODY,
+            throw new ActiveMQException(ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY,
                                        "Error on saving LargeMessageBufferImpl",
                                        handledException);
          }
@@ -431,14 +425,14 @@ public class LargeMessageControllerImpl implements LargeMessageController
    }
 
    @Override
-   public void getBytes(final int index, final HornetQBuffer dst, final int dstIndex, final int length)
+   public void getBytes(final int index, final ActiveMQBuffer dst, final int dstIndex, final int length)
    {
       byte[] destBytes = new byte[length];
       getBytes(index, destBytes);
       dst.setBytes(dstIndex, destBytes);
    }
 
-   private void getBytes(final long index, final HornetQBuffer dst, final int dstIndex, final int length)
+   private void getBytes(final long index, final ActiveMQBuffer dst, final int dstIndex, final int length)
    {
       byte[] destBytes = new byte[length];
       getBytes(index, destBytes);
@@ -565,7 +559,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
    }
 
    @Override
-   public void setBytes(final int index, final HornetQBuffer src, final int srcIndex, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -763,12 +757,12 @@ public class LargeMessageControllerImpl implements LargeMessageController
       }
    }
 
-   public void getBytes(final int index, final HornetQBuffer dst)
+   public void getBytes(final int index, final ActiveMQBuffer dst)
    {
       getBytes(index, dst, dst.writableBytes());
    }
 
-   public void getBytes(final int index, final HornetQBuffer dst, final int length)
+   public void getBytes(final int index, final ActiveMQBuffer dst, final int length)
    {
       if (length > dst.writableBytes())
       {
@@ -783,12 +777,12 @@ public class LargeMessageControllerImpl implements LargeMessageController
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public void setBytes(final int index, final HornetQBuffer src)
+   public void setBytes(final int index, final ActiveMQBuffer src)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public void setBytes(final int index, final HornetQBuffer src, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int length)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -868,12 +862,12 @@ public class LargeMessageControllerImpl implements LargeMessageController
       readBytes(dst, 0, dst.length);
    }
 
-   public void readBytes(final HornetQBuffer dst)
+   public void readBytes(final ActiveMQBuffer dst)
    {
       readBytes(dst, dst.writableBytes());
    }
 
-   public void readBytes(final HornetQBuffer dst, final int length)
+   public void readBytes(final ActiveMQBuffer dst, final int length)
    {
       if (length > dst.writableBytes())
       {
@@ -883,7 +877,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
       dst.writerIndex(dst.writerIndex() + length);
    }
 
-   public void readBytes(final HornetQBuffer dst, final int dstIndex, final int length)
+   public void readBytes(final ActiveMQBuffer dst, final int dstIndex, final int length)
    {
       getBytes(readerIndex, dst, dstIndex, length);
       readerIndex += length;
@@ -952,12 +946,12 @@ public class LargeMessageControllerImpl implements LargeMessageController
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public void writeBytes(final HornetQBuffer src)
+   public void writeBytes(final ActiveMQBuffer src)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public void writeBytes(final HornetQBuffer src, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int length)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -1034,12 +1028,12 @@ public class LargeMessageControllerImpl implements LargeMessageController
       return Float.intBitsToFloat(getInt(index));
    }
 
-   public HornetQBuffer readBytes(final int length)
+   public ActiveMQBuffer readBytes(final int length)
    {
       byte[] bytesToGet = new byte[length];
       getBytes(readerIndex, bytesToGet);
       readerIndex += length;
-      return HornetQBuffers.wrappedBuffer(bytesToGet);
+      return ActiveMQBuffers.wrappedBuffer(bytesToGet);
    }
 
    @Override
@@ -1177,12 +1171,12 @@ public class LargeMessageControllerImpl implements LargeMessageController
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public HornetQBuffer copy()
+   public ActiveMQBuffer copy()
    {
       throw new UnsupportedOperationException();
    }
 
-   public HornetQBuffer slice(final int index, final int length)
+   public ActiveMQBuffer slice(final int index, final int length)
    {
       throw new UnsupportedOperationException();
    }
@@ -1190,9 +1184,9 @@ public class LargeMessageControllerImpl implements LargeMessageController
    /**
     * @param output
     * @param packet
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void sendPacketToOutput(final OutputStream output, final LargeData packet) throws HornetQException
+   private void sendPacketToOutput(final OutputStream output, final LargeData packet) throws ActiveMQException
    {
       try
       {
@@ -1427,17 +1421,17 @@ public class LargeMessageControllerImpl implements LargeMessageController
       return null;
    }
 
-   public HornetQBuffer copy(final int index, final int length)
+   public ActiveMQBuffer copy(final int index, final int length)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public HornetQBuffer duplicate()
+   public ActiveMQBuffer duplicate()
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public HornetQBuffer readSlice(final int length)
+   public ActiveMQBuffer readSlice(final int length)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -1457,12 +1451,12 @@ public class LargeMessageControllerImpl implements LargeMessageController
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public HornetQBuffer slice()
+   public ActiveMQBuffer slice()
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public void writeBytes(final HornetQBuffer src, final int srcIndex, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }

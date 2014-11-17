@@ -15,7 +15,7 @@ package org.apache.activemq.core.remoting.impl.netty;
 import java.util.Map;
 
 import io.netty.channel.Channel;
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 
@@ -30,7 +30,7 @@ public class NettyServerConnection extends NettyConnection
    }
 
    @Override
-   public HornetQBuffer createBuffer(int size)
+   public ActiveMQBuffer createBuffer(int size)
    {
       return new ChannelBufferWrapper(channel.alloc().directBuffer(size), true);
    }

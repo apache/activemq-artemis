@@ -12,12 +12,12 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -58,7 +58,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase
       Interceptor interceptorClient = new Interceptor()
       {
          AtomicInteger count = new AtomicInteger(0);
-         public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
          {
             log.debug("Intercept..." + packet.getClass().getName());
 

@@ -30,6 +30,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.jms.JMSSecurityException;
 import javax.jms.ResourceAllocationException;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQSecurityException;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.BrokerInfo;
@@ -75,10 +79,6 @@ import org.apache.activemq.thread.TaskRunnerFactory;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.wireformat.WireFormat;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQSecurityException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.openwire.amq.AMQBrokerStoppedException;
 import org.apache.activemq.core.protocol.openwire.amq.AMQConnectionContext;
@@ -196,7 +196,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void bufferReceived(Object connectionID, HornetQBuffer buffer)
+   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer)
    {
       try
       {
@@ -436,13 +436,13 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public HornetQBuffer createBuffer(int size)
+   public ActiveMQBuffer createBuffer(int size)
    {
-      return HornetQBuffers.dynamicBuffer(size);
+      return ActiveMQBuffers.dynamicBuffer(size);
    }
 
    @Override
-   public void fail(HornetQException me)
+   public void fail(ActiveMQException me)
    {
       HornetQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(),
             me.getType());
@@ -527,7 +527,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    {
    }
 
-   private void callFailureListeners(final HornetQException me)
+   private void callFailureListeners(final ActiveMQException me)
    {
       final List<FailureListener> listenersClone = new ArrayList<FailureListener>(
             failureListeners);
@@ -586,7 +586,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       try
       {
          ByteSequence bytes = wireFormat.marshal(command);
-         HornetQBuffer buffer = OpenWireUtil.toHornetQBuffer(bytes);
+         ActiveMQBuffer buffer = OpenWireUtil.toHornetQBuffer(bytes);
          synchronized (sendLock)
          {
             getTransportConnection().write(buffer, false, false);
@@ -1115,7 +1115,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       catch (Exception e)
       {
-         if (e instanceof HornetQSecurityException)
+         if (e instanceof ActiveMQSecurityException)
          {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
@@ -1225,7 +1225,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       catch (Exception e)
       {
-         if (e instanceof HornetQSecurityException)
+         if (e instanceof ActiveMQSecurityException)
          {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
@@ -1416,7 +1416,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       catch (Exception e)
       {
-         if (e instanceof HornetQSecurityException)
+         if (e instanceof ActiveMQSecurityException)
          {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
@@ -1743,7 +1743,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void fail(HornetQException e, String message)
+   public void fail(ActiveMQException e, String message)
    {
       destroy();
    }

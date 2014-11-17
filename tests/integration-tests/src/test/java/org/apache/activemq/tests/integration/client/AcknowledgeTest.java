@@ -17,9 +17,9 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -159,13 +159,13 @@ public class AcknowledgeTest extends ServiceTestBase
             {
                message.acknowledge();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                try
                {
                   session.close();
                }
-               catch (HornetQException e1)
+               catch (ActiveMQException e1)
                {
                   e1.printStackTrace();
                }
@@ -302,13 +302,13 @@ public class AcknowledgeTest extends ServiceTestBase
                {
                   message.acknowledge();
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   try
                   {
                      session.close();
                   }
-                  catch (HornetQException e1)
+                  catch (ActiveMQException e1)
                   {
                      e1.printStackTrace();
                   }
@@ -341,37 +341,37 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public ClientMessage receive() throws HornetQException
+      public ClientMessage receive() throws ActiveMQException
       {
          return null;
       }
 
       @Override
-      public ClientMessage receive(long timeout) throws HornetQException
+      public ClientMessage receive(long timeout) throws ActiveMQException
       {
          return null;
       }
 
       @Override
-      public ClientMessage receiveImmediate() throws HornetQException
+      public ClientMessage receiveImmediate() throws ActiveMQException
       {
          return null;
       }
 
       @Override
-      public MessageHandler getMessageHandler() throws HornetQException
+      public MessageHandler getMessageHandler() throws ActiveMQException
       {
          return null;
       }
 
       @Override
-      public FakeConsumerWithID setMessageHandler(MessageHandler handler) throws HornetQException
+      public FakeConsumerWithID setMessageHandler(MessageHandler handler) throws ActiveMQException
       {
          return this;
       }
 
       @Override
-      public void close() throws HornetQException
+      public void close() throws ActiveMQException
       {
 
       }
@@ -502,13 +502,13 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public HornetQBuffer getBodyBuffer()
+      public ActiveMQBuffer getBodyBuffer()
       {
          return null;
       }
 
       @Override
-      public HornetQBuffer getBodyBufferCopy()
+      public ActiveMQBuffer getBodyBufferCopy()
       {
          return null;
       }
@@ -634,13 +634,13 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public Message putObjectProperty(SimpleString key, Object value) throws HornetQPropertyConversionException
+      public Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Message putObjectProperty(String key, Object value) throws HornetQPropertyConversionException
+      public Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException
       {
          return null;
       }
@@ -670,61 +670,61 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public Boolean getBooleanProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Boolean getBooleanProperty(String key) throws HornetQPropertyConversionException
+      public Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Byte getByteProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Byte getByteProperty(String key) throws HornetQPropertyConversionException
+      public Byte getByteProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Double getDoubleProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Double getDoubleProperty(String key) throws HornetQPropertyConversionException
+      public Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Integer getIntProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Integer getIntProperty(String key) throws HornetQPropertyConversionException
+      public Integer getIntProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Long getLongProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Long getLongProperty(String key) throws HornetQPropertyConversionException
+      public Long getLongProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
@@ -742,61 +742,61 @@ public class AcknowledgeTest extends ServiceTestBase
       }
 
       @Override
-      public Short getShortProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Short getShortProperty(String key) throws HornetQPropertyConversionException
+      public Short getShortProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Float getFloatProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Float getFloatProperty(String key) throws HornetQPropertyConversionException
+      public Float getFloatProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public String getStringProperty(SimpleString key) throws HornetQPropertyConversionException
+      public String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public String getStringProperty(String key) throws HornetQPropertyConversionException
+      public String getStringProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public SimpleString getSimpleStringProperty(SimpleString key) throws HornetQPropertyConversionException
+      public SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public SimpleString getSimpleStringProperty(String key) throws HornetQPropertyConversionException
+      public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public byte[] getBytesProperty(SimpleString key) throws HornetQPropertyConversionException
+      public byte[] getBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return new byte[0];
       }
 
       @Override
-      public byte[] getBytesProperty(String key) throws HornetQPropertyConversionException
+      public byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException
       {
          return new byte[0];
       }

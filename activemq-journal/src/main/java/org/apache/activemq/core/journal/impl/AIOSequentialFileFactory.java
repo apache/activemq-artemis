@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.core.asyncio.BufferCallback;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.journal.IOCriticalErrorListener;
@@ -181,7 +181,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    {
       super.start();
 
-      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("HornetQ-AIO-poller-pool" + System.identityHashCode(this),
+      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
                                                                               true,
                                                                               AIOSequentialFileFactory.getThisClassLoader()));
 
@@ -205,7 +205,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
       }
 

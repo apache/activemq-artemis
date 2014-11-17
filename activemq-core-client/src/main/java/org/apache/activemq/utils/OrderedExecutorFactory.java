@@ -15,7 +15,7 @@ package org.apache.activemq.utils;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.core.client.HornetQClientLogger;
 
 
@@ -103,7 +103,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory
                   {
                      task.run();
                   }
-                  catch (HornetQInterruptedException e)
+                  catch (ActiveMQInterruptedException e)
                   {
                      // This could happen during shutdowns. Nothing to be concerned about here
                      HornetQClientLogger.LOGGER.debug("Interrupted Thread", e);

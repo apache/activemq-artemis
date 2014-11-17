@@ -104,7 +104,7 @@ public class JournalRestartStressTest extends ServiceTestBase
    /**
     * @param sf
     * @param NMSGS
-    * @throws HornetQException
+    * @throws ActiveMQException
     * @throws InterruptedException
     * @throws Throwable
     */

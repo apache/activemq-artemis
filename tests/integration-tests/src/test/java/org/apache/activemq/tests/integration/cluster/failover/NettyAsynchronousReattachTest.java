@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -36,7 +36,7 @@ public class NettyAsynchronousReattachTest extends NettyAsynchronousFailoverTest
       {
          log.debug("Crashing session " + session);
          ClientSessionInternal internalSession = (ClientSessionInternal) session;
-         internalSession.getConnection().fail(new HornetQNotConnectedException("oops"));
+         internalSession.getConnection().fail(new ActiveMQNotConnectedException("oops"));
       }
    }
 }

@@ -14,7 +14,7 @@ package org.apache.activemq.core.protocol.core;
 
 import java.util.concurrent.locks.Lock;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  * A channel is a way of interleaving data meant for different endpoints over the same {@link org.apache.activemq.core.protocol.core.CoreRemotingConnection}.
@@ -69,9 +69,9 @@ public interface Channel
     * @param packet the packet to send
     * @param expectedPacket the packet being expected.
     * @return the response
-    * @throws HornetQException if an error occurs during the send
+    * @throws org.apache.activemq.api.core.ActiveMQException if an error occurs during the send
     */
-   Packet sendBlocking(Packet packet, byte expectedPacket) throws HornetQException;
+   Packet sendBlocking(Packet packet, byte expectedPacket) throws ActiveMQException;
 
    /**
     * Sets the {@link org.apache.activemq.core.protocol.core.ChannelHandler} that this channel should

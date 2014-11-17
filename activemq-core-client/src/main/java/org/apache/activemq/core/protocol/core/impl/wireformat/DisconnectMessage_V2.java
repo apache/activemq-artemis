@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 
 public class DisconnectMessage_V2 extends DisconnectMessage
@@ -41,14 +41,14 @@ public class DisconnectMessage_V2 extends DisconnectMessage
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       super.encodeRest(buffer);
       buffer.writeNullableSimpleString(scaleDownNodeID);
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       super.decodeRest(buffer);
       scaleDownNodeID = buffer.readNullableSimpleString();

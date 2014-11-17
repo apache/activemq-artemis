@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.cluster.qourum;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 import java.util.Map;
 
@@ -46,13 +46,13 @@ public final class BooleanVote extends Vote<Boolean>
    }
 
    @Override
-   public void encode(HornetQBuffer buff)
+   public void encode(ActiveMQBuffer buff)
    {
       buff.writeBoolean(vote);
    }
 
    @Override
-   public void decode(HornetQBuffer buff)
+   public void decode(ActiveMQBuffer buff)
    {
       vote = buff.readBoolean();
    }

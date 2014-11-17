@@ -16,8 +16,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIncompatibleClientServerException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIncompatibleClientServerException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
@@ -178,11 +178,11 @@ public class IncompatibleVersionTest extends ServiceTestBase
             channel1.sendBlocking(request, PacketImpl.CREATESESSION_RESP);
             fail();
          }
-         catch (HornetQIncompatibleClientServerException icsv)
+         catch (ActiveMQIncompatibleClientServerException icsv)
          {
             //ok
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             fail("Invalid Exception type:" + e.getType());
          }

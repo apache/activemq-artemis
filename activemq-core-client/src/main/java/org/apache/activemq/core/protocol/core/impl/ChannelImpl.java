@@ -21,9 +21,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
@@ -240,7 +240,7 @@ public final class ChannelImpl implements Channel
             HornetQClientLogger.LOGGER.trace("Sending packet nonblocking " + packet + " on channeID=" + id);
          }
 
-         HornetQBuffer buffer = packet.encode(connection);
+         ActiveMQBuffer buffer = packet.encode(connection);
 
          lock.lock();
 
@@ -255,7 +255,7 @@ public final class ChannelImpl implements Channel
                }
                catch (InterruptedException e)
                {
-                  throw new HornetQInterruptedException(e);
+                  throw new ActiveMQInterruptedException(e);
                }
             }
 
@@ -294,7 +294,7 @@ public final class ChannelImpl implements Channel
     * and the client could eventually retry another call, but the server could then answer a previous command issuing a class-cast-exception.
     * The expectedPacket will be used to filter out undesirable packets that would belong to previous calls.
     */
-   public Packet sendBlocking(final Packet packet, byte expectedPacket) throws HornetQException
+   public Packet sendBlocking(final Packet packet, byte expectedPacket) throws ActiveMQException
    {
       String interceptionResult = invokeInterceptors(packet, interceptors, connection);
 
@@ -320,7 +320,7 @@ public final class ChannelImpl implements Channel
       {
          packet.setChannelID(id);
 
-         final HornetQBuffer buffer = packet.encode(connection);
+         final ActiveMQBuffer buffer = packet.encode(connection);
 
          lock.lock();
 
@@ -347,7 +347,7 @@ public final class ChannelImpl implements Channel
                }
                catch (InterruptedException e)
                {
-                  throw new HornetQInterruptedException(e);
+                  throw new ActiveMQInterruptedException(e);
                }
             }
 
@@ -373,7 +373,7 @@ public final class ChannelImpl implements Channel
                }
                catch (InterruptedException e)
                {
-                  throw new HornetQInterruptedException(e);
+                  throw new ActiveMQInterruptedException(e);
                }
 
                if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket)
@@ -402,7 +402,7 @@ public final class ChannelImpl implements Channel
             {
                final HornetQExceptionMessage mem = (HornetQExceptionMessage) response;
 
-               HornetQException e = mem.getException();
+               ActiveMQException e = mem.getException();
 
                e.fillInStackTrace();
 
@@ -653,7 +653,7 @@ public final class ChannelImpl implements Channel
 
    private void doWrite(final Packet packet)
    {
-      final HornetQBuffer buffer = packet.encode(connection);
+      final ActiveMQBuffer buffer = packet.encode(connection);
 
       connection.getTransportConnection().write(buffer, false, false);
    }

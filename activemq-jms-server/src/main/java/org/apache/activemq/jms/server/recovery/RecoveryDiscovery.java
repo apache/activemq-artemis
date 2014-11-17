@@ -14,8 +14,8 @@ package org.apache.activemq.jms.server.recovery;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
@@ -176,9 +176,9 @@ public class RecoveryDiscovery implements SessionFailureListener
 
 
    @Override
-   public void connectionFailed(HornetQException exception, boolean failedOver)
+   public void connectionFailed(ActiveMQException exception, boolean failedOver)
    {
-      if (exception.getType() == HornetQExceptionType.DISCONNECTED)
+      if (exception.getType() == ActiveMQExceptionType.DISCONNECTED)
       {
          HornetQJMSServerLogger.LOGGER.warn("being disconnected for server shutdown", exception);
       }
@@ -192,13 +192,13 @@ public class RecoveryDiscovery implements SessionFailureListener
    }
 
    @Override
-   public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
    {
       connectionFailed(me, failedOver);
    }
 
    @Override
-   public void beforeReconnect(HornetQException exception)
+   public void beforeReconnect(ActiveMQException exception)
    {
    }
 

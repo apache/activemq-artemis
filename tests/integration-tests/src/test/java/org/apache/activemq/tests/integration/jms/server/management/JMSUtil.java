@@ -31,8 +31,8 @@ import javax.management.NotificationListener;
 import java.util.Collection;
 import java.util.Set;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Assert;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -222,18 +222,18 @@ public class JMSUtil
       class MyListener implements SessionFailureListener
       {
          @Override
-         public void connectionFailed(final HornetQException me, boolean failedOver)
+         public void connectionFailed(final ActiveMQException me, boolean failedOver)
          {
             latch.countDown();
          }
 
          @Override
-         public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
          {
             connectionFailed(me, failedOver);
          }
 
-         public void beforeReconnect(HornetQException exception)
+         public void beforeReconnect(ActiveMQException exception)
          {
             System.out.println("MyListener.beforeReconnect");
          }

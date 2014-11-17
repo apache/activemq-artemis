@@ -16,7 +16,7 @@ package org.apache.activemq.core.protocol;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.client.impl.ClientLargeMessageImpl;
 import org.apache.activemq.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.core.protocol.core.Packet;
@@ -33,7 +33,7 @@ public class ClientPacketDecoder extends PacketDecoder
    public static final ClientPacketDecoder INSTANCE = new ClientPacketDecoder();
 
    @Override
-   public  Packet decode(final HornetQBuffer in)
+   public  Packet decode(final ActiveMQBuffer in)
    {
       final byte packetType = in.readByte();
 

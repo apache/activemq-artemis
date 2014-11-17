@@ -20,8 +20,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -201,7 +201,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          TypedProperties.setObjectProperty(new SimpleString(name), value, map);
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -214,7 +214,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getBooleanProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -226,7 +226,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getByteProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -238,7 +238,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getShortProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -250,7 +250,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getCharProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -262,7 +262,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getIntProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -274,7 +274,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getLongProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -286,7 +286,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getFloatProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -298,7 +298,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getDoubleProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -318,7 +318,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
             return str.toString();
          }
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -330,7 +330,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
       {
          return map.getBytesProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          throw new MessageFormatException(e.getMessage());
       }
@@ -392,7 +392,7 @@ public final class HornetQMapMessage extends HornetQMessage implements MapMessag
    }
 
    @Override
-   public void doBeforeReceive() throws HornetQException
+   public void doBeforeReceive() throws ActiveMQException
    {
       super.doBeforeReceive();
 

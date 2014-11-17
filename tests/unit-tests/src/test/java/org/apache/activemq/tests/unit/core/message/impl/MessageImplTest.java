@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.impl.ClientMessageImpl;
@@ -311,7 +311,7 @@ public class MessageImplTest extends UnitTestCase
                try
                {
                   SessionSendMessage ssm = new SessionSendMessage(msg);
-                  HornetQBuffer buf = ssm.encode(null);
+                  ActiveMQBuffer buf = ssm.encode(null);
                   simulateRead(buf);
                }
                catch (Throwable e)
@@ -353,7 +353,7 @@ public class MessageImplTest extends UnitTestCase
    }
 
 
-   private void simulateRead(HornetQBuffer buf)
+   private void simulateRead(ActiveMQBuffer buf)
    {
       buf.setIndex(buf.capacity() / 2, buf.capacity() / 2);
 

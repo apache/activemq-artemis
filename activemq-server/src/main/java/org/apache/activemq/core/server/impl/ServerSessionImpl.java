@@ -38,8 +38,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -625,7 +625,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             {
                server.destroyQueue(bindingName, null, false);
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                // that's fine.. it can happen due to queue already been deleted
                HornetQServerLogger.LOGGER.debug(e.getMessage(), e);
@@ -637,13 +637,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          }
       }
 
-      public void connectionFailed(HornetQException exception, boolean failedOver)
+      public void connectionFailed(ActiveMQException exception, boolean failedOver)
       {
          run();
       }
 
       @Override
-      public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
       {
          connectionFailed(me, failedOver);
       }
@@ -667,7 +667,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (binding == null || binding.getType() != BindingType.LOCAL_QUEUE)
       {
-         throw new HornetQNonExistentQueueException();
+         throw new ActiveMQNonExistentQueueException();
       }
 
       server.destroyQueue(queueToDelete, this, true);
@@ -1224,7 +1224,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
 
          tx = newTransaction(xid);
-         tx.markAsRollbackOnly(new HornetQException("Can't commit as a Failover happened during the operation"));
+         tx.markAsRollbackOnly(new ActiveMQException("Can't commit as a Failover happened during the operation"));
 
          if (isTrace)
          {
@@ -1682,7 +1682,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    // --------------------------------------------------------------------
 
    @Override
-   public void connectionFailed(final HornetQException me, boolean failedOver)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver)
    {
       try
       {
@@ -1699,7 +1699,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    }
 
    @Override
-   public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
    {
       connectionFailed(me, failedOver);
    }
@@ -1738,7 +1738,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          securityStore.check(message.getAddress(), CheckType.MANAGE, this);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          if (!autoCommitSends)
          {
@@ -1822,7 +1822,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          securityStore.check(msg.getAddress(), CheckType.SEND, this);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          if (!autoCommitSends && tx != null)
          {

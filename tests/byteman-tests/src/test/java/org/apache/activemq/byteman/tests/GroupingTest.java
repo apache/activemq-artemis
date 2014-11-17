@@ -21,7 +21,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.jms.client.HornetQConnectionFactory;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.JMSTestBase;
@@ -151,7 +151,7 @@ public class GroupingTest extends JMSTestBase
          }
 
          pause = true;
-         rc.fail(new HornetQNotConnectedException());
+         rc.fail(new ActiveMQNotConnectedException());
          pause = false;
 
          for (int j = 0; j < 10000; j++)

@@ -13,7 +13,7 @@
 
 package org.apache.activemq.reader;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 
@@ -29,7 +29,7 @@ public class TextMessageUtil extends MessageUtil
     */
    public static void writeBodyText(Message message, SimpleString text)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       buff.clear();
       buff.writeNullableSimpleString(text);
    }
@@ -39,7 +39,7 @@ public class TextMessageUtil extends MessageUtil
     */
    public static SimpleString readBodyText(Message message)
    {
-      HornetQBuffer buff = getBodyBuffer(message);
+      ActiveMQBuffer buff = getBodyBuffer(message);
       buff.resetReaderIndex();
       return buff.readNullableSimpleString();
    }

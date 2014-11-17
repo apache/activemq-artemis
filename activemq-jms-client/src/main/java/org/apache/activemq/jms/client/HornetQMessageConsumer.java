@@ -22,7 +22,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -109,7 +109,7 @@ public final class HornetQMessageConsumer implements QueueReceiver, TopicSubscri
       {
          consumer.setMessageHandler(coreListener);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -144,7 +144,7 @@ public final class HornetQMessageConsumer implements QueueReceiver, TopicSubscri
 
          session.removeConsumer(this);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }
@@ -242,7 +242,7 @@ public final class HornetQMessageConsumer implements QueueReceiver, TopicSubscri
 
          return jmsMsg;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw JMSExceptionHelper.convertFromHornetQException(e);
       }

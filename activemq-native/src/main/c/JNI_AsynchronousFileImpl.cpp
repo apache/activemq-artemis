@@ -21,7 +21,7 @@
 #include <time.h>
 #include <sys/file.h>
 
-#include "org.apache.activemq6_core_libaio_Native.h"
+#include "org_apache_activemq_core_libaio_Native.h"
 
 
 #include "JavaUtilities.h"
@@ -48,7 +48,7 @@ inline AIOController * getController(JNIEnv *env, jobject & controllerAddress)
  * Method:    openFile
  * Signature: (Ljava/lang/String;)I
  */
-JNIEXPORT jint JNICALL Java_org.apache.activemq6_core_libaio_Native_openFile
+JNIEXPORT jint JNICALL Java_org_apache_activemq_core_libaio_Native_openFile
   (JNIEnv * env , jclass , jstring jstrFileName)
 {
 	std::string fileName = convertJavaString(env, jstrFileName);
@@ -61,7 +61,7 @@ JNIEXPORT jint JNICALL Java_org.apache.activemq6_core_libaio_Native_openFile
  * Method:    closeFile
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_closeFile
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_closeFile
   (JNIEnv * , jclass , jint handle)
 {
    close(handle);
@@ -72,7 +72,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_closeFile
  * Method:    flock
  * Signature: (I)Z
  */
-JNIEXPORT jboolean JNICALL Java_org.apache.activemq6_core_libaio_Native_flock
+JNIEXPORT jboolean JNICALL Java_org_apache_activemq_core_libaio_Native_flock
   (JNIEnv * , jclass , jint handle)
 {
     return flock(handle, LOCK_EX | LOCK_NB) == 0;
@@ -85,7 +85,7 @@ JNIEXPORT jboolean JNICALL Java_org.apache.activemq6_core_libaio_Native_flock
  * Method:    init
  * Signature: (Ljava/lang/String;Ljava/lang/Class;)J
  */
-JNIEXPORT jobject JNICALL Java_org.apache.activemq6_core_libaio_Native_init
+JNIEXPORT jobject JNICALL Java_org_apache_activemq_core_libaio_Native_init
   (JNIEnv * env, jclass, jclass controllerClazz, jstring jstrFileName, jint maxIO, jobject logger)
 {
 	AIOController * controller = 0;
@@ -94,14 +94,14 @@ JNIEXPORT jobject JNICALL Java_org.apache.activemq6_core_libaio_Native_init
 		std::string fileName = convertJavaString(env, jstrFileName);
 
 		controller = new AIOController(fileName, (int) maxIO);
-		controller->done = env->GetMethodID(controllerClazz,"callbackDone","(Lorg.apache.activemq/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;)V");
+		controller->done = env->GetMethodID(controllerClazz,"callbackDone","(Lorg/apache/activemq/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;)V");
 		if (!controller->done)
 		{
 		   throwException (env, -1, "can't get callbackDone method");
 		   return 0;
 		}
 
-		controller->error = env->GetMethodID(controllerClazz, "callbackError", "(Lorg.apache.activemq/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;ILjava/lang/String;)V");
+		controller->error = env->GetMethodID(controllerClazz, "callbackError", "(Lorg/apache/activemq/core/asyncio/AIOCallback;JLjava/nio/ByteBuffer;ILjava/lang/String;)V");
 		if (!controller->done)
 		{
 		   throwException (env, -1, "can't get callbackError method");
@@ -133,7 +133,7 @@ JNIEXPORT jobject JNICALL Java_org.apache.activemq6_core_libaio_Native_init
 * objThis here is passed as a parameter at the java layer. It used to be a JNI this and now it's a java static method
   where the intended reference is now passed as an argument
 */
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_read
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_read
   (JNIEnv *env, jclass, jobject objThis, jobject controllerAddress, jlong position, jlong size, jobject jbuffer, jobject callback)
 {
 	try
@@ -165,7 +165,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_read
 
 
 // Fast memset on buffer
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_resetBuffer
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_resetBuffer
   (JNIEnv *env, jclass, jobject jbuffer, jint size)
 {
 	void * buffer = env->GetDirectBufferAddress(jbuffer);
@@ -180,7 +180,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_resetBuffer
 
 }
 
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_destroyBuffer
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_destroyBuffer
   (JNIEnv * env, jclass, jobject jbuffer)
 {
     if (jbuffer == 0)
@@ -192,7 +192,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_destroyBuffe
 	free(buffer);
 }
 
-JNIEXPORT jobject JNICALL Java_org.apache.activemq6_core_libaio_Native_newNativeBuffer
+JNIEXPORT jobject JNICALL Java_org_apache_activemq_core_libaio_Native_newNativeBuffer
   (JNIEnv * env, jclass, jlong size)
 {
 	try
@@ -230,7 +230,7 @@ JNIEXPORT jobject JNICALL Java_org.apache.activemq6_core_libaio_Native_newNative
 * objThis here is passed as a parameter at the java layer. It used to be a JNI this and now it's a java static method
   where the intended reference is now passed as an argument
 */
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_write
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_write
   (JNIEnv *env, jclass, jobject objThis, jobject controllerAddress, jlong sequence, jlong position, jlong size, jobject jbuffer, jobject callback)
 {
 	try
@@ -255,7 +255,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_write
 	}
 }
 
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_writeInternal
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_writeInternal
   (JNIEnv * env, jclass, jobject controllerAddress, jlong positionToWrite, jlong size, jobject jbuffer)
 {
 	try
@@ -278,7 +278,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_writeInterna
 }
 
 
-JNIEXPORT void Java_org.apache.activemq6_core_libaio_Native_internalPollEvents
+JNIEXPORT void Java_org_apache_activemq_core_libaio_Native_internalPollEvents
   (JNIEnv *env, jclass, jobject controllerAddress)
 {
 	try
@@ -292,7 +292,7 @@ JNIEXPORT void Java_org.apache.activemq6_core_libaio_Native_internalPollEvents
 	}
 }
 
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_stopPoller
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_stopPoller
   (JNIEnv *env, jclass, jobject controllerAddress)
 {
 	try
@@ -306,7 +306,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_stopPoller
 	}
 }
 
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_closeInternal
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_closeInternal
   (JNIEnv *env, jclass, jobject controllerAddress)
 {
 	try
@@ -322,7 +322,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_closeInterna
 }
 
 
-JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_fill
+JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_fill
   (JNIEnv * env, jclass, jobject controllerAddress, jlong position, jint blocks, jlong size, jbyte fillChar)
 {
 	try
@@ -341,7 +341,7 @@ JNIEXPORT void JNICALL Java_org.apache.activemq6_core_libaio_Native_fill
 
 
 /** It does nothing... just return true to make sure it has all the binary dependencies */
-JNIEXPORT jint JNICALL Java_org.apache.activemq6_core_libaio_Native_getNativeVersion
+JNIEXPORT jint JNICALL Java_org_apache_activemq_core_libaio_Native_getNativeVersion
   (JNIEnv *, jclass)
 
 {
@@ -349,7 +349,7 @@ JNIEXPORT jint JNICALL Java_org.apache.activemq6_core_libaio_Native_getNativeVer
 }
 
 
-JNIEXPORT jlong JNICALL Java_org.apache.activemq6_core_libaio_Native_size0
+JNIEXPORT jlong JNICALL Java_org_apache_activemq_core_libaio_Native_size0
   (JNIEnv * env, jclass, jobject controllerAddress)
 {
 	try

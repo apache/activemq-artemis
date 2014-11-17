@@ -14,7 +14,7 @@ package org.apache.activemq.core.client.impl;
 
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -52,13 +52,13 @@ public interface ServerLocatorInternal extends ServerLocator
    // Reset this Locator back as if it never received any topology
    void resetToInitialConnectors();
 
-   ClientSessionFactoryInternal connect() throws HornetQException;
+   ClientSessionFactoryInternal connect() throws ActiveMQException;
 
    /**
     * Like {@link #connect()} but it does not log warnings if it fails to connect.
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   ClientSessionFactoryInternal connectNoWarnings() throws HornetQException;
+   ClientSessionFactoryInternal connectNoWarnings() throws ActiveMQException;
 
    void notifyNodeUp(long uniqueEventID, String nodeID, String backupGroupName, String scaleDownGroupName,
                      Pair<TransportConfiguration, TransportConfiguration> connectorPair, boolean last);

@@ -15,7 +15,7 @@ package org.apache.activemq.jms.client;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -123,7 +123,7 @@ public class HornetQTextMessage extends HornetQMessage implements TextMessage
    // HornetQRAMessage override -----------------------------------------
 
    @Override
-   public void doBeforeReceive() throws HornetQException
+   public void doBeforeReceive() throws ActiveMQException
    {
       super.doBeforeReceive();
 

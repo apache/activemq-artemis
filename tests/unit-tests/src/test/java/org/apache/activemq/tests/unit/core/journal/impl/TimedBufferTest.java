@@ -12,6 +12,8 @@
  */
 package org.apache.activemq.tests.unit.core.journal.impl;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
@@ -23,8 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.impl.TimedBuffer;
 import org.apache.activemq.core.journal.impl.TimedBufferObserver;
@@ -110,7 +110,7 @@ public class TimedBufferTest extends UnitTestCase
                bytes[j] = UnitTestCase.getSamplebyte(x++);
             }
 
-            HornetQBuffer buff = HornetQBuffers.wrappedBuffer(bytes);
+            ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
 
             timedBuffer.checkSize(10);
             timedBuffer.addBytes(buff, false, dummyCallback);
@@ -184,7 +184,7 @@ public class TimedBufferTest extends UnitTestCase
             bytes[j] = UnitTestCase.getSamplebyte(x++);
          }
 
-         HornetQBuffer buff = HornetQBuffers.wrappedBuffer(bytes);
+         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
 
          timedBuffer.checkSize(10);
          timedBuffer.addBytes(buff, false, dummyCallback);
@@ -199,7 +199,7 @@ public class TimedBufferTest extends UnitTestCase
             bytes[j] = UnitTestCase.getSamplebyte(x++);
          }
 
-         buff = HornetQBuffers.wrappedBuffer(bytes);
+         buff = ActiveMQBuffers.wrappedBuffer(bytes);
 
          timedBuffer.checkSize(10);
          timedBuffer.addBytes(buff, true, dummyCallback);
@@ -297,7 +297,7 @@ public class TimedBufferTest extends UnitTestCase
             bytes[j] = UnitTestCase.getSamplebyte(x++);
          }
 
-         HornetQBuffer buff = HornetQBuffers.wrappedBuffer(bytes);
+         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
 
          timedBuffer.checkSize(10);
          timedBuffer.addBytes(buff, true, dummyCallback);
@@ -384,7 +384,7 @@ public class TimedBufferTest extends UnitTestCase
             bytes[j] = UnitTestCase.getSamplebyte(x++);
          }
 
-         HornetQBuffer buff = HornetQBuffers.wrappedBuffer(bytes);
+         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
 
          timedBuffer.checkSize(10);
          timedBuffer.addBytes(buff, true, dummyCallback);

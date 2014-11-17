@@ -12,12 +12,12 @@
  */
 package org.apache.activemq.tests.integration.management;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Test;
 
 import java.util.HashMap;
 
 import org.junit.Assert;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -97,7 +97,7 @@ public class AcceptorControlTest extends ManagementTestBase
          sf.createSession(false, true, true);
          Assert.fail("acceptor must not accept connections when stopped accepting");
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
       }
 
@@ -120,7 +120,7 @@ public class AcceptorControlTest extends ManagementTestBase
          sf.createSession(false, true, true);
          Assert.fail("acceptor must not accept connections when stopped accepting");
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
       }
 

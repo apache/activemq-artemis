@@ -13,18 +13,18 @@
 package org.apache.activemq.core.protocol.openwire;
 
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.util.ByteSequence;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 
 public class OpenWireUtil
 {
 
-   public static HornetQBuffer toHornetQBuffer(ByteSequence bytes)
+   public static ActiveMQBuffer toHornetQBuffer(ByteSequence bytes)
    {
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(bytes.length);
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bytes.length);
 
       buffer.writeBytes(bytes.data, bytes.offset, bytes.length);
       return buffer;

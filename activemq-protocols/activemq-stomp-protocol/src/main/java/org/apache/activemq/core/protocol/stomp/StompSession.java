@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.Inflater;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -127,7 +127,7 @@ public class StompSession implements SessionCallback
          if (serverMessage.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))
          {
             //decompress
-            HornetQBuffer qbuff = newServerMessage.getBodyBuffer();
+            ActiveMQBuffer qbuff = newServerMessage.getBodyBuffer();
             int bytesToRead = qbuff.writerIndex() - MessageImpl.BODY_OFFSET;
             Inflater inflater = new Inflater();
             inflater.setInput(qbuff.readBytes(bytesToRead).toByteBuffer().array());

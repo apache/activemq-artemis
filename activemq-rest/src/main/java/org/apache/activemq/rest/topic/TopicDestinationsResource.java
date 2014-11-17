@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.jms.client.HornetQDestination;
@@ -135,7 +135,7 @@ public class TopicDestinationsResource
             {
                session.close();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
             }
          }

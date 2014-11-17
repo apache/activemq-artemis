@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.rest.topic;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.rest.HornetQRestLogger;
@@ -48,7 +48,7 @@ public class PushSubscription extends PushConsumer
 
          session.deleteQueue(subscriptionName);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          HornetQRestLogger.LOGGER.errorDeletingSubscriberQueue(e);
       }
@@ -59,7 +59,7 @@ public class PushSubscription extends PushConsumer
             if (session != null)
                session.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
          }
       }

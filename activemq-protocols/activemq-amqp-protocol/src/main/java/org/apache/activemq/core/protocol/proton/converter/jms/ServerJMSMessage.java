@@ -20,7 +20,7 @@ import javax.jms.Message;
 import java.util.Collections;
 import java.util.Enumeration;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.impl.MessageInternal;
 import org.apache.activemq.jms.client.HornetQDestination;
@@ -87,7 +87,7 @@ public class ServerJMSMessage implements Message
       {
          MessageUtil.setJMSCorrelationIDAsBytes(message, correlationID);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new JMSException(e.getMessage());
       }

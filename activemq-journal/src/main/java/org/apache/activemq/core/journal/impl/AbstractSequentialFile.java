@@ -21,10 +21,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIOErrorException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.SequentialFile;
@@ -91,7 +91,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
       return file.getName();
    }
 
-   public final void delete() throws IOException, InterruptedException, HornetQException
+   public final void delete() throws IOException, InterruptedException, ActiveMQException
    {
       if (isOpen())
       {
@@ -137,7 +137,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
       }
       catch (IOException e)
       {
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
    }
@@ -157,7 +157,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
    }
 
    public final void renameTo(final String newFileName) throws IOException, InterruptedException,
-      HornetQException
+      ActiveMQException
    {
       try
       {
@@ -165,7 +165,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
       }
       catch (IOException e)
       {
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
 
@@ -183,9 +183,9 @@ public abstract class AbstractSequentialFile implements SequentialFile
 
    /**
     * @throws IOException      we declare throwing IOException because sub-classes need to do it
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   public synchronized void close() throws IOException, InterruptedException, HornetQException
+   public synchronized void close() throws IOException, InterruptedException, ActiveMQException
    {
       final CountDownLatch donelatch = new CountDownLatch(1);
 
@@ -234,7 +234,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
 
    }
 
-   public void write(final HornetQBuffer bytes, final boolean sync, final IOAsyncTask callback) throws IOException
+   public void write(final ActiveMQBuffer bytes, final boolean sync, final IOAsyncTask callback) throws IOException
    {
       if (timedBuffer != null)
       {
@@ -250,8 +250,8 @@ public abstract class AbstractSequentialFile implements SequentialFile
       }
    }
 
-   public void write(final HornetQBuffer bytes, final boolean sync) throws IOException, InterruptedException,
-      HornetQException
+   public void write(final ActiveMQBuffer bytes, final boolean sync) throws IOException, InterruptedException,
+      ActiveMQException
    {
       if (sync)
       {
@@ -281,14 +281,14 @@ public abstract class AbstractSequentialFile implements SequentialFile
          // Because AIO will need a specific Buffer
          // And NIO will also need a whole buffer to perform the write
 
-         HornetQBuffer outBuffer = HornetQBuffers.wrappedBuffer(buffer);
+         ActiveMQBuffer outBuffer = ActiveMQBuffers.wrappedBuffer(buffer);
          bytes.encode(outBuffer);
          buffer.rewind();
          writeDirect(buffer, sync, callback);
       }
    }
 
-   public void write(final EncodingSupport bytes, final boolean sync) throws InterruptedException, HornetQException
+   public void write(final EncodingSupport bytes, final boolean sync) throws InterruptedException, ActiveMQException
    {
       if (sync)
       {

@@ -17,12 +17,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQDisconnectedException;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQIOErrorException;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQDisconnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQIOErrorException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -219,11 +219,11 @@ public class TemporaryQueueTest extends SingleServerTestBase
          session.createConsumer(queue);
          Assert.fail("temp queue must not exist after the remoting connection is closed");
       }
-      catch (HornetQNonExistentQueueException neqe)
+      catch (ActiveMQNonExistentQueueException neqe)
       {
          //ol
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -367,7 +367,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
 
       RemotingConnectionImpl conn = (RemotingConnectionImpl) ((ClientSessionInternal) session).getConnection();
 
-      conn.fail(new HornetQIOErrorException());
+      conn.fail(new ActiveMQIOErrorException());
 
       prod.send(session.createMessage(false));
       session.commit();
@@ -513,7 +513,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       server.getRemotingService().addIncomingInterceptor(new Interceptor()
       {
 
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
          {
             if (packet.getType() == PacketImpl.PING)
             {
@@ -544,7 +544,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
          }
       });
 
-      ((ClientSessionInternal) session).getConnection().fail(new HornetQInternalErrorException("simulate a client failure"));
+      ((ClientSessionInternal) session).getConnection().fail(new ActiveMQInternalErrorException("simulate a client failure"));
 
       // let some time for the server to clean the connections
       Assert.assertTrue("server has not closed the connection",
@@ -571,14 +571,14 @@ public class TemporaryQueueTest extends SingleServerTestBase
 
       HornetQAction hornetQAction = new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.createConsumer(queue);
          }
       };
 
       UnitTestCase.expectHornetQException("temp queue must not exist after the server detected the client crash",
-                                          HornetQExceptionType.QUEUE_DOES_NOT_EXIST, hornetQAction);
+                                          ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, hornetQAction);
 
       session.close();
 
@@ -663,7 +663,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
          {
             System.out.println("Failing session");
             ServerSessionImpl impl = (ServerSessionImpl) sessionIterator;
-            impl.getRemotingConnection().fail(new HornetQDisconnectedException("failure e"));
+            impl.getRemotingConnection().fail(new ActiveMQDisconnectedException("failure e"));
          }
       }
 

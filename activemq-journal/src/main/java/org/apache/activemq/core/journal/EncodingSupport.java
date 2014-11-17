@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.journal;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 /**
  *
@@ -27,7 +27,7 @@ public interface EncodingSupport
 {
    int getEncodeSize();
 
-   void encode(HornetQBuffer buffer);
+   void encode(ActiveMQBuffer buffer);
 
-   void decode(HornetQBuffer buffer);
+   void decode(ActiveMQBuffer buffer);
 }

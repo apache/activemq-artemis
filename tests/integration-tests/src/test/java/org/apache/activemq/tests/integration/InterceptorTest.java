@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.tests.integration;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
@@ -72,7 +72,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyInterceptor1 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_SEND)
          {
@@ -90,7 +90,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class InterceptUserOnCreateQueue implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.CREATE_QUEUE)
          {
@@ -125,7 +125,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class InterceptUserOnCreateConsumer implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_CREATECONSUMER)
          {
@@ -160,7 +160,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyOutgoingInterceptor1 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
          {
@@ -178,7 +178,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyInterceptor2 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_SEND)
          {
@@ -192,7 +192,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyOutgoingInterceptor2 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (isForceDeliveryResponse(packet))
          {
@@ -210,7 +210,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyInterceptor3 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
          {
@@ -228,7 +228,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyOutgoingInterceptor3 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_SEND)
          {
@@ -246,7 +246,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyInterceptor4 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (isForceDeliveryResponse(packet))
          {
@@ -265,7 +265,7 @@ public class InterceptorTest extends ServiceTestBase
 
    private class MyOutgoingInterceptor4 implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (isForceDeliveryResponse(packet))
          {
@@ -331,7 +331,7 @@ public class InterceptorTest extends ServiceTestBase
          this.wasCalled = wasCalled;
       }
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_SEND)
          {
@@ -384,7 +384,7 @@ public class InterceptorTest extends ServiceTestBase
          this.wasCalled = wasCalled;
       }
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
 
          if (isForceDeliveryResponse(packet))
@@ -835,10 +835,10 @@ public class InterceptorTest extends ServiceTestBase
          producer.send(message);
          Assert.fail();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          // expected exception
-         Assert.assertTrue(e.getType().getCode() == HornetQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
+         Assert.assertTrue(e.getType().getCode() == ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
       }
    }
 

@@ -15,7 +15,7 @@ package org.apache.activemq.ra;
 import java.io.Serializable;
 import java.util.Hashtable;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.utils.PasswordMaskingUtil;
 import org.apache.activemq.utils.SensitiveDataCodec;
@@ -300,7 +300,7 @@ public class HornetQRAProperties extends ConnectionFactoryProperties implements 
          ", userName=" + userName + ", password=****]";
    }
 
-   public synchronized void init() throws HornetQException
+   public synchronized void init() throws ActiveMQException
    {
       if (initialized)
          return;

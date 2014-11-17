@@ -32,7 +32,7 @@ package org.apache.activemq.api.core.interceptor;
 public interface Interceptor
 {   
    boolean intercept(Packet packet, RemotingConnection connection) 
-                throws HornetQException;
+                throws ActiveMQException;
 }
          </programlisting>
       <para>它的方法的返回值是很重要的：</para>

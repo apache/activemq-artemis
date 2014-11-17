@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -120,9 +120,9 @@ public class SlowConsumerTest extends ServiceTestBase
          consumer.receiveImmediate();
          fail();
       }
-      catch (HornetQObjectClosedException e)
+      catch (ActiveMQObjectClosedException e)
       {
-         assertEquals(e.getType(), HornetQExceptionType.OBJECT_CLOSED);
+         assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
       }
    }
 
@@ -184,7 +184,7 @@ public class SlowConsumerTest extends ServiceTestBase
             {
                message.acknowledge();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                e.printStackTrace();
             }
@@ -260,7 +260,7 @@ public class SlowConsumerTest extends ServiceTestBase
                   producer.send(m);
                   messagesProduced.incrementAndGet();
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   e.printStackTrace();
                   return;
@@ -353,9 +353,9 @@ public class SlowConsumerTest extends ServiceTestBase
          consumer.receiveImmediate();
          fail();
       }
-      catch (HornetQObjectClosedException e)
+      catch (ActiveMQObjectClosedException e)
       {
-         assertEquals(e.getType(), HornetQExceptionType.OBJECT_CLOSED);
+         assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
       }
    }
 }

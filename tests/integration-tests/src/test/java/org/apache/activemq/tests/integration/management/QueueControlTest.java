@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.management.Notification;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -437,7 +437,7 @@ public class QueueControlTest extends ManagementTestBase
                {
                   message.acknowledge();
                }
-               catch (HornetQException e1)
+               catch (ActiveMQException e1)
                {
                   e1.printStackTrace();
                }

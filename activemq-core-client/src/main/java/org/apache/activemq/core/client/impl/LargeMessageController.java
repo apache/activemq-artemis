@@ -14,15 +14,15 @@ package org.apache.activemq.core.client.impl;
 
 import java.io.OutputStream;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  * A LargeMessageBufferInternal
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public interface LargeMessageController extends HornetQBuffer
+public interface LargeMessageController extends ActiveMQBuffer
 {
    /**
     * Returns the size of this buffer.
@@ -48,19 +48,19 @@ public interface LargeMessageController extends HornetQBuffer
    /**
     * Sets the OutputStream of this buffer to the specified output.
     */
-   void setOutputStream(final OutputStream output) throws HornetQException;
+   void setOutputStream(final OutputStream output) throws ActiveMQException;
 
    /**
     * Saves this buffer to the specified output. This is just a blocking version of
     * {@link #setOutputStream(OutputStream)}.
     */
-   void saveBuffer(final OutputStream output) throws HornetQException;
+   void saveBuffer(final OutputStream output) throws ActiveMQException;
 
    void addPacket(byte[] chunk, int flowControlSize, boolean isContinues);
 
    /**
     * Waits for the completion for the specified waiting time (in milliseconds).
     */
-   boolean waitCompletion(long timeWait) throws HornetQException;
+   boolean waitCompletion(long timeWait) throws ActiveMQException;
 
 }

@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -203,7 +203,7 @@ public class OperationContextUnitTest extends UnitTestCase
       // We use a latch instead of forcing a sleep here
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
-      context.onError(HornetQExceptionType.UNSUPPORTED_PACKET.getCode(), "Poop happens!");
+      context.onError(ActiveMQExceptionType.UNSUPPORTED_PACKET.getCode(), "Poop happens!");
 
       t.join();
 

@@ -12,6 +12,7 @@
  */
 package org.apache.activemq.tests.integration.cluster.reattach;
 
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -22,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -117,7 +117,7 @@ public class OrderReattachTest extends ServiceTestBase
                   // True means... fail session
                   if (poll)
                   {
-                     conn.fail(new HornetQNotConnectedException("poop"));
+                     conn.fail(new ActiveMQNotConnectedException("poop"));
                   }
                   else
                   {

@@ -21,7 +21,7 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 import java.util.UUID;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession.QueueQuery;
@@ -375,7 +375,7 @@ public class HornetQMessageHandler implements MessageHandler
                   {
                      session.rollback();
                   }
-                  catch (HornetQException e2)
+                  catch (ActiveMQException e2)
                   {
                      HornetQRALogger.LOGGER.warn("Unable to rollback", e2);
                      return;
@@ -403,7 +403,7 @@ public class HornetQMessageHandler implements MessageHandler
             {
                session.rollback(true);
             }
-            catch (HornetQException e1)
+            catch (ActiveMQException e1)
             {
                HornetQRALogger.LOGGER.unableToRollbackTX();
             }
@@ -415,7 +415,7 @@ public class HornetQMessageHandler implements MessageHandler
          {
             session.resetIfNeeded();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             HornetQRALogger.LOGGER.unableToResetSession();
          }
@@ -423,7 +423,7 @@ public class HornetQMessageHandler implements MessageHandler
 
    }
 
-   public void start() throws HornetQException
+   public void start() throws ActiveMQException
    {
       session.start();
    }

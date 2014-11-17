@@ -12,11 +12,11 @@
  */
 package org.apache.activemq.tests.integration.client;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -115,7 +115,7 @@ public class CoreClientTest extends ServiceTestBase
       {
          ClientMessage message2 = consumer.receive();
 
-         HornetQBuffer buffer = message2.getBodyBuffer();
+         ActiveMQBuffer buffer = message2.getBodyBuffer();
 
          Assert.assertEquals("testINVMCoreClient", buffer.readString());
 

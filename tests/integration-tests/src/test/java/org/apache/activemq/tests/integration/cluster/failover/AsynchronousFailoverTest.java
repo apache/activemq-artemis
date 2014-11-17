@@ -15,11 +15,11 @@ package org.apache.activemq.tests.integration.cluster.failover;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQDuplicateIdException;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQTransactionOutcomeUnknownException;
-import org.apache.activemq.api.core.HornetQTransactionRolledBackException;
-import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.api.core.ActiveMQDuplicateIdException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQTransactionOutcomeUnknownException;
+import org.apache.activemq.api.core.ActiveMQTransactionRolledBackException;
+import org.apache.activemq.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -286,7 +286,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase
 
                   retry = false;
                }
-               catch (HornetQUnBlockedException ube)
+               catch (ActiveMQUnBlockedException ube)
                {
                   AsynchronousFailoverTest.log.info("exception when sending message with counter " + i);
 
@@ -295,7 +295,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase
                   retry = true;
 
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   fail("Invalid Exception type:" + e.getType());
                }
@@ -314,14 +314,14 @@ public class AsynchronousFailoverTest extends FailoverTestBase
 
                retry = false;
             }
-            catch (HornetQUnBlockedException ube)
+            catch (ActiveMQUnBlockedException ube)
             {
                AsynchronousFailoverTest.log.info("exception when creating consumer");
 
                retry = true;
 
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                fail("Invalid Exception type:" + e.getType());
             }
@@ -432,30 +432,30 @@ public class AsynchronousFailoverTest extends FailoverTestBase
 
                   retry = false;
                }
-               catch (HornetQDuplicateIdException die)
+               catch (ActiveMQDuplicateIdException die)
                {
                   logAndSystemOut("#test duplicate id rejected on sending");
                   break;
                }
-               catch (HornetQTransactionRolledBackException trbe)
+               catch (ActiveMQTransactionRolledBackException trbe)
                {
                   log.info("#test transaction rollback retrying on sending");
                   // OK
                   retry = true;
                }
-               catch (HornetQUnBlockedException ube)
+               catch (ActiveMQUnBlockedException ube)
                {
                   log.info("#test transaction rollback retrying on sending");
                   // OK
                   retry = true;
                }
-               catch (HornetQTransactionOutcomeUnknownException toue)
+               catch (ActiveMQTransactionOutcomeUnknownException toue)
                {
                   log.info("#test transaction rollback retrying on sending");
                   // OK
                   retry = true;
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   log.info("#test Exception " + e, e);
                   throw e;
@@ -515,13 +515,13 @@ public class AsynchronousFailoverTest extends FailoverTestBase
                   {
                      session.commit();
                   }
-                  catch (HornetQTransactionRolledBackException trbe)
+                  catch (ActiveMQTransactionRolledBackException trbe)
                   {
                      //we know the tx has been rolled back so we just consume again
                      retry = true;
                      continue;
                   }
-                  catch (HornetQException e)
+                  catch (ActiveMQException e)
                   {
                      // This could eventually happen
                      // We will get rid of this when we implement 2 phase commit on failover
@@ -561,7 +561,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase
                   retry = false;
                   blocked = false;
                }
-               catch (HornetQTransactionRolledBackException trbe)
+               catch (ActiveMQTransactionRolledBackException trbe)
                {
                   logAndSystemOut("Transaction rolled back with " + msgs.size(), trbe);
                   // TODO: https://jira.jboss.org/jira/browse/HORNETQ-369
@@ -570,7 +570,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase
                   blocked = true;
                   retry = true;
                }
-               catch (HornetQTransactionOutcomeUnknownException tou)
+               catch (ActiveMQTransactionOutcomeUnknownException tou)
                {
                   logAndSystemOut("Transaction rolled back with " + msgs.size(), tou);
                   // TODO: https://jira.jboss.org/jira/browse/HORNETQ-369
@@ -579,7 +579,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase
                   blocked = true;
                   retry = true;
                }
-               catch (HornetQUnBlockedException ube)
+               catch (ActiveMQUnBlockedException ube)
                {
                   logAndSystemOut("Unblocked with " + msgs.size(), ube);
                   // TODO: https://jira.jboss.org/jira/browse/HORNETQ-369
@@ -587,7 +587,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase
                   blocked = true;
                   retry = true;
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   logAndSystemOut(e.getMessage(), e);
                   throw e;

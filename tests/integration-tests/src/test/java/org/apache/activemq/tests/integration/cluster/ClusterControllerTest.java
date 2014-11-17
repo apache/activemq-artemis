@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.cluster;
 
-import org.apache.activemq.api.core.HornetQClusterSecurityException;
+import org.apache.activemq.api.core.ActiveMQClusterSecurityException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
@@ -90,7 +90,7 @@ public class ClusterControllerTest extends ClusterTestBase
          }
          catch (Exception e)
          {
-            assertTrue("should throw HornetQClusterSecurityException", e instanceof HornetQClusterSecurityException);
+            assertTrue("should throw HornetQClusterSecurityException", e instanceof ActiveMQClusterSecurityException);
          }
       }
    }

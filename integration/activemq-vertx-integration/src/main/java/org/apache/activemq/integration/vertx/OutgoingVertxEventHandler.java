@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -220,7 +220,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
    private Object extractMessageBody(ServerMessage message, Integer type) throws Exception
    {
       Object vertxMsgBody = null;
-      HornetQBuffer bodyBuffer = message.getBodyBuffer();
+      ActiveMQBuffer bodyBuffer = message.getBodyBuffer();
       switch (type)
       {
          case VertxConstants.TYPE_PING:

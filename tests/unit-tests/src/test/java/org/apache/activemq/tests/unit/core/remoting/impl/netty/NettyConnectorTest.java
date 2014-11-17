@@ -12,6 +12,8 @@
  */
 package org.apache.activemq.tests.unit.core.remoting.impl.netty;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -20,8 +22,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.server.HornetQComponent;
@@ -41,14 +41,14 @@ public class NettyConnectorTest extends UnitTestCase
    {
       BufferHandler handler = new BufferHandler()
       {
-         public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
          {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
       {
-         public void connectionException(final Object connectionID, final HornetQException me)
+         public void connectionException(final Object connectionID, final ActiveMQException me)
          {
          }
 
@@ -82,14 +82,14 @@ public class NettyConnectorTest extends UnitTestCase
    {
       BufferHandler handler = new BufferHandler()
       {
-         public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
          {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
       {
-         public void connectionException(final Object connectionID, final HornetQException me)
+         public void connectionException(final Object connectionID, final ActiveMQException me)
          {
          }
 
@@ -143,7 +143,7 @@ public class NettyConnectorTest extends UnitTestCase
    {
       BufferHandler handler = new BufferHandler()
       {
-         public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
          {
          }
       };
@@ -155,7 +155,7 @@ public class NettyConnectorTest extends UnitTestCase
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
       {
-         public void connectionException(final Object connectionID, final HornetQException me)
+         public void connectionException(final Object connectionID, final ActiveMQException me)
          {
          }
 
@@ -194,7 +194,7 @@ public class NettyConnectorTest extends UnitTestCase
    {
       BufferHandler handler = new BufferHandler()
       {
-         public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
          {
          }
       };
@@ -206,7 +206,7 @@ public class NettyConnectorTest extends UnitTestCase
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
       {
-         public void connectionException(final Object connectionID, final HornetQException me)
+         public void connectionException(final Object connectionID, final ActiveMQException me)
          {
          }
 
@@ -252,7 +252,7 @@ public class NettyConnectorTest extends UnitTestCase
    {
       BufferHandler handler = new BufferHandler()
       {
-         public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
          {
          }
       };
@@ -261,7 +261,7 @@ public class NettyConnectorTest extends UnitTestCase
       params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
       {
-         public void connectionException(final Object connectionID, final HornetQException me)
+         public void connectionException(final Object connectionID, final ActiveMQException me)
          {
          }
 
@@ -297,7 +297,7 @@ public class NettyConnectorTest extends UnitTestCase
    {
       BufferHandler handler = new BufferHandler()
       {
-         public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
          {
          }
       };
@@ -306,7 +306,7 @@ public class NettyConnectorTest extends UnitTestCase
       params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
       {
-         public void connectionException(final Object connectionID, final HornetQException me)
+         public void connectionException(final Object connectionID, final ActiveMQException me)
          {
          }
 

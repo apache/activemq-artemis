@@ -16,7 +16,7 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.utils.UTF8Util;
 import org.apache.activemq.utils.UTF8Util.StringUtilBuffer;
 
@@ -66,7 +66,7 @@ public class DataInputWrapper implements DataInput
       internalBuffer.reset();
    }
 
-   public void receiveData(HornetQBuffer buffer)
+   public void receiveData(ActiveMQBuffer buffer)
    {
       int newSize = buffer.readableBytes();
       byte[] newData = new byte[newSize];

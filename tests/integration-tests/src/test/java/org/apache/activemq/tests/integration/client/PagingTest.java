@@ -29,9 +29,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -155,7 +155,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -183,7 +183,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -296,7 +296,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -422,7 +422,7 @@ public class PagingTest extends ServiceTestBase
 
          message.putIntProperty("count", i);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -512,7 +512,7 @@ public class PagingTest extends ServiceTestBase
 
          message.putIntProperty("count", i);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -659,7 +659,7 @@ public class PagingTest extends ServiceTestBase
 
          message.putIntProperty("tst-count", i);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -785,7 +785,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -961,7 +961,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -1169,7 +1169,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -1251,7 +1251,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -1382,7 +1382,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -1490,7 +1490,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -1606,7 +1606,7 @@ public class PagingTest extends ServiceTestBase
          {
             message = session.createMessage(true);
 
-            HornetQBuffer bodyLocal = message.getBodyBuffer();
+            ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
             bodyLocal.writeBytes(body);
 
@@ -1793,7 +1793,7 @@ public class PagingTest extends ServiceTestBase
          {
             message = session.createMessage(true);
 
-            HornetQBuffer bodyLocal = message.getBodyBuffer();
+            ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
             bodyLocal.writeBytes(body);
 
@@ -1939,7 +1939,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -2136,7 +2136,7 @@ public class PagingTest extends ServiceTestBase
                }
                message = session.createMessage(true);
 
-               HornetQBuffer bodyLocal = message.getBodyBuffer();
+               ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
                bodyLocal.writeBytes(body);
 
@@ -2363,7 +2363,7 @@ public class PagingTest extends ServiceTestBase
             }
             message = session.createMessage(true);
 
-            HornetQBuffer bodyLocal = message.getBodyBuffer();
+            ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
             bodyLocal.writeBytes(body);
 
@@ -2527,7 +2527,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -2596,7 +2596,7 @@ public class PagingTest extends ServiceTestBase
       session.close();
    }
 
-   private void assertBodiesEqual(final byte[] body, final HornetQBuffer buffer)
+   private void assertBodiesEqual(final byte[] body, final ActiveMQBuffer buffer)
    {
       byte[] other = new byte[body.length];
 
@@ -3367,7 +3367,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          for (int j = 1; j <= numberOfIntegers; j++)
          {
@@ -3426,7 +3426,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          for (int j = 1; j <= numberOfIntegers; j++)
          {
@@ -3512,7 +3512,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(true);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(new byte[1024]);
 
@@ -4275,7 +4275,7 @@ public class PagingTest extends ServiceTestBase
                {
                   sessionConsumer.close();
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   e.printStackTrace();
                   errors.incrementAndGet();
@@ -4295,7 +4295,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -4379,7 +4379,7 @@ public class PagingTest extends ServiceTestBase
       {
          message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -4481,7 +4481,7 @@ public class PagingTest extends ServiceTestBase
          {
             message = session.createMessage(persistentMessages);
 
-            HornetQBuffer bodyLocal = message.getBodyBuffer();
+            ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
             bodyLocal.writeBytes(body);
 
@@ -4602,7 +4602,7 @@ public class PagingTest extends ServiceTestBase
 
          ClientMessage message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(new byte[1024]);
 
@@ -4699,7 +4699,7 @@ public class PagingTest extends ServiceTestBase
          {
             message = session.createMessage(persistentMessages);
 
-            HornetQBuffer bodyLocal = message.getBodyBuffer();
+            ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
             bodyLocal.writeBytes(body);
 
@@ -5451,20 +5451,20 @@ public class PagingTest extends ServiceTestBase
     */
    private void validateExceptionOnSending(ClientProducer producer, ClientMessage message)
    {
-      HornetQException expected = null;
+      ActiveMQException expected = null;
 
       try
       {
          // after the address is full this send should fail (since the address full policy is FAIL)
          producer.send(message);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          expected = e;
       }
 
       assertNotNull(expected);
-      assertEquals(HornetQExceptionType.ADDRESS_FULL, expected.getType());
+      assertEquals(ActiveMQExceptionType.ADDRESS_FULL, expected.getType());
    }
 
 

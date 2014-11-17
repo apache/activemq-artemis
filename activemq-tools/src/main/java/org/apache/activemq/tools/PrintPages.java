@@ -24,8 +24,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.journal.PreparedTransactionInfo;
@@ -257,7 +257,7 @@ public class PrintPages // NO_UCD (unused code)
       {
          byte[] data = record.data;
 
-         HornetQBuffer buff = HornetQBuffers.wrappedBuffer(data);
+         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
          if (record.userRecordType == JournalRecordIds.ACKNOWLEDGE_CURSOR)
          {

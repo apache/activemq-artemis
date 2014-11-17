@@ -13,7 +13,7 @@
 package org.apache.activemq.spi.core.remoting;
 
 import io.netty.channel.ChannelFutureListener;
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.security.HornetQPrincipal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
@@ -32,7 +32,7 @@ public interface Connection
     * @param size the size of buffer to create
     * @return the new buffer.
     */
-   HornetQBuffer createBuffer(int size);
+   ActiveMQBuffer createBuffer(int size);
 
 
    RemotingConnection getProtocolConnection();
@@ -53,7 +53,7 @@ public interface Connection
     * @param flush  whether to flush the buffers onto the wire
     * @param batched whether the packet is allowed to batched for better performance
     */
-   void write(HornetQBuffer buffer, boolean flush, boolean batched);
+   void write(ActiveMQBuffer buffer, boolean flush, boolean batched);
 
    /**
     * writes the buffer to the connection and if flush is true returns only when the buffer has been physically written to the connection.
@@ -62,14 +62,14 @@ public interface Connection
     * @param flush  whether to flush the buffers onto the wire
     * @param batched whether the packet is allowed to batched for better performance
     */
-   void write(HornetQBuffer buffer, boolean flush, boolean batched, ChannelFutureListener futureListener);
+   void write(ActiveMQBuffer buffer, boolean flush, boolean batched, ChannelFutureListener futureListener);
 
    /**
     * writes the buffer to the connection with no flushing or batching
     *
     * @param buffer the buffer to write
     */
-   void write(HornetQBuffer buffer);
+   void write(ActiveMQBuffer buffer);
 
 
    /**

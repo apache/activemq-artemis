@@ -15,10 +15,10 @@ package org.apache.activemq.core.persistence.impl.journal;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.message.BodyEncoder;
@@ -119,7 +119,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       bodySize += bytes.length;
    }
 
-   public void encodeBody(final HornetQBuffer bufferOut, final BodyEncoder context, final int size)
+   public void encodeBody(final ActiveMQBuffer bufferOut, final BodyEncoder context, final int size)
    {
       try
       {
@@ -149,13 +149,13 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
    }
 
    @Override
-   public void encode(final HornetQBuffer buffer1)
+   public void encode(final ActiveMQBuffer buffer1)
    {
       super.encodeHeadersAndProperties(buffer1);
    }
 
    @Override
-   public void decode(final HornetQBuffer buffer1)
+   public void decode(final ActiveMQBuffer buffer1)
    {
       file = null;
 
@@ -188,7 +188,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
    }
 
    @Override
-   public BodyEncoder getBodyEncoder() throws HornetQException
+   public BodyEncoder getBodyEncoder() throws ActiveMQException
    {
       validateFile();
       return new DecodingContext();
@@ -361,7 +361,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       }
    }
 
-   public SequentialFile getFile() throws HornetQException
+   public SequentialFile getFile() throws ActiveMQException
    {
       validateFile();
       return file;
@@ -389,7 +389,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
    // Private -------------------------------------------------------
 
-   private synchronized void validateFile() throws HornetQException
+   private synchronized void validateFile() throws ActiveMQException
    {
       try
       {
@@ -410,7 +410,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       catch (Exception e)
       {
          // TODO: There is an IO_ERROR on trunk now, this should be used here instead
-         throw new HornetQInternalErrorException(e.getMessage(), e);
+         throw new ActiveMQInternalErrorException(e.getMessage(), e);
       }
    }
 
@@ -448,7 +448,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
    {
       private SequentialFile cFile;
 
-      public void open() throws HornetQException
+      public void open() throws ActiveMQException
       {
          try
          {
@@ -461,11 +461,11 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
          catch (Exception e)
          {
-            throw new HornetQException(HornetQExceptionType.INTERNAL_ERROR, e.getMessage(), e);
+            throw new ActiveMQException(ActiveMQExceptionType.INTERNAL_ERROR, e.getMessage(), e);
          }
       }
 
-      public void close() throws HornetQException
+      public void close() throws ActiveMQException
       {
          try
          {
@@ -476,11 +476,11 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
          catch (Exception e)
          {
-            throw new HornetQInternalErrorException(e.getMessage(), e);
+            throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
       }
 
-      public int encode(final ByteBuffer bufferRead) throws HornetQException
+      public int encode(final ByteBuffer bufferRead) throws ActiveMQException
       {
          try
          {
@@ -488,11 +488,11 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
          catch (Exception e)
          {
-            throw new HornetQInternalErrorException(e.getMessage(), e);
+            throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
       }
 
-      public int encode(final HornetQBuffer bufferOut, final int size) throws HornetQException
+      public int encode(final ActiveMQBuffer bufferOut, final int size) throws ActiveMQException
       {
          // This could maybe be optimized (maybe reading directly into bufferOut)
          ByteBuffer bufferRead = ByteBuffer.allocate(size);

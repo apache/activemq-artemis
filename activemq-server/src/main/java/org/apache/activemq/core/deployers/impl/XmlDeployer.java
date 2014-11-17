@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.deployers.Deployer;
 import org.apache.activemq.core.deployers.DeploymentManager;
 import org.apache.activemq.core.server.HornetQServerLogger;
@@ -298,7 +298,7 @@ public abstract class XmlDeployer implements Deployer
       return !newTextContent.equals(origTextContent);
    }
 
-   private String getName(Node node) throws HornetQException
+   private String getName(Node node) throws ActiveMQException
    {
 
       String name;
@@ -315,7 +315,7 @@ public abstract class XmlDeployer implements Deployer
          }
          catch (NullPointerException e)
          {
-            throw new HornetQException("Could not find " + getKeyAttribute() + " in " + XMLUtil.elementToString(node));
+            throw new ActiveMQException("Could not find " + getKeyAttribute() + " in " + XMLUtil.elementToString(node));
          }
       }
       else

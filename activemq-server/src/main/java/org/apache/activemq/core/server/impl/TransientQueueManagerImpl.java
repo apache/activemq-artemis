@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.HornetQServer;
 import org.apache.activemq.core.server.HornetQServerLogger;
@@ -44,7 +44,7 @@ public class TransientQueueManagerImpl implements TransientQueueManager
             {
                server.destroyQueue(queueName, null, false);
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                HornetQServerLogger.LOGGER.warn("Error on deleting queue " + queueName + ", " + e.getMessage(), e);
             }

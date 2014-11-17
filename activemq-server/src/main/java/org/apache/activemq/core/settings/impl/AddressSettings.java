@@ -14,7 +14,7 @@ package org.apache.activemq.core.settings.impl;
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.settings.Mergeable;
@@ -397,7 +397,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    @Override
-   public void decode(HornetQBuffer buffer)
+   public void decode(ActiveMQBuffer buffer)
    {
       SimpleString policyStr = buffer.readNullableSimpleString();
 
@@ -482,7 +482,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    @Override
-   public void encode(HornetQBuffer buffer)
+   public void encode(ActiveMQBuffer buffer)
    {
       buffer.writeNullableSimpleString(addressFullMessagePolicy != null ? new SimpleString(addressFullMessagePolicy.toString())
                                           : null);

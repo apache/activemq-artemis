@@ -33,9 +33,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -251,7 +251,7 @@ public final class XmlDataExporter
       {
          byte[] data = info.data;
 
-         HornetQBuffer buff = HornetQBuffers.wrappedBuffer(data);
+         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
          Object o = DescribeJournal.newObjectEncoding(info, storageManager);
          if (info.getUserRecordType() == JournalRecordIds.ADD_MESSAGE)
@@ -369,7 +369,7 @@ public final class XmlDataExporter
       {
          long id = record.id;
 
-         HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(record.data);
+         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
 
          byte rec = record.getUserRecordType();
 
@@ -898,14 +898,14 @@ public final class XmlDataExporter
             {
                bufferSize = remainder;
             }
-            HornetQBuffer buffer = HornetQBuffers.fixedBuffer(bufferSize.intValue());
+            ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bufferSize.intValue());
             encoder.encode(buffer, bufferSize.intValue());
             xmlWriter.writeCData(encode(buffer.toByteBuffer().array()));
             totalBytesWritten += bufferSize;
          }
          encoder.close();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          e.printStackTrace();
       }
@@ -917,7 +917,7 @@ public final class XmlDataExporter
             {
                encoder.close();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                e.printStackTrace();
             }

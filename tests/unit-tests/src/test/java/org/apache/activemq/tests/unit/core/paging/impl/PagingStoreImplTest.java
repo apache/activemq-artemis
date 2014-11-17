@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
@@ -89,7 +89,7 @@ public class PagingStoreImplTest extends UnitTestCase
 
       Assert.assertEquals(nr1, trans.getNumberOfMessages());
 
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(trans.getEncodeSize());
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(trans.getEncodeSize());
 
       trans.encode(buffer);
 
@@ -156,9 +156,9 @@ public class PagingStoreImplTest extends UnitTestCase
 
       Assert.assertEquals(1, storeImpl.getNumberOfPages());
 
-      List<HornetQBuffer> buffers = new ArrayList<HornetQBuffer>();
+      List<ActiveMQBuffer> buffers = new ArrayList<ActiveMQBuffer>();
 
-      HornetQBuffer buffer = createRandomBuffer(0, 10);
+      ActiveMQBuffer buffer = createRandomBuffer(0, 10);
 
       buffers.add(buffer);
       SimpleString destination = new SimpleString("test");
@@ -208,14 +208,14 @@ public class PagingStoreImplTest extends UnitTestCase
 
       storeImpl.startPaging();
 
-      List<HornetQBuffer> buffers = new ArrayList<HornetQBuffer>();
+      List<ActiveMQBuffer> buffers = new ArrayList<ActiveMQBuffer>();
 
       int numMessages = 10;
 
       for (int i = 0; i < numMessages; i++)
       {
 
-         HornetQBuffer buffer = createRandomBuffer(i + 1L, 10);
+         ActiveMQBuffer buffer = createRandomBuffer(i + 1L, 10);
 
          buffers.add(buffer);
 
@@ -247,8 +247,8 @@ public class PagingStoreImplTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         HornetQBuffer horn1 = buffers.get(i);
-         HornetQBuffer horn2 = msg.get(i).getMessage().getBodyBuffer();
+         ActiveMQBuffer horn1 = buffers.get(i);
+         ActiveMQBuffer horn2 = msg.get(i).getMessage().getBodyBuffer();
          horn1.resetReaderIndex();
          horn2.resetReaderIndex();
          for (int j = 0; j < horn1.writerIndex(); j++)
@@ -283,12 +283,12 @@ public class PagingStoreImplTest extends UnitTestCase
 
       Assert.assertEquals(1, store.getNumberOfPages());
 
-      List<HornetQBuffer> buffers = new ArrayList<HornetQBuffer>();
+      List<ActiveMQBuffer> buffers = new ArrayList<ActiveMQBuffer>();
 
       for (int i = 0; i < 10; i++)
       {
 
-         HornetQBuffer buffer = createRandomBuffer(i + 1L, 10);
+         ActiveMQBuffer buffer = createRandomBuffer(i + 1L, 10);
 
          buffers.add(buffer);
 
@@ -856,7 +856,7 @@ public class PagingStoreImplTest extends UnitTestCase
    }
 
    private ServerMessage createMessage(final long id, final PagingStore store, final SimpleString destination,
-                                       final HornetQBuffer buffer)
+                                       final ActiveMQBuffer buffer)
    {
       ServerMessage msg = new ServerMessageImpl(id, 50 + buffer.capacity());
 
@@ -872,7 +872,7 @@ public class PagingStoreImplTest extends UnitTestCase
       return msg;
    }
 
-   protected HornetQBuffer createRandomBuffer(final long id, final int size)
+   protected ActiveMQBuffer createRandomBuffer(final long id, final int size)
    {
       return RandomUtil.randomBuffer(size, id);
    }

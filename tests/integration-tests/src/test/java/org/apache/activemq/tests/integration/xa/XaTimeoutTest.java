@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -110,7 +110,7 @@ public class XaTimeoutTest extends UnitTestCase
          {
             clientSession.close();
          }
-         catch (HornetQException e1)
+         catch (ActiveMQException e1)
          {
             //
          }
@@ -714,7 +714,7 @@ public class XaTimeoutTest extends UnitTestCase
           * @see org.apache.activemq.api.core.Interceptor#intercept(org.apache.activemq.core.protocol.core.Packet, org.apache.activemq.spi.core.protocol.RemotingConnection)
           */
          @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
          {
             if (packet instanceof SessionXAStartMessage)
             {

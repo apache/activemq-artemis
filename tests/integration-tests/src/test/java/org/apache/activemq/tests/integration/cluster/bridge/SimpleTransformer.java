@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.cluster.bridge;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.cluster.Transformer;
@@ -41,7 +41,7 @@ public class SimpleTransformer implements Transformer
       message.putStringProperty(new SimpleString("wibble"), new SimpleString("bong"));
 
       // Change the body
-      HornetQBuffer buffer = message.getBodyBuffer();
+      ActiveMQBuffer buffer = message.getBodyBuffer();
 
       buffer.readerIndex(0);
 

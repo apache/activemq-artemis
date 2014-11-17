@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.asyncio.AsynchronousFile;
 import org.apache.activemq.core.asyncio.BufferCallback;
 import org.apache.activemq.core.asyncio.IOExceptionListener;
@@ -97,7 +97,7 @@ public class AIOSequentialFile extends AbstractSequentialFile implements IOExcep
    }
 
    @Override
-   public synchronized void close() throws IOException, InterruptedException, HornetQException
+   public synchronized void close() throws IOException, InterruptedException, ActiveMQException
    {
       if (!opened)
       {
@@ -178,7 +178,7 @@ public class AIOSequentialFile extends AbstractSequentialFile implements IOExcep
       open(maxIO, true);
    }
 
-   public synchronized void open(final int maxIO, final boolean useExecutor) throws HornetQException
+   public synchronized void open(final int maxIO, final boolean useExecutor) throws ActiveMQException
    {
       opened = true;
 
@@ -188,7 +188,7 @@ public class AIOSequentialFile extends AbstractSequentialFile implements IOExcep
       {
          aioFile.open(getFile().getAbsolutePath(), maxIO);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          factory.onIOError(e, e.getMessage(), this);
          throw e;
@@ -206,7 +206,7 @@ public class AIOSequentialFile extends AbstractSequentialFile implements IOExcep
       aioFile.setBufferCallback(callback);
    }
 
-   public int read(final ByteBuffer bytes, final IOAsyncTask callback) throws HornetQException
+   public int read(final ByteBuffer bytes, final IOAsyncTask callback) throws ActiveMQException
    {
       int bytesToRead = bytes.limit();
 
@@ -292,7 +292,7 @@ public class AIOSequentialFile extends AbstractSequentialFile implements IOExcep
       aioFile.write(positionToWrite, bytesToWrite, bytes, callback);
    }
 
-   public void writeInternal(final ByteBuffer bytes) throws HornetQException
+   public void writeInternal(final ByteBuffer bytes) throws ActiveMQException
    {
       final int bytesToWrite = factory.calculateBlockSize(bytes.limit());
 

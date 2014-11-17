@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
@@ -94,7 +94,7 @@ public class PageTest extends UnitTestCase
 
       SimpleString simpleDestination = new SimpleString("Test");
 
-      ArrayList<HornetQBuffer> buffers = addPageElements(simpleDestination, impl, numberOfElements);
+      ArrayList<ActiveMQBuffer> buffers = addPageElements(simpleDestination, impl, numberOfElements);
 
       impl.sync();
       impl.close();
@@ -141,7 +141,7 @@ public class PageTest extends UnitTestCase
 
       SimpleString simpleDestination = new SimpleString("Test");
 
-      ArrayList<HornetQBuffer> buffers = addPageElements(simpleDestination, impl, numberOfElements);
+      ArrayList<ActiveMQBuffer> buffers = addPageElements(simpleDestination, impl, numberOfElements);
 
       impl.sync();
 
@@ -207,11 +207,11 @@ public class PageTest extends UnitTestCase
     * @return
     * @throws Exception
     */
-   protected ArrayList<HornetQBuffer> addPageElements(final SimpleString simpleDestination,
+   protected ArrayList<ActiveMQBuffer> addPageElements(final SimpleString simpleDestination,
                                                       final Page page,
                                                       final int numberOfElements) throws Exception
    {
-      ArrayList<HornetQBuffer> buffers = new ArrayList<HornetQBuffer>();
+      ArrayList<ActiveMQBuffer> buffers = new ArrayList<ActiveMQBuffer>();
 
       int initialNumberOfMessages = page.getNumberOfMessages();
 

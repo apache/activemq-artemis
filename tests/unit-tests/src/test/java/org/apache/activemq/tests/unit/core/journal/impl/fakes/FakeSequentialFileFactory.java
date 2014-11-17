@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.asyncio.BufferCallback;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOAsyncTask;
@@ -251,7 +251,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
 
          if (sendError)
          {
-            callback.onError(HornetQExceptionType.UNSUPPORTED_PACKET.getCode(), "Fake aio error");
+            callback.onError(ActiveMQExceptionType.UNSUPPORTED_PACKET.getCode(), "Fake aio error");
          }
          else
          {
@@ -271,7 +271,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
             catch (Throwable e)
             {
                e.printStackTrace();
-               callback.onError(HornetQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
+               callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
             }
          }
       }
@@ -603,7 +603,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       /* (non-Javadoc)
        * @see org.apache.activemq.core.journal.SequentialFile#write(org.apache.activemq.spi.core.remoting.HornetQBuffer, boolean, org.apache.activemq.core.journal.IOCallback)
        */
-      public void write(final HornetQBuffer bytes, final boolean sync, final IOAsyncTask callback) throws Exception
+      public void write(final ActiveMQBuffer bytes, final boolean sync, final IOAsyncTask callback) throws Exception
       {
          bytes.writerIndex(bytes.capacity());
          bytes.readerIndex(0);
@@ -614,7 +614,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       /* (non-Javadoc)
        * @see org.apache.activemq.core.journal.SequentialFile#write(org.apache.activemq.spi.core.remoting.HornetQBuffer, boolean)
        */
-      public void write(final HornetQBuffer bytes, final boolean sync) throws Exception
+      public void write(final ActiveMQBuffer bytes, final boolean sync) throws Exception
       {
          bytes.writerIndex(bytes.capacity());
          bytes.readerIndex(0);
@@ -627,7 +627,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       public void write(final EncodingSupport bytes, final boolean sync, final IOAsyncTask callback) throws Exception
       {
          ByteBuffer buffer = newBuffer(bytes.getEncodeSize());
-         HornetQBuffer outbuffer = HornetQBuffers.wrappedBuffer(buffer);
+         ActiveMQBuffer outbuffer = ActiveMQBuffers.wrappedBuffer(buffer);
          bytes.encode(outbuffer);
          write(outbuffer, sync, callback);
       }
@@ -638,7 +638,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       public void write(final EncodingSupport bytes, final boolean sync) throws Exception
       {
          ByteBuffer buffer = newBuffer(bytes.getEncodeSize());
-         HornetQBuffer outbuffer = HornetQBuffers.wrappedBuffer(buffer);
+         ActiveMQBuffer outbuffer = ActiveMQBuffers.wrappedBuffer(buffer);
          bytes.encode(outbuffer);
          write(outbuffer, sync);
       }

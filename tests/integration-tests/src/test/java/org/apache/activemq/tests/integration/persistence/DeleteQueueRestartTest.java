@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.persistence;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -102,7 +102,7 @@ public class DeleteQueueRestartTest extends ServiceTestBase
                session.close();
                count.countDown();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
             }
          }

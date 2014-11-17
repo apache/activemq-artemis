@@ -17,7 +17,7 @@ package org.apache.activemq.tests.integration.cluster.util;
 
 import java.util.concurrent.locks.Lock;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.ChannelHandler;
@@ -92,7 +92,7 @@ public class BackupSyncDelay implements Interceptor
    }
 
    @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
    {
       if (packet.getType() == PacketImpl.BACKUP_REGISTRATION)
       {
@@ -252,7 +252,7 @@ public class BackupSyncDelay implements Interceptor
       }
 
       @Override
-      public Packet sendBlocking(Packet packet, byte expected) throws HornetQException
+      public Packet sendBlocking(Packet packet, byte expected) throws ActiveMQException
       {
          throw new UnsupportedOperationException();
       }

@@ -20,7 +20,7 @@ import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -111,7 +111,7 @@ public class BasicXaRecoveryTest extends ServiceTestBase
          {
             clientSession.close();
          }
-         catch (HornetQException e1)
+         catch (ActiveMQException e1)
          {
             //
          }

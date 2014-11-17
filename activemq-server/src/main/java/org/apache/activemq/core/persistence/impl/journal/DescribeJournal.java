@@ -19,8 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.journal.EncodingSupport;
@@ -455,7 +455,7 @@ public final class DescribeJournal
    {
       try
       {
-         return XidCodecSupport.decodeXid(HornetQBuffers.wrappedBuffer(data));
+         return XidCodecSupport.decodeXid(ActiveMQBuffers.wrappedBuffer(data));
       }
       catch (Exception e)
       {
@@ -470,7 +470,7 @@ public final class DescribeJournal
 
    public static Object newObjectEncoding(RecordInfo info, JournalStorageManager storageManager)
    {
-      HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(info.data);
+      ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(info.data);
       long id = info.id;
       int rec = info.getUserRecordType();
 

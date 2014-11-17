@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -237,7 +237,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return newFailoverLock;
    }
 
-   public void connect(final int initialConnectAttempts, final boolean failoverOnInitialConnection) throws HornetQException
+   public void connect(final int initialConnectAttempts, final boolean failoverOnInitialConnection) throws ActiveMQException
    {
       // Get the connection
       getConnectionWithRetry(initialConnectAttempts);
@@ -250,7 +250,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          {
             msg.append(" and backup configuration ").append(backupConfig);
          }
-         throw new HornetQNotConnectedException(msg.toString());
+         throw new ActiveMQNotConnectedException(msg.toString());
       }
 
    }
@@ -310,7 +310,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                       final boolean autoCommitSends,
                                       final boolean autoCommitAcks,
                                       final boolean preAcknowledge,
-                                      final int ackBatchSize) throws HornetQException
+                                      final int ackBatchSize) throws ActiveMQException
    {
       return createSessionInternal(username,
                                    password,
@@ -323,7 +323,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    public ClientSession createSession(final boolean autoCommitSends,
                                       final boolean autoCommitAcks,
-                                      final int ackBatchSize) throws HornetQException
+                                      final int ackBatchSize) throws ActiveMQException
    {
       return createSessionInternal(null,
                                    null,
@@ -334,7 +334,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    ackBatchSize);
    }
 
-   public ClientSession createXASession() throws HornetQException
+   public ClientSession createXASession() throws ActiveMQException
    {
       return createSessionInternal(null,
                                    null,
@@ -345,7 +345,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    serverLocator.getAckBatchSize());
    }
 
-   public ClientSession createTransactedSession() throws HornetQException
+   public ClientSession createTransactedSession() throws ActiveMQException
    {
       return createSessionInternal(null,
                                    null,
@@ -356,7 +356,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    serverLocator.getAckBatchSize());
    }
 
-   public ClientSession createSession() throws HornetQException
+   public ClientSession createSession() throws ActiveMQException
    {
       return createSessionInternal(null,
                                    null,
@@ -367,7 +367,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    serverLocator.getAckBatchSize());
    }
 
-   public ClientSession createSession(final boolean autoCommitSends, final boolean autoCommitAcks) throws HornetQException
+   public ClientSession createSession(final boolean autoCommitSends, final boolean autoCommitAcks) throws ActiveMQException
    {
       return createSessionInternal(null,
                                    null,
@@ -378,7 +378,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                    serverLocator.getAckBatchSize());
    }
 
-   public ClientSession createSession(final boolean xa, final boolean autoCommitSends, final boolean autoCommitAcks) throws HornetQException
+   public ClientSession createSession(final boolean xa, final boolean autoCommitSends, final boolean autoCommitAcks) throws ActiveMQException
    {
       return createSessionInternal(null,
                                    null,
@@ -392,7 +392,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    public ClientSession createSession(final boolean xa,
                                       final boolean autoCommitSends,
                                       final boolean autoCommitAcks,
-                                      final boolean preAcknowledge) throws HornetQException
+                                      final boolean preAcknowledge) throws ActiveMQException
    {
       return createSessionInternal(null,
                                    null,
@@ -413,7 +413,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    {
       // The exception has to be created in the same thread where it's being called
       // as to avoid a different stack trace cause
-      final HornetQException ex = HornetQClientMessageBundle.BUNDLE.channelDisconnected();
+      final ActiveMQException ex = HornetQClientMessageBundle.BUNDLE.channelDisconnected();
 
       // It has to use the same executor as the disconnect message is being sent through
 
@@ -427,7 +427,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    }
 
-   public void connectionException(final Object connectionID, final HornetQException me)
+   public void connectionException(final Object connectionID, final ActiveMQException me)
    {
       handleConnectionFailure(connectionID, me);
    }
@@ -559,18 +559,18 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       stopPingingAfterOne = true;
    }
 
-   private void handleConnectionFailure(final Object connectionID, final HornetQException me)
+   private void handleConnectionFailure(final Object connectionID, final ActiveMQException me)
    {
       handleConnectionFailure(connectionID, me, null);
    }
 
-   private void handleConnectionFailure(final Object connectionID, final HornetQException me, String scaleDownTargetNodeID)
+   private void handleConnectionFailure(final Object connectionID, final ActiveMQException me, String scaleDownTargetNodeID)
    {
       try
       {
          failoverOrReconnect(connectionID, me, scaleDownTargetNodeID);
       }
-      catch (HornetQInterruptedException e1)
+      catch (ActiveMQInterruptedException e1)
       {
          // this is just a debug, since an interrupt is an expected event (in case of a shutdown)
          HornetQClientLogger.LOGGER.debug(e1.getMessage(), e1);
@@ -582,7 +582,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
     * @param connectionID
     * @param me
     */
-   private void failoverOrReconnect(final Object connectionID, final HornetQException me, String scaleDownTargetNodeID)
+   private void failoverOrReconnect(final Object connectionID, final ActiveMQException me, String scaleDownTargetNodeID)
    {
       Set<ClientSessionInternal> sessionsToClose = null;
       if (!clientProtocolManager.isAlive())
@@ -630,7 +630,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          // locked.
          // While this is still locked it must then get the channel1 lock
          // It can then release the failoverLock
-         // It should catch HornetQException.INTERRUPTED in the call to channel.sendBlocking
+         // It should catch ActiveMQException.INTERRUPTED in the call to channel.sendBlocking
          // It should then return its connections, with channel 1 lock still held
          // It can then release the channel 1 lock, and retry (which will cause locking on
          // failoverLock
@@ -740,7 +740,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                                final boolean autoCommitSends,
                                                final boolean autoCommitAcks,
                                                final boolean preAcknowledge,
-                                               final int ackBatchSize) throws HornetQException
+                                               final int ackBatchSize) throws ActiveMQException
    {
       String name = UUIDGenerator.getInstance().generateStringUUID();
 
@@ -795,13 +795,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
 
-   private void callSessionFailureListeners(final HornetQException me, final boolean afterReconnect,
+   private void callSessionFailureListeners(final ActiveMQException me, final boolean afterReconnect,
                                             final boolean failedOver)
    {
       callSessionFailureListeners(me, afterReconnect, failedOver, null);
    }
 
-   private void callSessionFailureListeners(final HornetQException me, final boolean afterReconnect,
+   private void callSessionFailureListeners(final ActiveMQException me, final boolean afterReconnect,
                                             final boolean failedOver, final String scaleDownTargetNodeID)
    {
       final List<SessionFailureListener> listenersClone = new ArrayList<SessionFailureListener>(listeners);
@@ -852,7 +852,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    /*
     * Re-attach sessions all pre-existing sessions to the new remoting connection
     */
-   private void reconnectSessions(final RemotingConnection oldConnection, final int reconnectAttempts, final HornetQException cause)
+   private void reconnectSessions(final RemotingConnection oldConnection, final int reconnectAttempts, final ActiveMQException cause)
    {
       HashSet<ClientSessionInternal> sessionsToFailover;
       synchronized (sessions)
@@ -967,7 +967,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                }
                catch (InterruptedException ignore)
                {
-                  throw new HornetQInterruptedException(createTrace);
+                  throw new ActiveMQInterruptedException(createTrace);
                }
 
                // Exponential back-off
@@ -1065,7 +1065,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                      connection = null;
                   }
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   if (connection != null)
                   {
@@ -1382,7 +1382,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private class DelegatingBufferHandler implements BufferHandler
    {
-      public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+      public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
       {
          RemotingConnection theConn = connection;
 
@@ -1407,13 +1407,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
 
       @Override
-      public void connectionFailed(final HornetQException me, final boolean failedOver)
+      public void connectionFailed(final ActiveMQException me, final boolean failedOver)
       {
          connectionFailed(me, failedOver, null);
       }
 
       @Override
-      public void connectionFailed(final HornetQException me, final boolean failedOver, String scaleDownTargetNodeID)
+      public void connectionFailed(final ActiveMQException me, final boolean failedOver, String scaleDownTargetNodeID)
       {
          handleConnectionFailure(connectionID, me, scaleDownTargetNodeID);
       }
@@ -1473,7 +1473,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                // We use a different thread to send the fail
                // but the exception has to be created here to preserve the stack trace
-               final HornetQException me = HornetQClientMessageBundle.BUNDLE.connectionTimedOut(connection.getTransportConnection());
+               final ActiveMQException me = HornetQClientMessageBundle.BUNDLE.connectionTimedOut(connection.getTransportConnection());
 
                cancelled = true;
 
@@ -1550,7 +1550,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                                  final boolean xa,
                                                  final boolean autoCommitSends,
                                                  final boolean autoCommitAcks,
-                                                 final boolean preAcknowledge) throws HornetQException
+                                                 final boolean preAcknowledge) throws ActiveMQException
    {
       synchronized (createSessionLock)
       {

@@ -15,8 +15,8 @@ package org.apache.activemq.tests.integration.client;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -71,25 +71,25 @@ public class ConsumerCloseTest extends ServiceTestBase
 
       Assert.assertTrue(consumer.isClosed());
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             consumer.receive();
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             consumer.receiveImmediate();
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             consumer.setMessageHandler(new MessageHandler()
             {

@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.protocol.stomp.StompFrame;
 
@@ -43,17 +43,17 @@ public class StompFrameV11 extends StompFrame
    }
 
    @Override
-   public HornetQBuffer toHornetQBuffer() throws Exception
+   public ActiveMQBuffer toHornetQBuffer() throws Exception
    {
       if (buffer == null)
       {
          if (bytesBody != null)
          {
-            buffer = HornetQBuffers.dynamicBuffer(bytesBody.length + 512);
+            buffer = ActiveMQBuffers.dynamicBuffer(bytesBody.length + 512);
          }
          else
          {
-            buffer = HornetQBuffers.dynamicBuffer(512);
+            buffer = ActiveMQBuffers.dynamicBuffer(512);
          }
 
          StringBuffer head = new StringBuffer();

@@ -14,19 +14,19 @@
 package org.apache.activemq.core.client;
 
 
-import org.apache.activemq.api.core.HornetQAddressFullException;
-import org.apache.activemq.api.core.HornetQConnectionTimedOutException;
-import org.apache.activemq.api.core.HornetQDisconnectedException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
-import org.apache.activemq.api.core.HornetQInterceptorRejectedPacketException;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
-import org.apache.activemq.api.core.HornetQLargeMessageException;
-import org.apache.activemq.api.core.HornetQLargeMessageInterruptedException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
-import org.apache.activemq.api.core.HornetQTransactionOutcomeUnknownException;
-import org.apache.activemq.api.core.HornetQTransactionRolledBackException;
-import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.api.core.ActiveMQAddressFullException;
+import org.apache.activemq.api.core.ActiveMQConnectionTimedOutException;
+import org.apache.activemq.api.core.ActiveMQDisconnectedException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQInterceptorRejectedPacketException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQLargeMessageException;
+import org.apache.activemq.api.core.ActiveMQLargeMessageInterruptedException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQTransactionOutcomeUnknownException;
+import org.apache.activemq.api.core.ActiveMQTransactionRolledBackException;
+import org.apache.activemq.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.core.cluster.DiscoveryGroup;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.jboss.logging.annotations.Cause;
@@ -51,105 +51,105 @@ public interface HornetQClientMessageBundle
    HornetQClientMessageBundle BUNDLE = Messages.getBundle(HornetQClientMessageBundle.class);
 
    @Message(id = 119000, value = "ClientSession closed while creating session", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException clientSessionClosed();
+   ActiveMQInternalErrorException clientSessionClosed();
 
    @Message(id = 119001, value = "Failed to create session", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException failedToCreateSession(@Cause Throwable t);
+   ActiveMQInternalErrorException failedToCreateSession(@Cause Throwable t);
 
    @Message(id = 119002, value = "Internal Error! ClientSessionFactoryImpl::createSessionInternal "
                                           + "just reached a condition that was not supposed to happen. "
                                       + "Please inform this condition to the HornetQ team", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException clietSessionInternal();
+   ActiveMQInternalErrorException clietSessionInternal();
 
    @Message(id = 119003, value = "Queue can not be both durable and temporary", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException queueMisConfigured();
+   ActiveMQInternalErrorException queueMisConfigured();
 
    @Message(id = 119004, value = "Failed to initialise session factory", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException failedToInitialiseSessionFactory(@Cause Exception e);
+   ActiveMQInternalErrorException failedToInitialiseSessionFactory(@Cause Exception e);
 
    @Message(id = 119005, value = "Exception in Netty transport", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException nettyError();
+   ActiveMQInternalErrorException nettyError();
 
    @Message(id = 119006, value =  "Channel disconnected", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNotConnectedException channelDisconnected();
+   ActiveMQNotConnectedException channelDisconnected();
 
    @Message(id = 119007, value =  "Cannot connect to server(s). Tried with all available servers.", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNotConnectedException cannotConnectToServers();
+   ActiveMQNotConnectedException cannotConnectToServers();
 
    @Message(id = 119008, value =  "Failed to connect to any static connectors", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNotConnectedException cannotConnectToStaticConnectors(@Cause Exception e);
+   ActiveMQNotConnectedException cannotConnectToStaticConnectors(@Cause Exception e);
 
    @Message(id = 119009, value =  "Failed to connect to any static connectors", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNotConnectedException cannotConnectToStaticConnectors2();
+   ActiveMQNotConnectedException cannotConnectToStaticConnectors2();
 
    @Message(id = 119010, value =  "Connection is destroyed", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNotConnectedException connectionDestroyed();
+   ActiveMQNotConnectedException connectionDestroyed();
 
    @Message(id = 119011, value =  "Did not receive data from server for {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQConnectionTimedOutException connectionTimedOut(Connection transportConnection);
+   ActiveMQConnectionTimedOutException connectionTimedOut(Connection transportConnection);
 
    @Message(id = 119012, value =  "Timed out waiting to receive initial broadcast from cluster", format = Message.Format.MESSAGE_FORMAT)
-   HornetQConnectionTimedOutException connectionTimedOutInInitialBroadcast();
+   ActiveMQConnectionTimedOutException connectionTimedOutInInitialBroadcast();
 
    @Message(id = 119013, value =  "Timed out waiting to receive cluster topology. Group:{0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQConnectionTimedOutException connectionTimedOutOnReceiveTopology(DiscoveryGroup discoveryGroup);
+   ActiveMQConnectionTimedOutException connectionTimedOutOnReceiveTopology(DiscoveryGroup discoveryGroup);
 
    @Message(id = 119014, value =  "Timed out waiting for response when sending packet {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQConnectionTimedOutException timedOutSendingPacket(Byte type);
+   ActiveMQConnectionTimedOutException timedOutSendingPacket(Byte type);
 
    @Message(id = 119015, value =  "The connection was disconnected because of server shutdown", format = Message.Format.MESSAGE_FORMAT)
-   HornetQDisconnectedException disconnected();
+   ActiveMQDisconnectedException disconnected();
 
    @Message(id = 119016, value =  "Connection failure detected. Unblocking a blocking call that will never get a resp" +
          "onse", format = Message.Format.MESSAGE_FORMAT)
-   HornetQUnBlockedException unblockingACall(@Cause Throwable t);
+   ActiveMQUnBlockedException unblockingACall(@Cause Throwable t);
 
    @Message(id = 119017, value =  "Consumer is closed", format = Message.Format.MESSAGE_FORMAT)
-   HornetQObjectClosedException consumerClosed();
+   ActiveMQObjectClosedException consumerClosed();
 
    @Message(id = 119018, value =  "Producer is closed", format = Message.Format.MESSAGE_FORMAT)
-   HornetQObjectClosedException producerClosed();
+   ActiveMQObjectClosedException producerClosed();
 
    @Message(id = 119019, value =  "Session is closed", format = Message.Format.MESSAGE_FORMAT)
-   HornetQObjectClosedException sessionClosed();
+   ActiveMQObjectClosedException sessionClosed();
 
    @Message(id = 119020, value =  "Cannot call receive(...) - a MessageHandler is set", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException messageHandlerSet();
+   ActiveMQIllegalStateException messageHandlerSet();
 
    @Message(id = 119021, value =  "Cannot set MessageHandler - consumer is in receive(...)", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException inReceive();
+   ActiveMQIllegalStateException inReceive();
 
    @Message(id = 119022, value =  "Header size ({0}) is too big, use the messageBody for large data, or increase minLargeMessageSize",
          format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException headerSizeTooBig(Integer headerSize);
+   ActiveMQIllegalStateException headerSizeTooBig(Integer headerSize);
 
    @Message(id = 119023, value =  "The large message lost connection with its session, either because of a rollback or a closed session", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException largeMessageLostSession();
+   ActiveMQIllegalStateException largeMessageLostSession();
 
    @Message(id = 119024, value =  "Could not select a TransportConfiguration to create SessionFactory", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException noTCForSessionFactory();
+   ActiveMQIllegalStateException noTCForSessionFactory();
 
    @Message(id = 119025, value = "Error saving the message body", format = Message.Format.MESSAGE_FORMAT)
-   HornetQLargeMessageException errorSavingBody(@Cause Exception e);
+   ActiveMQLargeMessageException errorSavingBody(@Cause Exception e);
 
    @Message(id = 119026, value =  "Error reading the LargeMessageBody", format = Message.Format.MESSAGE_FORMAT)
-   HornetQLargeMessageException errorReadingBody(@Cause Exception e);
+   ActiveMQLargeMessageException errorReadingBody(@Cause Exception e);
 
    @Message(id = 119027, value =  "Error closing stream from LargeMessageBody", format = Message.Format.MESSAGE_FORMAT)
-   HornetQLargeMessageException errorClosingLargeMessage(@Cause Exception e);
+   ActiveMQLargeMessageException errorClosingLargeMessage(@Cause Exception e);
 
    @Message(id = 119028, value =  "Timeout waiting for LargeMessage Body", format = Message.Format.MESSAGE_FORMAT)
-   HornetQLargeMessageException timeoutOnLargeMessage();
+   ActiveMQLargeMessageException timeoutOnLargeMessage();
 
    @Message(id = 119029, value =  "Error writing body of message", format = Message.Format.MESSAGE_FORMAT)
-   HornetQLargeMessageException errorWritingLargeMessage(@Cause Exception e);
+   ActiveMQLargeMessageException errorWritingLargeMessage(@Cause Exception e);
 
    @Message(id = 119030, value =  "The transaction was rolled back on failover to a backup server", format = Message.Format.MESSAGE_FORMAT)
-   HornetQTransactionRolledBackException txRolledBack();
+   ActiveMQTransactionRolledBackException txRolledBack();
 
    @Message(id = 119031, value =  "The transaction was rolled back on failover however commit may have been successful" +
          "", format = Message.Format.MESSAGE_FORMAT)
-   HornetQTransactionOutcomeUnknownException txOutcomeUnknown();
+   ActiveMQTransactionOutcomeUnknownException txOutcomeUnknown();
 
    @Message(id = 119032, value = "Invalid type: {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidType(Object type);
@@ -231,15 +231,15 @@ public interface HornetQClientMessageBundle
    IllegalArgumentException errordecodingPassword(@Cause Exception e);
 
    @Message(id = 119058, value = "Address \"{0}\" is full. Message encode size = {1}B", format = Message.Format.MESSAGE_FORMAT)
-   HornetQAddressFullException addressIsFull(String addressName, int size);
+   ActiveMQAddressFullException addressIsFull(String addressName, int size);
 
    @Message(id = 119059, value = "Interceptor {0} rejected packet in a blocking call. This call will never complete."
          , format = Message.Format.MESSAGE_FORMAT)
-   HornetQInterceptorRejectedPacketException interceptorRejectedPacket(String interceptionResult);
+   ActiveMQInterceptorRejectedPacketException interceptorRejectedPacket(String interceptionResult);
 
    @Message(id = 119060, value = "Large Message Transmission interrupted on consumer shutdown."
          , format = Message.Format.MESSAGE_FORMAT)
-   HornetQLargeMessageInterruptedException largeMessageInterrupted();
+   ActiveMQLargeMessageInterruptedException largeMessageInterrupted();
 
    @Message(id = 119061, value =  "error decoding AMQP frame", format = Message.Format.MESSAGE_FORMAT)
    String decodeError();

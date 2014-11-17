@@ -12,12 +12,12 @@
  */
 package org.apache.activemq.tests.integration.client;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -107,9 +107,9 @@ public class MultipleThreadFilterOneTest extends ServiceTestBase
       }
 
       /**
-       * @throws HornetQException
+       * @throws org.apache.activemq.api.core.ActiveMQException
        */
-      private void sendMessages(int msgs) throws HornetQException
+      private void sendMessages(int msgs) throws ActiveMQException
       {
          ClientProducer producer = prodSession.createProducer(ADDRESS);
 

@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.management;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Before;
 import org.junit.After;
 
@@ -25,7 +26,6 @@ import java.util.Set;
 import org.junit.Assert;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -197,7 +197,7 @@ public class SecurityNotificationTest extends UnitTestCase
 
    // Private -------------------------------------------------------
 
-   private static void flush(final ClientConsumer notifConsumer) throws HornetQException
+   private static void flush(final ClientConsumer notifConsumer) throws ActiveMQException
    {
       ClientMessage message = null;
       do

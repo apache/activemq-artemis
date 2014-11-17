@@ -23,12 +23,12 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQDuplicateIdException;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
-import org.apache.activemq.api.core.HornetQTransactionOutcomeUnknownException;
-import org.apache.activemq.api.core.HornetQTransactionRolledBackException;
+import org.apache.activemq.api.core.ActiveMQDuplicateIdException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQTransactionOutcomeUnknownException;
+import org.apache.activemq.api.core.ActiveMQTransactionRolledBackException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
@@ -159,7 +159,7 @@ public class FailoverTest extends FailoverTestBase
                      if (!producer.isClosed())
                         producer.send(message);
                   }
-                  catch (HornetQException e1)
+                  catch (ActiveMQException e1)
                   {
                      e1.printStackTrace();
                   }
@@ -238,7 +238,7 @@ public class FailoverTest extends FailoverTestBase
                             message.getIntProperty("counter"));
                message.acknowledge();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                e.printStackTrace();
                return;
@@ -320,7 +320,7 @@ public class FailoverTest extends FailoverTestBase
                                  message.getIntProperty("counter"));
                      message.acknowledge();
                   }
-                  catch (HornetQException e)
+                  catch (ActiveMQException e)
                   {
                      e.printStackTrace();
                      continue;
@@ -361,11 +361,11 @@ public class FailoverTest extends FailoverTestBase
                   }
                   return msg;
                }
-               catch (HornetQObjectClosedException oce)
+               catch (ActiveMQObjectClosedException oce)
                {
                   throw new RuntimeException(oce);
                }
-               catch (HornetQException ignored)
+               catch (ActiveMQException ignored)
                {
                   // retry
                   ignored.printStackTrace();
@@ -764,9 +764,9 @@ public class FailoverTest extends FailoverTestBase
 
    /**
     * @param consumer
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void assertNoMoreMessages(ClientConsumer consumer) throws HornetQException
+   private void assertNoMoreMessages(ClientConsumer consumer) throws ActiveMQException
    {
       ClientMessage msg = consumer.receiveImmediate();
       assertNull("there should be no more messages to receive! " + msg, msg);
@@ -821,11 +821,11 @@ public class FailoverTest extends FailoverTestBase
          session.commit();
          fail("session must have rolled back on failover");
       }
-      catch (HornetQTransactionRolledBackException trbe)
+      catch (ActiveMQTransactionRolledBackException trbe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -915,11 +915,11 @@ public class FailoverTest extends FailoverTestBase
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQTransactionRolledBackException trbe)
+      catch (ActiveMQTransactionRolledBackException trbe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -960,11 +960,11 @@ public class FailoverTest extends FailoverTestBase
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQTransactionRolledBackException trbe)
+      catch (ActiveMQTransactionRolledBackException trbe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1096,11 +1096,11 @@ public class FailoverTest extends FailoverTestBase
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQTransactionRolledBackException trbe)
+      catch (ActiveMQTransactionRolledBackException trbe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1702,7 +1702,7 @@ public class FailoverTest extends FailoverTestBase
       receiveDurableMessages(consumer);
    }
 
-   protected void receiveDurableMessages(ClientConsumer consumer) throws HornetQException
+   protected void receiveDurableMessages(ClientConsumer consumer) throws ActiveMQException
    {
       // During failover non-persistent messages may disappear but in certain cases they may survive.
       // For that reason the test is validating all the messages but being permissive with non-persistent messages
@@ -1788,7 +1788,7 @@ public class FailoverTest extends FailoverTestBase
       receiveMessages(consumer, NUM_MESSAGES, NUM_MESSAGES * 2, true);
    }
 
-   protected void receiveMessages(ClientConsumer consumer) throws HornetQException
+   protected void receiveMessages(ClientConsumer consumer) throws ActiveMQException
    {
       receiveMessages(consumer, 0, NUM_MESSAGES, true);
    }
@@ -1880,13 +1880,13 @@ public class FailoverTest extends FailoverTestBase
             {
                producer.send(message);
             }
-            catch (HornetQException e1)
+            catch (ActiveMQException e1)
             {
                this.e = e1;
             }
          }
 
-         volatile HornetQException e;
+         volatile ActiveMQException e;
       }
 
       Sender sender = new Sender();
@@ -1901,9 +1901,9 @@ public class FailoverTest extends FailoverTestBase
 
       Assert.assertNotNull(sender.e.getCause());
 
-      Assert.assertEquals(sender.e.getType(), HornetQExceptionType.UNBLOCKED);
+      Assert.assertEquals(sender.e.getType(), ActiveMQExceptionType.UNBLOCKED);
 
-      Assert.assertEquals(((HornetQException)sender.e.getCause()).getType(), HornetQExceptionType.DISCONNECTED);
+      Assert.assertEquals(((ActiveMQException)sender.e.getCause()).getType(), ActiveMQExceptionType.DISCONNECTED);
 
       session.close();
    }
@@ -1957,7 +1957,7 @@ public class FailoverTest extends FailoverTestBase
 
                session.commit();
             }
-            catch (HornetQTransactionRolledBackException trbe)
+            catch (ActiveMQTransactionRolledBackException trbe)
             {
                // Ok - now we retry the commit after removing the interceptor
 
@@ -1969,12 +1969,12 @@ public class FailoverTest extends FailoverTestBase
 
                   failed = false;
                }
-               catch (HornetQException e2)
+               catch (ActiveMQException e2)
                {
                   throw new RuntimeException(e2);
                }
             }
-            catch (HornetQTransactionOutcomeUnknownException toue)
+            catch (ActiveMQTransactionOutcomeUnknownException toue)
             {
                // Ok - now we retry the commit after removing the interceptor
 
@@ -1986,12 +1986,12 @@ public class FailoverTest extends FailoverTestBase
 
                   failed = false;
                }
-               catch (HornetQException e2)
+               catch (ActiveMQException e2)
                {
                   throw new RuntimeException(e2);
                }
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                //ignore
             }
@@ -2047,11 +2047,11 @@ public class FailoverTest extends FailoverTestBase
          session2.commit();
          fail("expecting DUPLICATE_ID_REJECTED exception");
       }
-      catch (HornetQDuplicateIdException dide)
+      catch (ActiveMQDuplicateIdException dide)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -2097,7 +2097,7 @@ public class FailoverTest extends FailoverTestBase
 
                session.commit();
             }
-            catch (HornetQTransactionRolledBackException trbe)
+            catch (ActiveMQTransactionRolledBackException trbe)
             {
                // Ok - now we retry the commit after removing the interceptor
 
@@ -2109,11 +2109,11 @@ public class FailoverTest extends FailoverTestBase
 
                   failed = false;
                }
-               catch (HornetQException e2)
+               catch (ActiveMQException e2)
                {
                }
             }
-            catch (HornetQTransactionOutcomeUnknownException toue)
+            catch (ActiveMQTransactionOutcomeUnknownException toue)
             {
                // Ok - now we retry the commit after removing the interceptor
 
@@ -2125,11 +2125,11 @@ public class FailoverTest extends FailoverTestBase
 
                   failed = false;
                }
-               catch (HornetQException e2)
+               catch (ActiveMQException e2)
                {
                }
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                //ignore
             }

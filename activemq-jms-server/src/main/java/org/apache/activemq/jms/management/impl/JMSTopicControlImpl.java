@@ -20,7 +20,7 @@ import java.util.Map;
 import javax.management.MBeanInfo;
 import javax.management.StandardMBean;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.management.AddressControl;
 import org.apache.activemq.api.core.management.HornetQServerControl;
@@ -53,7 +53,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
    // Static --------------------------------------------------------
 
-   public static String createFilterFromJMSSelector(final String selectorStr) throws HornetQException
+   public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException
    {
       return selectorStr == null || selectorStr.trim().length() == 0 ? null
                                                                     : SelectorTranslator.convertToHornetQFilterString(selectorStr);

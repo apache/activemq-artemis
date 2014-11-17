@@ -14,7 +14,7 @@ package org.apache.activemq.tests.performance.paging;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -181,12 +181,12 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
     * @param nMessages
     * @param messageSize
     * @param factory
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private void sendInitialBatch(final SimpleString adr,
                                  final int nMessages,
                                  final int messageSize,
-                                 final ClientSessionFactory factory) throws HornetQException
+                                 final ClientSessionFactory factory) throws ActiveMQException
    {
       ClientSession session = factory.createSession(false, true, true);
       ClientProducer producer = session.createProducer(adr);
@@ -201,9 +201,9 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
     * @param nMessages
     * @param producer
     * @param msg
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void sendMessages(final int nMessages, final ClientProducer producer, final ClientMessage msg) throws HornetQException
+   private void sendMessages(final int nMessages, final ClientProducer producer, final ClientMessage msg) throws ActiveMQException
    {
       for (int i = 0; i < nMessages; i++)
       {
@@ -214,9 +214,9 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
    /**
     * @param factory
     * @param adr
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws HornetQException
+   private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException
    {
       {
          ClientSession session = factory.createSession(false, false, false);

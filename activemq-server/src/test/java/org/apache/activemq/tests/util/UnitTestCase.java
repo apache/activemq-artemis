@@ -49,9 +49,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -586,7 +586,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       }
    }
 
-   public static void assertEqualsBuffers(final int size, final HornetQBuffer expected, final HornetQBuffer actual)
+   public static void assertEqualsBuffers(final int size, final ActiveMQBuffer expected, final ActiveMQBuffer actual)
    {
       // assertEquals(expected.length, actual.length);
       expected.readerIndex(0);
@@ -883,7 +883,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       return testDir1 + "/temp";
    }
 
-   protected static void expectHornetQException(final String message, final HornetQExceptionType errorCode, final HornetQAction action)
+   protected static void expectHornetQException(final String message, final ActiveMQExceptionType errorCode, final HornetQAction action)
    {
       try
       {
@@ -892,14 +892,14 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       }
       catch (Exception e)
       {
-         Assert.assertTrue(e instanceof HornetQException);
-         Assert.assertEquals(errorCode, ((HornetQException) e).getType());
+         Assert.assertTrue(e instanceof ActiveMQException);
+         Assert.assertEquals(errorCode, ((ActiveMQException) e).getType());
       }
    }
 
-   protected static void expectHornetQException(final HornetQExceptionType errorCode, final HornetQAction action)
+   protected static void expectHornetQException(final ActiveMQExceptionType errorCode, final HornetQAction action)
    {
-      UnitTestCase.expectHornetQException("must throw a HornetQException with the expected errorCode: " + errorCode,
+      UnitTestCase.expectHornetQException("must throw a ActiveMQException with the expected errorCode: " + errorCode,
                                           errorCode,
                                           action);
    }

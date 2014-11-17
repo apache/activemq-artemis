@@ -14,7 +14,7 @@ package org.apache.activemq.core.libaio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  * @author Clebert Suconic
@@ -38,7 +38,7 @@ public class Native
 
    public static native void newInit(Class someClass);
 
-   public static native ByteBuffer init(Class controllerClass, String fileName, int maxIO, Object logger) throws HornetQException;
+   public static native ByteBuffer init(Class controllerClass, String fileName, int maxIO, Object logger) throws ActiveMQException;
 
    public static native long size0(ByteBuffer handle);
 
@@ -47,17 +47,17 @@ public class Native
                              long position,
                              long size,
                              ByteBuffer buffer,
-                             Object aioPackageCallback) throws HornetQException;
+                             Object aioPackageCallback) throws ActiveMQException;
 
    /** a direct write to the file without the use of libaio's submit. */
-   public static native void writeInternal(ByteBuffer handle, long positionToWrite, long size, ByteBuffer bytes) throws HornetQException;
+   public static native void writeInternal(ByteBuffer handle, long positionToWrite, long size, ByteBuffer bytes) throws ActiveMQException;
 
    /**
     *This is using org.apache.activemq.core.asyncio.AIOCallback
      */
-   public static native void read(Object thisObject, ByteBuffer handle, long position, long size, ByteBuffer buffer, Object aioPackageCallback) throws HornetQException;
+   public static native void read(Object thisObject, ByteBuffer handle, long position, long size, ByteBuffer buffer, Object aioPackageCallback) throws ActiveMQException;
 
-   public static native void fill(ByteBuffer handle, long position, int blocks, long size, byte fillChar) throws HornetQException;
+   public static native void fill(ByteBuffer handle, long position, int blocks, long size, byte fillChar) throws ActiveMQException;
 
    public static native void closeInternal(ByteBuffer handler);
 

@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -99,11 +99,11 @@ public class ReceiveTest extends ServiceTestBase
          cc.receive();
          Assert.fail("should throw exception");
       }
-      catch (HornetQObjectClosedException oce)
+      catch (ActiveMQObjectClosedException oce)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -130,11 +130,11 @@ public class ReceiveTest extends ServiceTestBase
          cc.receive();
          Assert.fail("should throw exception");
       }
-      catch (HornetQIllegalStateException ise)
+      catch (ActiveMQIllegalStateException ise)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.api.core.management.CoreNotificationType;
@@ -289,7 +289,7 @@ public final class InVMAcceptor implements Acceptor
          }
       }
 
-      public void connectionException(final Object connectionID, final HornetQException me)
+      public void connectionException(final Object connectionID, final ActiveMQException me)
       {
          listener.connectionException(connectionID, me);
       }

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.DataConstants;
@@ -266,9 +266,9 @@ public class PacketImpl implements Packet
       this.channelID = channelID;
    }
 
-   public HornetQBuffer encode(final RemotingConnection connection)
+   public ActiveMQBuffer encode(final RemotingConnection connection)
    {
-      HornetQBuffer buffer = connection.createBuffer(PacketImpl.INITIAL_PACKET_SIZE);
+      ActiveMQBuffer buffer = connection.createBuffer(PacketImpl.INITIAL_PACKET_SIZE);
 
       // The standard header fields
 
@@ -288,7 +288,7 @@ public class PacketImpl implements Packet
       return buffer;
    }
 
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       channelID = buffer.readLong();
 
@@ -312,11 +312,11 @@ public class PacketImpl implements Packet
       return false;
    }
 
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
    }
 
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
    }
 

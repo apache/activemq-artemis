@@ -28,7 +28,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
@@ -245,7 +245,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
          return builder.build();
 
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new RuntimeException(e);
       }
@@ -257,14 +257,14 @@ public class SubscriptionsResource implements TimeoutTask.Callback
             {
                session.close();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
             }
          }
       }
    }
 
-   protected QueueConsumer createConsumer(boolean durable, boolean autoAck, String subscriptionName, String selector, long timeout, boolean deleteWhenIdle) throws HornetQException
+   protected QueueConsumer createConsumer(boolean durable, boolean autoAck, String subscriptionName, String selector, long timeout, boolean deleteWhenIdle) throws ActiveMQException
    {
       QueueConsumer consumer;
       if (autoAck)
@@ -403,7 +403,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
          ClientSession.QueueQuery query = session.queueQuery(new SimpleString(subscriptionId));
          return query.isExists();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new RuntimeException(e);
       }
@@ -415,7 +415,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
             {
                session.close();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
             }
          }
@@ -432,7 +432,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
          {
             tmp = createConsumer(true, autoAck, subscriptionId, null, consumerTimeoutSeconds * 1000, false);
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new RuntimeException(e);
          }
@@ -499,7 +499,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
 
          session.deleteQueue(subscriptionName);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
       }
       finally
@@ -510,7 +510,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
             {
                session.close();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
             }
          }

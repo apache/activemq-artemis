@@ -29,9 +29,9 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -184,8 +184,8 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
       // make sure we failed *before* the HTTP hand-shake timeout elapsed (which is hard-coded to 30 seconds, see org.apache.activemq.core.remoting.impl.netty.NettyConnector.HttpUpgradeHandler.awaitHandshake())
       assertTrue((System.currentTimeMillis() - start) < 30000);
       assertNotNull(e);
-      assertTrue(e instanceof HornetQNotConnectedException);
-      assertTrue(((HornetQException) e).getType() == HornetQExceptionType.NOT_CONNECTED);
+      assertTrue(e instanceof ActiveMQNotConnectedException);
+      assertTrue(((ActiveMQException) e).getType() == ActiveMQExceptionType.NOT_CONNECTED);
    }
 
    private void startWebServer(int port) throws InterruptedException

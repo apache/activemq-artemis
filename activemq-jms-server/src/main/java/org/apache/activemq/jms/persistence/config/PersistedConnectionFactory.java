@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.jms.persistence.config;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
@@ -82,14 +82,14 @@ public class PersistedConnectionFactory implements EncodingSupport
    }
 
    @Override
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       config = new ConnectionFactoryConfigurationImpl();
       config.decode(buffer);
    }
 
    @Override
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       config.encode(buffer);
    }

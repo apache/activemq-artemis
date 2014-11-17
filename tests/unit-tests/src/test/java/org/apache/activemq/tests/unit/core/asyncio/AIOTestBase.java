@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.asyncio.AIOCallback;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -71,7 +71,7 @@ public abstract class AIOTestBase extends UnitTestCase
 
    }
 
-   protected void preAlloc(final AsynchronousFileImpl controller, final long size) throws HornetQException
+   protected void preAlloc(final AsynchronousFileImpl controller, final long size) throws ActiveMQException
    {
       controller.fill(0L, 1, size, (byte)0);
    }

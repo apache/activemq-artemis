@@ -17,7 +17,7 @@ package org.apache.activemq.core.persistence.impl.journal;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -72,7 +72,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
       syncDone = true;
    }
 
-   public SequentialFile getSyncFile() throws HornetQException
+   public SequentialFile getSyncFile() throws ActiveMQException
    {
       return mainLM.getFile();
    }

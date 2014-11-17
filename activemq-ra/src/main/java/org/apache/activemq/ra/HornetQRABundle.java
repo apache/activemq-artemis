@@ -13,7 +13,7 @@
 package org.apache.activemq.ra;
 
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
@@ -42,7 +42,7 @@ public interface HornetQRABundle
    HornetQRABundle BUNDLE = Messages.getBundle(HornetQRABundle.class);
 
    @Message(id = 159000, value = "Error decoding password using codec instance", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException errorDecodingPassword(@Cause Exception e);
+   ActiveMQIllegalStateException errorDecodingPassword(@Cause Exception e);
 
    @Message(id = 159001, value = "MDB cannot be deployed as it has no Activation Spec. Please provide an Activation!", format = Message.Format.MESSAGE_FORMAT)
    NotSupportedException noActivationSpec();

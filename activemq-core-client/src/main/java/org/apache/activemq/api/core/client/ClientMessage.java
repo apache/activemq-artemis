@@ -15,7 +15,7 @@ package org.apache.activemq.api.core.client;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 
@@ -49,10 +49,10 @@ public interface ClientMessage extends Message
     * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
     * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
     * this acknowledgement will not be committed until the client commits the session transaction.
-    * @throws HornetQException if an error occurred while acknowledging the message.
+    * @throws org.apache.activemq.api.core.ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
-   ClientMessage acknowledge() throws HornetQException;
+   ClientMessage acknowledge() throws ActiveMQException;
 
    /**
     * Acknowledges reception of a single message.
@@ -60,10 +60,10 @@ public interface ClientMessage extends Message
     * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
     * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
     * this acknowledgement will not be committed until the client commits the session transaction.
-    * @throws HornetQException if an error occurred while acknowledging the message.
+    * @throws org.apache.activemq.api.core.ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
-   ClientMessage individualAcknowledge() throws HornetQException;
+   ClientMessage individualAcknowledge() throws ActiveMQException;
 
    /**
     * This can be optionally used to verify if the entire message has been received.
@@ -71,9 +71,9 @@ public interface ClientMessage extends Message
     * The use case for this is to make sure there won't be an exception while getting the buffer.
     * Using getBodyBuffer directly would have the same effect but you could get a Runtime non checked Exception
     * instead
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   void checkCompletion() throws HornetQException;
+   void checkCompletion() throws ActiveMQException;
 
    /**
     * Returns the size (in bytes) of this message's body
@@ -85,19 +85,19 @@ public interface ClientMessage extends Message
     * <br>
     * This method is used when consuming large messages
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * @return this ClientMessage
     */
-   ClientMessage setOutputStream(OutputStream out) throws HornetQException;
+   ClientMessage setOutputStream(OutputStream out) throws ActiveMQException;
 
    /**
     * Saves the content of the message to the OutputStream.
     * It will block until the entire content is transferred to the OutputStream.
     * <br>
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   void saveToOutputStream(OutputStream out) throws HornetQException;
+   void saveToOutputStream(OutputStream out) throws ActiveMQException;
 
    /**
     * Wait the outputStream completion of the message.
@@ -106,9 +106,9 @@ public interface ClientMessage extends Message
     *
     * @param timeMilliseconds - 0 means wait forever
     * @return true if it reached the end
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   boolean waitOutputStreamCompletion(long timeMilliseconds) throws HornetQException;
+   boolean waitOutputStreamCompletion(long timeMilliseconds) throws ActiveMQException;
 
    /**
     * Sets the body's IntputStream.

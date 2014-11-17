@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -83,7 +83,7 @@ public class AddressFullLoggingTest extends ServiceTestBase
       ExecutorService executor = Executors.newFixedThreadPool(1);
       Callable<Object> sendMessageTask = new Callable<Object>()
       {
-         public Object call() throws HornetQException
+         public Object call() throws ActiveMQException
          {
             producer.send(message);
             return null;

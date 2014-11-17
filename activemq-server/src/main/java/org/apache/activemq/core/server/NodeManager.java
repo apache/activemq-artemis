@@ -18,7 +18,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.UUID;
 import org.apache.activemq.utils.UUIDGenerator;
@@ -83,7 +83,7 @@ public abstract class NodeManager implements HornetQComponent
       }
    }
 
-   public abstract SimpleString readNodeId() throws HornetQIllegalStateException, IOException;
+   public abstract SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException;
 
    public UUID getUUID()
    {

@@ -14,7 +14,7 @@ package org.apache.activemq.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.impl.MessageImpl;
@@ -58,7 +58,7 @@ public abstract class VersionedStompFrameHandler
       this.connection = connection;
    }
 
-   public StompFrame decode(HornetQBuffer buffer) throws HornetQStompException
+   public StompFrame decode(ActiveMQBuffer buffer) throws HornetQStompException
    {
       return decoder.decode(buffer);
    }
@@ -349,7 +349,7 @@ public abstract class VersionedStompFrameHandler
                          subscription.getID());
       }
 
-      HornetQBuffer buffer = serverMessage.getBodyBufferCopy();
+      ActiveMQBuffer buffer = serverMessage.getBodyBufferCopy();
 
       int bodyPos = serverMessage.getEndOfBodyPosition() == -1 ? buffer
          .writerIndex() : serverMessage.getEndOfBodyPosition();

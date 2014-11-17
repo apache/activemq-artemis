@@ -15,7 +15,7 @@ package org.apache.activemq.core.protocol.stomp;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
 
@@ -188,7 +188,7 @@ public class StompDecoder
     * unsupported EOLs ("\r\n" valid for 1.2 only). The StompConnection will switch
     * to proper version decoders on catching such exceptions.
     */
-   public synchronized StompFrame decode(final HornetQBuffer buffer) throws HornetQStompException
+   public synchronized StompFrame decode(final ActiveMQBuffer buffer) throws HornetQStompException
    {
       int readable = buffer.readableBytes();
 

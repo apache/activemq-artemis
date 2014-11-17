@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
@@ -28,7 +28,7 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 public class DelayInterceptor3 implements Interceptor
 {
 
-   public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
    {
       if (packet.getType() == PacketImpl.SESS_COMMIT)
       {

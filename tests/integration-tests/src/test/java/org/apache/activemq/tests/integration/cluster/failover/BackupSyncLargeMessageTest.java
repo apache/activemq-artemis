@@ -12,6 +12,8 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Test;
 
 import java.io.File;
@@ -24,8 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -144,7 +144,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
                sendMessages(session, producer, 20);
                session.commit();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                e.printStackTrace();
                caughtException.set(true);
@@ -165,7 +165,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       session.start();
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
       ClientMessage msg = consumer.receive(2000);
-      HornetQBuffer buffer = msg.getBodyBuffer();
+      ActiveMQBuffer buffer = msg.getBodyBuffer();
 
       for (int j = 0; j < largeMessageSize; j++)
       {

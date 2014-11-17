@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.netty.handler.ssl.SslHandler;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
@@ -100,7 +100,7 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
 
    private class MyInterceptor implements Interceptor
    {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.SESS_SEND)
          {
@@ -171,11 +171,11 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException se)
+      catch (ActiveMQNotConnectedException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

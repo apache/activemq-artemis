@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.cluster.reattach;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.junit.Before;
 import org.junit.After;
 
@@ -21,7 +22,6 @@ import java.util.TimerTask;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -251,7 +251,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ServiceTestBase
          }
          else
          {
-            conn.fail(new HornetQNotConnectedException("blah"));
+            conn.fail(new ActiveMQNotConnectedException("blah"));
          }
 
          log.info("** Fail complete");

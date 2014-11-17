@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -654,7 +654,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
                      totalMessageProduced.incrementAndGet();
                      messageCount++;
                   }
-                  catch (HornetQException e)
+                  catch (ActiveMQException e)
                   {
                      IntegrationTestLogger.LOGGER.warn("Producer thread threw exception while sending messages to " + targetServer + ": " + e.getMessage());
                      // in case of a failure we change the group to make possible errors more likely
@@ -777,7 +777,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
                      m.acknowledge();
                      IntegrationTestLogger.LOGGER.trace("Consumed message " + m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID) + " from server " + targetServer + ". Total consumed: " + totalMessagesConsumed.incrementAndGet());
                   }
-                  catch (HornetQException e)
+                  catch (ActiveMQException e)
                   {
                      errors.incrementAndGet();
                      IntegrationTestLogger.LOGGER.warn("Consumer thread threw exception while receiving messages from server " + targetServer + ".: " + e.getMessage());

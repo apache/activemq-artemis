@@ -13,7 +13,7 @@
 package org.apache.activemq.spi.core.protocol;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -29,7 +29,7 @@ public interface ProtocolManager
 
    void removeHandler(final String name);
 
-   void handleBuffer(RemotingConnection connection, HornetQBuffer buffer);
+   void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer);
 
    void addChannelHandlers(ChannelPipeline pipeline);
 
@@ -42,5 +42,5 @@ public interface ProtocolManager
     */
    MessageConverter getConverter();
 
-   void handshake(NettyServerConnection connection, HornetQBuffer buffer);
+   void handshake(NettyServerConnection connection, ActiveMQBuffer buffer);
 }

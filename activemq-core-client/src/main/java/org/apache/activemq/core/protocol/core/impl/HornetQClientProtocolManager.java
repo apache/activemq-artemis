@@ -19,10 +19,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -250,7 +250,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
    @Override
    public SessionContext createSessionContext(String name, String username, String password,
                                               boolean xa, boolean autoCommitSends, boolean autoCommitAcks,
-                                              boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize) throws HornetQException
+                                              boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize) throws ActiveMQException
    {
       for (Version clientVersion : VersionLoader.getClientVersions())
       {
@@ -267,21 +267,21 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
                                         minLargeMessageSize,
                                         confirmationWindowSize);
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
-            if (e.getType() != HornetQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS)
+            if (e.getType() != ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS)
             {
                throw e;
             }
          }
       }
       connection.destroy();
-      throw new HornetQException(HornetQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS);
+      throw new ActiveMQException(ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS);
    }
 
    public SessionContext createSessionContext(Version clientVersion, String name, String username, String password,
                                               boolean xa, boolean autoCommitSends, boolean autoCommitAcks,
-                                              boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize) throws HornetQException
+                                              boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize) throws ActiveMQException
    {
       if (!isAlive())
          throw HornetQClientMessageBundle.BUNDLE.clientSessionClosed();
@@ -331,12 +331,12 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
                // channel1 reference here has to go away
                response = (CreateSessionResponseMessage) getChannel1().sendBlocking(request, PacketImpl.CREATESESSION_RESP);
             }
-            catch (HornetQException cause)
+            catch (ActiveMQException cause)
             {
                if (!isAlive())
                   throw cause;
 
-               if (cause.getType() == HornetQExceptionType.UNBLOCKED)
+               if (cause.getType() == ActiveMQExceptionType.UNBLOCKED)
                {
                   // This means the thread was blocked on create session and failover unblocked it
                   // so failover could occur
@@ -363,9 +363,9 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
                lock = null;
             }
 
-            if (t instanceof HornetQException)
+            if (t instanceof ActiveMQException)
             {
-               throw (HornetQException) t;
+               throw (ActiveMQException) t;
             }
             else
             {
@@ -392,7 +392,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
 
    }
 
-   public boolean cleanupBeforeFailover(HornetQException cause)
+   public boolean cleanupBeforeFailover(ActiveMQException cause)
    {
 
       boolean needToInterrupt;
@@ -437,7 +437,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
             }
             catch (InterruptedException e1)
             {
-               throw new HornetQInterruptedException(e1);
+               throw new ActiveMQInterruptedException(e1);
             }
          }
       }
@@ -446,7 +446,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
    }
 
    @Override
-   public boolean checkForFailover(String liveNodeID) throws HornetQException
+   public boolean checkForFailover(String liveNodeID) throws ActiveMQException
    {
       CheckFailoverMessage packet = new CheckFailoverMessage(liveNodeID);
       CheckFailoverReplyMessage message = (CheckFailoverReplyMessage) getChannel1().sendBlocking(packet,
@@ -479,7 +479,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
       {
          // no need to send handshake on inVM as inVM is not using the NettyProtocolHandling
          String handshake = "HORNETQ";
-         HornetQBuffer hqbuffer = connection.createBuffer(handshake.length());
+         ActiveMQBuffer hqbuffer = connection.createBuffer(handshake.length());
          hqbuffer.writeBytes(handshake.getBytes());
          transportConnection.write(hqbuffer);
       }
@@ -598,7 +598,7 @@ public class HornetQClientProtocolManager implements ClientProtocolManager
       return ClientPacketDecoder.INSTANCE;
    }
 
-   private void forceReturnChannel1(HornetQException cause)
+   private void forceReturnChannel1(ActiveMQException cause)
    {
       if (connection != null)
       {

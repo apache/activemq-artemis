@@ -21,10 +21,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQIOErrorException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQIOErrorException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
@@ -107,7 +107,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       }
       catch (IOException e)
       {
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
 
@@ -138,7 +138,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       }
       catch (IOException e)
       {
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
 
@@ -154,7 +154,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
    }
 
    @Override
-   public synchronized void close() throws IOException, InterruptedException, HornetQException
+   public synchronized void close() throws IOException, InterruptedException, ActiveMQException
    {
       super.close();
 
@@ -181,7 +181,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       }
       catch (IOException e)
       {
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
       channel = null;
@@ -197,13 +197,13 @@ public final class NIOSequentialFile extends AbstractSequentialFile
    }
 
    public synchronized int read(final ByteBuffer bytes, final IOAsyncTask callback) throws IOException,
-      HornetQIllegalStateException
+      ActiveMQIllegalStateException
    {
       try
       {
          if (channel == null)
          {
-            throw new HornetQIllegalStateException("File " + this.getFileName() + " has a null channel");
+            throw new ActiveMQIllegalStateException("File " + this.getFileName() + " has a null channel");
          }
          int bytesRead = channel.read(bytes);
 
@@ -220,10 +220,10 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       {
          if (callback != null)
          {
-            callback.onError(HornetQExceptionType.IO_ERROR.getCode(), e.getLocalizedMessage());
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getLocalizedMessage());
          }
 
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
 
          throw e;
       }
@@ -239,7 +239,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
          }
          catch (IOException e)
          {
-            factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+            factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
             throw e;
          }
       }
@@ -258,7 +258,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       }
       catch (IOException e)
       {
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
    }
@@ -273,7 +273,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       }
       catch (IOException e)
       {
-         factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
    }
@@ -302,7 +302,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       }
       catch (Exception e)
       {
-         callback.onError(HornetQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
+         callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
       }
    }
 
@@ -326,13 +326,13 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       return super.newBuffer(size, limit);
    }
 
-   private void internalWrite(final ByteBuffer bytes, final boolean sync, final IOAsyncTask callback) throws IOException, HornetQIOErrorException, InterruptedException
+   private void internalWrite(final ByteBuffer bytes, final boolean sync, final IOAsyncTask callback) throws IOException, ActiveMQIOErrorException, InterruptedException
    {
       if (!isOpen())
       {
          if (callback != null)
          {
-            callback.onError(HornetQExceptionType.IO_ERROR.getCode(), "File not opened");
+            callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened");
          }
          else
          {
@@ -352,7 +352,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
          }
          catch (IOException e)
          {
-            factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+            factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          }
       }
       else
@@ -373,13 +373,13 @@ public final class NIOSequentialFile extends AbstractSequentialFile
                   catch (IOException e)
                   {
                      HornetQJournalLogger.LOGGER.errorSubmittingWrite(e);
-                     factory.onIOError(new HornetQIOErrorException(e.getMessage(), e), e.getMessage(), NIOSequentialFile.this);
-                     callback.onError(HornetQExceptionType.IO_ERROR.getCode(), e.getMessage());
+                     factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), NIOSequentialFile.this);
+                     callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
                   }
                   catch (Throwable e)
                   {
                      HornetQJournalLogger.LOGGER.errorSubmittingWrite(e);
-                     callback.onError(HornetQExceptionType.IO_ERROR.getCode(), e.getMessage());
+                     callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
                   }
                }
                finally

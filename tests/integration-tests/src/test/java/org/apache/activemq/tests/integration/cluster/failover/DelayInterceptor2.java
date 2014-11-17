@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.cluster.failover;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
@@ -34,7 +34,7 @@ public class DelayInterceptor2 implements Interceptor
 
    private final CountDownLatch latch = new CountDownLatch(1);
 
-   public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
    {
       if (packet.getType() == PacketImpl.NULL_RESPONSE && loseResponse)
       {

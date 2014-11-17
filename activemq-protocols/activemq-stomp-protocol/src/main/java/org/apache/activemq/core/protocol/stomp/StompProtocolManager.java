@@ -23,8 +23,8 @@ import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.HornetQClient;
@@ -137,7 +137,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
    {
    }
 
-   public void handleBuffer(final RemotingConnection connection, final HornetQBuffer buffer)
+   public void handleBuffer(final RemotingConnection connection, final ActiveMQBuffer buffer)
    {
       StompConnection conn = (StompConnection) connection;
 
@@ -185,7 +185,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, HornetQBuffer buffer)
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
    {
       //Todo move handshake to here
    }
@@ -333,7 +333,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
             HornetQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
             HornetQStompException e = new HornetQStompException("Error sending reply",
-                                                                HornetQExceptionType.createException(errorCode, errorMessage));
+                                                                ActiveMQExceptionType.createException(errorCode, errorMessage));
 
             StompFrame error = e.getFrame();
             send(connection, error);
