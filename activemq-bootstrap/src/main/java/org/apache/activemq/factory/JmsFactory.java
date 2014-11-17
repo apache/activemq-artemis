@@ -30,7 +30,7 @@ public class JmsFactory
          URI configURI = new URI(jms.configuration.replace("\\", "/"));
          try
          {
-            FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/broker/jms/");
+            FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/jms/");
             factory = (JmsFactoryHandler)finder.newInstance(configURI.getScheme());
          }
          catch (IOException ioe )

@@ -1,1 +1,1 @@
-hornetq.cmd run %*
+activemq.cmd run %*

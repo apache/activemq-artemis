@@ -32,7 +32,7 @@ public class BrokerFactory
       BrokerFactoryHandler factory = null;
       try
       {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/broker/");
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/");
          factory = (BrokerFactoryHandler)finder.newInstance(configURI.getScheme());
       }
       catch (IOException ioe )

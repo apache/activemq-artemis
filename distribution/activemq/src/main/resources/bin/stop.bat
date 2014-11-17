@@ -1,1 +1,1 @@
-hornetq.cmd stop %*
+activemq.cmd stop %*

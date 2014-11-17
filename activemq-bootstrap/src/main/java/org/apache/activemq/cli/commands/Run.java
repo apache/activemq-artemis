@@ -15,7 +15,7 @@ package org.apache.activemq.cli.commands;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 
-import org.apache.activemq.cli.HornetQ;
+import org.apache.activemq.cli.ActiveMQ;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.impl.HornetQServerImpl;
 import org.apache.activemq.dto.BrokerDTO;
@@ -41,7 +41,7 @@ import java.util.TimerTask;
 public class Run implements Action
 {
 
-   @Arguments(description = "Broker Configuration URI, default 'xml:${HORNETQ_HOME}/config/non-clustered/bootstrap.xml'")
+   @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_HOME}/config/non-clustered/bootstrap.xml'")
    String configuration;
    private StandaloneNamingServer namingServer;
    private JMSServerManager jmsServerManager;
@@ -50,11 +50,11 @@ public class Run implements Action
    public Object execute(ActionContext context) throws Exception
    {
 
-      HornetQ.printBanner();
+      ActiveMQ.printBanner();
 
       if (configuration == null)
       {
-         configuration = "xml:" + System.getProperty("hornetq.home").replace("\\", "/") + "/config/non-clustered/bootstrap.xml";
+         configuration = "xml:" + System.getProperty("activemq.home").replace("\\", "/") + "/config/non-clustered/bootstrap.xml";
       }
 
       System.out.println("Loading configuration file: " + configuration);
@@ -117,7 +117,7 @@ public class Run implements Action
             HornetQBootstrapLogger.LOGGER.errorDeletingFile(file.getAbsolutePath());
          }
       }
-      final Timer timer = new Timer("HornetQ Server Shutdown Timer", true);
+      final Timer timer = new Timer("ActiveMQ Server Shutdown Timer", true);
       timer.scheduleAtFixedRate(new TimerTask()
       {
          @Override

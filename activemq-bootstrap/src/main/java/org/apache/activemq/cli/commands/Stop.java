@@ -22,7 +22,7 @@ import java.io.File;
 @Command(name = "stop", description = "stops the broker instance")
 public class Stop implements Action
 {
-   @Arguments(description = "Broker Configuration URI, default 'xml:${HORNETQ_HOME}/config/non-clustered/bootstrap.xml'")
+   @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_HOME}/config/non-clustered/bootstrap.xml'")
    String configuration;
 
    @Override
@@ -30,7 +30,7 @@ public class Stop implements Action
    {
       if (configuration == null)
       {
-         configuration = "xml:" + System.getProperty("hornetq.home").replace("\\", "/") + "/config/non-clustered/bootstrap.xml";
+         configuration = "xml:" + System.getProperty("activemq.home").replace("\\", "/") + "/config/non-clustered/bootstrap.xml";
       }
       BrokerDTO broker = BrokerFactory.createBroker(configuration);
 

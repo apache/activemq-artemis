@@ -3,11 +3,11 @@
 service=`basename "$0"`
 
 #
-# Discover the HORNETQ_BASE from the location of this script.
+# Discover the ACTIVEMQ_BASE from the location of this script.
 #
-if [ -z "$HORNETQ_BASE" ] ; then
+if [ -z "$ACTIVEMQ_BASE" ] ; then
 
-  ## resolve links - $0 may be a link to HORNETQ's home
+  ## resolve links - $0 may be a link to ActiveMQ's home
   PRG="$0"
   saveddir=`pwd`
 
@@ -25,19 +25,19 @@ if [ -z "$HORNETQ_BASE" ] ; then
     fi
   done
 
-  HORNETQ_BASE=`dirname "$PRG"`
+  ACTIVEMQ_BASE=`dirname "$PRG"`
   cd "$saveddir"
 
   # make it fully qualified
-  HORNETQ_BASE=`cd "$HORNETQ_BASE/.." && pwd`
-  export HORNETQ_BASE
+  ACTIVEMQ_BASE=`cd "$ACTIVEMQ_BASE/.." && pwd`
+  export ACTIVEMQ_BASE
 
 fi
 
-PID_FILE="${HORNETQ_BASE}/data/hornetq.pid"
+PID_FILE="${ACTIVEMQ_BASE}/data/activemq.pid"
 
-if [ ! -d "${HORNETQ_BASE}/data/" ]; then
-    mkdir "${HORNETQ_BASE}/data/"
+if [ ! -d "${ACTIVEMQ_BASE}/data/" ]; then
+    mkdir "${ACTIVEMQ_BASE}/data/"
 fi
 
 status() {
@@ -79,7 +79,7 @@ start() {
     return 1
   fi
 
-  nohup ${HORNETQ_BASE}/bin/hornetq run > /dev/null 2> /dev/null &
+  nohup ${ACTIVEMQ_BASE}/bin/activemq run > /dev/null 2> /dev/null &
 
   echo $! > "${PID_FILE}"
 

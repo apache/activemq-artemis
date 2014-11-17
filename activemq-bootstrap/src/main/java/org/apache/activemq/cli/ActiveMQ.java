@@ -23,17 +23,17 @@ import org.apache.activemq.cli.commands.Stop;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class HornetQ
+public class ActiveMQ
 {
 
    public static void main(String[] args) throws Exception
    {
-      Cli.CliBuilder<Action> builder = Cli.<Action>builder("hornetq")
+      Cli.CliBuilder<Action> builder = Cli.<Action>builder("activemq")
                .withDefaultCommand(HelpAction.class)
                .withCommand(Run.class)
                .withCommand(Stop.class)
                .withCommand(HelpAction.class)
-               .withDescription("HornetQ Command Line");
+               .withDescription("ActiveMQ Command Line");
 
       Cli<Action> parser = builder.build();
 
@@ -51,14 +51,14 @@ public class HornetQ
       {
          System.err.println(configException.getMessage());
          System.out.println();
-         System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${HORNETQ_HOME}/config/non-clustered/bootstrap.xml'");
+         System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ACTIVEMQ_HOME}/config/non-clustered/bootstrap.xml'");
       }
 
    }
 
    public static void printBanner() throws Exception
    {
-      copy(HornetQ.class.getResourceAsStream("banner.txt"), System.out);
+      copy(ActiveMQ.class.getResourceAsStream("banner.txt"), System.out);
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception

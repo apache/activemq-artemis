@@ -31,7 +31,7 @@ public class CoreFactory
          URI configURI = new URI(core.configuration.replace("\\", "/"));
          try
          {
-            FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/broker/core/");
+            FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/core/");
             factory = (CoreFactoryHandler)finder.newInstance(configURI.getScheme());
          }
          catch (IOException ioe )

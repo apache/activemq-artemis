@@ -46,11 +46,11 @@ public interface HornetQBootstrapLogger extends BasicLogger
    HornetQBootstrapLogger LOGGER = Logger.getMessageLogger(HornetQBootstrapLogger.class, HornetQBootstrapLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101000, value = "Starting HornetQ Server", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 101000, value = "Starting ActiveMQ Server", format = Message.Format.MESSAGE_FORMAT)
    void serverStarting();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101001, value = "Stopping HornetQ Server", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 101001, value = "Stopping ActiveMQ Server", format = Message.Format.MESSAGE_FORMAT)
    void serverStopping();
 
    @LogMessage(level = Logger.Level.INFO)

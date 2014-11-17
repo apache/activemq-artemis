@@ -14,8 +14,8 @@
 
 <broker xmlns="http://hornetq.org/schema">
 
-   <core configuration="file:${hornetq.home}/config/shared-store/hornetq-configuration.xml"></core>
-   <jms configuration="file:${hornetq.home}/config/shared-store/hornetq-jms.xml"></jms>
+   <core configuration="file:${activemq.home}/config/shared-store/activemq-configuration.xml"></core>
+   <jms configuration="file:${activemq.home}/config/shared-store/activemq-jms.xml"></jms>
 
    <basic-security/>
 

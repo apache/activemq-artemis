@@ -1,9 +1,9 @@
 #!/bin/sh
 
 
-if [ -z "$HORNETQ_HOME" ] ; then
+if [ -z "$ACTIVEMQ_HOME" ] ; then
 
-  ## resolve links - $0 may be a link to hornetq's home
+  ## resolve links - $0 may be a link to ActiveMQ's home
   PRG="$0"
   progname=`basename "$0"`
   saveddir=`pwd`
@@ -22,11 +22,11 @@ if [ -z "$HORNETQ_HOME" ] ; then
     fi
   done
 
-  HORNETQ_HOME=`dirname "$PRG"`
+  ACTIVEMQ_HOME=`dirname "$PRG"`
   cd "$saveddir"
 
   # make it fully qualified
-  HORNETQ_HOME=`cd "$HORNETQ_HOME/.." && pwd`
+  ACTIVEMQ_HOME=`cd "$ACTIVEMQ_HOME/.." && pwd`
 fi
 
 # OS specific support.
@@ -46,8 +46,8 @@ esac
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin ; then
-  [ -n "$HORNETQ_HOME" ] &&
-    HORNETQ_HOME=`cygpath --unix "$HORNETQ_HOME"`
+  [ -n "$ACTIVEMQ_HOME" ] &&
+    ACTIVEMQ_HOME=`cygpath --unix "$ACTIVEMQ_HOME"`
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
   [ -n "$CLASSPATH" ] &&
@@ -76,12 +76,12 @@ if [ ! -x "$JAVACMD" ] ; then
   exit 1
 fi
 
-for i in `ls $HORNETQ_HOME/lib/*.jar`; do
+for i in `ls $ACTIVEMQ_HOME/lib/*.jar`; do
 	CLASSPATH=$i:$CLASSPATH
 done
 
 
-JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Dhornetq.home=$HORNETQ_HOME -Ddata.dir=$HORNETQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration=file:$HORNETQ_HOME/config/logging.properties -Djava.library.path=$HORNETQ_HOME/bin/lib/linux-i686:$HORNETQ_HOME/bin/lib/linux-x86_64"
+JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Dactivemq.home=$ACTIVEMQ_HOME -Ddata.dir=$ACTIVEMQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration=file:$ACTIVEMQ_HOME/config/logging.properties -Djava.library.path=$ACTIVEMQ_HOME/bin/lib/linux-i686:$ACTIVEMQ_HOME/bin/lib/linux-x86_64"
 #JAVA_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces"
 
-exec "$JAVACMD" $JAVA_ARGS -classpath $CLASSPATH org.apache.activemq.cli.HornetQ $@
+exec "$JAVACMD" $JAVA_ARGS -classpath $CLASSPATH org.apache.activemq.cli.ActiveMQ $@

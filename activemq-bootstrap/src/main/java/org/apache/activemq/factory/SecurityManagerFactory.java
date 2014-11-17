@@ -25,7 +25,7 @@ public class SecurityManagerFactory
    {
       if (config != null)
       {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org.apache.activemq/security/");
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/security/");
          HornetQSecurityManager manager = (HornetQSecurityManager)finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
          return manager;
       }
