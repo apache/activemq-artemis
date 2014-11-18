@@ -49,8 +49,8 @@ public class WrongRoleFileConfigurationParserTest extends UnitTestCase
       parser.parseMainConfig(input);
 
       // Using the code only because I don't want a test failing just for someone editing Log text
-      assertTrue(AssertionLoggerHandler.findText("HQ222177", "create-durable-queue"));
-      assertTrue(AssertionLoggerHandler.findText("HQ222177", "delete-durable-queue"));
+      assertTrue(AssertionLoggerHandler.findText("AMQ222177", "create-durable-queue"));
+      assertTrue(AssertionLoggerHandler.findText("AMQ222177", "delete-durable-queue"));
    }
 
    @AfterClass

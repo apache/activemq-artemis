@@ -30,7 +30,7 @@
         <para>用JMS的术语来说，这个功能就是允许创建“话题组”（topic hierarchy）。</para>
     </note>
     <para>要使用本功能需要将<literal>wild-card-routing-enabled</literal>属性设置为<literal>true</literal>。
-        这个属性在 <literal>hornetq-configuration.xml</literal> 文件中。默认值是<literal>true</literal>。</para>
+        这个属性在 <literal>activemq-configuration.xml</literal> 文件中。默认值是<literal>true</literal>。</para>
     <para>关于通配符的语法参见<xref
             linkend="wildcard-syntax" /> 章及 <xref
             linkend="topic-hierarchy-example" />。</para>

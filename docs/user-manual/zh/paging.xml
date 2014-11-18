@@ -34,7 +34,7 @@
     <section id="paging.main.config">
         <title>配置</title>
         <para>你可以配置分页转存文件夹的位置。</para>
-        <para>在主配置文件<literal>hornetq-configuration.xml</literal>)中
+        <para>在主配置文件<literal>activemq-configuration.xml</literal>)中
             可以定义全局的分页转发参数。</para>
         <programlisting>&lt;configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -79,7 +79,7 @@
         </note>
         <section>
             <title>配置</title>
-            <para>有关分页转存的配置在主要配置文件（<literal>hornetq-configuration.xml</literal>）
+            <para>有关分页转存的配置在主要配置文件（<literal>activemq-configuration.xml</literal>）
                   的地址设置的部分内。</para>
             <programlisting>  &lt;address-settings>
       &lt;address-setting match="jms.someaddress">

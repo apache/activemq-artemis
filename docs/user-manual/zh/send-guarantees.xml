@@ -28,7 +28,7 @@
             当它的值是<literal>true</literal>时，服务器将保证在向客户端发回响应时，事务的处理信息
             已经被保存到了磁盘中。默认值是<literal>true</literal>。</para>
         <para>显然将这个参数设为<literal>false</literal>可以提高性能，但是要以牺牲事务的持久性为代价。</para>
-        <para>这个参数在 <literal>hornetq-configuration.xml</literal>文件中。</para>
+        <para>这个参数在 <literal>activemq-configuration.xml</literal>文件中。</para>
     </section>
     <section id="non-transactional-sends">
         <title>非事务性消息发送的保证</title>

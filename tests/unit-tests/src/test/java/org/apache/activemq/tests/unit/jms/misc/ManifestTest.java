@@ -75,8 +75,6 @@ public class ManifestTest extends UnitTestCase
          Attributes attrs = manifest.getMainAttributes();
 
          Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("ActiveMQ-Version"));
-         //TODO fix this
-         Assert.assertEquals("https://svn.jboss.org/repos/hornetq/branches/Branch_2_2_EAP", attrs.getValue("HornetQ-SVN-URL"));
       }
       finally
       {

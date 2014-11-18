@@ -98,7 +98,7 @@
          这些节点的消息组处理器就会协同作出决定该如何对这个消息进行路由。</para>
       <para>消息组处理器有两种：本地消息组处理器和远程消息组处理器。在一个集群中要选择一个节点作为本地消息组处理器的
          节点，集群中所有其它的节点都持有远程消息组处理器。在集群中由本地消息组处理器最終决定消息怎样路由，其它的远程
-         处理器配合本地处理器完成决策。消息组处理器的配置在<emphasis role="italic">hornetq-configuration.xml</emphasis>
+         处理器配合本地处理器完成决策。消息组处理器的配置在<emphasis role="italic">activemq-configuration.xml</emphasis>
          文件中，下面就是一个例子：
 <programlisting>   &lt;grouping-handler name="my-grouping-handler">
       &lt;type>LOCAL&lt;/type>

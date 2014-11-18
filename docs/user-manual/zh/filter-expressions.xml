@@ -29,7 +29,7 @@
     <itemizedlist>
         <listitem>
             <para>预定义的队列。当在<literal
-                    >hornetq-configuration.xml</literal> 或 <literal>hornetq-jms.xml</literal>定义
+                    >activemq-configuration.xml</literal> 或 <literal>hornetq-jms.xml</literal>定义
                 队列时，可以使用过滤器。只有与过滤器表达式相匹配的消息才能达到该队列中。</para>
         </listitem>
         <listitem>

@@ -101,21 +101,21 @@
                         <xref linkend="pre-acknowledge"/>。</para>
             </listitem>
             <listitem>
-                <para>关闭安全。将<literal>hornetq-configuration.xml</literal>文件中的<literal>security-enabled</literal>
+                <para>关闭安全。将<literal>activemq-configuration.xml</literal>文件中的<literal>security-enabled</literal>
                     参数设为<literal>false</literal>以关闭安全。这可以带来一些性能的提高。</para>
             </listitem>
             <listitem>
-                <para>关闭持久化。如果不你不需要消息持久化，可以将<literal>hornetq-configuration.xml</literal>
+                <para>关闭持久化。如果不你不需要消息持久化，可以将<literal>activemq-configuration.xml</literal>
                     文件中的<literal>persistence-enabled</literal>参数设为false来完全关闭持久功能。</para>
             </listitem>
             <listitem>
-                <para>采用延迟方式事务同步。将<literal>hornetq-configuration.xml</literal>文件中的<literal
+                <para>采用延迟方式事务同步。将<literal>activemq-configuration.xml</literal>文件中的<literal
                         >journal-sync-transactional</literal>参数设为<literal>false</literal>可以得到
                     更好的事务持久化的性能。但是这样做可能会造成在发生故障时事务的丢失。有关详细的说明参见
                     <xref linkend="send-guarantees"/>。</para>
             </listitem>
             <listitem>
-                <para>采用延迟方式非事务同步。将<literal>hornetq-configuration.xml</literal>文件中的<literal
+                <para>采用延迟方式非事务同步。将<literal>activemq-configuration.xml</literal>文件中的<literal
                         >journal-sync-non-transactional</literal>参数设为<literal>false</literal>可以得到
                     更好的非事务持久化的性能。但是这样做可能会造成在发生故障时持久消息的丢失。有关详细的说明参见
                     <xref linkend="send-guarantees"/>。</para>
@@ -169,7 +169,7 @@ serveruser     hard    nofile  20000
             </listitem>
             <listitem>
                 <para>利用参数<literal>batch-delay</literal>并将参数<literal>direct-deliver</literal>
-                    设为false来提高小消息的处理效率。HornetQ在其<literal>hornetq-configuration.xml</literal>
+                    设为false来提高小消息的处理效率。HornetQ在其<literal>activemq-configuration.xml</literal>
                     中预先配置了一个连接器／接受器对（<literal>netty-throughput</literal>），并且在
                     <literal>hornetq-jms.xml</literal>中配置了一个JMS连接工厂（
                     <literal>ThroughputConnectionFactory</literal>）。它们可以用在小消息的处理应用中以提

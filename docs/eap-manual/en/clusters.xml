@@ -81,7 +81,7 @@
                   First let's start with the configuration of the live server, we will use the EAP 'all' configuration as
                   our starting point. Since this version only supports shared store for failover we need to configure
                   this in the
-                  <literal>hornetq-configuration.xml</literal>
+                  <literal>activemq-configuration.xml</literal>
                   file like so:
                </para>
                <programlisting>
@@ -92,7 +92,7 @@
                   where
                   where
                   this lives backup can access. You may change the lives configuration in
-                  <literal>hornetq-configuration.xml</literal>
+                  <literal>activemq-configuration.xml</literal>
                   to
                   something like:
                </para>
@@ -117,7 +117,7 @@
                <para>If you want clients to failover on a normal server shutdown the you must configure the
                   <literal>failover-on-shutdown</literal>
                   flag to true in the
-                  <literal>hornetq-configuration.xml</literal>
+                  <literal>activemq-configuration.xml</literal>
                   file like so:
                </para>
                <programlisting>
@@ -202,7 +202,7 @@
                </para>
                <para>
                   The first thing to mention is that the backup only needs a <literal>hornetq-jboss-beans.xml</literal>
-                  and a <literal>hornetq-configuration.xml</literal> configuration file. This is because any JMS components
+                  and a <literal>activemq-configuration.xml</literal> configuration file. This is because any JMS components
                   are created from the Journal when the backup server becomes live.
                </para>
                <para>
@@ -223,7 +223,7 @@
       &lt;!-- The core configuration -->
       &lt;bean name="BackupConfiguration" class="org.apache.activemq.core.config.impl.FileConfiguration">
          &lt;property
-            name="configurationUrl">${jboss.server.home.url}/deploy/hornetq-backup1/hornetq-configuration.xml&lt;/property>
+            name="configurationUrl">${jboss.server.home.url}/deploy/hornetq-backup1/activemq-configuration.xml&lt;/property>
       &lt;/bean>
 
 
@@ -278,7 +278,7 @@
                </note>
                <para>
                   Now let's add the server configuration in
-                  <literal>hornetq-configuration.xml</literal>
+                  <literal>activemq-configuration.xml</literal>
                   and add it to the same directory
                   <literal>deploy/hornetq-backup1</literal>
                   and configure it like so:
@@ -515,10 +515,10 @@
                is that there is no backup in the eap instance.
             </para>
             <para>
-               For the backup server the <literal>hornetq-configuration.xml</literal> is unchanged, however since there is
+               For the backup server the <literal>activemq-configuration.xml</literal> is unchanged, however since there is
                no live server we need to make sure that the <literal>hornetq-jboss-beans.xml</literal> instantiates all
                the beans needed. For this simply use the same configuration as in the live server changing only the
-               location of the <literal>hornetq-configuration.xml</literal> parameter for the <literal>Configuration</literal>
+               location of the <literal>activemq-configuration.xml</literal> parameter for the <literal>Configuration</literal>
                bean.
             </para>
             <para>

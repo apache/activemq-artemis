@@ -10,7 +10,7 @@ grant {
         // Note2: Which of the following two java.io.FilePermission is necessary depends on the exact Maven command
         permission java.io.FilePermission "${user.dir}/hornetq-core-client/target/classes/-", "read";
         permission java.io.FilePermission "${user.dir}/hornetq-core-client/target/hornetq-core-client-${project.version}.jar", "read";
-        permission java.util.PropertyPermission "hornetq.version.property.filename", "read";
+        permission java.util.PropertyPermission "activemq.version.property.filename", "read";
         permission java.util.PropertyPermission "io.netty.eventLoopThreads", "read";
         permission java.util.PropertyPermission "io.netty.noUnsafe", "read";
         permission java.util.PropertyPermission "io.netty.tryUnsafe", "read";

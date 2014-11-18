@@ -35,7 +35,7 @@
     </note>
     <section>
         <title>桥的配置</title>
-        <para>桥的配置在<literal>hornetq-configuration.xml</literal>文件中。让我们先看一个配置的例子
+        <para>桥的配置在<literal>activemq-configuration.xml</literal>文件中。让我们先看一个配置的例子
             （它实际上出自bridge例子）：</para>
         <programlisting>
 &lt;bridge name="my-bridge"&gt;
@@ -71,7 +71,7 @@
                 <note>
                     <para>如果使用JMS，JMS的配置文件<literal
                             >hornetq-jms.xml</literal>在核心配置文件<literal>
-                         hornetq-configuration.xml</literal>之后装载。所以如果你的桥要从JMS
+                         activemq-configuration.xml</literal>之后装载。所以如果你的桥要从JMS
                          队列接收消息，就需要保证JMS队列同时要作为核心队列部署。具体方法可以参见
                          bridge例子。</para>
                 </note>
@@ -151,12 +151,12 @@
                 <itemizedlist>
                     <listitem>
                         <para><literal>connector-name</literal>。这个指的是核心配置文件<literal
-                                >hornetq-configuration.xml</literal>中定义的连接器的名字。桥使用
+                                >activemq-configuration.xml</literal>中定义的连接器的名字。桥使用
                             这个连接器创建与目的服务器的连接。这个参数是必需指定的。</para>
                     </listitem>
                     <listitem>
                         <para><literal>backup-connector-name</literal>。这个可选参数同样指定一个在核心
-                            配置文件<literal>hornetq-configuration.xml</literal>中定义的连接器名字。
+                            配置文件<literal>activemq-configuration.xml</literal>中定义的连接器名字。
                             当目的服务器出现故障时，或者正常退出但是参数<literal
                                 >failover-on-server-shutdown</literal>的值设为<literal
                                 >true</literal>时，桥使用这个参数指定的连接器通过失效备援（failover）连接
@@ -166,12 +166,12 @@
             </listitem>
             <listitem>
                 <para><literal>user</literal>。这个可选参数指定了桥在创建与远程服务器连接时所用的用户名。如果
-                    没有指定用户名，在配置文件<literal>hornetq-configuration.xml</literal>中
+                    没有指定用户名，在配置文件<literal>activemq-configuration.xml</literal>中
                     <literal>cluster-user</literal>所定义的默认集群用户名将被使用。 </para>
             </listitem>
             <listitem>
                 <para><literal>password</literal>。这个可选的参数给出的是桥创建与远程服务器连接所使用的密码。
-                    如果没有指定密码，在配置文件<literal>hornetq-configuration.xml</literal>中
+                    如果没有指定密码，在配置文件<literal>activemq-configuration.xml</literal>中
                     <literal>cluster-password</literal>所定义的默认集群密码将被使用。</para>
             </listitem>
         </itemizedlist>

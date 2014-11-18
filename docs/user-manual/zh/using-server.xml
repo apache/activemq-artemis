@@ -85,18 +85,18 @@
                     各种bean，以及它们之间的依赖关系。HornetQ的bean都是一些POJO。是JBoss Microcontainer保证了这些bean的正确装载和运行。</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-configuration.xml</literal>。这个是HornetQ的主要的配置文件。
+                <para><literal>activemq-configuration.xml</literal>。这个是HornetQ的主要的配置文件。
                     其中的所有参数在<xref linkend="configuration-index"/>中给出了解释. 在 <xref
                         linkend="usingserver.mainconfig"/> 也有更多的相关信息。</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-queues.xml</literal>。这个文件里包含了预定义的queue以及它们的配置，包括安全设置。
-                    这是一个可选的文件，里面所有的内容都可以放在 <literal>hornetq-configuration.xml</literal>文件中。
+                <para><literal>activemq-queues.xml</literal>。这个文件里包含了预定义的queue以及它们的配置，包括安全设置。
+                    这是一个可选的文件，里面所有的内容都可以放在 <literal>activemq-configuration.xml</literal>文件中。
                     在默认的配置文件目录下并没有这个文件。HornetQ之所以提供这个文件是为了用户便于管理他们的queue。在classpath中
-                    允许包含多个 <literal>hornetq-queues.xml</literal> 文件。所有的这些文件都会被加载。</para>
+                    允许包含多个 <literal>activemq-queues.xml</literal> 文件。所有的这些文件都会被加载。</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-users.xml</literal>。用户信息文件。HornetQ本身实现了一个基本的
+                <para><literal>activemq-users.xml</literal>。用户信息文件。HornetQ本身实现了一个基本的
                     安全管理器（security manager），它从这个文件内读取用户的安全信息，如用户名，密码和角色。
                     想了解更多关于安全的信息，参见 <xref linkend="security"/>。</para>
             </listitem>
@@ -115,7 +115,7 @@
             </listitem>
         </itemizedlist>
         <note>
-            <para>如果在<literal>hornetq-configuration.xml</literal>文件中将<literal>file-deployment-enabled</literal> 参数
+            <para>如果在<literal>activemq-configuration.xml</literal>文件中将<literal>file-deployment-enabled</literal> 参数
                   定义为false，则HornetQ将不会加载其它的配置文件。这个参数的默认值是true。</para>
         </note>
         <para>所有配置文件中的参数都可以用系统变量来定义其值。以下用一个connector的配置来说明：</para>
@@ -222,7 +222,7 @@
                     配置信息。有些情况下（如嵌入式HornetQ）你可以将它定义为其它对象，以便用其它方法获得配置信息。</para>
             </listitem>
             <listitem>
-                <para>Security Manager. 可配置的安全管理器。默认的安全管理器使用 <literal>hornetq-users.xml</literal> 文件中的配置信息。
+                <para>Security Manager. 可配置的安全管理器。默认的安全管理器使用 <literal>activemq-users.xml</literal> 文件中的配置信息。
                     它也可以配置为一个JAAS的安全管理器。当HornetQ运行于JBoss应用服务器中时，它还可以配置为JBoss的安全管理器，以达到更紧密的集成。
                     如果不需要安全管理，你也可以将它删除。</para>
             </listitem>
@@ -303,7 +303,7 @@
     </section>
     <section id="usingserver.mainconfig">
         <title>主配置文件</title>
-        <para>HornetQ 核心服务的配置保存在 <literal>hornetq-configuration.xml</literal>文件中。
+        <para>HornetQ 核心服务的配置保存在 <literal>activemq-configuration.xml</literal>文件中。
 　　　　　　　　 FileConfiguration bean 读取这个文件来对消息服务器进行配置。</para>
         <para>HornetQ有很多的配置参数。采用默认的配置在绝大多数情况下可以很好的运行。事实上每一个参数都有默认的处理，因此一个只包含有一个空
               的<literal>configuration</literal>的配置文件是一个有效的文件。对各个参数的解释贯穿于本手册。你还可参参照

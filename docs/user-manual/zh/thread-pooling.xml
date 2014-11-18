@@ -38,7 +38,7 @@
                   它内部使用的是一个 <literal
                     >java.util.concurrent.ScheduledThreadPoolExecutor</literal>实例。</para>
             <para>最大线程数可以在<literal
-                    >hornetq-configuration.xml</literal>文件中进行配置，参数名是<literal
+                    >activemq-configuration.xml</literal>文件中进行配置，参数名是<literal
                     >scheduled-thread-pool-max-size</literal>。默认值是<literal>5</literal>。
                     通常这个线程池不需要很大数量的线程。</para>
         </section>
@@ -46,7 +46,7 @@
             <title>服务器通用线程池</title>
             <para>服务器端绝大部分的异步操作都是由这个线程池来完成的。在它的内部使用了一个<literal
                     >java.util.concurrent.ThreadPoolExecutor</literal>的实例。</para>
-            <para>这个线程池的最大线程数在<literal>hornetq-configuration.xml</literal>文件中配置，相应的参数名为<literal
+            <para>这个线程池的最大线程数在<literal>activemq-configuration.xml</literal>文件中配置，相应的参数名为<literal
                     >thread-pool-max-size</literal>。</para>
             <para>如果将参数设为<literal>-1</literal>则表示该线程池没有线程限制。也就是说当线程不够用时，线程池就
                 会创建新的线程。当任务不多时，空闲的线程将会超时并被关闭。</para>

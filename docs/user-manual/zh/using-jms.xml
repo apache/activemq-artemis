@@ -69,7 +69,7 @@
         <note>
             <para>在JMS ConnectionFactory的配置中引用了一个名为 <literal>netty</literal>的<literal>connector</literal>。
                 它实际上指向的是HornetQ核心中部署的一个连接器（connector）。它的配置在HornetQ的核心配置文件
-                 <literal>hornetq-configuration.xml</literal> 中。它定义了采用何种传输与服务器连接。</para>
+                 <literal>activemq-configuration.xml</literal> 中。它定义了采用何种传输与服务器连接。</para>
         </note>
     </section>
     <section id="using-jms.configure.factory.types">

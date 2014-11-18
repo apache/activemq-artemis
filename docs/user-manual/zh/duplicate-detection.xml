@@ -84,9 +84,9 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
         <para>缓存的大小是固定的，循环使用。如果缓存的最大可以存放<literal
                 >n</literal>条记录，那么<literal>n + 1</literal>条记录将会覆盖缓存中的第<literal>0</literal>
                 条记录。</para>
-        <para>缓存的最大容量在文件<literal>hornetq-configuration.xml</literal>中配置，参数是<literal
+        <para>缓存的最大容量在文件<literal>activemq-configuration.xml</literal>中配置，参数是<literal
                 >id-cache-size</literal>。默认值是<literal>2000</literal>条记录。</para>
-        <para>在文件<literal>hornetq-configuration.xml</literal>中还可以配置将缓存持久化到磁盘。相应的参数
+        <para>在文件<literal>activemq-configuration.xml</literal>中还可以配置将缓存持久化到磁盘。相应的参数
             是<literal>persist-id-cache</literal>。如果设为<literal>true</literal>，则每加入一个id就将
             它同时保存到磁盘中。默认值是<literal>true</literal>。</para>
         <note>
@@ -98,7 +98,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
         <title>桥与重复检测</title>
         <para>核心桥可以通过配置在将消息发向目的服务器之前自动向消息中添加唯一的id（如果消息中还没有的话）。这样
             如果目的服务器发生故障，核心桥在重新发送消息时，目的服务器就可以自动检测重复的消息，发现重复消息即丢弃。</para>
-        <para>要配置核心桥的自动添加id的功能，需要在<literal>hornetq-configuration.xml</literal>中桥的配置
+        <para>要配置核心桥的自动添加id的功能，需要在<literal>activemq-configuration.xml</literal>中桥的配置
               里将<parameter>use-duplicate-detection</parameter>参数设为<literal>true</literal>。</para>
         <para>这个参数的默认值是<literal>true</literal>。</para>
         <para>关于核心桥的配置和使用，参见<xref linkend="core-bridges" />。</para>
@@ -106,7 +106,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
     <section>
         <title>重复检测与集群连接</title>
         <para>集群连接内部使用核心桥在节点间可靠地移动消息，因此它们的核心桥也可以配置自动添加id的功能。</para>
-        <para>配置的方法是在<literal>hornetq-configuration.xml</literal>文件中将集群连接的
+        <para>配置的方法是在<literal>activemq-configuration.xml</literal>文件中将集群连接的
               <parameter>use-duplicate-detection</parameter>参数设为<literal>true</literal>。</para>
         <para>这个参数的默认值是<literal>true</literal>。</para>
         <para>有关集群连接配置的更多信息，请参见<xref linkend="clusters"/>。</para>

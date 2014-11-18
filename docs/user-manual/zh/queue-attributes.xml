@@ -36,7 +36,7 @@
         <para>selector单元定义的是队列的选择器。定义了选择器后，只有与选择器相匹配的消息才能被加到队列中。
             这是一个可选项。如果没有定义选择器，队列将默认没有选择器。</para>
         <para>durable定义了队列是否是一个可持久的队列。这也是一个可选项，默认值是true。</para>
-        <para>如果在核心层定义队列，则使用<literal>hornetq-configuration.xml</literal>文件。
+        <para>如果在核心层定义队列，则使用<literal>activemq-configuration.xml</literal>文件。
             下面是一个例子：</para>
         <programlisting>&lt;queues>     
    	&lt;queue name="jms.queue.selectorQueue">
@@ -73,7 +73,7 @@
     </section>
     <section id="queue-attributes.address-settings">
         <title>通过地址设置来配置队列属性</title>
-        <para>有些属性的定义中地址可以使用通配符。下面是<literal>hornetq-configuration.xml</literal>
+        <para>有些属性的定义中地址可以使用通配符。下面是<literal>activemq-configuration.xml</literal>
             文件中的一个<literal>address-setting</literal>的配置例子。</para>
         <programlisting>&lt;address-settings>
     &lt;address-setting match="jms.queue.exampleQueue">
