@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 
-import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
@@ -192,7 +192,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
                Message m = queueProducerSession.createMessage();
                queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, -1);
 
-               HornetQMessage msg = (HornetQMessage)m;
+               ActiveMQMessage msg = (ActiveMQMessage)m;
 
                if (!msg.getCoreMessage().isExpired())
                {

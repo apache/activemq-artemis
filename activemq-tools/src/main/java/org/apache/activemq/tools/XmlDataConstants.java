@@ -26,7 +26,7 @@ public final class XmlDataConstants
       // Utility
    }
    static final String XML_VERSION = "1.0";
-   static final String DOCUMENT_PARENT = "hornetq-journal";
+   static final String DOCUMENT_PARENT = "activemq-journal";
    static final String BINDINGS_PARENT = "bindings";
    static final String BINDINGS_CHILD = "binding";
    static final String BINDING_ADDRESS = "address";

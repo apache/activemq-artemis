@@ -60,10 +60,10 @@ public class DurableSubscriptionTest extends JMSTestCase
          conn.setClientID("brookeburke");
 
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = s.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = s.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         s.createDurableSubscriber(HornetQServerTestCase.topic1, "monicabelucci");
+         s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "monicabelucci");
 
          List<String> subs = listAllSubscribersForTopic("Topic1");
 
@@ -88,7 +88,7 @@ public class DurableSubscriptionTest extends JMSTestCase
 
          s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer durable = s.createDurableSubscriber(HornetQServerTestCase.topic1, "monicabelucci");
+         MessageConsumer durable = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "monicabelucci");
 
          conn.start();
 
@@ -130,10 +130,10 @@ public class DurableSubscriptionTest extends JMSTestCase
          conn.setClientID("brookeburke");
 
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = s.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = s.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         s.createDurableSubscriber(HornetQServerTestCase.topic1, "monicabelucci");
+         s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "monicabelucci");
 
          prod.send(s.createTextMessage("one"));
 
@@ -144,7 +144,7 @@ public class DurableSubscriptionTest extends JMSTestCase
          conn.setClientID("brookeburke");
 
          s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer durable = s.createDurableSubscriber(HornetQServerTestCase.topic2, "monicabelucci");
+         MessageConsumer durable = s.createDurableSubscriber(ActiveMQServerTestCase.topic2, "monicabelucci");
 
          conn.start();
 
@@ -183,10 +183,10 @@ public class DurableSubscriptionTest extends JMSTestCase
          conn.setClientID("brookeburke");
 
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = s.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = s.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         MessageConsumer durable = s.createDurableSubscriber(HornetQServerTestCase.topic1,
+         MessageConsumer durable = s.createDurableSubscriber(ActiveMQServerTestCase.topic1,
                                                              "monicabelucci",
                                                              "color = 'red' AND shape = 'square'",
                                                              false);
@@ -221,7 +221,7 @@ public class DurableSubscriptionTest extends JMSTestCase
          s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // modify the selector
-         durable = s.createDurableSubscriber(HornetQServerTestCase.topic1, "monicabelucci", "color = 'red'", false);
+         durable = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "monicabelucci", "color = 'red'", false);
 
          conn.start();
 
@@ -287,8 +287,8 @@ public class DurableSubscriptionTest extends JMSTestCase
          conn.setClientID("ak47");
 
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer cons = s.createDurableSubscriber(HornetQServerTestCase.topic1, "uzzi");
-         MessageProducer prod = s.createProducer(HornetQServerTestCase.topic1);
+         MessageConsumer cons = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "uzzi");
+         MessageProducer prod = s.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          prod.send(s.createTextMessage("one"));
@@ -296,7 +296,7 @@ public class DurableSubscriptionTest extends JMSTestCase
          cons.close();
          s.unsubscribe("uzzi");
 
-         MessageConsumer ds = s.createDurableSubscriber(HornetQServerTestCase.topic1, "uzzi");
+         MessageConsumer ds = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "uzzi");
          conn.start();
 
          ProxyAssertSupport.assertNull(ds.receive(1000));
@@ -323,7 +323,7 @@ public class DurableSubscriptionTest extends JMSTestCase
 
       try
       {
-         s.createDurableSubscriber(HornetQServerTestCase.topic1, "mysubscribption", "=TEST 'test'", true);
+         s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mysubscribption", "=TEST 'test'", true);
          ProxyAssertSupport.fail("this should fail");
       }
       catch (InvalidSelectorException e)
@@ -341,7 +341,7 @@ public class DurableSubscriptionTest extends JMSTestCase
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TopicSubscriber dursub = s.createDurableSubscriber(HornetQServerTestCase.topic1, "dursub0");
+      TopicSubscriber dursub = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "dursub0");
 
       try
       {
@@ -366,11 +366,11 @@ public class DurableSubscriptionTest extends JMSTestCase
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TopicSubscriber dursub1 = s.createDurableSubscriber(HornetQServerTestCase.topic1, "dursub1");
+      TopicSubscriber dursub1 = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "dursub1");
 
       try
       {
-         s.createDurableSubscriber(HornetQServerTestCase.topic1, "dursub1");
+         s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "dursub1");
          ProxyAssertSupport.fail();
       }
       catch (IllegalStateException e)
@@ -391,10 +391,10 @@ public class DurableSubscriptionTest extends JMSTestCase
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TopicSubscriber subscriber = s.createDurableSubscriber(HornetQServerTestCase.topic1,
+      TopicSubscriber subscriber = s.createDurableSubscriber(ActiveMQServerTestCase.topic1,
                                                              ".subscription.name.with.periods.");
 
-      s.createProducer(HornetQServerTestCase.topic1).send(s.createTextMessage("Subscription test"));
+      s.createProducer(ActiveMQServerTestCase.topic1).send(s.createTextMessage("Subscription test"));
 
       conn.start();
 
@@ -427,16 +427,16 @@ public class DurableSubscriptionTest extends JMSTestCase
       Session s1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Session s2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TopicSubscriber subscriber1 = s1.createDurableSubscriber(HornetQServerTestCase.topic1,
+      TopicSubscriber subscriber1 = s1.createDurableSubscriber(ActiveMQServerTestCase.topic1,
                                                                ".subscription.name.with.periods.",
                                                                null,
                                                                noLocal);
-      TopicSubscriber subscriber2 = s2.createDurableSubscriber(HornetQServerTestCase.topic1,
+      TopicSubscriber subscriber2 = s2.createDurableSubscriber(ActiveMQServerTestCase.topic1,
                                                                ".subscription.name.with.periods.",
                                                                null,
                                                                false);
 
-      s1.createProducer(HornetQServerTestCase.topic1).send(s1.createTextMessage("Subscription test"));
+      s1.createProducer(ActiveMQServerTestCase.topic1).send(s1.createTextMessage("Subscription test"));
 
       conn1.start();
 

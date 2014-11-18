@@ -23,10 +23,10 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.tests.util.TransportConfigurationUtils;
 import org.junit.After;
@@ -248,7 +248,7 @@ public class PagingFailoverTest extends FailoverTestBase
    }
 
    @Override
-   protected HornetQServer createServer(final boolean realFiles, final Configuration configuration)
+   protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration)
    {
       return addServer(createInVMFailoverServer(true, configuration, PAGE_SIZE, PAGE_MAX,
                                                 new HashMap<String, AddressSettings>(), nodeManager, 2));
@@ -257,6 +257,6 @@ public class PagingFailoverTest extends FailoverTestBase
    @Override
    protected TestableServer createTestableServer(Configuration config)
    {
-      return new SameProcessHornetQServer(createServer(true, config));
+      return new SameProcessActiveMQServer(createServer(true, config));
    }
 }

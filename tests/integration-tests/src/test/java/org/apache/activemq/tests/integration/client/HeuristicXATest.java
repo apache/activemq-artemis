@@ -32,9 +32,9 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.impl.XidImpl;
@@ -70,10 +70,10 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      HornetQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
 
-      HornetQServerControl jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
 
       Assert.assertFalse(jmxServer.commitPreparedTransaction("Nananananana"));
    }
@@ -95,7 +95,7 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      HornetQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
       Xid xid = newXID();
 
@@ -121,7 +121,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       session.close();
 
-      HornetQServerControl jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
 
       String[] preparedTransactions = jmxServer.listPreparedTransactions();
 
@@ -190,7 +190,7 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      HornetQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
       Xid xid = newXID();
 
@@ -216,7 +216,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       session.close();
 
-      HornetQServerControl jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
 
       String[] preparedTransactions = jmxServer.listPreparedTransactions();
 
@@ -258,7 +258,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       server.start();
 
-      jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       if (isCommit)
       {
          String[] listHeuristicCommittedTransactions = jmxServer.listHeuristicCommittedTransactions();
@@ -290,7 +290,7 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      HornetQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
       Xid xid = newXID();
 
@@ -316,7 +316,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       session.close();
 
-      HornetQServerControl jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
 
       String[] preparedTransactions = jmxServer.listPreparedTransactions();
 
@@ -359,7 +359,7 @@ public class HeuristicXATest extends ServiceTestBase
       server.start();
       // we need to recreate the locator and session factory
       sf = createSessionFactory(locator);
-      jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       if (heuristicCommit)
       {
          String[] listHeuristicCommittedTransactions = jmxServer.listHeuristicCommittedTransactions();
@@ -399,7 +399,7 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      HornetQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
       server.start();
       Xid xid = newXID();
 
@@ -423,7 +423,7 @@ public class HeuristicXATest extends ServiceTestBase
 
       session.prepare(xid);
 
-      HornetQServerControl jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
 
       String[] preparedTransactions = jmxServer.listPreparedTransactions();
 
@@ -463,7 +463,7 @@ public class HeuristicXATest extends ServiceTestBase
       session = sf.createSession(true, false, false);
       Xid[] recoveredXids = session.recover(XAResource.TMSTARTRSCAN);
       Assert.assertEquals(0, recoveredXids.length);
-      jmxServer = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       if (heuristicCommit)
       {
          Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);

@@ -29,7 +29,7 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -62,7 +62,7 @@ public class CompactingStressTest extends ServiceTestBase
 
    private static final int TOT_AD3 = 5000;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSessionFactory sf;
 

@@ -25,9 +25,9 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonReceiverContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
-import org.proton.plug.exceptions.HornetQAMQPException;
-import org.proton.plug.exceptions.HornetQAMQPInternalErrorException;
-import org.proton.plug.logger.HornetQAMQPProtocolMessageBundle;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
+import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
 
@@ -71,7 +71,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext
             }
             catch (Exception e)
             {
-               throw new HornetQAMQPInternalErrorException(e.getMessage(), e);
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
             target.setAddress(queue.toString());
          }
@@ -82,18 +82,18 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext
             String address = target.getAddress();
             if (address == null)
             {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.targetAddressNotSet();
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.targetAddressNotSet();
             }
             try
             {
                if (!sessionSPI.queueQuery(address))
                {
-                  throw HornetQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                }
             }
             catch (Exception e)
             {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorFindingTemporaryQueue(e.getMessage());
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorFindingTemporaryQueue(e.getMessage());
             }
          }
       }
@@ -107,7 +107,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext
    * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
    *
    * */
-   public void onMessage(Delivery delivery) throws HornetQAMQPException
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
    {
       Receiver receiver;
       try

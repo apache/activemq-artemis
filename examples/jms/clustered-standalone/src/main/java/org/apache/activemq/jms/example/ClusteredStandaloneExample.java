@@ -21,7 +21,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  *
@@ -43,7 +43,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  *
  */
-public class ClusteredStandaloneExample extends HornetQExample
+public class ClusteredStandaloneExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

@@ -101,7 +101,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object>
             {
                if (future.isSuccess())
                {
-                  // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toHornetQBuffer and
+                  // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toActiveMQBuffer and
                   // wrap it in a binary web socket frame before letting the wsencoder send it on the wire
                   future.channel().pipeline().addAfter("wsencoder", "binary-websocket-encoder", BINARY_WEBSOCKET_ENCODER);
                }

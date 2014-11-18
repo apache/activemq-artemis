@@ -15,7 +15,7 @@ package org.apache.activemq.rest.topic;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.PushConsumer;
 import org.apache.activemq.rest.queue.push.PushStore;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
@@ -50,7 +50,7 @@ public class PushSubscription extends PushConsumer
       }
       catch (ActiveMQException e)
       {
-         HornetQRestLogger.LOGGER.errorDeletingSubscriberQueue(e);
+         ActiveMQRestLogger.LOGGER.errorDeletingSubscriberQueue(e);
       }
       finally
       {

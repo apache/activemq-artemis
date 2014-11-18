@@ -36,13 +36,13 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.QueueBinding;
 import org.apache.activemq.core.protocol.openwire.AMQTransactionImpl;
 import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.RefsOperation;
 import org.apache.activemq.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.core.server.impl.ServerSessionImpl;
@@ -66,7 +66,7 @@ public class AMQServerSession extends ServerSessionImpl
          RemotingConnection connection, StorageManager storageManager,
          PostOffice postOffice, ResourceManager resourceManager,
          SecurityStore securityStore, ManagementService managementService,
-         HornetQServerImpl hornetQServerImpl, SimpleString managementAddress,
+         ActiveMQServerImpl activeMQServerImpl, SimpleString managementAddress,
          SimpleString simpleString, SessionCallback callback,
          OperationContext context) throws Exception
    {
@@ -77,7 +77,7 @@ public class AMQServerSession extends ServerSessionImpl
          connection, storageManager,
          postOffice, resourceManager,
          securityStore, managementService,
-         hornetQServerImpl, managementAddress,
+         activeMQServerImpl, managementAddress,
          simpleString, callback,
          context, new AMQTransactionFactory());
    }
@@ -106,7 +106,7 @@ public class AMQServerSession extends ServerSessionImpl
 
       if (consumer == null)
       {
-         HornetQServerLogger.LOGGER.debug("There is no consumer with id " + consumerID);
+         ActiveMQServerLogger.LOGGER.debug("There is no consumer with id " + consumerID);
 
          return null;
       }
@@ -231,7 +231,7 @@ public class AMQServerSession extends ServerSessionImpl
       }
       else
       {
-         HornetQServerLogger.LOGGER.cannotFindConsumer(consumerID);
+         ActiveMQServerLogger.LOGGER.cannotFindConsumer(consumerID);
       }
    }
 
@@ -251,7 +251,7 @@ public class AMQServerSession extends ServerSessionImpl
 
          if (binding == null || binding.getType() != BindingType.LOCAL_QUEUE)
          {
-            throw HornetQMessageBundle.BUNDLE.noSuchQueue(queueName);
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
          }
 
          Filter filter = FilterImpl.createFilter(filterString);
@@ -304,9 +304,9 @@ public class AMQServerSession extends ServerSessionImpl
             Notification notification = new Notification(null,
                   CoreNotificationType.CONSUMER_CREATED, props);
 
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("Session with user=" + username
+               ActiveMQServerLogger.LOGGER.debug("Session with user=" + username
                      + ", connection=" + this.remotingConnection
                      + " created a consumer on queue " + queueName
                      + ", filter = " + filterString);
@@ -354,9 +354,9 @@ public class AMQServerSession extends ServerSessionImpl
          tempQueueCleannerUppers.put(name, cleaner);
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Queue " + name + " created on address " + name +
+         ActiveMQServerLogger.LOGGER.debug("Queue " + name + " created on address " + name +
                                              " with filter=" + filterString + " temporary = " +
                                              temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }

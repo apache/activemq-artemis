@@ -28,11 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.DestinationSettings;
 import org.apache.activemq.rest.queue.PostMessage;
 import org.apache.activemq.rest.queue.PostMessageDupsOk;
@@ -55,17 +55,17 @@ public class TopicDestinationsResource
    }
 
    @POST
-   @Consumes("application/hornetq.jms.topic+xml")
+   @Consumes("application/activemq.jms.topic+xml")
    public Response createJmsQueue(@Context UriInfo uriInfo, Document document)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       try
       {
          JMSServerConfigParserImpl parser = new JMSServerConfigParserImpl();
          TopicConfiguration topic = parser.parseTopicConfiguration(document.getDocumentElement());
-         HornetQTopic hqTopic = HornetQDestination.createTopic(topic.getName());
-         String topicName = hqTopic.getAddress();
+         ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(topic.getName());
+         String topicName = activeMQTopic.getAddress();
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try
          {
@@ -95,7 +95,7 @@ public class TopicDestinationsResource
          {
             for (String binding : topic.getBindings())
             {
-               manager.getRegistry().bind(binding, hqTopic);
+               manager.getRegistry().bind(binding, activeMQTopic);
             }
          }
          URI uri = uriInfo.getRequestUriBuilder().path(topicName).build();

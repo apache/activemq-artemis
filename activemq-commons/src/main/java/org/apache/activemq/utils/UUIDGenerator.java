@@ -124,9 +124,9 @@ public final class UUIDGenerator
        */
       dummy[0] |= (byte) 0x01;
 
-      if (HornetQUtilLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQUtilLogger.LOGGER.isDebugEnabled())
       {
-         HornetQUtilLogger.LOGGER.debug("using dummy address " + UUIDGenerator.asString(dummy));
+         ActiveMQUtilLogger.LOGGER.debug("using dummy address " + UUIDGenerator.asString(dummy));
       }
       return dummy;
    }
@@ -173,9 +173,9 @@ public final class UUIDGenerator
                                                            isVirtualMethod);
          if (address != null)
          {
-            if (HornetQUtilLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQUtilLogger.LOGGER.isDebugEnabled())
             {
-               HornetQUtilLogger.LOGGER.debug("using hardware address " + UUIDGenerator.asString(address));
+               ActiveMQUtilLogger.LOGGER.debug("using hardware address " + UUIDGenerator.asString(address));
             }
             return address;
          }

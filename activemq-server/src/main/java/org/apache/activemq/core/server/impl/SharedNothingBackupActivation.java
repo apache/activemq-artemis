@@ -25,9 +25,9 @@ import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.core.replication.ReplicationEndpoint;
 import org.apache.activemq.core.server.ActivationParams;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LiveNodeLocator;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.QueueFactory;
@@ -55,11 +55,11 @@ public final class SharedNothingBackupActivation extends Activation
    //this is the endpoint where we replicate too
    private ReplicationEndpoint replicationEndpoint;
 
-   private final HornetQServerImpl hornetQServer;
+   private final ActiveMQServerImpl activeMQServer;
    private SharedNothingBackupQuorum backupQuorum;
    private final boolean attemptFailBack;
    private final Map<String, Object> activationParams;
-   private final HornetQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO;
+   private final ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO;
    private String nodeID;
    ClusterControl clusterControl;
    private boolean closed;
@@ -67,13 +67,13 @@ public final class SharedNothingBackupActivation extends Activation
 
    private final ReusableLatch backupSyncLatch = new ReusableLatch(0);
 
-   public SharedNothingBackupActivation(HornetQServerImpl hornetQServer,
+   public SharedNothingBackupActivation(ActiveMQServerImpl activeMQServer,
                                         boolean attemptFailBack,
                                         Map<String, Object> activationParams,
-                                        HornetQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO,
+                                        ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO,
                                         ReplicaPolicy replicaPolicy)
    {
-      this.hornetQServer = hornetQServer;
+      this.activeMQServer = activeMQServer;
       this.attemptFailBack = attemptFailBack;
       this.activationParams = activationParams;
       this.shutdownOnCriticalIO = shutdownOnCriticalIO;
@@ -84,23 +84,23 @@ public final class SharedNothingBackupActivation extends Activation
    public void init() throws Exception
    {
       assert replicationEndpoint == null;
-      hornetQServer.resetNodeManager();
+      activeMQServer.resetNodeManager();
       backupUpToDate = false;
-      replicationEndpoint = new ReplicationEndpoint(hornetQServer, shutdownOnCriticalIO, attemptFailBack, this);
+      replicationEndpoint = new ReplicationEndpoint(activeMQServer, shutdownOnCriticalIO, attemptFailBack, this);
    }
 
    public void run()
    {
       try
       {
-         synchronized (hornetQServer)
+         synchronized (activeMQServer)
          {
-            hornetQServer.setState(HornetQServerImpl.SERVER_STATE.STARTED);
+            activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
          }
          // move all data away:
-         hornetQServer.getNodeManager().stop();
-         hornetQServer.moveServerData();
-         hornetQServer.getNodeManager().start();
+         activeMQServer.getNodeManager().stop();
+         activeMQServer.moveServerData();
+         activeMQServer.getNodeManager().start();
          synchronized (this)
          {
             if (closed)
@@ -109,15 +109,15 @@ public final class SharedNothingBackupActivation extends Activation
 
          boolean scalingDown = replicaPolicy.getScaleDownPolicy() != null && replicaPolicy.getScaleDownPolicy().isEnabled();
 
-         if (!hornetQServer.initialisePart1(scalingDown))
+         if (!activeMQServer.initialisePart1(scalingDown))
             return;
 
          synchronized (this)
          {
             if (closed)
                return;
-            backupQuorum = new SharedNothingBackupQuorum(hornetQServer.getStorageManager(), hornetQServer.getNodeManager(), hornetQServer.getScheduledPool());
-            hornetQServer.getClusterManager().getQuorumManager().registerQuorum(backupQuorum);
+            backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool());
+            activeMQServer.getClusterManager().getQuorumManager().registerQuorum(backupQuorum);
          }
 
          //use a Node Locator to connect to the cluster
@@ -130,26 +130,26 @@ public final class SharedNothingBackupActivation extends Activation
          else
          {
             nodeLocator = replicaPolicy.getGroupName() == null ?
-                  new AnyLiveNodeLocatorForReplication(backupQuorum, hornetQServer) :
+                  new AnyLiveNodeLocatorForReplication(backupQuorum, activeMQServer) :
                   new NamedLiveNodeLocatorForReplication(replicaPolicy.getGroupName(), backupQuorum);
          }
-         ClusterController clusterController = hornetQServer.getClusterManager().getClusterController();
+         ClusterController clusterController = activeMQServer.getClusterManager().getClusterController();
          clusterController.addClusterTopologyListenerForReplication(nodeLocator);
          //todo do we actually need to wait?
          clusterController.awaitConnectionToReplicationCluster();
 
-         clusterController.addIncomingInterceptorForReplication(new ReplicationError(hornetQServer, nodeLocator));
+         clusterController.addIncomingInterceptorForReplication(new ReplicationError(activeMQServer, nodeLocator));
 
          // nodeManager.startBackup();
 
-         hornetQServer.getBackupManager().start();
+         activeMQServer.getBackupManager().start();
 
          replicationEndpoint.setBackupQuorum(backupQuorum);
-         replicationEndpoint.setExecutor(hornetQServer.getExecutorFactory().getExecutor());
+         replicationEndpoint.setExecutor(activeMQServer.getExecutorFactory().getExecutor());
          EndpointConnector endpointConnector = new EndpointConnector();
 
-         HornetQServerLogger.LOGGER.backupServerStarted(hornetQServer.getVersion().getFullVersion(), hornetQServer.getNodeManager().getNodeId());
-         hornetQServer.setState(HornetQServerImpl.SERVER_STATE.STARTED);
+         ActiveMQServerLogger.LOGGER.backupServerStarted(activeMQServer.getVersion().getFullVersion(), activeMQServer.getNodeManager().getNodeId());
+         activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
 
          SharedNothingBackupQuorum.BACKUP_ACTIVATION signal;
          do
@@ -168,7 +168,7 @@ public final class SharedNothingBackupActivation extends Activation
                //this shouldn't happen
                if (nodeID == null)
                   throw new RuntimeException("Could not establish the connection");
-               hornetQServer.getNodeManager().setNodeID(nodeID);
+               activeMQServer.getNodeManager().setNodeID(nodeID);
             }
 
             try
@@ -198,7 +198,7 @@ public final class SharedNothingBackupActivation extends Activation
                continue;
             }
 
-            hornetQServer.getThreadPool().execute(endpointConnector);
+            activeMQServer.getThreadPool().execute(endpointConnector);
             /**
              * Wait for a signal from the the quorum manager, at this point if replication has been successful we can
              * fail over or if there is an error trying to replicate (such as already replicating) we try the
@@ -209,9 +209,9 @@ public final class SharedNothingBackupActivation extends Activation
              * replicationEndpoint will be holding lots of open files. Make sure they get
              * closed/sync'ed.
              */
-            HornetQServerImpl.stopComponent(replicationEndpoint);
+            ActiveMQServerImpl.stopComponent(replicationEndpoint);
             // time to give up
-            if (!hornetQServer.isStarted() || signal == STOP)
+            if (!activeMQServer.isStarted() || signal == STOP)
                return;
                // time to fail over
             else if (signal == FAIL_OVER)
@@ -226,11 +226,11 @@ public final class SharedNothingBackupActivation extends Activation
                   {
                      try
                      {
-                        hornetQServer.stop();
+                        activeMQServer.stop();
                      }
                      catch (Exception e)
                      {
-                        HornetQServerLogger.LOGGER.errorRestartingBackupServer(e, hornetQServer);
+                        ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, activeMQServer);
                      }
                   }
                });
@@ -249,39 +249,39 @@ public final class SharedNothingBackupActivation extends Activation
          }
          while (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.ALREADY_REPLICATING);
 
-         hornetQServer.getClusterManager().getQuorumManager().unRegisterQuorum(backupQuorum);
+         activeMQServer.getClusterManager().getQuorumManager().unRegisterQuorum(backupQuorum);
 
          if (!isRemoteBackupUpToDate())
          {
-            throw HornetQMessageBundle.BUNDLE.backupServerNotInSync();
+            throw ActiveMQMessageBundle.BUNDLE.backupServerNotInSync();
          }
 
          replicaPolicy.getReplicatedPolicy().setReplicaPolicy(replicaPolicy);
-         hornetQServer.setHAPolicy(replicaPolicy.getReplicatedPolicy());
-         synchronized (hornetQServer)
+         activeMQServer.setHAPolicy(replicaPolicy.getReplicatedPolicy());
+         synchronized (activeMQServer)
          {
-            if (!hornetQServer.isStarted())
+            if (!activeMQServer.isStarted())
                return;
-            HornetQServerLogger.LOGGER.becomingLive(hornetQServer);
-            hornetQServer.getNodeManager().stopBackup();
-            hornetQServer.getStorageManager().start();
-            hornetQServer.getBackupManager().activated();
+            ActiveMQServerLogger.LOGGER.becomingLive(activeMQServer);
+            activeMQServer.getNodeManager().stopBackup();
+            activeMQServer.getStorageManager().start();
+            activeMQServer.getBackupManager().activated();
             if (scalingDown)
             {
-               hornetQServer.initialisePart2(true);
+               activeMQServer.initialisePart2(true);
             }
             else
             {
-               hornetQServer.setActivation(new SharedNothingLiveActivation(hornetQServer, replicaPolicy.getReplicatedPolicy()));
-               hornetQServer.initialisePart2(false);
+               activeMQServer.setActivation(new SharedNothingLiveActivation(activeMQServer, replicaPolicy.getReplicatedPolicy()));
+               activeMQServer.initialisePart2(false);
 
-               if (hornetQServer.getIdentity() != null)
+               if (activeMQServer.getIdentity() != null)
                {
-                  HornetQServerLogger.LOGGER.serverIsLive(hornetQServer.getIdentity());
+                  ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
                }
                else
                {
-                  HornetQServerLogger.LOGGER.serverIsLive();
+                  ActiveMQServerLogger.LOGGER.serverIsLive();
                }
 
             }
@@ -289,10 +289,10 @@ public final class SharedNothingBackupActivation extends Activation
       }
       catch (Exception e)
       {
-         if ((e instanceof InterruptedException || e instanceof IllegalStateException) && !hornetQServer.isStarted())
+         if ((e instanceof InterruptedException || e instanceof IllegalStateException) && !activeMQServer.isStarted())
             // do not log these errors if the server is being stopped.
             return;
-         HornetQServerLogger.LOGGER.initializationError(e);
+         ActiveMQServerLogger.LOGGER.initializationError(e);
          e.printStackTrace();
       }
    }
@@ -307,12 +307,12 @@ public final class SharedNothingBackupActivation extends Activation
          closed = true;
       }
       //we have to check as the server policy may have changed
-      if (hornetQServer.getHAPolicy().isBackup())
+      if (activeMQServer.getHAPolicy().isBackup())
       {
          // To avoid a NPE cause by the stop
-         NodeManager nodeManagerInUse = hornetQServer.getNodeManager();
+         NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
-         hornetQServer.interrupBackupThread(nodeManagerInUse);
+         activeMQServer.interrupBackupThread(nodeManagerInUse);
 
          if (nodeManagerInUse != null)
          {
@@ -331,7 +331,7 @@ public final class SharedNothingBackupActivation extends Activation
    }
 
    @Override
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, HornetQServer parentServer) throws ActiveMQException
+   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, ActiveMQServer parentServer) throws ActiveMQException
    {
       if (replicaPolicy.getScaleDownPolicy() != null)
       {
@@ -344,8 +344,8 @@ public final class SharedNothingBackupActivation extends Activation
                groupingHandler,
                configuration,
                parentServer,
-               ScaleDownPolicy.getScaleDownConnector(replicaPolicy.getScaleDownPolicy(), hornetQServer),
-               hornetQServer.getClusterManager().getClusterController());
+               ScaleDownPolicy.getScaleDownConnector(replicaPolicy.getScaleDownPolicy(), activeMQServer),
+               activeMQServer.getClusterManager().getClusterController());
       }
       else
       {
@@ -364,7 +364,7 @@ public final class SharedNothingBackupActivation extends Activation
    @Override
    public void haStarted()
    {
-      hornetQServer.getClusterManager().getClusterController().setReplicatedClusterName(replicaPolicy.getClusterName());
+      activeMQServer.getClusterManager().getClusterController().setReplicatedClusterName(replicaPolicy.getClusterName());
    }
 
 
@@ -419,7 +419,7 @@ public final class SharedNothingBackupActivation extends Activation
 
    public void setRemoteBackupUpToDate()
    {
-      hornetQServer.getBackupManager().announceBackup();
+      activeMQServer.getBackupManager().announceBackup();
       backupUpToDate = true;
       backupSyncLatch.countDown();
    }
@@ -429,9 +429,9 @@ public final class SharedNothingBackupActivation extends Activation
     */
    public void remoteFailOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws ActiveMQException
    {
-      HornetQServerLogger.LOGGER.trace("Remote fail-over, got message=" + finalMessage + ", backupUpToDate=" +
+      ActiveMQServerLogger.LOGGER.trace("Remote fail-over, got message=" + finalMessage + ", backupUpToDate=" +
             backupUpToDate);
-      if (!hornetQServer.getHAPolicy().isBackup() || hornetQServer.getHAPolicy().isSharedStore())
+      if (!activeMQServer.getHAPolicy().isBackup() || activeMQServer.getHAPolicy().isSharedStore())
       {
          throw new ActiveMQInternalErrorException();
       }
@@ -467,18 +467,18 @@ public final class SharedNothingBackupActivation extends Activation
          catch (Exception e)
          {
             //we shouldn't stop the server just mark the connector as tried and unavailable
-            HornetQServerLogger.LOGGER.replicationStartProblem(e);
+            ActiveMQServerLogger.LOGGER.replicationStartProblem(e);
             backupQuorum.causeExit(FAILURE_REPLICATING);
          }
       }
 
       private synchronized ReplicationEndpoint connectToReplicationEndpoint(final ClusterControl control) throws Exception
       {
-         if (!hornetQServer.isStarted())
+         if (!activeMQServer.isStarted())
             return null;
-         if (!hornetQServer.getHAPolicy().isBackup())
+         if (!activeMQServer.getHAPolicy().isBackup())
          {
-            throw HornetQMessageBundle.BUNDLE.serverNotBackupServer();
+            throw ActiveMQMessageBundle.BUNDLE.serverNotBackupServer();
          }
 
          Channel replicationChannel = control.createReplicationChannel();
@@ -487,7 +487,7 @@ public final class SharedNothingBackupActivation extends Activation
 
          if (replicationEndpoint.getChannel() != null)
          {
-            throw HornetQMessageBundle.BUNDLE.alreadyHaveReplicationServer();
+            throw ActiveMQMessageBundle.BUNDLE.alreadyHaveReplicationServer();
          }
 
          replicationEndpoint.setChannel(replicationChannel);

@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnection;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -84,7 +84,7 @@ public class NettyConnectionTest extends UnitTestCase
    class MyListener implements ConnectionLifeCycleListener
    {
 
-      public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
       {
 
       }

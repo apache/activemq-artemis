@@ -289,7 +289,7 @@ public class SecurityDeployerTest extends UnitTestCase
    @Test
    public void testDeployFromConfigurationFile() throws Exception
    {
-      String xml = "<configuration xmlns='urn:hornetq'> " + "<security-settings>"
+      String xml = "<configuration xmlns='urn:activemq'> " + "<security-settings>"
          + "   <security-setting match=\"jms.topic.testTopic\">"
          + "      <permission type=\"createDurableQueue\" roles=\"durpublisher\"/>"
          + "      <permission type=\"deleteDurableQueue\" roles=\"durpublisher\"/>"

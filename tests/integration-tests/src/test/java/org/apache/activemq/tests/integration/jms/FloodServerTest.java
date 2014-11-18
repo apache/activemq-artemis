@@ -29,14 +29,14 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
@@ -56,7 +56,7 @@ public class FloodServerTest extends UnitTestCase
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private JMSServerManagerImpl serverManager;
 
@@ -86,7 +86,7 @@ public class FloodServerTest extends UnitTestCase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()));
-      server = HornetQServers.newHornetQServer(conf, false);
+      server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       serverManager = new JMSServerManagerImpl(server);
@@ -135,33 +135,33 @@ public class FloodServerTest extends UnitTestCase
                                             registerConnectors(server, connectorConfigs),
                                             null,
                                             1000,
-                                            HornetQClient.DEFAULT_CONNECTION_TTL,
+                                            ActiveMQClient.DEFAULT_CONNECTION_TTL,
                                             callTimeout,
-                                            HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                                            HornetQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
-                                            HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                            HornetQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
-                                            HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                                            HornetQClient.DEFAULT_CONSUMER_MAX_RATE,
-                                            HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                                            HornetQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
-                                            HornetQClient.DEFAULT_PRODUCER_MAX_RATE,
+                                            ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
+                                            ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
+                                            ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                            ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
+                                            ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
+                                            ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
+                                            ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+                                            ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
+                                            ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
                                             false,
                                             false,
                                             false,
-                                            HornetQClient.DEFAULT_AUTO_GROUP,
+                                            ActiveMQClient.DEFAULT_AUTO_GROUP,
                                             false,
-                                            HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                                            HornetQClient.DEFAULT_ACK_BATCH_SIZE,
-                                            HornetQClient.DEFAULT_ACK_BATCH_SIZE,
-                                            HornetQClient.DEFAULT_USE_GLOBAL_POOLS,
-                                            HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                            HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
+                                            ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
+                                            ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
+                                            ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
+                                            ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
+                                            ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                            ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
                                             retryInterval,
                                             retryIntervalMultiplier,
                                             1000,
                                             reconnectAttempts,
-                                            HornetQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
+                                            ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
                                             null,
                                             "/cf");
    }
@@ -233,7 +233,7 @@ public class FloodServerTest extends UnitTestCase
 
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         producer = session.createProducer(HornetQJMSClient.createTopic("my-topic"));
+         producer = session.createProducer(ActiveMQJMSClient.createTopic("my-topic"));
 
          producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
@@ -288,7 +288,7 @@ public class FloodServerTest extends UnitTestCase
 
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         consumer = session.createConsumer(HornetQJMSClient.createTopic("my-topic"));
+         consumer = session.createConsumer(ActiveMQJMSClient.createTopic("my-topic"));
 
          this.numMessages = numMessages;
       }

@@ -13,20 +13,20 @@
 package org.apache.activemq.core.deployers.impl;
 
 import org.apache.activemq.core.deployers.DeploymentManager;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.utils.PasswordMaskingUtil;
 import org.apache.activemq.utils.SensitiveDataCodec;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * deployer for adding security loaded from the file "hornetq-users.xml"
+ * deployer for adding security loaded from the file "activemq-users.xml"
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class BasicUserCredentialsDeployer extends XmlDeployer
 {
-   private final HornetQSecurityManager hornetQSecurityManager;
+   private final ActiveMQSecurityManager activeMQSecurityManager;
 
    private static final String PASSWORD_ATTRIBUTE = "password";
 
@@ -47,11 +47,11 @@ public class BasicUserCredentialsDeployer extends XmlDeployer
    private SensitiveDataCodec<String> passwordCodec;
 
    public BasicUserCredentialsDeployer(final DeploymentManager deploymentManager,
-                                       final HornetQSecurityManager hornetQSecurityManager)
+                                       final ActiveMQSecurityManager activeMQSecurityManager)
    {
       super(deploymentManager);
 
-      this.hornetQSecurityManager = hornetQSecurityManager;
+      this.activeMQSecurityManager = activeMQSecurityManager;
    }
 
    @Override
@@ -109,11 +109,11 @@ public class BasicUserCredentialsDeployer extends XmlDeployer
       }
 
       // add the user
-      hornetQSecurityManager.addUser(username, password);
+      activeMQSecurityManager.addUser(username, password);
 
       if (BasicUserCredentialsDeployer.DEFAULT_USER.equalsIgnoreCase(nodeName))
       {
-         hornetQSecurityManager.setDefaultUser(username);
+         activeMQSecurityManager.setDefaultUser(username);
       }
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++)
@@ -125,7 +125,7 @@ public class BasicUserCredentialsDeployer extends XmlDeployer
             String role = child.getAttributes()
                .getNamedItem(BasicUserCredentialsDeployer.ROLE_ATTR_NAME)
                .getNodeValue();
-            hornetQSecurityManager.addRole(username, role);
+            activeMQSecurityManager.addRole(username, role);
          }
       }
    }
@@ -134,7 +134,7 @@ public class BasicUserCredentialsDeployer extends XmlDeployer
    public void undeploy(final Node node) throws Exception
    {
       String username = node.getAttributes().getNamedItem("name").getNodeValue();
-      hornetQSecurityManager.removeUser(username);
+      activeMQSecurityManager.removeUser(username);
    }
 
    @Override

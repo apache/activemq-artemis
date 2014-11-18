@@ -13,7 +13,7 @@
 package org.apache.activemq.core.server.cluster;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.management.NotificationService;
 
 /**
@@ -26,7 +26,7 @@ import org.apache.activemq.core.server.management.NotificationService;
  *
  *
  */
-public interface BroadcastGroup extends HornetQComponent
+public interface BroadcastGroup extends ActiveMQComponent
 {
    void setNotificationService(NotificationService notificationService);
 

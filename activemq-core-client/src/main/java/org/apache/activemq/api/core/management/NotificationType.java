@@ -13,15 +13,15 @@
 package org.apache.activemq.api.core.management;
 
 /**
- * Types of notification emitted by HornetQ servers.
+ * Types of notification emitted by ActiveMQ servers.
  * <p>
  * These notifications can be received through:
  * <ul>
  * <li>JMX' MBeans subscriptions
- * <li>Core messages to a notification address (default value is {@code hornetq.notifications})
+ * <li>Core messages to a notification address (default value is {@code activemq.notifications})
  * <li>JMS messages
  * </ul>
- * @see the HornetQ user manual section on "Management Notifications"
+ * @see the ActiveMQ user manual section on "Management Notifications"
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface NotificationType

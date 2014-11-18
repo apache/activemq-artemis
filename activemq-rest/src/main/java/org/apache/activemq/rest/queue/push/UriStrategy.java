@@ -34,7 +34,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.xml.BasicAuth;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.rest.queue.push.xml.XmlHttpHeader;
@@ -110,7 +110,7 @@ public class UriStrategy implements PushStrategy
 
    public boolean push(ClientMessage message)
    {
-      HornetQRestLogger.LOGGER.debug("Pushing " + message);
+      ActiveMQRestLogger.LOGGER.debug("Pushing " + message);
       String uri = createUri(message);
       for (int i = 0; i < registration.getMaxRetries(); i++)
       {
@@ -118,21 +118,21 @@ public class UriStrategy implements PushStrategy
          System.out.println("Creating request from " + uri);
          ClientRequest request = executor.createRequest(uri);
          request.followRedirects(false);
-         HornetQRestLogger.LOGGER.debug("Created request " + request);
+         ActiveMQRestLogger.LOGGER.debug("Created request " + request);
 
          for (XmlHttpHeader header : registration.getHeaders())
          {
-            HornetQRestLogger.LOGGER.debug("Setting XmlHttpHeader: " + header.getName() + "=" + header.getValue());
+            ActiveMQRestLogger.LOGGER.debug("Setting XmlHttpHeader: " + header.getName() + "=" + header.getValue());
             request.header(header.getName(), header.getValue());
          }
          HttpMessageHelper.buildMessage(message, request, contentType);
          ClientResponse<?> res = null;
          try
          {
-            HornetQRestLogger.LOGGER.debug(method + " " + uri);
+            ActiveMQRestLogger.LOGGER.debug(method + " " + uri);
             res = request.httpMethod(method);
             int status = res.getStatus();
-            HornetQRestLogger.LOGGER.debug("Status of push: " + status);
+            ActiveMQRestLogger.LOGGER.debug("Status of push: " + status);
             if (status == 503)
             {
                String retryAfter = res.getStringHeaders().getFirst("Retry-After");
@@ -148,7 +148,7 @@ public class UriStrategy implements PushStrategy
             }
             else if ((status >= 200 && status < 299) || status == 303 || status == 304)
             {
-               HornetQRestLogger.LOGGER.debug("Success");
+               ActiveMQRestLogger.LOGGER.debug("Success");
                return true;
             }
             else if (status >= 400)
@@ -184,7 +184,7 @@ public class UriStrategy implements PushStrategy
          }
          catch (Exception e)
          {
-            HornetQRestLogger.LOGGER.debug("failed to push message to " + uri, e);
+            ActiveMQRestLogger.LOGGER.debug("failed to push message to " + uri, e);
             e.printStackTrace();
             return false;
          }

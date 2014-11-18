@@ -23,7 +23,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example where a client will send a JMS message to a Topic.
@@ -31,7 +31,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class StompWebSocketExample extends HornetQExample
+public class StompWebSocketExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

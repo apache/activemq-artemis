@@ -26,12 +26,12 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.SpawnedVMSupport;
 
 /**
- * A test that makes sure that a HornetQ server cleans up the associated
+ * A test that makes sure that a ActiveMQ server cleans up the associated
  * resources when one of its client crashes.
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
@@ -90,7 +90,7 @@ public class ClientCrashTest extends ClientTestBase
       assertActiveConnections(1 + 1); // One local and one from the other vm
       assertActiveSession(1 + 1);
 
-      ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                           false,
                                                           0,
                                                           System.currentTimeMillis(),

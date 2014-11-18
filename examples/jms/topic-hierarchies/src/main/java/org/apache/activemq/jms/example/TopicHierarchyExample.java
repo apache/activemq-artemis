@@ -22,8 +22,8 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates how a JMS TopicSubscriber can be created to subscribe to a wild-card Topic.
@@ -32,7 +32,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public class TopicHierarchyExample extends HornetQExample
+public class TopicHierarchyExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -59,7 +59,7 @@ public class TopicHierarchyExample extends HornetQExample
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 6. Instantiate a topic representing the wildcard we're going to subscribe to
-         Topic topicSubscribe = HornetQJMSClient.createTopic("news.europe.#");
+         Topic topicSubscribe = ActiveMQJMSClient.createTopic("news.europe.#");
 
          // Step 7. Create a consumer (topic subscriber) that will consume using that wildcard
          // The consumer will receive any messages sent to any topic that starts with news.europe
@@ -70,11 +70,11 @@ public class TopicHierarchyExample extends HornetQExample
 
          // Step 9. Instantiate some more topic objects corresponding to the individual topics
          // we're going to send messages to
-         Topic topicNewsUsaWrestling = HornetQJMSClient.createTopic("news.usa.wrestling");
+         Topic topicNewsUsaWrestling = ActiveMQJMSClient.createTopic("news.usa.wrestling");
 
-         Topic topicNewsEuropeSport = HornetQJMSClient.createTopic("news.europe.sport");
+         Topic topicNewsEuropeSport = ActiveMQJMSClient.createTopic("news.europe.sport");
 
-         Topic topicNewsEuropeEntertainment = HornetQJMSClient.createTopic("news.europe.entertainment");
+         Topic topicNewsEuropeEntertainment = ActiveMQJMSClient.createTopic("news.europe.entertainment");
 
          // Step 10. Send a message destined for the usa wrestling topic
          TextMessage messageWrestlingNews = session.createTextMessage("Hulk Hogan starts ballet classes");

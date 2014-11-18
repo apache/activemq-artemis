@@ -43,7 +43,7 @@ public class VersionImplTest extends Assert
    public void testVersionImpl() throws Exception
    {
 
-      String versionName = "HORNETQ";
+      String versionName = "ACTIVEMQ";
       int majorVersion = 2;
       int minorVersion = 0;
       int microVersion = 1;
@@ -69,9 +69,9 @@ public class VersionImplTest extends Assert
    @Test
    public void testEquals() throws Exception
    {
-      VersionImpl version = new VersionImpl("HORNETQ", 2, 0, 1, 10, "suffix", new int[]{7,8,9,10});
-      VersionImpl sameVersion = new VersionImpl("HORNETQ", 2, 0, 1, 10, "suffix", new int[]{7,8,9,10});
-      VersionImpl differentVersion = new VersionImpl("HORNETQ", 2, 0, 1, 11, "suffix", new int[]{7,8,9,10,11});
+      VersionImpl version = new VersionImpl("ACTIVEMQ", 2, 0, 1, 10, "suffix", new int[]{7,8,9,10});
+      VersionImpl sameVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 10, "suffix", new int[]{7,8,9,10});
+      VersionImpl differentVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 11, "suffix", new int[]{7,8,9,10,11});
 
       Assert.assertFalse(version.equals(new Object()));
 

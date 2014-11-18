@@ -18,22 +18,22 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="configuring-transports">
     <title>Configuring the Transport</title>
-    <para>HornetQ has a fully pluggable and highly flexible transport layer and defines its own
+    <para>ActiveMQ has a fully pluggable and highly flexible transport layer and defines its own
         Service Provider Interface (SPI) to make plugging in a new transport provider relatively
         straightforward.</para>
-    <para>In this chapter we'll describe the concepts required for understanding HornetQ transports
+    <para>In this chapter we'll describe the concepts required for understanding ActiveMQ transports
         and where and how they're configured.</para>
     <section id="configuring-transports.acceptors">
         <title>Understanding Acceptors</title>
-        <para>One of the most important concepts in HornetQ transports is the
+        <para>One of the most important concepts in ActiveMQ transports is the
                 <emphasis>acceptor</emphasis>. Let's dive straight in and take a look at an acceptor
             defined in xml in the configuration file <literal
-            >hornetq-configuration.xml</literal>.</para>
+            >activemq-configuration.xml</literal>.</para>
         <programlisting>
 &lt;acceptors>
    &lt;acceptor name="netty">
@@ -46,7 +46,7 @@
         <para>Acceptors are always defined inside an <literal>acceptors</literal> element. There can
             be one or more acceptors defined in the <literal>acceptors</literal> element. There's no
             upper limit to the number of acceptors per server.</para>
-        <para>Each acceptor defines a way in which connections can be made to the HornetQ
+        <para>Each acceptor defines a way in which connections can be made to the ActiveMQ
             server.</para>
         <para>In the above example we're defining an acceptor that uses <ulink
                 url="http://jboss.org/netty">Netty</ulink> to listen for connections at port
@@ -72,7 +72,7 @@
         <title>Understanding Connectors</title>
         <para>Whereas acceptors are used on the server to define how we accept connections,
             connectors are used by a client to define how it connects to a server.</para>
-        <para>Let's look at a connector defined in our <literal>hornetq-configuration.xml</literal>
+        <para>Let's look at a connector defined in our <literal>activemq-configuration.xml</literal>
             file:</para>
         <programlisting>
 &lt;connectors>
@@ -99,13 +99,13 @@
             <listitem>
                 <para>If you're using JMS and the server side JMS service to instantiate JMS
                     ConnectionFactory instances and bind them in JNDI, then when creating the
-                        <literal>HornetQConnectionFactory</literal> it needs to know what server
+                        <literal>ActiveMQConnectionFactory</literal> it needs to know what server
                     that connection factory will create connections to.</para>
                 <para>That's defined by the <literal>connector-ref</literal> element in the <literal
-                        >hornetq-jms.xml</literal> file on the server side. Let's take a look at a
-                    snipped from a <literal>hornetq-jms.xml</literal> file that shows a JMS
+                        >activemq-jms.xml</literal> file on the server side. Let's take a look at a
+                    snipped from a <literal>activemq-jms.xml</literal> file that shows a JMS
                     connection factory that references our netty connector defined in our <literal
-                        >hornetq-configuration.xml</literal> file:</para>
+                        >activemq-configuration.xml</literal> file:</para>
                 <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -143,7 +143,7 @@ TransportConfiguration transportConfiguration =
     "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
     connectionParams);
 
-ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(transportConfiguration);
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(transportConfiguration);
 
 ClientSessionFactory sessionFactory = locator.createClientSessionFactory();
 
@@ -152,7 +152,7 @@ ClientSession session = sessionFactory.createSession(...);
 etc</programlisting>
         <para>Similarly, if you're using JMS, you can configure the JMS connection factory directly
             on the client side without having to define a connector on the server side or define a
-            connection factory in <literal>hornetq-jms.xml</literal>:</para>
+            connection factory in <literal>activemq-jms.xml</literal>:</para>
         <programlisting>
 Map&lt;String, Object> connectionParams = new HashMap&lt;String, Object>();
 
@@ -163,7 +163,7 @@ TransportConfiguration transportConfiguration =
     "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
     connectionParams);
 
-ConnectionFactory connectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+ConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
 
 Connection jmsConnection = connectionFactory.createConnection();
 
@@ -171,7 +171,7 @@ etc</programlisting>
     </section>
     <section>
         <title>Configuring the Netty transport</title>
-        <para>Out of the box, HornetQ currently uses <ulink url="http://www.jboss.org/netty/"
+        <para>Out of the box, ActiveMQ currently uses <ulink url="http://www.jboss.org/netty/"
                 >Netty</ulink>, a high performance low level network library.</para>
         <para>Our Netty transport can be configured in several different ways; to use old (blocking)
             Java IO, or NIO (non-blocking), also to use straightforward TCP sockets, SSL, or to
@@ -179,8 +179,8 @@ etc</programlisting>
         <para>We believe this caters for the vast majority of transport requirements.</para>
         <section id="configuring-transports.single-port">
             <title>Single Port Support</title>
-            <para>As of version 2.4 HornetQ now supports using a single port for all protocols, HornetQ will automatically
-            detect which protocol is being used CORE, AMQP, STOMP or OPENWIRE and use the appropriate HornetQ handler. It will also detect
+            <para>As of version 2.4 ActiveMQ now supports using a single port for all protocols, ActiveMQ will automatically
+            detect which protocol is being used CORE, AMQP, STOMP or OPENWIRE and use the appropriate ActiveMQ handler. It will also detect
             whether protocols such as HTTP or Web Sockets are being used and also use the appropriate decoders</para>
             <para>It is possible to limit which protocols are supported by using the <literal>protocols</literal> parameter
             on the Acceptor like so:</para>
@@ -275,7 +275,7 @@ buffer_size = bandwidth * RTT.</programlisting>
                 </listitem>
                 <listitem>
                     <para><literal>batch-delay</literal>. Before writing packets to the transport,
-                        HornetQ can be configured to batch up writes for a maximum of <literal
+                        ActiveMQ can be configured to batch up writes for a maximum of <literal
                             >batch-delay</literal> milliseconds. This can increase overall
                         throughput for very small messages. It does so at the expense of an increase
                         in average latency for message transfer. The default value for this property
@@ -295,7 +295,7 @@ buffer_size = bandwidth * RTT.</programlisting>
                 </listitem>
                 <listitem>
                     <para><literal>nio-remoting-threads</literal>. When configured to use NIO,
-                        HornetQ will, by default, use a number of threads equal to three times the
+                        ActiveMQ will, by default, use a number of threads equal to three times the
                         number of cores (or hyper-threads) as reported by <literal
                             >Runtime.getRuntime().availableProcessors()</literal> for processing
                         incoming packets. If you want to override this value, you can set the number
@@ -341,8 +341,8 @@ buffer_size = bandwidth * RTT.</programlisting>
                         authentication). Although this value is configured on the server, it is
                         downloaded and used by the client. If the client needs to use a different path
                         from that set on the server then it can override the server-side setting by either
-                        using the customary "javax.net.ssl.keyStore" system property or the HornetQ-specific
-                        "org.apache.activemq.ssl.keyStore" system property. The HornetQ-specific system property
+                        using the customary "javax.net.ssl.keyStore" system property or the ActiveMQ-specific
+                        "org.apache.activemq.ssl.keyStore" system property. The ActiveMQ-specific system property
                         is useful if another component on client is already making use of the standard, Java
                         system property.</para>
                 </listitem>
@@ -356,8 +356,8 @@ buffer_size = bandwidth * RTT.</programlisting>
                         be configured on the server, it is downloaded and used by the client.  If the client
                         needs to use a different password from that set on the server then it can override
                         the server-side setting by either using the customary "javax.net.ssl.keyStorePassword"
-                        system property or the HornetQ-specific "org.apache.activemq.ssl.keyStorePassword" system
-                        property. The HornetQ-specific system property is useful if another component on client
+                        system property or the ActiveMQ-specific "org.apache.activemq.ssl.keyStorePassword" system
+                        property. The ActiveMQ-specific system property is useful if another component on client
                         is already making use of the standard, Java system property.</para>
                 </listitem>
                 <listitem>
@@ -371,8 +371,8 @@ buffer_size = bandwidth * RTT.</programlisting>
                         trusts. Although this value can be configured on the server, it is downloaded and
                         used by the client.  If the client needs to use a different path
                         from that set on the server then it can override the server-side setting by either
-                        using the customary "javax.net.ssl.trustStore" system property or the HornetQ-specific
-                        "org.apache.activemq.ssl.trustStore" system property. The HornetQ-specific system property
+                        using the customary "javax.net.ssl.trustStore" system property or the ActiveMQ-specific
+                        "org.apache.activemq.ssl.trustStore" system property. The ActiveMQ-specific system property
                         is useful if another component on client is already making use of the standard, Java
                         system property.</para>
                 </listitem>
@@ -386,8 +386,8 @@ buffer_size = bandwidth * RTT.</programlisting>
                         downloaded and used by the client.   If the client
                         needs to use a different password from that set on the server then it can override
                         the server-side setting by either using the customary "javax.net.ssl.trustStorePassword"
-                        system property or the HornetQ-specific "org.apache.activemq.ssl.trustStorePassword" system
-                        property. The HornetQ-specific system property is useful if another component on client
+                        system property or the ActiveMQ-specific "org.apache.activemq.ssl.trustStorePassword" system
+                        property. The ActiveMQ-specific system property is useful if another component on client
                         is already making use of the standard, Java system property.</para>
                 </listitem>
                 <listitem>
@@ -420,7 +420,7 @@ buffer_size = bandwidth * RTT.</programlisting>
             <itemizedlist>
                 <listitem>
                     <para><literal>http-enabled</literal>. This is now no longer needed as of version 2.4. With single
-                        port support HornetQ will now automatically detect if http is being used and configure itself.</para>
+                        port support ActiveMQ will now automatically detect if http is being used and configure itself.</para>
                 </listitem>
                 <listitem>
                     <para><literal>http-client-idle-time</literal>. How long a client can be idle
@@ -447,7 +447,7 @@ buffer_size = bandwidth * RTT.</programlisting>
         </section>
         <section>
             <title>Configuring Netty Servlet</title>
-            <para>As of 2.4 HornetQ Servlet support will be provided via Undertow in Wildfly</para>
+            <para>As of 2.4 ActiveMQ Servlet support will be provided via Undertow in Wildfly</para>
         </section>
     </section>
 </chapter>

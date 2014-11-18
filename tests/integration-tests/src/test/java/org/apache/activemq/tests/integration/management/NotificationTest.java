@@ -20,15 +20,15 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
@@ -53,7 +53,7 @@ public class NotificationTest extends UnitTestCase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer service;
+   private ActiveMQServer service;
 
    private ClientSession session;
 
@@ -255,10 +255,10 @@ public class NotificationTest extends UnitTestCase
       Configuration conf = createBasicConfig()
          // the notifications are independent of JMX
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      service = HornetQServers.newHornetQServer(conf, false);
+      service = ActiveMQServers.newActiveMQServer(conf, false);
       service.start();
 
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
       session.start();

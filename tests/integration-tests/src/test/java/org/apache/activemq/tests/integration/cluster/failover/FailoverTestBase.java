@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
@@ -39,9 +39,9 @@ import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -126,12 +126,12 @@ public abstract class FailoverTestBase extends ServiceTestBase
    {
       boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration ||
          config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
-      return new SameProcessHornetQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
+      return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
 
    protected TestableServer createColocatedTestableServer(Configuration config, NodeManager liveNodeManager,NodeManager backupNodeManager, int id)
    {
-      return new SameProcessHornetQServer(createColocatedInVMFailoverServer(true, config, liveNodeManager, backupNodeManager, id));
+      return new SameProcessActiveMQServer(createColocatedInVMFailoverServer(true, config, liveNodeManager, backupNodeManager, id));
    }
 
    /**
@@ -312,7 +312,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
     */
    protected void waitForBackup(ClientSessionFactoryInternal sessionFactory, int seconds) throws Exception
    {
-      final HornetQServerImpl actualServer = (HornetQServerImpl) backupServer.getServer();
+      final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backupServer.getServer();
       if (actualServer.getHAPolicy().isSharedStore())
       {
          waitForServer(actualServer);
@@ -329,7 +329,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
 
    protected ServerLocatorInternal getServerLocator() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false));
       locator.setRetryInterval(50);
       addServerLocator(locator);
       return (ServerLocatorInternal) locator;

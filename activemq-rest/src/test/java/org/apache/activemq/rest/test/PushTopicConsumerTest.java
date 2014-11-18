@@ -17,7 +17,7 @@ import javax.ws.rs.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.rest.queue.QueueDeployment;
-import org.apache.activemq.rest.queue.push.HornetQPushStrategy;
+import org.apache.activemq.rest.queue.push.ActiveMQPushStrategy;
 import org.apache.activemq.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.rest.topic.PushTopicRegistration;
 import org.apache.activemq.rest.topic.TopicDeployment;
@@ -146,7 +146,7 @@ public class PushTopicConsumerTest extends MessageTestBase
       reg.setDurable(false);
       XmlLink target = new XmlLink();
       target.setHref(generateURL("/queues/testClassForwardQueue"));
-      target.setClassName(HornetQPushStrategy.class.getName());
+      target.setClassName(ActiveMQPushStrategy.class.getName());
       reg.setTarget(target);
       response = pushSubscriptions.request().body("application/xml", reg).post();
       Assert.assertEquals(201, response.getStatus());

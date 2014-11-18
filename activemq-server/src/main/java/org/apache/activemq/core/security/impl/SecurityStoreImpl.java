@@ -22,19 +22,19 @@ import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ServerSession;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.server.management.NotificationService;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.TypedProperties;
 
 /**
- * The HornetQ SecurityStore implementation
+ * The ActiveMQ SecurityStore implementation
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
@@ -51,11 +51,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    // Attributes ----------------------------------------------------
 
-   private final boolean trace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final HierarchicalRepository<Set<Role>> securityRepository;
 
-   private final HornetQSecurityManager securityManager;
+   private final ActiveMQSecurityManager securityManager;
 
    private final ConcurrentMap<String, ConcurrentHashSet<SimpleString>> cache = new ConcurrentHashMap<String, ConcurrentHashSet<SimpleString>>();
 
@@ -77,7 +77,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     * @param notificationService can be <code>null</code>
     */
    public SecurityStoreImpl(final HierarchicalRepository<Set<Role>> securityRepository,
-                            final HornetQSecurityManager securityManager,
+                            final ActiveMQSecurityManager securityManager,
                             final long invalidationInterval,
                             final boolean securityEnabled,
                             final String managementClusterUser,
@@ -116,7 +116,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          {
             if (trace)
             {
-               HornetQServerLogger.LOGGER.trace("Authenticating cluster admin user");
+               ActiveMQServerLogger.LOGGER.trace("Authenticating cluster admin user");
             }
 
             /*
@@ -125,7 +125,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
              */
             if (!managementClusterPassword.equals(password))
             {
-               throw HornetQMessageBundle.BUNDLE.unableToValidateClusterUser(user);
+               throw ActiveMQMessageBundle.BUNDLE.unableToValidateClusterUser(user);
             }
             else
             {
@@ -146,7 +146,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                notificationService.sendNotification(notification);
             }
 
-            throw HornetQMessageBundle.BUNDLE.unableToValidateUser(user);
+            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser(user);
          }
       }
    }
@@ -157,7 +157,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       {
          if (trace)
          {
-            HornetQServerLogger.LOGGER.trace("checking access permissions to " + address);
+            ActiveMQServerLogger.LOGGER.trace("checking access permissions to " + address);
          }
 
          String user = session.getUsername();
@@ -192,7 +192,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                notificationService.sendNotification(notification);
             }
 
-            throw HornetQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
+            throw ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
          }
          // if we get here we're granted, add to the cache
          ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<SimpleString>();

@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.ActiveMQIncompatibleClientServerException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
@@ -32,8 +32,8 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
 import org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.version.impl.VersionImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -57,7 +57,7 @@ public class IncompatibleVersionTest extends ServiceTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private CoreRemotingConnection connection;
    private ServerLocator locator;
@@ -156,12 +156,12 @@ public class IncompatibleVersionTest extends ServiceTestBase
                                                 version,
                                                 null,
                                                 null,
-                                                HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
                                                 false,
                                                 true,
                                                 true,
                                                 false,
-                                                HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+                                                ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
                                                 null);
 
       if (compatible)
@@ -201,14 +201,14 @@ public class IncompatibleVersionTest extends ServiceTestBase
 
    private boolean doTestClientVersionCompatibilityWithRealConnection(String verList, int ver) throws Exception
    {
-      String propFileName = "compatibility-test-hornetq-version.properties";
+      String propFileName = "compatibility-test-activemq-version.properties";
       String serverStartedString = "IncompatibleVersionTest---server---started";
 
       Properties prop = new Properties();
-      InputStream in = VersionImpl.class.getClassLoader().getResourceAsStream("hornetq-version.properties");
+      InputStream in = VersionImpl.class.getClassLoader().getResourceAsStream("activemq-version.properties");
       prop.load(in);
-      prop.setProperty("hornetq.version.compatibleVersionList", verList);
-      prop.setProperty("hornetq.version.incrementingVersion", Integer.toString(ver));
+      prop.setProperty("activemq.version.compatibleVersionList", verList);
+      prop.setProperty("activemq.version.incrementingVersion", Integer.toString(ver));
       prop.store(new FileOutputStream("target/test-classes/" + propFileName), null);
 
       Process serverProcess = null;
@@ -255,7 +255,7 @@ public class IncompatibleVersionTest extends ServiceTestBase
          Configuration conf = new ConfigurationImpl()
             .setSecurityEnabled(false)
             .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory"));
-         HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+         ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
          server.start();
 
          log.info("### server: " + startedString);
@@ -270,7 +270,7 @@ public class IncompatibleVersionTest extends ServiceTestBase
          ClientSessionFactory sf = null;
          try
          {
-            locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+            locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
             sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
             log.info("### client: connected. server incrementingVersion = " + session.getVersion());

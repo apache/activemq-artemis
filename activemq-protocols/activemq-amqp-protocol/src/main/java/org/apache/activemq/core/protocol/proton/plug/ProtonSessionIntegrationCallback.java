@@ -24,7 +24,7 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.protocol.proton.ProtonProtocolManager;
 import org.apache.activemq.core.server.QueueQueryResult;
@@ -52,7 +52,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 {
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
-   private final HornetQProtonConnectionCallback protonSPI;
+   private final ActiveMQProtonConnectionCallback protonSPI;
 
    private final ProtonProtocolManager manager;
 
@@ -62,7 +62,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    private AMQPSessionContext protonSession;
 
-   public ProtonSessionIntegrationCallback(HornetQProtonConnectionCallback protonSPI, ProtonProtocolManager manager, AMQPConnectionContext connection)
+   public ProtonSessionIntegrationCallback(ActiveMQProtonConnectionCallback protonSPI, ProtonProtocolManager manager, AMQPConnectionContext connection)
    {
       this.protonSPI = protonSPI;
       this.manager = manager;
@@ -72,7 +72,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    @Override
    public void onFlowConsumer(Object consumer, int credits)
    {
-      // We have our own flow control on AMQP, so we set hornetq's flow control to 0
+      // We have our own flow control on AMQP, so we set activemq's flow control to 0
       ((ServerConsumer) consumer).receiveCredits(-1);
    }
 
@@ -98,7 +98,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       serverSession = manager.getServer().createSession(name,
                                                         user,
                                                         passcode,
-                                                        HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                        ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
                                                         protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
                                                         false, // boolean autoCommitSends
                                                         false, // boolean autoCommitAcks,

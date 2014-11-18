@@ -30,7 +30,7 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ClusterManager;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -189,7 +189,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
 
    protected void waitForClusterConnections(final int node, final int expected) throws Exception
    {
-      HornetQServer server = servers[node];
+      ActiveMQServer server = servers[node];
 
       if (server == null)
       {
@@ -388,7 +388,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
    public void testWrongPasswordTriggersClusterConnectionStop() throws Exception
    {
       Configuration config = servers[4].getConfiguration();
-      for (HornetQServer s : servers)
+      for (ActiveMQServer s : servers)
       {
          if (s != null)
          {

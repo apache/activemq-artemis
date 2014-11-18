@@ -39,10 +39,10 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.spi.core.security.JAASSecurityManager;
 import org.apache.activemq.tests.util.CreateMessage;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -80,8 +80,8 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateSessionWithNullUserPass() throws Exception
    {
-      HornetQServer server = createServer();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQServer server = createServer();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("guest", "guest");
       securityManager.setDefaultUser("guest");
       server.start();
@@ -103,18 +103,18 @@ public class SecurityTest extends ServiceTestBase
     * @return
     * @throws Exception
     */
-   private HornetQServer createServer() throws Exception
+   private ActiveMQServer createServer() throws Exception
    {
       configuration = createDefaultConfig(false)
          .setSecurityEnabled(true);
-      HornetQServer server = createServer(false, configuration);
+      ActiveMQServer server = createServer(false, configuration);
       return server;
    }
 
    @Test
    public void testCreateSessionWithNullUserPassNoGuest() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       try
@@ -135,8 +135,8 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateSessionWithCorrectUserWrongPass() throws Exception
    {
-      HornetQServer server = createServer();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQServer server = createServer();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -159,8 +159,8 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateSessionWithCorrectUserCorrectPass() throws Exception
    {
-      HornetQServer server = createServer();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQServer server = createServer();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -180,10 +180,10 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateDurableQueueWithRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -199,11 +199,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateDurableQueueWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -231,10 +231,10 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testDeleteDurableQueueWithRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, true, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -251,10 +251,10 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testDeleteDurableQueueWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -283,11 +283,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateTempQueueWithRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -303,11 +303,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateTempQueueWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -335,10 +335,10 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testDeleteTempQueueWithRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, true, false);
       Set<Role> roles = new HashSet<Role>();
@@ -355,10 +355,10 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testDeleteTempQueueWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -387,13 +387,13 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendWithRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
 
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
 
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
 
       securityManager.addUser("auser", "pass");
 
@@ -454,11 +454,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -488,11 +488,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testNonBlockSendWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -513,10 +513,10 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateConsumerWithRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       securityManager.addUser("guest", "guest");
       securityManager.addRole("guest", "guest");
@@ -542,10 +542,10 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testCreateConsumerWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       securityManager.addUser("guest", "guest");
       securityManager.addRole("guest", "guest");
@@ -585,10 +585,10 @@ public class SecurityTest extends ServiceTestBase
       Configuration configuration = createDefaultConfig(false)
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(10000);
-      HornetQServer server = createServer(false, configuration);
+      ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       securityManager.addUser("guest", "guest");
       securityManager.addRole("guest", "guest");
@@ -641,11 +641,11 @@ public class SecurityTest extends ServiceTestBase
       Configuration configuration = createDefaultConfig(false)
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(0);
-      HornetQServer server = createServer(false, configuration);
+      ActiveMQServer server = createServer(false, configuration);
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       securityManager.addUser("guest", "guest");
       securityManager.addRole("guest", "guest");
@@ -711,10 +711,10 @@ public class SecurityTest extends ServiceTestBase
       Configuration configuration = createDefaultConfig(false)
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(-1);
-      HornetQServer server = createServer(false, configuration);
+      ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       securityManager.addUser("guest", "guest");
       securityManager.addRole("guest", "guest");
@@ -810,11 +810,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendManagementWithRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, true);
       Set<Role> roles = new HashSet<Role>();
@@ -832,11 +832,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendManagementWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -867,11 +867,11 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testNonBlockSendManagementWithoutRole() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -901,7 +901,7 @@ public class SecurityTest extends ServiceTestBase
       Configuration configuration = createDefaultConfig(false)
          .setSecurityEnabled(true);
       JAASSecurityManager securityManager = new JAASSecurityManager();
-      HornetQServer server = createServer(false, configuration, securityManager);
+      ActiveMQServer server = createServer(false, configuration, securityManager);
 
       securityManager.setConfigurationName(domainName);
       securityManager.setCallbackHandler(new CallbackHandler()
@@ -937,7 +937,7 @@ public class SecurityTest extends ServiceTestBase
       Configuration configuration = createDefaultConfig(false)
          .setSecurityEnabled(true);
       JAASSecurityManager securityManager = new JAASSecurityManager();
-      HornetQServer server = createServer(false, configuration, securityManager);
+      ActiveMQServer server = createServer(false, configuration, securityManager);
 
       securityManager.setConfigurationName(domainName);
       securityManager.setCallbackHandler(new CallbackHandler()
@@ -972,14 +972,14 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testComplexRoles() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("all", "all");
-      securityManager.addUser("bill", "hornetq");
-      securityManager.addUser("andrew", "hornetq1");
-      securityManager.addUser("frank", "hornetq2");
-      securityManager.addUser("sam", "hornetq3");
+      securityManager.addUser("bill", "activemq");
+      securityManager.addUser("andrew", "activemq1");
+      securityManager.addUser("frank", "activemq2");
+      securityManager.addUser("sam", "activemq3");
       securityManager.addRole("all", "all");
       securityManager.addRole("bill", "user");
       securityManager.addRole("andrew", "europe-user");
@@ -1040,7 +1040,7 @@ public class SecurityTest extends ServiceTestBase
       // Step 5. bill tries to make a connection using wrong password
       try
       {
-         billConnection = factory.createSession("bill", "hornetq1", false, true, true, false, -1);
+         billConnection = factory.createSession("bill", "activemq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
       }
       catch (ActiveMQSecurityException se)
@@ -1053,16 +1053,16 @@ public class SecurityTest extends ServiceTestBase
       }
 
       // Step 6. bill makes a good connection.
-      billConnection = factory.createSession("bill", "hornetq", false, true, true, false, -1);
+      billConnection = factory.createSession("bill", "activemq", false, true, true, false, -1);
 
       // Step 7. andrew makes a good connection.
-      andrewConnection = factory.createSession("andrew", "hornetq1", false, true, true, false, -1);
+      andrewConnection = factory.createSession("andrew", "activemq1", false, true, true, false, -1);
 
       // Step 8. frank makes a good connection.
-      frankConnection = factory.createSession("frank", "hornetq2", false, true, true, false, -1);
+      frankConnection = factory.createSession("frank", "activemq2", false, true, true, false, -1);
 
       // Step 9. sam makes a good connection.
-      samConnection = factory.createSession("sam", "hornetq3", false, true, true, false, -1);
+      samConnection = factory.createSession("sam", "activemq3", false, true, true, false, -1);
 
       checkUserSendAndReceive(genericQueueName, billConnection);
       checkUserSendAndReceive(genericQueueName, andrewConnection);
@@ -1111,14 +1111,14 @@ public class SecurityTest extends ServiceTestBase
 
    public void _testComplexRoles2() throws Exception
    {
-      HornetQServer server = createServer();
+      ActiveMQServer server = createServer();
       server.start();
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("all", "all");
-      securityManager.addUser("bill", "hornetq");
-      securityManager.addUser("andrew", "hornetq1");
-      securityManager.addUser("frank", "hornetq2");
-      securityManager.addUser("sam", "hornetq3");
+      securityManager.addUser("bill", "activemq");
+      securityManager.addUser("andrew", "activemq1");
+      securityManager.addUser("frank", "activemq2");
+      securityManager.addUser("sam", "activemq3");
       securityManager.addRole("all", "all");
       securityManager.addRole("bill", "user");
       securityManager.addRole("andrew", "europe-user");
@@ -1179,7 +1179,7 @@ public class SecurityTest extends ServiceTestBase
       // Step 5. bill tries to make a connection using wrong password
       try
       {
-         billConnection = factory.createSession("bill", "hornetq1", false, true, true, false, -1);
+         billConnection = factory.createSession("bill", "activemq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
       }
       catch (ActiveMQSecurityException se)
@@ -1192,16 +1192,16 @@ public class SecurityTest extends ServiceTestBase
       }
 
       // Step 6. bill makes a good connection.
-      billConnection = factory.createSession("bill", "hornetq", false, true, true, false, -1);
+      billConnection = factory.createSession("bill", "activemq", false, true, true, false, -1);
 
       // Step 7. andrew makes a good connection.
-      andrewConnection = factory.createSession("andrew", "hornetq1", false, true, true, false, -1);
+      andrewConnection = factory.createSession("andrew", "activemq1", false, true, true, false, -1);
 
       // Step 8. frank makes a good connection.
-      frankConnection = factory.createSession("frank", "hornetq2", false, true, true, false, -1);
+      frankConnection = factory.createSession("frank", "activemq2", false, true, true, false, -1);
 
       // Step 9. sam makes a good connection.
-      samConnection = factory.createSession("sam", "hornetq3", false, true, true, false, -1);
+      samConnection = factory.createSession("sam", "activemq3", false, true, true, false, -1);
 
       checkUserSendAndReceive(genericQueueName, billConnection);
       checkUserSendAndReceive(genericQueueName, andrewConnection);

@@ -26,8 +26,8 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.proton.plug.AMQPSessionCallback;
-import org.proton.plug.exceptions.HornetQAMQPException;
-import org.proton.plug.logger.HornetQAMQPProtocolMessageBundle;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
+import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 
 import static org.proton.plug.util.DeliveryUtil.decodeMessageImpl;
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
@@ -46,7 +46,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler
    }
 
    @Override
-   public void onMessage(Delivery delivery) throws HornetQAMQPException
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
    {
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
 
@@ -87,7 +87,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler
                }
                catch (Exception e)
                {
-                  throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());
                }
             }
             else
@@ -98,7 +98,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler
                }
                catch (Exception e)
                {
-                  throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorCommittingCoordinator(e.getMessage());
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCommittingCoordinator(e.getMessage());
                }
             }
             delivery.settle();
@@ -127,7 +127,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler
    }
 
    @Override
-   public void close() throws HornetQAMQPException
+   public void close() throws ActiveMQAMQPException
    {
       //noop
    }

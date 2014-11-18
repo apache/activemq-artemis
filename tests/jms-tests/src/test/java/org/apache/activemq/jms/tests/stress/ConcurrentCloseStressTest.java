@@ -23,7 +23,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.JmsTestLogger;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
@@ -35,7 +35,7 @@ import org.junit.Test;
  * This test was added to test regression on http://jira.jboss.com/jira/browse/JBMESSAGING-660
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
-public class ConcurrentCloseStressTest extends HornetQServerTestCase
+public class ConcurrentCloseStressTest extends ActiveMQServerTestCase
 {
    @BeforeClass
    public static void stressTestsEnabled()

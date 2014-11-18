@@ -18,24 +18,24 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="jms-bridge">
         <title>The JMS Bridge</title>
-        <para>HornetQ includes a fully functional JMS message bridge.</para>
+        <para>ActiveMQ includes a fully functional JMS message bridge.</para>
         <para>The function of the bridge is to consume messages from a source queue or topic, and
             send them to a target queue or topic, typically on a different server.</para>
         <para>The source and target servers do not have to be in the same cluster which makes
             bridging suitable for reliably sending messages from one cluster to another, for
             instance across a WAN, and where the connection may be unreliable.</para>
-        <para>A bridge can be deployed as a standalone application, with HornetQ standalone server or inside a JBoss AS
+        <para>A bridge can be deployed as a standalone application, with ActiveMQ standalone server or inside a JBoss AS
             instance. The source and the target can be located in the same virtual machine or another one.</para>
-        <para>The bridge can also be used to bridge messages from other non HornetQ JMS servers, as
+        <para>The bridge can also be used to bridge messages from other non ActiveMQ JMS servers, as
             long as they are JMS 1.1 compliant.<note><para>Do not confuse a JMS bridge with a core
                     bridge. A JMS bridge can be used to bridge any two JMS 1.1 compliant JMS
                     providers and uses the JMS API. A core bridge (described in <xref
-                        linkend="core-bridges"/>) is used to bridge any two HornetQ instances and
+                        linkend="core-bridges"/>) is used to bridge any two ActiveMQ instances and
                     uses the core API. Always use a core bridge if you can in preference to a JMS
                     bridge. The core bridge will typically provide better performance than a JMS
                     bridge. Also the core bridge can provide <emphasis>once and only once</emphasis>
@@ -56,8 +56,8 @@
 &lt;?xml version="1.0" encoding="UTF-8"?>
 &lt;deployment xmlns="urn:jboss:bean-deployer:2.0">
    &lt;bean name="JMSBridge" class="org.apache.activemq.api.jms.bridge.impl.JMSBridgeImpl">
-      &lt;!-- HornetQ must be started before the bridge -->
-      &lt;depends>HornetQServer&lt;/depends>
+      &lt;!-- ActiveMQ must be started before the bridge -->
+      &lt;depends>ActiveMQServer&lt;/depends>
       &lt;constructor>
          &lt;!-- Source ConnectionFactory Factory -->
          &lt;parameter>
@@ -320,7 +320,7 @@
                     <para>Add MessageID In Header</para>
                     <para>If <literal>true</literal>, then the original message's message ID will be
                         appended in the message sent to the destination in the header <literal
-                            >HORNETQ_BRIDGE_MSG_ID_LIST</literal>. If the message is bridged more
+                            >ACTIVEMQ_BRIDGE_MSG_ID_LIST</literal>. If the message is bridged more
                         than once, each message ID will be appended. This enables a distributed
                         request-response pattern to be used</para>
                     <note>
@@ -341,10 +341,10 @@
                </listitem>
             </itemizedlist>
             <para>The "transactionManager" property points to a JTA transaction manager implementation.
-                HornetQ doesn't ship with such an implementation, but one is available in the JBoss
-                Community.  If you are running HornetQ in standalone mode and wish to use a JMS bridge
+                ActiveMQ doesn't ship with such an implementation, but one is available in the JBoss
+                Community.  If you are running ActiveMQ in standalone mode and wish to use a JMS bridge
                 simply download the latest version of JBossTS from http://www.jboss.org/jbosstm/downloads
-                and add it to HornetQ's classpath.  If you are running HornetQ with JBoss AS then you
+                and add it to ActiveMQ's classpath.  If you are running ActiveMQ with JBoss AS then you
                 won't need to do this as JBoss AS ships with a JTA transaction manager already.  The
                 bean definition for the transaction manager would look something like this:
             </para>
@@ -356,7 +356,7 @@
                 connection factory used to create the connection for the source or target
                 server.</para>
             <para>The configuration example above uses the default implementation provided by
-                HornetQ that looks up the connection factory using JNDI. For other Application
+                ActiveMQ that looks up the connection factory using JNDI. For other Application
                 Servers or JMS providers a new implementation may have to be provided. This can
                 easily be done by implementing the interface <literal
                     >org.apache.activemq.jms.bridge.ConnectionFactoryFactory</literal>.</para>
@@ -364,7 +364,7 @@
         <section>
             <title>Source and Target Destination Factories</title>
             <para>Again, similarly, these are used to create or lookup up the destinations.</para>
-            <para>In the configuration example above, we have used the default provided by HornetQ
+            <para>In the configuration example above, we have used the default provided by ActiveMQ
                 that looks up the destination using JNDI.</para>
             <para>A new implementation can be provided by implementing <literal
                     >org.apache.activemq.jms.bridge.DestinationFactory</literal> interface.</para>
@@ -396,7 +396,7 @@
                 <title>ONCE_AND_ONLY_ONCE</title>
                 <para>This QoS mode ensures messages will reach the destination from the source once
                     and only once. (Sometimes this mode is known as "exactly once"). If both the
-                    source and the destination are on the same HornetQ server instance then this can
+                    source and the destination are on the same ActiveMQ server instance then this can
                     be achieved by sending and acknowledging the messages in the same local
                     transaction. If the source and destination are on different servers this is
                     achieved by enlisting the sending and consuming sessions in a JTA transaction.
@@ -444,7 +444,7 @@
                     and use a JMS Bridge with JBoss AS to send messages to the source destination and consume them
                     from the target destination.</para>
                 <para>Please see <xref linkend="examples.jms.jms-bridge"/> which shows how to configure
-                    and use a JMS Bridge between two standalone HornetQ servers.</para>
+                    and use a JMS Bridge between two standalone ActiveMQ servers.</para>
             </section>
         </section>
 </chapter>

@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.api.jms.management.SubscriptionInfo;
 import org.apache.activemq.api.jms.management.TopicControl;
@@ -35,10 +35,10 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.jms.server.management.JMSNotificationType;
 import org.apache.activemq.tests.integration.management.ManagementControlHelper;
@@ -65,7 +65,7 @@ public class TopicControlTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private JMSServerManagerImpl serverManager;
 
@@ -73,7 +73,7 @@ public class TopicControlTest extends ManagementTestBase
 
    private String subscriptionName;
 
-   protected HornetQTopic topic;
+   protected ActiveMQTopic topic;
 
    private String topicBinding = "/topic/" + RandomUtil.randomString();
 
@@ -214,14 +214,14 @@ public class TopicControlTest extends ManagementTestBase
    {
       serverManager.createTopic(false, "my.jms.#", "jms/all");
       serverManager.createTopic(false, "my.jms.A", "jms/A");
-      HornetQTopic myTopic = (HornetQTopic) HornetQJMSClient.createTopic("my.jms.A");
+      ActiveMQTopic myTopic = (ActiveMQTopic) ActiveMQJMSClient.createTopic("my.jms.A");
 
       TopicControl topicControl = ManagementControlHelper.createTopicControl(myTopic, mbeanServer);
       String jsonString = topicControl.listDurableSubscriptionsAsJSON();
       SubscriptionInfo[] infos = SubscriptionInfo.from(jsonString);
       Assert.assertEquals(1, infos.length);
-      Assert.assertEquals("HornetQ", infos[0].getClientID());
-      Assert.assertEquals("HornetQ", infos[0].getName());
+      Assert.assertEquals("ActiveMQ", infos[0].getClientID());
+      Assert.assertEquals("ActiveMQ", infos[0].getName());
    }
 
    @Test
@@ -408,8 +408,8 @@ public class TopicControlTest extends ManagementTestBase
       JMSUtil.sendMessages(topic, 3);
 
       TopicControl topicControl = createManagementControl();
-      Map<String, Object>[] messages = topicControl.listMessagesForSubscription(HornetQDestination.createQueueNameForDurableSubscription(true, clientID,
-                                                                                                                                         subscriptionName));
+      Map<String, Object>[] messages = topicControl.listMessagesForSubscription(ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID,
+                                                                                                                                          subscriptionName));
       Assert.assertEquals(3, messages.length);
 
       connection.close();
@@ -425,8 +425,8 @@ public class TopicControlTest extends ManagementTestBase
       String[] ids = JMSUtil.sendMessages(topic, 3);
 
       TopicControl topicControl = createManagementControl();
-      String jsonString = topicControl.listMessagesForSubscriptionAsJSON(HornetQDestination.createQueueNameForDurableSubscription(true, clientID,
-                                                                                                                                  subscriptionName));
+      String jsonString = topicControl.listMessagesForSubscriptionAsJSON(ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID,
+                                                                                                                                   subscriptionName));
       Assert.assertNotNull(jsonString);
       JSONArray array = new JSONArray(jsonString);
       Assert.assertEquals(3, array.length());
@@ -447,8 +447,8 @@ public class TopicControlTest extends ManagementTestBase
 
       try
       {
-         topicControl.listMessagesForSubscription(HornetQDestination.createQueueNameForDurableSubscription(true, unknownClientID,
-                                                                                                           subscriptionName));
+         topicControl.listMessagesForSubscription(ActiveMQDestination.createQueueNameForDurableSubscription(true, unknownClientID,
+                                                                                                            subscriptionName));
          Assert.fail();
       }
       catch (Exception e)
@@ -465,8 +465,8 @@ public class TopicControlTest extends ManagementTestBase
 
       try
       {
-         topicControl.listMessagesForSubscription(HornetQDestination.createQueueNameForDurableSubscription(true, clientID,
-                                                                                                           unknownSubscription));
+         topicControl.listMessagesForSubscription(ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID,
+                                                                                                            unknownSubscription));
          Assert.fail();
       }
       catch (Exception e)
@@ -598,7 +598,7 @@ public class TopicControlTest extends ManagementTestBase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory"));
-      server = HornetQServers.newHornetQServer(conf, mbeanServer, false);
+      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
       server.start();
 
       serverManager = new JMSServerManagerImpl(server);
@@ -611,7 +611,7 @@ public class TopicControlTest extends ManagementTestBase
 
       String topicName = RandomUtil.randomString();
       serverManager.createTopic(false, topicName, topicBinding);
-      topic = (HornetQTopic) HornetQJMSClient.createTopic(topicName);
+      topic = (ActiveMQTopic) ActiveMQJMSClient.createTopic(topicName);
    }
 
    @Override

@@ -16,7 +16,7 @@ import org.apache.activemq.core.config.HAPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class HAAutomaticBackupSharedStore extends ClusterTestBase
 
    private void setUpHAPolicy(int node)
    {
-      HornetQServer server = getServer(node);
+      ActiveMQServer server = getServer(node);
       ColocatedPolicyConfiguration haPolicyConfiguration = new ColocatedPolicyConfiguration();
       HAPolicyConfiguration liveConfiguration = new SharedStoreMasterPolicyConfiguration();
       haPolicyConfiguration.setLiveConfig(liveConfiguration);

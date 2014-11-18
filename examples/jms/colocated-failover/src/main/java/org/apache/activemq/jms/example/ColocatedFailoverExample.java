@@ -21,13 +21,13 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates a colocated server
  *
  */
-public class ColocatedFailoverExample extends HornetQExample
+public class ColocatedFailoverExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

@@ -15,7 +15,7 @@ package org.apache.activemq.jms.example;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
@@ -28,7 +28,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
  *
  *
  */
-public class HttpStaticFileServer extends HornetQExample
+public class HttpStaticFileServer extends ActiveMQExample
 {
 
    public static void main(final String[] args)

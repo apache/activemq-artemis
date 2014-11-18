@@ -19,13 +19,13 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 
 <chapter id="intercepting-operations">
    <title>Intercepting Operations</title>
-   <para>HornetQ supports <emphasis>interceptors</emphasis> to intercept packets entering
+   <para>ActiveMQ supports <emphasis>interceptors</emphasis> to intercept packets entering
        and exiting the server. Incoming and outgoing interceptors are be called for any packet
        entering or exiting the server respectively. This allows custom code to be executed,
        e.g. for auditing packets, filtering or other reasons. Interceptors can change the
@@ -55,7 +55,7 @@ public interface Interceptor
    <section>
       <title>Configuring The Interceptors</title>
       <para>Both incoming and outgoing interceptors are configured in
-          <literal>hornetq-configuration.xml</literal>:</para>
+          <literal>activemq-configuration.xml</literal>:</para>
       <programlisting>
 &lt;remoting-incoming-interceptors>
    &lt;class-name>org.apache.activemq.jms.example.LoginInterceptor&lt;/class-name>

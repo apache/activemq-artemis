@@ -19,7 +19,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +29,7 @@ import org.junit.Test;
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  *
  */
-public abstract class MessageTestBase extends HornetQServerTestCase
+public abstract class MessageTestBase extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------
 
@@ -193,7 +193,7 @@ public abstract class MessageTestBase extends HornetQServerTestCase
       m.setStringProperty("stringProperty", "this is a String property");
 
       m.setJMSCorrelationID("this is the correlation ID");
-      m.setJMSReplyTo(HornetQServerTestCase.topic1);
+      m.setJMSReplyTo(ActiveMQServerTestCase.topic1);
       m.setJMSType("someArbitraryType");
    }
 
@@ -215,7 +215,7 @@ public abstract class MessageTestBase extends HornetQServerTestCase
       ProxyAssertSupport.assertEquals("this is a String property", m.getStringProperty("stringProperty"));
 
       ProxyAssertSupport.assertEquals("this is the correlation ID", m.getJMSCorrelationID());
-      ProxyAssertSupport.assertEquals(HornetQServerTestCase.topic1, m.getJMSReplyTo());
+      ProxyAssertSupport.assertEquals(ActiveMQServerTestCase.topic1, m.getJMSReplyTo());
       ProxyAssertSupport.assertEquals("someArbitraryType", m.getJMSType());
       ProxyAssertSupport.assertEquals(queue1, m.getJMSDestination());
       ProxyAssertSupport.assertEquals("JMS Redelivered property", m.getJMSRedelivered(), redelivered);

@@ -15,7 +15,7 @@ package org.apache.activemq.core.deployers.impl;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.deployers.DeploymentManager;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.w3c.dom.Node;
 
 /**
@@ -27,11 +27,11 @@ import org.w3c.dom.Node;
  */
 public class QueueDeployer extends XmlDeployer
 {
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final FileConfigurationParser parser = new FileConfigurationParser();
 
-   public QueueDeployer(final DeploymentManager deploymentManager, final HornetQServer server)
+   public QueueDeployer(final DeploymentManager deploymentManager, final ActiveMQServer server)
    {
       super(deploymentManager);
 

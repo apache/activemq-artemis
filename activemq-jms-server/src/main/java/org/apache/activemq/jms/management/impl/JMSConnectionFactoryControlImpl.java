@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.Parameter;
 import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
 import org.apache.activemq.core.management.impl.MBeanInfoHelper;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 
@@ -36,7 +36,7 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
 
    private final ConnectionFactoryConfiguration cfConfig;
 
-   private HornetQConnectionFactory cf;
+   private ActiveMQConnectionFactory cf;
 
    private final String name;
 
@@ -47,7 +47,7 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
    // Constructors --------------------------------------------------
 
    public JMSConnectionFactoryControlImpl(final ConnectionFactoryConfiguration cfConfig,
-                                          final HornetQConnectionFactory cf,
+                                          final ActiveMQConnectionFactory cf,
                                           final JMSServerManager jmsManager,
                                           final String name) throws NotCompliantMBeanException
    {

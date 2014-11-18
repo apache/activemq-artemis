@@ -49,11 +49,11 @@ public class ColocatedActivation extends LiveActivation
 
    LiveActivation liveActivation;
 
-   private final HornetQServerImpl server;
+   private final ActiveMQServerImpl server;
 
-   public ColocatedActivation(HornetQServerImpl hornetQServer, ColocatedPolicy colocatedPolicy, LiveActivation liveActivation)
+   public ColocatedActivation(ActiveMQServerImpl activeMQServer, ColocatedPolicy colocatedPolicy, LiveActivation liveActivation)
    {
-      server = hornetQServer;
+      server = activeMQServer;
       this.colocatedPolicy = colocatedPolicy;
       this.liveActivation = liveActivation;
       colocatedHAManager = new ColocatedHAManager(colocatedPolicy, server);

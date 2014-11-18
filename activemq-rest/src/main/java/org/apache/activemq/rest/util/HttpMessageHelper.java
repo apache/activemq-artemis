@@ -14,7 +14,7 @@ package org.apache.activemq.rest.util;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.HttpHeaderProperty;
 import org.jboss.resteasy.client.ClientRequest;
 
@@ -93,12 +93,12 @@ public class HttpMessageHelper
          String value = message.getStringProperty(k);
 
          request.header(headerName, value);
-         HornetQRestLogger.LOGGER.debug("Examining " + headerName + ": " + value);
+         ActiveMQRestLogger.LOGGER.debug("Examining " + headerName + ": " + value);
          // override default content type if it is set as a message property
          if (headerName.equalsIgnoreCase("content-type"))
          {
             contentType = value;
-            HornetQRestLogger.LOGGER.debug("Using contentType: " + contentType);
+            ActiveMQRestLogger.LOGGER.debug("Using contentType: " + contentType);
          }
       }
       int size = message.getBodySize();
@@ -109,12 +109,12 @@ public class HttpMessageHelper
          {
             byte[] body = new byte[size];
             message.getBodyBuffer().readBytes(body);
-            HornetQRestLogger.LOGGER.debug("Building Message from HTTP message");
+            ActiveMQRestLogger.LOGGER.debug("Building Message from HTTP message");
             request.body(contentType, body);
          }
          else
          {
-            // assume posted as a JMS or HornetQ object message
+            // assume posted as a JMS or ActiveMQ object message
             size = message.getBodyBuffer().readInt();
             byte[] body = new byte[size];
             message.getBodyBuffer().readBytes(body);
@@ -124,7 +124,7 @@ public class HttpMessageHelper
             {
                ObjectInputStream ois = new ObjectInputStream(bais);
                obj = ois.readObject();
-               HornetQRestLogger.LOGGER.debug("**** Building Message from object: " + obj.toString());
+               ActiveMQRestLogger.LOGGER.debug("**** Building Message from object: " + obj.toString());
                request.body(contentType, obj);
             }
             catch (Exception e)

@@ -26,8 +26,8 @@ import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.journal.IOCriticalErrorListener;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.libaio.Native;
-import org.apache.activemq.journal.HornetQJournalLogger;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 
 /**
  * A AIOSequentialFileFactory
@@ -36,7 +36,7 @@ import org.apache.activemq.utils.HornetQThreadFactory;
  */
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory
 {
-   private static final boolean trace = HornetQJournalLogger.LOGGER.isTraceEnabled();
+   private static final boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
 
    private final ReuseBuffersController buffersControl = new ReuseBuffersController();
 
@@ -47,7 +47,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    // Journal
    private static void trace(final String message)
    {
-      HornetQJournalLogger.LOGGER.trace(message);
+      ActiveMQJournalLogger.LOGGER.trace(message);
    }
 
    public AIOSequentialFileFactory(final String journalDir)
@@ -181,7 +181,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    {
       super.start();
 
-      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
+      pollerExecutor = Executors.newCachedThreadPool(new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
                                                                               true,
                                                                               AIOSequentialFileFactory.getThisClassLoader()));
 
@@ -200,7 +200,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          {
             if (!pollerExecutor.awaitTermination(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT, TimeUnit.SECONDS))
             {
-               HornetQJournalLogger.LOGGER.timeoutOnPollerShutdown(new Exception("trace"));
+               ActiveMQJournalLogger.LOGGER.timeoutOnPollerShutdown(new Exception("trace"));
             }
          }
          catch (InterruptedException e)

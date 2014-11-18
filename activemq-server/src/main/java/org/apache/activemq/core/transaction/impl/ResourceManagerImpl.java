@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.transaction.ResourceManager;
 import org.apache.activemq.core.transaction.Transaction;
 
@@ -62,7 +62,7 @@ public class ResourceManagerImpl implements ResourceManager
       this.scheduledThreadPool = scheduledThreadPool;
    }
 
-   // HornetQComponent implementation
+   // ActiveMQComponent implementation
 
    @Override
    public void start() throws Exception
@@ -214,7 +214,7 @@ public class ResourceManagerImpl implements ResourceManager
             if (tx.hasTimedOut(now, defaultTimeoutSeconds))
             {
                transactions.remove(tx.getXid());
-               HornetQServerLogger.LOGGER.unexpectedXid(tx.getXid());
+               ActiveMQServerLogger.LOGGER.unexpectedXid(tx.getXid());
                timedoutTransactions.add(tx);
             }
          }
@@ -227,7 +227,7 @@ public class ResourceManagerImpl implements ResourceManager
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorTimingOutTX(e, failedTransaction.getXid());
+               ActiveMQServerLogger.LOGGER.errorTimingOutTX(e, failedTransaction.getXid());
             }
          }
       }

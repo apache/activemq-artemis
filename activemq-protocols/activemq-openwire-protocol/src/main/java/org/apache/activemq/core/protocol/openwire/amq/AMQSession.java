@@ -42,6 +42,7 @@ import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.XATransactionId;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.wireformat.WireFormat;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.paging.impl.PagingStoreImpl;
@@ -50,8 +51,7 @@ import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.core.protocol.openwire.OpenWireUtil;
 import org.apache.activemq.core.protocol.openwire.SendingResult;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
@@ -64,7 +64,7 @@ public class AMQSession implements SessionCallback
    private AMQServerSession coreSession;
    private ConnectionInfo connInfo;
    private SessionInfo sessInfo;
-   private HornetQServer server;
+   private ActiveMQServer server;
    private OpenWireConnection connection;
    //native id -> consumer
    private Map<Long, AMQConsumer> consumers = new ConcurrentHashMap<Long, AMQConsumer>();
@@ -82,7 +82,7 @@ public class AMQSession implements SessionCallback
    private OpenWireProtocolManager manager;
 
    public AMQSession(ConnectionInfo connInfo, SessionInfo sessInfo,
-         HornetQServer server, OpenWireConnection connection, OpenWireProtocolManager manager)
+         ActiveMQServer server, OpenWireConnection connection, OpenWireProtocolManager manager)
    {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
@@ -115,7 +115,7 @@ public class AMQSession implements SessionCallback
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.error("error init session", e);
+         ActiveMQServerLogger.LOGGER.error("error init session", e);
       }
 
    }
@@ -221,7 +221,7 @@ public class AMQSession implements SessionCallback
       return this.coreSession;
    }
 
-   public HornetQServer getCoreServer()
+   public ActiveMQServer getCoreServer()
    {
       return this.server;
    }
@@ -578,7 +578,7 @@ public class AMQSession implements SessionCallback
          long now = System.currentTimeMillis();
          if (now >= nextWarn)
          {
-            HornetQServerLogger.LOGGER.warn("Memory Limit reached. Producer (" + producerId + ") stopped to prevent flooding "
+            ActiveMQServerLogger.LOGGER.warn("Memory Limit reached. Producer (" + producerId + ") stopped to prevent flooding "
                                + result.getBlockingAddress()
                                + " See http://activemq.apache.org/producer-flow-control.html for more info"
                                + " (blocking for " + ((now - start) / 1000) + "s");

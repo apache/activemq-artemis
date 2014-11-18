@@ -35,8 +35,8 @@ import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 
 /**
@@ -54,9 +54,9 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server0;
+   private ActiveMQServer server0;
 
-   private HornetQServer server1;
+   private ActiveMQServer server1;
 
    private MBeanServer mbeanServer_1;
 
@@ -168,9 +168,9 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
          .addBroadcastGroupConfiguration(broadcastGroupConfig);
 
       mbeanServer_1 = MBeanServerFactory.createMBeanServer();
-      server1 = addServer(HornetQServers.newHornetQServer(conf_1, mbeanServer_1, false));
+      server1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, mbeanServer_1, false));
 
-      server0 = addServer(HornetQServers.newHornetQServer(conf_0, mbeanServer, false));
+      server0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
       server0.start();
       waitForServer(server0);
    }

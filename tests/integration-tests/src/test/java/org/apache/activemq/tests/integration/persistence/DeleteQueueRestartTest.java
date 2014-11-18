@@ -21,8 +21,8 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class DeleteQueueRestartTest extends ServiceTestBase
 
    private void internalDeleteQueueAndRestart() throws Exception
    {
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
 
       server.start();
 
@@ -84,7 +84,7 @@ public class DeleteQueueRestartTest extends ServiceTestBase
 
       for (int i = 0; i < 100; i++)
       {
-         ClientMessage msg = createBytesMessage(session, HornetQBytesMessage.TYPE, new byte[0], true);
+         ClientMessage msg = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[0], true);
          prod.send(msg);
       }
 

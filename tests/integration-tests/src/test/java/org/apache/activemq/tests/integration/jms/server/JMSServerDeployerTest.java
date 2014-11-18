@@ -24,8 +24,8 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.deployers.DeploymentManager;
 import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerDeployer;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -71,7 +71,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
    {
       JMSServerDeployer deployer = new JMSServerDeployer(jmsServer, deploymentManager);
 
-      String xml = "<configuration xmlns='urn:hornetq'> " + "</configuration>";
+      String xml = "<configuration xmlns='urn:activemq'> " + "</configuration>";
 
       Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
       deployer.validate(rootNode);
@@ -160,7 +160,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
    {
       JMSServerDeployer deployer = new JMSServerDeployer(jmsServer, deploymentManager);
 
-      String conf = "hornetq-jms-for-JMSServerDeployerTest.xml";
+      String conf = "activemq-jms-for-JMSServerDeployerTest.xml";
       URI confURL = Thread.currentThread().getContextClassLoader().getResource(conf).toURI();
 
       String[] connectionFactoryBindings = new String[]{"/fullConfigurationConnectionFactory",
@@ -200,7 +200,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
       for (String binding : connectionFactoryBindings)
       {
-         HornetQConnectionFactory cf = (HornetQConnectionFactory) context.lookup(binding);
+         ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) context.lookup(binding);
          Assert.assertNotNull(cf);
          Assert.assertEquals(1234, cf.getClientFailureCheckPeriod());
          Assert.assertEquals(5678, cf.getCallTimeout());
@@ -246,7 +246,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
    {
       JMSServerDeployer deployer = new JMSServerDeployer(jmsServer, deploymentManager);
 
-      String conf = "hornetq-jms-for-JMSServerDeployerTest2.xml";
+      String conf = "activemq-jms-for-JMSServerDeployerTest2.xml";
       URI confURL = Thread.currentThread().getContextClassLoader().getResource(conf).toURI();
 
       String[] connectionFactoryBindings = new String[]{"/fullConfigurationConnectionFactory",
@@ -286,7 +286,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
       for (String binding : connectionFactoryBindings)
       {
-         HornetQConnectionFactory cf = (HornetQConnectionFactory) context.lookup(binding);
+         ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) context.lookup(binding);
          Assert.assertNotNull(cf);
          Assert.assertEquals(1234, cf.getClientFailureCheckPeriod());
          Assert.assertEquals(5678, cf.getCallTimeout());
@@ -350,7 +350,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
          .addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()))
          .addDiscoveryGroupConfiguration("mygroup", dcg);
 
-      HornetQServer server = createServer(false, config);
+      ActiveMQServer server = createServer(false, config);
 
       deploymentManager = new FileDeploymentManager(config.getFileDeployerScanPeriod());
 

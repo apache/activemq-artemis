@@ -16,7 +16,7 @@ import java.util.Set;
 
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 
@@ -60,7 +60,7 @@ public interface RemotingService
     *
     * @param principal
     */
-   void allowInvmSecurityOverride(HornetQPrincipal principal);
+   void allowInvmSecurityOverride(ActiveMQPrincipal principal);
 
    /**
     * Freezes and then disconnects all connections except the given one and tells the client where else

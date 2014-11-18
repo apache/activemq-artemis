@@ -23,13 +23,13 @@ import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.core.message.impl.MessageInternal;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 import org.apache.activemq.utils.DeflaterReader;
-import org.apache.activemq.utils.HornetQBufferInputStream;
+import org.apache.activemq.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.utils.TokenBucketLimiter;
 import org.apache.activemq.utils.UUIDGenerator;
 
@@ -333,7 +333,7 @@ public class ClientProducerImpl implements ClientProducerInternal
    {
       if (closed)
       {
-         throw HornetQClientMessageBundle.BUNDLE.producerClosed();
+         throw ActiveMQClientMessageBundle.BUNDLE.producerClosed();
       }
    }
 
@@ -351,7 +351,7 @@ public class ClientProducerImpl implements ClientProducerInternal
 
       if (msgI.getHeadersAndPropertiesEncodeSize() >= minLargeMessageSize)
       {
-         throw HornetQClientMessageBundle.BUNDLE.headerSizeTooBig(headerSize);
+         throw ActiveMQClientMessageBundle.BUNDLE.headerSizeTooBig(headerSize);
       }
 
       // msg.getBody() could be Null on LargeServerMessage
@@ -459,7 +459,7 @@ public class ClientProducerImpl implements ClientProducerInternal
                             final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws ActiveMQException
    {
       msgI.getBodyBuffer().readerIndex(0);
-      largeMessageSendStreamed(sendBlocking, msgI, new HornetQBufferInputStream(msgI.getBodyBuffer()), credits,
+      largeMessageSendStreamed(sendBlocking, msgI, new ActiveMQBufferInputStream(msgI.getBodyBuffer()), credits,
                                handler);
    }
 
@@ -513,7 +513,7 @@ public class ClientProducerImpl implements ClientProducerInternal
             }
             catch (IOException e)
             {
-               throw HornetQClientMessageBundle.BUNDLE.errorReadingBody(e);
+               throw ActiveMQClientMessageBundle.BUNDLE.errorReadingBody(e);
             }
 
             if (numberOfBytesRead == -1)
@@ -601,7 +601,7 @@ public class ClientProducerImpl implements ClientProducerInternal
       }
       catch (IOException e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.errorClosingLargeMessage(e);
+         throw ActiveMQClientMessageBundle.BUNDLE.errorClosingLargeMessage(e);
       }
    }
 }

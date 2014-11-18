@@ -35,7 +35,7 @@ public final class UTF8Util
       // utility class
    }
 
-   private static final boolean isTrace = HornetQUtilLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQUtilLogger.LOGGER.isTraceEnabled();
 
    private static final ThreadLocal<SoftReference<StringUtilBuffer>> currenBuffer =
             new ThreadLocal<SoftReference<StringUtilBuffer>>();
@@ -46,14 +46,14 @@ public final class UTF8Util
 
       if (str.length() > 0xffff)
       {
-         throw HornetQUtilBundle.BUNDLE.stringTooLong(str.length());
+         throw ActiveMQUtilBundle.BUNDLE.stringTooLong(str.length());
       }
 
       final int len = UTF8Util.calculateUTFSize(str, buffer);
 
       if (len > 0xffff)
       {
-         throw HornetQUtilBundle.BUNDLE.stringTooLong(len);
+         throw ActiveMQUtilBundle.BUNDLE.stringTooLong(len);
       }
 
       out.writeShort((short)len);
@@ -76,7 +76,7 @@ public final class UTF8Util
          if (UTF8Util.isTrace)
          {
             // This message is too verbose for debug, that's why we are using trace here
-            HornetQUtilLogger.LOGGER.trace("Saving string with utfSize=" + len + " stringSize=" + str.length());
+            ActiveMQUtilLogger.LOGGER.trace("Saving string with utfSize=" + len + " stringSize=" + str.length());
          }
 
          int stringLength = str.length();
@@ -125,7 +125,7 @@ public final class UTF8Util
       if (UTF8Util.isTrace)
       {
          // This message is too verbose for debug, that's why we are using trace here
-         HornetQUtilLogger.LOGGER.trace("Reading string with utfSize=" + size);
+         ActiveMQUtilLogger.LOGGER.trace("Reading string with utfSize=" + size);
       }
 
       int count = 0;

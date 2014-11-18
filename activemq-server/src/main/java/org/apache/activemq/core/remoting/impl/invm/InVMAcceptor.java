@@ -19,11 +19,11 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.security.HornetQPrincipal;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.server.management.NotificationService;
@@ -63,7 +63,7 @@ public final class InVMAcceptor implements Acceptor
 
    private final Map<String, Object> configuration;
 
-   private HornetQPrincipal defaultHornetQPrincipal;
+   private ActiveMQPrincipal defaultActiveMQPrincipal;
 
    public InVMAcceptor(final ClusterConnection clusterConnection,
                        final Map<String, Object> configuration,
@@ -212,9 +212,9 @@ public final class InVMAcceptor implements Acceptor
 
       Listener connectionListener = new Listener(connector);
 
-      InVMConnection inVMConnection = new InVMConnection(id, connectionID, remoteHandler, connectionListener, clientExecutor, defaultHornetQPrincipal);
+      InVMConnection inVMConnection = new InVMConnection(id, connectionID, remoteHandler, connectionListener, clientExecutor, defaultActiveMQPrincipal);
 
-      connectionListener.connectionCreated(this, inVMConnection, HornetQClient.DEFAULT_CORE_PROTOCOL);
+      connectionListener.connectionCreated(this, inVMConnection, ActiveMQClient.DEFAULT_CORE_PROTOCOL);
    }
 
    public void disconnect(final String connectionID)
@@ -242,9 +242,9 @@ public final class InVMAcceptor implements Acceptor
       return true;
    }
 
-   public void setDefaultHornetQPrincipal(HornetQPrincipal defaultHornetQPrincipal)
+   public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal)
    {
-      this.defaultHornetQPrincipal = defaultHornetQPrincipal;
+      this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }
 
    private class Listener implements ConnectionLifeCycleListener
@@ -258,11 +258,11 @@ public final class InVMAcceptor implements Acceptor
          this.connector = connector;
       }
 
-      public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
       {
          if (connections.putIfAbsent((String) connection.getID(), connection) != null)
          {
-            throw HornetQMessageBundle.BUNDLE.connectionExists(connection.getID());
+            throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
          listener.connectionCreated(component, connection, protocol);

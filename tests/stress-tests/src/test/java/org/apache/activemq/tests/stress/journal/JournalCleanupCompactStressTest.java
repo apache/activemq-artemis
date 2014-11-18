@@ -42,7 +42,7 @@ import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.OrderedExecutorFactory;
 import org.apache.activemq.utils.SimpleIDGenerator;
 import org.junit.After;
@@ -78,7 +78,7 @@ public class JournalCleanupCompactStressTest extends ServiceTestBase
 
    private JournalImpl journal;
 
-   ThreadFactory tFactory = new HornetQThreadFactory("SoakTest" + System.identityHashCode(this),
+   ThreadFactory tFactory = new ActiveMQThreadFactory("SoakTest" + System.identityHashCode(this),
                                                      false,
                                                      JournalCleanupCompactStressTest.class.getClassLoader());
 
@@ -130,8 +130,8 @@ public class JournalCleanupCompactStressTest extends ServiceTestBase
                                 50,
                                 ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(),
                                 factory,
-                                "hornetq-data",
-                                "hq",
+                                "activemq-data",
+                                "amq",
                                 maxAIO)
       {
          @Override

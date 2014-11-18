@@ -26,13 +26,13 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -81,7 +81,7 @@ public class NIOvsOIOTest extends UnitTestCase
 
       List<ClientSessionFactory> factories = new ArrayList<ClientSessionFactory>();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       for (int i = 0; i < numReceivers; i++)
       {
@@ -162,7 +162,7 @@ public class NIOvsOIOTest extends UnitTestCase
 
       conf.getAcceptorConfigurations().add(new TransportConfiguration(acceptorFactoryClassName, params));
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
 
       AddressSettings addressSettings = new AddressSettings();
 

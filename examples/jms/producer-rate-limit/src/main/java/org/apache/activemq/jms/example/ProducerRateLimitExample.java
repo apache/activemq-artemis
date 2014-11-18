@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates how a message producer can be limited to produce messages at a maximum rate
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public class ProducerRateLimitExample extends HornetQExample
+public class ProducerRateLimitExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

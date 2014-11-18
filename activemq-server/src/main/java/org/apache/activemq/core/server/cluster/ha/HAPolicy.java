@@ -15,7 +15,7 @@ package org.apache.activemq.core.server.cluster.ha;
 import java.util.Map;
 
 import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 
 /**
  * Every live server will have an HAPolicy that configures the type of server that it should be either live, backup or
@@ -26,7 +26,7 @@ public interface HAPolicy<T extends Activation>
    /*
    * created the Activation associated with this policy.
    * */
-   T createActivation(HornetQServerImpl server, boolean wasLive, Map<String, Object> activationParams, HornetQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception;
+   T createActivation(ActiveMQServerImpl server, boolean wasLive, Map<String, Object> activationParams, ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception;
 
    boolean isSharedStore();
 

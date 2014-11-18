@@ -59,7 +59,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
          )
    public void performCrashDestinationStopBridge() throws Exception
    {
-      hornetQServer = jmsServer1;
+      activeMQServer = jmsServer1;
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
       final JMSBridgeImpl bridge =
@@ -81,7 +81,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                   null,
                   false);
 
-      addHornetQComponent(bridge);
+      addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
       bridge.start();
       final CountDownLatch latch = new CountDownLatch(20);
@@ -125,7 +125,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
          {
             try
             {
-               hornetQServer.stop();
+               activeMQServer.stop();
             }
             catch (Exception e)
             {
@@ -145,7 +145,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
       }
    }
 
-   static JMSServerManager hornetQServer;
+   static JMSServerManager activeMQServer;
    static boolean stopped = false;
    static int count = 20;
    static CountDownLatch stopLatch = new CountDownLatch(1);

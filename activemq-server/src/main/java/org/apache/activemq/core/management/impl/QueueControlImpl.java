@@ -32,7 +32,7 @@ import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerConsumer;
@@ -696,7 +696,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
          if (binding == null)
          {
-            throw HornetQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
+            throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
          return queue.moveReference(messageID, binding.getAddress(), rejectDuplicates);
@@ -726,7 +726,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
          if (binding == null)
          {
-            throw HornetQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
+            throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
          int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates);
@@ -786,7 +786,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
       {
          if (newPriority < 0 || newPriority > 9)
          {
-            throw HornetQMessageBundle.BUNDLE.invalidNewPriority(newPriority);
+            throw ActiveMQMessageBundle.BUNDLE.invalidNewPriority(newPriority);
          }
          Filter filter = FilterImpl.createFilter(filterStr);
 
@@ -807,7 +807,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
       {
          if (newPriority < 0 || newPriority > 9)
          {
-            throw HornetQMessageBundle.BUNDLE.invalidNewPriority(newPriority);
+            throw ActiveMQMessageBundle.BUNDLE.invalidNewPriority(newPriority);
          }
          return queue.changeReferencePriority(messageID, (byte) newPriority);
       }
@@ -1044,7 +1044,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
    {
       if (!postOffice.isStarted())
       {
-         throw new IllegalStateException("HornetQ Server is not started. Queue can not be managed yet");
+         throw new IllegalStateException("ActiveMQ Server is not started. Queue can not be managed yet");
       }
    }
 

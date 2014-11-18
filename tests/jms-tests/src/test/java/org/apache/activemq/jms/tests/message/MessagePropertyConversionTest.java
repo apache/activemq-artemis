@@ -24,7 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Assert;
@@ -36,7 +36,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:afu@novell.com">Alex Fu</a>
  */
-public class MessagePropertyConversionTest extends HornetQServerTestCase
+public class MessagePropertyConversionTest extends ActiveMQServerTestCase
 {
    // Attributes ----------------------------------------------------
 

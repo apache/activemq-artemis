@@ -31,7 +31,7 @@ import org.apache.activemq.core.asyncio.AsynchronousFile;
 import org.apache.activemq.core.asyncio.BufferCallback;
 import org.apache.activemq.core.asyncio.IOExceptionListener;
 import org.apache.activemq.core.libaio.Native;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 import org.apache.activemq.utils.ReusableLatch;
 
 /**
@@ -111,11 +111,11 @@ public class AsynchronousFileImpl implements AsynchronousFile
    {
       try
       {
-         HornetQJournalLogger.LOGGER.trace(name + " being loaded");
+         ActiveMQJournalLogger.LOGGER.trace(name + " being loaded");
          System.loadLibrary(name);
          if (Native.getNativeVersion() != AsynchronousFileImpl.EXPECTED_NATIVE_VERSION)
          {
-            HornetQJournalLogger.LOGGER.incompatibleNativeLibrary();
+            ActiveMQJournalLogger.LOGGER.incompatibleNativeLibrary();
             return false;
          }
          else
@@ -125,7 +125,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
       }
       catch (Throwable e)
       {
-         HornetQJournalLogger.LOGGER.debug(name + " -> error loading the native library", e);
+         ActiveMQJournalLogger.LOGGER.debug(name + " -> error loading the native library", e);
          return false;
       }
 
@@ -144,13 +144,13 @@ public class AsynchronousFileImpl implements AsynchronousFile
          }
          else
          {
-            HornetQJournalLogger.LOGGER.debug("Library " + library + " not found!");
+            ActiveMQJournalLogger.LOGGER.debug("Library " + library + " not found!");
          }
       }
 
       if (!AsynchronousFileImpl.loaded)
       {
-         HornetQJournalLogger.LOGGER.debug("Couldn't locate LibAIO Wrapper");
+         ActiveMQJournalLogger.LOGGER.debug("Couldn't locate LibAIO Wrapper");
       }
    }
 
@@ -238,7 +238,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
 
          try
          {
-            handler = Native.init(AsynchronousFileImpl.class, fileName1, this.maxIO, HornetQJournalLogger.LOGGER);
+            handler = Native.init(AsynchronousFileImpl.class, fileName1, this.maxIO, ActiveMQJournalLogger.LOGGER);
          }
          catch (ActiveMQException e)
          {
@@ -279,12 +279,12 @@ public class AsynchronousFileImpl implements AsynchronousFile
 
          while (!pendingWrites.await(60000))
          {
-            HornetQJournalLogger.LOGGER.couldNotGetLock(fileName);
+            ActiveMQJournalLogger.LOGGER.couldNotGetLock(fileName);
          }
 
          while (!maxIOSemaphore.tryAcquire(maxIO, 60, TimeUnit.SECONDS))
          {
-            HornetQJournalLogger.LOGGER.couldNotGetLock(fileName);
+            ActiveMQJournalLogger.LOGGER.couldNotGetLock(fileName);
          }
 
          maxIOSemaphore = null;
@@ -493,7 +493,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
    {
       if (opened)
       {
-         HornetQJournalLogger.LOGGER.fileFinalizedWhileOpen(fileName);
+         ActiveMQJournalLogger.LOGGER.fileFinalizedWhileOpen(fileName);
       }
    }
 
@@ -566,7 +566,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
                               final int errorCode,
                               final String errorMessage)
    {
-      HornetQJournalLogger.LOGGER.callbackError(errorMessage);
+      ActiveMQJournalLogger.LOGGER.callbackError(errorMessage);
 
       fireExceptionListener(errorCode, errorMessage);
 
@@ -616,7 +616,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
     */
    private void fireExceptionListener(final int errorCode, final String errorMessage)
    {
-      HornetQJournalLogger.LOGGER.ioError(errorCode, errorMessage);
+      ActiveMQJournalLogger.LOGGER.ioError(errorCode, errorMessage);
       if (ioExceptionListener != null)
       {
          ioExceptionListener.onIOException(ActiveMQExceptionType.getType(errorCode).createException(errorMessage), errorMessage);
@@ -649,7 +649,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
             }
             catch (Exception ex)
             {
-               HornetQJournalLogger.LOGGER.errorStartingPoller(ex);
+               ActiveMQJournalLogger.LOGGER.errorStartingPoller(ex);
             }
          }
       }
@@ -683,7 +683,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
    {
       if (Native.flock(handle))
       {
-         return new HornetQFileLock(handle);
+         return new ActiveMQFileLock(handle);
       }
       else
       {

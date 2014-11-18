@@ -22,13 +22,13 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 
 /**
  *
- * This example shows how to run a HornetQ core client and server embedded in your
+ * This example shows how to run a ActiveMQ core client and server embedded in your
  * own application
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -53,7 +53,7 @@ public class EmbeddedRemoteExample
          map.put("port", 5445);
          // -------------------------------------------------------
 
-         ServerLocator serverLocator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), map));
+         ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), map));
          ClientSessionFactory sf = serverLocator.createSessionFactory();
 
          // Step 4. Create a core queue

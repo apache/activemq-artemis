@@ -26,7 +26,7 @@ import javax.management.ObjectName;
 import javax.naming.InitialContext;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -35,12 +35,12 @@ import org.apache.activemq.api.jms.management.TopicControl;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.jms.tests.JmsTestLogger;
-import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.jnp.server.Main;
 import org.jnp.server.NamingBeanImpl;
 
@@ -122,9 +122,9 @@ public class LocalTestServer implements Server, Runnable
 
       javax.management.MBeanServer beanServer = java.lang.management.ManagementFactory.getPlatformMBeanServer();
       FileConfiguration fileConfiguration = new FileConfiguration();
-      HornetQSecurityManagerImpl securityManager = new HornetQSecurityManagerImpl();
-      HornetQServerImpl hornetQServer = new HornetQServerImpl(fileConfiguration, beanServer, securityManager);
-      jmsServerManager = new JMSServerManagerImpl(hornetQServer);
+      ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQServerImpl activeMQServer = new ActiveMQServerImpl(fileConfiguration, beanServer, securityManager);
+      jmsServerManager = new JMSServerManagerImpl(activeMQServer);
       System.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
 
       namingBean.start();
@@ -185,13 +185,13 @@ public class LocalTestServer implements Server, Runnable
    public synchronized void startServerPeer() throws Exception
    {
       System.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
-      getHornetQServer().start();
+      getActiveMQServer().start();
    }
 
    public synchronized void stopServerPeer() throws Exception
    {
       System.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
-      getHornetQServer().stop();
+      getActiveMQServer().stop();
       // also unbind everything
       unbindAll();
    }
@@ -211,9 +211,9 @@ public class LocalTestServer implements Server, Runnable
    /**
     * Only for in-VM use!
     */
-   public HornetQServer getServerPeer()
+   public ActiveMQServer getServerPeer()
    {
-      return getHornetQServer();
+      return getActiveMQServer();
    }
 
    public void destroyQueue(final String name, final String jndiName) throws Exception
@@ -314,34 +314,34 @@ public class LocalTestServer implements Server, Runnable
                                                     JMSFactoryType.CF,
                                                     connectors,
                                                     clientId,
-                                                    HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                                    HornetQClient.DEFAULT_CONNECTION_TTL,
-                                                    HornetQClient.DEFAULT_CALL_TIMEOUT,
-                                                    HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                                                    HornetQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
-                                                    HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                    HornetQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
+                                                    ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
+                                                    ActiveMQClient.DEFAULT_CONNECTION_TTL,
+                                                    ActiveMQClient.DEFAULT_CALL_TIMEOUT,
+                                                    ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
+                                                    ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
+                                                    ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                    ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
                                                     prefetchSize,
-                                                    HornetQClient.DEFAULT_CONSUMER_MAX_RATE,
-                                                    HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                                                    HornetQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
-                                                    HornetQClient.DEFAULT_PRODUCER_MAX_RATE,
+                                                    ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
+                                                    ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+                                                    ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
+                                                    ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
                                                     blockOnAcknowledge,
                                                     true,
                                                     true,
-                                                    HornetQClient.DEFAULT_AUTO_GROUP,
-                                                    HornetQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                                                    HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                                                    HornetQClient.DEFAULT_ACK_BATCH_SIZE,
+                                                    ActiveMQClient.DEFAULT_AUTO_GROUP,
+                                                    ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
+                                                    ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
+                                                    ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
                                                     dupsOkBatchSize,
-                                                    HornetQClient.DEFAULT_USE_GLOBAL_POOLS,
-                                                    HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                                    HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                                                    HornetQClient.DEFAULT_RETRY_INTERVAL,
-                                                    HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                                                    HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                                    HornetQClient.DEFAULT_RECONNECT_ATTEMPTS,
-                                                    HornetQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
+                                                    ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
+                                                    ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                                    ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
+                                                    ActiveMQClient.DEFAULT_RETRY_INTERVAL,
+                                                    ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
+                                                    ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL,
+                                                    ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS,
+                                                    ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
                                                     null,
                                                     jndiBindings);
    }
@@ -356,11 +356,11 @@ public class LocalTestServer implements Server, Runnable
       String destination = (isQueue ? "jms.queue." : "jms.topic.") + destName;
       if (roles != null)
       {
-         getHornetQServer().getSecurityRepository().addMatch(destination, roles);
+         getActiveMQServer().getSecurityRepository().addMatch(destination, roles);
       }
       else
       {
-         getHornetQServer().getSecurityRepository().removeMatch(destination);
+         getActiveMQServer().getSecurityRepository().removeMatch(destination);
       }
    }
 
@@ -372,9 +372,9 @@ public class LocalTestServer implements Server, Runnable
 
    // Private --------------------------------------------------------------------------------------
 
-   public HornetQServer getHornetQServer()
+   public ActiveMQServer getActiveMQServer()
    {
-      return jmsServerManager.getHornetQServer();
+      return jmsServerManager.getActiveMQServer();
    }
 
    public JMSServerManager getJMSServerManager()
@@ -416,7 +416,7 @@ public class LocalTestServer implements Server, Runnable
    @Override
    public Long getMessageCountForQueue(final String queueName) throws Exception
    {
-      JMSQueueControl queue = (JMSQueueControl)getHornetQServer().getManagementService()
+      JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService()
                                                                  .getResource(ResourceNames.JMS_QUEUE + queueName);
       if (queue != null)
       {
@@ -433,13 +433,13 @@ public class LocalTestServer implements Server, Runnable
    {
       if (isQueue)
       {
-         JMSQueueControl queue = (JMSQueueControl)getHornetQServer().getManagementService()
+         JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService()
                                                                     .getResource(ResourceNames.JMS_QUEUE + destination);
          queue.removeMessages(null);
       }
       else
       {
-         TopicControl topic = (TopicControl)getHornetQServer().getManagementService()
+         TopicControl topic = (TopicControl) getActiveMQServer().getManagementService()
                                                               .getResource(ResourceNames.JMS_TOPIC + destination);
          topic.removeMessages(null);
       }
@@ -464,13 +464,13 @@ public class LocalTestServer implements Server, Runnable
 
    public Set<Role> getSecurityConfig() throws Exception
    {
-      return getHornetQServer().getSecurityRepository().getMatch("*");
+      return getActiveMQServer().getSecurityRepository().getMatch("*");
    }
 
    public void setSecurityConfig(final Set<Role> defConfig) throws Exception
    {
-      getHornetQServer().getSecurityRepository().removeMatch("#");
-      getHornetQServer().getSecurityRepository().addMatch("#", defConfig);
+      getActiveMQServer().getSecurityRepository().removeMatch("#");
+      getActiveMQServer().getSecurityRepository().addMatch("#", defConfig);
    }
 
    // Inner classes --------------------------------------------------------------------------------

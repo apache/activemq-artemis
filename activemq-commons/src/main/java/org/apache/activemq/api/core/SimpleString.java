@@ -23,7 +23,7 @@ import org.apache.activemq.utils.DataConstants;
  * A simple String class that can store all characters, and stores as simple {@code byte[]}, this
  * minimises expensive copying between String objects.
  * <p>
- * This object is used heavily throughout HornetQ for performance reasons.
+ * This object is used heavily throughout ActiveMQ for performance reasons.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */

@@ -17,9 +17,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.core.server.ActivateCallback;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.jnp.server.Main;
 import org.jnp.server.NamingBeanImpl;
 
@@ -30,11 +30,11 @@ import org.jnp.server.NamingBeanImpl;
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  *         11/8/12
  */
-public class StandaloneNamingServer implements HornetQComponent
+public class StandaloneNamingServer implements ActiveMQComponent
 {
    private Main jndiServer;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private NamingBeanImpl namingBean;
 
@@ -48,7 +48,7 @@ public class StandaloneNamingServer implements HornetQComponent
 
    private ExecutorService executor;
 
-   public StandaloneNamingServer(HornetQServer server)
+   public StandaloneNamingServer(ActiveMQServer server)
    {
       this.server = server;
    }
@@ -117,7 +117,7 @@ public class StandaloneNamingServer implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.unableToStartNamingServer(e);
+            ActiveMQServerLogger.LOGGER.unableToStartNamingServer(e);
          }
 
          activated = true;
@@ -144,7 +144,7 @@ public class StandaloneNamingServer implements HornetQComponent
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.unableToStopNamingServer(e);
+               ActiveMQServerLogger.LOGGER.unableToStopNamingServer(e);
             }
          }
          if (namingBean != null)

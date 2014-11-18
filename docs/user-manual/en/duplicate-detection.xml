@@ -19,15 +19,15 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 
 <chapter id="duplicate-detection">
     <title>Duplicate Message Detection</title>
-    <para>HornetQ includes powerful automatic duplicate message detection, filtering out
+    <para>ActiveMQ includes powerful automatic duplicate message detection, filtering out
         duplicate messages without you having to code your own fiddly duplicate detection logic at
-        the application level. This chapter will explain what duplicate detection is, how HornetQ
+        the application level. This chapter will explain what duplicate detection is, how ActiveMQ
         uses it and how and where to configure it.</para>
     <para>When sending messages from a client to a server, or indeed from a server to another
         server, if the target server or connection fails sometime after sending the message, but
@@ -48,7 +48,7 @@
     <para>Sending the message(s) in a transaction does not help out either. If the server or
         connection fails while the transaction commit is being processed it is also indeterminate
         whether the transaction was successfully committed or not!</para>
-    <para>To solve these issues HornetQ provides automatic duplicate messages detection for
+    <para>To solve these issues ActiveMQ provides automatic duplicate messages detection for
         messages sent to addresses.</para>
     <section>
         <title>Using Duplicate Detection for Message Sending</title>
@@ -107,11 +107,11 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
                 >n</literal> elements, then the <literal>n + 1</literal>th id stored will overwrite
             the <literal>0</literal>th element in the cache.</para>
         <para>The maximum size of the cache is configured by the parameter <literal
-                >id-cache-size</literal> in <literal>hornetq-configuration.xml</literal>, the default
+                >id-cache-size</literal> in <literal>activemq-configuration.xml</literal>, the default
             value is <literal>2000</literal> elements.</para>
         <para>The caches can also be configured to persist to disk or not. This is configured by the
             parameter <literal>persist-id-cache</literal>, also in <literal
-                >hornetq-configuration.xml</literal>. If this is set to <literal>true</literal> then
+                >activemq-configuration.xml</literal>. If this is set to <literal>true</literal> then
             each id will be persisted to permanent storage as they are received. The default value
             for this parameter is <literal>true</literal>.</para>
         <note>
@@ -129,7 +129,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
             it will be ignored.</para>
         <para>To configure a core bridge to add the duplicate id header, simply set the <parameter
                 >use-duplicate-detection</parameter> to <literal>true</literal> when configuring a
-            bridge in <literal>hornetq-configuration.xml</literal>.</para>
+            bridge in <literal>activemq-configuration.xml</literal>.</para>
         <para>The default value for this parameter is <literal>true</literal>.</para>
         <para>For more information on core bridges and how to configure them, please see 
                 <xref linkend="core-bridges" />.</para>
@@ -141,7 +141,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
             id header for each message they move using their internal bridges.</para>
         <para>To configure a cluster connection to add the duplicate id header, simply set the
                 <parameter>use-duplicate-detection</parameter> to <literal>true</literal> when
-            configuring a cluster connection in <literal>hornetq-configuration.xml</literal>.</para>
+            configuring a cluster connection in <literal>activemq-configuration.xml</literal>.</para>
         <para>The default value for this parameter is <literal>true</literal>.</para>
         <para>For more information on cluster connections and how to configure them, please see <xref
                 linkend="clusters"/>.</para>

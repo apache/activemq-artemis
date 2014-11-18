@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.After;
@@ -286,7 +286,7 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
       public void run()
       {
 
-         HornetQServer server = inProcessBackup.getServer();
+         ActiveMQServer server = inProcessBackup.getServer();
          try
          {
             waitForServer(server);
@@ -420,7 +420,7 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
       ClientSessionFactory factory;
       ClientSession session;
 
-      HornetQServer server = PagingWithFailoverServer.createServer(getTestDir(), PORT1, PORT2, false);
+      ActiveMQServer server = PagingWithFailoverServer.createServer(getTestDir(), PORT1, PORT2, false);
 
       server.start();
 

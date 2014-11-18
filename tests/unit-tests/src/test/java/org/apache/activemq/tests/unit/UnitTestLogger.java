@@ -21,7 +21,7 @@ import org.jboss.logging.annotations.MessageLogger;
  *         4/17/12
  */
 
-@MessageLogger(projectCode = "HQTEST")
+@MessageLogger(projectCode = "AMQTEST")
 public interface UnitTestLogger extends BasicLogger
 {
    /**

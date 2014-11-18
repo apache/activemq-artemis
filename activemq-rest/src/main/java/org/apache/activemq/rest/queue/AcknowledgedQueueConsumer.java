@@ -30,7 +30,7 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.util.Constants;
 import org.apache.activemq.rest.util.LinkStrategy;
 
@@ -61,7 +61,7 @@ public class AcknowledgedQueueConsumer extends QueueConsumer
                                      @PathParam("index") long index,
                                      @Context UriInfo info)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + info.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + info.getPath() + "\"");
 
       if (closed)
       {
@@ -97,7 +97,7 @@ public class AcknowledgedQueueConsumer extends QueueConsumer
       @FormParam("acknowledge") boolean doAcknowledge,
       @Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       ping(0);
       String basePath = uriInfo.getMatchedURIs().get(1);

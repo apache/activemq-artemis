@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.SpawnedVMSupport;
@@ -35,7 +35,7 @@ public class NettySecurityClientTest extends ServiceTestBase
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private HornetQServer messagingService;
+   private ActiveMQServer messagingService;
 
    @Test
    public void testProducerConsumerClientWithoutSecurityManager() throws Exception

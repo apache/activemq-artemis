@@ -84,7 +84,7 @@ public class JournalPerfTuneTest extends UnitTestCase
       final int compactMinFiles = 20;
       final int compactPercentage = 30;
       final String filePrefix = "data";
-      final String extension = "hq";
+      final String extension = "amq";
       final int maxIO = 500;
 
       final String journalDir = getTestDir();
@@ -104,7 +104,7 @@ public class JournalPerfTuneTest extends UnitTestCase
                                 filePrefix,
                                 extension,
                                 maxIO);
-      addHornetQComponent(journal);
+      addActiveMQComponent(journal);
       journal.start();
 
       journal.load(new LoaderCB());

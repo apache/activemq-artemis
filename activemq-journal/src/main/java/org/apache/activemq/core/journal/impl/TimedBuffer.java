@@ -27,7 +27,7 @@ import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A TimedBuffer
@@ -151,7 +151,7 @@ public class TimedBuffer
 
       timerRunnable = new CheckTimer();
 
-      timerThread = new Thread(timerRunnable, "hornetq-buffer-timeout");
+      timerThread = new Thread(timerRunnable, "activemq-buffer-timeout");
 
       timerThread.start();
 
@@ -373,9 +373,9 @@ public class TimedBuffer
             if (lastExecution != 0)
             {
                double rate = 1000 * (double) (bytesF - lastBytesFlushed) / (now - lastExecution);
-               HornetQJournalLogger.LOGGER.writeRate(rate, (long) (rate / (1024 * 1024)));
+               ActiveMQJournalLogger.LOGGER.writeRate(rate, (long) (rate / (1024 * 1024)));
                double flushRate = 1000 * (double) (flushesD - lastFlushesDone) / (now - lastExecution);
-               HornetQJournalLogger.LOGGER.flushRate(flushRate);
+               ActiveMQJournalLogger.LOGGER.flushRate(flushRate);
             }
 
             lastExecution = now;
@@ -477,7 +477,7 @@ public class TimedBuffer
             catch (Exception e)
             {
                setUseSleep(false);
-               HornetQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
+               ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
             }
 
             if (checks < MAX_CHECKS_ON_SLEEP)
@@ -494,7 +494,7 @@ public class TimedBuffer
                {
                   if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5)
                   {
-                     HornetQJournalLogger.LOGGER.debug("Thread.sleep with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
+                     ActiveMQJournalLogger.LOGGER.debug("Thread.sleep with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
                      setUseSleep(false);
                   }
                }

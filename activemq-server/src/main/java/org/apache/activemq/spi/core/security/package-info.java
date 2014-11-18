@@ -15,7 +15,7 @@
  * <br>
  * This package defines the Service Provide Interface
  * that secuity providers can implement to plug their
- * implementation into HornetQ.
+ * implementation into ActiveMQ.
  */
 package org.apache.activemq.spi.core.security;
 

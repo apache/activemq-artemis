@@ -17,11 +17,11 @@ import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
-import org.apache.activemq.core.protocol.proton.plug.HornetQProtonConnectionCallback;
+import org.apache.activemq.core.protocol.proton.plug.ActiveMQProtonConnectionCallback;
 import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.server.management.NotificationListener;
 import org.apache.activemq.spi.core.protocol.ConnectionEntry;
@@ -34,23 +34,23 @@ import org.proton.plug.AMQPServerConnectionContext;
 import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 
 /**
- * A proton protocol manager, basically reads the Proton Input and maps proton resources to HornetQ resources
+ * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ resources
  *
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ProtonProtocolManager implements ProtocolManager, NotificationListener
 {
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private MessageConverter protonConverter;
 
-   public ProtonProtocolManager(HornetQServer server)
+   public ProtonProtocolManager(ActiveMQServer server)
    {
       this.server = server;
       this.protonConverter = new ProtonMessageConverter(server.getStorageManager());
    }
 
-   public HornetQServer getServer()
+   public ActiveMQServer getServer()
    {
       return server;
    }
@@ -71,18 +71,18 @@ public class ProtonProtocolManager implements ProtocolManager, NotificationListe
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection)
    {
-      HornetQProtonConnectionCallback connectionCallback = new HornetQProtonConnectionCallback(this, remotingConnection);
+      ActiveMQProtonConnectionCallback connectionCallback = new ActiveMQProtonConnectionCallback(this, remotingConnection);
 
       AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().createConnection(connectionCallback);
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
-      HornetQProtonRemotingConnection delegate = new HornetQProtonRemotingConnection(this, amqpConnection, remotingConnection, executor);
+      ActiveMQProtonRemotingConnection delegate = new ActiveMQProtonRemotingConnection(this, amqpConnection, remotingConnection, executor);
 
       connectionCallback.setProtonConnectionDelegate(delegate);
 
       ConnectionEntry entry = new ConnectionEntry(delegate, executor,
-                                                  System.currentTimeMillis(), HornetQClient.DEFAULT_CONNECTION_TTL);
+                                                  System.currentTimeMillis(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
 
       return entry;
    }
@@ -96,7 +96,7 @@ public class ProtonProtocolManager implements ProtocolManager, NotificationListe
    @Override
    public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
    {
-      HornetQProtonRemotingConnection protonConnection = (HornetQProtonRemotingConnection)connection;
+      ActiveMQProtonRemotingConnection protonConnection = (ActiveMQProtonRemotingConnection)connection;
 
       protonConnection.bufferReceived(protonConnection.getID(), buffer);
    }

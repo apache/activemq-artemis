@@ -110,7 +110,7 @@ public interface RemotingConnection extends BufferHandler
    void setFailureListeners(List<FailureListener> listeners);
 
    /**
-    * creates a new HornetQBuffer of the specified size.
+    * creates a new ActiveMQBuffer of the specified size.
     *
     * @param size the size of buffer required
     * @return the buffer

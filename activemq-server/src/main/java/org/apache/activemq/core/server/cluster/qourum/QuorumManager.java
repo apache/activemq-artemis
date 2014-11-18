@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.cluster.ClusterControl;
 import org.apache.activemq.core.server.cluster.ClusterController;
 
@@ -32,7 +32,7 @@ import org.apache.activemq.core.server.cluster.ClusterController;
  * about changes to the cluster. A {@link org.apache.activemq.core.server.cluster.qourum.Quorum} can then issue a vote to the
  * remaining nodes in a cluster for a specific outcome
  */
-public final class QuorumManager implements ClusterTopologyListener, HornetQComponent
+public final class QuorumManager implements ClusterTopologyListener, ActiveMQComponent
 {
    private final ExecutorService executor;
 

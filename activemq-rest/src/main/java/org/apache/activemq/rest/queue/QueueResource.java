@@ -25,7 +25,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.PushConsumerResource;
 
 /**
@@ -53,7 +53,7 @@ public class QueueResource extends DestinationResource
    @Produces("application/xml")
    public Response get(@Context UriInfo uriInfo, @Context HttpServletRequest requestContext)
    {
-      HornetQRestLogger.LOGGER.debug("Handling GET request for \"" + destination + "\" from " + requestContext.getRemoteAddr() + ":" + requestContext.getRemotePort());
+      ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + destination + "\" from " + requestContext.getRemoteAddr() + ":" + requestContext.getRemotePort());
 
       StringBuilder msg = new StringBuilder();
       msg.append("<queue>")
@@ -77,7 +77,7 @@ public class QueueResource extends DestinationResource
    @Produces("application/xml")
    public Response head(@Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getRequestUri() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getRequestUri() + "\"");
 
       Response.ResponseBuilder builder = Response.ok();
       setSenderLink(builder, uriInfo);
@@ -183,7 +183,7 @@ public class QueueResource extends DestinationResource
    @DELETE
    public void deleteQueue(@Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       queueDestinationsResource.getQueues().remove(destination);
       stop();

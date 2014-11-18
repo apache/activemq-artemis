@@ -23,7 +23,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.JmsTestLogger;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
@@ -39,7 +39,7 @@ import org.junit.Test;
  *
  *
  */
-public class RelayStressTest extends HornetQServerTestCase
+public class RelayStressTest extends ActiveMQServerTestCase
 {
    @BeforeClass
    public static void stressTestsEnabled()

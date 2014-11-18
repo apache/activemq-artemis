@@ -21,7 +21,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that shows a JMS Topic clustered across two nodes of a cluster.
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
-public class ClusteredTopicExample extends HornetQExample
+public class ClusteredTopicExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

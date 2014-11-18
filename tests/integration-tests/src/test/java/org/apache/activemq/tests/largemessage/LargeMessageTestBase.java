@@ -33,7 +33,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -57,7 +57,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
 
    protected final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
-   protected HornetQServer server;
+   protected ActiveMQServer server;
 
    // Attributes ----------------------------------------------------
 

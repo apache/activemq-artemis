@@ -46,7 +46,7 @@ public class MessageTestBase
    }
 
    @BeforeClass
-   public static void setupHornetQServerAndManager() throws Exception
+   public static void setupActiveMQServerAndManager() throws Exception
    {
       server = new Embedded();
       server.start();
@@ -54,7 +54,7 @@ public class MessageTestBase
    }
 
    @AfterClass
-   public static void shutdownHornetqServerAndManager() throws Exception
+   public static void shutdownActiveMQServerAndManager() throws Exception
    {
       manager = null;
       server.stop();

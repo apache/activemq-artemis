@@ -29,18 +29,18 @@ import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.client.impl.Topology;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.utils.ExecutorFactory;
 
 /*
 * takes care of updating the cluster with a backups transport configuration which is based on each cluster connection.
 * */
-public class BackupManager implements HornetQComponent
+public class BackupManager implements ActiveMQComponent
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
    private Executor executor;
    private ScheduledExecutorService scheduledExecutor;
    private NodeManager nodeManager;
@@ -51,7 +51,7 @@ public class BackupManager implements HornetQComponent
 
    private boolean started;
 
-   public BackupManager(HornetQServer server, ExecutorFactory executorFactory, ScheduledExecutorService scheduledExecutor, NodeManager nodeManager,
+   public BackupManager(ActiveMQServer server, ExecutorFactory executorFactory, ScheduledExecutorService scheduledExecutor, NodeManager nodeManager,
                         Configuration configuration, ClusterManager clusterManager)
    {
       this.server = server;
@@ -218,7 +218,7 @@ public class BackupManager implements HornetQComponent
             backupServerLocator.setIdentity("backupLocatorFor='" + server + "'");
             backupServerLocator.setReconnectAttempts(-1);
             backupServerLocator.setInitialConnectAttempts(-1);
-            backupServerLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+            backupServerLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          }
       }
 
@@ -242,12 +242,12 @@ public class BackupManager implements HornetQComponent
                   if (localBackupLocator == null)
                   {
                      if (!stopping)
-                        HornetQServerLogger.LOGGER.error("Error announcing backup: backupServerLocator is null. " + this);
+                        ActiveMQServerLogger.LOGGER.error("Error announcing backup: backupServerLocator is null. " + this);
                      return;
                   }
-                  if (HornetQServerLogger.LOGGER.isDebugEnabled())
+                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                   {
-                     HornetQServerLogger.LOGGER.debug(BackupConnector.this + ":: announcing " + connector + " to " + backupServerLocator);
+                     ActiveMQServerLogger.LOGGER.debug(BackupConnector.this + ":: announcing " + connector + " to " + backupServerLocator);
                   }
                   announcingBackup = true;
                   //connect to the cluster
@@ -264,7 +264,7 @@ public class BackupManager implements HornetQComponent
                                                       true,
                                                       connector,
                                                       null);
-                     HornetQServerLogger.LOGGER.backupAnnounced();
+                     ActiveMQServerLogger.LOGGER.backupAnnounced();
                      backupAnnounced = true;
                   }
                }
@@ -278,7 +278,7 @@ public class BackupManager implements HornetQComponent
                      return;
                   if (stopping)
                      return;
-                  HornetQServerLogger.LOGGER.errorAnnouncingBackup();
+                  ActiveMQServerLogger.LOGGER.errorAnnouncingBackup();
 
                   scheduledExecutor.schedule(new Runnable()
                   {
@@ -365,13 +365,13 @@ public class BackupManager implements HornetQComponent
       {
          if (tcConfigs != null && tcConfigs.length > 0)
          {
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug(BackupManager.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
+               ActiveMQServerLogger.LOGGER.debug(BackupManager.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);
-            locator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+            locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
             return locator;
          }
          return null;

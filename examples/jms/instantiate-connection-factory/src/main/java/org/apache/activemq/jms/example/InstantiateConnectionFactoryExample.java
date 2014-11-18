@@ -24,9 +24,9 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 
@@ -40,7 +40,7 @@ import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
  */
-public class InstantiateConnectionFactoryExample extends HornetQExample
+public class InstantiateConnectionFactoryExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -54,7 +54,7 @@ public class InstantiateConnectionFactoryExample extends HornetQExample
       try
       {
          // Step 1. Directly instantiate the JMS Queue object.
-         Queue queue = HornetQJMSClient.createQueue("exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Step 2. Instantiate the TransportConfiguration object which contains the knowledge of what transport to use,
          // The server port etc.
@@ -66,7 +66,7 @@ public class InstantiateConnectionFactoryExample extends HornetQExample
                                                                                     connectionParams);
 
          // Step 3 Directly instantiate the JMS ConnectionFactory object using that TransportConfiguration
-         ConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+         ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
 
          // Step 4.Create a JMS Connection
          connection = cf.createConnection();

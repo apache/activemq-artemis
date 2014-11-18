@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +36,7 @@ import org.junit.Test;
  */
 public class SessionSendAcknowledgementHandlerTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString address = new SimpleString("address");
 

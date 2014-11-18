@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * This is a helper class for the Journal, which will control access to dataFiles, openedFiles and freeFiles
@@ -39,7 +39,7 @@ import org.apache.activemq.journal.HornetQJournalLogger;
  */
 public class JournalFilesRepository
 {
-   private static final boolean trace = HornetQJournalLogger.LOGGER.isTraceEnabled();
+   private static final boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
 
    /**
     * Used to debug the consistency of the journal ordering.
@@ -53,7 +53,7 @@ public class JournalFilesRepository
    // Journal
    private static void trace(final String message)
    {
-      HornetQJournalLogger.LOGGER.trace(message);
+      ActiveMQJournalLogger.LOGGER.trace(message);
    }
 
    private final SequentialFileFactory fileFactory;
@@ -94,7 +94,7 @@ public class JournalFilesRepository
          }
          catch (Exception e)
          {
-            HornetQJournalLogger.LOGGER.errorPushingFile(e);
+            ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
          }
       }
    };
@@ -153,7 +153,7 @@ public class JournalFilesRepository
          }
          catch (Exception e)
          {
-            HornetQJournalLogger.LOGGER.errorClosingFile(e);
+            ActiveMQJournalLogger.LOGGER.errorClosingFile(e);
          }
       }
       openedFiles.clear();
@@ -256,7 +256,7 @@ public class JournalFilesRepository
    {
       if (!dataFiles.remove(file))
       {
-         HornetQJournalLogger.LOGGER.couldNotRemoveFile(file);
+         ActiveMQJournalLogger.LOGGER.couldNotRemoveFile(file);
       }
    }
 
@@ -310,17 +310,17 @@ public class JournalFilesRepository
       {
          if (file.getFileID() <= seq)
          {
-            HornetQJournalLogger.LOGGER.checkFiles();
-            HornetQJournalLogger.LOGGER.info(debugFiles());
-            HornetQJournalLogger.LOGGER.seqOutOfOrder();
+            ActiveMQJournalLogger.LOGGER.checkFiles();
+            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            ActiveMQJournalLogger.LOGGER.seqOutOfOrder();
             System.exit(-1);
          }
 
          if (journal.getCurrentFile() != null && journal.getCurrentFile().getFileID() <= file.getFileID())
          {
-            HornetQJournalLogger.LOGGER.checkFiles();
-            HornetQJournalLogger.LOGGER.info(debugFiles());
-            HornetQJournalLogger.LOGGER.currentFile(file.getFileID(), journal.getCurrentFile().getFileID(),
+            ActiveMQJournalLogger.LOGGER.checkFiles();
+            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            ActiveMQJournalLogger.LOGGER.currentFile(file.getFileID(), journal.getCurrentFile().getFileID(),
                                                     file.getFileID(), (journal.getCurrentFile() == file));
 
             // throw new RuntimeException ("Check failure!");
@@ -339,9 +339,9 @@ public class JournalFilesRepository
       {
          if (file.getFileID() <= lastFreeId)
          {
-            HornetQJournalLogger.LOGGER.checkFiles();
-            HornetQJournalLogger.LOGGER.info(debugFiles());
-            HornetQJournalLogger.LOGGER.fileIdOutOfOrder();
+            ActiveMQJournalLogger.LOGGER.checkFiles();
+            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            ActiveMQJournalLogger.LOGGER.fileIdOutOfOrder();
 
             throw new RuntimeException("Check failure!");
          }
@@ -350,9 +350,9 @@ public class JournalFilesRepository
 
          if (file.getFileID() < seq)
          {
-            HornetQJournalLogger.LOGGER.checkFiles();
-            HornetQJournalLogger.LOGGER.info(debugFiles());
-            HornetQJournalLogger.LOGGER.fileTooSmall();
+            ActiveMQJournalLogger.LOGGER.checkFiles();
+            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            ActiveMQJournalLogger.LOGGER.fileTooSmall();
 
             // throw new RuntimeException ("Check failure!");
          }
@@ -406,7 +406,7 @@ public class JournalFilesRepository
       }
       if (calculatedSize != fileSize)
       {
-         HornetQJournalLogger.LOGGER.deletingFile(file);
+         ActiveMQJournalLogger.LOGGER.deletingFile(file);
          file.getFile().delete();
       }
       else
@@ -433,11 +433,11 @@ public class JournalFilesRepository
          {
             if (trace)
             {
-               HornetQJournalLogger.LOGGER.trace("DataFiles.size() = " + dataFiles.size());
-               HornetQJournalLogger.LOGGER.trace("openedFiles.size() = " + openedFiles.size());
-               HornetQJournalLogger.LOGGER.trace("minfiles = " + minFiles);
-               HornetQJournalLogger.LOGGER.trace("Free Files = " + freeFilesCount.get());
-               HornetQJournalLogger.LOGGER.trace("File " + file +
+               ActiveMQJournalLogger.LOGGER.trace("DataFiles.size() = " + dataFiles.size());
+               ActiveMQJournalLogger.LOGGER.trace("openedFiles.size() = " + openedFiles.size());
+               ActiveMQJournalLogger.LOGGER.trace("minfiles = " + minFiles);
+               ActiveMQJournalLogger.LOGGER.trace("Free Files = " + freeFilesCount.get());
+               ActiveMQJournalLogger.LOGGER.trace("File " + file +
                                                     " being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() (" +
                                                     (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()) +
                                                     ") < minFiles (" + minFiles + ")");
@@ -473,7 +473,7 @@ public class JournalFilesRepository
    /**
     * <p>This method will instantly return the opened file, and schedule opening and reclaiming.</p>
     * <p>In case there are no cached opened files, this method will block until the file was opened,
-    * what would happen only if the system is under heavy load by another system (like a backup system, or a DB sharing the same box as HornetQ).</p>
+    * what would happen only if the system is under heavy load by another system (like a backup system, or a DB sharing the same box as ActiveMQ).</p>
     */
    public JournalFile openFile() throws InterruptedException
    {
@@ -498,7 +498,7 @@ public class JournalFilesRepository
          nextFile = openedFiles.poll(5, TimeUnit.SECONDS);
          if (nextFile == null)
          {
-            HornetQJournalLogger.LOGGER.errorOpeningFile(new Exception("trace"));
+            ActiveMQJournalLogger.LOGGER.errorOpeningFile(new Exception("trace"));
          }
       }
 
@@ -524,7 +524,7 @@ public class JournalFilesRepository
 
       if (!openedFiles.offer(nextOpenedFile))
       {
-         HornetQJournalLogger.LOGGER.failedToAddFile(nextOpenedFile);
+         ActiveMQJournalLogger.LOGGER.failedToAddFile(nextOpenedFile);
       }
    }
 
@@ -733,7 +733,7 @@ public class JournalFilesRepository
       }
       catch (Throwable e)
       {
-         HornetQJournalLogger.LOGGER.errorRetrievingID(e, fileName);
+         ActiveMQJournalLogger.LOGGER.errorRetrievingID(e, fileName);
          return 0;
       }
    }

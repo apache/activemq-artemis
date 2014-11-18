@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
 /**
@@ -80,7 +80,7 @@ public class PushConsumerResource
    @Consumes("application/xml")
    public Response create(@Context UriInfo uriInfo, PushRegistration registration)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       // todo put some logic here to check for duplicates
       String genId = sessionCounter.getAndIncrement() + "-" + startup;
@@ -112,7 +112,7 @@ public class PushConsumerResource
    @Produces("application/xml")
    public PushRegistration getConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
    {
-      HornetQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.get(consumerId);
       if (consumer == null)
@@ -126,7 +126,7 @@ public class PushConsumerResource
    @Path("{consumer-id}")
    public void deleteConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
    {
-      HornetQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.remove(consumerId);
       if (consumer == null)

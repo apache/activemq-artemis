@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.SimpleString;
 public class OpenWireUtil
 {
 
-   public static ActiveMQBuffer toHornetQBuffer(ByteSequence bytes)
+   public static ActiveMQBuffer toActiveMQBuffer(ByteSequence bytes)
    {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bytes.length);
 

@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -54,7 +54,7 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
    @Test
    @BMRule(name = "check connection ttl",
             targetClass = "org.apache.activemq.byteman.tests.BridgeServerLocatorConfigurationTest",
-            targetMethod = "getBridgeTTL(HornetQServer, String)", targetLocation = "EXIT",
+            targetMethod = "getBridgeTTL(ActiveMQServer, String)", targetLocation = "EXIT",
             action = "$! = $0.getConfiguredBridge($1).serverLocator.getConnectionTTL();")
    /**
     * Checks the connection ttl by using byteman to override the methods on this class to return the value of private variables in the Bridge.
@@ -67,7 +67,7 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
    public void testConnectionTTLOnBridge() throws Exception
    {
       Map<String, Object> server0Params = new HashMap<String, Object>();
-      HornetQServer serverWithBridge = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
+      ActiveMQServer serverWithBridge = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
@@ -78,7 +78,7 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
       {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
-      HornetQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+      ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
       ServerLocator locator = null;
       try
       {
@@ -155,7 +155,7 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
     * @param bridgeName
     * @return
     */
-   private long getBridgeTTL(HornetQServer bridgeServer, String bridgeName)
+   private long getBridgeTTL(ActiveMQServer bridgeServer, String bridgeName)
    {
       return -1L;
    }
@@ -165,12 +165,12 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
     * @param bridgeServer
     * @return
     */
-   private BridgeImpl getConfiguredBridge(HornetQServer bridgeServer)
+   private BridgeImpl getConfiguredBridge(ActiveMQServer bridgeServer)
    {
       return getConfiguredBridge(bridgeServer, BRIDGE_NAME);
    }
 
-   private BridgeImpl getConfiguredBridge(HornetQServer bridgeServer, String bridgeName)
+   private BridgeImpl getConfiguredBridge(ActiveMQServer bridgeServer, String bridgeName)
    {
       return (BridgeImpl)bridgeServer.getClusterManager().getBridges().get(bridgeName);
    }

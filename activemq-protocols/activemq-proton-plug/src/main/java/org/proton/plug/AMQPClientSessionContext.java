@@ -13,7 +13,7 @@
 
 package org.proton.plug;
 
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * @author Clebert Suconic
@@ -21,7 +21,7 @@ import org.proton.plug.exceptions.HornetQAMQPException;
 
 public interface AMQPClientSessionContext extends AMQPSessionContext
 {
-   AMQPClientSenderContext createSender(String address, boolean preSettled) throws HornetQAMQPException;
+   AMQPClientSenderContext createSender(String address, boolean preSettled) throws ActiveMQAMQPException;
 
-   AMQPClientReceiverContext createReceiver(String address) throws HornetQAMQPException;
+   AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException;
 }

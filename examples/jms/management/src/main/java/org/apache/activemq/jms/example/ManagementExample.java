@@ -24,16 +24,16 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * An example that shows how to manage HornetQ using JMS messages.
+ * An example that shows how to manage ActiveMQ using JMS messages.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class ManagementExample extends HornetQExample
+public class ManagementExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -74,7 +74,7 @@ public class ManagementExample extends HornetQExample
 
          // Step 9. create the JMS management queue.
          // It is a "special" queue and it is not looked up from JNDI but constructed directly
-         Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");
+         Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
 
          // Step 10. Create a QueueRequestor for the management queue (see queue-requestor example)
          QueueRequestor requestor = new QueueRequestor(session, managementQueue);

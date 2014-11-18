@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -153,7 +153,7 @@ public class TimeoutTask implements Runnable
                   liveConsumers += 1;
                }
             }
-            HornetQRestLogger.LOGGER.debug("Finished testing callbacks for timeouts in " +
+            ActiveMQRestLogger.LOGGER.debug("Finished testing callbacks for timeouts in " +
                                               (System.currentTimeMillis() - startTime) + "ms. " +
                                               "(Live: " + liveConsumers + ", Expired: " + deadConsumers + ")");
 
@@ -163,7 +163,7 @@ public class TimeoutTask implements Runnable
             {
                if (pendingCallbacks.size() > 0)
                {
-                  HornetQRestLogger.LOGGER.debug("Found " + pendingCallbacks.size() + " callbacks to add.");
+                  ActiveMQRestLogger.LOGGER.debug("Found " + pendingCallbacks.size() + " callbacks to add.");
                   callbacks.putAll(pendingCallbacks);
                   pendingCallbacks.clear();
                }

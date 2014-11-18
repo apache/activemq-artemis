@@ -22,13 +22,13 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.server.ConnectorService;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.integration.twitter.TwitterConstants;
 import org.apache.activemq.integration.twitter.TwitterIncomingConnectorServiceFactory;
 import org.apache.activemq.integration.twitter.TwitterOutgoingConnectorServiceFactory;
@@ -183,7 +183,7 @@ public class TwitterTest extends ServiceTestBase
 
    protected void internalTestIncoming(boolean createQueue, boolean restart) throws Exception
    {
-      HornetQServer server0 = null;
+      ActiveMQServer server0 = null;
       ClientSession session = null;
       ServerLocator locator = null;
       String queue = "TwitterTestQueue";
@@ -244,7 +244,7 @@ public class TwitterTest extends ServiceTestBase
          twitter.updateStatus(testMessage);
 
          TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
-         locator = HornetQClient.createServerLocatorWithoutHA(tpconf);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
          ClientSessionFactory sf = createSessionFactory(locator);
          session = sf.createSession(false, true, true);
          ClientConsumer consumer = session.createConsumer(queue);
@@ -286,7 +286,7 @@ public class TwitterTest extends ServiceTestBase
 
    protected void internalTestIncomingFailedToInitialize(HashMap<String, String> params) throws Exception
    {
-      HornetQServer server0 = null;
+      ActiveMQServer server0 = null;
       String connectorName = "test-incoming-connector";
       String queue = "TwitterTestQueue";
       String consumerKey = "invalidConsumerKey";
@@ -365,7 +365,7 @@ public class TwitterTest extends ServiceTestBase
 
    protected void internalTestOutgoing(boolean createQueue, boolean restart) throws Exception
    {
-      HornetQServer server0 = null;
+      ActiveMQServer server0 = null;
       ServerLocator locator = null;
       ClientSession session = null;
       String queue = "TwitterTestQueue";
@@ -423,7 +423,7 @@ public class TwitterTest extends ServiceTestBase
          }
 
          TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
-         locator = HornetQClient.createServerLocatorWithoutHA(tpconf);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
          ClientSessionFactory sf = createSessionFactory(locator);
          session = sf.createSession(false, true, true);
          ClientProducer producer = session.createProducer(queue);
@@ -470,7 +470,7 @@ public class TwitterTest extends ServiceTestBase
 
    protected void internalTestOutgoingFailedToInitialize(HashMap<String, String> params) throws Exception
    {
-      HornetQServer server0 = null;
+      ActiveMQServer server0 = null;
       String connectorName = "test-outgoing-connector";
       String queue = "TwitterTestQueue";
       String consumerKey = TWITTER_CONSUMER_KEY;
@@ -544,7 +544,7 @@ public class TwitterTest extends ServiceTestBase
 
    protected void internalTestOutgoingWithInReplyTo() throws Exception
    {
-      HornetQServer server0 = null;
+      ActiveMQServer server0 = null;
       ClientSession session = null;
       ServerLocator locator = null;
       String queue = "TwitterTestQueue";
@@ -583,7 +583,7 @@ public class TwitterTest extends ServiceTestBase
          server0.start();
 
          TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
-         locator = HornetQClient.createServerLocatorWithoutHA(tpconf);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
 
          ClientSessionFactory sf = createSessionFactory(locator);
          session = sf.createSession(false, true, true);

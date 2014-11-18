@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="configuration-index">
@@ -28,7 +28,7 @@
     <section id="server.configuration">
         <title>Server Configuration</title>
         <section>
-            <title>hornetq-configuration.xml</title>
+            <title>activemq-configuration.xml</title>
             <para>This is the main core server configuration file.</para>
             <table frame="topbot" border="2">
                 <title>Server Configuration</title>
@@ -54,7 +54,7 @@
             </table>
         </section>
         <section>
-            <title>hornetq-jms.xml</title>
+            <title>activemq-jms.xml</title>
             <para>This is the configuration file used by the server side JMS service to load JMS
                 Queues, Topics and Connection Factories.</para>
             <table frame="topbot" border="2">
@@ -436,16 +436,16 @@
 
         <section id="configuration.masked-password">
            <title>Using Masked Passwords in Configuration Files</title>
-           <para>By default all passwords in HornetQ server's configuration files are in plain text form. This usually poses no security issues as those
+           <para>By default all passwords in ActiveMQ server's configuration files are in plain text form. This usually poses no security issues as those
            files should be well protected from unauthorized accessing. However, in some circumstances a user doesn't want to expose its passwords to more
            eyes than necessary. </para>
 
-           <para>HornetQ can be configured to use 'masked' passwords in its configuration files. A masked password is an obscure string representation
+           <para>ActiveMQ can be configured to use 'masked' passwords in its configuration files. A masked password is an obscure string representation
            of a real password. To mask a password a user will use an 'encoder'. The encoder takes in the real password and outputs the masked version.
            A user can then replace the real password in the configuration files with the new masked password.
-           When HornetQ loads a masked password, it uses a suitable 'decoder' to decode it into real password.</para>
+           When ActiveMQ loads a masked password, it uses a suitable 'decoder' to decode it into real password.</para>
 
-           <para>HornetQ provides a default password encoder and decoder. Optionally users can use or implement their own encoder and decoder for
+           <para>ActiveMQ provides a default password encoder and decoder. Optionally users can use or implement their own encoder and decoder for
            masking the passwords.</para>
 
            <section> <title>Password Masking in Server Configuration File</title>
@@ -472,9 +472,9 @@
                  if a users wants to use an SSL-enabled NettyAcceptor, it can specify a key-store-password and a trust-store-password. Because
                  Acceptors and Connectors are pluggable implementations, each transport will have different password masking needs.</para>
 
-                 <para>When a Connector or Acceptor configuration is initialised, HornetQ will add the "mask-password" and
-                 "password-codec" values to the Connector or Acceptors params using the keys <literal>hornetq.usemaskedpassword</literal>
-                 and <literal>hornetq.passwordcodec</literal> respectively. The Netty and InVM implementations will use these
+                 <para>When a Connector or Acceptor configuration is initialised, ActiveMQ will add the "mask-password" and
+                 "password-codec" values to the Connector or Acceptors params using the keys <literal>activemq.usemaskedpassword</literal>
+                 and <literal>activemq.passwordcodec</literal> respectively. The Netty and InVM implementations will use these
                  as needed and any other implementations will have access to these to use if they so wish.</para>
                  </section>
 
@@ -543,7 +543,7 @@
 &lt;mask-password>true&lt;/mask-password>
 &lt;cluster-password>80cf731af62c290&lt;/cluster-password></programlisting>
 
-              <para>This indicates the cluster password is a masked value and HornetQ will use its built-in decoder to decode it. All other
+              <para>This indicates the cluster password is a masked value and ActiveMQ will use its built-in decoder to decode it. All other
               passwords in the configuration file, Connectors, Acceptors and Bridges, will also use masked passwords.</para>
               </section>
            </section>
@@ -565,12 +565,12 @@
 <literal>
 &lt;property name="passwordCodec">com.foo.FooDecoder;key=value&lt;/property>
 </literal>
-           <para>HornetQ will load this property and initialize the class with a parameter map containing the "key"->"value" pair.
+           <para>ActiveMQ will load this property and initialize the class with a parameter map containing the "key"->"value" pair.
            If <literal>passwordCodec</literal> is not specified, the built-in decoder is used.</para>
 
            </section>
 
-           <section> <title>Masking passwords in HornetQ ResourceAdapters and MDB activation configurations</title>
+           <section> <title>Masking passwords in ActiveMQ ResourceAdapters and MDB activation configurations</title>
 
            <para>Both ra.xml and MDB activation configuration have a 'password' property that can be masked. They are controlled by the following two
            optional Resource Adapter properties in ra.xml:</para>
@@ -596,9 +596,9 @@
 
            </section>
 
-           <section> <title>Masking passwords in hornetq-users.xml</title>
+           <section> <title>Masking passwords in activemq-users.xml</title>
 
-           <para>HornetQ's built-in security manager uses plain configuration files where the user passwords are specified in plaintext
+           <para>ActiveMQ's built-in security manager uses plain configuration files where the user passwords are specified in plaintext
            forms by default. To mask those parameters the following two properties are needed:</para>
 
            <para> <literal>mask-password</literal> -- If set to "true" all the passwords are masked. Default is false.</para>
@@ -610,7 +610,7 @@
 &lt;mask-password>true&lt;/mask-password>
 &lt;password-codec>org.apache.activemq.utils.DefaultSensitiveStringCodec;key=hello world&lt;/password-codec></programlisting>
 
-           <para>When so configured, the HornetQ security manager will initialize a DefaultSensitiveStringCodec with the parameters
+           <para>When so configured, the ActiveMQ security manager will initialize a DefaultSensitiveStringCodec with the parameters
            "key"->"hello world", then use it to decode all the masked passwords in this configuration file.</para>
 
            </section>
@@ -621,7 +621,7 @@
            convert a masked password into its original clear text form in order to be used in various security operations. The algorithm
            used for decoding must match that for encoding. Otherwise the decoding may not be successful.</para>
 
-           <para>For user's convenience HornetQ provides a default built-in Decoder. However a user can if they so wish implement their own.</para>
+           <para>For user's convenience ActiveMQ provides a default built-in Decoder. However a user can if they so wish implement their own.</para>
 
               <section><title>The built-in Decoder</title>
 
@@ -644,7 +644,7 @@ Encoded password: 80cf731af62c290</programlisting>
               <section><title>Using a different decoder</title>
 
               <para>It is possible to use a different decoder rather than the built-in one. Simply make sure the decoder
-              is in HornetQ's classpath and configure the server to use it as follows:</para>
+              is in ActiveMQ's classpath and configure the server to use it as follows:</para>
 
 <programlisting>
 &lt;password-codec>com.foo.SomeDecoder;key1=value1;key2=value2&lt;/password-codec></programlisting>
@@ -661,7 +661,7 @@ Encoded password: 80cf731af62c290</programlisting>
 &lt;mask-password>true&lt;/mask-password>
 &lt;cluster-password>masked_password&lt;/cluster-password></programlisting>
 
-              <para>When HornetQ reads the cluster-password it will initialize the NewDecoder and use it to decode "mask_password".
+              <para>When ActiveMQ reads the cluster-password it will initialize the NewDecoder and use it to decode "mask_password".
               It also process all passwords using the new defined decoder.</para>
               </section>
 
@@ -696,7 +696,7 @@ public class MyNewDecoder implements SensitiveDataCodec&lt;String>
    }
 }</programlisting>
 
-             <para>Last but not least, once you get your own decoder, please add it to the classpath. Otherwise HornetQ will
+             <para>Last but not least, once you get your own decoder, please add it to the classpath. Otherwise ActiveMQ will
              fail to load it!</para>
              </section>
         </section>

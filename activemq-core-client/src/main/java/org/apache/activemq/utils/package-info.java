@@ -13,7 +13,7 @@
 /**
  * Utilities and helper classes.
  * <br>
- * This package defines the utilities class used by HornetQ.
+ * This package defines the utilities class used by ActiveMQ.
  */
 package org.apache.activemq.utils;
 

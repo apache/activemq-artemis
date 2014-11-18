@@ -21,10 +21,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * This example demonstrates how HornetQ can be configured with a redelivery delay in the event a message
+ * This example demonstrates how ActiveMQ can be configured with a redelivery delay in the event a message
  * is redelivered.
  *
  * Please see the readme.html for more information
@@ -32,7 +32,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
  */
-public class DelayedRedeliveryExample extends HornetQExample
+public class DelayedRedeliveryExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

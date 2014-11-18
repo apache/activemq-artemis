@@ -50,7 +50,7 @@ import org.apache.activemq.core.protocol.core.ChannelHandler;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationAddMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationAddTXMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationCommitMessage;
@@ -68,12 +68,12 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSy
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage.SyncDataType;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
 
 /**
@@ -82,12 +82,12 @@ import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
  *
  * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
-public final class ReplicationEndpoint implements ChannelHandler, HornetQComponent
+public final class ReplicationEndpoint implements ChannelHandler, ActiveMQComponent
 {
-   private static final boolean trace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final IOCriticalErrorListener criticalErrorListener;
-   private final HornetQServerImpl server;
+   private final ActiveMQServerImpl server;
    private final boolean wantedFailBack;
    private final SharedNothingBackupActivation activation;
    private final boolean noSync = false;
@@ -126,7 +126,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
    private Executor executor;
 
    // Constructors --------------------------------------------------
-   public ReplicationEndpoint(final HornetQServerImpl server, IOCriticalErrorListener criticalErrorListener,
+   public ReplicationEndpoint(final ActiveMQServerImpl server, IOCriticalErrorListener criticalErrorListener,
                               boolean wantedFailBack, SharedNothingBackupActivation activation)
    {
       this.server = server;
@@ -231,19 +231,19 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
          }
          else
          {
-            HornetQServerLogger.LOGGER.invalidPacketForReplication(packet);
+            ActiveMQServerLogger.LOGGER.invalidPacketForReplication(packet);
          }
       }
       catch (ActiveMQException e)
       {
-         HornetQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
-         response = new HornetQExceptionMessage(e);
+         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
+         response = new ActiveMQExceptionMessage(e);
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
+         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
          response =
-            new HornetQExceptionMessage(HornetQMessageBundle.BUNDLE.replicationUnhandledError(e));
+            new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e));
       }
       channel.send(response);
    }
@@ -253,7 +253,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
     */
    private void handleFatalError(BackupReplicationStartFailedMessage packet)
    {
-      HornetQServerLogger.LOGGER.errorStartingReplication(packet.getRegistrationProblem());
+      ActiveMQServerLogger.LOGGER.errorStartingReplication(packet.getRegistrationProblem());
       server.stopTheServer(false);
    }
 
@@ -359,7 +359,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorClosingPageOnReplication(e);
+               ActiveMQServerLogger.LOGGER.errorClosingPageOnReplication(e);
             }
          }
       }
@@ -399,20 +399,20 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
    {
       if (!activation.isRemoteBackupUpToDate())
       {
-         throw HornetQMessageBundle.BUNDLE.journalsNotInSync();
+         throw ActiveMQMessageBundle.BUNDLE.journalsNotInSync();
       }
 
       if (journalLoadInformation == null || journalLoadInformation.length != journalInformation.length)
       {
-         throw HornetQMessageBundle.BUNDLE.replicationTooManyJournals();
+         throw ActiveMQMessageBundle.BUNDLE.replicationTooManyJournals();
       }
 
       for (int i = 0; i < journalInformation.length; i++)
       {
          if (!journalInformation[i].equals(journalLoadInformation[i]))
          {
-            HornetQServerLogger.LOGGER.journalcomparisonMismatch(journalParametersToString(journalInformation));
-            throw HornetQMessageBundle.BUNDLE.replicationTooManyJournals();
+            ActiveMQServerLogger.LOGGER.journalcomparisonMismatch(journalParametersToString(journalInformation));
+            throw ActiveMQMessageBundle.BUNDLE.replicationTooManyJournals();
          }
       }
 
@@ -485,7 +485,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
       journalsHolder = null;
       backupQuorum.liveIDSet(liveID);
       activation.setRemoteBackupUpToDate();
-      HornetQServerLogger.LOGGER.backupServerSynched(server);
+      ActiveMQServerLogger.LOGGER.backupServerSynched(server);
       return;
    }
 
@@ -507,7 +507,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
             ReplicatedLargeMessage largeMessage = lookupLargeMessage(id, false);
             if (!(largeMessage instanceof LargeServerMessageInSync))
             {
-               HornetQServerLogger.LOGGER.largeMessageIncompatible();
+               ActiveMQServerLogger.LOGGER.largeMessageIncompatible();
                return;
             }
             LargeServerMessageInSync largeMessageInSync = (LargeServerMessageInSync) largeMessage;
@@ -533,7 +533,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
             return;
          }
          default:
-            throw HornetQMessageBundle.BUNDLE.replicationUnhandledFileType(msg.getFileType());
+            throw ActiveMQMessageBundle.BUNDLE.replicationUnhandledFileType(msg.getFileType());
       }
 
       if (data == null)
@@ -560,7 +560,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
    {
       if (activation.isRemoteBackupUpToDate())
       {
-         throw HornetQMessageBundle.BUNDLE.replicationBackupUpToDate();
+         throw ActiveMQMessageBundle.BUNDLE.replicationBackupUpToDate();
       }
 
 
@@ -587,7 +587,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
             case JournalMessages:
                if (wantedFailBack && !packet.isServerToFailBack())
                {
-                  HornetQServerLogger.LOGGER.autoFailBackDenied();
+                  ActiveMQServerLogger.LOGGER.autoFailBackDenied();
                }
 
                final JournalContent journalContent = SyncDataType.getJournalContentType(packet.getDataType());
@@ -609,7 +609,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
                registerJournal(journalContent.typeByte, syncJournal);
                break;
             default:
-               throw HornetQMessageBundle.BUNDLE.replicationUnhandledDataType();
+               throw ActiveMQMessageBundle.BUNDLE.replicationUnhandledDataType();
          }
       }
    }
@@ -630,7 +630,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.errorDeletingLargeMessage(e, packet.getMessageId());
+                  ActiveMQServerLogger.LOGGER.errorDeletingLargeMessage(e, packet.getMessageId());
                }
             }
          });
@@ -663,7 +663,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
          if (message == null)
          {
             // No warnings if it's a delete, as duplicate deletes may be sent repeatedly.
-            HornetQServerLogger.LOGGER.largeMessageNotAvailable(messageId);
+            ActiveMQServerLogger.LOGGER.largeMessageNotAvailable(messageId);
          }
       }
 
@@ -679,7 +679,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
    {
       final long id = packet.getMessageId();
       createLargeMessage(id, false);
-      HornetQServerLogger.LOGGER.trace("Receiving Large Message " + id + " on backup");
+      ActiveMQServerLogger.LOGGER.trace("Receiving Large Message " + id + " on backup");
    }
 
    private void createLargeMessage(final long id, boolean liveToBackupSync)
@@ -777,7 +777,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
       {
          if (ReplicationEndpoint.trace)
          {
-            HornetQServerLogger.LOGGER.trace("Endpoint appendUpdate id = " + packet.getId());
+            ActiveMQServerLogger.LOGGER.trace("Endpoint appendUpdate id = " + packet.getId());
          }
          journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
       }
@@ -785,7 +785,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
       {
          if (ReplicationEndpoint.trace)
          {
-            HornetQServerLogger.LOGGER.trace("Endpoint append id = " + packet.getId());
+            ActiveMQServerLogger.LOGGER.trace("Endpoint append id = " + packet.getId());
          }
          journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
       }

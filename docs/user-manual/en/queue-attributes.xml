@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="queue-attributes">
@@ -30,7 +30,7 @@
         <title>Predefined Queues</title>
         <para>Queues can be predefined via configuration at a core level or at a JMS level. Firstly
             let's look at a JMS level.</para>
-        <para>The following shows a queue predefined in the <literal>hornetq-jms.xml</literal>
+        <para>The following shows a queue predefined in the <literal>activemq-jms.xml</literal>
             configuration file.</para>
         <programlisting>
 &lt;queue name="selectorQueue">
@@ -50,7 +50,7 @@
         <para>The durable element specifies whether the queue will be persisted. This again is
             optional and defaults to true if omitted.</para>
         <para>Secondly a queue can be predefined at a core level in the <literal
-                >hornetq-configuration.xml</literal> file. The following is an example.</para>
+                >activemq-configuration.xml</literal> file. The following is an example.</para>
         <programlisting>
 &lt;queues>
    &lt;queue name="jms.queue.selectorQueue">
@@ -95,7 +95,7 @@
         <title>Configuring Queues Via Address Settings</title>
         <para>There are some attributes that are defined against an address wildcard rather than a
             specific queue. Here an example of an <literal>address-setting</literal> entry that
-            would be found in the <literal>hornetq-configuration.xml</literal> file.</para>
+            would be found in the <literal>activemq-configuration.xml</literal> file.</para>
         <programlisting>
 &lt;address-settings>
    &lt;address-setting match="jms.queue.exampleQueue">

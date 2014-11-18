@@ -28,7 +28,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
@@ -98,7 +98,7 @@ public class BMFailoverTest extends FailoverTestBase
             e.printStackTrace();
          }
          stopped = true;
-         throw HornetQClientMessageBundle.BUNDLE.unblockingACall(null);
+         throw ActiveMQClientMessageBundle.BUNDLE.unblockingACall(null);
       }
    }
    @Test
@@ -108,8 +108,8 @@ public class BMFailoverTest extends FailoverTestBase
                {
                      @BMRule
                            (
-                                 name = "trace HornetQSessionContext xaEnd",
-                                 targetClass = "org.apache.activemq.core.protocol.core.impl.HornetQSessionContext",
+                                 name = "trace ActiveMQSessionContext xaEnd",
+                                 targetClass = "org.apache.activemq.core.protocol.core.impl.ActiveMQSessionContext",
                                  targetMethod = "xaEnd",
                                  targetLocation = "AT EXIT",
                                  action = "org.apache.activemq.byteman.tests.BMFailoverTest.stopAndThrow()"

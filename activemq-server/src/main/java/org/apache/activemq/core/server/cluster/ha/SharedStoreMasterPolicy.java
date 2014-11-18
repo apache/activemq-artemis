@@ -13,7 +13,7 @@
 package org.apache.activemq.core.server.cluster.ha;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.LiveActivation;
 import org.apache.activemq.core.server.impl.SharedStoreLiveActivation;
 
@@ -86,7 +86,7 @@ public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation>
    }
 
    @Override
-   public LiveActivation createActivation(HornetQServerImpl server, boolean wasLive, Map<String, Object> activationParams, HornetQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO)
+   public LiveActivation createActivation(ActiveMQServerImpl server, boolean wasLive, Map<String, Object> activationParams, ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO)
    {
       return  new SharedStoreLiveActivation(server, this);
    }

@@ -24,7 +24,7 @@ import static org.apache.activemq.reader.TextMessageUtil.writeBodyText;
 
 
 /**
- * HornetQ implementation of a JMS TextMessage.
+ * ActiveMQ implementation of a JMS TextMessage.
  * <br>
  * This class was ported from SpyTextMessage in JBossMQ.
  *

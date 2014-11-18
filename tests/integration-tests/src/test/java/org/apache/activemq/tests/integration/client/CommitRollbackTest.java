@@ -24,7 +24,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -48,7 +48,7 @@ public class CommitRollbackTest extends ServiceTestBase
    @Test
    public void testReceiveWithCommit() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -81,7 +81,7 @@ public class CommitRollbackTest extends ServiceTestBase
    @Test
    public void testReceiveWithRollback() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       ServerLocator locator = createInVMNonHALocator();
@@ -120,7 +120,7 @@ public class CommitRollbackTest extends ServiceTestBase
    @Test
    public void testReceiveWithRollbackMultipleConsumersDifferentQueues() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       ServerLocator locator = createInVMNonHALocator();
@@ -166,7 +166,7 @@ public class CommitRollbackTest extends ServiceTestBase
    @Test
    public void testAsyncConsumerCommit() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
@@ -221,7 +221,7 @@ public class CommitRollbackTest extends ServiceTestBase
    @Test
    public void testAsyncConsumerRollback() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);

@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @see Acceptor
  */
-public interface AcceptorControl extends HornetQComponentControl
+public interface AcceptorControl extends ActiveMQComponentControl
 {
    /**
     * Returns the name of the acceptor

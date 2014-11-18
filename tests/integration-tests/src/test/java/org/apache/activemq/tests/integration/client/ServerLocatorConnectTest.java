@@ -18,12 +18,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.junit.Test;
  */
 public class ServerLocatorConnectTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Override
    @Before
@@ -51,7 +51,7 @@ public class ServerLocatorConnectTest extends ServiceTestBase
    @Test
    public void testSingleConnectorSingleServer() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
       ClientSessionFactory csf = createSessionFactory(locator);
       csf.close();
       locator.close();
@@ -60,7 +60,7 @@ public class ServerLocatorConnectTest extends ServiceTestBase
    @Test
    public void testSingleConnectorSingleServerConnect() throws Exception
    {
-      ServerLocatorInternal locator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
+      ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
       ClientSessionFactoryInternal csf = locator.connect();
       assertNotNull(csf);
       assertEquals(csf.numConnections(), 1);
@@ -70,7 +70,7 @@ public class ServerLocatorConnectTest extends ServiceTestBase
    @Test
    public void testMultipleConnectorSingleServerConnect() throws Exception
    {
-      ServerLocatorInternal locator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithoutHA(
+      ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(
          createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())),
@@ -86,7 +86,7 @@ public class ServerLocatorConnectTest extends ServiceTestBase
    @Test
    public void testMultipleConnectorSingleServerConnectReconnect() throws Exception
    {
-      ServerLocatorInternal locator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithoutHA(
+      ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(
          createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())),
@@ -103,7 +103,7 @@ public class ServerLocatorConnectTest extends ServiceTestBase
    @Test
    public void testMultipleConnectorSingleServerNoConnect() throws Exception
    {
-      ServerLocatorInternal locator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithoutHA(
+      ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(
          createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())),
@@ -131,7 +131,7 @@ public class ServerLocatorConnectTest extends ServiceTestBase
    @Test
    public void testMultipleConnectorSingleServerNoConnectAttemptReconnect() throws Exception
    {
-      ServerLocatorInternal locator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithoutHA(
+      ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(
          createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())),
          createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())),

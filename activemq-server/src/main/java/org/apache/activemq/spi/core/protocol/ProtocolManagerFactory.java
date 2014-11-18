@@ -15,7 +15,7 @@ package org.apache.activemq.spi.core.protocol;
 import java.util.List;
 
 import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 
 /**
  * A ProtocolManagerFactory
@@ -26,7 +26,7 @@ import org.apache.activemq.core.server.HornetQServer;
  */
 public interface ProtocolManagerFactory
 {
-   ProtocolManager createProtocolManager(HornetQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors);
+   ProtocolManager createProtocolManager(ActiveMQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors);
 
    String[] getProtocols();
 }

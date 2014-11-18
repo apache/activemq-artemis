@@ -17,7 +17,7 @@ import javax.jms.Session;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.tests.util.JMSClusteredTestBase;
@@ -34,8 +34,8 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
    @Test
    public void testMultipleOpen() throws Exception
    {
-      cf1 = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                                             generateInVMParams(0)));
+      cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
+                                                                                                          generateInVMParams(0)));
 
       final int numberOfOpens = 2000;
       int numberOfThreads = 20;

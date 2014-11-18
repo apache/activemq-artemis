@@ -17,10 +17,10 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Set;
 
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.server.recovery.HornetQRegistryBase;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.server.recovery.ActiveMQRegistryBase;
 import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
-import org.apache.activemq.ra.HornetQRALogger;
+import org.apache.activemq.ra.ActiveMQRALogger;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConcurrentHashSet;
 
@@ -30,10 +30,10 @@ import org.apache.activemq.utils.ConcurrentHashSet;
  */
 public final class RecoveryManager
 {
-   private HornetQRegistryBase registry;
+   private ActiveMQRegistryBase registry;
 
    private static final String RESOURCE_RECOVERY_CLASS_NAMES = "org.jboss.as.messaging.jms.AS7RecoveryRegistry;"
-            + "org.jboss.as.integration.hornetq.recovery.AS5RecoveryRegistry";
+            + "org.jboss.as.integration.activemq.recovery.AS5RecoveryRegistry";
 
    private final Set<XARecoveryConfig> resources = new ConcurrentHashSet<XARecoveryConfig>();
 
@@ -49,9 +49,9 @@ public final class RecoveryManager
       }
    }
 
-   public XARecoveryConfig register(HornetQConnectionFactory factory, String userName, String password)
+   public XARecoveryConfig register(ActiveMQConnectionFactory factory, String userName, String password)
    {
-      HornetQRALogger.LOGGER.debug("registering recovery for factory : " + factory);
+      ActiveMQRALogger.LOGGER.debug("registering recovery for factory : " + factory);
 
       XARecoveryConfig config = XARecoveryConfig.newConfig(factory, userName, password);
       resources.add(config);
@@ -94,11 +94,11 @@ public final class RecoveryManager
       {
          try
          {
-            registry = (HornetQRegistryBase) safeInitNewInstance(locatorClasse);
+            registry = (ActiveMQRegistryBase) safeInitNewInstance(locatorClasse);
          }
          catch (Throwable e)
          {
-            HornetQRALogger.LOGGER.debug("unable to load  recovery registry " + locatorClasse, e);
+            ActiveMQRALogger.LOGGER.debug("unable to load  recovery registry " + locatorClasse, e);
          }
          if (registry != null)
          {
@@ -108,7 +108,7 @@ public final class RecoveryManager
 
       if (registry != null)
       {
-         HornetQRALogger.LOGGER.debug("Recovery Registry located = " + registry);
+         ActiveMQRALogger.LOGGER.debug("Recovery Registry located = " + registry);
       }
    }
 

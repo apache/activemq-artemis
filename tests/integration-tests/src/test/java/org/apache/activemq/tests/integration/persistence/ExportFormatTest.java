@@ -24,7 +24,7 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.journal.impl.ExportJournal;
 import org.apache.activemq.core.journal.impl.ImportJournal;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
@@ -42,14 +42,14 @@ public class ExportFormatTest extends ServiceTestBase
    // Attributes ----------------------------------------------------
 
    // Case the format was changed, and the change was agreed, use _testCreateFormat to recreate this field
-   String bindingsFile = "#File,JournalFileImpl: (hornetq-bindings-1.bindings id = 1, recordID = 1)\n" +
+   String bindingsFile = "#File,JournalFileImpl: (activemq-bindings-1.bindings id = 1, recordID = 1)\n" +
          "operation@AddRecord,id@2,userRecordType@24,length@8,isUpdate@false,compactCount@0,data@AAAAAH____8=\n" +
          "operation@AddRecord,id@2,userRecordType@21,length@17,isUpdate@false,compactCount@0,data@AAAABEEAMQAAAAAEQQAxAAA=\n" +
          "operation@AddRecord,id@20,userRecordType@24,length@8,isUpdate@false,compactCount@0,data@AAAAAAAAABQ=\n" +
-         "#File,JournalFileImpl: (hornetq-bindings-2.bindings id = 2, recordID = 2)";
+         "#File,JournalFileImpl: (activemq-bindings-2.bindings id = 2, recordID = 2)";
 
    // Case the format was changed, and the change was agreed, use _testCreateFormat to recreate this field
-   String journalFile = "#File,JournalFileImpl: (hornetq-data-1.hq id = 1, recordID = 1)\n" +
+   String journalFile = "#File,JournalFileImpl: (activemq-data-1.amq id = 1, recordID = 1)\n" +
          "operation@AddRecordTX,txID@0,id@4,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAABAEAAAAEQQAxAAAA_wAAAAAAAAAAAAABLLxYP40EAQAAAAEAAAAGawBlAHkABgAAAAA=\n" +
          "operation@UpdateTX,txID@0,id@4,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAI=\n" +
          "operation@AddRecordTX,txID@0,id@5,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAABQEAAAAEQQAxAAAA_wAAAAAAAAAAAAABLLxYP5EEAQAAAAEAAAAGawBlAHkABgAAAAE=\n" +
@@ -71,11 +71,11 @@ public class ExportFormatTest extends ServiceTestBase
          "operation@Update,id@15,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAI=\n" +
          "operation@AddRecord,id@16,userRecordType@31,length@65,isUpdate@false,compactCount@0,data@AAAAEQAAAE4AAAAAAAAAEAEAAAAEQQAxAAAA_wAAAAAAAAAAAAABLLxYP64EAQAAAAEAAAAGawBlAHkABgAAAAk=\n" +
          "operation@Update,id@16,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAI=\n" +
-         "#File,JournalFileImpl: (hornetq-data-2.hq id = 2, recordID = 2)";
+         "#File,JournalFileImpl: (activemq-data-2.amq id = 2, recordID = 2)";
 
    public void _testCreateFormat() throws Exception
    {
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -111,25 +111,25 @@ public class ExportFormatTest extends ServiceTestBase
 
       System.out.println("copy & paste the following as bindingsFile:");
 
-      ExportJournal.exportJournal(getBindingsDir(), "hornetq-bindings", "bindings", 2, 1048576, System.out);
+      ExportJournal.exportJournal(getBindingsDir(), "activemq-bindings", "bindings", 2, 1048576, System.out);
 
       System.out.println("copy & paste the following as dataFile:");
 
-      ExportJournal.exportJournal(getJournalDir(), "hornetq-data", "hq", 2, 102400, System.out);
+      ExportJournal.exportJournal(getJournalDir(), "activemq-data", "amq", 2, 102400, System.out);
    }
 
    @Test
    public void testConsumeFromFormat() throws Exception
    {
-      ImportJournal.importJournal(getJournalDir(), "hornetq-data", "hq", 2, 102400, new StringReader(journalFile));
+      ImportJournal.importJournal(getJournalDir(), "activemq-data", "amq", 2, 102400, new StringReader(journalFile));
       ImportJournal.importJournal(getBindingsDir(),
-                                  "hornetq-bindings",
+                                  "activemq-bindings",
                                   "bindings",
                                   2,
                                   1048576,
                                   new StringReader(bindingsFile));
 
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();

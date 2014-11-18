@@ -26,12 +26,12 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.cluster.Bridge;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -87,7 +87,7 @@ public class BridgeStartTest extends ServiceTestBase
    public void testStartStop() throws Exception
    {
       Map<String, Object> server0Params = new HashMap<String, Object>();
-      HornetQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
+      ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
@@ -98,7 +98,7 @@ public class BridgeStartTest extends ServiceTestBase
       {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
-      HornetQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+      ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
       ServerLocator locator = null;
       try
       {
@@ -153,7 +153,7 @@ public class BridgeStartTest extends ServiceTestBase
          server0.start();
          waitForServer(server0);
 
-         locator = HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
          ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
@@ -256,7 +256,7 @@ public class BridgeStartTest extends ServiceTestBase
       // to be persisted
 
       Map<String, Object> server0Params = new HashMap<String, Object>();
-      HornetQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
+      ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
@@ -267,7 +267,7 @@ public class BridgeStartTest extends ServiceTestBase
       {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
-      HornetQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+      ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
 
       final String testAddress = "testAddress";
       final String queueName0 = "queue0";
@@ -321,7 +321,7 @@ public class BridgeStartTest extends ServiceTestBase
          server0.start();
          waitForServer(server0);
 
-         locator = HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
 
@@ -467,7 +467,7 @@ public class BridgeStartTest extends ServiceTestBase
    public void testTargetServerNotAvailableNoReconnectTries() throws Exception
    {
       Map<String, Object> server0Params = new HashMap<String, Object>();
-      HornetQServer server0 = createClusteredServerWithParams(isNetty(), 0, false, server0Params);
+      ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, false, server0Params);
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
@@ -478,7 +478,7 @@ public class BridgeStartTest extends ServiceTestBase
       {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
-      HornetQServer server1 = createClusteredServerWithParams(isNetty(), 1, false, server1Params);
+      ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, false, server1Params);
 
       final String testAddress = "testAddress";
       final String queueName0 = "queue0";
@@ -533,7 +533,7 @@ public class BridgeStartTest extends ServiceTestBase
          server0.start();
          waitForServer(server0);
 
-         locator = HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
 
@@ -621,7 +621,7 @@ public class BridgeStartTest extends ServiceTestBase
    public void testManualStopStart() throws Exception
    {
       Map<String, Object> server0Params = new HashMap<String, Object>();
-      HornetQServer server0 = createClusteredServerWithParams(isNetty(), 0, false, server0Params);
+      ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, false, server0Params);
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
@@ -632,7 +632,7 @@ public class BridgeStartTest extends ServiceTestBase
       {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
-      HornetQServer server1 = createClusteredServerWithParams(isNetty(), 1, false, server1Params);
+      ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, false, server1Params);
 
       final String testAddress = "testAddress";
       final String queueName0 = "queue0";
@@ -687,7 +687,7 @@ public class BridgeStartTest extends ServiceTestBase
          server0.start();
          waitForServer(server0);
 
-         locator = HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
 

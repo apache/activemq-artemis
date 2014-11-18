@@ -51,9 +51,9 @@ import org.apache.activemq.core.postoffice.BindingsFactory;
 import org.apache.activemq.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.QueueInfo;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
@@ -86,7 +86,7 @@ import org.apache.activemq.utils.UUIDGenerator;
  */
 public class PostOfficeImpl implements PostOffice, NotificationListener, BindingsFactory
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    public static final SimpleString HDR_RESET_QUEUE_DATA = new SimpleString("_HQ_RESET_QUEUE_DATA");
 
@@ -126,9 +126,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
-   public PostOfficeImpl(final HornetQServer server,
+   public PostOfficeImpl(final ActiveMQServer server,
                          final StorageManager storageManager,
                          final PagingManager pagingManager,
                          final QueueFactory bindableFactory,
@@ -171,7 +171,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       this.server = server;
    }
 
-   // HornetQComponent implementation ---------------------------------------
+   // ActiveMQComponent implementation ---------------------------------------
 
    public synchronized void start() throws Exception
    {
@@ -223,7 +223,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Receiving notification : " + notification + " on server " + this.server);
+         ActiveMQServerLogger.LOGGER.trace("Receiving notification : " + notification + " on server " + this.server);
       }
       synchronized (notificationLock)
       {
@@ -237,7 +237,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                if (!props.containsProperty(ManagementHelper.HDR_BINDING_TYPE))
                {
-                  throw HornetQMessageBundle.BUNDLE.bindingTypeNotSpecified();
+                  throw ActiveMQMessageBundle.BUNDLE.bindingTypeNotSpecified();
                }
 
                Integer bindingType = props.getIntProperty(ManagementHelper.HDR_BINDING_TYPE);
@@ -256,7 +256,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                if (!props.containsProperty(ManagementHelper.HDR_BINDING_ID))
                {
-                  throw HornetQMessageBundle.BUNDLE.bindingIdNotSpecified();
+                  throw ActiveMQMessageBundle.BUNDLE.bindingIdNotSpecified();
                }
 
                long id = props.getLongProperty(ManagementHelper.HDR_BINDING_ID);
@@ -265,7 +265,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                if (!props.containsProperty(ManagementHelper.HDR_DISTANCE))
                {
-                  throw HornetQMessageBundle.BUNDLE.distancenotSpecified();
+                  throw ActiveMQMessageBundle.BUNDLE.distancenotSpecified();
                }
 
                int distance = props.getIntProperty(ManagementHelper.HDR_DISTANCE);
@@ -481,9 +481,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       String uid = UUIDGenerator.getInstance().generateStringUUID();
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("ClusterCommunication::Sending notification for addBinding " + binding + " from server " + server);
+         ActiveMQServerLogger.LOGGER.debug("ClusterCommunication::Sending notification for addBinding " + binding + " from server " + server);
       }
 
       managementService.sendNotification(new Notification(uid, CoreNotificationType.BINDING_ADDED, props));
@@ -671,15 +671,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       else
       {
          // this is a debug and not warn because this could be a regular scenario on publish-subscribe queues (or topic subscriptions on JMS)
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug("Couldn't find any bindings for address=" + address + " on message=" + message);
+            ActiveMQServerLogger.LOGGER.debug("Couldn't find any bindings for address=" + address + " on message=" + message);
          }
       }
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("Message after routed=" + message);
+         ActiveMQServerLogger.LOGGER.trace("Message after routed=" + message);
       }
 
       if (context.getQueueCount() == 0)
@@ -696,14 +696,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             SimpleString dlaAddress = addressSettings.getDeadLetterAddress();
 
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("sending message to dla address = " + dlaAddress + ", message=" + message);
+               ActiveMQServerLogger.LOGGER.debug("sending message to dla address = " + dlaAddress + ", message=" + message);
             }
 
             if (dlaAddress == null)
             {
-               HornetQServerLogger.LOGGER.noDLA(address);
+               ActiveMQServerLogger.LOGGER.noDLA(address);
             }
             else
             {
@@ -716,9 +716,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
          else
          {
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("Message " + message + " is not going anywhere as it didn't have a binding on address:" + address);
+               ActiveMQServerLogger.LOGGER.debug("Message " + message + " is not going anywhere as it didn't have a binding on address:" + address);
             }
 
             if (message.isLargeMessage())
@@ -869,9 +869,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          throw new IllegalStateException("Cannot find queue " + queueName);
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("PostOffice.sendQueueInfoToQueue on server=" + this.server + ", queueName=" + queueName + " and address=" + address);
+         ActiveMQServerLogger.LOGGER.debug("PostOffice.sendQueueInfoToQueue on server=" + this.server + ", queueName=" + queueName + " and address=" + address);
       }
 
       Queue queue = (Queue) binding.getBindable();
@@ -889,9 +889,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          for (QueueInfo info : queueInfos.values())
          {
-            if (HornetQServerLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
             {
-               HornetQServerLogger.LOGGER.trace("QueueInfo on sendQueueInfoToQueue = " + info);
+               ActiveMQServerLogger.LOGGER.trace("QueueInfo on sendQueueInfoToQueue = " + info);
             }
             if (info.matchesAddress(address))
             {
@@ -1162,7 +1162,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          {
             public void onError(final int errorCode, final String errorMessage)
             {
-               HornetQServerLogger.LOGGER.ioErrorAddingReferences(errorCode, errorMessage);
+               ActiveMQServerLogger.LOGGER.ioErrorAddingReferences(errorCode, errorMessage);
             }
 
             public void done()
@@ -1264,7 +1264,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          if (cacheBridge.contains(bridgeDupBytes))
          {
-            HornetQServerLogger.LOGGER.duplicateMessageDetectedThruBridge(message);
+            ActiveMQServerLogger.LOGGER.duplicateMessageDetectedThruBridge(message);
 
             if (context.getTransaction() != null)
             {
@@ -1307,7 +1307,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             if (rejectDuplicates && isDuplicate)
             {
-               HornetQServerLogger.LOGGER.duplicateMessageDetected(message);
+               ActiveMQServerLogger.LOGGER.duplicateMessageDetected(message);
 
                String warnMessage = "Duplicate message detected - message will not be routed. Message information:" + message.toString();
 
@@ -1360,7 +1360,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (reaperRunnable != null)
             reaperRunnable.stop();
          reaperRunnable = new Reaper();
-         reaperThread = new Thread(reaperRunnable, "hornetq-expiry-reaper-thread");
+         reaperThread = new Thread(reaperRunnable, "activemq-expiry-reaper-thread");
 
          reaperThread.setPriority(reaperPriority);
 
@@ -1433,7 +1433,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.errorExpiringMessages(e);
+                  ActiveMQServerLogger.LOGGER.errorExpiringMessages(e);
                }
             }
          }
@@ -1530,7 +1530,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return addressManager;
    }
 
-   public HornetQServer getServer()
+   public ActiveMQServer getServer()
    {
       return server;
    }

@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -56,7 +56,7 @@ public class ReplicationOrderTest extends FailoverTestBase
    {
       String address = RandomUtil.randomString();
       String queue = RandomUtil.randomString();
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(getConnectorTransportConfiguration(true));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(getConnectorTransportConfiguration(true));
       addServerLocator(locator);
       locator.setBlockOnNonDurableSend(false);
       locator.setBlockOnDurableSend(false);
@@ -98,7 +98,7 @@ public class ReplicationOrderTest extends FailoverTestBase
       }
       session.close();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(getConnectorTransportConfiguration(true)));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(getConnectorTransportConfiguration(true)));
       csf = createSessionFactory(locator);
       session = csf.createSession(true, true);
       session.start();

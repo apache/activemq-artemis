@@ -29,7 +29,7 @@ import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
@@ -45,7 +45,7 @@ public class OpenWireTestBase extends ServiceTestBase
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
 
-   protected HornetQServer server;
+   protected ActiveMQServer server;
 
    protected JMSServerManagerImpl jmsServer;
    protected boolean realStore = false;

@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A SyncSpeedTest
@@ -169,7 +169,7 @@ public class SyncSpeedTest
          {
             if (!file.delete())
             {
-               HornetQJournalLogger.LOGGER.errorDeletingFile(file);
+               ActiveMQJournalLogger.LOGGER.errorDeletingFile(file);
             }
          }
 
@@ -309,7 +309,7 @@ public class SyncSpeedTest
 
          for (Thread t : threads)
          {
-            HornetQJournalLogger.LOGGER.startingThread();
+            ActiveMQJournalLogger.LOGGER.startingThread();
             t.start();
          }
 

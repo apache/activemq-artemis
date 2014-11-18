@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.jms.cluster;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
@@ -65,8 +65,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase
    {
       //todo fix if needed
       super.setUp();
-      jmsServer1.getHornetQServer().setIdentity("Server 1");
-      jmsServer2.getHornetQServer().setIdentity("Server 2");
+      jmsServer1.getActiveMQServer().setIdentity("Server 1");
+      jmsServer2.getActiveMQServer().setIdentity("Server 2");
    }
 
    @Override
@@ -119,12 +119,12 @@ public class BindingsClusterTest extends JMSClusteredTestBase
          prod1.send(session1.createTextMessage("m1"));
 
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
 
          crash();
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
 
          prod1.send(session1.createTextMessage("m2"));
 
@@ -132,13 +132,13 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          Thread.sleep(2000);
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
 
          prod1.send(session1.createTextMessage("m3"));
 
-         cf2 = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-               generateInVMParams(1)));
+         cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
+                                                                                                                generateInVMParams(1)));
 
          conn2 = cf2.createConnection();
 
@@ -226,12 +226,12 @@ public class BindingsClusterTest extends JMSClusteredTestBase
          prod1.send(session1.createTextMessage("m1"));
 
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
 
          crash();
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
 
          //send a few messages while the binding is disconnected
          prod1.send(session1.createTextMessage("m2"));
@@ -242,14 +242,14 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          Thread.sleep(2000);
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
 
          prod1.send(session1.createTextMessage("m5"));
          prod1.send(session1.createTextMessage("m6"));
 
-         cf2 = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-               generateInVMParams(1)));
+         cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
+                                                                                                                generateInVMParams(1)));
 
          conn2 = cf2.createConnection();
 
@@ -349,15 +349,15 @@ public class BindingsClusterTest extends JMSClusteredTestBase
          prod1.send(session1.createTextMessage("m2"));
 
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
 
          crash();
 
          //this may or may not be closed, if the server was crashed then it would have been closed on failure.
          cons2.close();
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
 
          //send a few messages while the binding is disconnected
          prod1.send(session1.createTextMessage("m3"));
@@ -368,8 +368,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          Thread.sleep(2000);
 
-         printBindings(jmsServer1.getHornetQServer(), "jms.topic.t1");
-         printBindings(jmsServer2.getHornetQServer(), "jms.topic.t1");
+         printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
+         printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
 
          prod1.send(session1.createTextMessage("m6"));
          prod1.send(session1.createTextMessage("m7"));

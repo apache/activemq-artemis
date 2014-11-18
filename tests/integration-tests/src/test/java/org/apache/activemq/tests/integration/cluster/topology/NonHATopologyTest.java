@@ -25,7 +25,7 @@ import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
@@ -56,7 +56,7 @@ public class NonHATopologyTest extends ServiceTestBase
    public void internalTest(boolean isNetty) throws Exception
    {
 
-      HornetQServer server = null;
+      ActiveMQServer server = null;
       ServerLocatorInternal locator = null;
 
       try

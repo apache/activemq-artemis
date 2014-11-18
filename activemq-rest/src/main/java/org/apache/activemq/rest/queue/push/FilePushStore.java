@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.rest.topic.PushTopicRegistration;
 
@@ -41,7 +41,7 @@ public class FilePushStore implements PushStore
       this.ctx = JAXBContext.newInstance(PushRegistration.class, PushTopicRegistration.class);
       if (this.dir.exists())
       {
-         HornetQRestLogger.LOGGER.loadingRestStore(dir.getAbsolutePath());
+         ActiveMQRestLogger.LOGGER.loadingRestStore(dir.getAbsolutePath());
          for (File file : this.dir.listFiles())
          {
             if (!file.isFile()) continue;
@@ -50,12 +50,12 @@ public class FilePushStore implements PushStore
             {
                reg = (PushRegistration)ctx.createUnmarshaller().unmarshal(file);
                reg.setLoadedFrom(file);
-               HornetQRestLogger.LOGGER.addingPushRegistration(reg.getId());
+               ActiveMQRestLogger.LOGGER.addingPushRegistration(reg.getId());
                map.put(reg.getId(), reg);
             }
             catch (Exception e)
             {
-               HornetQRestLogger.LOGGER.errorLoadingStore(e, file.getName());
+               ActiveMQRestLogger.LOGGER.errorLoadingStore(e, file.getName());
             }
          }
       }

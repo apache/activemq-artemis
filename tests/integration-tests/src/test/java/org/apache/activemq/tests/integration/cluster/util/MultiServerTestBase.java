@@ -22,12 +22,12 @@ import java.util.List;
 
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -40,9 +40,9 @@ public class MultiServerTestBase extends ServiceTestBase
 {
 
 
-   protected HornetQServer[] servers;
+   protected ActiveMQServer[] servers;
 
-   protected HornetQServer[] backupServers;
+   protected ActiveMQServer[] backupServers;
 
    protected NodeManager[] nodeManagers;
 
@@ -77,12 +77,12 @@ public class MultiServerTestBase extends ServiceTestBase
       TransportConfiguration targetConfig = createTransportConfiguration(useNetty(), false, generateParams(serverID, useNetty()));
       if (ha)
       {
-         ServerLocator locator = HornetQClient.createServerLocatorWithHA(targetConfig);
+         ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(targetConfig);
          return addServerLocator(locator);
       }
       else
       {
-         ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(targetConfig);
+         ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(targetConfig);
          return addServerLocator(locator);
       }
    }
@@ -93,11 +93,11 @@ public class MultiServerTestBase extends ServiceTestBase
    {
       super.setUp();
 
-      servers = new HornetQServer[getNumberOfServers()];
+      servers = new ActiveMQServer[getNumberOfServers()];
 
       if (useBackups())
       {
-         backupServers = new HornetQServer[getNumberOfServers()];
+         backupServers = new ActiveMQServer[getNumberOfServers()];
       }
 
       if (useBackups())
@@ -108,7 +108,7 @@ public class MultiServerTestBase extends ServiceTestBase
 
       for (int i = 0; i < getNumberOfServers(); i++)
       {
-         Pair<HornetQServer, NodeManager> nodeServer = setupLiveServer(i, useRealFiles(), useSharedStorage());
+         Pair<ActiveMQServer, NodeManager> nodeServer = setupLiveServer(i, useRealFiles(), useSharedStorage());
          this.servers[i] = nodeServer.getA();
 
          if (useBackups())
@@ -124,31 +124,31 @@ public class MultiServerTestBase extends ServiceTestBase
 
    protected void startServers() throws Exception
    {
-      for (HornetQServer server : servers)
+      for (ActiveMQServer server : servers)
       {
          server.start();
       }
 
-      for (HornetQServer server: servers)
+      for (ActiveMQServer server: servers)
       {
          waitForServer(server);
       }
 
       if (backupServers != null)
       {
-         for (HornetQServer server : backupServers)
+         for (ActiveMQServer server : backupServers)
          {
             server.start();
          }
 
-         for (HornetQServer server: backupServers)
+         for (ActiveMQServer server: backupServers)
          {
             waitForServer(server);
          }
 
       }
 
-      for (HornetQServer server : servers)
+      for (ActiveMQServer server : servers)
       {
          waitForTopology(server, getNumberOfServers(), useBackups() ? getNumberOfServers() : 0);
       }
@@ -173,7 +173,7 @@ public class MultiServerTestBase extends ServiceTestBase
 
    }
 
-   protected Pair<HornetQServer, NodeManager> setupLiveServer(final int node,
+   protected Pair<ActiveMQServer, NodeManager> setupLiveServer(final int node,
                                                               final boolean realFiles,
                                                               final boolean sharedStorage) throws Exception
    {
@@ -225,7 +225,7 @@ public class MultiServerTestBase extends ServiceTestBase
 
       configuration.getClusterConfigurations().add(clusterConf);
 
-      HornetQServer server;
+      ActiveMQServer server;
 
       if (sharedStorage)
       {
@@ -241,10 +241,10 @@ public class MultiServerTestBase extends ServiceTestBase
 
       addServer(server);
 
-      return new Pair<HornetQServer, NodeManager>(server, nodeManager);
+      return new Pair<ActiveMQServer, NodeManager>(server, nodeManager);
    }
 
-   protected HornetQServer setupBackupServer(final int node,
+   protected ActiveMQServer setupBackupServer(final int node,
                                              final int liveNode,
                                              final NodeManager nodeManager) throws Exception
    {
@@ -282,7 +282,7 @@ public class MultiServerTestBase extends ServiceTestBase
 
       configuration.getClusterConfigurations().add(clusterConf);
 
-      HornetQServer server;
+      ActiveMQServer server;
 
       if (useSharedStorage())
       {
@@ -290,7 +290,7 @@ public class MultiServerTestBase extends ServiceTestBase
       }
       else
       {
-         server = addServer(HornetQServers.newHornetQServer(configuration, useRealFiles()));
+         server = addServer(ActiveMQServers.newActiveMQServer(configuration, useRealFiles()));
       }
       server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");
       return server;

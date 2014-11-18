@@ -31,7 +31,7 @@ import org.apache.activemq.core.paging.cursor.PagedReference;
 import org.apache.activemq.core.paging.cursor.PagedReferenceImpl;
 import org.apache.activemq.core.paging.impl.Page;
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.FutureLatch;
@@ -50,7 +50,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
 {
    // Constants -----------------------------------------------------
 
-   boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    // Attributes ----------------------------------------------------
 
@@ -91,9 +91,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
 
    public synchronized PageSubscription createSubscription(long cursorID, Filter filter, boolean persistent)
    {
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace(this.pagingStore.getAddress() + " creating subscription " + cursorID + " with filter " + filter, new Exception("trace"));
+         ActiveMQServerLogger.LOGGER.trace(this.pagingStore.getAddress() + " creating subscription " + cursorID + " with filter " + filter, new Exception("trace"));
       }
 
       if (activeCursors.containsKey(cursorID))
@@ -160,7 +160,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
                cache.lock();
                if (isTrace)
                {
-                  HornetQServerLogger.LOGGER.trace("adding " + pageId +  " into cursor = " + this.pagingStore.getAddress());
+                  ActiveMQServerLogger.LOGGER.trace("adding " + pageId +  " into cursor = " + this.pagingStore.getAddress());
                }
                softCache.put(pageId, cache);
             }
@@ -285,7 +285,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
 
       while (!future.await(10000))
       {
-         HornetQServerLogger.LOGGER.timedOutStoppingPagingCursor(future, executor);
+         ActiveMQServerLogger.LOGGER.timedOutStoppingPagingCursor(future, executor);
       }
    }
 
@@ -355,7 +355,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.warn("Error while cleaning paging on queue " + sub.getQueue().getName(), e);
+            ActiveMQServerLogger.LOGGER.warn("Error while cleaning paging on queue " + sub.getQueue().getName(), e);
          }
       }
 
@@ -365,7 +365,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.warn("Error while cleaning page, during the commit", e);
+         ActiveMQServerLogger.LOGGER.warn("Error while cleaning page, during the commit", e);
       }
    }
 
@@ -408,9 +408,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
                return;
             }
 
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("Asserting cleanup for address " + this.pagingStore.getAddress());
+               ActiveMQServerLogger.LOGGER.debug("Asserting cleanup for address " + this.pagingStore.getAddress());
             }
 
             ArrayList<PageSubscription> cursorList = cloneSubscriptions();
@@ -427,9 +427,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
                {
                   if (!cursor.isComplete(minPage))
                   {
-                     if (HornetQServerLogger.LOGGER.isDebugEnabled())
+                     if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                      {
-                        HornetQServerLogger.LOGGER.debug("Cursor " + cursor + " was considered incomplete at page " + minPage);
+                        ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + " was considered incomplete at page " + minPage);
                      }
 
                      complete = false;
@@ -437,9 +437,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
                   }
                   else
                   {
-                     if (HornetQServerLogger.LOGGER.isDebugEnabled())
+                     if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                      {
-                        HornetQServerLogger.LOGGER.debug("Cursor " + cursor + "was considered **complete** at page " + minPage);
+                        ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + "was considered **complete** at page " + minPage);
                      }
                   }
                }
@@ -453,9 +453,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
                if (complete)
                {
 
-                  if (HornetQServerLogger.LOGGER.isDebugEnabled())
+                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                   {
-                     HornetQServerLogger.LOGGER.debug("Address " + pagingStore.getAddress() +
+                     ActiveMQServerLogger.LOGGER.debug("Address " + pagingStore.getAddress() +
                         " is leaving page mode as all messages are consumed and acknowledged from the page store");
                   }
 
@@ -486,9 +486,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
             }
             else
             {
-               if (HornetQServerLogger.LOGGER.isTraceEnabled())
+               if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
                {
-                  HornetQServerLogger.LOGGER.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() +
+                  ActiveMQServerLogger.LOGGER.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() +
                      " as numberOfPages == " +
                      pagingStore.getNumberOfPages() +
                      " and currentPage.numberOfMessages = " +
@@ -498,7 +498,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
          }
          catch (Exception ex)
          {
-            HornetQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
+            ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
             return;
          }
          finally
@@ -520,7 +520,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
 
             if (isTrace)
             {
-               HornetQServerLogger.LOGGER.trace("Removing page " + depagedPage.getPageId() + " from page-cache");
+               ActiveMQServerLogger.LOGGER.trace("Removing page " + depagedPage.getPageId() + " from page-cache");
             }
 
             if (cache == null)
@@ -567,7 +567,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
       }
       catch (Exception ex)
       {
-         HornetQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
+         ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(ex, pagingStore.getAddress());
          return;
       }
 
@@ -608,7 +608,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
 
          while (!storageManager.waitOnOperations(5000))
          {
-            HornetQServerLogger.LOGGER.problemCompletingOperations(storageManager.getContext());
+            ActiveMQServerLogger.LOGGER.problemCompletingOperations(storageManager.getContext());
          }
       }
       finally
@@ -651,9 +651,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
       for (PageSubscription cursor : cursorList)
       {
          long firstPage = cursor.getFirstPage();
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug(this.pagingStore.getAddress() + " has a cursor " + cursor + " with first page=" + firstPage);
+            ActiveMQServerLogger.LOGGER.debug(this.pagingStore.getAddress() + " has a cursor " + cursor + " with first page=" + firstPage);
          }
 
          // the cursor will return -1 if the cursor is empty
@@ -663,9 +663,9 @@ public class PageCursorProviderImpl implements PageCursorProvider
          }
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug(this.pagingStore.getAddress() + " has minPage=" + minPage);
+         ActiveMQServerLogger.LOGGER.debug(this.pagingStore.getAddress() + " has minPage=" + minPage);
       }
 
       return minPage;

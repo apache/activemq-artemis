@@ -19,7 +19,7 @@ import java.util.Date;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.utils.SizeFormatterUtil;
 
 /**
@@ -31,11 +31,11 @@ import org.apache.activemq.utils.SizeFormatterUtil;
  */
 public class ServerInfo
 {
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final PagingManager pagingManager;
 
-   public ServerInfo(final HornetQServer server, final PagingManager pagingManager)
+   public ServerInfo(final ActiveMQServer server, final PagingManager pagingManager)
    {
       this.server = server;
       this.pagingManager = pagingManager;

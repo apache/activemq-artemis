@@ -58,7 +58,7 @@ public interface Queue extends Bindable
     * on shared subscriptions where the queue needs to be deleted when all the
     * consumers are closed.
     */
-   void setConsumersRefCount(HornetQServer server);
+   void setConsumersRefCount(ActiveMQServer server);
 
    ReferenceCounter getConsumersRefCount();
 

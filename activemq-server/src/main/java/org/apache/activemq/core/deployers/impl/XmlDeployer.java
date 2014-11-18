@@ -25,7 +25,7 @@ import java.util.Set;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.deployers.Deployer;
 import org.apache.activemq.core.deployers.DeploymentManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -182,7 +182,7 @@ public abstract class XmlDeployer implements Deployer
             }
             catch (Exception e1)
             {
-               HornetQServerLogger.LOGGER.unableToDeployNode(e1, node);
+               ActiveMQServerLogger.LOGGER.unableToDeployNode(e1, node);
                continue;
             }
 
@@ -232,7 +232,7 @@ public abstract class XmlDeployer implements Deployer
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.problemUndeployingNode(e, node);
+               ActiveMQServerLogger.LOGGER.problemUndeployingNode(e, node);
             }
          }
       }

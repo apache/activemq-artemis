@@ -15,7 +15,7 @@ package org.proton.plug;
 
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * @author Clebert Suconic
@@ -29,7 +29,7 @@ public interface AMQPSessionContext
 
    void close();
 
-   void removeSender(Sender sender) throws HornetQAMQPException;
+   void removeSender(Sender sender) throws ActiveMQAMQPException;
 
    void removeReceiver(Receiver receiver);
 }

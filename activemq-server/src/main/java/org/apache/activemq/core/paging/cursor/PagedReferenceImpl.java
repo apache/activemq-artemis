@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
@@ -29,7 +29,7 @@ import org.apache.activemq.core.server.ServerMessage;
  */
 public class PagedReferenceImpl implements PagedReference
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final PagePosition position;
 
@@ -169,7 +169,7 @@ public class PagedReferenceImpl implements PagedReference
       deliveryCount.incrementAndGet();
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("++deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
+         ActiveMQServerLogger.LOGGER.trace("++deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
 
    }
@@ -180,7 +180,7 @@ public class PagedReferenceImpl implements PagedReference
       deliveryCount.decrementAndGet();
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("--deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
+         ActiveMQServerLogger.LOGGER.trace("--deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
    }
 

@@ -42,7 +42,7 @@ import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
@@ -115,7 +115,7 @@ public class PostOfficeJournalLoader implements JournalLoader
 
          boolean isTopicIdentification =
             filter != null && filter.getFilterString() != null &&
-               filter.getFilterString().toString().equals(HornetQServerImpl.GENERIC_IGNORED_FILTER);
+               filter.getFilterString().toString().equals(ActiveMQServerImpl.GENERIC_IGNORED_FILTER);
 
          if (postOffice.getBinding(queueBindingInfo.getQueueName()) != null)
          {
@@ -131,7 +131,7 @@ public class PostOfficeJournalLoader implements JournalLoader
             {
 
                SimpleString newName = queueBindingInfo.getQueueName().concat("-" + (duplicateID++));
-               HornetQServerLogger.LOGGER.queueDuplicatedRenaming(queueBindingInfo.getQueueName().toString(), newName.toString());
+               ActiveMQServerLogger.LOGGER.queueDuplicatedRenaming(queueBindingInfo.getQueueName().toString(), newName.toString());
                queueBindingInfo.replaceQueueName(newName);
             }
          }
@@ -179,7 +179,7 @@ public class PostOfficeJournalLoader implements JournalLoader
          {
             if (queueRecords.values().size() != 0)
             {
-               HornetQServerLogger.LOGGER.journalCannotFindQueueForMessage(queueID);
+               ActiveMQServerLogger.LOGGER.journalCannotFindQueueForMessage(queueID);
             }
 
             continue;
@@ -227,14 +227,14 @@ public class PostOfficeJournalLoader implements JournalLoader
       {
          if (msg.getRefCount() == 0)
          {
-            HornetQServerLogger.LOGGER.journalUnreferencedMessage(msg.getMessageID());
+            ActiveMQServerLogger.LOGGER.journalUnreferencedMessage(msg.getMessageID());
             try
             {
                storageManager.deleteMessage(msg.getMessageID());
             }
             catch (Exception ignored)
             {
-               HornetQServerLogger.LOGGER.journalErrorDeletingMessage(ignored, msg.getMessageID());
+               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(ignored, msg.getMessageID());
             }
          }
       }
@@ -291,7 +291,7 @@ public class PostOfficeJournalLoader implements JournalLoader
 
       if (queue == null)
       {
-         HornetQServerLogger.LOGGER.journalMessageInPreparedTX(queueID);
+         ActiveMQServerLogger.LOGGER.journalMessageInPreparedTX(queueID);
          return;
       }
       postOffice.reroute(message, queue, tx);
@@ -311,7 +311,7 @@ public class PostOfficeJournalLoader implements JournalLoader
 
       if (removed == null)
       {
-         HornetQServerLogger.LOGGER.journalErrorRemovingRef(messageID);
+         ActiveMQServerLogger.LOGGER.journalErrorRemovingRef(messageID);
       }
       else
       {
@@ -393,7 +393,7 @@ public class PostOfficeJournalLoader implements JournalLoader
                {
                   for (PageCountPending record : entry.getValue())
                   {
-                     HornetQServerLogger.LOGGER.debug("Deleting pg tempCount " + record.getID());
+                     ActiveMQServerLogger.LOGGER.debug("Deleting pg tempCount " + record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                   }
 
@@ -403,11 +403,11 @@ public class PostOfficeJournalLoader implements JournalLoader
 
                   if (value == null)
                   {
-                     HornetQServerLogger.LOGGER.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
+                     ActiveMQServerLogger.LOGGER.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.debug("Replacing counter " + value.get());
+                     ActiveMQServerLogger.LOGGER.debug("Replacing counter " + value.get());
                      counter.increment(txRecoverCounter, value.get());
                   }
                }
@@ -415,12 +415,12 @@ public class PostOfficeJournalLoader implements JournalLoader
             else
             {
                // on this case the page file didn't exist, we just remove all the records since the page is already gone
-               HornetQServerLogger.LOGGER.debug("Page " + pageId + " didn't exist on address " + address + ", so we are just removing records");
+               ActiveMQServerLogger.LOGGER.debug("Page " + pageId + " didn't exist on address " + address + ", so we are just removing records");
                for (List<PageCountPending> records : perQueue.values())
                {
                   for (PageCountPending record : records)
                   {
-                     HornetQServerLogger.LOGGER.debug("Removing pending page counter " + record.getID());
+                     ActiveMQServerLogger.LOGGER.debug("Removing pending page counter " + record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                      txRecoverCounter.setContainsPersistent();
                   }
@@ -462,7 +462,7 @@ public class PostOfficeJournalLoader implements JournalLoader
 
          if (queue == null)
          {
-            HornetQServerLogger.LOGGER.debug("removing pending page counter id = " + pgCount.getID() + " as queueID=" + pgCount.getID() + " no longer exists");
+            ActiveMQServerLogger.LOGGER.debug("removing pending page counter id = " + pgCount.getID() + " as queueID=" + pgCount.getID() + " no longer exists");
             // this means the queue doesn't exist any longer, we will remove it from the storage
             storageManager.deletePendingPageCounter(txRecoverCounter.getID(), pgCount.getID());
             txRecoverCounter.setContainsPersistent();

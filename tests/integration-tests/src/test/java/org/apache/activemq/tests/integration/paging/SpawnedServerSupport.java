@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
@@ -28,8 +28,8 @@ import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -43,10 +43,10 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 public class SpawnedServerSupport
 {
 
-   static HornetQServer createServer(String folder)
+   static ActiveMQServer createServer(String folder)
    {
       Configuration conf = createConfig(folder);
-      return HornetQServers.newHornetQServer(conf, true);
+      return ActiveMQServers.newActiveMQServer(conf, true);
    }
 
    static Configuration createConfig(String folder)
@@ -117,7 +117,7 @@ public class SpawnedServerSupport
    public static ServerLocator createLocator(int port)
    {
       TransportConfiguration config = createTransportConfigiguration(false, port);
-      return HornetQClient.createServerLocator(true, config);
+      return ActiveMQClient.createServerLocator(true, config);
    }
 
 
@@ -139,9 +139,9 @@ public class SpawnedServerSupport
    }
 
 
-   static HornetQServer createSharedFolderServer(String folder, int thisPort, int otherPort, boolean isBackup)
+   static ActiveMQServer createSharedFolderServer(String folder, int thisPort, int otherPort, boolean isBackup)
    {
       Configuration conf = createSharedFolderConfig(folder, thisPort, otherPort, isBackup);
-      return HornetQServers.newHornetQServer(conf, true);
+      return ActiveMQServers.newActiveMQServer(conf, true);
    }
 }

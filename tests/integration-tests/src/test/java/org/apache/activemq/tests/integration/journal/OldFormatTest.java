@@ -47,7 +47,7 @@ public class OldFormatTest extends JournalImplTestBase
    {
       setup(2, 100 * 1024, true);
 
-      SequentialFile file = fileFactory.createSequentialFile("hq-1.hq", 1);
+      SequentialFile file = fileFactory.createSequentialFile("amq-1.amq", 1);
 
       ByteBuffer buffer = ByteBuffer.allocateDirect(100 * 1024);
 

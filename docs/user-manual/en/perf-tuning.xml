@@ -18,12 +18,12 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="perf-tuning">
     <title>Performance Tuning</title>
-    <para>In this chapter we'll discuss how to tune HornetQ for optimum performance.</para>
+    <para>In this chapter we'll discuss how to tune ActiveMQ for optimum performance.</para>
     <section>
         <title>Tuning persistence</title>
         <itemizedlist>
@@ -105,7 +105,7 @@
                     incur a lot more overhead in persisting them to storage.</para>
             </listitem>
             <listitem>
-                <para>Batch many sends or acknowledgements in a single transaction. HornetQ will
+                <para>Batch many sends or acknowledgements in a single transaction. ActiveMQ will
                     only require a network round trip on the commit, not on every send or
                     acknowledgement.</para>
             </listitem>
@@ -113,7 +113,7 @@
     </section>
     <section>
         <title>Other Tunings</title>
-        <para>There are various other places in HornetQ where we can perform some tuning:</para>
+        <para>There are various other places in ActiveMQ where we can perform some tuning:</para>
         <itemizedlist>
             <listitem>
                 <para>Use Asynchronous Send Acknowledgements. If you need to send durable messages
@@ -132,17 +132,17 @@
             <listitem>
                 <para>Disable security. You may get a small performance boost by disabling security
                     by setting the <literal>security-enabled</literal> parameter to <literal
-                        >false</literal> in <literal>hornetq-configuration.xml</literal>.</para>
+                        >false</literal> in <literal>activemq-configuration.xml</literal>.</para>
             </listitem>
             <listitem>
                 <para>Disable persistence. If you don't need message persistence, turn it off
                     altogether by setting <literal>persistence-enabled</literal> to false in
-                        <literal>hornetq-configuration.xml</literal>.</para>
+                        <literal>activemq-configuration.xml</literal>.</para>
             </listitem>
             <listitem>
                 <para>Sync transactions lazily. Setting <literal
                         >journal-sync-transactional</literal> to <literal>false</literal> in
-                        <literal>hornetq-configuration.xml</literal> can give you better
+                        <literal>activemq-configuration.xml</literal> can give you better
                     transactional persistent performance at the expense of some possibility of loss
                     of transactions on failure. See <xref linkend="send-guarantees"/> for more
                     information.</para>
@@ -150,7 +150,7 @@
             <listitem>
                 <para>Sync non transactional lazily. Setting <literal
                         >journal-sync-non-transactional</literal> to <literal>false</literal> in
-                        <literal>hornetq-configuration.xml</literal> can give you better
+                        <literal>activemq-configuration.xml</literal> can give you better
                     non-transactional persistent performance at the expense of some possibility of
                     loss of durable messages on failure. See <xref linkend="send-guarantees"/> for
                     more information.</para>
@@ -158,7 +158,7 @@
             <listitem>
                 <para>Send messages non blocking. Setting <literal>block-on-durable-send</literal>
                     and <literal>block-on-non-durable-send</literal> to <literal>false</literal> in
-                        <literal>hornetq-jms.xml</literal> (if you're using JMS and JNDI) or
+                        <literal>activemq-jms.xml</literal> (if you're using JMS and JNDI) or
                     directly on the ServerLocator. This means you don't have to wait a whole
                     network round trip for every message sent. See <xref linkend="send-guarantees"/>
                     for more information.</para>
@@ -168,7 +168,7 @@
                     effectively disables consumer flow control.</para>
             </listitem>
             <listitem>
-                <para>Socket NIO vs Socket Old IO. By default HornetQ uses old (blocking) on the
+                <para>Socket NIO vs Socket Old IO. By default ActiveMQ uses old (blocking) on the
                     server and the client side (see the chapter on configuring transports for more
                     information <xref linkend="configuring-transports"/>). NIO is much more scalable
                     but can give you some latency hit compared to old blocking IO. If you need to be
@@ -218,11 +218,11 @@ serveruser     hard    nofile  20000</programlisting>
             </listitem>
             <listitem>
                 <para>Use <literal>batch-delay</literal> and set <literal>direct-deliver</literal>
-                    to false for the best throughput for very small messages. HornetQ comes with a
+                    to false for the best throughput for very small messages. ActiveMQ comes with a
                     preconfigured connector/acceptor pair (<literal>netty-throughput</literal>) in
-                        <literal>hornetq-configuration.xml</literal> and JMS connection factory
+                        <literal>activemq-configuration.xml</literal> and JMS connection factory
                         (<literal>ThroughputConnectionFactory</literal>) in <literal
-                        >hornetq-jms.xml</literal>which can be used to give the very best
+                        >activemq-jms.xml</literal>which can be used to give the very best
                     throughput, especially for small messages. See the <xref
                         linkend="configuring-transports"/> for more information on this.</para>
             </listitem>
@@ -240,7 +240,7 @@ serveruser     hard    nofile  20000</programlisting>
                         >-XX:+UseParallelOldGC</literal> on Sun JDKs.</para>
             </listitem>
             <listitem id="perf-tuning.memory">
-                <para>Memory settings. Give as much memory as you can to the server. HornetQ can run
+                <para>Memory settings. Give as much memory as you can to the server. ActiveMQ can run
                     in low memory by using paging (described in <xref linkend="paging"/>) but if it
                     can run with all queues in RAM this will improve performance. The amount of
                     memory you require will depend on the size and number of your queues and the
@@ -272,7 +272,7 @@ serveruser     hard    nofile  20000</programlisting>
                 <note>
                     <para>Some popular libraries such as the Spring JMS Template are known to use
                         these anti-patterns. If you're using Spring JMS Template and you're getting
-                        poor performance you know why. Don't blame HornetQ! The Spring JMS Template
+                        poor performance you know why. Don't blame ActiveMQ! The Spring JMS Template
                         can only safely be used in an app server which caches JMS sessions (e.g.
                         using JCA), and only then for sending messages. It cannot be safely be used
                         for synchronously consuming messages, even in an app server. </para>

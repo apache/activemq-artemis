@@ -43,7 +43,7 @@ public class StompFrameV12 extends StompFrame
    }
 
    @Override
-   public ActiveMQBuffer toHornetQBuffer() throws Exception
+   public ActiveMQBuffer toActiveMQBuffer() throws Exception
    {
       if (buffer == null)
       {

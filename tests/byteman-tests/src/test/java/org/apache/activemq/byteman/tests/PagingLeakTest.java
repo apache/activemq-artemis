@@ -27,8 +27,8 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.paging.cursor.impl.PagePositionImpl;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -121,7 +121,7 @@ public class PagingLeakTest extends ServiceTestBase
          .setSecurityEnabled(false)
          .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      final HornetQServer server = HornetQServers.newHornetQServer(conf, true);
+      final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, true);
       addServer(server);
 
 

@@ -25,14 +25,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
-import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  *
- * This example demonstrates the use of HornetQ "pre-acknowledge" functionality where
+ * This example demonstrates the use of ActiveMQ "pre-acknowledge" functionality where
  * messages are acknowledged before they are delivered to the consumer.
  *
  * Please see the readme.html for more details.
@@ -40,7 +40,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
  */
-public class PreacknowledgeExample extends HornetQExample
+public class PreacknowledgeExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -66,7 +66,7 @@ public class PreacknowledgeExample extends HornetQExample
          // Step 3. Create a the JMS objects
          connection = cf.createConnection();
 
-         Session session = connection.createSession(false, HornetQJMSConstants.PRE_ACKNOWLEDGE);
+         Session session = connection.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
 
          MessageProducer producer = session.createProducer(queue);
 
@@ -128,7 +128,7 @@ public class PreacknowledgeExample extends HornetQExample
    {
       QueueSession session = ((QueueConnection)connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");
+      Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
 
       QueueRequestor requestor = new QueueRequestor(session, managementQueue);
 

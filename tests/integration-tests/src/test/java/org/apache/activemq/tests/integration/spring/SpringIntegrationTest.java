@@ -14,7 +14,7 @@ package org.apache.activemq.tests.integration.spring;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -56,7 +56,7 @@ public class SpringIntegrationTest extends UnitTestCase
          ExampleListener.latch.await(10, TimeUnit.SECONDS);
          Thread.sleep(500);
          Assert.assertEquals(ExampleListener.lastMessage, "Hello world");
-         ((HornetQConnectionFactory) sender.getConnectionFactory()).close();
+         ((ActiveMQConnectionFactory) sender.getConnectionFactory()).close();
       }
       finally
       {

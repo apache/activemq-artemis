@@ -17,7 +17,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -50,7 +50,7 @@ public class TransactionalSendTest extends ServiceTestBase
    @Test
    public void testSendWithCommit() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);
@@ -79,7 +79,7 @@ public class TransactionalSendTest extends ServiceTestBase
    @Test
    public void testSendWithRollback() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, false, false);

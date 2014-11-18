@@ -14,7 +14,7 @@ package org.apache.activemq.jms.persistence;
 
 import java.util.List;
 
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.jms.persistence.config.PersistedJNDI;
@@ -27,7 +27,7 @@ import org.apache.activemq.jms.persistence.config.PersistedType;
  *
  *
  */
-public interface JMSStorageManager extends HornetQComponent
+public interface JMSStorageManager extends ActiveMQComponent
 {
 
    void load() throws Exception;

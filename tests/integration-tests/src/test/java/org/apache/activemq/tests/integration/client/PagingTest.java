@@ -63,9 +63,9 @@ import org.apache.activemq.core.persistence.impl.journal.DescribeJournal.Referen
 import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.AckDescribe;
 import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -86,7 +86,7 @@ import org.junit.Test;
 public class PagingTest extends ServiceTestBase
 {
    private ServerLocator locator;
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ClientSessionFactory sf;
    static final int MESSAGE_SIZE = 1024; // 1k
 
@@ -736,7 +736,7 @@ public class PagingTest extends ServiceTestBase
          .setJournalSyncNonTransactional(false)
          .setJournalCompactMinFiles(0); // disable compact
 
-      HornetQServer server =
+      ActiveMQServer server =
          createServer(true, config,
                       PagingTest.PAGE_SIZE,
                       PagingTest.PAGE_MAX,
@@ -1641,8 +1641,8 @@ public class PagingTest extends ServiceTestBase
                                         0,
                                         0,
                                         new NIOSequentialFileFactory(getJournalDir()),
-                                        "hornetq-data",
-                                        "hq",
+                                        "activemq-data",
+                                        "amq",
                                         1);
       jrn.start();
       jrn.load(records, list, null);
@@ -1926,7 +1926,7 @@ public class PagingTest extends ServiceTestBase
       session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
       session.createQueue(PagingTest.ADDRESS,
                           PagingTest.ADDRESS.concat("-invalid"),
-                          new SimpleString(HornetQServerImpl.GENERIC_IGNORED_FILTER),
+                          new SimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER),
                           true);
 
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
@@ -2641,7 +2641,7 @@ public class PagingTest extends ServiceTestBase
       ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
       byte[] body = new byte[MESSAGE_SIZE];
-      // HornetQBuffer bodyLocal = HornetQChannelBuffers.buffer(DataConstants.SIZE_INT * numberOfIntegers);
+      // ActiveMQBuffer bodyLocal = ActiveMQChannelBuffers.buffer(DataConstants.SIZE_INT * numberOfIntegers);
 
       ClientMessage message = null;
 

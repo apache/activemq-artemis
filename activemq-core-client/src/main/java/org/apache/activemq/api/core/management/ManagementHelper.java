@@ -19,12 +19,12 @@ import java.util.Map;
 
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONObject;
 
 /**
- * Helper class to use HornetQ Core messages to manage server resources.
+ * Helper class to use ActiveMQ Core messages to manage server resources.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -292,12 +292,12 @@ public final class ManagementHelper
          param instanceof Byte == false &&
          param instanceof Short == false)
       {
-         throw HornetQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
+         throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
       }
    }
 
    /**
-    * Used by HornetQ management service.
+    * Used by ActiveMQ management service.
     */
    public static Object[] retrieveOperationParameters(final Message message) throws Exception
    {
@@ -333,7 +333,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Used by HornetQ management service.
+    * Used by ActiveMQ management service.
     */
    public static void storeResult(final Message message, final Object result) throws Exception
    {
@@ -417,7 +417,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Used by HornetQ management service.
+    * Used by ActiveMQ management service.
     */
    public static Map<String, Object> fromCommaSeparatedKeyValues(final String str) throws Exception
    {
@@ -433,7 +433,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Used by HornetQ management service.
+    * Used by ActiveMQ management service.
     */
    public static Object[] fromCommaSeparatedArrayOfCommaSeparatedKeyValues(final String str) throws Exception
    {

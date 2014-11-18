@@ -21,7 +21,7 @@ import javax.jms.Session;
 import java.io.Serializable;
 
 import org.apache.activemq.rest.HttpHeaderProperty;
-import org.apache.activemq.rest.integration.EmbeddedRestHornetQJMS;
+import org.apache.activemq.rest.integration.EmbeddedRestActiveMQJMS;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
@@ -37,13 +37,13 @@ import org.junit.Test;
  */
 public class EmbeddedTest
 {
-   public static EmbeddedRestHornetQJMS server;
+   public static EmbeddedRestActiveMQJMS server;
 
    @BeforeClass
    public static void startEmbedded() throws Exception
    {
-      server = new EmbeddedRestHornetQJMS();
-      server.getManager().setConfigResourcePath("hornetq-rest.xml");
+      server = new EmbeddedRestActiveMQJMS();
+      server.getManager().setConfigResourcePath("activemq-rest.xml");
       server.start();
    }
 

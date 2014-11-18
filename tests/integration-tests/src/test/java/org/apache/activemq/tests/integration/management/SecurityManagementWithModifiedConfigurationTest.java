@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 
 /**
  * A SecurityManagementTest
@@ -72,13 +72,13 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
    // Protected -----------------------------------------------------
 
    @Override
-   protected HornetQServer setupAndStartHornetQServer() throws Exception
+   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception
    {
       ConfigurationImpl conf = createBasicConfig()
          .setSecurityEnabled(true)
          .setClusterPassword(configuredClusterPassword)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       return server;

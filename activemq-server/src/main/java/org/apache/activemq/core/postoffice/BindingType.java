@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.postoffice;
 
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
 /**
  * A BindingType
@@ -49,7 +49,7 @@ public enum BindingType
       }
       else
       {
-         throw HornetQMessageBundle.BUNDLE.cannotConvertToInt();
+         throw ActiveMQMessageBundle.BUNDLE.cannotConvertToInt();
       }
    }
 

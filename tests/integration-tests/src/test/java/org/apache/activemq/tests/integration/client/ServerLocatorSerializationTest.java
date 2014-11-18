@@ -19,14 +19,14 @@ import org.junit.Test;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
@@ -39,7 +39,7 @@ import java.io.ObjectOutputStream;
 
 public class ServerLocatorSerializationTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
@@ -64,7 +64,7 @@ public class ServerLocatorSerializationTest extends ServiceTestBase
    public void testLocatorSerialization() throws Exception
    {
       log.info("Starting Netty locator");
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
 
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession(false, false);
@@ -95,7 +95,7 @@ public class ServerLocatorSerializationTest extends ServiceTestBase
    public void testConnectionFactorySerialization() throws Exception
    {
       log.info("Starting connection factory");
-      HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory"));
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory"));
 
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -110,7 +110,7 @@ public class ServerLocatorSerializationTest extends ServiceTestBase
       log.info("De-serializing connection factory");
       ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
       ObjectInputStream in = new ObjectInputStream(bis);
-      cf = (HornetQConnectionFactory) in.readObject();
+      cf = (ActiveMQConnectionFactory) in.readObject();
 
       connection = cf.createConnection();
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

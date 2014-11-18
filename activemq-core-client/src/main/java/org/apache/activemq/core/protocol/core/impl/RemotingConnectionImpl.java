@@ -23,14 +23,14 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
 import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
-import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
 import org.apache.activemq.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.utils.SimpleIDGenerator;
@@ -44,7 +44,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    // Constants
    // ------------------------------------------------------------------------------------
 
-   private static final boolean isTrace = HornetQClientLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
 
    // Static
    // ---------------------------------------------------------------------------------------
@@ -210,7 +210,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          destroyed = true;
       }
 
-      HornetQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
 
 
       try
@@ -219,7 +219,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
       catch (Throwable e)
       {
-         HornetQClientLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
       }
 
       // Then call the listeners
@@ -359,9 +359,9 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
    }
 
-   public HornetQPrincipal getDefaultHornetQPrincipal()
+   public ActiveMQPrincipal getDefaultActiveMQPrincipal()
    {
-      return getTransportConnection().getDefaultHornetQPrincipal();
+      return getTransportConnection().getDefaultActiveMQPrincipal();
    }
 
    // Buffer Handler implementation
@@ -374,7 +374,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
          if (isTrace)
          {
-            HornetQClientLogger.LOGGER.trace("handling packet " + packet);
+            ActiveMQClientLogger.LOGGER.trace("handling packet " + packet);
          }
 
          if (packet.isAsyncExec() && executor != null)
@@ -391,7 +391,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
                   }
                   catch (Throwable t)
                   {
-                     HornetQClientLogger.LOGGER.errorHandlingPacket(t, packet);
+                     ActiveMQClientLogger.LOGGER.errorHandlingPacket(t, packet);
                   }
 
                   executing = false;
@@ -415,7 +415,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
       catch (Exception e)
       {
-         HornetQClientLogger.LOGGER.errorDecodingPacket(e);
+         ActiveMQClientLogger.LOGGER.errorDecodingPacket(e);
       }
    }
 

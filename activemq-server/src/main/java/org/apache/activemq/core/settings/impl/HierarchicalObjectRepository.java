@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.core.settings.Mergeable;
@@ -273,7 +273,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          boolean isImmutable = immutables.contains(match);
          if (isImmutable)
          {
-            HornetQServerLogger.LOGGER.debug("Cannot remove match " + match + " since it came from a main config");
+            ActiveMQServerLogger.LOGGER.debug("Cannot remove match " + match + " since it came from a main config");
          }
          else
          {
@@ -373,7 +373,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
                }
                catch (Throwable e)
                {
-                  HornetQServerLogger.LOGGER.errorCallingRepoListener(e);
+                  ActiveMQServerLogger.LOGGER.errorCallingRepoListener(e);
                }
             }
          }

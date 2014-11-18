@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
-public class ColocatedFailoverScaleDownExample extends HornetQExample
+public class ColocatedFailoverScaleDownExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

@@ -28,7 +28,7 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
@@ -38,7 +38,7 @@ import org.apache.activemq.tests.util.ServiceTestBase;
  */
 public class ReceiveImmediateTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ReceiveImmediateTest.queue");
 

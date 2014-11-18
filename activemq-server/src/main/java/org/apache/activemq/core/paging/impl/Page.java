@@ -27,8 +27,8 @@ import org.apache.activemq.core.paging.PagedMessage;
 import org.apache.activemq.core.paging.cursor.LivePageCache;
 import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.DataConstants;
@@ -39,8 +39,8 @@ import org.apache.activemq.utils.DataConstants;
 public final class Page implements Comparable<Page>
 {
    // Constants -----------------------------------------------------
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
-   private static final boolean isDebug = HornetQServerLogger.LOGGER.isDebugEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isDebug = ActiveMQServerLogger.LOGGER.isDebugEnabled();
 
    public static final int SIZE_RECORD = DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + DataConstants.SIZE_BYTE;
 
@@ -103,12 +103,12 @@ public final class Page implements Comparable<Page>
    {
       if (isDebug)
       {
-         HornetQServerLogger.LOGGER.debug("reading page " + this.pageId + " on address = " + storeName);
+         ActiveMQServerLogger.LOGGER.debug("reading page " + this.pageId + " on address = " + storeName);
       }
 
       if (!file.isOpen())
       {
-         throw HornetQMessageBundle.BUNDLE.invalidPageIO();
+         throw ActiveMQMessageBundle.BUNDLE.invalidPageIO();
       }
 
       ArrayList<PagedMessage> messages = new ArrayList<PagedMessage>();
@@ -156,7 +156,7 @@ public final class Page implements Comparable<Page>
                      msg.initMessage(storage);
                      if (isTrace)
                      {
-                        HornetQServerLogger.LOGGER.trace("Reading message " + msg + " on pageId=" + this.pageId + " for address=" + storeName);
+                        ActiveMQServerLogger.LOGGER.trace("Reading message " + msg + " on pageId=" + this.pageId + " for address=" + storeName);
                      }
                      messages.add(msg);
                   }
@@ -277,7 +277,7 @@ public final class Page implements Comparable<Page>
 
       if (isDebug)
       {
-         HornetQServerLogger.LOGGER.debug("Deleting pageId=" + pageId + " on store " + storeName);
+         ActiveMQServerLogger.LOGGER.debug("Deleting pageId=" + pageId + " on store " + storeName);
       }
 
       if (messages != null)
@@ -300,7 +300,7 @@ public final class Page implements Comparable<Page>
       {
          if (suspiciousRecords)
          {
-            HornetQServerLogger.LOGGER.pageInvalid(file.getFileName(), file.getFileName());
+            ActiveMQServerLogger.LOGGER.pageInvalid(file.getFileName(), file.getFileName());
             file.renameTo(file.getFileName() + ".invalidPage");
          }
          else
@@ -312,7 +312,7 @@ public final class Page implements Comparable<Page>
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.pageDeleteError(e);
+         ActiveMQServerLogger.LOGGER.pageDeleteError(e);
          return false;
       }
    }
@@ -351,7 +351,7 @@ public final class Page implements Comparable<Page>
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.pageFinaliseError(e);
+         ActiveMQServerLogger.LOGGER.pageFinaliseError(e);
       }
    }
 
@@ -385,7 +385,7 @@ public final class Page implements Comparable<Page>
     */
    private void markFileAsSuspect(final String fileName, final int position, final int msgNumber)
    {
-      HornetQServerLogger.LOGGER.pageSuspectFile(fileName, position, msgNumber);
+      ActiveMQServerLogger.LOGGER.pageSuspectFile(fileName, position, msgNumber);
       suspiciousRecords = true;
    }
 

@@ -60,44 +60,44 @@ public class WrongRoleFileConfigurationParserTest extends UnitTestCase
    }
 
    private static final String configuration =
-      "<configuration xmlns=\"urn:hornetq\"\n" +
+      "<configuration xmlns=\"urn:activemq\"\n" +
          "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-         "xsi:schemaLocation=\"urn:hornetq /schema/activemq-configuration.xsd\">\n" +
-         "<name>HornetQ.main.config</name>" + "\n" +
+         "xsi:schemaLocation=\"urn:activemq /schema/activemq-configuration.xsd\">\n" +
+         "<name>ActiveMQ.main.config</name>" + "\n" +
          "<backup-group-name>anodegroupname</backup-group-name>" + "\n" +
          "<log-delegate-factory-class-name>org.apache.activemq.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
-         "<bindings-directory>${jboss.server.data.dir}/hornetq/bindings</bindings-directory>" + "\n" +
-         "<journal-directory>${jboss.server.data.dir}/hornetq/journal</journal-directory>" + "\n" +
+         "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
+         "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +
          "<journal-min-files>10</journal-min-files>" + "\n" +
-         "<large-messages-directory>${jboss.server.data.dir}/hornetq/largemessages</large-messages-directory>" + "\n" +
-         "<paging-directory>${jboss.server.data.dir}/hornetq/paging</paging-directory>" + "\n" +
+         "<large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>" + "\n" +
+         "<paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>" + "\n" +
          "<connectors>" + "\n" +
          "<connector name=\"netty\">" + "\n" +
          "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${hornetq.remoting.netty.port:5445}\"/>" + "\n" +
+         "<param key=\"port\"  value=\"${activemq.remoting.netty.port:5445}\"/>" + "\n" +
          "</connector>" + "\n" +
          "<connector name=\"netty-throughput\">" + "\n" +
          "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${hornetq.remoting.netty.batch.port:5455}\"/>" + "\n" +
+         "<param key=\"port\"  value=\"${activemq.remoting.netty.batch.port:5455}\"/>" + "\n" +
          "<param key=\"batch-delay\" value=\"50\"/>" + "\n" +
          "</connector>" + "\n" +
          "<connector name=\"in-vm\">" + "\n" +
          "<factory-class>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</factory-class>" + "\n" +
-         "<param key=\"server-id\" value=\"${hornetq.server-id:0}\"/>" + "\n" +
+         "<param key=\"server-id\" value=\"${activemq.server-id:0}\"/>" + "\n" +
          "</connector>" + "\n" +
          "</connectors>" + "\n" +
          "<acceptors>" + "\n" +
          "<acceptor name=\"netty\">" + "\n" +
          "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${hornetq.remoting.netty.port:5445}\"/>" + "\n" +
+         "<param key=\"port\"  value=\"${activemq.remoting.netty.port:5445}\"/>" + "\n" +
          "</acceptor>" + "\n" +
          "<acceptor name=\"netty-throughput\">" + "\n" +
          "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
          "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${hornetq.remoting.netty.batch.port:5455}\"/>" + "\n" +
+         "<param key=\"port\"  value=\"${activemq.remoting.netty.batch.port:5455}\"/>" + "\n" +
          "<param key=\"batch-delay\" value=\"50\"/>" + "\n" +
          "<param key=\"direct-deliver\" value=\"false\"/>" + "\n" +
          "</acceptor>" + "\n" +

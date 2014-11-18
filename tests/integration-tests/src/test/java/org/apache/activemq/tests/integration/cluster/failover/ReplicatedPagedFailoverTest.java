@@ -17,14 +17,14 @@ import org.junit.Test;
 import java.util.HashMap;
 
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest
 {
    @Override
-   protected HornetQServer createInVMFailoverServer(final boolean realFiles, final Configuration configuration,
+   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles, final Configuration configuration,
                                                     final NodeManager nodeManager, int id)
    {
       return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX,

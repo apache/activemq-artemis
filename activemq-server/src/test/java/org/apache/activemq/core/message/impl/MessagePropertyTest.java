@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ import org.junit.Test;
  */
 public class MessagePropertyTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ServerLocator locator;
    private ClientSessionFactory sf;
    private final int numMessages = 20;

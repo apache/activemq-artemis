@@ -26,8 +26,8 @@ import org.apache.activemq.core.paging.cursor.impl.LivePageCacheImpl;
 import org.apache.activemq.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.RouteContextList;
@@ -118,7 +118,7 @@ public class PagingStoreImpl implements PagingStore
 
    private volatile AtomicBoolean blocking = new AtomicBoolean(false);
 
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    public PagingStoreImpl(final SimpleString address,
                           final ScheduledExecutorService scheduledExecutor,
@@ -391,7 +391,7 @@ public class PagingStoreImpl implements PagingStore
 
       if (!future.await(60000))
       {
-         HornetQServerLogger.LOGGER.pageStoreTimeout(address);
+         ActiveMQServerLogger.LOGGER.pageStoreTimeout(address);
       }
    }
 
@@ -550,7 +550,7 @@ public class PagingStoreImpl implements PagingStore
             {
                // If not possible to starting page due to an IO error, we will just consider it non paging.
                // This shouldn't happen anyway
-               HornetQServerLogger.LOGGER.pageStoreStartIOError(e);
+               ActiveMQServerLogger.LOGGER.pageStoreStartIOError(e);
                return false;
             }
          }
@@ -661,7 +661,7 @@ public class PagingStoreImpl implements PagingStore
                   returnPage.delete(null);
 
                   // This will trigger this address to exit the page mode,
-                  // and this will make HornetQ start using the journal again
+                  // and this will make ActiveMQ start using the journal again
                   return null;
                }
                else
@@ -747,7 +747,7 @@ public class PagingStoreImpl implements PagingStore
             }
             else if (!blocking.get())
             {
-               HornetQServerLogger.LOGGER.blockingMessageProduction(address, sizeInBytes.get(), maxSize);
+               ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, sizeInBytes.get(), maxSize);
                blocking.set(true);
             }
 
@@ -782,7 +782,7 @@ public class PagingStoreImpl implements PagingStore
                   executor.execute(memoryFreedRunnablesExecutor);
                   if (blocking.get())
                   {
-                     HornetQServerLogger.LOGGER.unblockingMessageProduction(address, sizeInBytes.get(), maxSize);
+                     ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, sizeInBytes.get(), maxSize);
                      blocking.set(false);
                   }
                }
@@ -801,7 +801,7 @@ public class PagingStoreImpl implements PagingStore
             {
                if (startPaging())
                {
-                  HornetQServerLogger.LOGGER.pageStoreStart(storeName, addressSize, maxSize);
+                  ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, addressSize, maxSize);
                }
             }
          }
@@ -835,7 +835,7 @@ public class PagingStoreImpl implements PagingStore
             {
                printedDropMessagesWarning = true;
 
-               HornetQServerLogger.LOGGER.pageStoreDropMessages(storeName, sizeInBytes.get(), maxSize);
+               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, sizeInBytes.get(), maxSize);
             }
 
             if (message.isLargeMessage())
@@ -845,7 +845,7 @@ public class PagingStoreImpl implements PagingStore
 
             if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL)
             {
-               throw HornetQMessageBundle.BUNDLE.addressIsFull(address.toString());
+               throw ActiveMQMessageBundle.BUNDLE.addressIsFull(address.toString());
             }
 
             // Address is full, we just pretend we are paging, and drop the data
@@ -933,7 +933,7 @@ public class PagingStoreImpl implements PagingStore
 
             if (isTrace)
             {
-               HornetQServerLogger.LOGGER.trace("Paging message " + pagedMessage + " on pageStore " + this.getStoreName() +
+               ActiveMQServerLogger.LOGGER.trace("Paging message " + pagedMessage + " on pageStore " + this.getStoreName() +
                   " pageId=" + currentPage.getPageId());
             }
 

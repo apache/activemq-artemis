@@ -24,7 +24,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
@@ -106,7 +106,7 @@ public class TransferQueue // NO_UCD (unused code)
       {
          TransportConfiguration configurationSource = new TransportConfiguration(NettyConnectorFactory.class.getName(), sourceParameters);
 
-         ServerLocator locatorSource = HornetQClient.createServerLocator(false, configurationSource);
+         ServerLocator locatorSource = ActiveMQClient.createServerLocator(false, configurationSource);
 
          ClientSessionFactory factorySource = locatorSource.createSessionFactory();
 
@@ -126,7 +126,7 @@ public class TransferQueue // NO_UCD (unused code)
 
          TransportConfiguration configurationTarget = new TransportConfiguration(NettyConnectorFactory.class.getName(), targetParameters);
 
-         ServerLocator locatorTarget = HornetQClient.createServerLocatorWithoutHA(configurationTarget);
+         ServerLocator locatorTarget = ActiveMQClient.createServerLocatorWithoutHA(configurationTarget);
 
 
 

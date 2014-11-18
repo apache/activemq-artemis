@@ -32,7 +32,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.Topology;
@@ -53,21 +53,21 @@ import org.apache.activemq.core.postoffice.QueueBinding;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
@@ -127,19 +127,19 @@ public abstract class ServiceTestBase extends UnitTestCase
       assertFalse(store.isPaging());
    }
 
-   protected Topology waitForTopology(final HornetQServer server, final int nodes) throws Exception
+   protected Topology waitForTopology(final ActiveMQServer server, final int nodes) throws Exception
    {
       return waitForTopology(server, nodes, -1, WAIT_TIMEOUT);
    }
 
-   protected Topology waitForTopology(final HornetQServer server, final int nodes, final int backups) throws Exception
+   protected Topology waitForTopology(final ActiveMQServer server, final int nodes, final int backups) throws Exception
    {
       return waitForTopology(server, nodes, backups, WAIT_TIMEOUT);
    }
 
-   protected Topology waitForTopology(final HornetQServer server, final int liveNodes, final int backupNodes, final long timeout) throws Exception
+   protected Topology waitForTopology(final ActiveMQServer server, final int liveNodes, final int backupNodes, final long timeout) throws Exception
    {
-      HornetQServerLogger.LOGGER.debug("waiting for " + liveNodes + " on the topology for server = " + server);
+      ActiveMQServerLogger.LOGGER.debug("waiting for " + liveNodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
@@ -189,15 +189,15 @@ public abstract class ServiceTestBase extends UnitTestCase
          topology.describe() +
          ")";
 
-      HornetQServerLogger.LOGGER.error(msg);
+      ActiveMQServerLogger.LOGGER.error(msg);
 
       throw new Exception(msg);
    }
 
 
-   protected void waitForTopology(final HornetQServer server, String clusterConnectionName, final int nodes, final long timeout) throws Exception
+   protected void waitForTopology(final ActiveMQServer server, String clusterConnectionName, final int nodes, final long timeout) throws Exception
    {
-      HornetQServerLogger.LOGGER.debug("waiting for " + nodes + " on the topology for server = " + server);
+      ActiveMQServerLogger.LOGGER.debug("waiting for " + nodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
@@ -224,12 +224,12 @@ public abstract class ServiceTestBase extends UnitTestCase
          topology +
          ")";
 
-      HornetQServerLogger.LOGGER.error(msg);
+      ActiveMQServerLogger.LOGGER.error(msg);
 
       throw new Exception(msg);
    }
 
-   protected static final void waitForComponent(final HornetQComponent component, final long seconds) throws InterruptedException
+   protected static final void waitForComponent(final ActiveMQComponent component, final long seconds) throws InterruptedException
    {
       long time = System.currentTimeMillis();
       long toWait = seconds * 1000;
@@ -320,9 +320,9 @@ public abstract class ServiceTestBase extends UnitTestCase
       return new TransportConfiguration(className, params);
    }
 
-   private final HornetQServerLogger log = HornetQServerLogger.LOGGER;
+   private final ActiveMQServerLogger log = ActiveMQServerLogger.LOGGER;
 
-   protected void waitForServer(HornetQServer server) throws InterruptedException
+   protected void waitForServer(ActiveMQServer server) throws InterruptedException
    {
       if (server == null)
          return;
@@ -346,7 +346,7 @@ public abstract class ServiceTestBase extends UnitTestCase
       }
    }
 
-   protected void waitForServerToStop(HornetQServer server) throws InterruptedException
+   protected void waitForServerToStop(ActiveMQServer server) throws InterruptedException
    {
       if (server == null)
          return;
@@ -367,7 +367,7 @@ public abstract class ServiceTestBase extends UnitTestCase
    /**
     * @param backup
     */
-   public static final void waitForRemoteBackupSynchronization(final HornetQServer backup)
+   public static final void waitForRemoteBackupSynchronization(final ActiveMQServer backup)
    {
       waitForRemoteBackup(null, 10, true, backup);
    }
@@ -379,10 +379,10 @@ public abstract class ServiceTestBase extends UnitTestCase
     * @param backup
     */
    public static final void waitForRemoteBackup(ClientSessionFactory sessionFactoryP, int seconds,
-                                                boolean waitForSync, final HornetQServer backup)
+                                                boolean waitForSync, final ActiveMQServer backup)
    {
       ClientSessionFactoryInternal sessionFactory = (ClientSessionFactoryInternal)sessionFactoryP;
-      final HornetQServerImpl actualServer = (HornetQServerImpl) backup;
+      final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backup;
       final long toWait = seconds * 1000;
       final long time = System.currentTimeMillis();
       int loop = 0;
@@ -462,7 +462,7 @@ public abstract class ServiceTestBase extends UnitTestCase
       }
    }
 
-   protected final HornetQServer
+   protected final ActiveMQServer
    createServer(final boolean realFiles,
                 final Configuration configuration,
                 final int pageSize,
@@ -470,15 +470,15 @@ public abstract class ServiceTestBase extends UnitTestCase
                 final Map<String, AddressSettings> settings,
                 final MBeanServer mbeanServer)
    {
-      HornetQServer server;
+      ActiveMQServer server;
 
       if (realFiles)
       {
-         server = HornetQServers.newHornetQServer(configuration, mbeanServer, true);
+         server = ActiveMQServers.newActiveMQServer(configuration, mbeanServer, true);
       }
       else
       {
-         server = HornetQServers.newHornetQServer(configuration, mbeanServer, false);
+         server = ActiveMQServers.newActiveMQServer(configuration, mbeanServer, false);
       }
       try
       {
@@ -501,7 +501,7 @@ public abstract class ServiceTestBase extends UnitTestCase
       }
    }
 
-   protected final HornetQServer createServer(final boolean realFiles,
+   protected final ActiveMQServer createServer(final boolean realFiles,
                                               final Configuration configuration,
                                               final int pageSize,
                                               final int maxAddressSize,
@@ -510,14 +510,14 @@ public abstract class ServiceTestBase extends UnitTestCase
       return createServer(realFiles, configuration, pageSize, maxAddressSize, AddressFullMessagePolicy.PAGE, settings);
    }
 
-   protected final HornetQServer createServer(final boolean realFiles,
+   protected final ActiveMQServer createServer(final boolean realFiles,
                                               final Configuration configuration,
                                               final int pageSize,
                                               final int maxAddressSize,
                                               final AddressFullMessagePolicy fullPolicy,
                                               final Map<String, AddressSettings> settings)
    {
-      HornetQServer server = addServer(HornetQServers.newHornetQServer(configuration, realFiles));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
       if (settings != null)
       {
          for (Map.Entry<String, AddressSettings> setting : settings.entrySet())
@@ -537,28 +537,28 @@ public abstract class ServiceTestBase extends UnitTestCase
    }
 
 
-   protected final HornetQServer createServer(final boolean realFiles,
+   protected final ActiveMQServer createServer(final boolean realFiles,
                                               Configuration conf,
                                               MBeanServer mbeanServer)
    {
       return createServer(realFiles, conf, mbeanServer, new HashMap<String, AddressSettings>());
    }
 
-   protected final HornetQServer
+   protected final ActiveMQServer
    createServer(final boolean realFiles,
                 final Configuration configuration,
                 final MBeanServer mbeanServer,
                 final Map<String, AddressSettings> settings)
    {
-      HornetQServer server;
+      ActiveMQServer server;
 
       if (realFiles)
       {
-         server = HornetQServers.newHornetQServer(configuration, mbeanServer);
+         server = ActiveMQServers.newActiveMQServer(configuration, mbeanServer);
       }
       else
       {
-         server = HornetQServers.newHornetQServer(configuration, mbeanServer, false);
+         server = ActiveMQServers.newActiveMQServer(configuration, mbeanServer, false);
       }
       try
       {
@@ -579,28 +579,28 @@ public abstract class ServiceTestBase extends UnitTestCase
       }
    }
 
-   protected final HornetQServer createServer(final boolean realFiles) throws Exception
+   protected final ActiveMQServer createServer(final boolean realFiles) throws Exception
    {
       return createServer(realFiles, false);
    }
 
-   protected final HornetQServer createServer(final boolean realFiles, final boolean netty) throws Exception
+   protected final ActiveMQServer createServer(final boolean realFiles, final boolean netty) throws Exception
    {
       return createServer(realFiles, createDefaultConfig(netty), -1, -1, new HashMap<String, AddressSettings>());
    }
 
-   protected HornetQServer createServer(final boolean realFiles, final Configuration configuration)
+   protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration)
    {
       return createServer(realFiles, configuration, -1, -1, new HashMap<String, AddressSettings>());
    }
 
-   protected final HornetQServer createServer(final Configuration configuration)
+   protected final ActiveMQServer createServer(final Configuration configuration)
    {
       return createServer(configuration.isPersistenceEnabled(), configuration, -1, -1,
                           new HashMap<String, AddressSettings>());
    }
 
-   protected HornetQServer createInVMFailoverServer(final boolean realFiles,
+   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
                                                     final Configuration configuration,
                                                     final NodeManager nodeManager,
                                                     final int id)
@@ -614,7 +614,7 @@ public abstract class ServiceTestBase extends UnitTestCase
                                       id);
    }
 
-   protected HornetQServer createInVMFailoverServer(final boolean realFiles,
+   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
                                                     final Configuration configuration,
                                                     final int pageSize,
                                                     final int maxAddressSize,
@@ -622,8 +622,8 @@ public abstract class ServiceTestBase extends UnitTestCase
                                                     NodeManager nodeManager,
                                                     final int id)
    {
-      HornetQServer server;
-      HornetQSecurityManager securityManager = new HornetQSecurityManagerImpl();
+      ActiveMQServer server;
+      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
       configuration.setPersistenceEnabled(realFiles);
       server = new InVMNodeManagerServer(configuration,
                                          ManagementFactory.getPlatformMBeanServer(),
@@ -653,7 +653,7 @@ public abstract class ServiceTestBase extends UnitTestCase
       }
    }
 
-   protected HornetQServer createColocatedInVMFailoverServer(final boolean realFiles,
+   protected ActiveMQServer createColocatedInVMFailoverServer(final boolean realFiles,
                                                     final Configuration configuration,
                                                     NodeManager liveNodeManager,
                                                     NodeManager backupNodeManager,
@@ -669,7 +669,7 @@ public abstract class ServiceTestBase extends UnitTestCase
             id);
    }
 
-   protected HornetQServer createColocatedInVMFailoverServer(final boolean realFiles,
+   protected ActiveMQServer createColocatedInVMFailoverServer(final boolean realFiles,
                                                     final Configuration configuration,
                                                     final int pageSize,
                                                     final int maxAddressSize,
@@ -678,10 +678,10 @@ public abstract class ServiceTestBase extends UnitTestCase
                                                     NodeManager backupNodeManager,
                                                     final int id)
    {
-      HornetQServer server;
-      HornetQSecurityManager securityManager = new HornetQSecurityManagerImpl();
+      ActiveMQServer server;
+      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
       configuration.setPersistenceEnabled(realFiles);
-      server = new ColocatedHornetQServer(configuration,
+      server = new ColocatedActiveMQServer(configuration,
             ManagementFactory.getPlatformMBeanServer(),
             securityManager,
             liveNodeManager,
@@ -710,24 +710,24 @@ public abstract class ServiceTestBase extends UnitTestCase
       }
    }
 
-   protected HornetQServer createServer(final boolean realFiles,
+   protected ActiveMQServer createServer(final boolean realFiles,
                                         final Configuration configuration,
-                                        final HornetQSecurityManager securityManager)
+                                        final ActiveMQSecurityManager securityManager)
    {
-      HornetQServer server;
+      ActiveMQServer server;
 
       if (realFiles)
       {
-         server = HornetQServers.newHornetQServer(configuration,
-                                                  ManagementFactory.getPlatformMBeanServer(),
-                                                  securityManager);
+         server = ActiveMQServers.newActiveMQServer(configuration,
+                                                    ManagementFactory.getPlatformMBeanServer(),
+                                                    securityManager);
       }
       else
       {
-         server = HornetQServers.newHornetQServer(configuration,
-                                                  ManagementFactory.getPlatformMBeanServer(),
-                                                  securityManager,
-                                                  false);
+         server = ActiveMQServers.newActiveMQServer(configuration,
+                                                    ManagementFactory.getPlatformMBeanServer(),
+                                                    securityManager,
+                                                    false);
       }
       try
       {
@@ -750,7 +750,7 @@ public abstract class ServiceTestBase extends UnitTestCase
       }
    }
 
-   protected HornetQServer createClusteredServerWithParams(final boolean isNetty,
+   protected ActiveMQServer createClusteredServerWithParams(final boolean isNetty,
                                                            final int index,
                                                            final boolean realFiles,
                                                            final Map<String, Object> params) throws Exception
@@ -760,7 +760,7 @@ public abstract class ServiceTestBase extends UnitTestCase
                           new HashMap<String, AddressSettings>());
    }
 
-   protected HornetQServer createClusteredServerWithParams(final boolean isNetty,
+   protected ActiveMQServer createClusteredServerWithParams(final boolean isNetty,
                                                            final int index,
                                                            final boolean realFiles,
                                                            final int pageSize,
@@ -806,7 +806,7 @@ public abstract class ServiceTestBase extends UnitTestCase
    {
       TransportConfiguration tnspConfig = createInVMTransportConnectorConfig(serverID, UUIDGenerator.getInstance().generateStringUUID());
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithHA(tnspConfig);
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(tnspConfig);
       return addServerLocator(locator);
    }
 
@@ -929,8 +929,8 @@ public abstract class ServiceTestBase extends UnitTestCase
                                            0,
                                            0,
                                            messagesFF,
-                                           "hornetq-data",
-                                           "hq",
+                                           "activemq-data",
+                                           "amq",
                                            1);
          final List<RecordInfo> committedRecords = new LinkedList<RecordInfo>();
          final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
@@ -975,8 +975,8 @@ public abstract class ServiceTestBase extends UnitTestCase
                                                     0,
                                                     0,
                                                     messagesFF,
-                                                    "hornetq-data",
-                                                    "hq",
+                                                    "activemq-data",
+                                                    "amq",
                                                     1);
       List<JournalFile> filesToRead = messagesJournal.orderFiles();
 
@@ -1004,8 +1004,8 @@ public abstract class ServiceTestBase extends UnitTestCase
                                                     0,
                                                     0,
                                                     messagesFF,
-                                                    "hornetq-data",
-                                                    "hq",
+                                                    "activemq-data",
+                                                    "amq",
                                                     1);
       messagesJournal.start();
 
@@ -1117,7 +1117,7 @@ public abstract class ServiceTestBase extends UnitTestCase
     * @throws Exception
     * @throws InterruptedException
     */
-   protected boolean waitForBindings(final HornetQServer server,
+   protected boolean waitForBindings(final ActiveMQServer server,
                                      final String address,
                                      final boolean local,
                                      final int expectedBindingCount,
@@ -1212,7 +1212,7 @@ public abstract class ServiceTestBase extends UnitTestCase
       validateNoFilesOnLargeDir(0);
    }
 
-   public void printBindings(HornetQServer server, String address) throws Exception
+   public void printBindings(ActiveMQServer server, String address) throws Exception
    {
       PostOffice po = server.getPostOffice();
       Bindings bindings = po.getBindingsForAddress(new SimpleString(address));

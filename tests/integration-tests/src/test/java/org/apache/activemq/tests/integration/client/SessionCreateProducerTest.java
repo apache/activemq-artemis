@@ -18,7 +18,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class SessionCreateProducerTest extends ServiceTestBase
    {
       super.setUp();
       locator = createInVMNonHALocator();
-      HornetQServer service = createServer(false);
+      ActiveMQServer service = createServer(false);
       service.start();
       locator.setProducerMaxRate(99);
       locator.setBlockOnNonDurableSend(true);

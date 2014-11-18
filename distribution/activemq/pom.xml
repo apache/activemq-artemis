@@ -75,11 +75,6 @@
      </dependency>
      <dependency>
         <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-service-sar</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-spring-integration</artifactId>
         <version>${project.version}</version>
      </dependency>

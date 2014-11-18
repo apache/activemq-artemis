@@ -73,15 +73,15 @@ public class ConnectionClosedTest extends JMSTestCase
       TopicSession sess1 = conn1.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
       TopicSession sess2 = conn2.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TopicSubscriber sub1 = sess1.createSubscriber(HornetQServerTestCase.topic1);
-      TopicSubscriber sub2 = sess2.createSubscriber(HornetQServerTestCase.topic1);
+      TopicSubscriber sub1 = sess1.createSubscriber(ActiveMQServerTestCase.topic1);
+      TopicSubscriber sub2 = sess2.createSubscriber(ActiveMQServerTestCase.topic1);
 
       conn1.start();
 
       Connection conn3 = createConnection();
 
       Session sess3 = conn3.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer prod = sess3.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer prod = sess3.createProducer(ActiveMQServerTestCase.topic1);
       prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
       final int NUM_MESSAGES = 10;
@@ -136,7 +136,7 @@ public class ConnectionClosedTest extends JMSTestCase
 
       conn.start();
 
-      final MessageConsumer consumer = session.createConsumer(HornetQServerTestCase.topic1);
+      final MessageConsumer consumer = session.createConsumer(ActiveMQServerTestCase.topic1);
 
       class TestRunnable implements Runnable
       {
@@ -229,8 +229,8 @@ public class ConnectionClosedTest extends JMSTestCase
    {
       Connection conn = createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageConsumer consumer = sess.createConsumer(HornetQServerTestCase.topic1);
-      MessageProducer producer = sess.createProducer(HornetQServerTestCase.topic1);
+      MessageConsumer consumer = sess.createConsumer(ActiveMQServerTestCase.topic1);
+      MessageProducer producer = sess.createProducer(ActiveMQServerTestCase.topic1);
       sess.createBrowser(queue1);
       Message m = sess.createMessage();
 

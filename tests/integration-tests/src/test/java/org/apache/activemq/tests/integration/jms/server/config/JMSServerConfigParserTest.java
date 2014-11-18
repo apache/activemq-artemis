@@ -57,7 +57,7 @@ public class JMSServerConfigParserTest extends ServiceTestBase
 
       JMSServerConfigParser parser = new JMSServerConfigParserImpl();
 
-      String conf = "hornetq-jms-for-JMSServerDeployerTest.xml";
+      String conf = "activemq-jms-for-JMSServerDeployerTest.xml";
       URL confURL = Thread.currentThread().getContextClassLoader().getResource(conf);
 
       InputStream stream = confURL.openStream();

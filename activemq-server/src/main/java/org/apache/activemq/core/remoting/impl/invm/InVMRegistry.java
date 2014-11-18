@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.remoting.impl.invm;
 
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -33,7 +33,7 @@ public final class InVMRegistry
    {
       if (acceptors.putIfAbsent(id, acceptor) != null)
       {
-         throw HornetQMessageBundle.BUNDLE.acceptorExists(id);
+         throw ActiveMQMessageBundle.BUNDLE.acceptorExists(id);
       }
    }
 
@@ -41,7 +41,7 @@ public final class InVMRegistry
    {
       if (acceptors.remove(id) == null)
       {
-         throw HornetQMessageBundle.BUNDLE.acceptorNotExists(id);
+         throw ActiveMQMessageBundle.BUNDLE.acceptorNotExists(id);
       }
    }
 

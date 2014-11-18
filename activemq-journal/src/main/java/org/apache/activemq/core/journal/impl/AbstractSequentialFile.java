@@ -29,8 +29,8 @@ import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.journal.HornetQJournalBundle;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalBundle;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A AbstractSequentialFile
@@ -100,7 +100,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
 
       if (file.exists() && !file.delete())
       {
-         HornetQJournalLogger.LOGGER.errorDeletingFile(this);
+         ActiveMQJournalLogger.LOGGER.errorDeletingFile(this);
       }
    }
 
@@ -108,7 +108,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
    {
       try
       {
-         HornetQJournalLogger.LOGGER.debug("Copying " + this + " as " + newFileName);
+         ActiveMQJournalLogger.LOGGER.debug("Copying " + this + " as " + newFileName);
          if (!newFileName.isOpen())
          {
             newFileName.open();
@@ -175,7 +175,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
       {
          if (!file.renameTo(newFile))
          {
-            throw HornetQJournalBundle.BUNDLE.ioRenameFileError(file.getName(), newFileName);
+            throw ActiveMQJournalBundle.BUNDLE.ioRenameFileError(file.getName(), newFileName);
          }
          file = newFile;
       }
@@ -201,7 +201,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
 
          while (!donelatch.await(60, TimeUnit.SECONDS))
          {
-            HornetQJournalLogger.LOGGER.couldNotCompleteTask(new Exception("trace"), file.getName());
+            ActiveMQJournalLogger.LOGGER.couldNotCompleteTask(new Exception("trace"), file.getName());
          }
       }
    }
@@ -328,7 +328,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
             }
             catch (Throwable e)
             {
-               HornetQJournalLogger.LOGGER.errorCompletingCallback(e);
+               ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
             }
          }
       }
@@ -343,7 +343,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
             }
             catch (Throwable e)
             {
-               HornetQJournalLogger.LOGGER.errorCallingErrorCallback(e);
+               ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
             }
          }
       }

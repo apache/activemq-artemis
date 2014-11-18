@@ -22,9 +22,9 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This examples demonstrates a connection created to a server. Failure of the network connection is then simulated
@@ -33,7 +33,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
-public class ReattachExample extends HornetQExample
+public class ReattachExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -141,7 +141,7 @@ public class ReattachExample extends HornetQExample
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");
+         Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
 
          MessageProducer producer = session.createProducer(managementQueue);
 

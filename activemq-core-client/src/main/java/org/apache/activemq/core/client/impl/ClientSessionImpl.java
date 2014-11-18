@@ -36,8 +36,8 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.FailoverEventListener;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
@@ -492,19 +492,19 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       if (outcomeKnown)
       {
-         throw HornetQClientMessageBundle.BUNDLE.txRolledBack();
+         throw ActiveMQClientMessageBundle.BUNDLE.txRolledBack();
       }
 
-      throw HornetQClientMessageBundle.BUNDLE.txOutcomeUnknown();
+      throw ActiveMQClientMessageBundle.BUNDLE.txOutcomeUnknown();
    }
 
    public void commit() throws ActiveMQException
    {
       checkClosed();
 
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("Sending commit");
+         ActiveMQClientLogger.LOGGER.trace("Sending commit");
       }
 
       /*
@@ -565,9 +565,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException
    {
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
+         ActiveMQClientLogger.LOGGER.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
       }
       checkClosed();
 
@@ -651,7 +651,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       if (rollbackOnly)
       {
-         HornetQClientLogger.LOGGER.resettingSessionAfterFailure();
+         ActiveMQClientLogger.LOGGER.resettingSessionAfterFailure();
          rollback(false);
       }
    }
@@ -771,9 +771,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
 
       checkClosed();
-      if (HornetQClientLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
       {
-         HornetQClientLogger.LOGGER.debug("client ack messageID = " + message.getMessageID());
+         ActiveMQClientLogger.LOGGER.debug("client ack messageID = " + message.getMessageID());
       }
 
       startCall();
@@ -900,7 +900,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                }
                catch (ActiveMQException e)
                {
-                  HornetQClientLogger.LOGGER.unableToCloseConsumer(e);
+                  ActiveMQClientLogger.LOGGER.unableToCloseConsumer(e);
                }
             }
          });
@@ -911,13 +911,13 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       if (closed)
       {
-         HornetQClientLogger.LOGGER.debug("Session was already closed, giving up now, this=" + this);
+         ActiveMQClientLogger.LOGGER.debug("Session was already closed, giving up now, this=" + this);
          return;
       }
 
-      if (HornetQClientLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
       {
-         HornetQClientLogger.LOGGER.debug("Calling close on session " + this);
+         ActiveMQClientLogger.LOGGER.debug("Calling close on session " + this);
       }
 
       try
@@ -936,7 +936,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          // Session close should always return without exception
 
          // Note - we only log at trace
-         HornetQClientLogger.LOGGER.trace("Failed to close session", e);
+         ActiveMQClientLogger.LOGGER.trace("Failed to close session", e);
       }
 
       doCleanup(false);
@@ -993,9 +993,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             if (!reattached)
             {
 
-               if (HornetQClientLogger.LOGGER.isDebugEnabled())
+               if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
                {
-                  HornetQClientLogger.LOGGER.debug("ClientSession couldn't be reattached, creating a new session");
+                  ActiveMQClientLogger.LOGGER.debug("ClientSession couldn't be reattached, creating a new session");
                }
 
                for (ClientConsumerInternal consumer : cloneConsumers())
@@ -1061,7 +1061,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          }
          catch (Throwable t)
          {
-            HornetQClientLogger.LOGGER.failedToHandleFailover(t);
+            ActiveMQClientLogger.LOGGER.failedToHandleFailover(t);
          }
          finally
          {
@@ -1179,7 +1179,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       if (concurrentCall.incrementAndGet() > 1)
       {
-         HornetQClientLogger.LOGGER.invalidConcurrentSessionUsage(new Exception("trace"));
+         ActiveMQClientLogger.LOGGER.invalidConcurrentSessionUsage(new Exception("trace"));
       }
    }
 
@@ -1197,16 +1197,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    public void commit(final Xid xid, final boolean onePhase) throws XAException
    {
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("call commit(xid=" + convert(xid));
+         ActiveMQClientLogger.LOGGER.trace("call commit(xid=" + convert(xid));
       }
       checkXA();
 
       // we should never throw rollback if we have already prepared
       if (rollbackOnly)
       {
-         HornetQClientLogger.LOGGER.commitAfterFailover();
+         ActiveMQClientLogger.LOGGER.commitAfterFailover();
       }
 
       // Note - don't need to flush acks since the previous end would have
@@ -1224,7 +1224,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
       catch (Throwable t)
       {
-         HornetQClientLogger.LOGGER.failoverDuringCommit();
+         ActiveMQClientLogger.LOGGER.failoverDuringCommit();
 
          // Any error on commit -> RETRY
          // We can't rollback a Prepared TX for definition
@@ -1240,9 +1240,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    public void end(final Xid xid, final int flags) throws XAException
    {
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("Calling end:: " + convert(xid) + ", flags=" + convertTXFlag(flags));
+         ActiveMQClientLogger.LOGGER.trace("Calling end:: " + convert(xid) + ", flags=" + convertTXFlag(flags));
       }
 
       checkXA();
@@ -1257,7 +1257,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             }
             catch (Throwable ignored)
             {
-               HornetQClientLogger.LOGGER.debug("Error on rollback during end call!", ignored);
+               ActiveMQClientLogger.LOGGER.debug("Error on rollback during end call!", ignored);
             }
             throw new XAException(XAException.XA_RBOTHER);
          }
@@ -1282,7 +1282,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          }
          catch (Throwable t)
          {
-            HornetQClientLogger.LOGGER.errorCallingEnd(t);
+            ActiveMQClientLogger.LOGGER.errorCallingEnd(t);
             // This could occur if the TM interrupts the thread
             XAException xaException = new XAException(XAException.XAER_RMERR);
             xaException.initCause(t);
@@ -1392,9 +1392,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       {
          return (ClientSessionInternal) xares;
       }
-      else if (xares instanceof HornetQXAResource)
+      else if (xares instanceof ActiveMQXAResource)
       {
-         return getSessionInternalFromXAResource(((HornetQXAResource)xares).getResource());
+         return getSessionInternalFromXAResource(((ActiveMQXAResource)xares).getResource());
       }
       return null;
    }
@@ -1402,9 +1402,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public int prepare(final Xid xid) throws XAException
    {
       checkXA();
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("Calling prepare:: " + convert(xid));
+         ActiveMQClientLogger.LOGGER.trace("Calling prepare:: " + convert(xid));
       }
 
 
@@ -1439,7 +1439,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             {
                // ignore and rollback
             }
-            HornetQClientLogger.LOGGER.failoverDuringPrepareRollingBack();
+            ActiveMQClientLogger.LOGGER.failoverDuringPrepareRollingBack();
             try
             {
                rollback(false);
@@ -1452,12 +1452,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                throw xaException;
             }
 
-            HornetQClientLogger.LOGGER.errorDuringPrepare(e);
+            ActiveMQClientLogger.LOGGER.errorDuringPrepare(e);
 
             throw new XAException(XAException.XA_RBOTHER);
          }
 
-         HornetQClientLogger.LOGGER.errorDuringPrepare(e);
+         ActiveMQClientLogger.LOGGER.errorDuringPrepare(e);
 
          // This should never occur
          XAException xaException = new XAException(XAException.XAER_RMERR);
@@ -1466,7 +1466,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
       catch (Throwable t)
       {
-         HornetQClientLogger.LOGGER.errorDuringPrepare(t);
+         ActiveMQClientLogger.LOGGER.errorDuringPrepare(t);
 
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMERR);
@@ -1505,9 +1505,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       checkXA();
 
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("Calling rollback:: " + convert(xid));
+         ActiveMQClientLogger.LOGGER.trace("Calling rollback:: " + convert(xid));
       }
 
       try
@@ -1569,9 +1569,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    public void start(final Xid xid, final int flags) throws XAException
    {
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("Calling start:: " + convert(xid) + " clientXID=" + xid + " flags = " + convertTXFlag(flags));
+         ActiveMQClientLogger.LOGGER.trace("Calling start:: " + convert(xid) + " clientXID=" + xid + " flags = " + convertTXFlag(flags));
       }
 
       checkXA();
@@ -1632,7 +1632,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
       catch (Exception e)
       {
-         HornetQClientLogger.LOGGER.failedToCleanupSession(e);
+         ActiveMQClientLogger.LOGGER.failedToCleanupSession(e);
       }
    }
 
@@ -1742,7 +1742,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       if (durable && temp)
       {
-         throw HornetQClientMessageBundle.BUNDLE.queueMisConfigured();
+         throw ActiveMQClientMessageBundle.BUNDLE.queueMisConfigured();
       }
 
       startCall();
@@ -1760,7 +1760,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       if (!xa)
       {
-         HornetQClientLogger.LOGGER.sessionNotXA();
+         ActiveMQClientLogger.LOGGER.sessionNotXA();
          throw new XAException(XAException.XAER_RMERR);
       }
    }
@@ -1769,7 +1769,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    {
       if (closed || inClose)
       {
-         throw HornetQClientMessageBundle.BUNDLE.sessionClosed();
+         throw ActiveMQClientMessageBundle.BUNDLE.sessionClosed();
       }
    }
 
@@ -1784,9 +1784,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private void doCleanup(boolean failingOver)
    {
-      if (HornetQClientLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
       {
-         HornetQClientLogger.LOGGER.debug("calling cleanup on " + this);
+         ActiveMQClientLogger.LOGGER.debug("calling cleanup on " + this);
       }
 
       synchronized (this)
@@ -1936,7 +1936,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       {
          if (!confirmationWindowWarning.warningIssued.get())
          {
-            HornetQClientLogger.LOGGER.confirmationWindowDisabledWarning();
+            ActiveMQClientLogger.LOGGER.confirmationWindowDisabledWarning();
             confirmationWindowWarning.warningIssued.set(true);
          }
          return false;

@@ -16,16 +16,16 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
 
 /**
  * A TestServer
  * @author jmesnil
  */
-public interface TestableServer extends HornetQComponent
+public interface TestableServer extends ActiveMQComponent
 {
-   HornetQServer getServer();
+   ActiveMQServer getServer();
 
    void stop() throws Exception;
 

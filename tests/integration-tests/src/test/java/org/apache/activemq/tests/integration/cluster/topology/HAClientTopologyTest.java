@@ -13,7 +13,7 @@
 package org.apache.activemq.tests.integration.cluster.topology;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 
 /**
@@ -56,7 +56,7 @@ public class HAClientTopologyTest extends TopologyClusterTestBase
    protected ServerLocator createHAServerLocator()
    {
       TransportConfiguration tc = createTransportConfiguration(isNetty(), false, generateParams(0, isNetty()));
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
       locator.setBlockOnNonDurableSend(true);
       locator.setBlockOnDurableSend(true);
       return locator;

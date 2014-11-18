@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,7 +33,7 @@ public class SessionCreateConsumerTest extends ServiceTestBase
    private final String queueName = "ClientSessionCreateConsumerTestQ";
 
    private ServerLocator locator;
-   private HornetQServer service;
+   private ActiveMQServer service;
    private ClientSessionInternal clientSession;
    private ClientSessionFactory cf;
 

@@ -27,10 +27,10 @@ import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.filter.impl.FilterImpl;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ConnectorService;
 import org.apache.activemq.core.server.Consumer;
 import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.HornetQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
@@ -142,21 +142,21 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       if (endpoint == null || endpoint.isEmpty())
       {
-         throw HornetQAeroGearBundle.BUNDLE.endpointNull();
+         throw ActiveMQAeroGearBundle.BUNDLE.endpointNull();
       }
       if (applicationId == null || applicationId.isEmpty())
       {
-         throw HornetQAeroGearBundle.BUNDLE.applicationIdNull();
+         throw ActiveMQAeroGearBundle.BUNDLE.applicationIdNull();
       }
       if (applicationMasterSecret == null || applicationMasterSecret.isEmpty())
       {
-         throw HornetQAeroGearBundle.BUNDLE.masterSecretNull();
+         throw ActiveMQAeroGearBundle.BUNDLE.masterSecretNull();
       }
 
       Binding b = postOffice.getBinding(new SimpleString(queueName));
       if (b == null)
       {
-         throw HornetQAeroGearBundle.BUNDLE.noQueue(connectorName, queueName);
+         throw ActiveMQAeroGearBundle.BUNDLE.noQueue(connectorName, queueName);
       }
 
       queue = (Queue) b.getBindable();
@@ -193,9 +193,9 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       if (filter != null && !filter.match(message))
       {
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace("Reference " + reference + " is a noMatch on consumer " + this);
+            ActiveMQServerLogger.LOGGER.trace("Reference " + reference + " is a noMatch on consumer " + this);
          }
          return HandleStatus.NO_MATCH;
       }
@@ -317,15 +317,15 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
          handled = false;
          if (statusCode == 401)
          {
-            HornetQAeroGearLogger.LOGGER.reply401();
+            ActiveMQAeroGearLogger.LOGGER.reply401();
          }
          else if (statusCode == 404)
          {
-            HornetQAeroGearLogger.LOGGER.reply404();
+            ActiveMQAeroGearLogger.LOGGER.reply404();
          }
          else
          {
-            HornetQAeroGearLogger.LOGGER.replyUnknown(statusCode);
+            ActiveMQAeroGearLogger.LOGGER.replyUnknown(statusCode);
          }
 
          queue.removeConsumer(this);
@@ -340,7 +340,7 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
    @Override
    public void onError(Throwable throwable)
    {
-      HornetQAeroGearLogger.LOGGER.sendFailed(retryInterval);
+      ActiveMQAeroGearLogger.LOGGER.sendFailed(retryInterval);
       handled = false;
       reconnecting = true;
       scheduledThreadPool.schedule(new ReconnectRunnable(0), retryInterval, TimeUnit.SECONDS);
@@ -364,7 +364,7 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
             HttpURLConnection conn = (HttpURLConnection) new URL(endpoint).openConnection();
             conn.connect();
             reconnecting = false;
-            HornetQAeroGearLogger.LOGGER.connected(endpoint);
+            ActiveMQAeroGearLogger.LOGGER.connected(endpoint);
             queue.deliverAsync();
          }
          catch (Exception e)
@@ -376,7 +376,7 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
             }
             else
             {
-               HornetQAeroGearLogger.LOGGER.unableToReconnect(retryAttempt);
+               ActiveMQAeroGearLogger.LOGGER.unableToReconnect(retryAttempt);
                started = false;
             }
          }

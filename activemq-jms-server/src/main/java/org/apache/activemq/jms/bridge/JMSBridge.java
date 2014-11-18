@@ -14,13 +14,13 @@ package org.apache.activemq.jms.bridge;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 
 /**
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public interface JMSBridge extends HornetQComponent
+public interface JMSBridge extends ActiveMQComponent
 {
    void pause() throws Exception;
 

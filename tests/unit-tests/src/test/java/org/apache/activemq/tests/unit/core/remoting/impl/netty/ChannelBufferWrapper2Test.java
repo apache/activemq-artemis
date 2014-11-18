@@ -14,7 +14,7 @@ package org.apache.activemq.tests.unit.core.remoting.impl.netty;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.tests.unit.core.remoting.HornetQBufferTestBase;
+import org.apache.activemq.tests.unit.core.remoting.ActiveMQBufferTestBase;
 
 /**
  * Same as ChannelBufferWrapperTest, but using a different constructor
@@ -23,7 +23,7 @@ import org.apache.activemq.tests.unit.core.remoting.HornetQBufferTestBase;
  *
  *
  */
-public class ChannelBufferWrapper2Test extends HornetQBufferTestBase
+public class ChannelBufferWrapper2Test extends ActiveMQBufferTestBase
 {
 
    // Constants -----------------------------------------------------

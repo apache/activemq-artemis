@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -61,7 +61,7 @@ public class AckBatchSizeTest extends ServiceTestBase
    @Test
    public void testAckBatchSize() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       int numMessages = 100;
@@ -102,7 +102,7 @@ public class AckBatchSizeTest extends ServiceTestBase
    @Test
    public void testAckBatchSizeZero() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       ServerLocator locator = createInVMNonHALocator();

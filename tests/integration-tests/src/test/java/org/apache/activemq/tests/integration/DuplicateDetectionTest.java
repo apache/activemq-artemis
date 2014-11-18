@@ -26,12 +26,12 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -51,7 +51,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private HornetQServer messagingService;
+   private ActiveMQServer messagingService;
 
    private final SimpleString propKey = new SimpleString("propkey");
 
@@ -60,7 +60,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testSimpleDuplicateDetecion() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -168,7 +168,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    {
       final int TEST_SIZE = 100;
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       locator.setBlockOnNonDurableSend(true);
 
@@ -245,7 +245,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testSimpleDuplicateDetectionWithString() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -316,7 +316,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testCacheSize() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -476,7 +476,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testTransactedDuplicateDetection1() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -529,7 +529,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testTransactedDuplicateDetection2() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -576,7 +576,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testTransactedDuplicateDetection3() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -642,7 +642,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testRollbackThenSend() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -691,7 +691,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testEntireTransactionRejected() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -787,7 +787,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testXADuplicateDetection1() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -867,7 +867,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testXADuplicateDetection2() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -949,7 +949,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testXADuplicateDetection3() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1030,7 +1030,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testXADuplicateDetectionPrepareAndRollback() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1103,7 +1103,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testXADuplicateDetectionPrepareAndRollbackStopServer() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1190,7 +1190,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testXADuplicateDetection4() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1294,11 +1294,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       Configuration conf = createDefaultConfig()
          .setIDCacheSize(cacheSize);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1381,11 +1381,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       Configuration conf = createDefaultConfig()
          .setIDCacheSize(theCacheSize);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1463,11 +1463,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       Configuration conf = createDefaultConfig()
          .setIDCacheSize(initialCacheSize);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1556,11 +1556,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       Configuration conf = createDefaultConfig()
          .setIDCacheSize(initialCacheSize);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1657,11 +1657,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
          .setIDCacheSize(cacheSize)
          .setPersistIDCache(false);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1743,11 +1743,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
          .setIDCacheSize(cacheSize)
          .setPersistIDCache(false);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1832,11 +1832,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       Configuration conf = createDefaultConfig()
          .setIDCacheSize(cacheSize);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1952,11 +1952,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
          .setIDCacheSize(cacheSize)
          .setPersistIDCache(false);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -2055,11 +2055,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       Configuration conf = createDefaultConfig()
          .setIDCacheSize(cacheSize);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -2156,11 +2156,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       Configuration conf = createDefaultConfig()
          .setIDCacheSize(cacheSize);
 
-      HornetQServer messagingService2 = createServer(conf);
+      ActiveMQServer messagingService2 = createServer(conf);
 
       messagingService2.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 

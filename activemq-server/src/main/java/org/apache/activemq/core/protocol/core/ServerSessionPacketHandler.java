@@ -54,13 +54,13 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.core.exception.HornetQXAException;
+import org.apache.activemq.core.exception.ActiveMQXAException;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.RollbackMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAcknowledgeMessage;
@@ -99,9 +99,9 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAStartMess
 import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnection;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.BindingQueryResult;
-import org.apache.activemq.core.server.HornetQServerLogger;
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.QueueQueryResult;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.ServerSession;
@@ -164,7 +164,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
 
    public void connectionFailed(final ActiveMQException exception, boolean failedOver)
    {
-      HornetQServerLogger.LOGGER.clientConnectionFailed(session.getName());
+      ActiveMQServerLogger.LOGGER.clientConnectionFailed(session.getName());
 
       try
       {
@@ -172,10 +172,10 @@ public class ServerSessionPacketHandler implements ChannelHandler
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.errorClosingSession(e);
+         ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
 
-      HornetQServerLogger.LOGGER.clearingUpSession(session.getName());
+      ActiveMQServerLogger.LOGGER.clearingUpSession(session.getName());
    }
 
    public void close()
@@ -188,7 +188,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.errorClosingSession(e);
+         ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
    }
 
@@ -529,40 +529,40 @@ public class ServerSessionPacketHandler implements ChannelHandler
                   }
                   else
                   {
-                     response = new HornetQExceptionMessage(HornetQMessageBundle.BUNDLE.duplicateMetadata(message.getKey(), message.getData()));
+                     response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.duplicateMetadata(message.getKey(), message.getData()));
                   }
                   break;
                }
             }
          }
-         catch (HornetQXAException e)
+         catch (ActiveMQXAException e)
          {
             if (requiresResponse)
             {
-               HornetQServerLogger.LOGGER.debug("Sending exception to client", e);
+               ActiveMQServerLogger.LOGGER.debug("Sending exception to client", e);
                response = new SessionXAResponseMessage(true, e.errorCode, e.getMessage());
             }
             else
             {
-               HornetQServerLogger.LOGGER.caughtXaException(e);
+               ActiveMQServerLogger.LOGGER.caughtXaException(e);
             }
          }
          catch (ActiveMQException e)
          {
             if (requiresResponse)
             {
-               HornetQServerLogger.LOGGER.debug("Sending exception to client", e);
-               response = new HornetQExceptionMessage(e);
+               ActiveMQServerLogger.LOGGER.debug("Sending exception to client", e);
+               response = new ActiveMQExceptionMessage(e);
             }
             else
             {
                if (e.getType() == ActiveMQExceptionType.QUEUE_EXISTS)
                {
-                  HornetQServerLogger.LOGGER.debug("Caught exception", e);
+                  ActiveMQServerLogger.LOGGER.debug("Caught exception", e);
                }
                else
                {
-                  HornetQServerLogger.LOGGER.caughtException(e);
+                  ActiveMQServerLogger.LOGGER.caughtException(e);
                }
             }
          }
@@ -570,14 +570,14 @@ public class ServerSessionPacketHandler implements ChannelHandler
          {
             if (requiresResponse)
             {
-               HornetQServerLogger.LOGGER.warn("Sending unexpected exception to the client", t);
-               ActiveMQException hqe = new ActiveMQInternalErrorException();
-               hqe.initCause(t);
-               response = new HornetQExceptionMessage(hqe);
+               ActiveMQServerLogger.LOGGER.warn("Sending unexpected exception to the client", t);
+               ActiveMQException activeMQInternalErrorException = new ActiveMQInternalErrorException();
+               activeMQInternalErrorException.initCause(t);
+               response = new ActiveMQExceptionMessage(activeMQInternalErrorException);
             }
             else
             {
-               HornetQServerLogger.LOGGER.caughtException(t);
+               ActiveMQServerLogger.LOGGER.caughtException(t);
             }
          }
 
@@ -598,9 +598,9 @@ public class ServerSessionPacketHandler implements ChannelHandler
       {
          public void onError(final int errorCode, final String errorMessage)
          {
-            HornetQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
+            ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
-            HornetQExceptionMessage exceptionMessage = new HornetQExceptionMessage( ActiveMQExceptionType.createException(errorCode, errorMessage));
+            ActiveMQExceptionMessage exceptionMessage = new ActiveMQExceptionMessage( ActiveMQExceptionType.createException(errorCode, errorMessage));
 
             doConfirmAndResponse(confirmPacket, exceptionMessage, flush, closeChannel);
          }

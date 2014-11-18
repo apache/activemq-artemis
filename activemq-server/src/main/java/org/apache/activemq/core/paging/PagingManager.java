@@ -15,7 +15,7 @@ package org.apache.activemq.core.paging;
 import java.util.Map;
 
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
 
 /**
@@ -36,7 +36,7 @@ import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
  */
-public interface PagingManager extends HornetQComponent, HierarchicalRepositoryChangeListener
+public interface PagingManager extends ActiveMQComponent, HierarchicalRepositoryChangeListener
 {
    /** Returns the PageStore associated with the address. A new page store is created if necessary. */
    PagingStore getPageStore(SimpleString address) throws Exception;

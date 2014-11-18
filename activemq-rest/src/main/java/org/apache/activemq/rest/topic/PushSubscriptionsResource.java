@@ -16,7 +16,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.PushConsumer;
 
 import javax.ws.rs.DELETE;
@@ -141,7 +141,7 @@ public class PushSubscriptionsResource
    @POST
    public Response create(@Context UriInfo uriInfo, PushTopicRegistration registration)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       //System.out.println("PushRegistration: " + registration);
       // todo put some logic here to check for duplicates
@@ -186,7 +186,7 @@ public class PushSubscriptionsResource
    @Produces("application/xml")
    public PushTopicRegistration getConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
    {
-      HornetQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.get(consumerId);
       if (consumer == null)
@@ -200,7 +200,7 @@ public class PushSubscriptionsResource
    @Path("{consumer-id}")
    public void deleteConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
    {
-      HornetQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.remove(consumerId);
       if (consumer == null)

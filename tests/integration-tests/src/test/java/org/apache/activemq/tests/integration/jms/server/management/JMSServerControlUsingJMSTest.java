@@ -21,15 +21,15 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQQueue;
-import org.apache.activemq.jms.client.HornetQQueueConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQQueue;
+import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
 
 /**
  * A JMSServerControlUsingCoreTest
@@ -88,7 +88,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
                                       true, // blockOnNonDurableSend
                                       true, // autoGroup
                                       true, // preACK
-                                      HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, // loadBalancingClassName
+                                      ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, // loadBalancingClassName
                                       1, // transactionBatchSize
                                       1, // dupsOKBatchSize
                                       true, // useGlobalPools
@@ -102,7 +102,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
                                       "tst"); // groupID
 
 
-      HornetQQueueConnectionFactory cf = (HornetQQueueConnectionFactory)context.lookup("tst");
+      ActiveMQQueueConnectionFactory cf = (ActiveMQQueueConnectionFactory)context.lookup("tst");
 
       assertEquals(true, cf.isHA());
       assertEquals("tst", cf.getClientID());
@@ -121,7 +121,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
       assertEquals(true, cf.isBlockOnNonDurableSend());
       assertEquals(true, cf.isAutoGroup());
       assertEquals(true, cf.isPreAcknowledge());
-      assertEquals(HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
       assertEquals(1, cf.getTransactionBatchSize());
       assertEquals(1, cf.getDupsOKBatchSize());
       assertEquals(true, cf.isUseGlobalPools());
@@ -150,8 +150,8 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
    {
       super.setUp();
 
-      HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                        new TransportConfiguration(InVMConnectorFactory.class.getName()));
       connection = cf.createQueueConnection();
       session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
       connection.start();
@@ -173,7 +173,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
    @Override
    protected JMSServerControl createManagementControl() throws Exception
    {
-      HornetQQueue managementQueue = (HornetQQueue)HornetQJMSClient.createQueue("hornetq.management");
+      ActiveMQQueue managementQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue("activemq.management");
       final JMSMessagingProxy proxy = new JMSMessagingProxy(session, managementQueue, ResourceNames.JMS_SERVER);
 
       return new JMSServerControl()

@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.management.BridgeControl;
 import org.apache.activemq.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.api.core.management.DivertControl;
-import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
@@ -84,10 +84,10 @@ public class ManagementControlHelper
                                                                            mbeanServer);
    }
 
-   public static HornetQServerControl createHornetQServerControl(final MBeanServer mbeanServer) throws Exception
+   public static ActiveMQServerControl createActiveMQServerControl(final MBeanServer mbeanServer) throws Exception
    {
-      return (HornetQServerControl)ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getHornetQServerObjectName(),
-                                                                       HornetQServerControl.class,
+      return (ActiveMQServerControl)ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName(),
+                                                                       ActiveMQServerControl.class,
                                                                        mbeanServer);
    }
 

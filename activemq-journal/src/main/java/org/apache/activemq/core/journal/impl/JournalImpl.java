@@ -62,8 +62,8 @@ import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecord;
 import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecordTX;
 import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.core.journal.impl.dataformat.JournalRollbackRecordTX;
-import org.apache.activemq.journal.HornetQJournalBundle;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalBundle;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.DataConstants;
 
@@ -85,7 +85,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private static final int[] COMPATIBLE_VERSIONS = new int[]{1};
 
    // Static --------------------------------------------------------
-   private static final boolean trace = HornetQJournalLogger.LOGGER.isTraceEnabled();
+   private static final boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
 
    // This is useful at debug time...
    // if you set it to true, all the appends, deletes, rollbacks, commits, etc.. are sent to System.out
@@ -96,12 +96,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    // Journal
    private static void trace(final String message)
    {
-      HornetQJournalLogger.LOGGER.trace(message);
+      ActiveMQJournalLogger.LOGGER.trace(message);
    }
 
    private static void traceRecord(final String message)
    {
-      HornetQJournalLogger.LOGGER.trace(message);
+      ActiveMQJournalLogger.LOGGER.trace(message);
    }
 
    // The sizes of primitive types
@@ -288,7 +288,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    {
       final int numIts = 100000000;
 
-      HornetQJournalLogger.LOGGER.runningJournalBlast(numIts);
+      ActiveMQJournalLogger.LOGGER.runningJournalBlast(numIts);
 
       final CountDownLatch latch = new CountDownLatch(numIts * 2);
 
@@ -747,7 +747,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
       catch (Throwable e)
       {
-         HornetQJournalLogger.LOGGER.errorReadingFile(e);
+         ActiveMQJournalLogger.LOGGER.errorReadingFile(e);
          throw new Exception(e.getMessage(), e);
       }
       finally
@@ -1329,7 +1329,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             // HORNETQ-482 - Flush deletes only if memory is critical
             if (recordsToDelete.size() > DELETE_FLUSH && runtime.freeMemory() < runtime.maxMemory() * 0.2)
             {
-               HornetQJournalLogger.LOGGER.debug("Flushing deletes during loading, deleteCount = " + recordsToDelete.size());
+               ActiveMQJournalLogger.LOGGER.debug("Flushing deletes during loading, deleteCount = " + recordsToDelete.size());
                // Clean up when the list is too large, or it won't be possible to load large sets of files
                // Done as part of JBMESSAGING-1678
                Iterator<RecordInfo> iter = records.iterator();
@@ -1345,7 +1345,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
                recordsToDelete.clear();
 
-               HornetQJournalLogger.LOGGER.debug("flush delete done");
+               ActiveMQJournalLogger.LOGGER.debug("flush delete done");
             }
          }
 
@@ -1418,7 +1418,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             catch (Throwable e)
             {
                errors.incrementAndGet();
-               HornetQJournalLogger.LOGGER.errorCompacting(e);
+               ActiveMQJournalLogger.LOGGER.errorCompacting(e);
                e.printStackTrace();
             }
             finally
@@ -1467,7 +1467,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          try
          {
-            HornetQJournalLogger.LOGGER.debug("Starting compacting operation on journal");
+            ActiveMQJournalLogger.LOGGER.debug("Starting compacting operation on journal");
 
             onCompactStart();
 
@@ -1536,7 +1536,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
                catch (Throwable e)
                {
-                  HornetQJournalLogger.LOGGER.compactReadError(file);
+                  ActiveMQJournalLogger.LOGGER.compactReadError(file);
                   throw new Exception("Error on reading compacting for " + file, e);
                }
             }
@@ -1612,7 +1612,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   }
                   else
                   {
-                     HornetQJournalLogger.LOGGER.compactMergeError(newTransaction.getId());
+                     ActiveMQJournalLogger.LOGGER.compactMergeError(newTransaction.getId());
                   }
                }
             }
@@ -1625,7 +1625,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             renameFiles(dataFilesToProcess, newDatafiles);
             deleteControlFile(controlFile);
 
-            HornetQJournalLogger.LOGGER.debug("Finished compacting on journal");
+            ActiveMQJournalLogger.LOGGER.debug("Finished compacting on journal");
 
          }
          finally
@@ -1896,7 +1896,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
                else
                {
-                  HornetQJournalLogger.LOGGER.preparedTXIncomplete(transactionID);
+                  ActiveMQJournalLogger.LOGGER.preparedTXIncomplete(transactionID);
                   tx.invalid = true;
                }
             }
@@ -1946,7 +1946,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   }
                   else
                   {
-                     HornetQJournalLogger.LOGGER.txMissingElements(transactionID);
+                     ActiveMQJournalLogger.LOGGER.txMissingElements(transactionID);
 
                      journalTransaction.forget();
                   }
@@ -2018,7 +2018,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       {
          if ((!transaction.prepared || transaction.invalid) && replicationSync != JournalState.SYNCING_UP_TO_DATE)
          {
-            HornetQJournalLogger.LOGGER.uncomittedTxFound(transaction.transactionID);
+            ActiveMQJournalLogger.LOGGER.uncomittedTxFound(transaction.transactionID);
 
             if (changeData)
             {
@@ -2164,7 +2164,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
             catch (Throwable e)
             {
-               HornetQJournalLogger.LOGGER.errorCompacting(e);
+               ActiveMQJournalLogger.LOGGER.errorCompacting(e);
             }
             finally
             {
@@ -2350,7 +2350,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       new PerfBlast(pages).start();
    }
 
-   // HornetQComponent implementation
+   // ActiveMQComponent implementation
    // ---------------------------------------------------
 
    public synchronized boolean isStarted()
@@ -2412,7 +2412,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
             if (!compactorExecutor.awaitTermination(120, TimeUnit.SECONDS))
             {
-               HornetQJournalLogger.LOGGER.couldNotStopCompactor();
+               ActiveMQJournalLogger.LOGGER.couldNotStopCompactor();
             }
 
             filesExecutor.shutdown();
@@ -2421,7 +2421,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
             if (!filesExecutor.awaitTermination(60, TimeUnit.SECONDS))
             {
-               HornetQJournalLogger.LOGGER.couldNotStopJournalExecutor();
+               ActiveMQJournalLogger.LOGGER.couldNotStopJournalExecutor();
             }
 
             try
@@ -2433,7 +2433,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             }
             catch (Throwable e)
             {
-               HornetQJournalLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
             }
 
             fileFactory.deactivateBuffer();
@@ -2515,7 +2515,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   }
                   catch (Throwable e)
                   {
-                     HornetQJournalLogger.LOGGER.errorReinitializingFile(e, file);
+                     ActiveMQJournalLogger.LOGGER.errorReinitializingFile(e, file);
                   }
                }
             }
@@ -2690,7 +2690,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          if (!isCompatible)
          {
-            throw HornetQJournalBundle.BUNDLE.journalFileMisMatch();
+            throw ActiveMQJournalBundle.BUNDLE.journalFileMisMatch();
          }
       }
 
@@ -2698,7 +2698,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       if (readUserVersion != userVersion)
       {
-         throw HornetQJournalBundle.BUNDLE.journalDifferentVersion();
+         throw ActiveMQJournalBundle.BUNDLE.journalDifferentVersion();
       }
 
       long fileID = bb.getLong();
@@ -2848,7 +2848,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                }
                catch (Exception e)
                {
-                  HornetQJournalLogger.LOGGER.errorSchedulingCompacting(e);
+                  ActiveMQJournalLogger.LOGGER.errorSchedulingCompacting(e);
                }
             }
          });
@@ -2938,11 +2938,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       if (leftFiles.size() > 0)
       {
-         HornetQJournalLogger.LOGGER.tempFilesLeftOpen();
+         ActiveMQJournalLogger.LOGGER.tempFilesLeftOpen();
 
          for (String fileToDelete : leftFiles)
          {
-            HornetQJournalLogger.LOGGER.deletingOrphanedFile(fileToDelete);
+            ActiveMQJournalLogger.LOGGER.deletingOrphanedFile(fileToDelete);
             SequentialFile file = fileFactory.createSequentialFile(fileToDelete, 1);
             file.delete();
          }
@@ -3008,7 +3008,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       private PerfBlast(final int pages)
       {
-         super("hornetq-perfblast-thread");
+         super("activemq-perfblast-thread");
 
          this.pages = pages;
       }
@@ -3044,7 +3044,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
          catch (Exception e)
          {
-            HornetQJournalLogger.LOGGER.failedToPerfBlast(e);
+            ActiveMQJournalLogger.LOGGER.failedToPerfBlast(e);
          }
          finally
          {
@@ -3219,7 +3219,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       if (trace)
       {
-         HornetQJournalLogger.LOGGER.trace("Moving next file " + currentFile);
+         ActiveMQJournalLogger.LOGGER.trace("Moving next file " + currentFile);
       }
 
       fileFactory.activateBuffer(currentFile.getFile());

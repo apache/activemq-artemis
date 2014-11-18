@@ -15,7 +15,7 @@ package org.apache.activemq.spi.core.remoting;
 import io.netty.channel.ChannelFutureListener;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
@@ -27,7 +27,7 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 public interface Connection
 {
    /**
-    * Create a new HornetQBuffer of the given size.
+    * Create a new ActiveMQBuffer of the given size.
     *
     * @param size the size of buffer to create
     * @return the new buffer.
@@ -106,7 +106,7 @@ public interface Connection
     */
    TransportConfiguration getConnectorConfig();
 
-   HornetQPrincipal getDefaultHornetQPrincipal();
+   ActiveMQPrincipal getDefaultActiveMQPrincipal();
 
    /**
     * the InVM Connection has some special handling as it doesn't use Netty ProtocolChannel

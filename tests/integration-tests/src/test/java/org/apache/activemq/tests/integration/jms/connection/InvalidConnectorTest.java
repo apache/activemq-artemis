@@ -17,10 +17,10 @@ import org.junit.After;
 import org.junit.Test;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 
 import java.net.InetAddress;
@@ -70,38 +70,38 @@ public class InvalidConnectorTest extends JMSTestBase
             JMSFactoryType.CF,
             registerConnectors(server, connectorConfigs),
             null,
-            HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-            HornetQClient.DEFAULT_CONNECTION_TTL,
+            ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
+            ActiveMQClient.DEFAULT_CONNECTION_TTL,
             callTimeout,
-            HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-            HornetQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
-            HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-            HornetQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
-            HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-            HornetQClient.DEFAULT_CONSUMER_MAX_RATE,
-            HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-            HornetQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
-            HornetQClient.DEFAULT_PRODUCER_MAX_RATE,
-            HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-            HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-            HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-            HornetQClient.DEFAULT_AUTO_GROUP,
-            HornetQClient.DEFAULT_PRE_ACKNOWLEDGE,
-            HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-            HornetQClient.DEFAULT_ACK_BATCH_SIZE,
-            HornetQClient.DEFAULT_ACK_BATCH_SIZE,
-            HornetQClient.DEFAULT_USE_GLOBAL_POOLS,
-            HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-            HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
+            ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
+            ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
+            ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+            ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
+            ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
+            ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
+            ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+            ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
+            ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
+            ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
+            ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
+            ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
+            ActiveMQClient.DEFAULT_AUTO_GROUP,
+            ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
+            ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
+            ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
+            ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
+            ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
+            ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+            ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
             retryInterval,
             retryIntervalMultiplier,
-            HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
+            ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL,
             reconnectAttempts,
-            HornetQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
+            ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
             null,
             "/invalid-cf");
 
-      HornetQConnectionFactory invalidCf = (HornetQConnectionFactory) namingContext.lookup("/invalid-cf");
+      ActiveMQConnectionFactory invalidCf = (ActiveMQConnectionFactory) namingContext.lookup("/invalid-cf");
 
       TransportConfiguration[] tcs = invalidCf.getServerLocator().getStaticTransportConfigurations();
 

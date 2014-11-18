@@ -22,7 +22,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * Example of live and replicating backup pair.
@@ -32,7 +32,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * Later the live server is restarted and takes back its position by asking the backup to stop ("fail-back").
  * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
  */
-public class ReplicatedFailbackStaticExample extends HornetQExample
+public class ReplicatedFailbackStaticExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

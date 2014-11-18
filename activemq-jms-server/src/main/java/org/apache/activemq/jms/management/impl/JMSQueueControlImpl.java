@@ -25,8 +25,8 @@ import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.core.messagecounter.MessageCounter;
 import org.apache.activemq.core.messagecounter.impl.MessageCounterHelper;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.jms.client.SelectorTranslator;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.utils.json.JSONArray;
@@ -37,7 +37,7 @@ import org.apache.activemq.utils.json.JSONObject;
  */
 public class JMSQueueControlImpl extends StandardMBean implements JMSQueueControl
 {
-   private final HornetQDestination managedQueue;
+   private final ActiveMQDestination managedQueue;
 
    private final JMSServerManager jmsServerManager;
 
@@ -53,12 +53,12 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException
    {
       return selectorStr == null || selectorStr.trim().length() == 0 ? null
-         : SelectorTranslator.convertToHornetQFilterString(selectorStr);
+         : SelectorTranslator.convertToActiveMQFilterString(selectorStr);
    }
 
    private static String createFilterForJMSMessageID(final String jmsMessageID) throws Exception
    {
-      return FilterConstants.HORNETQ_USERID + " = '" + jmsMessageID + "'";
+      return FilterConstants.ACTIVEMQ_USERID + " = '" + jmsMessageID + "'";
    }
 
    static String toJSON(final Map<String, Object>[] messages)
@@ -73,7 +73,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
 
    // Constructors --------------------------------------------------
 
-   public JMSQueueControlImpl(final HornetQDestination managedQueue,
+   public JMSQueueControlImpl(final ActiveMQDestination managedQueue,
                               final QueueControl coreQueueControl,
                               final JMSServerManager jmsServerManager,
                               final MessageCounter counter) throws Exception
@@ -200,7 +200,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
 
          for (Map<String, Object> coreMessage : coreMessages)
          {
-            Map<String, Object> jmsMessage = HornetQMessage.coreMaptoJMSMap(coreMessage);
+            Map<String, Object> jmsMessage = ActiveMQMessage.coreMaptoJMSMap(coreMessage);
             jmsMessages[i++] = jmsMessage;
          }
          return jmsMessages;
@@ -281,7 +281,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    public boolean moveMessage(final String messageID, final String otherQueueName, final boolean rejectDuplicates) throws Exception
    {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
-      HornetQDestination otherQueue = HornetQDestination.createQueue(otherQueueName);
+      ActiveMQDestination otherQueue = ActiveMQDestination.createQueue(otherQueueName);
       int moved = coreQueueControl.moveMessages(filter, otherQueue.getAddress(), rejectDuplicates);
       if (moved != 1)
       {
@@ -294,7 +294,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    public int moveMessages(final String filterStr, final String otherQueueName, final boolean rejectDuplicates) throws Exception
    {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
-      HornetQDestination otherQueue = HornetQDestination.createQueue(otherQueueName);
+      ActiveMQDestination otherQueue = ActiveMQDestination.createQueue(otherQueueName);
       return coreQueueControl.moveMessages(filter, otherQueue.getAddress(), rejectDuplicates);
    }
 

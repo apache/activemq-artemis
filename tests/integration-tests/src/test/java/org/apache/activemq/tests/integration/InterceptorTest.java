@@ -34,7 +34,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.MessagePacket;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -49,7 +49,7 @@ import org.junit.Test;
  */
 public class InterceptorTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("InterceptorTestQueue");
 

@@ -38,13 +38,13 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator
 {
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
-   private final HornetQServerImpl server;
+   private final ActiveMQServerImpl server;
    Map<String, Pair<TransportConfiguration, TransportConfiguration>> untriedConnectors = new HashMap<String, Pair<TransportConfiguration, TransportConfiguration>>();
    Map<String, Pair<TransportConfiguration, TransportConfiguration>> triedConnectors = new HashMap<String, Pair<TransportConfiguration, TransportConfiguration>>();
 
    private String nodeID;
 
-   public AnyLiveNodeLocatorForReplication(SharedNothingBackupQuorum backupQuorum, HornetQServerImpl server)
+   public AnyLiveNodeLocatorForReplication(SharedNothingBackupQuorum backupQuorum, ActiveMQServerImpl server)
    {
       super(backupQuorum);
       this.server = server;

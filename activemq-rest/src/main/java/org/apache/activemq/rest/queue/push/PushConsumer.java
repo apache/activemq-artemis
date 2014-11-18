@@ -17,7 +17,7 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.jms.client.SelectorTranslator;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class PushConsumer
       {
          if (registration.getTarget().getRelationship().equals("destination"))
          {
-            strategy = new HornetQPushStrategy();
+            strategy = new ActiveMQPushStrategy();
          }
          else if (registration.getTarget().getRelationship().equals("template"))
          {
@@ -98,7 +98,7 @@ public class PushConsumer
 
          if (registration.getSelector() != null)
          {
-            consumer = session.createConsumer(destination, SelectorTranslator.convertToHornetQFilterString(registration.getSelector()));
+            consumer = session.createConsumer(destination, SelectorTranslator.convertToActiveMQFilterString(registration.getSelector()));
          }
          else
          {
@@ -106,7 +106,7 @@ public class PushConsumer
          }
          consumer.setMessageHandler(new PushConsumerMessageHandler(this, session));
          session.start();
-         HornetQRestLogger.LOGGER.startingPushConsumer(registration.getTarget());
+         ActiveMQRestLogger.LOGGER.startingPushConsumer(registration.getTarget());
 
          consumers.add(consumer);
          sessions.add(session);
@@ -154,7 +154,7 @@ public class PushConsumer
       }
       catch (Exception e)
       {
-         HornetQRestLogger.LOGGER.errorUpdatingStore(e);
+         ActiveMQRestLogger.LOGGER.errorUpdatingStore(e);
       }
       stop();
    }

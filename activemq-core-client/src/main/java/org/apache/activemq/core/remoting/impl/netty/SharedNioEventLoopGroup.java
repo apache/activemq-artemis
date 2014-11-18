@@ -31,7 +31,7 @@ import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -90,7 +90,7 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup
       }
       else
       {
-         instance = new SharedNioEventLoopGroup(numThreads, new HornetQThreadFactory("HornetQ-client-netty-threads", true, getThisClassLoader()));
+         instance = new SharedNioEventLoopGroup(numThreads, new ActiveMQThreadFactory("ActiveMQ-client-netty-threads", true, getThisClassLoader()));
       }
       instance.nioChannelFactoryCount.incrementAndGet();
       return instance;

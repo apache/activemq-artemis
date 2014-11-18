@@ -35,7 +35,7 @@ import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnection;
 import javax.jms.XATopicConnectionFactory;
 
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,7 +55,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    public void setUp() throws Exception
    {
       super.setUp();
-      testClientId = "hq" + random.nextInt();
+      testClientId = "amq" + random.nextInt();
    }
 
    /**
@@ -86,7 +86,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    public void testAdministrativelyConfiguredClientID() throws Exception
    {
       // deploy a connection factory that has an administatively configured clientID
-      HornetQServerTestCase.deployConnectionFactory(testClientId, "TestConnectionFactory", "TestConnectionFactory");
+      ActiveMQServerTestCase.deployConnectionFactory(testClientId, "TestConnectionFactory", "TestConnectionFactory");
 
       ConnectionFactory cf = (ConnectionFactory)ic.lookup("/TestConnectionFactory");
       Connection c = cf.createConnection();
@@ -104,13 +104,13 @@ public class ConnectionFactoryTest extends JMSTestCase
          // OK
       }
       c.close();
-      HornetQServerTestCase.undeployConnectionFactory("TestConnectionFactory");
+      ActiveMQServerTestCase.undeployConnectionFactory("TestConnectionFactory");
    }
 
    @Test
    public void testNoClientIDConfigured_1() throws Exception
    {
-      // the ConnectionFactories that ship with HornetQ do not have their clientID
+      // the ConnectionFactories that ship with ActiveMQ do not have their clientID
       // administratively configured.
 
       ConnectionFactory cf = (ConnectionFactory)ic.lookup("/CF_XA_FALSE");
@@ -124,7 +124,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testNoClientIDConfigured_2() throws Exception
    {
-      // the ConnectionFactories that ship with HornetQ do not have their clientID
+      // the ConnectionFactories that ship with ActiveMQ do not have their clientID
       // administratively configured.
 
       ConnectionFactory cf = (ConnectionFactory)ic.lookup("/CF_XA_FALSE");
@@ -142,7 +142,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testDurableSubscriptionOnPreConfiguredConnectionFactory() throws Exception
    {
-      HornetQServerTestCase.deployConnectionFactory("TestConnectionFactory1", "cfTest", "/TestDurableCF");
+      ActiveMQServerTestCase.deployConnectionFactory("TestConnectionFactory1", "cfTest", "/TestDurableCF");
 
       createTopic("TestSubscriber");
 
@@ -195,7 +195,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    {
       ArrayList<String> bindings = new ArrayList<String>();
       bindings.add("TestSlowConsumersCF");
-      HornetQServerTestCase.deployConnectionFactory(0, "TestSlowConsumersCF", 1, "TestSlowConsumersCF");
+      ActiveMQServerTestCase.deployConnectionFactory(0, "TestSlowConsumersCF", 1, "TestSlowConsumersCF");
 
       Connection conn = null;
 
@@ -319,7 +319,7 @@ public class ConnectionFactoryTest extends JMSTestCase
 
          try
          {
-            HornetQServerTestCase.undeployConnectionFactory("TestSlowConsumersCF");
+            ActiveMQServerTestCase.undeployConnectionFactory("TestSlowConsumersCF");
          }
          catch (Exception e)
          {
@@ -333,64 +333,64 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testFactoryTypes() throws Exception
    {
-      HornetQConnectionFactory factory = null;
+      ActiveMQConnectionFactory factory = null;
 
-      factory = (HornetQConnectionFactory)ic.lookup("/ConnectionFactory");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/ConnectionFactory");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_XA_TRUE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XAConnectionFactory);
       assertNTypes(factory, 6);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_XA_FALSE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_XA_FALSE");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_GENERIC");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_GENERIC");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_GENERIC_XA_TRUE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_GENERIC_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XAConnectionFactory);
       assertNTypes(factory, 6);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_GENERIC_XA_FALSE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_GENERIC_XA_FALSE");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_QUEUE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_QUEUE");
 
       Assert.assertTrue(factory instanceof QueueConnectionFactory);
       assertNTypes(factory, 3);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_QUEUE_XA_TRUE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_QUEUE_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XAQueueConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_QUEUE_XA_FALSE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_QUEUE_XA_FALSE");
 
       Assert.assertTrue(factory instanceof QueueConnectionFactory);
       assertNTypes(factory, 3);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_TOPIC");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_TOPIC");
 
       Assert.assertTrue(factory instanceof TopicConnectionFactory);
       assertNTypes(factory, 3);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_TOPIC_XA_TRUE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_TOPIC_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XATopicConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (HornetQConnectionFactory)ic.lookup("/CF_TOPIC_XA_FALSE");
+      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_TOPIC_XA_FALSE");
 
       Assert.assertTrue(factory instanceof TopicConnectionFactory);
       assertNTypes(factory, 3);
@@ -463,7 +463,7 @@ public class ConnectionFactoryTest extends JMSTestCase
       }
    }
 
-   private void assertNTypes(HornetQConnectionFactory factory, final int total)
+   private void assertNTypes(ActiveMQConnectionFactory factory, final int total)
    {
       StringBuilder text = new StringBuilder();
       text.append(factory + "\n is instance of ");

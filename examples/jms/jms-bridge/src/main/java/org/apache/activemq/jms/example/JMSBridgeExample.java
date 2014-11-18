@@ -33,7 +33,7 @@ import javax.naming.InitialContext;
 
 /**
  * An example which sends a message to a source topic and consume from a target queue.
- * The source and target destinations are located on 2 different HornetQ server.
+ * The source and target destinations are located on 2 different ActiveMQ server.
  * The source and target queues are bridged by a JMS Bridge configured and running on the "target" server.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

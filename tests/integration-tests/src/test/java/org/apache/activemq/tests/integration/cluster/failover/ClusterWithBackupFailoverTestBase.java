@@ -15,10 +15,10 @@ package org.apache.activemq.tests.integration.cluster.failover;
 import java.util.HashSet;
 
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.junit.Before;
 import org.junit.Test;
@@ -290,9 +290,9 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
    {
       ClusterWithBackupFailoverTestBase.log.info("*** failing node " + node);
 
-      HornetQServer server = getServer(node);
+      ActiveMQServer server = getServer(node);
 
-      TestableServer tstServer = new SameProcessHornetQServer(server);
+      TestableServer tstServer = new SameProcessActiveMQServer(server);
 
       ClientSession[] sessionsArray = exploreSessions(originalLiveNode);
 

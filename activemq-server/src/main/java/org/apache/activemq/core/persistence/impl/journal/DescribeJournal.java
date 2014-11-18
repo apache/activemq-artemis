@@ -86,7 +86,7 @@ public final class DescribeJournal
 
       SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(bindingsDir, null);
 
-      JournalImpl bindings = new JournalImpl(1024 * 1024, 2, -1, 0, bindingsFF, "hornetq-bindings", "bindings", 1);
+      JournalImpl bindings = new JournalImpl(1024 * 1024, 2, -1, 0, bindingsFF, "activemq-bindings", "bindings", 1);
       describeJournal(bindingsFF, bindings, bindingsDir);
    }
 
@@ -103,8 +103,8 @@ public final class DescribeJournal
                                                     0,
                                                     0,
                                                     messagesFF,
-                                                    "hornetq-data",
-                                                    "hq",
+                                                    "activemq-data",
+                                                    "amq",
                                                     1);
 
       describeJournal(messagesFF, messagesJournal, messagesDir);

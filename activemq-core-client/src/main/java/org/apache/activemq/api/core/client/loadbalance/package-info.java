@@ -14,8 +14,8 @@
  * Client load-balancing API.
  * <br>
  * This package defines the policies supported by
- * HornetQ to load-balance client connections across
- * HornetQ servers.
+ * ActiveMQ to load-balance client connections across
+ * ActiveMQ servers.
  */
 package org.apache.activemq.api.core.client.loadbalance;
 

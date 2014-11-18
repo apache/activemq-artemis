@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.utils.DataConstants;
@@ -36,7 +36,7 @@ public class InVMNonPersistentMessageBufferTest extends ServiceTestBase
 
    public static final String queueName = "testqueue";
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession session;
 

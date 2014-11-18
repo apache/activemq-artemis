@@ -23,17 +23,17 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * This examples demonstrates the use of HornetQ "Diverts" to transparently divert or copy messages
+ * This examples demonstrates the use of ActiveMQ "Diverts" to transparently divert or copy messages
  * from one address to another.
  *
  * Please see the readme.html for more information.
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public class DivertExample extends HornetQExample
+public class DivertExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

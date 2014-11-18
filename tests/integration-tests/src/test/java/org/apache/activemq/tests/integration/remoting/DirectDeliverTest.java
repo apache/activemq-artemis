@@ -25,14 +25,14 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -48,7 +48,7 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 public class DirectDeliverTest extends ServiceTestBase
 {
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ServerLocator locator;
 
@@ -68,7 +68,7 @@ public class DirectDeliverTest extends ServiceTestBase
       server = createServer(false, config);
       server.start();
 
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
       addServerLocator(locator);
    }
 

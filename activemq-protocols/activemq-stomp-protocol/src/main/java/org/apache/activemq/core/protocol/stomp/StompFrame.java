@@ -75,7 +75,7 @@ public class StompFrame
    {
       if (buffer == null)
       {
-         buffer = toHornetQBuffer();
+         buffer = toActiveMQBuffer();
       }
       return size;
    }
@@ -97,7 +97,7 @@ public class StompFrame
       isPing = ping;
    }
 
-   public ActiveMQBuffer toHornetQBuffer() throws Exception
+   public ActiveMQBuffer toActiveMQBuffer() throws Exception
    {
       if (buffer == null)
       {

@@ -1297,7 +1297,7 @@ public class AlignedJournalImplTest extends UnitTestCase
    {
 
       factory = new FakeSequentialFileFactory(512, false);
-      journalImpl = new JournalImpl(512 + 512 * 3, 20, 0, 0, factory, "hq", "hq", 1000);
+      journalImpl = new JournalImpl(512 + 512 * 3, 20, 0, 0, factory, "amq", "amq", 1000);
 
       journalImpl.start();
 
@@ -1310,8 +1310,8 @@ public class AlignedJournalImplTest extends UnitTestCase
 
       journalImpl.stop();
 
-      journalImpl = new JournalImpl(512 + 1024 + 512, 20, 0, 0, factory, "hq", "hq", 1000);
-      addHornetQComponent(journalImpl);
+      journalImpl = new JournalImpl(512 + 1024 + 512, 20, 0, 0, factory, "amq", "amq", 1000);
+      addActiveMQComponent(journalImpl);
       journalImpl.start();
       journalImpl.load(AlignedJournalImplTest.dummyLoader);
 
@@ -1326,8 +1326,8 @@ public class AlignedJournalImplTest extends UnitTestCase
 
       journalImpl.stop();
 
-      journalImpl = new JournalImpl(512 + 1024 + 512, 20, 0, 0, factory, "hq", "hq", 1000);
-      addHornetQComponent(journalImpl);
+      journalImpl = new JournalImpl(512 + 1024 + 512, 20, 0, 0, factory, "amq", "amq", 1000);
+      addActiveMQComponent(journalImpl);
       journalImpl.start();
 
       ArrayList<RecordInfo> info = new ArrayList<RecordInfo>();
@@ -1402,7 +1402,7 @@ public class AlignedJournalImplTest extends UnitTestCase
       }
 
       journalImpl = new JournalImpl(journalSize, numberOfMinimalFiles, 0, 0, factory, "tt", "tt", 1000);
-      addHornetQComponent(journalImpl);
+      addActiveMQComponent(journalImpl);
       journalImpl.start();
 
       records.clear();

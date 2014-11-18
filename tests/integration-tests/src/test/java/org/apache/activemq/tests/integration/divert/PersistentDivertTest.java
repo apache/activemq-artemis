@@ -25,12 +25,12 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 
@@ -45,7 +45,7 @@ import org.apache.activemq.tests.util.UnitTestCase;
  */
 public class PersistentDivertTest extends ServiceTestBase
 {
-   final int minLargeMessageSize = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 2;
+   final int minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 2;
 
    @Test
    public void testPersistentDivert() throws Exception
@@ -97,7 +97,7 @@ public class PersistentDivertTest extends ServiceTestBase
 
       conf.setDivertConfigurations(divertConfs);
 
-      HornetQServer messagingService = addServer(HornetQServers.newHornetQServer(conf));
+      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf));
 
       messagingService.start();
 
@@ -294,7 +294,7 @@ public class PersistentDivertTest extends ServiceTestBase
 
       conf.setDivertConfigurations(divertConfs);
 
-      HornetQServer messagingService = addServer(HornetQServers.newHornetQServer(conf));
+      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf));
 
       messagingService.start();
 

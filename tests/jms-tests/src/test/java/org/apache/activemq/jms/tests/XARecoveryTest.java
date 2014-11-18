@@ -1879,11 +1879,11 @@ public class XARecoveryTest extends JMSTestCase
 
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer prod1 = sess1.createProducer(HornetQServerTestCase.topic2);
+         MessageProducer prod1 = sess1.createProducer(ActiveMQServerTestCase.topic2);
 
-         MessageConsumer sub1 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub1");
+         MessageConsumer sub1 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub1");
 
-         MessageConsumer sub2 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub2");
+         MessageConsumer sub2 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub2");
 
          // send four messages
 
@@ -1917,7 +1917,7 @@ public class XARecoveryTest extends JMSTestCase
 
          // Now send four more messages in a global tx
 
-         MessageProducer prod2 = sess2.createProducer(HornetQServerTestCase.topic2);
+         MessageProducer prod2 = sess2.createProducer(ActiveMQServerTestCase.topic2);
 
          TextMessage tm5 = sess2.createTextMessage("tm5");
          TextMessage tm6 = sess2.createTextMessage("tm6");
@@ -1931,9 +1931,9 @@ public class XARecoveryTest extends JMSTestCase
 
          // And consume the first four from each in the tx
 
-         sub1 = sess2.createDurableSubscriber(HornetQServerTestCase.topic2, "sub1");
+         sub1 = sess2.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub1");
 
-         sub2 = sess2.createDurableSubscriber(HornetQServerTestCase.topic2, "sub2");
+         sub2 = sess2.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub2");
 
          TextMessage rm1 = (TextMessage) sub1.receive(1000);
          ProxyAssertSupport.assertNotNull(rm1);
@@ -2016,9 +2016,9 @@ public class XARecoveryTest extends JMSTestCase
 
          // Should now see the last 4 messages
 
-         sub1 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub1");
+         sub1 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub1");
 
-         sub2 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub2");
+         sub2 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub2");
 
          TextMessage rm5 = (TextMessage) sub1.receive(1000);
          ProxyAssertSupport.assertNotNull(rm5);
@@ -2136,11 +2136,11 @@ public class XARecoveryTest extends JMSTestCase
 
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer prod1 = sess1.createProducer(HornetQServerTestCase.topic2);
+         MessageProducer prod1 = sess1.createProducer(ActiveMQServerTestCase.topic2);
 
-         MessageConsumer sub1 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub1");
+         MessageConsumer sub1 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub1");
 
-         MessageConsumer sub2 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub2");
+         MessageConsumer sub2 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub2");
 
          // send four messages
 
@@ -2174,7 +2174,7 @@ public class XARecoveryTest extends JMSTestCase
 
          // Now send four more messages in a global tx
 
-         MessageProducer prod2 = sess2.createProducer(HornetQServerTestCase.topic2);
+         MessageProducer prod2 = sess2.createProducer(ActiveMQServerTestCase.topic2);
 
          TextMessage tm5 = sess2.createTextMessage("tm5");
          TextMessage tm6 = sess2.createTextMessage("tm6");
@@ -2188,9 +2188,9 @@ public class XARecoveryTest extends JMSTestCase
 
          // And consume the first four from each in the tx
 
-         sub1 = sess2.createDurableSubscriber(HornetQServerTestCase.topic2, "sub1");
+         sub1 = sess2.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub1");
 
-         sub2 = sess2.createDurableSubscriber(HornetQServerTestCase.topic2, "sub2");
+         sub2 = sess2.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub2");
 
          TextMessage rm1 = (TextMessage) sub1.receive(1000);
          ProxyAssertSupport.assertNotNull(rm1);
@@ -2285,9 +2285,9 @@ public class XARecoveryTest extends JMSTestCase
 
          // Should now see the last 4 messages
 
-         sub1 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub1");
+         sub1 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub1");
 
-         sub2 = sess1.createDurableSubscriber(HornetQServerTestCase.topic2, "sub2");
+         sub2 = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic2, "sub2");
 
          TextMessage rm5 = (TextMessage) sub1.receive(1000);
          ProxyAssertSupport.assertNotNull(rm5);
@@ -2516,12 +2516,12 @@ public class XARecoveryTest extends JMSTestCase
 
          // Should now be able to receive tm1 and tm2
 
-         m1 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m1 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m1);
 
          ProxyAssertSupport.assertEquals(tm1.getText(), m1.getText());
 
-         TextMessage m2 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
 
          ProxyAssertSupport.assertEquals(tm2.getText(), m2.getText());
@@ -2535,12 +2535,12 @@ public class XARecoveryTest extends JMSTestCase
 
          // Should now be able to receive tm3 and tm4
 
-         m3 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m3 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m3);
 
          ProxyAssertSupport.assertEquals(tm3.getText(), m3.getText());
 
-         TextMessage m4 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m4 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m4);
 
          ProxyAssertSupport.assertEquals(tm4.getText(), m4.getText());
@@ -2682,21 +2682,21 @@ public class XARecoveryTest extends JMSTestCase
          MessageConsumer cons = sessRec.createConsumer(queue2);
          conn3.start();
 
-         Message msg = cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         Message msg = cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          TextMessage m1 = (TextMessage) msg;
          ProxyAssertSupport.assertNotNull(m1);
 
          ProxyAssertSupport.assertTrue("alpha".equals(m1.getText()) || "beta".equals(m1.getText()));
 
-         TextMessage m2 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
 
          ProxyAssertSupport.assertTrue("alpha".equals(m2.getText()) || "beta".equals(m2.getText()));
 
          ProxyAssertSupport.assertTrue(!tm1.getText().equals(tm2.getText()));
 
-         Message nullMessage = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message nullMessage = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertTrue(nullMessage == null);
 
       }
@@ -2832,11 +2832,11 @@ public class XARecoveryTest extends JMSTestCase
       MessageConsumer cons = sessRec.createConsumer(queue1);
       conn3.start();
 
-      TextMessage m1 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+      TextMessage m1 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
       ProxyAssertSupport.assertNotNull(m1);
       ProxyAssertSupport.assertEquals("testing1", m1.getText());
 
-      TextMessage m2 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+      TextMessage m2 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
       ProxyAssertSupport.assertNotNull(m2);
 
       ProxyAssertSupport.assertEquals("testing2", m2.getText());
@@ -2930,11 +2930,11 @@ public class XARecoveryTest extends JMSTestCase
       MessageConsumer cons = sessRec.createConsumer(queue1);
       conn3.start();
 
-      TextMessage m1 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+      TextMessage m1 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
       ProxyAssertSupport.assertNotNull(m1);
       ProxyAssertSupport.assertEquals("testing1", m1.getText());
 
-      TextMessage m2 = (TextMessage) cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+      TextMessage m2 = (TextMessage) cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
       ProxyAssertSupport.assertNotNull(m2);
 
       ProxyAssertSupport.assertEquals("testing2", m2.getText());
@@ -3032,15 +3032,15 @@ public class XARecoveryTest extends JMSTestCase
 
       conn3.start();
 
-      TextMessage m1 = (TextMessage) cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+      TextMessage m1 = (TextMessage) cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
       ProxyAssertSupport.assertNotNull(m1);
       ProxyAssertSupport.assertEquals("testing1", m1.getText());
 
-      TextMessage m2 = (TextMessage) cons2.receive(HornetQServerTestCase.MAX_TIMEOUT);
+      TextMessage m2 = (TextMessage) cons2.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
       ProxyAssertSupport.assertNotNull(m2);
       ProxyAssertSupport.assertEquals("testing2", m2.getText());
 
-      TextMessage m3 = (TextMessage) cons3.receive(HornetQServerTestCase.MAX_TIMEOUT);
+      TextMessage m3 = (TextMessage) cons3.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
       ProxyAssertSupport.assertNotNull(m3);
       ProxyAssertSupport.assertEquals("testing3", m3.getText());
 

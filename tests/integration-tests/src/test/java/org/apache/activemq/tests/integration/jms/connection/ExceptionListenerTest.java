@@ -28,15 +28,15 @@ import javax.jms.Session;
 import org.junit.Assert;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnection;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnection;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQSession;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.integration.jms.server.management.NullInitialContext;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -51,11 +51,11 @@ import org.apache.activemq.tests.util.UnitTestCase;
  */
 public class ExceptionListenerTest extends UnitTestCase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private JMSServerManagerImpl jmsServer;
 
-   private HornetQConnectionFactory cf;
+   private ActiveMQConnectionFactory cf;
 
    private static final String Q_NAME = "ConnectionTestQueue";
 
@@ -67,12 +67,12 @@ public class ExceptionListenerTest extends UnitTestCase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory"));
-      server = addServer(HornetQServers.newHornetQServer(conf, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
       jmsServer = new JMSServerManagerImpl(server);
       jmsServer.setContext(new NullInitialContext());
       jmsServer.start();
       jmsServer.createQueue(false, ExceptionListenerTest.Q_NAME, null, true, ExceptionListenerTest.Q_NAME);
-      cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
+      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
       cf.setBlockOnDurableSend(true);
       cf.setPreAcknowledge(true);
    }
@@ -118,7 +118,7 @@ public class ExceptionListenerTest extends UnitTestCase
 
       conn.setExceptionListener(listener);
 
-      ClientSessionInternal coreSession = (ClientSessionInternal)((HornetQConnection)conn).getInitialSession();
+      ClientSessionInternal coreSession = (ClientSessionInternal)((ActiveMQConnection)conn).getInitialSession();
 
       coreSession.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 
@@ -145,13 +145,13 @@ public class ExceptionListenerTest extends UnitTestCase
 
       Session sess3 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSessionInternal coreSession0 = (ClientSessionInternal)((HornetQConnection)conn).getInitialSession();
+      ClientSessionInternal coreSession0 = (ClientSessionInternal)((ActiveMQConnection)conn).getInitialSession();
 
-      ClientSessionInternal coreSession1 = (ClientSessionInternal)((HornetQSession)sess1).getCoreSession();
+      ClientSessionInternal coreSession1 = (ClientSessionInternal)((ActiveMQSession)sess1).getCoreSession();
 
-      ClientSessionInternal coreSession2 = (ClientSessionInternal)((HornetQSession)sess2).getCoreSession();
+      ClientSessionInternal coreSession2 = (ClientSessionInternal)((ActiveMQSession)sess2).getCoreSession();
 
-      ClientSessionInternal coreSession3 = (ClientSessionInternal)((HornetQSession)sess3).getCoreSession();
+      ClientSessionInternal coreSession3 = (ClientSessionInternal)((ActiveMQSession)sess3).getCoreSession();
 
       coreSession0.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 

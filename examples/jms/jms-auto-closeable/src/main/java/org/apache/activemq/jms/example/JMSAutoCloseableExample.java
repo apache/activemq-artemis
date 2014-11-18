@@ -15,14 +15,14 @@ package org.apache.activemq.jms.example;
 import javax.jms.*;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how AutoCloseable is used by JMS 2 resources.
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class JMSAutoCloseableExample extends HornetQExample
+public class JMSAutoCloseableExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

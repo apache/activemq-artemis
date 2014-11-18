@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class JournalRestartStressTest extends ServiceTestBase
    @Test
    public void testLoad() throws Throwable
    {
-      HornetQServer server2 = createServer(true, false);
+      ActiveMQServer server2 = createServer(true, false);
 
       server2.getConfiguration().setJournalFileSize(10 * 1024 * 1024);
       server2.getConfiguration().setJournalMinFiles(10);

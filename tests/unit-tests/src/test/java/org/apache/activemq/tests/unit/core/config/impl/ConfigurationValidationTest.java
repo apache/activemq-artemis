@@ -50,7 +50,7 @@ public class ConfigurationValidationTest extends UnitTestCase
    @Test
    public void testMinimalConfiguration() throws Exception
    {
-      String xml = "<configuration xmlns='urn:hornetq'>" + "</configuration>";
+      String xml = "<configuration xmlns='urn:activemq'>" + "</configuration>";
       Element element = XMLUtil.stringToElement(xml);
       Assert.assertNotNull(element);
       XMLUtil.validate(element, "schema/activemq-configuration.xsd");

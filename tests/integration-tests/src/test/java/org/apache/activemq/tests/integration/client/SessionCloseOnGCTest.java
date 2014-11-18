@@ -18,7 +18,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
@@ -33,7 +33,7 @@ import org.junit.Test;
  */
 public class SessionCloseOnGCTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ServerLocator locator;
 
    @Override

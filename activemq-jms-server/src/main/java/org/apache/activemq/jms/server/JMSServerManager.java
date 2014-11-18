@@ -19,10 +19,10 @@ import javax.naming.Context;
 
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 
@@ -33,7 +33,7 @@ import org.apache.activemq.spi.core.naming.BindingRegistry;
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public interface JMSServerManager extends HornetQComponent
+public interface JMSServerManager extends ActiveMQComponent
 {
    String getVersion();
 
@@ -183,7 +183,7 @@ public interface JMSServerManager extends HornetQComponent
 
    /** Call this method to have a CF rebound to JNDI and stored on the Journal
     * @throws Exception */
-   HornetQConnectionFactory recreateCF(String name,  ConnectionFactoryConfiguration cf) throws Exception;
+   ActiveMQConnectionFactory recreateCF(String name,  ConnectionFactoryConfiguration cf) throws Exception;
 
    void createConnectionFactory(String name, boolean ha, JMSFactoryType cfType, String discoveryGroupName, String ... jndiBindings) throws Exception;
 
@@ -298,7 +298,7 @@ public interface JMSServerManager extends HornetQComponent
 
    void setContext(final Context context);
 
-   HornetQServer getHornetQServer();
+   ActiveMQServer getActiveMQServer();
 
    void addAddressSettings(String address, AddressSettings addressSettings);
 

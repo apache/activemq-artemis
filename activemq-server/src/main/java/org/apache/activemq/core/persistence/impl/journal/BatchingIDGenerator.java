@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.IDGenerator;
 
@@ -101,7 +101,7 @@ public final class BatchingIDGenerator implements IDGenerator
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.batchingIdError(e);
+         ActiveMQServerLogger.LOGGER.batchingIdError(e);
       }
    }
 

@@ -18,8 +18,8 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.ActivationParams;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.cluster.ClusterControl;
 import org.apache.activemq.core.server.cluster.ClusterController;
 
@@ -33,16 +33,16 @@ public class ColocatedHAManager implements HAManager
 
    private final ColocatedPolicy haPolicy;
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
-   private Map<String, HornetQServer> backupServers = new HashMap<>();
+   private Map<String, ActiveMQServer> backupServers = new HashMap<>();
 
    private boolean started;
 
-   public ColocatedHAManager(ColocatedPolicy haPolicy, HornetQServer hornetQServer)
+   public ColocatedHAManager(ColocatedPolicy haPolicy, ActiveMQServer activeMQServer)
    {
       this.haPolicy = haPolicy;
-      server = hornetQServer;
+      server = activeMQServer;
    }
 
    /**
@@ -63,11 +63,11 @@ public class ColocatedHAManager implements HAManager
     */
    public void stop()
    {
-      for (HornetQServer hornetQServer : backupServers.values())
+      for (ActiveMQServer activeMQServer : backupServers.values())
       {
          try
          {
-            hornetQServer.stop();
+            activeMQServer.stop();
          }
          catch (Exception e)
          {
@@ -107,7 +107,7 @@ public class ColocatedHAManager implements HAManager
     *
     * @return the backups
     */
-   public Map<String, HornetQServer> getBackupServers()
+   public Map<String, ActiveMQServer> getBackupServers()
    {
       return backupServers;
    }
@@ -149,7 +149,7 @@ public class ColocatedHAManager implements HAManager
    private synchronized boolean activateSharedStoreBackup(String journalDirectory, String bindingsDirectory, String largeMessagesDirectory, String pagingDirectory) throws Exception
    {
       Configuration configuration = server.getConfiguration().copy();
-      HornetQServer backup = server.createBackupServer(configuration);
+      ActiveMQServer backup = server.createBackupServer(configuration);
       try
       {
          int portOffset = haPolicy.getBackupPortOffset() * (backupServers.size() + 1);
@@ -166,10 +166,10 @@ public class ColocatedHAManager implements HAManager
       catch (Exception e)
       {
          backup.stop();
-         HornetQServerLogger.LOGGER.activateSharedStoreSlaveFailed(e);
+         ActiveMQServerLogger.LOGGER.activateSharedStoreSlaveFailed(e);
          return false;
       }
-      HornetQServerLogger.LOGGER.activatingSharedStoreSlave();
+      ActiveMQServerLogger.LOGGER.activatingSharedStoreSlave();
       return true;
    }
 
@@ -184,7 +184,7 @@ public class ColocatedHAManager implements HAManager
    private synchronized boolean activateReplicatedBackup(SimpleString nodeID) throws Exception
    {
       Configuration configuration = server.getConfiguration().copy();
-      HornetQServer backup = server.createBackupServer(configuration);
+      ActiveMQServer backup = server.createBackupServer(configuration);
       try
       {
          TopologyMember member = server.getClusterManager().getDefaultConnection(null).getTopology().getMember(nodeID.toString());
@@ -202,10 +202,10 @@ public class ColocatedHAManager implements HAManager
       catch (Exception e)
       {
          backup.stop();
-         HornetQServerLogger.LOGGER.activateReplicatedBackupFailed(e);
+         ActiveMQServerLogger.LOGGER.activateReplicatedBackupFailed(e);
          return false;
       }
-      HornetQServerLogger.LOGGER.activatingReplica(nodeID);
+      ActiveMQServerLogger.LOGGER.activatingReplica(nodeID);
       return true;
    }
 

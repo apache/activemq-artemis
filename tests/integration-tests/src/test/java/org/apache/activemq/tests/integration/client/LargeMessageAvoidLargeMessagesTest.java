@@ -19,9 +19,9 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
@@ -59,7 +59,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
    @Test
    public void testSimpleSendOnAvoid() throws Exception
    {
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
       server.start();
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -106,7 +106,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
    @Test
    public void testSendRegularAfterCompression() throws Exception
    {
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
       server.start();
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -160,7 +160,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
    @Test
    public void testSendLargeAfterUnableToSendRegular() throws Exception
    {
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
       server.start();
 
       //reduce the minLargeMessageSize to make the test faster
@@ -217,7 +217,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
    @Test
    public void testMixedCompressionSendReceive() throws Exception
    {
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
       server.start();
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -296,11 +296,11 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
    @Test
    public void testDLALargeMessage() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ClientSession session = null;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 

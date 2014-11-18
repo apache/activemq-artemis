@@ -12,11 +12,11 @@
  */
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.impl.FileConfiguration;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -33,7 +33,7 @@ public class JmsHelper
       config.setConfigurationUrl(configFile);
       config.start();
       TransportConfiguration transport = config.getConnectorConfigurations().get("netty-connector");
-      return new HornetQJMSConnectionFactory(HornetQClient.createServerLocatorWithoutHA(transport));
+      return new ActiveMQJMSConnectionFactory(ActiveMQClient.createServerLocatorWithoutHA(transport));
 
    }
 }

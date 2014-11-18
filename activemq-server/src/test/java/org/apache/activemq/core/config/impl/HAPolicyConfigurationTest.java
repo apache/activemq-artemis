@@ -26,7 +26,7 @@ import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.core.server.impl.SharedNothingLiveActivation;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.SharedStoreBackupActivation;
 import org.apache.activemq.core.server.impl.SharedStoreLiveActivation;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -40,7 +40,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void liveOnlyTest() throws Exception
    {
       Configuration configuration = createConfiguration("live-only-hapolicy-config.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -67,7 +67,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void liveOnlyTest2() throws Exception
    {
       Configuration configuration = createConfiguration("live-only-hapolicy-config2.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -114,7 +114,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void ReplicatedTest() throws Exception
    {
       Configuration configuration = createConfiguration("replicated-hapolicy-config.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -137,7 +137,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void ReplicaTest() throws Exception
    {
       Configuration configuration = createConfiguration("replica-hapolicy-config.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -168,7 +168,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void ReplicaTest2() throws Exception
    {
       Configuration configuration = createConfiguration("replica-hapolicy-config2.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -201,7 +201,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void ReplicaTest3() throws Exception
    {
       Configuration configuration = createConfiguration("replica-hapolicy-config3.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -227,7 +227,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void SharedStoreMasterTest() throws Exception
    {
       Configuration configuration = createConfiguration("shared-store-master-hapolicy-config.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -249,7 +249,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void SharedStoreSlaveTest() throws Exception
    {
       Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -279,7 +279,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void SharedStoreSlaveTest2() throws Exception
    {
       Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config2.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -311,7 +311,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void SharedStoreSlaveTest3() throws Exception
    {
       Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config3.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -336,7 +336,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void colocatedTest() throws Exception
    {
       Configuration configuration = createConfiguration("colocated-hapolicy-config.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -369,7 +369,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    public void colocatedTest2() throws Exception
    {
       Configuration configuration = createConfiguration("colocated-hapolicy-config2.xml");
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -398,7 +398,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
    private void liveOnlyTest(String file) throws Exception
    {
       Configuration configuration = createConfiguration(file);
-      HornetQServerImpl server = new HornetQServerImpl(configuration);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
       try
       {
          server.start();
@@ -423,7 +423,7 @@ public class HAPolicyConfigurationTest extends UnitTestCase
 
       fc.start();
 
-      // we need this otherwise the data folder will be located under hornetq-server and not on the temporary directory
+      // we need this otherwise the data folder will be located under activemq-server and not on the temporary directory
       fc.setPagingDirectory(getTestDir() + "/" + fc.getPagingDirectory());
       fc.setLargeMessagesDirectory(getTestDir() + "/" + fc.getLargeMessagesDirectory());
       fc.setJournalDirectory(getTestDir() + "/" + fc.getJournalDirectory());

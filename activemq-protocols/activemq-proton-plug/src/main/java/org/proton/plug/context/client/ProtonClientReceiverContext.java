@@ -28,7 +28,7 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonReceiverContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
 import static org.proton.plug.util.DeliveryUtil.decodeMessageImpl;
@@ -55,7 +55,7 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
    * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
    *
    * */
-   public void onMessage(Delivery delivery) throws HornetQAMQPException
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
    {
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
       try

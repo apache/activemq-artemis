@@ -15,8 +15,8 @@ package org.apache.activemq.tests.unit.xa;
 
 import javax.transaction.xa.XAResource;
 
-import org.apache.activemq.ra.HornetQRAXAResource;
-import org.apache.activemq.ra.HornetQXAResourceWrapper;
+import org.apache.activemq.ra.ActiveMQRAXAResource;
+import org.apache.activemq.ra.ActiveMQXAResourceWrapper;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.jboss.tm.XAResourceWrapper;
 import org.junit.Test;
@@ -32,8 +32,8 @@ public class XAResourceWrapperTest extends UnitTestCase
    {
       String jndiName = "java://jmsXA";
       String nodeId = "0";
-      XAResource xaResource = new HornetQRAXAResource(null, null);
-      XAResourceWrapper xaResourceWrapper = new HornetQXAResourceWrapper(xaResource, jndiName, nodeId);
+      XAResource xaResource = new ActiveMQRAXAResource(null, null);
+      XAResourceWrapper xaResourceWrapper = new ActiveMQXAResourceWrapper(xaResource, jndiName, nodeId);
 
       assertEquals(xaResource, xaResourceWrapper.getResource());
 

@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.util.TimeoutTask;
 
 /**
@@ -96,7 +96,7 @@ public class ConsumersResource implements TimeoutTask.Callback
       if (consumer == null) return false;
       if (System.currentTimeMillis() - consumer.getLastPingTime() > consumerTimeoutSeconds * 1000)
       {
-         HornetQRestLogger.LOGGER.shutdownRestConsumer(consumer.getId());
+         ActiveMQRestLogger.LOGGER.shutdownRestConsumer(consumer.getId());
          if (autoShutdown)
          {
             shutdown(consumer);
@@ -138,7 +138,7 @@ public class ConsumersResource implements TimeoutTask.Callback
                                       @FormParam("selector") String selector,
                                       @Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       try
       {
@@ -214,7 +214,7 @@ public class ConsumersResource implements TimeoutTask.Callback
                                @PathParam("consumer-id") String consumerId,
                                @Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       return headConsumer(attributes, consumerId, uriInfo);
    }
@@ -225,7 +225,7 @@ public class ConsumersResource implements TimeoutTask.Callback
                                 @PathParam("consumer-id") String consumerId,
                                 @Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       QueueConsumer consumer = findConsumer(attributes, consumerId, uriInfo);
       Response.ResponseBuilder builder = Response.noContent();
@@ -313,7 +313,7 @@ public class ConsumersResource implements TimeoutTask.Callback
       @PathParam("consumer-id") String consumerId,
       @Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       QueueConsumer consumer = queueConsumers.remove(consumerId);
       if (consumer == null)

@@ -16,7 +16,7 @@ package org.apache.activemq.api.core;
 import static org.apache.activemq.api.core.ActiveMQExceptionType.UNSUPPORTED_PACKET;
 
 /**
- * A packet of unsupported type was received by HornetQ PacketHandler.
+ * A packet of unsupported type was received by ActiveMQ PacketHandler.
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQUnsupportedPacketException extends ActiveMQException

@@ -29,7 +29,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 public final class JMSExceptionHelper
 {
 
-   public static JMSException convertFromHornetQException(final ActiveMQException me)
+   public static JMSException convertFromActiveMQException(final ActiveMQException me)
    {
       JMSException je;
       switch (me.getType())

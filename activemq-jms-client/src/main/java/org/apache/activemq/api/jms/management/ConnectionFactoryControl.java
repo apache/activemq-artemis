@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.management.Parameter;
 
 /**
  * A ConnectionFactoryControl is used to manage a JMS ConnectionFactory. <br>
- * HornetQ JMS ConnectionFactory uses an underlying ClientSessionFactory to connect to HornetQ
+ * ActiveMQ JMS ConnectionFactory uses an underlying ClientSessionFactory to connect to ActiveMQ
  * servers. Please refer to the ClientSessionFactory for a detailed description.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>

@@ -22,9 +22,9 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.HornetQBufferInputStream;
+import org.apache.activemq.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.utils.InflaterReader;
 import org.apache.activemq.utils.InflaterWriter;
 import org.apache.activemq.utils.UTF8Util;
@@ -102,7 +102,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       {
          try
          {
-            InputStream input = new HornetQBufferInputStream(bufferDelegate);
+            InputStream input = new ActiveMQBufferInputStream(bufferDelegate);
 
             dataInput = new DataInputStream(new InflaterReader(input));
          }
@@ -432,7 +432,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
          int nReadBytes = getStream().read(dst, dstIndex, length);
          if (nReadBytes < length)
          {
-            HornetQClientLogger.LOGGER.compressedLargeMessageError(length, nReadBytes);
+            ActiveMQClientLogger.LOGGER.compressedLargeMessageError(length, nReadBytes);
          }
       }
       catch (Exception e)

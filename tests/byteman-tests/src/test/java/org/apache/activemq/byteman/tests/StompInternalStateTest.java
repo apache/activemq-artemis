@@ -26,7 +26,7 @@ import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -44,7 +44,7 @@ public class StompInternalStateTest extends ServiceTestBase
 
    private static volatile String resultTestStompProtocolManagerLeak = null;
 
-   protected HornetQServer server = null;
+   protected ActiveMQServer server = null;
 
    @Test
    @BMRules

@@ -31,20 +31,20 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.FailoverEventListener;
 import org.apache.activemq.api.core.client.FailoverEventType;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.jms.client.HornetQConnection;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.jms.client.ActiveMQConnection;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQSession;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -84,11 +84,11 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
    protected JMSServerManager liveJMSService;
 
-   protected HornetQServer liveService;
+   protected ActiveMQServer liveService;
 
    protected JMSServerManager backupJMSService;
 
-   protected HornetQServer backupService;
+   protected ActiveMQServer backupService;
 
    protected Map<String, Object> backupParams = new HashMap<String, Object>();
 
@@ -110,7 +110,7 @@ public class JMSFailoverListenerTest extends ServiceTestBase
    @Test
    public void testAutomaticFailover() throws Exception
    {
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
       jbcf.setReconnectAttempts(-1);
       jbcf.setBlockOnDurableSend(true);
       jbcf.setBlockOnNonDurableSend(true);
@@ -125,7 +125,7 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
       jbcf.setConsumerWindowSize(numMessages * bodySize / 10);
 
-      HornetQConnection conn = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
+      ActiveMQConnection conn = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
 
       MyFailoverListener listener = new MyFailoverListener();
 
@@ -133,9 +133,9 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((HornetQSession) sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      SimpleString jmsQueueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
 
       coreSession.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -164,7 +164,7 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
       Thread.sleep(2000);
 
-      JMSUtil.crash(liveService, ((HornetQSession) sess).getCoreSession());
+      JMSUtil.crash(liveService, ((ActiveMQSession) sess).getCoreSession());
 
       Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.get(0));
       for (int i = 0; i < numMessages; i++)
@@ -190,23 +190,23 @@ public class JMSFailoverListenerTest extends ServiceTestBase
    @Test
    public void testManualFailover() throws Exception
    {
-      HornetQConnectionFactory jbcfLive =
-         HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                           new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory jbcfLive =
+         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                            new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcfLive.setBlockOnNonDurableSend(true);
       jbcfLive.setBlockOnDurableSend(true);
 
-      HornetQConnectionFactory jbcfBackup =
-         HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                           new TransportConfiguration(INVM_CONNECTOR_FACTORY,
-                                                                                      backupParams));
+      ActiveMQConnectionFactory jbcfBackup =
+         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                            new TransportConfiguration(INVM_CONNECTOR_FACTORY,
+                                                                                       backupParams));
       jbcfBackup.setBlockOnNonDurableSend(true);
       jbcfBackup.setBlockOnDurableSend(true);
       jbcfBackup.setInitialConnectAttempts(-1);
       jbcfBackup.setReconnectAttempts(-1);
 
-      HornetQConnection connLive = (HornetQConnection) jbcfLive.createConnection();
+      ActiveMQConnection connLive = (ActiveMQConnection) jbcfLive.createConnection();
 
       MyFailoverListener listener = new MyFailoverListener();
 
@@ -214,9 +214,9 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
       Session sessLive = connLive.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSessionLive = ((HornetQSession) sessLive).getCoreSession();
+      ClientSession coreSessionLive = ((ActiveMQSession) sessLive).getCoreSession();
 
-      SimpleString jmsQueueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
 
       coreSessionLive.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -313,7 +313,7 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
       backupJMSService.setContext(ctx2);
 
-      backupJMSService.getHornetQServer().setIdentity("JMSBackup");
+      backupJMSService.getActiveMQServer().setIdentity("JMSBackup");
       log.info("Starting backup");
       backupJMSService.start();
 
@@ -338,7 +338,7 @@ public class JMSFailoverListenerTest extends ServiceTestBase
 
       liveJMSService.setContext(ctx1);
 
-      liveJMSService.getHornetQServer().setIdentity("JMSLive");
+      liveJMSService.getActiveMQServer().setIdentity("JMSLive");
       log.info("Starting life");
 
       liveJMSService.start();

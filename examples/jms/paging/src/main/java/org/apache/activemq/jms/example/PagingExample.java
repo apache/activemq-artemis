@@ -22,14 +22,14 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  *
  * @author <a href="csuconic@redhat.com">Clebert Suconic</a>
  */
-public class PagingExample extends HornetQExample
+public class PagingExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -74,7 +74,7 @@ public class PagingExample extends HornetQExample
          message.writeBytes(new byte[10 * 1024]);
 
          // Step 10. Send only 20 messages to the Queue. This will be already enough for pagingQueue. Look at
-         // ./paging/config/hornetq-queues.xml for the config.
+         // ./paging/config/activemq-queues.xml for the config.
          for (int i = 0; i < 20; i++)
          {
             pageMessageProducer.send(message);
@@ -102,7 +102,7 @@ public class PagingExample extends HornetQExample
          // Step 16. Start the JMS Connection. This step will activate the subscribers to receive messages.
          connection.start();
 
-         // Step 17. Receive the messages. It's important to ACK for messages as HornetQ will not read messages from
+         // Step 17. Receive the messages. It's important to ACK for messages as ActiveMQ will not read messages from
          // paging
          // until messages are ACKed
 

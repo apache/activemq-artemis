@@ -19,7 +19,7 @@ package org.apache.activemq.api.core.management;
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  *
  */
-public interface BridgeControl extends HornetQComponentControl
+public interface BridgeControl extends ActiveMQComponentControl
 {
    /**
     * Returns the name of this bridge

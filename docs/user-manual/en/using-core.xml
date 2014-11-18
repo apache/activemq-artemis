@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 <chapter id="using-core">
     <title>Using Core</title>
-    <para>HornetQ core is a completely JMS-agnostic messaging system with its own non-JMS API. We
+    <para>ActiveMQ core is a completely JMS-agnostic messaging system with its own non-JMS API. We
         call this the <emphasis>core API</emphasis>.</para>
     <para>If you don't want to use JMS you can use the core API directly. The core API provides all
         the functionality of JMS but without much of the complexity. It also provides features that
@@ -62,12 +62,12 @@
                 </listitem>
                 <listitem>
                     <para>Messages can be specified with a priority value between 0 and 9. 0
-                        represents the lowest priority and 9 represents the highest. HornetQ will
+                        represents the lowest priority and 9 represents the highest. ActiveMQ will
                         attempt to deliver higher priority messages before lower priority
                         ones.</para>
                 </listitem>
                 <listitem>
-                    <para>Messages can be specified with an optional expiry time. HornetQ will not
+                    <para>Messages can be specified with an optional expiry time. ActiveMQ will not
                         deliver messages after its expiry time has been exceeded.</para>
                 </listitem>
                 <listitem>
@@ -75,7 +75,7 @@
                         message was sent.</para>
                 </listitem>
                 <listitem>
-                    <para>HornetQ also supports the sending/consuming of very large messages - much
+                    <para>ActiveMQ also supports the sending/consuming of very large messages - much
                         larger than can fit in available RAM at any one time.</para>
                 </listitem>
             </itemizedlist>
@@ -122,7 +122,7 @@
             <para>In JMS terms think of a <literal>ServerLocator</literal> in the same way you would
                 a JMS Connection Factory.</para>
             <para><literal>ServerLocator</literal> instances are created using the <literal
-                    >HornetQClient</literal> factory class.</para>
+                    >ActiveMQClient</literal> factory class.</para>
         </section>
         <section>
             <title>ClientSessionFactory</title>
@@ -145,7 +145,7 @@
             <para>ClientSession instances can be registered with an optional <literal
                     >SendAcknowledgementHandler</literal>. This allows your client code to be
                 notified asynchronously when sent messages have successfully reached the server.
-                This unique HornetQ feature, allows you to have full guarantees that sent messages
+                This unique ActiveMQ feature, allows you to have full guarantees that sent messages
                 have reached the server without having to block on each message sent until a
                 response is received. Blocking on each messages sent is costly since it requires a
                 network round trip for each message sent. By not blocking and receiving send
@@ -186,7 +186,7 @@
             <emphasis>queue</emphasis> for the consumer, creating the consumer and 
             <emphasis>starting</emphasis> it.</para>
         <programlisting>
-ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
                                            InVMConnectorFactory.class.getName()));
 
 // In this simple example, we just use one session for both producing and receiving

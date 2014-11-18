@@ -26,11 +26,11 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
@@ -38,7 +38,7 @@ import org.apache.activemq.tests.util.UnitTestCase;
  */
 public class WildCardRoutingTest extends UnitTestCase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ServerLocator locator;
    private ClientSession clientSession;
    private ClientSessionFactory sessionFactory;
@@ -791,12 +791,12 @@ public class WildCardRoutingTest extends UnitTestCase
          .setTransactionTimeoutScanPeriod(500)
          .addAcceptorConfiguration(transportConfig);
 
-      server = HornetQServers.newHornetQServer(configuration, false);
+      server = ActiveMQServers.newActiveMQServer(configuration, false);
       // start the server
       server.start();
       server.getManagementService().enableNotifications(false);
       // then we create a client as normal
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);
    }

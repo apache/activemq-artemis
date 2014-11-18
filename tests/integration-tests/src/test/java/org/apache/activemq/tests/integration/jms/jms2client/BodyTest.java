@@ -20,7 +20,7 @@ import javax.jms.MessageFormatException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class BodyTest extends JMSTestBase
       super.setUp();
 
       jmsServer.createQueue(false, Q_NAME, null, true, Q_NAME);
-      queue = HornetQJMSClient.createQueue(Q_NAME);
+      queue = ActiveMQJMSClient.createQueue(Q_NAME);
    }
 
    @Test

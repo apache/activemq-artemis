@@ -22,16 +22,16 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 
 /**
- * This example demonstrates how to run a HornetQ embedded with JMS
+ * This example demonstrates how to run a ActiveMQ embedded with JMS
  *
  * @author <a href="clebert.suconic@jboss.com">Clebert Suconic</a>
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class EmbeddedExample extends HornetQExample
+public class EmbeddedExample extends ActiveMQExample
 {
 
    public static void main(final String[] args) throws Exception

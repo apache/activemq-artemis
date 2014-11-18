@@ -34,8 +34,8 @@ import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.tests.integration.SimpleNotificationService;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -46,8 +46,8 @@ import org.apache.activemq.tests.util.RandomUtil;
  */
 public class BridgeControlTest extends ManagementTestBase
 {
-   private HornetQServer server_0;
-   private HornetQServer server_1;
+   private ActiveMQServer server_0;
+   private ActiveMQServer server_1;
 
    private BridgeConfiguration bridgeConfig;
 
@@ -171,11 +171,11 @@ public class BridgeControlTest extends ManagementTestBase
          .addQueueConfiguration(sourceQueueConfig)
          .addBridgeConfiguration(bridgeConfig);
 
-      server_1 = HornetQServers.newHornetQServer(conf_1, MBeanServerFactory.createMBeanServer(), false);
+      server_1 = ActiveMQServers.newActiveMQServer(conf_1, MBeanServerFactory.createMBeanServer(), false);
       addServer(server_1);
       server_1.start();
 
-      server_0 = HornetQServers.newHornetQServer(conf_0, mbeanServer, false);
+      server_0 = ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false);
       addServer(server_0);
       server_0.start();
    }

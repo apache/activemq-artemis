@@ -19,12 +19,12 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnection;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class ConsumerStuckTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
 
@@ -58,7 +58,7 @@ public class ConsumerStuckTest extends ServiceTestBase
    public void testClientStuckTest() throws Exception
    {
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
       locator.setConnectionTTL(1000);
       locator.setClientFailureCheckPeriod(100);
       locator.setConsumerWindowSize(10 * 1024 * 1024);
@@ -169,7 +169,7 @@ public class ConsumerStuckTest extends ServiceTestBase
    public void testClientStuckTestWithDirectDelivery() throws Exception
    {
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
       locator.setConnectionTTL(1000);
       locator.setClientFailureCheckPeriod(100);
       locator.setConsumerWindowSize(10 * 1024 * 1024);
@@ -227,7 +227,7 @@ public class ConsumerStuckTest extends ServiceTestBase
          public void run()
          {
             try (
-               ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+               ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
                ClientSessionFactory factory = locator.createSessionFactory();
                ClientSession session = factory.createSession(false, true, true, true);
                ClientProducer producer = session.createProducer(QUEUE);

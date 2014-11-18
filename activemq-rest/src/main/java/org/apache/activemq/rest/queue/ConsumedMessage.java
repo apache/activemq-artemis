@@ -14,7 +14,7 @@ package org.apache.activemq.rest.queue;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.HttpHeaderProperty;
 
 import javax.ws.rs.core.Response;
@@ -51,7 +51,7 @@ public abstract class ConsumedMessage
             continue;
          }
          builder.header(headerName, message.getStringProperty(k));
-         HornetQRestLogger.LOGGER.debug("Adding " + headerName + "=" + message.getStringProperty(k));
+         ActiveMQRestLogger.LOGGER.debug("Adding " + headerName + "=" + message.getStringProperty(k));
       }
    }
 

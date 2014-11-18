@@ -18,17 +18,17 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="connection-ttl">
     <title>Detecting Dead Connections</title>
-    <para>In this section we will discuss connection time-to-live (TTL) and explain how HornetQ
+    <para>In this section we will discuss connection time-to-live (TTL) and explain how ActiveMQ
         deals with crashed clients and clients which have exited without cleanly closing their
         resources.</para>
     <section id="dead.connections">
         <title>Cleaning up Dead Connection Resources on the Server</title>
-        <para>Before a HornetQ client application exits it is considered good practice that it
+        <para>Before a ActiveMQ client application exits it is considered good practice that it
             should close its resources in a controlled manner, using a <literal>finally</literal>
             block.</para>
         <para>Here's an example of a well behaved core client application closing its session and
@@ -40,7 +40,7 @@ ClientSession session = null;
 
 try
 {
-   locator = HornetQClient.createServerLocatorWithoutHA(..);
+   locator = ActiveMQClient.createServerLocatorWithoutHA(..);
 
    sf = locator.createClientSessionFactory();;
 
@@ -71,7 +71,7 @@ Connection jmsConnection = null;
 
 try
 {
-   ConnectionFactory jmsConnectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(...);
+   ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(...);
 
    jmsConnection = jmsConnectionFactory.createConnection();
 
@@ -91,11 +91,11 @@ finally
             over time this result in the server running out of memory or other resources.</para>
         <para>We have to balance the requirement for cleaning up dead client resources with the fact
             that sometimes the network between the client and the server can fail and then come
-            back, allowing the client to reconnect. HornetQ supports client reconnection, so we
+            back, allowing the client to reconnect. ActiveMQ supports client reconnection, so we
             don't want to clean up "dead" server side resources too soon or this will prevent any
             client from reconnecting, as it won't be able to find its old sessions on the
             server.</para>
-        <para>HornetQ makes all of this configurable. For each <literal
+        <para>ActiveMQ makes all of this configurable. For each <literal
                 >ClientSessionFactory</literal> we define a <emphasis>connection TTL</emphasis>.
             Basically, the TTL determines how long the server will keep a connection alive in the
             absence of any data arriving from the client. The client will automatically send "ping"
@@ -104,7 +104,7 @@ finally
             automatically close all the sessions on the server that relate to that
             connection.</para>
         <para>If you're using JMS, the connection TTL is defined by the <literal
-                >ConnectionTTL</literal> attribute on a <literal>HornetQConnectionFactory</literal>
+                >ConnectionTTL</literal> attribute on a <literal>ActiveMQConnectionFactory</literal>
             instance, or if you're deploying JMS connection factory instances direct into JNDI on
             the server side, you can specify it in the xml config, using the parameter <literal
                 >connection-ttl</literal>.</para>
@@ -124,7 +124,7 @@ finally
             <para>As previously discussed, it's important that all core client sessions and JMS
                 connections are always closed explicitly in a <literal>finally</literal> block when
                 you are finished using them. </para>
-            <para>If you fail to do so, HornetQ will detect this at garbage collection time, and log
+            <para>If you fail to do so, ActiveMQ will detect this at garbage collection time, and log
                 a warning similar to the following in the logs (If you are using JMS the warning
                 will involve a JMS connection not a client session):</para>
             <programlisting>
@@ -134,7 +134,7 @@ ting them go out of scope!
 java.lang.Exception
    at org.apache.activemq.core.client.impl.DelegatingSession.&lt;init>(DelegatingSession.java:83)
    at org.acme.yourproject.YourClass (YourClass.java:666)</programlisting>
-            <para>HornetQ will then close the connection / client session for you.</para>
+            <para>ActiveMQ will then close the connection / client session for you.</para>
             <para>Note that the log will also tell you the exact line of your user code where you
                 created the JMS connection / client session that you later did not close. This will
                 enable you to pinpoint the error in your code and correct it appropriately.</para>
@@ -154,9 +154,9 @@ java.lang.Exception
                 >FailureListener</literal> instances (or <literal>ExceptionListener</literal>
             instances if you are using JMS) depending on how it has been configured.</para>
         <para>If you're using JMS it's defined by the <literal>ClientFailureCheckPeriod</literal>
-            attribute on a <literal>HornetQConnectionFactory</literal> instance, or if you're
+            attribute on a <literal>ActiveMQConnectionFactory</literal> instance, or if you're
             deploying JMS connection factory instances direct into JNDI on the server side, you can
-            specify it in the <literal>hornetq-jms.xml </literal> configuration file, using the
+            specify it in the <literal>activemq-jms.xml </literal> configuration file, using the
             parameter <literal>client-failure-check-period</literal>.</para>
         <para>The default value for client failure check period on an "unreliable" connection (e.g.
             a Netty connection) is <literal>30000</literal>ms, i.e. 30 seconds. The default value
@@ -197,7 +197,7 @@ java.lang.Exception
         </itemizedlist>
         <para>To disable asynchronous connection execution, set the parameter
            <literal>async-connection-execution-enabled</literal> in
-           <literal>hornetq-configuration.xml</literal> to <literal>false</literal> (default value is
+           <literal>activemq-configuration.xml</literal> to <literal>false</literal> (default value is
            <literal>true</literal>).</para>
     </section>
 </chapter>

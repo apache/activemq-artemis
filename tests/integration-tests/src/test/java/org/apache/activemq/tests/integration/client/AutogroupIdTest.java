@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -55,7 +55,7 @@ public class AutogroupIdTest extends ServiceTestBase
    @Test
    public void testGroupIdAutomaticallySet() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
 
@@ -105,7 +105,7 @@ public class AutogroupIdTest extends ServiceTestBase
    @Test
    public void testGroupIdAutomaticallySetMultipleProducers() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
 
@@ -160,7 +160,7 @@ public class AutogroupIdTest extends ServiceTestBase
    @Test
    public void testGroupIdAutomaticallyNotSet() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
 

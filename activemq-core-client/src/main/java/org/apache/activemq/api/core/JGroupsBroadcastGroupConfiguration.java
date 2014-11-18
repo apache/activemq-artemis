@@ -31,11 +31,11 @@ import org.jgroups.conf.PlainConfigurator;
  * There are two ways to constructing a JGroups channel (JChannel):
  * <ol>
  * <li> by passing in a JGroups configuration file<br>
- * The file must exists in the hornetq classpath. HornetQ creates a JChannel with the
+ * The file must exists in the activemq classpath. ActiveMQ creates a JChannel with the
  * configuration file and use it for broadcasting and discovery. In standalone server
- * mode HornetQ uses this way for constructing JChannels.</li>
+ * mode ActiveMQ uses this way for constructing JChannels.</li>
  * <li> by passing in a JChannel instance<br>
- * This is useful when HornetQ needs to get a JChannel from a running JGroups service as in the
+ * This is useful when ActiveMQ needs to get a JChannel from a running JGroups service as in the
  * case of AS7 integration.</li>
  * </ol>
  * <p>
@@ -118,7 +118,7 @@ public final class JGroupsBroadcastGroupConfiguration implements BroadcastEndpoi
    }
 
    /**
-    * This class is the implementation of HornetQ members discovery that will use JGroups.
+    * This class is the implementation of ActiveMQ members discovery that will use JGroups.
     *
     * @author Howard Gao
     */

@@ -14,7 +14,7 @@
  * Implementation of the JMS API.
  * <br>
  * Classes in this package are not meant to be used directly
- * except {@link org.apache.activemq.jms.client.HornetQConnectionFactory} which can be instantiated directly
+ * except {@link org.apache.activemq.jms.client.ActiveMQConnectionFactory} which can be instantiated directly
  * if JMS resources are not looked up in JNDI.
  *
  */

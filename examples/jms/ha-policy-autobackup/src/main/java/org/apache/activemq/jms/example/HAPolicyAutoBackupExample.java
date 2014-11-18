@@ -24,9 +24,9 @@ import javax.naming.InitialContext;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.common.example.HornetQExample;
-import org.apache.activemq.jms.client.HornetQConnection;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.jms.client.ActiveMQConnection;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * nodes of the cluster.
  *
  */
-public class HAPolicyAutoBackupExample extends HornetQExample
+public class HAPolicyAutoBackupExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -149,7 +149,7 @@ public class HAPolicyAutoBackupExample extends HornetQExample
    private void waitForBackups(ConnectionFactory cf0, int backups) throws InterruptedException
    {
       final CountDownLatch latch = new CountDownLatch(backups);
-         ((HornetQConnectionFactory) cf0).getServerLocator().addClusterTopologyListener(new ClusterTopologyListener()
+         ((ActiveMQConnectionFactory) cf0).getServerLocator().addClusterTopologyListener(new ClusterTopologyListener()
       {
          List<TransportConfiguration> backups = new ArrayList<TransportConfiguration>();
          @Override

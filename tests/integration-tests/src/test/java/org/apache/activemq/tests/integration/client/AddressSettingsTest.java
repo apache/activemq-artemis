@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -62,7 +62,7 @@ public class AddressSettingsTest extends ServiceTestBase
    @Test
    public void testSimpleHierarchyWithDLA() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       AddressSettings addressSettings = new AddressSettings();
@@ -119,7 +119,7 @@ public class AddressSettingsTest extends ServiceTestBase
    @Test
    public void test2LevelHierarchyWithDLA() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       AddressSettings addressSettings = new AddressSettings();
@@ -176,7 +176,7 @@ public class AddressSettingsTest extends ServiceTestBase
    @Test
    public void test2LevelWordHierarchyWithDLA() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(dlaA);
@@ -231,7 +231,7 @@ public class AddressSettingsTest extends ServiceTestBase
    @Test
    public void test3LevelHierarchyWithDLA() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       AddressSettings addressSettings = new AddressSettings();
@@ -307,7 +307,7 @@ public class AddressSettingsTest extends ServiceTestBase
    @Test
    public void testOverrideHierarchyWithDLA() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       AddressSettings addressSettings = new AddressSettings();

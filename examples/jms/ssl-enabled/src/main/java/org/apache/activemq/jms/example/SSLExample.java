@@ -21,14 +21,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that uses SSL secure transport.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class SSLExample extends HornetQExample
+public class SSLExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.deployers.Deployer;
 import org.apache.activemq.core.deployers.DeploymentManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 
 /**
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
@@ -114,7 +114,7 @@ public class FileDeploymentManager implements Runnable, DeploymentManager
 
          for (String filename : filenames)
          {
-            HornetQServerLogger.LOGGER.debug("the filename is " + filename);
+            ActiveMQServerLogger.LOGGER.debug("the filename is " + filename);
 
             Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(filename);
 
@@ -122,16 +122,16 @@ public class FileDeploymentManager implements Runnable, DeploymentManager
             {
                URI uri = urls.nextElement().toURI();
 
-               HornetQServerLogger.LOGGER.debug("Got URI " + uri);
+               ActiveMQServerLogger.LOGGER.debug("Got URI " + uri);
 
                try
                {
-                  HornetQServerLogger.LOGGER.debug("Deploying " + uri + " for " + deployer.getClass().getSimpleName());
+                  ActiveMQServerLogger.LOGGER.debug("Deploying " + uri + " for " + deployer.getClass().getSimpleName());
                   deployer.deploy(uri);
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.errorDeployingURI(e, uri);
+                  ActiveMQServerLogger.LOGGER.errorDeployingURI(e, uri);
                }
 
                Pair<URI, Deployer> pair = new Pair<URI, Deployer>(uri, deployer);
@@ -198,7 +198,7 @@ public class FileDeploymentManager implements Runnable, DeploymentManager
                   }
                   catch (URISyntaxException e)
                   {
-                     HornetQServerLogger.LOGGER.errorDeployingURI(e);
+                     ActiveMQServerLogger.LOGGER.errorDeployingURI(e);
                      continue;
                   }
 
@@ -218,7 +218,7 @@ public class FileDeploymentManager implements Runnable, DeploymentManager
                      }
                      catch (Exception e)
                      {
-                        HornetQServerLogger.LOGGER.errorDeployingURI(e, uri);
+                        ActiveMQServerLogger.LOGGER.errorDeployingURI(e, uri);
                      }
                   }
                   else if (newLastModified > info.lastModified)
@@ -231,7 +231,7 @@ public class FileDeploymentManager implements Runnable, DeploymentManager
                      }
                      catch (Exception e)
                      {
-                        HornetQServerLogger.LOGGER.errorDeployingURI(e, uri);
+                        ActiveMQServerLogger.LOGGER.errorDeployingURI(e, uri);
                      }
                   }
                }
@@ -246,18 +246,18 @@ public class FileDeploymentManager implements Runnable, DeploymentManager
                if (!fileExists(pair.getA()))
                {
                   Deployer deployer = entry.getValue().deployer;
-                  HornetQServerLogger.LOGGER.debug("Undeploying " + deployer + " with url " + pair.getA());
+                  ActiveMQServerLogger.LOGGER.debug("Undeploying " + deployer + " with url " + pair.getA());
                   deployer.undeploy(pair.getA());
                   toRemove.add(pair);
                }
             }
             catch (URISyntaxException e)
             {
-               HornetQServerLogger.LOGGER.errorUnDeployingURI(e, pair.getA());
+               ActiveMQServerLogger.LOGGER.errorUnDeployingURI(e, pair.getA());
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorUnDeployingURI(e, pair.getA());
+               ActiveMQServerLogger.LOGGER.errorUnDeployingURI(e, pair.getA());
             }
          }
          for (Pair<URI, Deployer> pair : toRemove)
@@ -267,7 +267,7 @@ public class FileDeploymentManager implements Runnable, DeploymentManager
       }
       catch (IOException e)
       {
-         HornetQServerLogger.LOGGER.errorScanningURLs(e);
+         ActiveMQServerLogger.LOGGER.errorScanningURLs(e);
       }
    }
 

@@ -29,7 +29,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -203,7 +203,7 @@ public abstract class PerfBase
       params.put(TransportConstants.HOST_PROP_NAME, perfParams.getHost());
       params.put(TransportConstants.PORT_PROP_NAME, perfParams.getPort());
 
-      ServerLocator serverLocator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), params));
+      ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), params));
       serverLocator.setPreAcknowledge(perfParams.isPreAck());
       serverLocator.setConfirmationWindowSize(perfParams.getConfirmationWindow());
       serverLocator.setProducerWindowSize(perfParams.getProducerWindow());

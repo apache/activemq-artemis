@@ -24,8 +24,8 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.rest.MessageServiceManager;
 import org.apache.activemq.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.rest.topic.PushTopicRegistration;
@@ -50,7 +50,7 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
  */
 public class PersistentPushTopicConsumerTest
 {
-   public static HornetQServer server;
+   public static ActiveMQServer server;
    public static MessageServiceManager manager;
    protected static ResteasyDeployment deployment;
 
@@ -62,7 +62,7 @@ public class PersistentPushTopicConsumerTest
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      server = HornetQServers.newHornetQServer(configuration);
+      server = ActiveMQServers.newActiveMQServer(configuration);
       server.start();
    }
 

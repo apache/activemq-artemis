@@ -21,15 +21,15 @@ import javax.jms.Session;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSManagementHelper;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -98,9 +98,9 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       TransportConfiguration config = new TransportConfiguration(InVMConnectorFactory.class.getName());
-      Connection connection = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, config).createConnection();
+      Connection connection = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, config).createConnection();
       connection.start();
-      Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");
+      Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
       QueueSession session = (QueueSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       QueueRequestor requestor = new QueueRequestor(session, managementQueue);
       Message message = session.createMessage();
@@ -152,7 +152,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
          .setPersistenceEnabled(true)
          .setJournalType(JournalType.NIO)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      HornetQServer server = HornetQServers.newHornetQServer(conf, mbeanServer);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, mbeanServer);
 
       context = new InVMNamingContext();
 

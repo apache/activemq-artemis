@@ -15,7 +15,7 @@ package org.apache.activemq.api.core;
 
 
 /**
- * An error has happened at HornetQ's native (non-Java) code used in reading and writing data.
+ * An error has happened at ActiveMQ's native (non-Java) code used in reading and writing data.
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 5/4/12
  */
 // XXX

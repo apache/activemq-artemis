@@ -40,15 +40,15 @@ public class ConnectionFactoryObjectFactoryTest extends UnitTestCase
 
    // public void testReference() throws Exception
    // {
-   // HornetQRAConnectionFactory cf =
-   // new HornetQRAConnectionFactory(null, null, 123, 123, randomString(), 1, 1, 1, 1, 1, true, true, true);
+   // ActiveMQRAConnectionFactory cf =
+   // new ActiveMQRAConnectionFactory(null, null, 123, 123, randomString(), 1, 1, 1, 1, 1, true, true, true);
    // Reference reference = cf.getReference();
    //
    // ConnectionFactoryObjectFactory factory = new ConnectionFactoryObjectFactory();
    //
    // Object object = factory.getObjectInstance(reference, null, null, null);
    // assertNotNull(object);
-   // assertTrue(object instanceof HornetQRAConnectionFactory);
+   // assertTrue(object instanceof ActiveMQRAConnectionFactory);
    // }
 
    // Package protected ---------------------------------------------

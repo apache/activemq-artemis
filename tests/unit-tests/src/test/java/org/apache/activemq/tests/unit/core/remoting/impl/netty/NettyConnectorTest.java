@@ -24,7 +24,7 @@ import org.junit.Assert;
 
 import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
@@ -56,7 +56,7 @@ public class NettyConnectorTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
          public void connectionReadyForWrites(Object connectionID, boolean ready)
@@ -97,7 +97,7 @@ public class NettyConnectorTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
 
@@ -163,7 +163,7 @@ public class NettyConnectorTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
          public void connectionReadyForWrites(Object connectionID, boolean ready)
@@ -190,7 +190,7 @@ public class NettyConnectorTest extends UnitTestCase
       Assert.assertFalse(connector.isStarted());
    }
    @Test
-   public void testHornetQSystemPropertyOverrides() throws Exception
+   public void testActiveMQSystemPropertyOverrides() throws Exception
    {
       BufferHandler handler = new BufferHandler()
       {
@@ -214,7 +214,7 @@ public class NettyConnectorTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
          public void connectionReadyForWrites(Object connectionID, boolean ready)
@@ -235,10 +235,10 @@ public class NettyConnectorTest extends UnitTestCase
       System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "bad path");
       System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
 
-      System.setProperty(NettyConnector.HORNETQ_KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
-      System.setProperty(NettyConnector.HORNETQ_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
-      System.setProperty(NettyConnector.HORNETQ_TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
-      System.setProperty(NettyConnector.HORNETQ_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
 
 
       connector.start();
@@ -269,7 +269,7 @@ public class NettyConnectorTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
          public void connectionReadyForWrites(Object connectionID, boolean ready)
@@ -314,7 +314,7 @@ public class NettyConnectorTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
          public void connectionReadyForWrites(Object connectionID, boolean ready)

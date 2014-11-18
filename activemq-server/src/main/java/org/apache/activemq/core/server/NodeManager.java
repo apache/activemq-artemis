@@ -28,7 +28,7 @@ import org.apache.activemq.utils.UUIDGenerator;
  *         Date: Oct 13, 2010
  *         Time: 2:38:40 PM
  */
-public abstract class NodeManager implements HornetQComponent
+public abstract class NodeManager implements ActiveMQComponent
 {
    protected static final byte FIRST_TIME_START = '0';
    private static final String SERVER_LOCK_NAME = "server.lock";
@@ -175,7 +175,7 @@ public abstract class NodeManager implements HornetQComponent
          }
          catch (RuntimeException e)
          {
-            HornetQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
+            ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
             throw e;
          }
          catch (IOException e)
@@ -195,7 +195,7 @@ public abstract class NodeManager implements HornetQComponent
                count++;
                continue;
             }
-            HornetQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
+            ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
             throw e;
          }
          if (!fileCreated)

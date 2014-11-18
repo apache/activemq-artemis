@@ -21,8 +21,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.ServiceRegistry;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
@@ -35,7 +35,7 @@ import org.junit.Test;
 
 public class SuppliedThreadPoolTest extends UnitTestCase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private Thread serverThread;
 
@@ -46,7 +46,7 @@ public class SuppliedThreadPoolTest extends UnitTestCase
       serviceRegistry = new ServiceRegistry();
       serviceRegistry.setExecutorService(Executors.newFixedThreadPool(1));
       serviceRegistry.setScheduledExecutorService(Executors.newScheduledThreadPool(1));
-      server = new HornetQServerImpl(null, null, null, null, serviceRegistry);
+      server = new ActiveMQServerImpl(null, null, null, null, serviceRegistry);
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
    }
@@ -86,7 +86,7 @@ public class SuppliedThreadPoolTest extends UnitTestCase
       assertNotNull(threadPool);
       assertNotNull(scheduledExecutorService);
 
-      // Ensure that HornetQ does not shutdown supplied thread pools.
+      // Ensure that ActiveMQ does not shutdown supplied thread pools.
       assertFalse(threadPool.isShutdown());
       assertFalse(scheduledExecutorService.isShutdown());
    }

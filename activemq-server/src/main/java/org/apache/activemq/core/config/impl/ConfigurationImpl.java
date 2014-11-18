@@ -1069,7 +1069,7 @@ public class ConfigurationImpl implements Configuration
    @Override
    public String toString()
    {
-      StringBuilder sb = new StringBuilder("HornetQ Configuration (");
+      StringBuilder sb = new StringBuilder("ActiveMQ Configuration (");
       sb.append("clustered=").append(isClustered()).append(",");
       sb.append("journalDirectory=").append(journalDirectory).append(",");
       sb.append("bindingsDirectory=").append(bindingsDirectory).append(",");

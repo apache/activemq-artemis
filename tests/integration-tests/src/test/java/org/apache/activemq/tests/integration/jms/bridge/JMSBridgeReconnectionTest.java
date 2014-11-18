@@ -14,12 +14,12 @@ package org.apache.activemq.tests.integration.jms.bridge;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.jms.client.HornetQXAConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQXAConnectionFactory;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.integration.ra.DummyTransactionManager;
 import org.junit.Assert;
@@ -134,7 +134,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                                                null,
                                                false);
       bridge.setTransactionManager(newTransactionManager());
-      addHornetQComponent(bridge);
+      addActiveMQComponent(bridge);
       bridge.start();
       Assert.assertFalse(bridge.isStarted());
       Assert.assertTrue(bridge.isFailed());
@@ -230,7 +230,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                            null,
                            null,
                            false);
-      addHornetQComponent(bridge);
+      addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
       bridge.start();
 
@@ -305,7 +305,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                   false);
 
 
-      addHornetQComponent(bridge);
+      addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
       bridge.start();
 
@@ -367,10 +367,10 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
       {
          public Object createConnectionFactory() throws Exception
          {
-            HornetQXAConnectionFactory cf = (HornetQXAConnectionFactory) HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF,
-                  new TransportConfiguration(
-                        INVM_CONNECTOR_FACTORY,
-                        params1));
+            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF,
+                                                                                                                         new TransportConfiguration(
+                                                                                                                            INVM_CONNECTOR_FACTORY,
+                                                                                                                            params1));
 
             // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
             cf.setReconnectAttempts(-1);
@@ -405,7 +405,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                   null,
                   null,
                   false);
-      addHornetQComponent(bridge);
+      addActiveMQComponent(bridge);
       bridge.setTransactionManager(tm);
 
       bridge.start();
@@ -516,7 +516,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                            null,
                            null,
                            false);
-      addHornetQComponent(bridge);
+      addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
 
       bridge.start();

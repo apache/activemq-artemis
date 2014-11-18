@@ -16,10 +16,10 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.ActiveMQMessage;
 
 /**
- * Helper class to use JMS messages to manage HornetQ server resources.
+ * Helper class to use JMS messages to manage ActiveMQ server resources.
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
@@ -27,13 +27,13 @@ public class JMSManagementHelper
 {
    private static org.apache.activemq.api.core.Message getCoreMessage(final Message jmsMessage)
    {
-      if (jmsMessage instanceof HornetQMessage == false)
+      if (jmsMessage instanceof ActiveMQMessage == false)
       {
-         throw new IllegalArgumentException("Cannot send a non HornetQ message as a management message " + jmsMessage.getClass()
+         throw new IllegalArgumentException("Cannot send a non ActiveMQ message as a management message " + jmsMessage.getClass()
                                                                                                                    .getName());
       }
 
-      return ((HornetQMessage)jmsMessage).getCoreMessage();
+      return ((ActiveMQMessage)jmsMessage).getCoreMessage();
    }
 
    /**

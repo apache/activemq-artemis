@@ -13,7 +13,7 @@
 /**
  * Remoting API.
  * <br>
- * This package defines the API used by HornetQ for remoting.
+ * This package defines the API used by ActiveMQ for remoting.
  */
 package org.apache.activemq.core.remoting;
 

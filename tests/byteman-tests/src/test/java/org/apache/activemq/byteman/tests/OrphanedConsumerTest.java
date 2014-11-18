@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -58,11 +58,11 @@ public class OrphanedConsumerTest extends ServiceTestBase
       throw new InterruptedException("nice.. I interrupted this!");
    }
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ServerLocator locator;
 
-   static HornetQServer staticServer;
+   static ActiveMQServer staticServer;
 
    /**
     * {@link #leavingCloseOnTestCountersWhileClosing()} will set this in case of any issues.
@@ -245,7 +245,7 @@ public class OrphanedConsumerTest extends ServiceTestBase
       }
       else
       {
-         server.getHornetQServerControl().closeConnectionsForAddress("127.0.0.1");
+         server.getActiveMQServerControl().closeConnectionsForAddress("127.0.0.1");
       }
 
       if (verification != null)

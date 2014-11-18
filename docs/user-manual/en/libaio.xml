@@ -18,12 +18,12 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="libaio">
     <title>Libaio Native Libraries</title>
-    <para>HornetQ distributes a native library, used as a bridge between HornetQ and Linux
+    <para>ActiveMQ distributes a native library, used as a bridge between ActiveMQ and Linux
         libaio.</para>
     <para><literal>libaio</literal> is a library, developed as part of the Linux kernel project.
         With <literal>libaio</literal> we submit writes to the operating system where they are
@@ -31,16 +31,16 @@
         processed.</para>
     <para>We use this in our high performance journal if configured to do so, please see <xref
             linkend="persistence"/>.</para>
-    <para>These are the native libraries distributed by HornetQ:</para>
+    <para>These are the native libraries distributed by ActiveMQ:</para>
     <itemizedlist>
         <listitem>
-            <para>libHornetQAIO32.so - x86 32 bits</para>
+            <para>libActiveMQAIO32.so - x86 32 bits</para>
         </listitem>
         <listitem>
-            <para>libHornetQAIO64.so - x86 64 bits</para>
+            <para>libActiveMQAIO64.so - x86 64 bits</para>
         </listitem>
     </itemizedlist>
-    <para>When using libaio, HornetQ will always try loading these files as long as they are on the
+    <para>When using libaio, ActiveMQ will always try loading these files as long as they are on the
             <link linkend="using-server.library.path">library path</link>.</para>
     <section>
         <title>Compiling the native libraries</title>
@@ -120,10 +120,10 @@ config.status: executing libtool commands
 
 ...</programlisting>
             <para>The produced library will be at <literal
-                    >./native-src/src/.libs/libHornetQAIO.so</literal>. Simply move that file over
+                    >./native-src/src/.libs/libActiveMQAIO.so</literal>. Simply move that file over
                     <literal>bin</literal> on the distribution or the place you have chosen on the
                     <link linkend="using-server.library.path">library path</link>.</para>
-            <para>If you want to perform changes on the HornetQ libaio code, you could just call
+            <para>If you want to perform changes on the ActiveMQ libaio code, you could just call
                 make directly at the <literal>native-src</literal> directory.</para>
         </section>
     </section>

@@ -30,9 +30,9 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonContextSender;
 import org.proton.plug.context.AbstractProtonSessionContext;
-import org.proton.plug.exceptions.HornetQAMQPException;
-import org.proton.plug.exceptions.HornetQAMQPInternalErrorException;
-import org.proton.plug.logger.HornetQAMQPProtocolMessageBundle;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
+import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.proton.plug.context.ProtonPlugSender;
 import org.apache.qpid.proton.amqp.messaging.Source;
 
@@ -67,7 +67,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    /*
 * start the session
 * */
-   public void start() throws HornetQAMQPException
+   public void start() throws ActiveMQAMQPException
    {
       super.start();
       // protonSession.getServerSession().start();
@@ -81,12 +81,12 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       }
       catch (Exception e)
       {
-         throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorStartingConsumer(e.getMessage());
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorStartingConsumer(e.getMessage());
       }
    }
 
    /**
-    * create the actual underlying HornetQ Server Consumer
+    * create the actual underlying ActiveMQ Server Consumer
     */
    @Override
    public void initialise() throws Exception
@@ -122,7 +122,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             }
             catch (Exception e)
             {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
             }
             source.setAddress(queue);
          }
@@ -133,19 +133,19 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             queue = source.getAddress();
             if (queue == null)
             {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.sourceAddressNotSet();
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressNotSet();
             }
 
             try
             {
                if (!sessionSPI.queueQuery(queue))
                {
-                  throw HornetQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
+                  throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
                }
             }
             catch (Exception e)
             {
-               throw new HornetQAMQPInternalErrorException(e.getMessage(), e);
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
 
@@ -156,7 +156,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          }
          catch (Exception e)
          {
-            throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorCreatingHornetQConsumer(e.getMessage());
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingActiveMQConsumer(e.getMessage());
          }
       }
    }
@@ -164,7 +164,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    /*
    * close the session
    * */
-   public void close() throws HornetQAMQPException
+   public void close() throws ActiveMQAMQPException
    {
       super.close();
       try
@@ -174,12 +174,12 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       catch (Exception e)
       {
          e.printStackTrace();
-         throw new HornetQAMQPInternalErrorException(e.getMessage());
+         throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
    }
 
 
-   public void onMessage(Delivery delivery) throws HornetQAMQPException
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
    {
       Object message = delivery.getContext();
 
@@ -200,7 +200,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             }
             catch (Exception e)
             {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
             }
          }
          else if (remoteState instanceof Released)
@@ -211,7 +211,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             }
             catch (Exception e)
             {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
          }
          else if (remoteState instanceof Rejected || remoteState instanceof Modified)
@@ -222,7 +222,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             }
             catch (Exception e)
             {
-               throw HornetQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
          }
          //todo add tag caching
@@ -253,7 +253,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
 
 
    /**
-    * handle an out going message from HornetQ, send via the Proton Sender
+    * handle an out going message from ActiveMQ, send via the Proton Sender
     */
    public int deliverMessage(Object message, int deliveryCount) throws Exception
    {
@@ -273,7 +273,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       catch (Throwable e)
       {
          e.printStackTrace();
-         throw new HornetQAMQPInternalErrorException(e.getMessage(), e);
+         throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
       }
 
       return performSend(serverMessage, message);

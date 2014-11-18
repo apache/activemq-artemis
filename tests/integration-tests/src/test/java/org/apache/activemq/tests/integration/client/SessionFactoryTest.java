@@ -26,13 +26,13 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class SessionFactoryTest extends ServiceTestBase
          .setGroupAddress(getUDPDiscoveryAddress())
          .setGroupPort(getUDPDiscoveryPort()));
 
-   private HornetQServer liveService;
+   private ActiveMQServer liveService;
 
    private TransportConfiguration liveTC;
 
@@ -68,7 +68,7 @@ public class SessionFactoryTest extends ServiceTestBase
    @Test
    public void testSerializable() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -96,7 +96,7 @@ public class SessionFactoryTest extends ServiceTestBase
    @Test
    public void testCloseUnusedClientSessionFactoryWithoutGlobalPools() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(liveTC);
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(liveTC);
 
       ClientSessionFactory csf = createSessionFactory(locator);
       csf.close();
@@ -105,32 +105,32 @@ public class SessionFactoryTest extends ServiceTestBase
    @Test
    public void testDiscoveryConstructor() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(groupConfiguration);
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(groupConfiguration);
 
       assertFactoryParams(locator,
                           null,
                           groupConfiguration,
-                          HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                          HornetQClient.DEFAULT_CONNECTION_TTL,
-                          HornetQClient.DEFAULT_CALL_TIMEOUT,
-                          HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                          HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                          HornetQClient.DEFAULT_CONSUMER_MAX_RATE,
-                          HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                          HornetQClient.DEFAULT_PRODUCER_MAX_RATE,
-                          HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                          HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                          HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                          HornetQClient.DEFAULT_AUTO_GROUP,
-                          HornetQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                          HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                          HornetQClient.DEFAULT_ACK_BATCH_SIZE,
-                          HornetQClient.DEFAULT_USE_GLOBAL_POOLS,
-                          HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                          HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                          HornetQClient.DEFAULT_RETRY_INTERVAL,
-                          HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          HornetQClient.DEFAULT_RECONNECT_ATTEMPTS);
+                          ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
+                          ActiveMQClient.DEFAULT_CONNECTION_TTL,
+                          ActiveMQClient.DEFAULT_CALL_TIMEOUT,
+                          ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                          ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
+                          ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
+                          ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+                          ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
+                          ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
+                          ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
+                          ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
+                          ActiveMQClient.DEFAULT_AUTO_GROUP,
+                          ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
+                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
+                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
+                          ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
+                          ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+                          ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
+                          ActiveMQClient.DEFAULT_RETRY_INTERVAL,
+                          ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
+                          ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -147,32 +147,32 @@ public class SessionFactoryTest extends ServiceTestBase
    public void testStaticConnectorListConstructor() throws Exception
    {
       TransportConfiguration[] tc = new TransportConfiguration[]{liveTC};
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(tc);
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(tc);
 
       assertFactoryParams(locator,
                           tc,
                           null,
-                          HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                          HornetQClient.DEFAULT_CONNECTION_TTL,
-                          HornetQClient.DEFAULT_CALL_TIMEOUT,
-                          HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                          HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                          HornetQClient.DEFAULT_CONSUMER_MAX_RATE,
-                          HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                          HornetQClient.DEFAULT_PRODUCER_MAX_RATE,
-                          HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                          HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                          HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                          HornetQClient.DEFAULT_AUTO_GROUP,
-                          HornetQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                          HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                          HornetQClient.DEFAULT_ACK_BATCH_SIZE,
-                          HornetQClient.DEFAULT_USE_GLOBAL_POOLS,
-                          HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                          HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                          HornetQClient.DEFAULT_RETRY_INTERVAL,
-                          HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          HornetQClient.DEFAULT_RECONNECT_ATTEMPTS);
+                          ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
+                          ActiveMQClient.DEFAULT_CONNECTION_TTL,
+                          ActiveMQClient.DEFAULT_CALL_TIMEOUT,
+                          ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                          ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
+                          ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
+                          ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+                          ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
+                          ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
+                          ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
+                          ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
+                          ActiveMQClient.DEFAULT_AUTO_GROUP,
+                          ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
+                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
+                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
+                          ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
+                          ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+                          ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
+                          ActiveMQClient.DEFAULT_RETRY_INTERVAL,
+                          ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
+                          ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -188,7 +188,7 @@ public class SessionFactoryTest extends ServiceTestBase
    {
 
       TransportConfiguration[] tc = new TransportConfiguration[]{liveTC};
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(tc);
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(tc);
 
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
       long connectionTTL = RandomUtil.randomPositiveLong();

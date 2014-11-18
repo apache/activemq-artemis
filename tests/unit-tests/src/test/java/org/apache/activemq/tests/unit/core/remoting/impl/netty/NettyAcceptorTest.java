@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
@@ -90,7 +90,7 @@ public class NettyAcceptorTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
 
@@ -107,7 +107,7 @@ public class NettyAcceptorTest extends UnitTestCase
                                                  pool2,
                                                  null);
 
-      addHornetQComponent(acceptor);
+      addActiveMQComponent(acceptor);
       acceptor.start();
       Assert.assertTrue(acceptor.isStarted());
       acceptor.stop();

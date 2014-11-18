@@ -26,10 +26,10 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -52,7 +52,7 @@ public class ScheduledMessageTest extends ServiceTestBase
 
    private Configuration configuration;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ServerLocator locator;
 
@@ -298,7 +298,7 @@ public class ScheduledMessageTest extends ServiceTestBase
       ClientSession session = sessionFactory.createSession(false, true, false);
       session.createQueue(atestq, atestq, null, true);
       ClientProducer producer = session.createProducer(atestq);
-      ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                     false,
                                                     0,
                                                     System.currentTimeMillis(),
@@ -1011,7 +1011,7 @@ public class ScheduledMessageTest extends ServiceTestBase
 
    private ClientMessage createDurableMessage(final ClientSession session, final String body)
    {
-      ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                     true,
                                                     0,
                                                     System.currentTimeMillis(),

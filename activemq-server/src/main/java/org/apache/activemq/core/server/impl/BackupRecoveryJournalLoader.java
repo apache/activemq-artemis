@@ -23,12 +23,12 @@ import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.persistence.GroupingInfo;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.cluster.ClusterController;
-import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.core.server.group.GroupingHandler;
 import org.apache.activemq.core.server.management.ManagementService;
 import org.apache.activemq.core.transaction.ResourceManager;
@@ -42,7 +42,7 @@ import java.util.Map;
 * */
 public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
 {
-   private HornetQServer parentServer;
+   private ActiveMQServer parentServer;
    private ServerLocator locator;
    private final ClusterController clusterController;
 
@@ -54,7 +54,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
                                       ManagementService managementService,
                                       GroupingHandler groupingHandler,
                                       Configuration configuration,
-                                      HornetQServer parentServer,
+                                      ActiveMQServer parentServer,
                                       ServerLocatorInternal locator,
                                       ClusterController clusterController)
    {
@@ -73,7 +73,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
       //todo maybe in the future we can restart the handler on the live server as a local handler and redistribute the state
       if (groupingInfos != null && groupingInfos.size() > 0)
       {
-         HornetQServerLogger.LOGGER.groupBindingsOnRecovery();
+         ActiveMQServerLogger.LOGGER.groupBindingsOnRecovery();
       }
    }
 
@@ -87,7 +87,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
    public void postLoad(Journal messageJournal, ResourceManager resourceManager, Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception
    {
       ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController);
-      locator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+      locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
 
       try (ClientSessionFactory sessionFactory = locator.createSessionFactory())
       {

@@ -15,9 +15,9 @@ package org.proton.plug.context;
 
 import java.util.concurrent.TimeUnit;
 
-import org.proton.plug.exceptions.HornetQAMQPException;
-import org.proton.plug.exceptions.HornetQAMQPIllegalStateException;
-import org.proton.plug.exceptions.HornetQAMQPTimeoutException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPIllegalStateException;
+import org.proton.plug.exceptions.ActiveMQAMQPTimeoutException;
 import org.proton.plug.util.FutureRunnable;
 
 /**
@@ -63,20 +63,20 @@ public class ProtonInitializable
    }
 
 
-   public void waitWithTimeout(FutureRunnable latch) throws HornetQAMQPException
+   public void waitWithTimeout(FutureRunnable latch) throws ActiveMQAMQPException
    {
       try
       {
          // TODO Configure this
          if (!latch.await(30, TimeUnit.SECONDS))
          {
-            throw new HornetQAMQPTimeoutException("Timed out waiting for response");
+            throw new ActiveMQAMQPTimeoutException("Timed out waiting for response");
          }
       }
       catch (InterruptedException e)
       {
          Thread.currentThread().interrupt();
-         throw new HornetQAMQPIllegalStateException(e.getMessage());
+         throw new ActiveMQAMQPIllegalStateException(e.getMessage());
       }
    }
 

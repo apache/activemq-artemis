@@ -60,7 +60,7 @@ public class MessageCounterHelper
       }
 
       String ret0 =
-               "<table class=\"hornetq-message-counter\">\n" + "<tr>"
+               "<table class=\"activemq-message-counter\">\n" + "<tr>"
                    + "<th>Type</th>"
                    + "<th>Name</th>"
                    + "<th>Subscription</th>"
@@ -136,7 +136,7 @@ public class MessageCounterHelper
 
          ret.append("    <li>");
          // table header
-         ret.append("<table class=\"hornetq-message-counter-history\">\n");
+         ret.append("<table class=\"activemq-message-counter-history\">\n");
          ret.append("<tr><th>Date</th>");
 
          for (int j = 0; j < 24; j++)

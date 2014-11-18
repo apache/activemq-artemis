@@ -17,7 +17,7 @@ import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -28,14 +28,14 @@ public class ClusterConfigurationUtil
    {
       if (config.getName() == null)
       {
-         HornetQServerLogger.LOGGER.clusterConnectionNotUnique();
+         ActiveMQServerLogger.LOGGER.clusterConnectionNotUnique();
 
          return null;
       }
 
       if (config.getAddress() == null)
       {
-         HornetQServerLogger.LOGGER.clusterConnectionNoForwardAddress();
+         ActiveMQServerLogger.LOGGER.clusterConnectionNoForwardAddress();
 
          return null;
       }
@@ -44,7 +44,7 @@ public class ClusterConfigurationUtil
 
       if (connector == null)
       {
-         HornetQServerLogger.LOGGER.clusterConnectionNoConnector(config.getConnectorName());
+         ActiveMQServerLogger.LOGGER.clusterConnectionNoConnector(config.getConnectorName());
          return null;
       }
       return connector;
@@ -57,7 +57,7 @@ public class ClusterConfigurationUtil
 
       if (dg == null)
       {
-         HornetQServerLogger.LOGGER.clusterConnectionNoDiscoveryGroup(config.getDiscoveryGroupName());
+         ActiveMQServerLogger.LOGGER.clusterConnectionNoDiscoveryGroup(config.getDiscoveryGroupName());
          return null;
       }
       return dg;
@@ -80,7 +80,7 @@ public class ClusterConfigurationUtil
 
          if (connector == null)
          {
-            HornetQServerLogger.LOGGER.bridgeNoConnector(connectorName);
+            ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
 
             return null;
          }

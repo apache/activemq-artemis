@@ -13,7 +13,7 @@
 
 
 /**
- * This package contains incomplete JMS implementations just to be used with converting amqp to hornetq and
+ * This package contains incomplete JMS implementations just to be used with converting amqp to activemq and
  * vice versa
  * @author Clebert Suconic
  */

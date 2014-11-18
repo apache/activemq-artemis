@@ -38,12 +38,12 @@ import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.client.impl.LargeMessageControllerImpl;
-import org.apache.activemq.core.protocol.core.impl.HornetQConsumerContext;
+import org.apache.activemq.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.HornetQBufferInputStream;
+import org.apache.activemq.utils.ActiveMQBufferInputStream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -183,7 +183,7 @@ public class LargeMessageBufferTest extends UnitTestCase
    public void testReadIntegersOverStream() throws Exception
    {
       LargeMessageControllerImpl buffer = createBufferWithIntegers(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-      HornetQBufferInputStream is = new HornetQBufferInputStream(buffer);
+      ActiveMQBufferInputStream is = new ActiveMQBufferInputStream(buffer);
       DataInputStream dataInput = new DataInputStream(is);
 
       for (int i = 1; i <= 15; i++)
@@ -220,7 +220,7 @@ public class LargeMessageBufferTest extends UnitTestCase
    public void testReadLongsOverStream() throws Exception
    {
       LargeMessageControllerImpl buffer = createBufferWithLongs(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-      HornetQBufferInputStream is = new HornetQBufferInputStream(buffer);
+      ActiveMQBufferInputStream is = new ActiveMQBufferInputStream(buffer);
       DataInputStream dataInput = new DataInputStream(is);
 
       for (int i = 1; i <= 15; i++)
@@ -660,7 +660,7 @@ public class LargeMessageBufferTest extends UnitTestCase
 
       ActiveMQBuffer splitbuffer = splitBuffer(3, byteArray);
 
-      HornetQBufferInputStream is = new HornetQBufferInputStream(splitbuffer);
+      ActiveMQBufferInputStream is = new ActiveMQBufferInputStream(splitbuffer);
 
       for (int i = 0; i < 100; i++)
       {
@@ -775,7 +775,7 @@ public class LargeMessageBufferTest extends UnitTestCase
 
       public ConsumerContext getConsumerContext()
       {
-         return new HornetQConsumerContext(0);
+         return new ActiveMQConsumerContext(0);
       }
 
 

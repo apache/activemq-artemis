@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 
 /**
  *
@@ -30,9 +30,9 @@ import org.apache.activemq.api.jms.HornetQJMSConstants;
  */
 public class JMSMessageListenerWrapper implements MessageHandler
 {
-   private final HornetQConnection connection;
+   private final ActiveMQConnection connection;
 
-   private final HornetQSession session;
+   private final ActiveMQSession session;
 
    private final MessageListener listener;
 
@@ -42,8 +42,8 @@ public class JMSMessageListenerWrapper implements MessageHandler
 
    private final boolean individualACK;
 
-   protected JMSMessageListenerWrapper(final HornetQConnection connection,
-                                       final HornetQSession session,
+   protected JMSMessageListenerWrapper(final ActiveMQConnection connection,
+                                       final ActiveMQSession session,
                                        final ClientConsumer consumer,
                                        final MessageListener listener,
                                        final int ackMode)
@@ -58,7 +58,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
 
       transactedOrClientAck = (ackMode == Session.SESSION_TRANSACTED || ackMode == Session.CLIENT_ACKNOWLEDGE) || session.isXA();
 
-      individualACK = (ackMode == HornetQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+      individualACK = (ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
    }
 
    /**
@@ -67,7 +67,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
     */
    public void onMessage(final ClientMessage message)
    {
-      HornetQMessage msg = HornetQMessage.createMessage(message, session.getCoreSession());
+      ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session.getCoreSession());
 
       if (individualACK)
       {
@@ -80,7 +80,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
       }
       catch (Exception e)
       {
-         HornetQJMSClientLogger.LOGGER.errorPreparingMessageForReceipt(e);
+         ActiveMQJMSClientLogger.LOGGER.errorPreparingMessageForReceipt(e);
 
          return;
       }
@@ -93,7 +93,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
          }
          catch (ActiveMQException e)
          {
-            HornetQJMSClientLogger.LOGGER.errorProcessingMessage(e);
+            ActiveMQJMSClientLogger.LOGGER.errorProcessingMessage(e);
          }
       }
 
@@ -106,7 +106,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
       {
          // See JMS 1.1 spec, section 4.5.2
 
-         HornetQJMSClientLogger.LOGGER.onMessageError(e);
+         ActiveMQJMSClientLogger.LOGGER.onMessageError(e);
 
          if (!transactedOrClientAck)
          {
@@ -123,7 +123,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
             }
             catch (Exception e2)
             {
-               HornetQJMSClientLogger.LOGGER.errorRecoveringSession(e2);
+               ActiveMQJMSClientLogger.LOGGER.errorRecoveringSession(e2);
             }
          }
       }
@@ -143,7 +143,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
          }
          catch (ActiveMQException e)
          {
-            HornetQJMSClientLogger.LOGGER.errorProcessingMessage(e);
+            ActiveMQJMSClientLogger.LOGGER.errorProcessingMessage(e);
          }
       }
 

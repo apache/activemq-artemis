@@ -28,12 +28,12 @@ import org.junit.Assert;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQSession;
-import org.apache.activemq.jms.client.HornetQTemporaryTopic;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQSession;
+import org.apache.activemq.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.JMSTestBase;
 
@@ -42,10 +42,10 @@ import org.apache.activemq.tests.util.JMSTestBase;
  */
 public class CloseDestroyedConnectionTest extends JMSTestBase
 {
-   private HornetQConnectionFactory cf;
-   private HornetQSession session1;
+   private ActiveMQConnectionFactory cf;
+   private ActiveMQSession session1;
    private Connection conn2;
-   private HornetQSession session2;
+   private ActiveMQSession session2;
 
    @Override
    @Before
@@ -54,8 +54,8 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
       super.setUp();
 
       cf =
-               HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                 new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       cf.setBlockOnDurableSend(true);
       cf.setPreAcknowledge(true);
    }
@@ -84,13 +84,13 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
 
       Assert.assertEquals(1, server.getRemotingService().getConnections().size());
 
-      session1 = (HornetQSession)conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      HornetQTemporaryTopic topic = (HornetQTemporaryTopic)session1.createTemporaryTopic();
+      session1 = (ActiveMQSession)conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQTemporaryTopic topic = (ActiveMQTemporaryTopic)session1.createTemporaryTopic();
       String address = topic.getAddress();
       session1.close();
       conn.close();
       conn2 = cf.createConnection();
-      session2 = (HornetQSession)conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session2 = (ActiveMQSession)conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       ClientSession cs = session2.getCoreSession();
       try
@@ -126,7 +126,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
 
       String queueName = "myqueue";
 
-      Queue queue = HornetQJMSClient.createQueue(queueName);
+      Queue queue = ActiveMQJMSClient.createQueue(queueName);
 
       super.createQueue(queueName);
 
@@ -138,7 +138,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
 
       // Now fail the underlying connection
 
-      ClientSessionInternal sessi = (ClientSessionInternal)((HornetQSession)sess).getCoreSession();
+      ClientSessionInternal sessi = (ClientSessionInternal)((ActiveMQSession)sess).getCoreSession();
 
       RemotingConnection rc = sessi.getConnection();
 

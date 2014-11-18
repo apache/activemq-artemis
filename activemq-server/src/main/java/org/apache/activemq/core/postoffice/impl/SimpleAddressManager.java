@@ -22,8 +22,8 @@ import org.apache.activemq.core.postoffice.AddressManager;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.BindingsFactory;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.utils.ConcurrentHashSet;
@@ -60,12 +60,12 @@ public class SimpleAddressManager implements AddressManager
    {
       if (nameMap.putIfAbsent(binding.getUniqueName(), binding) != null || pendingDeletes.contains(binding.getUniqueName()))
       {
-         throw HornetQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
+         throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
+         ActiveMQServerLogger.LOGGER.trace("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
       }
 
       return addMappingInternal(binding.getAddress(), binding);

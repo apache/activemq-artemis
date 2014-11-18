@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.tests.integration.cluster.util.MultiServerTestBase;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
       bridgeConfiguration.setReconnectAttempts(-1);
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
-      for (HornetQServer server : servers)
+      for (ActiveMQServer server : servers)
       {
          server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
             .setAddress(ORIGINAL_QUEUE)
@@ -134,7 +134,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
       bridgeConfiguration.setHA(true);
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
-      for (HornetQServer server : servers)
+      for (ActiveMQServer server : servers)
       {
          server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
             .setAddress(ORIGINAL_QUEUE)
@@ -251,7 +251,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
       bridgeConfiguration.setReconnectAttempts(-1);
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
-      for (HornetQServer server : servers)
+      for (ActiveMQServer server : servers)
       {
          server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
             .setAddress(ORIGINAL_QUEUE)

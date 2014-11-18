@@ -18,7 +18,7 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * Registers a given backup-server as the replicating backup of a live server (i.e. a regular
- * HornetQ).
+ * ActiveMQ).
  * <p>
  * If it succeeds the backup will start synchronization of its state with the new backup node, and
  * replicating any new data. If it fails the backup server will receive a message indicating

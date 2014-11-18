@@ -24,7 +24,7 @@ import org.apache.activemq.core.paging.PageTransactionInfo;
 import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.paging.PagingStoreFactory;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
@@ -59,7 +59,7 @@ public final class PagingManagerImpl implements PagingManager
    // Static
    // --------------------------------------------------------------------------------------------------------------------------
 
-   private static boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    // Constructors
    // --------------------------------------------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ public final class PagingManagerImpl implements PagingManager
    {
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Adding pageTransaction " + pageTransaction.getTransactionID());
+         ActiveMQServerLogger.LOGGER.trace("Adding pageTransaction " + pageTransaction.getTransactionID());
       }
       transactions.put(pageTransaction.getTransactionID(), pageTransaction);
    }
@@ -209,7 +209,7 @@ public final class PagingManagerImpl implements PagingManager
    {
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Removing pageTransaction " + id);
+         ActiveMQServerLogger.LOGGER.trace("Removing pageTransaction " + id);
       }
       transactions.remove(id);
    }
@@ -218,7 +218,7 @@ public final class PagingManagerImpl implements PagingManager
    {
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("looking up pageTX = " + id);
+         ActiveMQServerLogger.LOGGER.trace("looking up pageTX = " + id);
       }
       return transactions.get(id);
    }

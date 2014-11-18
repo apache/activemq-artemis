@@ -23,10 +23,10 @@ import javax.jms.Topic;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates a cluster of three nodes set up in a symmetric topology - i.e. each
@@ -36,7 +36,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * with from using clustering in an app server, where every node has pretty much identical
  * configuration to every other node.
  * <p>
- * By clustering nodes symmetrically, HornetQ can give the impression of clustered queues, topics
+ * By clustering nodes symmetrically, ActiveMQ can give the impression of clustered queues, topics
  * and durable subscriptions.
  * <p>
  * In this example we send some messages to a distributed queue and topic and kill all the live
@@ -46,7 +46,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * Please see the readme.html file for more information.
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
-public class SymmetricClusterExample extends HornetQExample
+public class SymmetricClusterExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -79,17 +79,17 @@ public class SymmetricClusterExample extends HornetQExample
          // In an app server environment you could use HA-JNDI to lookup from the clustered JNDI servers without
          // having to know about a specific one.
          UDPBroadcastGroupConfiguration udpCfg = new UDPBroadcastGroupConfiguration("231.7.7.7", 9876, null, -1);
-         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, udpCfg);
+         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, udpCfg);
 
-         ConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.CF);
+         ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.CF);
 
          // We give a little while for each server to broadcast its whereabouts to the client
          Thread.sleep(2000);
 
          // Step 2. Directly instantiate JMS Queue and Topic objects
-         Queue queue = HornetQJMSClient.createQueue("exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
-         Topic topic = HornetQJMSClient.createTopic("exampleTopic");
+         Topic topic = ActiveMQJMSClient.createTopic("exampleTopic");
 
          // Step 3. We create six connections, they should be to different nodes of the cluster in a round-robin fashion
          // and start them

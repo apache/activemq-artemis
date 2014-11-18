@@ -26,7 +26,7 @@ import org.apache.activemq.utils.UUIDGenerator;
  * TransactionManager. This class is doing the job of a TransactionManager that fits for the purpose
  * of this test only, however there are many more pitfalls to deal with Transactions.
  * <p>
- * This is just to stress and soak test Transactions with HornetQ.
+ * This is just to stress and soak test Transactions with ActiveMQ.
  * <p>
  * And this is dealing with XA directly for the purpose testing only.
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>

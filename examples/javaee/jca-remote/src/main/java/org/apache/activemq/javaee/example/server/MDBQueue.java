@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.javaee.example.server;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.jboss.ejb3.annotation.ResourceAdapter;
 
 import javax.annotation.Resource;
@@ -33,7 +33,7 @@ import javax.jms.*;
                      @ActivationConfigProperty(propertyName = "destination", propertyValue = "mdbQueue"),
                      @ActivationConfigProperty(propertyName = "useJNDI", propertyValue = "false")
                   })
-@ResourceAdapter("hornetq-ra-remote.rar")
+@ResourceAdapter("activemq-ra-remote.rar")
 public class MDBQueue implements MessageListener
 {
    @Resource(mappedName="java:/RemoteJmsXA")
@@ -49,7 +49,7 @@ public class MDBQueue implements MessageListener
          String text = tm.getText();
 
          // Step 9. look up the reply queue
-         Queue destQueue = HornetQJMSClient.createQueue("mdbReplyQueue");
+         Queue destQueue = ActiveMQJMSClient.createQueue("mdbReplyQueue");
 
          // Step 10. Create a connection
          Connection connection = connectionFactory.createConnection();

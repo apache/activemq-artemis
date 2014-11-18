@@ -20,18 +20,18 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 
 /**
  *
- * This example shows how to run a HornetQ core client and server embedded in your
+ * This example shows how to run a ActiveMQ core client and server embedded in your
  * own application
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -53,11 +53,11 @@ public class EmbeddedExample
          configuration.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
          // Step 2. Create and start the server
-         HornetQServer server = HornetQServers.newHornetQServer(configuration);
+         ActiveMQServer server = ActiveMQServers.newActiveMQServer(configuration);
          server.start();
 
          // Step 3. As we are not using a JNDI environment we instantiate the objects directly
-         ServerLocator serverLocator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
+         ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
          ClientSessionFactory sf = serverLocator.createSessionFactory();
 
          // Step 4. Create a core queue

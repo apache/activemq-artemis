@@ -97,12 +97,12 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.core.protocol.core.impl.HornetQClientProtocolManager;
+import org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManager;
 import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.spi.core.remoting.AbstractConnector;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
@@ -128,22 +128,22 @@ public class NettyConnector extends AbstractConnector
    public static final String JAVAX_KEYSTORE_PASSWORD_PROP_NAME = "javax.net.ssl.keyStorePassword";
    public static final String JAVAX_TRUSTSTORE_PATH_PROP_NAME = "javax.net.ssl.trustStore";
    public static final String JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME = "javax.net.ssl.trustStorePassword";
-   public static final String HORNETQ_KEYSTORE_PROVIDER_PROP_NAME = "org.apache.activemq.ssl.keyStoreProvider";
-   public static final String HORNETQ_KEYSTORE_PATH_PROP_NAME = "org.apache.activemq.ssl.keyStore";
-   public static final String HORNETQ_KEYSTORE_PASSWORD_PROP_NAME = "org.apache.activemq.ssl.keyStorePassword";
-   public static final String HORNETQ_TRUSTSTORE_PROVIDER_PROP_NAME = "org.apache.activemq.ssl.trustStoreProvider";
-   public static final String HORNETQ_TRUSTSTORE_PATH_PROP_NAME = "org.apache.activemq.ssl.trustStore";
-   public static final String HORNETQ_TRUSTSTORE_PASSWORD_PROP_NAME = "org.apache.activemq.ssl.trustStorePassword";
+   public static final String ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME = "org.apache.activemq.ssl.keyStoreProvider";
+   public static final String ACTIVEMQ_KEYSTORE_PATH_PROP_NAME = "org.apache.activemq.ssl.keyStore";
+   public static final String ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME = "org.apache.activemq.ssl.keyStorePassword";
+   public static final String ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME = "org.apache.activemq.ssl.trustStoreProvider";
+   public static final String ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME = "org.apache.activemq.ssl.trustStore";
+   public static final String ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME = "org.apache.activemq.ssl.trustStorePassword";
 
    // Constants for HTTP upgrade
    // These constants are exposed publicly as they are used on the server-side to fetch
    // headers from the HTTP request, compute some values and fill the HTTP response
    public static final String MAGIC_NUMBER = "CF70DEB8-70F9-4FBA-8B4F-DFC3E723B4CD";
-   public static final String SEC_HORNETQ_REMOTING_KEY = "Sec-HornetQRemoting-Key";
-   public static final String SEC_HORNETQ_REMOTING_ACCEPT = "Sec-HornetQRemoting-Accept";
-   public static final String HORNETQ_REMOTING = "hornetq-remoting";
+   public static final String SEC_ACTIVEMQ_REMOTING_KEY = "Sec-ActiveMQRemoting-Key";
+   public static final String SEC_ACTIVEMQ_REMOTING_ACCEPT = "Sec-ActiveMQRemoting-Accept";
+   public static final String ACTIVEMQ_REMOTING = "activemq-remoting";
 
-   private static final AttributeKey<String> REMOTING_KEY = AttributeKey.valueOf(SEC_HORNETQ_REMOTING_KEY);
+   private static final AttributeKey<String> REMOTING_KEY = AttributeKey.valueOf(SEC_ACTIVEMQ_REMOTING_KEY);
 
    // Default Configuration
    public static final Map<String, Object> DEFAULT_CONFIG;
@@ -183,7 +183,7 @@ public class NettyConnector extends AbstractConnector
    private final boolean httpRequiresSessionId;
 
    // if true, after the connection, the connector will send
-   // a HTTP GET request (+ Upgrade: hornetq-remoting) that
+   // a HTTP GET request (+ Upgrade: activemq-remoting) that
    // will be handled by the server's http server.
    private final boolean httpUpgradeEnabled;
 
@@ -255,7 +255,7 @@ public class NettyConnector extends AbstractConnector
                          final Executor threadPool,
                          final ScheduledExecutorService scheduledThreadPool)
    {
-      this(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, new HornetQClientProtocolManager());
+      this(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, new ActiveMQClientProtocolManager());
    }
 
 
@@ -273,12 +273,12 @@ public class NettyConnector extends AbstractConnector
 
       if (listener == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.nullListener();
+         throw ActiveMQClientMessageBundle.BUNDLE.nullListener();
       }
 
       if (handler == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.nullHandler();
+         throw ActiveMQClientMessageBundle.BUNDLE.nullHandler();
       }
 
       this.listener = listener;
@@ -487,7 +487,7 @@ public class NettyConnector extends AbstractConnector
       bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
       bootstrap.option(ChannelOption.ALLOCATOR, new UnpooledByteBufAllocator(false));
-      channelGroup = new DefaultChannelGroup("hornetq-connector", GlobalEventExecutor.INSTANCE);
+      channelGroup = new DefaultChannelGroup("activemq-connector", GlobalEventExecutor.INSTANCE);
 
       final SSLContext context;
       if (sslEnabled)
@@ -507,17 +507,17 @@ public class NettyConnector extends AbstractConnector
                realKeyStorePassword = System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME);
             }
 
-            if (System.getProperty(HORNETQ_KEYSTORE_PROVIDER_PROP_NAME) != null)
+            if (System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME) != null)
             {
-               realKeyStoreProvider = System.getProperty(HORNETQ_KEYSTORE_PROVIDER_PROP_NAME);
+               realKeyStoreProvider = System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME);
             }
-            if (System.getProperty(HORNETQ_KEYSTORE_PATH_PROP_NAME) != null)
+            if (System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME) != null)
             {
-               realKeyStorePath = System.getProperty(HORNETQ_KEYSTORE_PATH_PROP_NAME);
+               realKeyStorePath = System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME);
             }
-            if (System.getProperty(HORNETQ_KEYSTORE_PASSWORD_PROP_NAME) != null)
+            if (System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME) != null)
             {
-               realKeyStorePassword = System.getProperty(HORNETQ_KEYSTORE_PASSWORD_PROP_NAME);
+               realKeyStorePassword = System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME);
             }
 
             String realTrustStorePath = trustStorePath;
@@ -532,17 +532,17 @@ public class NettyConnector extends AbstractConnector
                realTrustStorePassword = System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME);
             }
 
-            if (System.getProperty(HORNETQ_TRUSTSTORE_PROVIDER_PROP_NAME) != null)
+            if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME) != null)
             {
-               realTrustStoreProvider = System.getProperty(HORNETQ_TRUSTSTORE_PROVIDER_PROP_NAME);
+               realTrustStoreProvider = System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME);
             }
-            if (System.getProperty(HORNETQ_TRUSTSTORE_PATH_PROP_NAME) != null)
+            if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME) != null)
             {
-               realTrustStorePath = System.getProperty(HORNETQ_TRUSTSTORE_PATH_PROP_NAME);
+               realTrustStorePath = System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME);
             }
-            if (System.getProperty(HORNETQ_TRUSTSTORE_PASSWORD_PROP_NAME) != null)
+            if (System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME) != null)
             {
-               realTrustStorePassword = System.getProperty(HORNETQ_TRUSTSTORE_PASSWORD_PROP_NAME);
+               realTrustStorePassword = System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME);
             }
             context = SSLSupport.createContext(realKeyStoreProvider, realKeyStorePath, realKeyStorePassword, realTrustStoreProvider, realTrustStorePath, realTrustStorePassword);
          }
@@ -591,7 +591,7 @@ public class NettyConnector extends AbstractConnector
                   }
                   catch (IllegalArgumentException e)
                   {
-                     HornetQClientLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
+                     ActiveMQClientLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
                      throw e;
                   }
                }
@@ -604,7 +604,7 @@ public class NettyConnector extends AbstractConnector
                   }
                   catch (IllegalArgumentException e)
                   {
-                     HornetQClientLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
+                     ActiveMQClientLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
                      throw e;
                   }
                }
@@ -639,7 +639,7 @@ public class NettyConnector extends AbstractConnector
 
             protocolManager.addChannelHandlers(pipeline);
 
-            pipeline.addLast(new HornetQClientChannelHandler(channelGroup, handler, new Listener()));
+            pipeline.addLast(new ActiveMQClientChannelHandler(channelGroup, handler, new Listener()));
          }
       });
 
@@ -650,7 +650,7 @@ public class NettyConnector extends AbstractConnector
          batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
       }
 
-      HornetQClientLogger.LOGGER.debug("Started Netty Connector version " + TransportConstants.NETTY_VERSION);
+      ActiveMQClientLogger.LOGGER.debug("Started Netty Connector version " + TransportConstants.NETTY_VERSION);
    }
 
    public synchronized void close()
@@ -719,7 +719,7 @@ public class NettyConnector extends AbstractConnector
          }
       }
 
-      HornetQClientLogger.LOGGER.debug("Remote destination: " + remoteDestination);
+      ActiveMQClientLogger.LOGGER.debug("Remote destination: " + remoteDestination);
 
       ChannelFuture future;
       //port 0 does not work so only use local address if set
@@ -755,13 +755,13 @@ public class NettyConnector extends AbstractConnector
                if (handshakeFuture.isSuccess())
                {
                   ChannelPipeline channelPipeline = ch.pipeline();
-                  HornetQChannelHandler channelHandler = channelPipeline.get(HornetQChannelHandler.class);
+                  ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
                   channelHandler.active = true;
                }
                else
                {
                   ch.close().awaitUninterruptibly();
-                  HornetQClientLogger.LOGGER.errorCreatingNettyConnection(handshakeFuture.cause());
+                  ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(handshakeFuture.cause());
                   return null;
                }
             }
@@ -783,7 +783,7 @@ public class NettyConnector extends AbstractConnector
                URI uri = new URI("http", null, host, port, null, null, null);
                HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
                request.headers().set(HttpHeaders.Names.HOST, host);
-               request.headers().set(HttpHeaders.Names.UPGRADE, HORNETQ_REMOTING);
+               request.headers().set(HttpHeaders.Names.UPGRADE, ACTIVEMQ_REMOTING);
                request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.UPGRADE);
 
                final String endpoint = ConfigurationHelper.getStringProperty(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME,
@@ -797,10 +797,10 @@ public class NettyConnector extends AbstractConnector
                // Get 16 bit nonce and base 64 encode it
                byte[] nonce = randomBytes(16);
                String key = base64(nonce);
-               request.headers().set(SEC_HORNETQ_REMOTING_KEY, key);
+               request.headers().set(SEC_ACTIVEMQ_REMOTING_KEY, key);
                ch.attr(REMOTING_KEY).set(key);
 
-               HornetQClientLogger.LOGGER.debugf("Sending HTTP request %s", request);
+               ActiveMQClientLogger.LOGGER.debugf("Sending HTTP request %s", request);
 
                // Send the HTTP request.
                ch.writeAndFlush(request);
@@ -812,14 +812,14 @@ public class NettyConnector extends AbstractConnector
             }
             catch (URISyntaxException e)
             {
-               HornetQClientLogger.LOGGER.errorCreatingNettyConnection(e);
+               ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(e);
                return null;
             }
          }
          else
          {
             ChannelPipeline channelPipeline = ch.pipeline();
-            HornetQChannelHandler channelHandler = channelPipeline.get(HornetQChannelHandler.class);
+            ActiveMQChannelHandler channelHandler = channelPipeline.get(ActiveMQChannelHandler.class);
             channelHandler.active = true;
          }
 
@@ -835,7 +835,7 @@ public class NettyConnector extends AbstractConnector
 
          if (t != null && !(t instanceof ConnectException))
          {
-            HornetQClientLogger.LOGGER.errorCreatingNettyConnection(future.cause());
+            ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(future.cause());
          }
 
          return null;
@@ -852,11 +852,11 @@ public class NettyConnector extends AbstractConnector
 
    // Inner classes -------------------------------------------------
 
-   private static final class HornetQClientChannelHandler extends HornetQChannelHandler
+   private static final class ActiveMQClientChannelHandler extends ActiveMQChannelHandler
    {
-      HornetQClientChannelHandler(final ChannelGroup group,
-                                  final BufferHandler handler,
-                                  final ConnectionLifeCycleListener listener)
+      ActiveMQClientChannelHandler(final ChannelGroup group,
+                                   final BufferHandler handler,
+                                   final ConnectionLifeCycleListener listener)
       {
          super(group, handler, listener);
       }
@@ -882,29 +882,29 @@ public class NettyConnector extends AbstractConnector
          {
             HttpResponse response = (HttpResponse) msg;
             if (response.getStatus().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code()
-               && response.headers().get(HttpHeaders.Names.UPGRADE).equals(HORNETQ_REMOTING))
+               && response.headers().get(HttpHeaders.Names.UPGRADE).equals(ACTIVEMQ_REMOTING))
             {
-               String accept = response.headers().get(SEC_HORNETQ_REMOTING_ACCEPT);
+               String accept = response.headers().get(SEC_ACTIVEMQ_REMOTING_ACCEPT);
                String expectedResponse = createExpectedResponse(MAGIC_NUMBER, ctx.channel().attr(REMOTING_KEY).get());
 
                if (expectedResponse.equals(accept))
                {
-                  // remove the http handlers and flag the hornetq channel handler as active
+                  // remove the http handlers and flag the activemq channel handler as active
                   pipeline.remove(httpClientCodec);
                   pipeline.remove(this);
                   handshakeComplete = true;
-                  HornetQChannelHandler channelHandler = pipeline.get(HornetQChannelHandler.class);
+                  ActiveMQChannelHandler channelHandler = pipeline.get(ActiveMQChannelHandler.class);
                   channelHandler.active = true;
                }
                else
                {
-                  HornetQClientLogger.LOGGER.httpHandshakeFailed(accept, expectedResponse);
+                  ActiveMQClientLogger.LOGGER.httpHandshakeFailed(accept, expectedResponse);
                   ctx.close();
                }
             }
             else if (response.getStatus().code() == HttpResponseStatus.FORBIDDEN.code())
             {
-               HornetQClientLogger.LOGGER.httpUpgradeNotSupportedByRemoteAcceptor();
+               ActiveMQClientLogger.LOGGER.httpUpgradeNotSupportedByRemoteAcceptor();
                ctx.close();
             }
             latch.countDown();
@@ -914,7 +914,7 @@ public class NettyConnector extends AbstractConnector
       @Override
       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
       {
-         HornetQClientLogger.LOGGER.errorCreatingNettyConnection(cause);
+         ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(cause);
          ctx.close();
       }
 
@@ -1087,11 +1087,11 @@ public class NettyConnector extends AbstractConnector
 
    private class Listener implements ConnectionLifeCycleListener
    {
-      public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
       {
          if (connections.putIfAbsent(connection.getID(), connection) != null)
          {
-            throw HornetQClientMessageBundle.BUNDLE.connectionExists(connection.getID());
+            throw ActiveMQClientMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
       }
 
@@ -1173,13 +1173,13 @@ public class NettyConnector extends AbstractConnector
          InetAddress inetAddr2 = InetAddress.getByName(this.host);
          String ip1 = inetAddr1.getHostAddress();
          String ip2 = inetAddr2.getHostAddress();
-         HornetQClientLogger.LOGGER.debug(this + " host 1: " + host + " ip address: " + ip1 + " host 2: " + this.host + " ip address: " + ip2);
+         ActiveMQClientLogger.LOGGER.debug(this + " host 1: " + host + " ip address: " + ip1 + " host 2: " + this.host + " ip address: " + ip2);
 
          result = ip1.equals(ip2);
       }
       catch (UnknownHostException e)
       {
-         HornetQClientLogger.LOGGER.error("Cannot resolve host", e);
+         ActiveMQClientLogger.LOGGER.error("Cannot resolve host", e);
       }
 
       return result;

@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 /**
- * Management API for HornetQ JMS resources.
+ * Management API for ActiveMQ JMS resources.
  * <br>
- * HornetQ JMS resources can be managed either using JMX or by sending JMS management messages to the
+ * ActiveMQ JMS resources can be managed either using JMX or by sending JMS management messages to the
  * server's special management address. Please refer to the user manual for more information.
  */
 package org.apache.activemq.api.jms.management;

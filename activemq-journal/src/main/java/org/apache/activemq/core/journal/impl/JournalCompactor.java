@@ -34,7 +34,7 @@ import org.apache.activemq.core.journal.impl.dataformat.JournalCompleteRecordTX.
 import org.apache.activemq.core.journal.impl.dataformat.JournalDeleteRecordTX;
 import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.core.journal.impl.dataformat.JournalRollbackRecordTX;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A JournalCompactor
@@ -284,7 +284,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          }
          catch (Exception e)
          {
-            HornetQJournalLogger.LOGGER.errorReplayingCommands(e);
+            ActiveMQJournalLogger.LOGGER.errorReplayingCommands(e);
          }
       }
 
@@ -339,7 +339,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (pendingTransactions.get(transactionID) != null)
       {
          // Sanity check, this should never happen
-         HornetQJournalLogger.LOGGER.inconsistencyDuringCompacting(transactionID);
+         ActiveMQJournalLogger.LOGGER.inconsistencyDuringCompacting(transactionID);
       }
       else
       {
@@ -363,7 +363,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (newRecords.get(recordID) != null)
       {
          // Sanity check, it should never happen
-         HornetQJournalLogger.LOGGER.inconsistencyDuringCompactingDelete(recordID);
+         ActiveMQJournalLogger.LOGGER.inconsistencyDuringCompactingDelete(recordID);
       }
 
    }
@@ -454,7 +454,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
          if (newRecord == null)
          {
-            HornetQJournalLogger.LOGGER.compactingWithNoAddRecord(info.id);
+            ActiveMQJournalLogger.LOGGER.compactingWithNoAddRecord(info.id);
          }
          else
          {
@@ -529,7 +529,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          JournalRecord deleteRecord = journal.getRecords().remove(id);
          if (deleteRecord == null)
          {
-            HornetQJournalLogger.LOGGER.noRecordDuringCompactReplay(id);
+            ActiveMQJournalLogger.LOGGER.noRecordDuringCompactReplay(id);
          }
          else
          {

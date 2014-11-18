@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -43,7 +43,7 @@ public class MessageExpirationTest extends ServiceTestBase
 
    private static final int EXPIRATION = 1000;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession session;
 

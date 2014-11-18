@@ -40,7 +40,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.client.impl.Topology;
@@ -59,12 +59,12 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.QueueBinding;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ClusterManager;
-import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
@@ -120,7 +120,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected ConsumerHolder[] consumers;
 
-   protected HornetQServer[] servers;
+   protected ActiveMQServer[] servers;
 
    protected NodeManager[] nodeManagers;
 
@@ -142,7 +142,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       consumers = new ConsumerHolder[ClusterTestBase.MAX_CONSUMERS];
 
-      servers = new HornetQServer[ClusterTestBase.MAX_SERVERS];
+      servers = new ActiveMQServer[ClusterTestBase.MAX_SERVERS];
 
       timeStarts = new long[ClusterTestBase.MAX_SERVERS];
 
@@ -175,7 +175,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       logTopologyDiagram();
       for (int i = 0; i < MAX_SERVERS; i++)
       {
-         addHornetQComponent(nodeManagers[i]);
+         addActiveMQComponent(nodeManagers[i]);
       }
       servers = null;
 
@@ -275,7 +275,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected void waitForFailoverTopology(final int bNode, final int... nodes) throws Exception
    {
-      HornetQServer server = servers[bNode];
+      ActiveMQServer server = servers[bNode];
 
       log.debug("waiting for " + nodes + " on the topology for server = " + server);
 
@@ -342,14 +342,14 @@ public abstract class ClusterTestBase extends ServiceTestBase
    private void logTopologyDiagram()
    {
       StringBuffer topologyDiagram = new StringBuffer();
-      for (HornetQServer hornetQServer : servers)
+      for (ActiveMQServer activeMQServer : servers)
       {
-         if (hornetQServer != null)
+         if (activeMQServer != null)
          {
-            topologyDiagram.append("\n").append(hornetQServer.getIdentity()).append("\n");
-            if (hornetQServer.isStarted())
+            topologyDiagram.append("\n").append(activeMQServer.getIdentity()).append("\n");
+            if (activeMQServer.isStarted())
             {
-               Set<ClusterConnection> ccs = hornetQServer.getClusterManager().getClusterConnections();
+               Set<ClusterConnection> ccs = activeMQServer.getClusterManager().getClusterConnections();
 
                if (ccs.size() >= 1)
                {
@@ -360,7 +360,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                      String nodeId = member.getNodeId();
                      String liveServer = null;
                      String backupServer = null;
-                     for (HornetQServer server : servers)
+                     for (ActiveMQServer server : servers)
                      {
                         if (server != null && server.getNodeID() != null && server.isActive() && server.getNodeID().toString().equals(nodeId))
                         {
@@ -411,7 +411,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected void waitForMessages(final int node, final String address, final int count) throws Exception
    {
-      HornetQServer server = servers[node];
+      ActiveMQServer server = servers[node];
 
       if (server == null)
       {
@@ -477,7 +477,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                    " local " +
                    local);
 
-      HornetQServer server = servers[node];
+      ActiveMQServer server = servers[node];
 
       if (server == null)
       {
@@ -514,23 +514,23 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       try
       {
-         for (HornetQServer hornetQServer : servers)
+         for (ActiveMQServer activeMQServer : servers)
          {
-            if (hornetQServer != null)
+            if (activeMQServer != null)
             {
-               out.println(clusterDescription(hornetQServer));
-               out.println(debugBindings(hornetQServer, hornetQServer.getConfiguration()
+               out.println(clusterDescription(activeMQServer));
+               out.println(debugBindings(activeMQServer, activeMQServer.getConfiguration()
                   .getManagementNotificationAddress()
                   .toString()));
             }
          }
 
-         for (HornetQServer hornetQServer : servers)
+         for (ActiveMQServer activeMQServer : servers)
          {
-            out.println("Management bindings on " + hornetQServer);
-            if (hornetQServer != null)
+            out.println("Management bindings on " + activeMQServer);
+            if (activeMQServer != null)
             {
-               out.println(debugBindings(hornetQServer, hornetQServer.getConfiguration()
+               out.println(debugBindings(activeMQServer, activeMQServer.getConfiguration()
                   .getManagementNotificationAddress()
                   .toString()));
             }
@@ -545,7 +545,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       throw new IllegalStateException("Didn't get the expected number of bindings, look at the logging for more information");
    }
 
-   protected String debugBindings(final HornetQServer server, final String address) throws Exception
+   protected String debugBindings(final ActiveMQServer server, final String address) throws Exception
    {
 
       StringWriter str = new StringWriter();
@@ -1107,11 +1107,11 @@ public abstract class ClusterTestBase extends ServiceTestBase
       }
    }
 
-   protected String clusterDescription(HornetQServer server)
+   protected String clusterDescription(ActiveMQServer server)
    {
       String br = "-------------------------\n";
       String out = br;
-      out += "HornetQ server " + server + "\n";
+      out += "ActiveMQ server " + server + "\n";
       ClusterManager clusterManager = server.getClusterManager();
       if (clusterManager == null)
       {
@@ -1550,14 +1550,14 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       if (ha)
       {
-         locators[node] = HornetQClient.createServerLocatorWithHA(serverTotc);
+         locators[node] = ActiveMQClient.createServerLocatorWithHA(serverTotc);
       }
       else
       {
-         locators[node] = HornetQClient.createServerLocatorWithoutHA(serverTotc);
+         locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc);
       }
 
-      locators[node].setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+      locators[node].setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
 
       locators[node].setBlockOnNonDurableSend(true);
       locators[node].setBlockOnDurableSend(true);
@@ -1589,7 +1589,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          serverTotc = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, params);
       }
 
-      locators[node] = HornetQClient.createServerLocatorWithoutHA(serverTotc);
+      locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc);
       locators[node].setBlockOnNonDurableSend(true);
       locators[node].setBlockOnDurableSend(true);
       locators[node].setReconnectAttempts(reconnectAttempts);
@@ -1610,7 +1610,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       TransportConfiguration serverToTC = createTransportConfiguration(netty, false, params);
 
-      locators[node] = addServerLocator(HornetQClient.createServerLocatorWithHA(serverToTC));
+      locators[node] = addServerLocator(ActiveMQClient.createServerLocatorWithHA(serverToTC));
       locators[node].setRetryInterval(100);
       locators[node].setRetryIntervalMultiplier(1d);
       locators[node].setReconnectAttempts(-1);
@@ -1628,7 +1628,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       this.setupSessionFactory(node, backupNode, netty, true);
    }
 
-   protected HornetQServer getServer(final int node)
+   protected ActiveMQServer getServer(final int node)
    {
       if (servers[node] == null)
       {
@@ -1679,7 +1679,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty)))
          .setHAPolicyConfiguration(haPolicyConfiguration);
 
-      HornetQServer server;
+      ActiveMQServer server;
 
       if (fileStorage)
       {
@@ -1745,7 +1745,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .addConnectorConfiguration(backupConfig.getName(), backupConfig)
          .setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration());
 
-      HornetQServer server;
+      ActiveMQServer server;
 
       if (sharedStorage)
       {
@@ -1754,7 +1754,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       else
       {
          boolean enablePersistency = fileStorage ? true : configuration.isPersistenceEnabled();
-         server = addServer(HornetQServers.newHornetQServer(configuration, enablePersistency));
+         server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
       }
       server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");
       servers[node] = server;
@@ -1802,7 +1802,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig)
          .setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
-      HornetQServer server;
+      ActiveMQServer server;
       if (fileStorage)
       {
          if (sharedStorage)
@@ -1811,7 +1811,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          }
          else
          {
-            server = addServer(HornetQServers.newHornetQServer(configuration));
+            server = addServer(ActiveMQServers.newActiveMQServer(configuration));
             server.setIdentity("Server " + node);
          }
       }
@@ -1823,7 +1823,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          }
          else
          {
-            server = addServer(HornetQServers.newHornetQServer(configuration, false));
+            server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
             server.setIdentity("Server " + node);
          }
       }
@@ -1872,7 +1872,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig)
          .setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
-      HornetQServer server;
+      ActiveMQServer server;
       if (sharedStorage)
       {
          server = createInVMFailoverServer(fileStorage, configuration, nodeManagers[liveNode], liveNode);
@@ -1880,7 +1880,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       else
       {
          boolean enablePersistency = fileStorage ? configuration.isPersistenceEnabled() : false;
-         server = addServer(HornetQServers.newHornetQServer(configuration, enablePersistency));
+         server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
       }
       servers[node] = server;
    }
@@ -1915,7 +1915,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                                          final boolean netty,
                                          final boolean allowDirectConnectionsOnly)
    {
-      HornetQServer serverFrom = servers[nodeFrom];
+      ActiveMQServer serverFrom = servers[nodeFrom];
 
       if (serverFrom == null)
       {
@@ -1961,7 +1961,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                                          final boolean netty,
                                          final boolean allowDirectConnectionsOnly)
    {
-      HornetQServer serverFrom = servers[nodeFrom];
+      ActiveMQServer serverFrom = servers[nodeFrom];
 
       if (serverFrom == null)
       {
@@ -2005,7 +2005,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                                          final int nodeFrom,
                                          final int... nodesTo)
    {
-      HornetQServer serverFrom = servers[nodeFrom];
+      ActiveMQServer serverFrom = servers[nodeFrom];
 
       if (serverFrom == null)
       {
@@ -2042,7 +2042,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                                          final int nodeFrom,
                                          final int... nodesTo)
    {
-      HornetQServer serverFrom = servers[nodeFrom];
+      ActiveMQServer serverFrom = servers[nodeFrom];
 
       if (serverFrom == null)
       {
@@ -2100,7 +2100,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                                                     final int nodeFrom,
                                                     final int[] nodesTo)
    {
-      HornetQServer serverFrom = servers[nodeFrom];
+      ActiveMQServer serverFrom = servers[nodeFrom];
 
       if (serverFrom == null)
       {
@@ -2140,7 +2140,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
                                                   final int maxHops,
                                                   final boolean netty)
    {
-      HornetQServer server = servers[node];
+      ActiveMQServer server = servers[node];
 
       if (server == null)
       {
@@ -2167,7 +2167,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    /**
     * XXX waitForPrevious actually masks what can be considered a bug: that even controlling for
-    * {@link HornetQServer#waitForInitialization} we still need to wait between starting a shared
+    * {@link org.apache.activemq.core.server.ActiveMQServer#waitForInitialization} we still need to wait between starting a shared
     * store backup and its live.
     */
    protected void startServers(final int... nodes) throws Exception

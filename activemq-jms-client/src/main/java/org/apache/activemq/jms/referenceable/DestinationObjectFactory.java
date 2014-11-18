@@ -23,7 +23,7 @@ import javax.naming.spi.ObjectFactory;
  *
  * A DestinationObjectFactory.
  *
- * Given a Reference - reconstructs a HornetQDestination
+ * Given a Reference - reconstructs a ActiveMQDestination
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  * @version $Revision$
@@ -35,7 +35,7 @@ public class DestinationObjectFactory implements ObjectFactory
    {
       Reference r = (Reference)ref;
 
-      byte[] bytes = (byte[])r.get("HornetQ-DEST").getContent();
+      byte[] bytes = (byte[])r.get("ActiveMQ-DEST").getContent();
 
       // Deserialize
       return SerializableObjectRefAddr.deserialize(bytes);

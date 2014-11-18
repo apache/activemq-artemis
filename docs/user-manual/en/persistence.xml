@@ -18,17 +18,17 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="persistence">
     <title>Persistence</title>
-    <para>In this chapter we will describe how persistence works with HornetQ and how to configure
+    <para>In this chapter we will describe how persistence works with ActiveMQ and how to configure
         it.</para>
-    <para>HornetQ ships with a high performance journal. Since HornetQ handles its own persistence,
+    <para>ActiveMQ ships with a high performance journal. Since ActiveMQ handles its own persistence,
         rather than relying on a database or other 3rd party persistence engine it is very highly
         optimised for the specific messaging use cases.</para>
-    <para>A HornetQ journal is an <emphasis>append only</emphasis> journal. It consists of a set of
+    <para>A ActiveMQ journal is an <emphasis>append only</emphasis> journal. It consists of a set of
         files on disk. Each file is pre-created to a fixed size and initially filled with padding.
         As operations are performed on the server, e.g. add message, update message, delete message,
         records are appended to the journal. When one journal file is full we move to the next
@@ -42,16 +42,16 @@
         by minimising the number of disk cylinders the file is using, we can minimise the amount of
         disk head movement, since an entire disk cylinder is accessible simply by the disk rotating
         - the head does not have to move.</para>
-    <para>As delete records are added to the journal, HornetQ has a sophisticated file garbage
+    <para>As delete records are added to the journal, ActiveMQ has a sophisticated file garbage
         collection algorithm which can determine if a particular journal file is needed any more -
         i.e. has all its data been deleted in the same or other files. If so, the file can be
         reclaimed and re-used. </para>
-    <para>HornetQ also has a compaction algorithm which removes dead space from the journal and
+    <para>ActiveMQ also has a compaction algorithm which removes dead space from the journal and
         compresses up the data so it takes up less files on disk.</para>
     <para>The journal also fully supports transactional operation if required, supporting both local
         and XA transactions.</para>
     <para>The majority of the journal is written in Java, however we abstract out the interaction
-        with the actual file system to allow different pluggable implementations. HornetQ ships with
+        with the actual file system to allow different pluggable implementations. ActiveMQ ships with
         two implementations:</para>
     <itemizedlist>
         <listitem>
@@ -63,7 +63,7 @@
         <listitem id="aio-journal">
             <para>Linux Asynchronous IO</para>
             <para>The second implementation uses a thin native code wrapper to talk to the Linux
-                asynchronous IO library (AIO). With AIO, HornetQ will be called back when the data
+                asynchronous IO library (AIO). With AIO, ActiveMQ will be called back when the data
                 has made it to disk, allowing us to avoid explicit syncs altogether and simply send
                 back confirmation of completion when AIO informs us that the data has been
                 persisted.</para>
@@ -80,7 +80,7 @@
             <para>libaio is part of the kernel project.</para>
         </listitem>
     </itemizedlist>
-    <para>The standard HornetQ core server uses two instances of the journal:</para>
+    <para>The standard ActiveMQ core server uses two instances of the journal:</para>
     <itemizedlist id="persistence.journallist">
         <listitem>
             <para>Bindings journal.</para>
@@ -89,7 +89,7 @@
                 such as id sequence counters. </para>
             <para>The bindings journal is always a NIO journal as it is typically low throughput
                 compared to the message journal.</para>
-            <para>The files on this journal are prefixed as <literal>hornetq-bindings</literal>.
+            <para>The files on this journal are prefixed as <literal>activemq-bindings</literal>.
                 Each file has a <literal>bindings</literal> extension. File size is <literal
                     >1048576</literal>, and it is located at the bindings folder.</para>
         </listitem>
@@ -101,7 +101,7 @@
             <para>Any JMS Resources created via the management API will be persisted to this
                 journal. Any resources configured via configuration files will not. The JMS Journal
                 will only be created if JMS is being used.</para>
-            <para>The files on this journal are prefixed as <literal>hornetq-jms</literal>. Each
+            <para>The files on this journal are prefixed as <literal>activemq-jms</literal>. Each
                 file has a <literal>jms</literal> extension. File size is <literal
                 >1048576</literal>, and it is located at the bindings folder.</para>
         </listitem>
@@ -109,26 +109,26 @@
             <para>Message journal.</para>
             <para>This journal instance stores all message related data, including the message
                 themselves and also duplicate-id caches.</para>
-            <para>By default HornetQ will try and use an AIO journal. If AIO is not available, e.g.
+            <para>By default ActiveMQ will try and use an AIO journal. If AIO is not available, e.g.
                 the platform is not Linux with the correct kernel version or AIO has not been
                 installed then it will automatically fall back to using Java NIO which is available
                 on any Java platform.</para>
-            <para>The files on this journal are prefixed as <literal>hornetq-data</literal>. Each
+            <para>The files on this journal are prefixed as <literal>activemq-data</literal>. Each
                 file has a <literal>hq</literal> extension. File size is by the default <literal
                     >10485760</literal> (configurable), and it is located at the journal
                 folder.</para>
         </listitem>
     </itemizedlist>
-    <para>For large messages, HornetQ persists them outside the message journal. This is discussed
+    <para>For large messages, ActiveMQ persists them outside the message journal. This is discussed
         in <xref linkend="large-messages"/>.</para>
-    <para>HornetQ can also be configured to page messages to disk in low memory situations. This is
+    <para>ActiveMQ can also be configured to page messages to disk in low memory situations. This is
         discussed in <xref linkend="paging"/>.</para>
-    <para>If no persistence is required at all, HornetQ can also be configured not to persist any
+    <para>If no persistence is required at all, ActiveMQ can also be configured not to persist any
         data at all to storage as discussed in <xref linkend="persistence.enabled"/>.</para>
     <section id="configuring.bindings.journal">
         <title>Configuring the bindings journal</title>
         <para>The bindings journal is configured using the following attributes in <literal
-                >hornetq-configuration.xml</literal></para>
+                >activemq-configuration.xml</literal></para>
         <itemizedlist>
             <listitem>
                 <para><literal>bindings-directory</literal></para>
@@ -151,7 +151,7 @@
     <section id="configuring.message.journal">
         <title>Configuring the message journal</title>
         <para>The message journal is configured using the following attributes in <literal
-                >hornetq-configuration.xml</literal></para>
+                >activemq-configuration.xml</literal></para>
         <itemizedlist>
             <listitem id="configuring.message.journal.journal-directory">
                 <para><literal>journal-directory</literal></para>
@@ -179,18 +179,18 @@
                 <para>Choosing <literal>NIO</literal> chooses the Java NIO journal. Choosing
                         <literal>AIO</literal> chooses the Linux asynchronous IO journal. If you
                     choose <literal>AIO</literal> but are not running Linux or you do not have
-                    libaio installed then HornetQ will detect this and automatically fall back to
+                    libaio installed then ActiveMQ will detect this and automatically fall back to
                     using <literal>NIO</literal>.</para>
             </listitem>
             <listitem id="configuring.message.journal.journal-sync-transactional">
                 <para><literal>journal-sync-transactional</literal></para>
-                <para>If this is set to true then HornetQ will make sure all transaction data is
+                <para>If this is set to true then ActiveMQ will make sure all transaction data is
                     flushed to disk on transaction boundaries (commit, prepare and rollback). The
                     default value is <literal>true</literal>.</para>
             </listitem>
             <listitem id="configuring.message.journal.journal-sync-non-transactional">
                 <para><literal>journal-sync-non-transactional</literal></para>
-                <para>If this is set to true then HornetQ will make sure non transactional message
+                <para>If this is set to true then ActiveMQ will make sure non transactional message
                     data (sends and acknowledgements) are flushed to disk each time. The default
                     value for this is <literal>true</literal>.</para>
             </listitem>
@@ -201,8 +201,8 @@
             </listitem>
             <listitem id="configuring.message.journal.journal-min-files">
                 <para><literal>journal-min-files</literal></para>
-                <para>The minimum number of files the journal will maintain. When HornetQ starts and
-                    there is no initial message data, HornetQ will pre-create <literal
+                <para>The minimum number of files the journal will maintain. When ActiveMQ starts and
+                    there is no initial message data, ActiveMQ will pre-create <literal
                         >journal-min-files</literal> number of files.</para>
                 <para>Creating journal files and filling them with padding is a fairly expensive
                     operation and we want to minimise doing this at run-time as files get filled. By
@@ -295,7 +295,7 @@
     </section>
     <section id="installing-aio">
         <title>Installing AIO</title>
-        <para>The Java NIO journal gives great performance, but If you are running HornetQ using
+        <para>The Java NIO journal gives great performance, but If you are running ActiveMQ using
             Linux Kernel 2.6 or later, we highly recommend you use the <literal>AIO</literal>
             journal for the very best persistence performance.</para>
         <para>It's not possible to use the AIO journal under other operating systems or earlier
@@ -309,11 +309,11 @@
             <programlisting>apt-get install libaio</programlisting></para>
     </section>
     <section id="persistence.enabled">
-        <title>Configuring HornetQ for Zero Persistence</title>
+        <title>Configuring ActiveMQ for Zero Persistence</title>
         <para>In some situations, zero persistence is sometimes required for a messaging system.
-            Configuring HornetQ to perform zero persistence is straightforward. Simply set the
+            Configuring ActiveMQ to perform zero persistence is straightforward. Simply set the
             parameter <literal>persistence-enabled</literal> in <literal
-                >hornetq-configuration.xml</literal> to <literal>false</literal>. </para>
+                >activemq-configuration.xml</literal> to <literal>false</literal>. </para>
         <para>Please note that if you set this parameter to false, then <emphasis>zero</emphasis>
             persistence will occur. That means no bindings data, message data, large message data,
             duplicate id caches or paging data will be persisted.</para>
@@ -321,21 +321,21 @@
     <section id="persistence.importexport">
         <title>Import/Export the Journal Data</title>
         <para>You may want to inspect the existent records on each one of the journals used by
-            HornetQ, and you can use the export/import tool for that purpose. The export/import are
-            classes located at the hornetq-core.jar, you can export the journal as a text file by
+            ActiveMQ, and you can use the export/import tool for that purpose. The export/import are
+            classes located at the activemq-core.jar, you can export the journal as a text file by
             using this command:</para>
-        <para><literal>java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.ExportJournal
+        <para><literal>java -cp activemq-core.jar org.apache.activemq.core.journal.impl.ExportJournal
                 &lt;JournalDirectory> &lt;JournalPrefix> &lt;FileExtension> &lt;FileSize>
                 &lt;FileOutput></literal></para>
         <para>To import the file as binary data on the journal (Notice you also require
             netty.jar):</para>
-        <para><literal>java -cp hornetq-core.jar:netty.jar org.apache.activemq.core.journal.impl.ImportJournal
+        <para><literal>java -cp activemq-core.jar:netty.jar org.apache.activemq.core.journal.impl.ImportJournal
                 &lt;JournalDirectory> &lt;JournalPrefix> &lt;FileExtension> &lt;FileSize>
                 &lt;FileInput></literal></para>
         <itemizedlist>
             <listitem>
                 <para>JournalDirectory: Use the configured folder for your selected folder. Example:
-                    ./hornetq/data/journal</para>
+                    ./activemq/data/journal</para>
             </listitem>
             <listitem>
                 <para>JournalPrefix: Use the prefix for your selected journal, as discussed

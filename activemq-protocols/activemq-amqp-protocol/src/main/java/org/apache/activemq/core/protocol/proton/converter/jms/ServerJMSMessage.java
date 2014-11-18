@@ -23,8 +23,8 @@ import java.util.Enumeration;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQQueue;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQQueue;
 import org.apache.activemq.reader.MessageUtil;
 
 /**
@@ -111,7 +111,7 @@ public class ServerJMSMessage implements Message
       SimpleString reply = MessageUtil.getJMSReplyTo(message);
       if (reply != null)
       {
-         return HornetQDestination.fromAddress(reply.toString());
+         return ActiveMQDestination.fromAddress(reply.toString());
       }
       else
       {
@@ -122,7 +122,7 @@ public class ServerJMSMessage implements Message
    @Override
    public final void setJMSReplyTo(Destination replyTo) throws JMSException
    {
-      MessageUtil.setJMSReplyTo(message, replyTo == null ? null : ((HornetQDestination) replyTo).getSimpleAddress());
+      MessageUtil.setJMSReplyTo(message, replyTo == null ? null : ((ActiveMQDestination) replyTo).getSimpleAddress());
 
    }
 
@@ -138,11 +138,11 @@ public class ServerJMSMessage implements Message
       {
          if (!sdest.toString().startsWith("jms."))
          {
-            return new HornetQQueue(sdest.toString(), sdest.toString());
+            return new ActiveMQQueue(sdest.toString(), sdest.toString());
          }
          else
          {
-            return HornetQDestination.fromAddress(sdest.toString());
+            return ActiveMQDestination.fromAddress(sdest.toString());
          }
       }
    }
@@ -156,7 +156,7 @@ public class ServerJMSMessage implements Message
       }
       else
       {
-         message.setAddress(((HornetQDestination) destination).getSimpleAddress());
+         message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
       }
 
    }

@@ -18,7 +18,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.LastValueQueue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -32,7 +32,7 @@ import org.junit.Test;
  */
 public class SessionCreateAndDeleteQueueTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString address = new SimpleString("address");
 

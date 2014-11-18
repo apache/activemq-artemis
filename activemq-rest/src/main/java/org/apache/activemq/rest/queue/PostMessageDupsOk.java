@@ -15,7 +15,7 @@ package org.apache.activemq.rest.queue;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.QueryParam;
@@ -45,9 +45,9 @@ public class PostMessageDupsOk extends PostMessage
       try
       {
          ClientProducer producer = pooled.producer;
-         ClientMessage message = createHornetQMessage(headers, body, durable, ttl, expiration, priority, pooled.session);
+         ClientMessage message = createActiveMQMessage(headers, body, durable, ttl, expiration, priority, pooled.session);
          producer.send(message);
-         HornetQRestLogger.LOGGER.debug("Sent message: " + message);
+         ActiveMQRestLogger.LOGGER.debug("Sent message: " + message);
          pool.add(pooled);
       }
       catch (Exception ex)
@@ -73,7 +73,7 @@ public class PostMessageDupsOk extends PostMessage
                           @Context UriInfo uriInfo,
                           byte[] body)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getRequestUri() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getRequestUri() + "\"");
 
       try
       {

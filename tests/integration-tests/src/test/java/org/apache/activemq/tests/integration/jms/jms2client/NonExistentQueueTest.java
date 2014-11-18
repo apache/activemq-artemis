@@ -27,7 +27,7 @@ import javax.jms.Session;
 import java.util.Random;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
@@ -59,10 +59,10 @@ public class NonExistentQueueTest extends JMSTestBase
    @Test
    public void sendToNonExistantDestination() throws Exception
    {
-      Destination destination = HornetQJMSClient.createQueue("DoesNotExist");
+      Destination destination = ActiveMQJMSClient.createQueue("DoesNotExist");
       TransportConfiguration transportConfiguration = new TransportConfiguration(InVMConnectorFactory.class.getName());
-      ConnectionFactory localConnectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                   transportConfiguration);
+      ConnectionFactory localConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                                    transportConfiguration);
       // Using JMS 1 API
       Connection connection = localConnectionFactory.createConnection();
       Session session = connection.createSession();

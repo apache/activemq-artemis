@@ -21,7 +21,7 @@ import org.apache.activemq.utils.SizeFormatterUtil;
  * memory.
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public class MemoryManager implements HornetQComponent
+public class MemoryManager implements ActiveMQComponent
 {
    private final Runtime runtime;
 
@@ -56,7 +56,7 @@ public class MemoryManager implements HornetQComponent
 
    public synchronized void start()
    {
-      HornetQServerLogger.LOGGER.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
+      ActiveMQServerLogger.LOGGER.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
                                   " FREE_MEMORY_PERCENT: " +
                                   memoryWarningThreshold);
 
@@ -68,7 +68,7 @@ public class MemoryManager implements HornetQComponent
 
       started = true;
 
-      thread = new Thread(new MemoryRunnable(), "hornetq-memory-manager-thread");
+      thread = new Thread(new MemoryRunnable(), "activemq-memory-manager-thread");
 
       thread.setDaemon(true);
 
@@ -135,14 +135,14 @@ public class MemoryManager implements HornetQComponent
             info.append(String.format("total memory:     %s%n", SizeFormatterUtil.sizeof(totalMemory)));
             info.append(String.format("available memory: %.2f%%%n", availableMemoryPercent));
 
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug(info);
+               ActiveMQServerLogger.LOGGER.debug(info);
             }
 
             if (availableMemoryPercent <= memoryWarningThreshold)
             {
-               HornetQServerLogger.LOGGER.memoryError(memoryWarningThreshold, info.toString());
+               ActiveMQServerLogger.LOGGER.memoryError(memoryWarningThreshold, info.toString());
 
                low = true;
             }

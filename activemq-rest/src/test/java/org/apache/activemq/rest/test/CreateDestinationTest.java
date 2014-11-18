@@ -38,7 +38,7 @@ public class CreateDestinationTest extends MessageTestBase
    {
       String queueConfig = "<queue name=\"testQueue\"><durable>true</durable></queue>";
       ClientRequest create = new ClientRequest(TestPortProvider.generateURL("/queues"));
-      ClientResponse cRes = create.body("application/hornetq.jms.queue+xml", queueConfig).post();
+      ClientResponse cRes = create.body("application/activemq.jms.queue+xml", queueConfig).post();
       cRes.releaseConnection();
       Assert.assertEquals(201, cRes.getStatus());
       System.out.println("Location: " + cRes.getLocationLink());
@@ -93,7 +93,7 @@ public class CreateDestinationTest extends MessageTestBase
    {
       String queueConfig = "<topic name=\"testTopic\"></topic>";
       ClientRequest create = new ClientRequest(TestPortProvider.generateURL("/topics"));
-      ClientResponse cRes = create.body("application/hornetq.jms.topic+xml", queueConfig).post();
+      ClientResponse cRes = create.body("application/activemq.jms.topic+xml", queueConfig).post();
       cRes.releaseConnection();
       Assert.assertEquals(201, cRes.getStatus());
 

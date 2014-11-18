@@ -21,7 +21,7 @@ import org.apache.activemq.core.deployers.DeploymentManager;
 import org.apache.activemq.core.deployers.impl.BasicUserCredentialsDeployer;
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.utils.XMLUtil;
@@ -44,7 +44,7 @@ public class BasicUserCredentialsDeployerTest extends UnitTestCase
 {
    private FakeDeployer deployer;
 
-   private FakeHornetQUpdateableSecurityManager securityManager;
+   private FakeActiveMQUpdateableSecurityManager securityManager;
 
    private URI url;
 
@@ -111,7 +111,7 @@ public class BasicUserCredentialsDeployerTest extends UnitTestCase
    {
       super.setUp();
       DeploymentManager deploymentManager = new FakeDeploymentManager();
-      securityManager = new FakeHornetQUpdateableSecurityManager();
+      securityManager = new FakeActiveMQUpdateableSecurityManager();
       deployer = new FakeDeployer(deploymentManager, securityManager);
 
       url = new URI("http://localhost");
@@ -385,9 +385,9 @@ public class BasicUserCredentialsDeployerTest extends UnitTestCase
    {
       private Element element;
 
-      public FakeDeployer(DeploymentManager deploymentManager, HornetQSecurityManager hornetQSecurityManager)
+      public FakeDeployer(DeploymentManager deploymentManager, ActiveMQSecurityManager activeMQSecurityManager)
       {
-         super(deploymentManager, hornetQSecurityManager);
+         super(deploymentManager, activeMQSecurityManager);
       }
 
       public Element getElement()
@@ -413,7 +413,7 @@ public class BasicUserCredentialsDeployerTest extends UnitTestCase
       }
    }
 
-   class FakeHornetQUpdateableSecurityManager implements HornetQSecurityManager
+   class FakeActiveMQUpdateableSecurityManager implements ActiveMQSecurityManager
    {
       String defaultUser;
 

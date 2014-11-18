@@ -34,12 +34,12 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -51,7 +51,7 @@ public class MessageGroupingTest extends UnitTestCase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession clientSession;
 
@@ -281,7 +281,7 @@ public class MessageGroupingTest extends UnitTestCase
 
    private void doTestMultipleGroupingTXCommit() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(false, false, false);
       ClientProducer clientProducer = this.clientSession.createProducer(qName);
@@ -342,7 +342,7 @@ public class MessageGroupingTest extends UnitTestCase
    private void doTestMultipleGroupingTXRollback() throws Exception
    {
       log.info("*** starting test");
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       locator.setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(false, false, false);
@@ -418,7 +418,7 @@ public class MessageGroupingTest extends UnitTestCase
 
    private void dotestMultipleGroupingXACommit() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(true, false, false);
       ClientProducer clientProducer = this.clientSession.createProducer(qName);
@@ -478,7 +478,7 @@ public class MessageGroupingTest extends UnitTestCase
 
    private void doTestMultipleGroupingXARollback() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       locator.setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(true, false, false);
@@ -615,14 +615,14 @@ public class MessageGroupingTest extends UnitTestCase
       Configuration configuration = createDefaultConfig()
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(transportConfig);
-      server = addServer(HornetQServers.newHornetQServer(configuration, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       server.start();
 
       // then we create a client as normal
       locator =
-               addServerLocator(HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                                                                                                      UnitTestCase.INVM_CONNECTOR_FACTORY)));
+               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+                  UnitTestCase.INVM_CONNECTOR_FACTORY)));
       clientSessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(clientSessionFactory.createSession(false, true, true));
       clientSession.createQueue(qName, qName, null, false);

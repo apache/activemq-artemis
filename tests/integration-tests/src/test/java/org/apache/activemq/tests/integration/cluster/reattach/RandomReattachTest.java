@@ -29,16 +29,16 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -64,7 +64,7 @@ public class RandomReattachTest extends UnitTestCase
 
    private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
 
-   private HornetQServer liveService;
+   private ActiveMQServer liveService;
 
    private Timer timer;
 
@@ -251,7 +251,7 @@ public class RandomReattachTest extends UnitTestCase
       {
          RandomReattachTest.log.info("####" + getName() + " iteration #" + its);
          start();
-         ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+         ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
 
          locator.setReconnectAttempts(-1);
          locator.setConfirmationWindowSize(1024 * 1024);
@@ -321,7 +321,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -438,7 +438,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -555,7 +555,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -568,7 +568,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -719,7 +719,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -732,7 +732,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -882,7 +882,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -969,7 +969,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -1070,7 +1070,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -1083,7 +1083,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -1203,7 +1203,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -1216,7 +1216,7 @@ public class RandomReattachTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),
@@ -1324,7 +1324,7 @@ public class RandomReattachTest extends UnitTestCase
 
       ClientProducer producer = sess.createProducer(RandomReattachTest.ADDRESS);
 
-      ClientMessage message = sess.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE,
                                                  false,
                                                  0,
                                                  System.currentTimeMillis(),
@@ -1358,7 +1358,7 @@ public class RandomReattachTest extends UnitTestCase
 
       ClientProducer producer = sess.createProducer(RandomReattachTest.ADDRESS);
 
-      ClientMessage message = sess.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE,
                                                  false,
                                                  0,
                                                  System.currentTimeMillis(),
@@ -1431,7 +1431,7 @@ public class RandomReattachTest extends UnitTestCase
 
       ClientProducer producer = sess.createProducer(RandomReattachTest.ADDRESS);
 
-      ClientMessage message = sess.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE,
                                                  false,
                                                  0,
                                                  System.currentTimeMillis(),
@@ -1498,7 +1498,7 @@ public class RandomReattachTest extends UnitTestCase
       Configuration liveConf = createDefaultConfig()
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory"));
-      liveService = HornetQServers.newHornetQServer(liveConf, false);
+      liveService = ActiveMQServers.newActiveMQServer(liveConf, false);
       liveService.start();
    }
 

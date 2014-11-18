@@ -51,7 +51,7 @@ import org.junit.Test;
  *
  *
  */
-public class XATest extends HornetQServerTestCase
+public class XATest extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------
 
@@ -224,10 +224,10 @@ public class XATest extends HornetQServerTestCase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
       }
@@ -282,7 +282,7 @@ public class XATest extends HornetQServerTestCase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         Message m2 = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message m2 = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(m2);
 
       }
@@ -353,7 +353,7 @@ public class XATest extends HornetQServerTestCase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         Message m2 = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message m2 = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(m2);
       }
       finally
@@ -408,7 +408,7 @@ public class XATest extends HornetQServerTestCase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         Message m2 = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message m2 = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(m2);
 
       }
@@ -460,12 +460,12 @@ public class XATest extends HornetQServerTestCase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
 
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
@@ -481,7 +481,7 @@ public class XATest extends HornetQServerTestCase
          tx.enlistResource(res);
          tx.enlistResource(res2);
 
-         Message m3 = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message m3 = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
 
          ProxyAssertSupport.assertNull(m3);
 
@@ -538,12 +538,12 @@ public class XATest extends HornetQServerTestCase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
 
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
@@ -559,7 +559,7 @@ public class XATest extends HornetQServerTestCase
          tx.enlistResource(res);
          tx.enlistResource(res2);
 
-         Message m3 = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message m3 = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
 
          ProxyAssertSupport.assertNull(m3);
 
@@ -617,10 +617,10 @@ public class XATest extends HornetQServerTestCase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
 
@@ -637,10 +637,10 @@ public class XATest extends HornetQServerTestCase
          tx.enlistResource(res);
          tx.enlistResource(res2);
 
-         TextMessage m3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m3);
          ProxyAssertSupport.assertEquals("XATest1", m3.getText());
-         m3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m3);
          ProxyAssertSupport.assertEquals("XATest2", m3.getText());
 
@@ -698,10 +698,10 @@ public class XATest extends HornetQServerTestCase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
 
@@ -718,10 +718,10 @@ public class XATest extends HornetQServerTestCase
          tx.enlistResource(res);
          tx.enlistResource(res2);
 
-         TextMessage m3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m3);
          ProxyAssertSupport.assertEquals("XATest1", m3.getText());
-         m3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m3);
          ProxyAssertSupport.assertEquals("XATest2", m3.getText());
 
@@ -780,10 +780,10 @@ public class XATest extends HornetQServerTestCase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
       }
@@ -833,7 +833,7 @@ public class XATest extends HornetQServerTestCase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         Message m2 = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message m2 = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(m2);
 
       }
@@ -880,11 +880,11 @@ public class XATest extends HornetQServerTestCase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
@@ -898,7 +898,7 @@ public class XATest extends HornetQServerTestCase
          tx = tm.getTransaction();
          tx.enlistResource(res);
 
-         Message m3 = cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         Message m3 = cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
 
          ProxyAssertSupport.assertNull(m3);
 
@@ -949,12 +949,12 @@ public class XATest extends HornetQServerTestCase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest1", m2.getText());
 
-         m2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m2);
          ProxyAssertSupport.assertEquals("XATest2", m2.getText());
@@ -970,12 +970,12 @@ public class XATest extends HornetQServerTestCase
          tx = tm.getTransaction();
          tx.enlistResource(res);
 
-         TextMessage m3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage m3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m3);
          ProxyAssertSupport.assertEquals("XATest1", m3.getText());
 
-         m3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         m3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(m3);
          ProxyAssertSupport.assertEquals("XATest2", m3.getText());
@@ -1037,7 +1037,7 @@ public class XATest extends HornetQServerTestCase
 
          // Receive the messages, one on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish1", r1.getText());
@@ -1045,7 +1045,7 @@ public class XATest extends HornetQServerTestCase
          cons1.close();
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons2.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish2", r2.getText());
@@ -1060,7 +1060,7 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r3 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         TextMessage r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r3);
 
       }
@@ -1114,7 +1114,7 @@ public class XATest extends HornetQServerTestCase
 
          // Receive the messages, one on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish1", r1.getText());
@@ -1122,7 +1122,7 @@ public class XATest extends HornetQServerTestCase
          cons1.close();
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons2.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish2", r2.getText());
@@ -1137,7 +1137,7 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r3 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         TextMessage r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r3);
 
       }
@@ -1195,12 +1195,12 @@ public class XATest extends HornetQServerTestCase
 
          // Receive the messages, two on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish1", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish2", r1.getText());
@@ -1208,12 +1208,12 @@ public class XATest extends HornetQServerTestCase
          cons1.close();
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons2.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish3", r2.getText());
 
-         r2 = (TextMessage)cons2.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r2 = (TextMessage)cons2.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish4", r2.getText());
@@ -1237,7 +1237,7 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r);
 
          boolean session1First = false;
@@ -1257,19 +1257,19 @@ public class XATest extends HornetQServerTestCase
 
          if (session1First)
          {
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish2", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish3", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
@@ -1278,26 +1278,26 @@ public class XATest extends HornetQServerTestCase
          }
          else
          {
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish4", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish1", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish2", r.getText());
          }
 
-         r = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         r = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
 
          ProxyAssertSupport.assertNull(r);
 
@@ -1356,12 +1356,12 @@ public class XATest extends HornetQServerTestCase
 
          // Receive the messages, two on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish1", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish2", r1.getText());
@@ -1372,12 +1372,12 @@ public class XATest extends HornetQServerTestCase
          Thread.sleep(500);
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons2.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish3", r2.getText());
 
-         r2 = (TextMessage)cons2.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r2 = (TextMessage)cons2.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish4", r2.getText());
@@ -1401,7 +1401,7 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r);
 
          boolean session1First = false;
@@ -1421,19 +1421,19 @@ public class XATest extends HornetQServerTestCase
 
          if (session1First)
          {
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish2", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish3", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
@@ -1442,26 +1442,26 @@ public class XATest extends HornetQServerTestCase
          }
          else
          {
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish4", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish1", r.getText());
 
-            r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+            r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
             ProxyAssertSupport.assertNotNull(r);
 
             ProxyAssertSupport.assertEquals("jellyfish2", r.getText());
          }
 
-         r = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         r = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
 
          ProxyAssertSupport.assertNull(r);
       }
@@ -1514,22 +1514,22 @@ public class XATest extends HornetQServerTestCase
          tx.enlistResource(res2);
 
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish1", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish2", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish3", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish4", r1.getText());
@@ -1566,31 +1566,31 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r);
 
          ProxyAssertSupport.assertEquals("jellyfish1", r.getText());
 
-         r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r);
 
          ProxyAssertSupport.assertEquals("jellyfish2", r.getText());
 
-         r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r);
 
          ProxyAssertSupport.assertEquals("jellyfish3", r.getText());
 
-         r = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r);
 
          ProxyAssertSupport.assertEquals("jellyfish4", r.getText());
 
-         r = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         r = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
 
          ProxyAssertSupport.assertNull(r);
       }
@@ -1655,11 +1655,11 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("echidna1", r1.getText());
 
-         TextMessage r2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("echidna2", r2.getText());
 
@@ -1727,11 +1727,11 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("echidna1", r1.getText());
 
-         TextMessage r2 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("echidna2", r2.getText());
 
@@ -1798,7 +1798,7 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r1);
 
       }
@@ -1863,7 +1863,7 @@ public class XATest extends HornetQServerTestCase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r1);
       }
       finally
@@ -1913,7 +1913,7 @@ public class XATest extends HornetQServerTestCase
 
          // Receive one message in one tx
 
-         TextMessage r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish1", r1.getText());
 
@@ -1928,7 +1928,7 @@ public class XATest extends HornetQServerTestCase
          tx2.enlistResource(res1);
 
          // Receive 2nd message in a different tx
-         TextMessage r2 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish2", r2.getText());
 
@@ -1943,7 +1943,7 @@ public class XATest extends HornetQServerTestCase
          Session sess = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn2.start();
          MessageConsumer cons = sess.createConsumer(queue1);
-         TextMessage r3 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         TextMessage r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r3);
 
          // now resume the first tx and then commit it
@@ -1998,7 +1998,7 @@ public class XATest extends HornetQServerTestCase
 
          // Receive one message in one tx
 
-         TextMessage r1 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("jellyfish1", r1.getText());
 
@@ -2013,7 +2013,7 @@ public class XATest extends HornetQServerTestCase
          tx2.enlistResource(res1);
 
          // Receive 2nd message in a different tx
-         TextMessage r2 = (TextMessage)cons1.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons1.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r2);
          ProxyAssertSupport.assertEquals("jellyfish2", r2.getText());
 
@@ -2031,11 +2031,11 @@ public class XATest extends HornetQServerTestCase
          conn2.start();
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage r3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(r3);
          ProxyAssertSupport.assertEquals("jellyfish2", r3.getText());
-         r3 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r3);
 
          // rollback the other tx
@@ -2043,10 +2043,10 @@ public class XATest extends HornetQServerTestCase
          tm.rollback();
 
          // Verify the first message is now available
-         r3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r3);
          ProxyAssertSupport.assertEquals("jellyfish1", r3.getText());
-         r3 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r3);
 
       }
@@ -2114,10 +2114,10 @@ public class XATest extends HornetQServerTestCase
          Session sess = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn2.start();
          MessageConsumer cons = sess.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r1);
          ProxyAssertSupport.assertEquals("kangaroo2", r1.getText());
-         TextMessage r2 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         TextMessage r2 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
          ProxyAssertSupport.assertNull(r2);
 
          // now resume the first tx and then commit it
@@ -2126,7 +2126,7 @@ public class XATest extends HornetQServerTestCase
          tm.commit();
 
          // verify that the first text message is received
-         TextMessage r3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r3);
          ProxyAssertSupport.assertEquals("kangaroo1", r3.getText());
 
@@ -2212,7 +2212,7 @@ public class XATest extends HornetQServerTestCase
          Session sess = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn2.start();
          MessageConsumer cons = sess.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons.receive(HornetQServerTestCase.MIN_TIMEOUT);
+         TextMessage r1 = (TextMessage)cons.receive(ActiveMQServerTestCase.MIN_TIMEOUT);
 
          ProxyAssertSupport.assertNull(r1);
 
@@ -2224,7 +2224,7 @@ public class XATest extends HornetQServerTestCase
          tm.commit();
 
          // verify that the first text message is received
-         TextMessage r3 = (TextMessage)cons.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         TextMessage r3 = (TextMessage)cons.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
          ProxyAssertSupport.assertNotNull(r3);
          ProxyAssertSupport.assertEquals("kangaroo1", r3.getText());
 

@@ -20,9 +20,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServerLogger;
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.spi.core.remoting.AbstractConnector;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
@@ -147,7 +147,7 @@ public class InVMConnector extends AbstractConnector
       {
          InVMConnector.incFailures();
 
-         HornetQServerLogger.LOGGER.debug("Returning null on InVMConnector for tests");
+         ActiveMQServerLogger.LOGGER.debug("Returning null on InVMConnector for tests");
          // For testing only
          return null;
       }
@@ -211,11 +211,11 @@ public class InVMConnector extends AbstractConnector
 
    private class Listener implements ConnectionLifeCycleListener
    {
-      public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
       {
          if (connections.putIfAbsent((String)connection.getID(), connection) != null)
          {
-            throw HornetQMessageBundle.BUNDLE.connectionExists(connection.getID());
+            throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
          listener.connectionCreated(component, connection, protocol);

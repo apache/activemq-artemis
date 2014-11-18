@@ -28,22 +28,22 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Play with HornetQ
+ * Play with ActiveMQ
  *
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
 public class RawAckTest
 {
-   protected static HornetQServer hornetqServer;
+   protected static ActiveMQServer activeMQServer;
    static ServerLocator serverLocator;
    static ClientSessionFactory sessionFactory;
    static ClientSessionFactory consumerSessionFactory;
@@ -58,8 +58,8 @@ public class RawAckTest
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      hornetqServer = HornetQServers.newHornetQServer(configuration);
-      hornetqServer.start();
+      activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
+      activeMQServer.start();
 
       HashMap<String, Object> transportConfig = new HashMap<String, Object>();
 
@@ -67,7 +67,7 @@ public class RawAckTest
       sessionFactory = serverLocator.createSessionFactory();
       consumerSessionFactory = serverLocator.createSessionFactory();
 
-      hornetqServer.createQueue(new SimpleString("testQueue"), new SimpleString("testQueue"), null, false, false);
+      activeMQServer.createQueue(new SimpleString("testQueue"), new SimpleString("testQueue"), null, false, false);
       session = sessionFactory.createSession(true, true);
       producer = session.createProducer("testQueue");
       session.start();
@@ -77,7 +77,7 @@ public class RawAckTest
    public static void shutdown() throws Exception
    {
       serverLocator.close();
-      hornetqServer.stop();
+      activeMQServer.stop();
    }
 
    static boolean passed = false;

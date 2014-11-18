@@ -28,7 +28,7 @@ import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.SessionFailureListener;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
@@ -39,7 +39,7 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -58,7 +58,7 @@ public class PingTest extends ServiceTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    // Static --------------------------------------------------------
 
@@ -171,7 +171,7 @@ public class PingTest extends ServiceTestBase
    public void testNoFailureNoPinging() throws Exception
    {
       TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory");
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(transportConfig));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       locator.setClientFailureCheckPeriod(-1);
       locator.setConnectionTTL(-1);
       ClientSessionFactory csf = createSessionFactory(locator);
@@ -204,7 +204,7 @@ public class PingTest extends ServiceTestBase
 
       serverConn.addFailureListener(serverListener);
 
-      Thread.sleep(HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
+      Thread.sleep(ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
 
       Assert.assertNull(clientListener.getException());
 
@@ -239,7 +239,7 @@ public class PingTest extends ServiceTestBase
          {
             if (packet.getType() == PacketImpl.PING)
             {
-               Assert.assertEquals(HornetQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
+               Assert.assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
                unwantedPings.countDown();
                requiredPings.countDown();
             }
@@ -248,7 +248,7 @@ public class PingTest extends ServiceTestBase
       });
 
       TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(transportConfig));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       ClientSessionFactory csf = createSessionFactory(locator);
 
       ClientSession session = csf.createSession(false, true, true);
@@ -257,7 +257,7 @@ public class PingTest extends ServiceTestBase
 
       Assert.assertTrue("server didn't received an expected ping from the client", requiredPings.await(5000, TimeUnit.MILLISECONDS));
 
-      Assert.assertFalse("server received an unexpected ping from the client", unwantedPings.await(HornetQClient.DEFAULT_CONNECTION_TTL * 2, TimeUnit.MILLISECONDS));
+      Assert.assertFalse("server received an unexpected ping from the client", unwantedPings.await(ActiveMQClient.DEFAULT_CONNECTION_TTL * 2, TimeUnit.MILLISECONDS));
 
       session.close();
 
@@ -273,7 +273,7 @@ public class PingTest extends ServiceTestBase
    public void testServerFailureNoPing() throws Exception
    {
       TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory");
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(transportConfig));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       locator.setClientFailureCheckPeriod(PingTest.CLIENT_FAILURE_CHECK_PERIOD);
       locator.setConnectionTTL(PingTest.CLIENT_FAILURE_CHECK_PERIOD * 2);
       ClientSessionFactoryImpl csf = (ClientSessionFactoryImpl) createSessionFactory(locator);
@@ -369,7 +369,7 @@ public class PingTest extends ServiceTestBase
       });
 
       TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory");
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(transportConfig));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       locator.setClientFailureCheckPeriod(PingTest.CLIENT_FAILURE_CHECK_PERIOD);
       locator.setConnectionTTL(PingTest.CLIENT_FAILURE_CHECK_PERIOD * 2);
       ClientSessionFactory csf = createSessionFactory(locator);

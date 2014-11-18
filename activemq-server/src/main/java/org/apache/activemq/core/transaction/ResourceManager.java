@@ -17,7 +17,7 @@ import java.util.Map;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 
 /**
  *
@@ -26,7 +26,7 @@ import org.apache.activemq.core.server.HornetQComponent;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
  */
-public interface ResourceManager extends HornetQComponent
+public interface ResourceManager extends ActiveMQComponent
 {
    boolean putTransaction(Xid xid, Transaction tx);
 

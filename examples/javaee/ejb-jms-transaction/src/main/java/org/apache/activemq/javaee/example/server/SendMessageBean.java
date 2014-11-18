@@ -36,7 +36,7 @@ import javax.sql.DataSource;
 public class SendMessageBean implements SendMessageService
 {
 
-   private static final String TABLE = "hornetq_example";
+   private static final String TABLE = "activemq_example";
 
    public void createTable() throws Exception
    {

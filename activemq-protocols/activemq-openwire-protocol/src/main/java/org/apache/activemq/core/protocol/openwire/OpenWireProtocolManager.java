@@ -50,6 +50,7 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.command.XATransactionId;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
 import org.apache.activemq.state.ConnectionState;
@@ -68,16 +69,15 @@ import org.apache.activemq.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionState;
 import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.core.security.CheckType;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.spi.core.protocol.MessageConverter;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
 public class OpenWireProtocolManager implements ProtocolManager
 {
@@ -85,7 +85,7 @@ public class OpenWireProtocolManager implements ProtocolManager
    private static final IdGenerator ID_GENERATOR = new IdGenerator();
 
    private final LongSequenceGenerator messageIdGenerator = new LongSequenceGenerator();
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private OpenWireFormatFactory wireFactory;
 
@@ -114,7 +114,7 @@ public class OpenWireProtocolManager implements ProtocolManager
 
    private Map<TransactionId, AMQSession> transactions = new ConcurrentHashMap<TransactionId, AMQSession>();
 
-   public OpenWireProtocolManager(HornetQServer server)
+   public OpenWireProtocolManager(ActiveMQServer server)
    {
       this.server = server;
       this.wireFactory = new OpenWireFormatFactory();
@@ -223,7 +223,7 @@ public class OpenWireProtocolManager implements ProtocolManager
       {
          public void onError(final int errorCode, final String errorMessage)
          {
-            HornetQServerLogger.LOGGER.errorProcessingIOCallback(errorCode,
+            ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode,
                   errorMessage);
          }
 
@@ -236,9 +236,9 @@ public class OpenWireProtocolManager implements ProtocolManager
 
    public boolean send(final OpenWireConnection connection, final Command command)
    {
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("sending " + command);
+         ActiveMQServerLogger.LOGGER.trace("sending " + command);
       }
       synchronized (connection)
       {
@@ -642,7 +642,7 @@ public class OpenWireProtocolManager implements ProtocolManager
 
             AMQServerSession fakeSession = new AMQServerSession(user, pass);
             CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
-            ((HornetQServerImpl)server).getSecurityStore().check(qName, checkType, fakeSession);
+            ((ActiveMQServerImpl)server).getSecurityStore().check(qName, checkType, fakeSession);
          }
          this.server.createQueue(qName, qName, null, false, true);
          if (dest.isTemporary())
@@ -729,7 +729,7 @@ public class OpenWireProtocolManager implements ProtocolManager
    {
       boolean validated = true;
 
-      HornetQSecurityManager sm = server.getSecurityManager();
+      ActiveMQSecurityManager sm = server.getSecurityManager();
 
       if (sm != null && server.getConfiguration().isSecurityEnabled())
       {

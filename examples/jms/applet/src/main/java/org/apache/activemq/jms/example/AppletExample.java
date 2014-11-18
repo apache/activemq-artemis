@@ -43,7 +43,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 
@@ -106,8 +106,8 @@ public class AppletExample extends JApplet implements ActionListener
 
       Map<String, Object> params = new HashMap<String, Object>();
       TransportConfiguration connector = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
-      ConnectionFactory cf = (ConnectionFactory)HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, connector);
-      destination = HornetQJMSClient.createTopic("exampleTopic");
+      ConnectionFactory cf = (ConnectionFactory)ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, connector);
+      destination = ActiveMQJMSClient.createTopic("exampleTopic");
 
       try
       {

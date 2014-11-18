@@ -27,7 +27,7 @@ import org.proton.plug.context.AbstractProtonContextSender;
 import org.proton.plug.context.AbstractProtonReceiverContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.context.ProtonTransactionHandler;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * @author Clebert Suconic
@@ -83,7 +83,7 @@ public class ProtonServerSessionContext extends AbstractProtonSessionContext
          sender.open();
          protonSender.start();
       }
-      catch (HornetQAMQPException e)
+      catch (ActiveMQAMQPException e)
       {
          senders.remove(sender);
          sender.setSource(null);
@@ -92,7 +92,7 @@ public class ProtonServerSessionContext extends AbstractProtonSessionContext
       }
    }
 
-   public void removeSender(Sender sender) throws HornetQAMQPException
+   public void removeSender(Sender sender) throws ActiveMQAMQPException
    {
       ProtonServerSenderContext senderRemoved = (ProtonServerSenderContext) senders.remove(sender);
       if (senderRemoved != null)
@@ -112,7 +112,7 @@ public class ProtonServerSessionContext extends AbstractProtonSessionContext
          receiver.setContext(protonReceiver);
          receiver.open();
       }
-      catch (HornetQAMQPException e)
+      catch (ActiveMQAMQPException e)
       {
          receivers.remove(receiver);
          receiver.setTarget(null);

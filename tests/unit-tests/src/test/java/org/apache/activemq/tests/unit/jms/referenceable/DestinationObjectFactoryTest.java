@@ -18,8 +18,8 @@ import javax.naming.Reference;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.jms.referenceable.DestinationObjectFactory;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -44,13 +44,13 @@ public class DestinationObjectFactoryTest extends UnitTestCase
    @Test
    public void testReference() throws Exception
    {
-      HornetQDestination queue = (HornetQDestination) HornetQJMSClient.createQueue(RandomUtil.randomString());
+      ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
       Reference reference = queue.getReference();
 
       DestinationObjectFactory factory = new DestinationObjectFactory();
       Object object = factory.getObjectInstance(reference, null, null, null);
       Assert.assertNotNull(object);
-      Assert.assertTrue(object instanceof HornetQDestination);
+      Assert.assertTrue(object instanceof ActiveMQDestination);
       Assert.assertEquals(queue, object);
    }
 

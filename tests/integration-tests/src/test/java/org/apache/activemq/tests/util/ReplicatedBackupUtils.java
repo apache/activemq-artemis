@@ -19,8 +19,8 @@ import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 
 public final class ReplicatedBackupUtils
 {
-   public static final String LIVE_NODE_NAME = "hqLIVE";
-   public static final String BACKUP_NODE_NAME = "hqBackup";
+   public static final String LIVE_NODE_NAME = "amqLIVE";
+   public static final String BACKUP_NODE_NAME = "amqBackup";
    private ReplicatedBackupUtils()
    {
       // Utility class

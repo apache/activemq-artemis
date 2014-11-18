@@ -22,14 +22,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class AerogearExample extends HornetQExample
+public class AerogearExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -64,7 +64,7 @@ public class AerogearExample extends HornetQExample
          // Step 7. Create a Text Message
          Message message = session.createMessage();
 
-         message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from HornetQ");
+         message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from ActiveMQ");
 
          producer.send(message);
 

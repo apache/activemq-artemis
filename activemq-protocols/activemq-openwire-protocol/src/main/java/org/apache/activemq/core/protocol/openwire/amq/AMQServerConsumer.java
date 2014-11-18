@@ -18,8 +18,8 @@ import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.QueueBinding;
 import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.HornetQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.QueueImpl;
@@ -83,7 +83,7 @@ public class AMQServerConsumer extends ServerConsumerImpl
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorBrowserHandlingMessage(e, current);
+               ActiveMQServerLogger.LOGGER.errorBrowserHandlingMessage(e, current);
                return;
             }
          }
@@ -127,7 +127,7 @@ public class AMQServerConsumer extends ServerConsumerImpl
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorBrowserHandlingMessage(e, ref);
+               ActiveMQServerLogger.LOGGER.errorBrowserHandlingMessage(e, ref);
                break;
             }
          }

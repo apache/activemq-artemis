@@ -69,7 +69,7 @@ import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.A
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.CursorAckRecordEncoding;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.PageUpdateTXEncoding;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.PersistentQueueBindingEncoding;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.ServerMessage;
@@ -85,7 +85,7 @@ import org.apache.activemq.utils.Base64;
 import org.apache.activemq.utils.ExecutorFactory;
 
 /**
- * Read the journal, page, and large-message data from a stopped instance of HornetQ and save it in an XML format to
+ * Read the journal, page, and large-message data from a stopped instance of ActiveMQ and save it in an XML format to
  * a file.  It uses the StAX <code>javax.xml.stream.XMLStreamWriter</code> for speed and simplicity.  Output can be
  * read by <code>org.apache.activemq.core.persistence.impl.journal.XmlDataImporter</code>.
  *
@@ -179,8 +179,8 @@ public final class XmlDataExporter
       getJmsBindings();
       processMessageJournal();
       printDataAsXML();
-      HornetQServerLogger.LOGGER.debug("\n\nProcessing took: " + (System.currentTimeMillis() - start) + "ms");
-      HornetQServerLogger.LOGGER.debug("Output " + messagesPrinted + " messages and " + bindingsPrinted + " bindings.");
+      ActiveMQServerLogger.LOGGER.debug("\n\nProcessing took: " + (System.currentTimeMillis() - start) + "ms");
+      ActiveMQServerLogger.LOGGER.debug("Output " + messagesPrinted + " messages and " + bindingsPrinted + " bindings.");
    }
 
    /**
@@ -200,7 +200,7 @@ public final class XmlDataExporter
 
       Journal messageJournal = storageManager.getMessageJournal();
 
-      HornetQServerLogger.LOGGER.debug("Reading journal from " + config.getJournalDirectory());
+      ActiveMQServerLogger.LOGGER.debug("Reading journal from " + config.getJournalDirectory());
 
       messageJournal.start();
 
@@ -238,7 +238,7 @@ public final class XmlDataExporter
                }
             }
 
-            HornetQServerLogger.LOGGER.debug(message.toString());
+            ActiveMQServerLogger.LOGGER.debug(message.toString());
          }
       };
 
@@ -351,7 +351,7 @@ public final class XmlDataExporter
                                            config.getJournalCompactMinFiles(),
                                            config.getJournalCompactPercentage(),
                                            bindingsJMS,
-                                           "hornetq-jms",
+                                           "activemq-jms",
                                            "jms",
                                            1);
 
@@ -361,7 +361,7 @@ public final class XmlDataExporter
 
       ArrayList<PreparedTransactionInfo> list = new ArrayList<>();
 
-      HornetQServerLogger.LOGGER.debug("Reading jms bindings journal from " + config.getBindingsDirectory());
+      ActiveMQServerLogger.LOGGER.debug("Reading jms bindings journal from " + config.getBindingsDirectory());
 
       jmsJournal.load(data, list, null);
 
@@ -378,7 +378,7 @@ public final class XmlDataExporter
             PersistedConnectionFactory cf = new PersistedConnectionFactory();
             cf.decode(buffer);
             cf.setId(id);
-            HornetQServerLogger.LOGGER.info("Found JMS connection factory: " + cf.getName());
+            ActiveMQServerLogger.LOGGER.info("Found JMS connection factory: " + cf.getName());
             jmsConnectionFactories.put(cf.getName(), cf);
          }
          else if (rec == JMSJournalStorageManagerImpl.DESTINATION_RECORD)
@@ -386,7 +386,7 @@ public final class XmlDataExporter
             PersistedDestination destination = new PersistedDestination();
             destination.decode(buffer);
             destination.setId(id);
-            HornetQServerLogger.LOGGER.info("Found JMS destination: " + destination.getName());
+            ActiveMQServerLogger.LOGGER.info("Found JMS destination: " + destination.getName());
             jmsDestinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
          }
          else if (rec == JMSJournalStorageManagerImpl.JNDI_RECORD)
@@ -400,7 +400,7 @@ public final class XmlDataExporter
             {
                builder.append(binding).append(" ");
             }
-            HornetQServerLogger.LOGGER.info("Found JMS JNDI binding data for " + jndi.getType() + " " + jndi.getName() + ": " + builder.toString());
+            ActiveMQServerLogger.LOGGER.info("Found JMS JNDI binding data for " + jndi.getType() + " " + jndi.getName() + ": " + builder.toString());
             jmsJNDI.put(key, jndi);
          }
          else
@@ -424,7 +424,7 @@ public final class XmlDataExporter
 
       bindingsJournal.start();
 
-      HornetQServerLogger.LOGGER.debug("Reading bindings journal from " + config.getBindingsDirectory());
+      ActiveMQServerLogger.LOGGER.debug("Reading bindings journal from " + config.getBindingsDirectory());
 
       ((JournalImpl) bindingsJournal).load(records, null, null, false);
 
@@ -781,12 +781,12 @@ public final class XmlDataExporter
             if (pageStore != null)
             {
                String folder = pageStore.getFolder();
-               HornetQServerLogger.LOGGER.debug("Reading page store " + store + " folder = " + folder);
+               ActiveMQServerLogger.LOGGER.debug("Reading page store " + store + " folder = " + folder);
 
                int pageId = (int) pageStore.getFirstPage();
                for (int i = 0; i < pageStore.getNumberOfPages(); i++)
                {
-                  HornetQServerLogger.LOGGER.debug("Reading page " + pageId);
+                  ActiveMQServerLogger.LOGGER.debug("Reading page " + pageId);
                   Page page = pageStore.createPage(pageId);
                   page.open();
                   List<PagedMessage> messages = page.read(storageManager);
@@ -835,7 +835,7 @@ public final class XmlDataExporter
             }
             else
             {
-               HornetQServerLogger.LOGGER.debug("Page store was null");
+               ActiveMQServerLogger.LOGGER.debug("Page store was null");
             }
          }
       }

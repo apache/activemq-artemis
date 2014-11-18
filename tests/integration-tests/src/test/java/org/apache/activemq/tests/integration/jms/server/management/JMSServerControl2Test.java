@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.management.JMSConnectionInfo;
 import org.apache.activemq.api.jms.management.JMSConsumerInfo;
 import org.apache.activemq.api.jms.management.JMSServerControl;
@@ -40,13 +40,13 @@ import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.ra.HornetQResourceAdapter;
-import org.apache.activemq.ra.inflow.HornetQActivation;
-import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.ra.inflow.ActiveMQActivation;
+import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.tests.integration.management.ManagementTestBase;
 import org.apache.activemq.tests.unit.ra.MessageEndpointFactory;
@@ -67,7 +67,7 @@ public class JMSServerControl2Test extends ManagementTestBase
 
    private static final long PING_PERIOD = JMSServerControl2Test.CONNECTION_TTL / 2;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private JMSServerManagerImpl serverManager;
 
@@ -75,16 +75,16 @@ public class JMSServerControl2Test extends ManagementTestBase
 
    // Static --------------------------------------------------------
 
-   private void startHornetQServer(final String acceptorFactory) throws Exception
+   private void startActiveMQServer(final String acceptorFactory) throws Exception
    {
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(acceptorFactory));
-      server = addServer(HornetQServers.newHornetQServer(conf, mbeanServer, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
       server.start();
 
       context = new InVMNamingContext();
       serverManager = new JMSServerManagerImpl(server);
-      addHornetQComponent(serverManager);
+      addActiveMQComponent(serverManager);
       serverManager.setContext(context);
       serverManager.start();
       serverManager.activated();
@@ -205,9 +205,9 @@ public class JMSServerControl2Test extends ManagementTestBase
 
       try
       {
-         startHornetQServer(NETTY_ACCEPTOR_FACTORY);
+         startActiveMQServer(NETTY_ACCEPTOR_FACTORY);
          serverManager.createQueue(false, queueName, null, true, queueName);
-         Queue queue = HornetQJMSClient.createQueue(queueName);
+         Queue queue = ActiveMQJMSClient.createQueue(queueName);
 
          JMSServerControl control = createManagementControl();
 
@@ -327,9 +327,9 @@ public class JMSServerControl2Test extends ManagementTestBase
 
       try
       {
-         startHornetQServer(NettyAcceptorFactory.class.getName());
+         startActiveMQServer(NettyAcceptorFactory.class.getName());
          serverManager.createTopic(false, topicName, topicName);
-         Topic topic = HornetQJMSClient.createTopic(topicName);
+         Topic topic = ActiveMQJMSClient.createTopic(topicName);
 
          JMSServerControl control = createManagementControl();
 
@@ -401,9 +401,9 @@ public class JMSServerControl2Test extends ManagementTestBase
 
       try
       {
-         startHornetQServer(NettyAcceptorFactory.class.getName());
+         startActiveMQServer(NettyAcceptorFactory.class.getName());
          serverManager.createQueue(false, queueName, null, true, queueName);
-         Queue queue = HornetQJMSClient.createQueue(queueName);
+         Queue queue = ActiveMQJMSClient.createQueue(queueName);
 
          JMSServerControl control = createManagementControl();
 
@@ -440,7 +440,7 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          assertEquals(msgSent.getJMSMessageID(), receivedMsg.getJMSMessageID());
 
-         HornetQMessage jmsMessage = (HornetQMessage) receivedMsg;
+         ActiveMQMessage jmsMessage = (ActiveMQMessage) receivedMsg;
          String lastMsgID = jmsMessage.getCoreMessage().getUserID().toString();
 
          String jsonStr = control.listConnectionsAsJSON();
@@ -508,18 +508,18 @@ public class JMSServerControl2Test extends ManagementTestBase
    @Test
    public void testStartActivationListConnections() throws Exception
    {
-      HornetQActivation activation = null;
-      HornetQResourceAdapter ra = null;
+      ActiveMQActivation activation = null;
+      ActiveMQResourceAdapter ra = null;
 
       try
       {
-         startHornetQServer(InVMAcceptorFactory.class.getName());
-         HornetQJMSClient.createQueue("test");
+         startActiveMQServer(InVMAcceptorFactory.class.getName());
+         ActiveMQJMSClient.createQueue("test");
          serverManager.createQueue(false, "test", null, true, "test");
 
          JMSServerControl control = createManagementControl();
 
-         ra = new HornetQResourceAdapter();
+         ra = new ActiveMQResourceAdapter();
 
          ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
          ra.setUserName("userGlobal");
@@ -527,11 +527,11 @@ public class JMSServerControl2Test extends ManagementTestBase
          ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
          ra.setClientID("my-client-id");
          ra.setUserName("user");
-         Connection conn = ra.getDefaultHornetQConnectionFactory().createConnection();
+         Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
 
          conn.close();
 
-         HornetQActivationSpec spec = new HornetQActivationSpec();
+         ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
          spec.setResourceAdapter(ra);
 
@@ -545,7 +545,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          spec.setMinSession(1);
          spec.setMaxSession(1);
 
-         activation = new HornetQActivation(ra, new MessageEndpointFactory(), spec);
+         activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
          activation.start();
 
@@ -595,29 +595,29 @@ public class JMSServerControl2Test extends ManagementTestBase
    @Test
    public void testStartActivationOverrideListConnections() throws Exception
    {
-      HornetQActivation activation = null;
-      HornetQResourceAdapter ra = null;
+      ActiveMQActivation activation = null;
+      ActiveMQResourceAdapter ra = null;
 
       try
       {
-         startHornetQServer(InVMAcceptorFactory.class.getName());
-         HornetQJMSClient.createQueue("test");
+         startActiveMQServer(InVMAcceptorFactory.class.getName());
+         ActiveMQJMSClient.createQueue("test");
          serverManager.createQueue(false, "test", null, true, "test");
 
          JMSServerControl control = createManagementControl();
 
-         ra = new HornetQResourceAdapter();
+         ra = new ActiveMQResourceAdapter();
 
          ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
          ra.setUserName("userGlobal");
          ra.setPassword("passwordGlobal");
          ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
-         Connection conn = ra.getDefaultHornetQConnectionFactory().createConnection();
+         Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
 
          conn.close();
 
-         HornetQActivationSpec spec = new HornetQActivationSpec();
+         ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
          spec.setResourceAdapter(ra);
 
@@ -634,7 +634,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          spec.setMinSession(1);
          spec.setMaxSession(1);
 
-         activation = new HornetQActivation(ra, new MessageEndpointFactory(), spec);
+         activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
          activation.start();
 
@@ -706,7 +706,7 @@ public class JMSServerControl2Test extends ManagementTestBase
    {
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
@@ -752,7 +752,7 @@ public class JMSServerControl2Test extends ManagementTestBase
    {
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
@@ -861,7 +861,7 @@ public class JMSServerControl2Test extends ManagementTestBase
    {
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
@@ -906,7 +906,7 @@ public class JMSServerControl2Test extends ManagementTestBase
    {
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
@@ -950,7 +950,7 @@ public class JMSServerControl2Test extends ManagementTestBase
    {
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
@@ -1008,7 +1008,7 @@ public class JMSServerControl2Test extends ManagementTestBase
 
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
@@ -1065,11 +1065,11 @@ public class JMSServerControl2Test extends ManagementTestBase
 
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
          serverManager.createQueue(false, queueName, null, true, queueName);
-         Queue queue = HornetQJMSClient.createQueue(queueName);
+         Queue queue = ActiveMQJMSClient.createQueue(queueName);
          serverManager.createQueue(false, queueName2, null, true, queueName2);
-         Queue queue2 = HornetQJMSClient.createQueue(queueName2);
+         Queue queue2 = ActiveMQJMSClient.createQueue(queueName2);
 
          JMSServerControl control = createManagementControl();
          QueueControl queueControl = createManagementControl("jms.queue." + queueName, "jms.queue." + queueName);
@@ -1144,13 +1144,13 @@ public class JMSServerControl2Test extends ManagementTestBase
 
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
          serverManager.createQueue(false, queueName1, null, true, queueName1);
-         Queue queue = HornetQJMSClient.createQueue(queueName1);
+         Queue queue = ActiveMQJMSClient.createQueue(queueName1);
          serverManager.createQueue(false, queueName2, null, true, queueName2);
-         Queue queue2 = HornetQJMSClient.createQueue(queueName2);
+         Queue queue2 = ActiveMQJMSClient.createQueue(queueName2);
          serverManager.createQueue(false, queueName3, null, true, queueName3);
-         Queue queue3 = HornetQJMSClient.createQueue(queueName3);
+         Queue queue3 = ActiveMQJMSClient.createQueue(queueName3);
 
          JMSServerControl control = createManagementControl();
          QueueControl queueControl = createManagementControl("jms.queue." + queueName1, "jms.queue." + queueName1);
@@ -1242,11 +1242,11 @@ public class JMSServerControl2Test extends ManagementTestBase
 
       try
       {
-         startHornetQServer(acceptorFactory);
+         startActiveMQServer(acceptorFactory);
          serverManager.createQueue(false, queueName, null, true, queueName);
-         Queue queue = HornetQJMSClient.createQueue(queueName);
+         Queue queue = ActiveMQJMSClient.createQueue(queueName);
          serverManager.createQueue(false, queueName2, null, true, queueName2);
-         Queue queue2 = HornetQJMSClient.createQueue(queueName2);
+         Queue queue2 = ActiveMQJMSClient.createQueue(queueName2);
 
          JMSServerControl control = createManagementControl();
          QueueControl queueControl = createManagementControl("jms.queue." + queueName, "jms.queue." + queueName);

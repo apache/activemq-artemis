@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.core.paging.impl.Page;
 import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.RouteContextList;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
@@ -37,7 +37,7 @@ import org.apache.activemq.core.transaction.Transaction;
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  * @see PagingManager
  */
-public interface PagingStore extends HornetQComponent
+public interface PagingStore extends ActiveMQComponent
 {
    SimpleString getAddress();
 
@@ -103,7 +103,7 @@ public interface PagingStore extends HornetQComponent
     * The file will still exist until Page.delete is called,
     * So, case the system is reloaded the same Page will be loaded back if delete is not called.
     *
-    * @throws Exception Note: This should still be part of the interface, even though HornetQ only uses through the
+    * @throws Exception Note: This should still be part of the interface, even though ActiveMQ only uses through the
     */
    Page depage() throws Exception;
 

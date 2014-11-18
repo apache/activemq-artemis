@@ -14,8 +14,8 @@ package org.apache.activemq.tests.util;
 
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 
 public final class CreateMessage
 {
@@ -27,7 +27,7 @@ public final class CreateMessage
 
    public static ClientMessage createTextMessage(final String s, final ClientSession clientSession)
    {
-      ClientMessage message = clientSession.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = clientSession.createMessage(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -38,7 +38,7 @@ public final class CreateMessage
 
    public static ClientMessage createBytesMessage(final ClientSession session, final byte[] b, final boolean durable)
    {
-      ClientMessage message = session.createMessage(HornetQBytesMessage.TYPE,
+      ClientMessage message = session.createMessage(ActiveMQBytesMessage.TYPE,
                                                     durable,
                                                     0,
                                                     System.currentTimeMillis(),
@@ -49,7 +49,7 @@ public final class CreateMessage
 
    public static ClientMessage createTextMessage(final ClientSession session, final String s, final boolean durable)
    {
-      ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                     durable,
                                                     0,
                                                     System.currentTimeMillis(),

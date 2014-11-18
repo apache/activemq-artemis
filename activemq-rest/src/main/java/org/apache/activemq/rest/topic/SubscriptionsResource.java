@@ -32,7 +32,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.AcknowledgedQueueConsumer;
 import org.apache.activemq.rest.queue.Acknowledgement;
 import org.apache.activemq.rest.queue.DestinationServiceManager;
@@ -100,7 +100,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
       if (consumer == null) return false;
       if (System.currentTimeMillis() - consumer.getLastPingTime() > subscription.getTimeout())
       {
-         HornetQRestLogger.LOGGER.shutdownRestSubscription(consumer.getId());
+         ActiveMQRestLogger.LOGGER.shutdownRestSubscription(consumer.getId());
          if (autoShutdown)
          {
             shutdown(consumer);
@@ -160,7 +160,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
                                       @FormParam("idle-timeout") Long timeout,
                                       @Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       if (timeout == null)
          timeout = Long.valueOf(consumerTimeoutSeconds * 1000);
@@ -289,7 +289,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    public Response getAutoAckSubscription(@PathParam("consumer-id") String consumerId,
                                           @Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAutoAckSubscription(uriInfo, consumerId);
    }
@@ -299,7 +299,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    public Response headAutoAckSubscription(@PathParam("consumer-id") String consumerId,
                                            @Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAutoAckSubscription(uriInfo, consumerId);
    }
@@ -340,7 +340,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    public Response getAcknowledgedConsumer(@PathParam("consumer-id") String consumerId,
                                            @Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAcknowledgedConsumer(uriInfo, consumerId);
    }
@@ -350,7 +350,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    public Response headAcknowledgedConsumer(@PathParam("consumer-id") String consumerId,
                                             @Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAcknowledgedConsumer(uriInfo, consumerId);
    }
@@ -461,7 +461,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    @DELETE
    public void deleteAckSubscription(@Context UriInfo uriInfo, @PathParam("subscription-id") String consumerId)
    {
-      HornetQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       internalDeleteSubscription(consumerId);
    }
@@ -470,7 +470,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    @DELETE
    public void deleteSubscription(@Context UriInfo uriInfo, @PathParam("subscription-id") String consumerId)
    {
-      HornetQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       internalDeleteSubscription(consumerId);
    }

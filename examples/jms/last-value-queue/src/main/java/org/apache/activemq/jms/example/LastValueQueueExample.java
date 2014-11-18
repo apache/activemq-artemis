@@ -24,7 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This example shows how to configure and use a <em>Last-Value</em> queues.
@@ -33,7 +33,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  *
  */
-public class LastValueQueueExample extends HornetQExample
+public class LastValueQueueExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

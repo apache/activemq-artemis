@@ -24,12 +24,12 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
@@ -67,12 +67,12 @@ public class CoreClientTest extends ServiceTestBase
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(acceptorFactoryClassName));
 
-      HornetQServer server = addServer(HornetQServers.newHornetQServer(conf, false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
 
       server.start();
       ServerLocator locator =
-               addServerLocator(HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                                                                                                      connectorFactoryClassName)));
+               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+                  connectorFactoryClassName)));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -86,7 +86,7 @@ public class CoreClientTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                              false,
                                                              0,
                                                              System.currentTimeMillis(),

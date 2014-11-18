@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.rest.Hornetq;
+import org.apache.activemq.rest.ActiveMQ;
 import org.apache.activemq.rest.queue.QueueDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
@@ -109,9 +109,9 @@ public class TransformTest extends MessageTestBase
          ClientMessage message = session.createMessage(Message.OBJECT_TYPE, false);
          if (contentType == null)
          {
-            Hornetq.setEntity(message, object);
+            ActiveMQ.setEntity(message, object);
          }
-         else Hornetq.setEntity(message, object, contentType);
+         else ActiveMQ.setEntity(message, object, contentType);
          producer.send(message);
          session.start();
       }
@@ -203,7 +203,7 @@ public class TransformTest extends MessageTestBase
          System.out.println("onMessage!");
          try
          {
-            order = Hornetq.getEntity(clientMessage, Order.class);
+            order = ActiveMQ.getEntity(clientMessage, Order.class);
          }
          catch (Exception e)
          {

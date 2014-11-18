@@ -31,7 +31,7 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
@@ -52,7 +52,7 @@ import org.apache.activemq.core.config.impl.Validators;
 import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.core.journal.impl.JournalConstants;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
@@ -204,7 +204,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       NodeList elems = e.getElementsByTagName("clustered");
       if (elems != null && elems.getLength() > 0)
       {
-         HornetQServerLogger.LOGGER.deprecatedConfigurationOption("clustered");
+         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("clustered");
       }
 
       // these are combined because they are both required for setting the correct HAPolicyConfiguration
@@ -217,24 +217,24 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          {
             if (parameterExists(e, "backup"))
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("backup");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("backup");
             }
 
             if (parameterExists(e, "shared-store"))
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("shared-store");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("shared-store");
             }
          }
          else
          {
             if (parameterExists(e, "backup"))
             {
-               HornetQServerLogger.LOGGER.deprecatedConfigurationOption("backup");
+               ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("backup");
             }
 
             if (parameterExists(e, "shared-store"))
             {
-               HornetQServerLogger.LOGGER.deprecatedConfigurationOption("shared-store");
+               ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("shared-store");
             }
 
             if (backup && sharedStore)
@@ -262,11 +262,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          if (containsHAPolicy)
          {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("check-for-live-server");
+            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("check-for-live-server");
          }
          else
          {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("check-for-live-server");
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("check-for-live-server");
 
             if (haPolicyConfig instanceof ReplicatedPolicyConfiguration)
             {
@@ -280,11 +280,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          if (containsHAPolicy)
          {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("allow-failback");
+            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("allow-failback");
          }
          else
          {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("allow-failback");
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("allow-failback");
 
             if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
             {
@@ -298,7 +298,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
             }
             else
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("check-for-live-server");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("check-for-live-server");
             }
          }
       }
@@ -307,11 +307,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          if (containsHAPolicy)
          {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("backup-group-name");
+            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("backup-group-name");
          }
          else
          {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("backup-group-name");
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("backup-group-name");
 
             if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
             {
@@ -325,7 +325,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
             }
             else
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("backup-group-name");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("backup-group-name");
             }
          }
       }
@@ -334,11 +334,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          if (containsHAPolicy)
          {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("failback-delay");
+            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("failback-delay");
          }
          else
          {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("failback-delay");
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("failback-delay");
 
             if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
             {
@@ -357,7 +357,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
             }
             else
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failback-delay");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failback-delay");
             }
          }
       }
@@ -366,11 +366,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          if (containsHAPolicy)
          {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("failover-on-shutdown");
+            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("failover-on-shutdown");
          }
          else
          {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("failover-on-shutdown");
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("failover-on-shutdown");
 
             if (haPolicyConfig instanceof SharedStoreMasterPolicyConfiguration)
             {
@@ -384,7 +384,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
             }
             else
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failover-on-shutdown");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failover-on-shutdown");
             }
          }
       }
@@ -393,11 +393,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          if (containsHAPolicy)
          {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("replication-clustername");
+            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("replication-clustername");
          }
          else
          {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("replication-clustername");
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("replication-clustername");
 
             if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
             {
@@ -411,7 +411,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
             }
             else
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("replication-clustername");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("replication-clustername");
             }
          }
       }
@@ -420,11 +420,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          if (containsHAPolicy)
          {
-            HornetQServerLogger.LOGGER.incompatibleWithHAPolicy("max-saved-replicated-journals-size");
+            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("max-saved-replicated-journals-size");
          }
          else
          {
-            HornetQServerLogger.LOGGER.deprecatedConfigurationOption("max-saved-replicated-journals-size");
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("max-saved-replicated-journals-size");
 
             if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
             {
@@ -435,7 +435,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
             }
             else
             {
-               HornetQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("max-saved-replicated-journals-size");
+               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("max-saved-replicated-journals-size");
             }
          }
       }
@@ -619,14 +619,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
          if (connectorConfig.getName() == null)
          {
-            HornetQServerLogger.LOGGER.connectorWithNoName();
+            ActiveMQServerLogger.LOGGER.connectorWithNoName();
 
             continue;
          }
 
          if (config.getConnectorConfigurations().containsKey(connectorConfig.getName()))
          {
-            HornetQServerLogger.LOGGER.connectorAlreadyDeployed(connectorConfig.getName());
+            ActiveMQServerLogger.LOGGER.connectorAlreadyDeployed(connectorConfig.getName());
 
             continue;
          }
@@ -756,7 +756,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          {
             if (validateAIO)
             {
-               HornetQServerLogger.LOGGER.AIONotFound();
+               ActiveMQServerLogger.LOGGER.AIONotFound();
             }
 
             config.setJournalType(JournalType.NIO);
@@ -1003,7 +1003,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
                }
                else
                {
-                  HornetQServerLogger.LOGGER.rolePermissionConfigurationError(type);
+                  ActiveMQServerLogger.LOGGER.rolePermissionConfigurationError(type);
                }
                if (!allRoles.contains(role.trim()))
                {
@@ -1528,7 +1528,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       String name = e.getAttribute("name");
 
       long discoveryInitialWaitTimeout =
-         getLong(e, "initial-wait-timeout", HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
+         getLong(e, "initial-wait-timeout", ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
                  Validators.GT_ZERO);
 
       long refreshTimeout =
@@ -1570,7 +1570,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       if (mainConfig.getDiscoveryGroupConfigurations().containsKey(name))
       {
-         HornetQServerLogger.LOGGER.discoveryGroupAlreadyDeployed(name);
+         ActiveMQServerLogger.LOGGER.discoveryGroupAlreadyDeployed(name);
 
          return;
       }
@@ -1612,14 +1612,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          getLong(e, "retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterRetryInterval(),
                  Validators.GT_ZERO);
 
-      long callTimeout = getLong(e, "call-timeout", HornetQClient.DEFAULT_CALL_TIMEOUT, Validators.GT_ZERO);
+      long callTimeout = getLong(e, "call-timeout", ActiveMQClient.DEFAULT_CALL_TIMEOUT, Validators.GT_ZERO);
 
-      long callFailoverTimeout = getLong(e, "call-failover-timeout", HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, Validators.MINUS_ONE_OR_GT_ZERO);
+      long callFailoverTimeout = getLong(e, "call-failover-timeout", ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, Validators.MINUS_ONE_OR_GT_ZERO);
 
       double retryIntervalMultiplier = getDouble(e, "retry-interval-multiplier",
                                                  ActiveMQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier(), Validators.GT_ZERO);
 
-      int minLargeMessageSize = getInteger(e, "min-large-message-size", HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, Validators.GT_ZERO);
+      int minLargeMessageSize = getInteger(e, "min-large-message-size", ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, Validators.GT_ZERO);
 
       long maxRetryInterval = getLong(e, "max-retry-interval", ActiveMQDefaultConfiguration.getDefaultClusterMaxRetryInterval(), Validators.GT_ZERO);
 
@@ -1734,22 +1734,22 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          getInteger(brNode, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(),
                     Validators.GT_ZERO);
 
-      long retryInterval = getLong(brNode, "retry-interval", HornetQClient.DEFAULT_RETRY_INTERVAL, Validators.GT_ZERO);
+      long retryInterval = getLong(brNode, "retry-interval", ActiveMQClient.DEFAULT_RETRY_INTERVAL, Validators.GT_ZERO);
 
       long clientFailureCheckPeriod =
-         getLong(brNode, "check-period", HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, Validators.GT_ZERO);
+         getLong(brNode, "check-period", ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, Validators.GT_ZERO);
 
-      long connectionTTL = getLong(brNode, "connection-ttl", HornetQClient.DEFAULT_CONNECTION_TTL, Validators.GT_ZERO);
+      long connectionTTL = getLong(brNode, "connection-ttl", ActiveMQClient.DEFAULT_CONNECTION_TTL, Validators.GT_ZERO);
 
       int minLargeMessageSize =
-         getInteger(brNode, "min-large-message-size", HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+         getInteger(brNode, "min-large-message-size", ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
                     Validators.GT_ZERO);
 
-      long maxRetryInterval = getLong(brNode, "max-retry-interval", HornetQClient.DEFAULT_MAX_RETRY_INTERVAL, Validators.GT_ZERO);
+      long maxRetryInterval = getLong(brNode, "max-retry-interval", ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, Validators.GT_ZERO);
 
 
       double retryIntervalMultiplier =
-         getDouble(brNode, "retry-interval-multiplier", HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
+         getDouble(brNode, "retry-interval-multiplier", ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
                    Validators.GT_ZERO);
 
       int initialConnectAttempts =

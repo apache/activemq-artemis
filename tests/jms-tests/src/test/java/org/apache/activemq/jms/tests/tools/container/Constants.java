@@ -21,7 +21,7 @@ public class Constants
 {
    // Constants -----------------------------------------------------
 
-   public static final String SERVER_INDEX_PROPERTY_NAME = "hornetq.test.server.index";
+   public static final String SERVER_INDEX_PROPERTY_NAME = "activemq.test.server.index";
 
    // Static --------------------------------------------------------
 

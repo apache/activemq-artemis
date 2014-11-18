@@ -12,20 +12,20 @@
  */
 package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
 
 import java.util.Map;
 
 /*
 * An HAManager takes care of any colocated backups in a VM.
 * */
-public interface HAManager extends HornetQComponent
+public interface HAManager extends ActiveMQComponent
 {
    /**
     * return the current backup servers
     *
     * @return the backups
     */
-   Map<String, HornetQServer> getBackupServers();
+   Map<String, ActiveMQServer> getBackupServers();
 }

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.logging.AssertionLoggerHandler;
@@ -56,7 +56,7 @@ public class FileLockTimeoutTest extends ServiceTestBase
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
          .clearAcceptorConfigurations();
 
-      HornetQServer server1 = createServer(true, config);
+      ActiveMQServer server1 = createServer(true, config);
       if (useAIO)
       {
          server1.getConfiguration().setJournalType(JournalType.ASYNCIO);
@@ -67,7 +67,7 @@ public class FileLockTimeoutTest extends ServiceTestBase
       }
       server1.start();
       server1.waitForActivation(10, TimeUnit.SECONDS);
-      final HornetQServer server2 = createServer(true, config);
+      final ActiveMQServer server2 = createServer(true, config);
       if (useAIO)
       {
          server2.getConfiguration().setJournalType(JournalType.ASYNCIO);
@@ -109,7 +109,7 @@ public class FileLockTimeoutTest extends ServiceTestBase
 
       service.shutdown();
 
-      assertTrue("Expected to find HQ224000", AssertionLoggerHandler.findText("HQ224000"));
+      assertTrue("Expected to find AMQ224000", AssertionLoggerHandler.findText("AMQ224000"));
       assertTrue("Expected to find \"timed out waiting for lock\"", AssertionLoggerHandler.findText("timed out waiting for lock"));
    }
 }

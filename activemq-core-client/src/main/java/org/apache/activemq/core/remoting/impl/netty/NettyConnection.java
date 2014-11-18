@@ -29,8 +29,8 @@ import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
@@ -110,7 +110,7 @@ public class NettyConnection implements Connection
          }
          catch (Throwable e)
          {
-            HornetQClientLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
    }
@@ -320,7 +320,7 @@ public class NettyConnection implements Connection
 
                      if (!ok)
                      {
-                        HornetQClientLogger.LOGGER.timeoutFlushingPacket();
+                        ActiveMQClientLogger.LOGGER.timeoutFlushingPacket();
                      }
 
                      break;
@@ -369,7 +369,7 @@ public class NettyConnection implements Connection
    }
 
    //never allow this
-   public HornetQPrincipal getDefaultHornetQPrincipal()
+   public ActiveMQPrincipal getDefaultActiveMQPrincipal()
    {
       return null;
    }
@@ -428,7 +428,7 @@ public class NettyConnection implements Connection
 
             if (!sslCloseFuture.awaitUninterruptibly(10000))
             {
-               HornetQClientLogger.LOGGER.timeoutClosingSSL();
+               ActiveMQClientLogger.LOGGER.timeoutClosingSSL();
             }
          }
          catch (Throwable t)
@@ -440,7 +440,7 @@ public class NettyConnection implements Connection
       ChannelFuture closeFuture = channel.close();
       if (!closeFuture.awaitUninterruptibly(10000))
       {
-         HornetQClientLogger.LOGGER.timeoutClosingNettyChannel();
+         ActiveMQClientLogger.LOGGER.timeoutClosingNettyChannel();
       }
    }
    // Inner classes -------------------------------------------------

@@ -19,23 +19,23 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 
 <chapter id="filter-expressions">
     <title>Filter Expressions</title>
-    <para>HornetQ provides a powerful filter language based on a subset of the SQL 92
+    <para>ActiveMQ provides a powerful filter language based on a subset of the SQL 92
         expression syntax.</para>
     <para>It is the same as the syntax used for JMS selectors, but the predefined identifiers are
         different. For documentation on JMS selector syntax please the JMS javadoc for <ulink
             url="http://docs.oracle.com/javaee/6/api/javax/jms/Message.html"
             >javax.jms.Message</ulink>.</para>
-    <para>Filter expressions are used in several places in HornetQ</para>
+    <para>Filter expressions are used in several places in ActiveMQ</para>
     <itemizedlist>
         <listitem>
             <para>Predefined Queues. When pre-defining a queue, either in <literal
-                    >hornetq-configuration.xml</literal> or <literal>hornetq-jms.xml</literal> a filter
+                    >activemq-configuration.xml</literal> or <literal>activemq-jms.xml</literal> a filter
                 expression can be defined for a queue. Only messages that match the filter
                 expression will enter the queue.</para>
         </listitem>
@@ -52,8 +52,8 @@
                 several places as described in <xref linkend="management"/>.</para>
         </listitem>
     </itemizedlist>
-    <para>There are some differences between JMS selector expressions and HornetQ core
-        filter expressions. Whereas JMS selector expressions operate on a JMS message, HornetQ
+    <para>There are some differences between JMS selector expressions and ActiveMQ core
+        filter expressions. Whereas JMS selector expressions operate on a JMS message, ActiveMQ
         core filter expressions operate on a core message.</para>
     <para>The following identifiers can be used in a core filter expressions to refer to attributes
         of the core message in an expression:</para>

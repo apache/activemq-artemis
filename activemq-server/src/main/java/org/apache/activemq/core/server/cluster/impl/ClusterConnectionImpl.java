@@ -45,9 +45,9 @@ import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.cluster.Bridge;
@@ -55,7 +55,7 @@ import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ClusterControl;
 import org.apache.activemq.core.server.cluster.ClusterManager;
 import org.apache.activemq.core.server.cluster.ClusterManager.IncomingInterceptorLookingForExceptionMessage;
-import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.core.server.group.impl.Proposal;
@@ -75,13 +75,13 @@ import org.apache.activemq.utils.TypedProperties;
  */
 public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final ExecutorFactory executorFactory;
 
    private final Executor executor;
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final PostOffice postOffice;
 
@@ -182,7 +182,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean routeWhenNoConsumers,
                                 final int confirmationWindowSize,
                                 final ExecutorFactory executorFactory,
-                                final HornetQServer server,
+                                final ActiveMQServer server,
                                 final PostOffice postOffice,
                                 final ManagementService managementService,
                                 final ScheduledExecutorService scheduledExecutor,
@@ -289,7 +289,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean routeWhenNoConsumers,
                                 final int confirmationWindowSize,
                                 final ExecutorFactory executorFactory,
-                                final HornetQServer server,
+                                final ActiveMQServer server,
                                 final PostOffice postOffice,
                                 final ManagementService managementService,
                                 final ScheduledExecutorService scheduledExecutor,
@@ -399,9 +399,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
       stopping = true;
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug(this + "::stopping ClusterConnection");
+         ActiveMQServerLogger.LOGGER.debug(this + "::stopping ClusterConnection");
       }
 
       if (serverLocator != null)
@@ -409,7 +409,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          serverLocator.removeClusterTopologyListener(this);
       }
 
-      HornetQServerLogger.LOGGER.debug("Cluster connection being stopped for node" + nodeManager.getNodeId() +
+      ActiveMQServerLogger.LOGGER.debug("Cluster connection being stopped for node" + nodeManager.getNodeId() +
                                           ", server = " +
                                           this.server +
                                           " serverLocator = " +
@@ -490,9 +490,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                              final Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                              final boolean backup)
    {
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug(this + "::NodeAnnounced, backup=" + backup + nodeID + connectorPair);
+         ActiveMQServerLogger.LOGGER.debug(this + "::NodeAnnounced, backup=" + backup + nodeID + connectorPair);
       }
 
       TransportConfiguration live = connectorPair.getA();
@@ -528,12 +528,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
          catch (ActiveMQException e)
          {
-            HornetQServerLogger.LOGGER.clusterControlAuthfailure();
+            ActiveMQServerLogger.LOGGER.clusterControlAuthfailure();
          }
       }
       else
       {
-         HornetQServerLogger.LOGGER.noLocalMemborOnClusterConnection(this);
+         ActiveMQServerLogger.LOGGER.noLocalMemborOnClusterConnection(this);
       }
 
       // TODO: shouldn't we send the current time here? and change the current topology?
@@ -559,7 +559,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       return nodeManager.getNodeId().toString();
    }
 
-   public HornetQServer getServer()
+   public ActiveMQServer getServer()
    {
       return server;
    }
@@ -598,9 +598,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Activating cluster connection nodeID=" + nodeManager.getNodeId() + " for server=" + this.server);
+         ActiveMQServerLogger.LOGGER.debug("Activating cluster connection nodeID=" + nodeManager.getNodeId() + " for server=" + this.server);
       }
 
       liveNotifier = new LiveNotifier();
@@ -614,7 +614,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
          if (!useDuplicateDetection)
          {
-            HornetQServerLogger.LOGGER.debug("DuplicateDetection is disabled, sending clustered messages blocked");
+            ActiveMQServerLogger.LOGGER.debug("DuplicateDetection is disabled, sending clustered messages blocked");
          }
 
          final TopologyMember currentMember = topology.getMember(manager.getNodeId());
@@ -649,7 +649,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
          serverLocator.setAfterConnectionInternalListener(this);
 
-         serverLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+         serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
 
          serverLocator.start(server.getExecutorFactory().getExecutor());
       }
@@ -661,7 +661,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          Notification notification = new Notification(nodeManager.getNodeId().toString(),
                                                       CoreNotificationType.CLUSTER_CONNECTION_STARTED,
                                                       props);
-         HornetQServerLogger.LOGGER.debug("sending notification: " + notification);
+         ActiveMQServerLogger.LOGGER.debug("sending notification: " + notification);
          managementService.sendNotification(notification);
       }
       //we add as a listener after we have sent the cluster start notif as the listener may start sending notifs before
@@ -691,18 +691,18 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
       final String nodeID = topologyMember.getNodeId();
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
          String ClusterTestBase = "receiving nodeUP for nodeID=";
-         HornetQServerLogger.LOGGER.debug(this + ClusterTestBase + nodeID + " connectionPair=" + topologyMember);
+         ActiveMQServerLogger.LOGGER.debug(this + ClusterTestBase + nodeID + " connectionPair=" + topologyMember);
       }
       // discard notifications about ourselves unless its from our backup
 
       if (nodeID.equals(nodeManager.getNodeId().toString()))
       {
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace(this + "::informing about backup to itself, nodeUUID=" +
+            ActiveMQServerLogger.LOGGER.trace(this + "::informing about backup to itself, nodeUUID=" +
                                                 nodeManager.getNodeId() + ", connectorPair=" + topologyMember + ", this = " + this);
          }
          return;
@@ -725,7 +725,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace(this + " ignoring call with nodeID=" + nodeID + ", topologyMember=" +
+            ActiveMQServerLogger.LOGGER.trace(this + " ignoring call with nodeID=" + nodeID + ", topologyMember=" +
                                                 topologyMember + ", last=" + last);
          }
          return;
@@ -739,9 +739,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
             if (record == null)
             {
-               if (HornetQServerLogger.LOGGER.isDebugEnabled())
+               if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                {
-                  HornetQServerLogger.LOGGER.debug(this + "::Creating record for nodeID=" + nodeID + ", topologyMember=" +
+                  ActiveMQServerLogger.LOGGER.debug(this + "::Creating record for nodeID=" + nodeID + ", topologyMember=" +
                                                       topologyMember);
                }
 
@@ -774,14 +774,14 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             {
                if (isTrace)
                {
-                  HornetQServerLogger.LOGGER.trace(this + " ignored nodeUp record for " + topologyMember + " on nodeID=" +
+                  ActiveMQServerLogger.LOGGER.trace(this + " ignored nodeUp record for " + topologyMember + " on nodeID=" +
                                                       nodeID + " as the record already existed");
                }
             }
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorUpdatingTopology(e);
+            ActiveMQServerLogger.LOGGER.errorUpdatingTopology(e);
          }
       }
    }
@@ -842,7 +842,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       targetLocator.setAfterConnectionInternalListener(this);
 
-      serverLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
 
       targetLocator.setNodeID(nodeId);
 
@@ -893,9 +893,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       targetLocator.setIdentity("(Cluster-connection-bridge::" + bridge.toString() + "::" + this.toString() + ")");
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("creating record between " + this.connector + " and " + connector + bridge);
+         ActiveMQServerLogger.LOGGER.debug("creating record between " + this.connector + " and " + connector + bridge);
       }
 
       record.setBridge(bridge);
@@ -1032,7 +1032,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Stopping bridge " + bridge);
+            ActiveMQServerLogger.LOGGER.trace("Stopping bridge " + bridge);
          }
 
          isClosed = true;
@@ -1063,7 +1063,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                }
                catch (Exception ignored)
                {
-                  HornetQServerLogger.LOGGER.debug(ignored.getMessage(), ignored);
+                  ActiveMQServerLogger.LOGGER.debug(ignored.getMessage(), ignored);
                }
             }
          });
@@ -1091,9 +1091,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       public synchronized void onMessage(final ClientMessage message)
       {
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug("ClusterCommunication::Flow record on " + clusterConnector + " Receiving message " + message);
+            ActiveMQServerLogger.LOGGER.debug("ClusterCommunication::Flow record on " + clusterConnector + " Receiving message " + message);
          }
          try
          {
@@ -1112,7 +1112,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
             if (!reset)
             {
-               HornetQServerLogger.LOGGER.debug("Notification being ignored since first reset wasn't received yet: " + message);
+               ActiveMQServerLogger.LOGGER.debug("Notification being ignored since first reset wasn't received yet: " + message);
                return;
             }
 
@@ -1120,7 +1120,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorHandlingMessage(e);
+            ActiveMQServerLogger.LOGGER.errorHandlingMessage(e);
          }
       }
 
@@ -1176,7 +1176,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             }
             default:
             {
-               throw HornetQMessageBundle.BUNDLE.invalidType(ntype);
+               throw ActiveMQMessageBundle.BUNDLE.invalidType(ntype);
             }
          }
       }
@@ -1263,7 +1263,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private synchronized void clearBindings() throws Exception
       {
-         HornetQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " clearing bindings");
+         ActiveMQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " clearing bindings");
          for (RemoteQueueBinding binding : new HashSet<RemoteQueueBinding>(bindings.values()))
          {
             removeBinding(binding.getClusterName());
@@ -1272,7 +1272,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private synchronized void resetBindings() throws Exception
       {
-         HornetQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " reset bindings");
+         ActiveMQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " reset bindings");
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values()))
          {
             resetBinding(binding.getClusterName());
@@ -1281,7 +1281,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private synchronized void clearDisconnectedBindings() throws Exception
       {
-         HornetQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " reset bindings");
+         ActiveMQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " reset bindings");
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values()))
          {
             if (!binding.isConnected())
@@ -1294,7 +1294,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       public synchronized void disconnectBindings() throws Exception
       {
-         HornetQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " disconnect bindings");
+         ActiveMQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " disconnect bindings");
          reset = false;
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values()))
          {
@@ -1304,9 +1304,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private synchronized void doBindingAdded(final ClientMessage message) throws Exception
       {
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Adding binding " + message);
+            ActiveMQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Adding binding " + message);
          }
          if (!message.containsProperty(ManagementHelper.HDR_DISTANCE))
          {
@@ -1358,7 +1358,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             // hops is too high
             // or there are multiple cluster connections for the same address
 
-            HornetQServerLogger.LOGGER.remoteQueueAlreadyBoundOnClusterConnection(this, clusterName);
+            ActiveMQServerLogger.LOGGER.remoteQueueAlreadyBoundOnClusterConnection(this, clusterName);
 
             return;
          }
@@ -1375,7 +1375,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Adding binding " + clusterName + " into " + ClusterConnectionImpl.this);
+            ActiveMQServerLogger.LOGGER.trace("Adding binding " + clusterName + " into " + ClusterConnectionImpl.this);
          }
 
          bindings.put(clusterName, binding);
@@ -1396,9 +1396,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private void doBindingRemoved(final ClientMessage message) throws Exception
       {
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Removing binding " + message);
+            ActiveMQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Removing binding " + message);
          }
          if (!message.containsProperty(ManagementHelper.HDR_CLUSTER_NAME))
          {
@@ -1447,9 +1447,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private synchronized void doConsumerCreated(final ClientMessage message) throws Exception
       {
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Consumer created " + message);
+            ActiveMQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Consumer created " + message);
          }
          if (!message.containsProperty(ManagementHelper.HDR_DISTANCE))
          {
@@ -1507,9 +1507,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private synchronized void doConsumerClosed(final ClientMessage message) throws Exception
       {
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Consumer closed " + message);
+            ActiveMQServerLogger.LOGGER.trace(ClusterConnectionImpl.this + " Consumer closed " + message);
          }
          if (!message.containsProperty(ManagementHelper.HDR_DISTANCE))
          {
@@ -1621,9 +1621,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       {
          if (tcConfigs != null && tcConfigs.length > 0)
          {
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
+               ActiveMQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);
@@ -1664,7 +1664,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public void removeRecord(String targetNodeID)
    {
-      HornetQServerLogger.LOGGER.debug("Removing record for: " + targetNodeID);
+      ActiveMQServerLogger.LOGGER.debug("Removing record for: " + targetNodeID);
       MessageFlowRecord record = records.remove(targetNodeID);
       try
       {
@@ -1679,7 +1679,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public void disconnectRecord(String targetNodeID)
    {
-      HornetQServerLogger.LOGGER.debug("Disconnecting record for: " + targetNodeID);
+      ActiveMQServerLogger.LOGGER.debug("Disconnecting record for: " + targetNodeID);
       MessageFlowRecord record = records.get(targetNodeID);
       try
       {

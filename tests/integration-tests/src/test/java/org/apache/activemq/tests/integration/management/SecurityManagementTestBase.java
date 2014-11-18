@@ -22,11 +22,11 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientRequestor;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
@@ -42,7 +42,7 @@ public abstract class SecurityManagementTestBase extends UnitTestCase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer service;
+   private ActiveMQServer service;
 
    // Static --------------------------------------------------------
 
@@ -60,7 +60,7 @@ public abstract class SecurityManagementTestBase extends UnitTestCase
    {
       super.setUp();
 
-      service = setupAndStartHornetQServer();
+      service = setupAndStartActiveMQServer();
    }
 
    @Override
@@ -74,13 +74,13 @@ public abstract class SecurityManagementTestBase extends UnitTestCase
       super.tearDown();
    }
 
-   protected abstract HornetQServer setupAndStartHornetQServer() throws Exception;
+   protected abstract ActiveMQServer setupAndStartActiveMQServer() throws Exception;
 
    protected void doSendManagementMessage(final String user, final String password, final boolean expectSuccess) throws Exception
    {
       ServerLocator locator =
-               addServerLocator(HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                                                                                                      UnitTestCase.INVM_CONNECTOR_FACTORY)));
+               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+                  UnitTestCase.INVM_CONNECTOR_FACTORY)));
       ClientSessionFactory sf = locator.createSessionFactory();
       try
       {

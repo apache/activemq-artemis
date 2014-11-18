@@ -39,19 +39,19 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientRequestor;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.utils.Base64;
 
 /**
  * Read XML output from <code>org.apache.activemq.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
- * send the messages to a running instance of HornetQ.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
+ * send the messages to a running instance of ActiveMQ.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
  * for speed and simplicity.
  *
  * @author Justin Bertram
@@ -171,7 +171,7 @@ public final class XmlDataImporter
       connectionParams.put(TransportConstants.HOST_PROP_NAME, host);
       connectionParams.put(TransportConstants.PORT_PROP_NAME, port);
       ServerLocator serverLocator =
-         HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+         ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
             NettyConnectorFactory.class.getName(),
             connectionParams));
       ClientSessionFactory sf = serverLocator.createSessionFactory();
@@ -194,7 +194,7 @@ public final class XmlDataImporter
       {
          while (reader.hasNext())
          {
-            HornetQServerLogger.LOGGER.debug("EVENT:[" + reader.getLocation().getLineNumber() + "][" + reader.getLocation().getColumnNumber() + "] ");
+            ActiveMQServerLogger.LOGGER.debug("EVENT:[" + reader.getLocation().getLineNumber() + "][" + reader.getLocation().getColumnNumber() + "] ");
             if (reader.getEventType() == XMLStreamConstants.START_ELEMENT)
             {
                if (XmlDataConstants.BINDINGS_CHILD.equals(reader.getLocalName()))
@@ -356,15 +356,15 @@ public final class XmlDataImporter
             // Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
             // send directly to a queue, we have to send to an address instead but not all the queues related to the
             // address may need the message
-            ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.hornetq.management");
+            ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
             ClientMessage managementMessage = managementSession.createMessage(false);
             ManagementHelper.putAttribute(managementMessage, "core.queue." + queue, "ID");
             managementSession.start();
-            HornetQServerLogger.LOGGER.debug("Requesting ID for: " + queue);
+            ActiveMQServerLogger.LOGGER.debug("Requesting ID for: " + queue);
             ClientMessage reply = requestor.request(managementMessage);
             queueID = (Integer) ManagementHelper.getResult(reply);
             requestor.close();
-            HornetQServerLogger.LOGGER.debug("ID for " + queue + " is: " + queueID);
+            ActiveMQServerLogger.LOGGER.debug("ID for " + queue + " is: " + queueID);
             queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
          }
 
@@ -373,7 +373,7 @@ public final class XmlDataImporter
       }
 
       logMessage.delete(logMessage.length() - 2, logMessage.length()); // take off the trailing comma
-      HornetQServerLogger.LOGGER.debug(logMessage);
+      ActiveMQServerLogger.LOGGER.debug(logMessage);
 
       message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
       ClientProducer producer = session.createProducer(destination);
@@ -385,7 +385,7 @@ public final class XmlDataImporter
          File tempFile = new File(tempFileName);
          if (!tempFile.delete())
          {
-            HornetQServerLogger.LOGGER.warn("Could not delete: " + tempFileName);
+            ActiveMQServerLogger.LOGGER.warn("Could not delete: " + tempFileName);
          }
          tempFileName = "";
       }
@@ -485,7 +485,7 @@ public final class XmlDataImporter
       if (isLarge)
       {
          tempFileName = UUID.randomUUID().toString() + ".tmp";
-         HornetQServerLogger.LOGGER.debug("Creating temp file " + tempFileName + " for large message.");
+         ActiveMQServerLogger.LOGGER.debug("Creating temp file " + tempFileName + " for large message.");
          try (OutputStream out = new FileOutputStream(tempFileName))
          {
             while (reader.hasNext())
@@ -547,11 +547,11 @@ public final class XmlDataImporter
       if (!queueQuery.isExists())
       {
          session.createQueue(address, queueName, filter, true);
-         HornetQServerLogger.LOGGER.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
+         ActiveMQServerLogger.LOGGER.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
       }
       else
       {
-         HornetQServerLogger.LOGGER.debug("Binding " + queueName + " already exists so won't re-bind.");
+         ActiveMQServerLogger.LOGGER.debug("Binding " + queueName + " already exists so won't re-bind.");
       }
 
       addressMap.put(queueName, address);
@@ -667,182 +667,182 @@ public final class XmlDataImporter
                if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_FAILOVER_TIMEOUT.equals(reader.getLocalName()))
                {
                   callFailoverTimeout = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory callFailoverTimeout: " + callFailoverTimeout);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory callFailoverTimeout: " + callFailoverTimeout);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_TIMEOUT.equals(reader.getLocalName()))
                {
                   callTimeout = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory callTimeout: " + callTimeout);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory callTimeout: " + callTimeout);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_FAILURE_CHECK_PERIOD.equals(reader.getLocalName()))
                {
                   clientFailureCheckPeriod = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory clientFailureCheckPeriod: " + clientFailureCheckPeriod);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory clientFailureCheckPeriod: " + clientFailureCheckPeriod);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID.equals(reader.getLocalName()))
                {
                   clientId = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory clientId: " + clientId);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory clientId: " + clientId);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONFIRMATION_WINDOW_SIZE.equals(reader.getLocalName()))
                {
                   confirmationWindowSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory confirmationWindowSize: " + confirmationWindowSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory confirmationWindowSize: " + confirmationWindowSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTION_TTL.equals(reader.getLocalName()))
                {
                   connectionTtl = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory connectionTtl: " + connectionTtl);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory connectionTtl: " + connectionTtl);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName()))
                {
                   connectors = getConnectors();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory getLocalName: " + connectors);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory getLocalName: " + connectors);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_MAX_RATE.equals(reader.getLocalName()))
                {
                   consumerMaxRate = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory consumerMaxRate: " + consumerMaxRate);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory consumerMaxRate: " + consumerMaxRate);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_WINDOW_SIZE.equals(reader.getLocalName()))
                {
                   consumerWindowSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory consumerWindowSize: " + consumerWindowSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory consumerWindowSize: " + consumerWindowSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME.equals(reader.getLocalName()))
                {
                   discoveryGroupName = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory discoveryGroupName: " + discoveryGroupName);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory discoveryGroupName: " + discoveryGroupName);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DUPS_OK_BATCH_SIZE.equals(reader.getLocalName()))
                {
                   dupsOkBatchSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory dupsOkBatchSize: " + dupsOkBatchSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory dupsOkBatchSize: " + dupsOkBatchSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID.equals(reader.getLocalName()))
                {
                   groupId = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory groupId: " + groupId);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory groupId: " + groupId);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_LOAD_BALANCING_POLICY_CLASS_NAME.equals(reader.getLocalName()))
                {
                   loadBalancingPolicyClassName = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory loadBalancingPolicyClassName: " + loadBalancingPolicyClassName);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory loadBalancingPolicyClassName: " + loadBalancingPolicyClassName);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MAX_RETRY_INTERVAL.equals(reader.getLocalName()))
                {
                   maxRetryInterval = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory maxRetryInterval: " + maxRetryInterval);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory maxRetryInterval: " + maxRetryInterval);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MIN_LARGE_MESSAGE_SIZE.equals(reader.getLocalName()))
                {
                   minLargeMessageSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory minLargeMessageSize: " + minLargeMessageSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory minLargeMessageSize: " + minLargeMessageSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_NAME.equals(reader.getLocalName()))
                {
                   name = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory name: " + name);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory name: " + name);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_MAX_RATE.equals(reader.getLocalName()))
                {
                   producerMaxRate = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory producerMaxRate: " + producerMaxRate);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory producerMaxRate: " + producerMaxRate);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_WINDOW_SIZE.equals(reader.getLocalName()))
                {
                   producerWindowSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory producerWindowSize: " + producerWindowSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory producerWindowSize: " + producerWindowSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RECONNECT_ATTEMPTS.equals(reader.getLocalName()))
                {
                   reconnectAttempts = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory reconnectAttempts: " + reconnectAttempts);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory reconnectAttempts: " + reconnectAttempts);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL.equals(reader.getLocalName()))
                {
                   retryInterval = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory retryInterval: " + retryInterval);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory retryInterval: " + retryInterval);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL_MULTIPLIER.equals(reader.getLocalName()))
                {
                   retryIntervalMultiplier = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory retryIntervalMultiplier: " + retryIntervalMultiplier);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory retryIntervalMultiplier: " + retryIntervalMultiplier);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_SCHEDULED_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName()))
                {
                   scheduledThreadMaxPoolSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory scheduledThreadMaxPoolSize: " + scheduledThreadMaxPoolSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory scheduledThreadMaxPoolSize: " + scheduledThreadMaxPoolSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName()))
                {
                   threadMaxPoolSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory threadMaxPoolSize: " + threadMaxPoolSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory threadMaxPoolSize: " + threadMaxPoolSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TRANSACTION_BATCH_SIZE.equals(reader.getLocalName()))
                {
                   transactionBatchSize = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory transactionBatchSize: " + transactionBatchSize);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory transactionBatchSize: " + transactionBatchSize);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TYPE.equals(reader.getLocalName()))
                {
                   type = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory type: " + type);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory type: " + type);
                }
                else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName()))
                {
                   entries = getEntries();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory entries: " + entries);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory entries: " + entries);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_AUTO_GROUP.equals(reader.getLocalName()))
                {
                   autoGroup = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory autoGroup: " + autoGroup);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory autoGroup: " + autoGroup);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_ACKNOWLEDGE.equals(reader.getLocalName()))
                {
                   blockOnAcknowledge = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory blockOnAcknowledge: " + blockOnAcknowledge);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory blockOnAcknowledge: " + blockOnAcknowledge);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_DURABLE_SEND.equals(reader.getLocalName()))
                {
                   blockOnDurableSend = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory blockOnDurableSend: " + blockOnDurableSend);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory blockOnDurableSend: " + blockOnDurableSend);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_NON_DURABLE_SEND.equals(reader.getLocalName()))
                {
                   blockOnNonDurableSend = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory blockOnNonDurableSend: " + blockOnNonDurableSend);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory blockOnNonDurableSend: " + blockOnNonDurableSend);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CACHE_LARGE_MESSAGES_CLIENT.equals(reader.getLocalName()))
                {
                   cacheLargeMessagesClient = reader.getElementText();
-                  HornetQServerLogger.LOGGER.info("JMS connection factory " + name + " cacheLargeMessagesClient: " + cacheLargeMessagesClient);
+                  ActiveMQServerLogger.LOGGER.info("JMS connection factory " + name + " cacheLargeMessagesClient: " + cacheLargeMessagesClient);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_COMPRESS_LARGE_MESSAGES.equals(reader.getLocalName()))
                {
                   compressLargeMessages = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory compressLargeMessages: " + compressLargeMessages);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory compressLargeMessages: " + compressLargeMessages);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_FAILOVER_ON_INITIAL_CONNECTION.equals(reader.getLocalName()))
                {
                   failoverOnInitialConnection = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory failoverOnInitialConnection: " + failoverOnInitialConnection);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory failoverOnInitialConnection: " + failoverOnInitialConnection);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_HA.equals(reader.getLocalName()))
                {
                   ha = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory ha: " + ha);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory ha: " + ha);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PREACKNOWLEDGE.equals(reader.getLocalName()))
                {
                   preacknowledge = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory preacknowledge: " + preacknowledge);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory preacknowledge: " + preacknowledge);
                }
                else if (XmlDataConstants.JMS_CONNECTION_FACTORY_USE_GLOBAL_POOLS.equals(reader.getLocalName()))
                {
                   useGlobalPools = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS connection factory useGlobalPools: " + useGlobalPools);
+                  ActiveMQServerLogger.LOGGER.debug("JMS connection factory useGlobalPools: " + useGlobalPools);
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
@@ -859,7 +859,7 @@ public final class XmlDataImporter
          reader.next();
       }
 
-      ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.hornetq.management");
+      ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
       ClientMessage managementMessage = managementSession.createMessage(false);
       ManagementHelper.putOperationInvocation(managementMessage,
                                               ResourceNames.JMS_SERVER,
@@ -904,11 +904,11 @@ public final class XmlDataImporter
       ClientMessage reply = requestor.request(managementMessage);
       if (ManagementHelper.hasOperationSucceeded(reply))
       {
-         HornetQServerLogger.LOGGER.debug("Created connection factory " + name);
+         ActiveMQServerLogger.LOGGER.debug("Created connection factory " + name);
       }
       else
       {
-         HornetQServerLogger.LOGGER.error("Problem creating " + name);
+         ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
       }
 
       requestor.close();
@@ -931,17 +931,17 @@ public final class XmlDataImporter
                if (XmlDataConstants.JMS_DESTINATION_NAME.equals(reader.getLocalName()))
                {
                   name = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS destination name: " + name);
+                  ActiveMQServerLogger.LOGGER.debug("JMS destination name: " + name);
                }
                else if (XmlDataConstants.JMS_DESTINATION_SELECTOR.equals(reader.getLocalName()))
                {
                   selector = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS destination selector: " + selector);
+                  ActiveMQServerLogger.LOGGER.debug("JMS destination selector: " + selector);
                }
                else if (XmlDataConstants.JMS_DESTINATION_TYPE.equals(reader.getLocalName()))
                {
                   type = reader.getElementText();
-                  HornetQServerLogger.LOGGER.debug("JMS destination type: " + type);
+                  ActiveMQServerLogger.LOGGER.debug("JMS destination type: " + type);
                }
                else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName()))
                {
@@ -962,7 +962,7 @@ public final class XmlDataImporter
          reader.next();
       }
 
-      ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.hornetq.management");
+      ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
       ClientMessage managementMessage = managementSession.createMessage(false);
       if ("Queue".equals(type))
       {
@@ -976,11 +976,11 @@ public final class XmlDataImporter
       ClientMessage reply = requestor.request(managementMessage);
       if (ManagementHelper.hasOperationSucceeded(reply))
       {
-         HornetQServerLogger.LOGGER.debug("Created " + type.toLowerCase() + " " + name);
+         ActiveMQServerLogger.LOGGER.debug("Created " + type.toLowerCase() + " " + name);
       }
       else
       {
-         HornetQServerLogger.LOGGER.error("Problem creating " + name);
+         ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
       }
 
       requestor.close();
@@ -1005,7 +1005,7 @@ public final class XmlDataImporter
                   {
                      entry.append(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX).append(elementText).append(", ");
                   }
-                  HornetQServerLogger.LOGGER.debug("JMS admin object JNDI entry: " + entry.toString());
+                  ActiveMQServerLogger.LOGGER.debug("JMS admin object JNDI entry: " + entry.toString());
                }
                break;
             case XMLStreamConstants.END_ELEMENT:

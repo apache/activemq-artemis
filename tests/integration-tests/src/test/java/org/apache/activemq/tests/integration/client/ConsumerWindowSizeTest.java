@@ -33,7 +33,7 @@ import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.QueueBinding;
 import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -92,7 +92,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    @Test
    public void testReceiveImmediateWithZeroWindow() throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       server.start();
 
@@ -148,7 +148,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    @Test
    public void testReceiveImmediateWithZeroWindow2() throws Exception
    {
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
       ServerLocator locator = createInVMNonHALocator();
       try
       {
@@ -201,7 +201,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    @Test
    public void testReceiveImmediateWithZeroWindow3() throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       server.start();
 
@@ -256,7 +256,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    @Test
    public void testReceiveImmediateWithZeroWindow4() throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       server.start();
 
@@ -313,7 +313,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    {
 
       final int NUMBER_OF_MESSAGES = 200;
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       server.start();
 
@@ -404,7 +404,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    {
 
       final int NUMBER_OF_MESSAGES = 200;
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       server.start();
 
@@ -467,7 +467,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    @Test
    public void testSendWindowSize() throws Exception
    {
-      HornetQServer messagingService = createServer(false, isNetty());
+      ActiveMQServer messagingService = createServer(false, isNetty());
       locator.setBlockOnNonDurableSend(false);
 
       messagingService.start();
@@ -513,7 +513,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    @Test
    public void testSlowConsumerBufferingOne() throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       ClientSession sessionB = null;
       ClientSession session = null;
@@ -603,7 +603,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
    private void internalTestSlowConsumerNoBuffer(final boolean largeMessages) throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       ClientSession sessionB = null;
       ClientSession session = null;
@@ -731,7 +731,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
    private void internalTestSlowConsumerNoBuffer2(final boolean largeMessages) throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       ClientSession session1 = null;
       ClientSession session2 = null;
@@ -913,7 +913,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    @Test
    public void testSaveBuffersOnLargeMessage() throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       ClientSession session1 = null;
 
@@ -1025,7 +1025,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    private void internalTestFlowControlOnRollback(final boolean isLargeMessage) throws Exception
    {
 
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       AddressSettings settings = new AddressSettings();
       settings.setMaxDeliveryAttempts(-1);
@@ -1123,7 +1123,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
    public void internalTestSlowConsumerOnMessageHandlerNoBuffers(final boolean largeMessages) throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       ClientSession sessionB = null;
       ClientSession session = null;
@@ -1285,7 +1285,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
    private void internalTestSlowConsumerOnMessageHandlerBufferOne(final boolean largeMessage) throws Exception
    {
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       ClientSession sessionB = null;
       ClientSession session = null;
@@ -1454,7 +1454,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
    private void testNoWindowRoundRobin(final boolean largeMessages) throws Exception
    {
 
-      HornetQServer server = createServer(false, isNetty());
+      ActiveMQServer server = createServer(false, isNetty());
 
       ClientSession sessionA = null;
       ClientSession sessionB = null;

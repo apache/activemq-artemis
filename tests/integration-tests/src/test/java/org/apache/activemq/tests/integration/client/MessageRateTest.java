@@ -24,7 +24,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,7 +55,7 @@ public class MessageRateTest extends ServiceTestBase
    @Test
    public void testProduceRate() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
 
@@ -81,7 +81,7 @@ public class MessageRateTest extends ServiceTestBase
    @Test
    public void testConsumeRate() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
 
@@ -121,7 +121,7 @@ public class MessageRateTest extends ServiceTestBase
    @Test
    public void testConsumeRate2() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
 
@@ -159,7 +159,7 @@ public class MessageRateTest extends ServiceTestBase
    @Test
    public void testConsumeRateListener() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
 

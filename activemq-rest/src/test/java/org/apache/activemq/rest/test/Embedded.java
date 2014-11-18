@@ -16,8 +16,8 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.apache.activemq.rest.MessageServiceConfiguration;
 import org.apache.activemq.rest.MessageServiceManager;
@@ -31,7 +31,7 @@ public class Embedded
 {
    protected MessageServiceManager manager = new MessageServiceManager();
    protected MessageServiceConfiguration config = new MessageServiceConfiguration();
-   protected HornetQServer hornetqServer;
+   protected ActiveMQServer activeMQServer;
    protected TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();
 
    public Embedded()
@@ -53,14 +53,14 @@ public class Embedded
       this.config = config;
    }
 
-   public HornetQServer getHornetqServer()
+   public ActiveMQServer getActiveMQServer()
    {
-      return hornetqServer;
+      return activeMQServer;
    }
 
-   public void setHornetqServer(HornetQServer hornetqServer)
+   public void setActiveMQServer(ActiveMQServer activeMQServer)
    {
-      this.hornetqServer = hornetqServer;
+      this.activeMQServer = activeMQServer;
    }
 
    public TJWSEmbeddedJaxrsServer getJaxrsServer()
@@ -76,15 +76,15 @@ public class Embedded
    public void start() throws Exception
    {
       System.out.println("\nStarting Embedded");
-      if (hornetqServer == null)
+      if (activeMQServer == null)
       {
          Configuration configuration = new ConfigurationImpl()
             .setPersistenceEnabled(false)
             .setSecurityEnabled(false)
             .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-         hornetqServer = HornetQServers.newHornetQServer(configuration);
-         hornetqServer.start();
+         activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
+         activeMQServer.start();
       }
       tjws.start();
       manager.setConfiguration(config);
@@ -99,6 +99,6 @@ public class Embedded
       System.out.println("\nStopping Embedded");
       manager.stop();
       tjws.stop();
-      hornetqServer.stop();
+      activeMQServer.stop();
    }
 }

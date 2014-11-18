@@ -32,7 +32,7 @@ import org.apache.activemq.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
@@ -64,7 +64,7 @@ public class PageCursorStressTest extends ServiceTestBase
 
    private final SimpleString ADDRESS = new SimpleString("test-add");
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private Queue queue;
 

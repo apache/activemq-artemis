@@ -13,7 +13,7 @@
 package org.apache.activemq.core.journal.impl;
 
 
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  *
@@ -36,11 +36,11 @@ import org.apache.activemq.journal.HornetQJournalLogger;
  */
 public class Reclaimer
 {
-   private static boolean trace = HornetQJournalLogger.LOGGER.isTraceEnabled();
+   private static boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
 
    private static void trace(final String message)
    {
-      HornetQJournalLogger.LOGGER.trace(message);
+      ActiveMQJournalLogger.LOGGER.trace(message);
    }
 
    public void scan(final JournalFile[] files)

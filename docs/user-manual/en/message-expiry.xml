@@ -18,23 +18,23 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="message-expiry">
    <title>Message Expiry</title>
    <para>Messages can be set with an optional <emphasis>time to live</emphasis> when sending
       them.</para>
-   <para>HornetQ will not deliver a message to a consumer after it's time to live has been exceeded.
+   <para>ActiveMQ will not deliver a message to a consumer after it's time to live has been exceeded.
       If the message hasn't been delivered by the time that time to live is reached the server can
       discard it.</para>
-   <para>HornetQ's addresses can be assigned a expiry address so that, when messages are expired,
+   <para>ActiveMQ's addresses can be assigned a expiry address so that, when messages are expired,
       they are removed from the queue and sent to the expiry address. Many different queues can be
       bound to an expiry address. These <emphasis>expired</emphasis> messages can later be consumed
       for further inspection.</para>
    <section>
       <title>Message Expiry</title>
-      <para>Using HornetQ Core API, you can set an expiration time directly on the message:</para>
+      <para>Using ActiveMQ Core API, you can set an expiration time directly on the message:</para>
       <programlisting>
 // message will expire in 5000ms from now
 message.setExpiration(System.currentTimeMillis() + 5000);</programlisting>
@@ -79,7 +79,7 @@ producer.setTimeToLive(5000);</programlisting>
       <para>A reaper thread will periodically inspect the queues to check if messages have
          expired.</para>
       <para>The reaper thread can be configured with the following properties in <literal
-            >hornetq-configuration.xml</literal></para>
+            >activemq-configuration.xml</literal></para>
       <itemizedlist>
          <listitem>
             <para><literal>message-expiry-scan-period</literal></para>

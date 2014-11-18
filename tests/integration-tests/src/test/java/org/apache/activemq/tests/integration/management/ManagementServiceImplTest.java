@@ -23,8 +23,8 @@ import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
@@ -49,7 +49,7 @@ public class ManagementServiceImplTest extends UnitTestCase
       Configuration conf = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       // invoke attribute and operation on the server
@@ -69,7 +69,7 @@ public class ManagementServiceImplTest extends UnitTestCase
       Configuration conf = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       // invoke attribute and operation on the server
@@ -89,7 +89,7 @@ public class ManagementServiceImplTest extends UnitTestCase
       Configuration conf = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       // invoke attribute and operation on the server
@@ -109,7 +109,7 @@ public class ManagementServiceImplTest extends UnitTestCase
       Configuration conf = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       // invoke attribute and operation on the server
@@ -130,7 +130,7 @@ public class ManagementServiceImplTest extends UnitTestCase
       Configuration conf = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       // invoke attribute and operation on the server

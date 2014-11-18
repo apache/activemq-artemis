@@ -15,12 +15,12 @@ package org.proton.plug.context;
 
 import org.apache.qpid.proton.engine.Receiver;
 import org.proton.plug.AMQPSessionCallback;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  *         <p/>
- *         handles incoming messages via a Proton Receiver and forwards them to HornetQ
+ *         handles incoming messages via a Proton Receiver and forwards them to ActiveMQ
  */
 public abstract class AbstractProtonReceiverContext extends ProtonInitializable implements ProtonDeliveryHandler
 {
@@ -51,7 +51,7 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
    }
 
    @Override
-   public void close() throws HornetQAMQPException
+   public void close() throws ActiveMQAMQPException
    {
       protonSession.removeReceiver(receiver);
    }

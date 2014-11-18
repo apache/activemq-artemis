@@ -26,8 +26,8 @@ import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.rest.HttpHeaderProperty;
 import org.apache.activemq.rest.Jms;
 import org.apache.activemq.rest.queue.QueueDeployment;
@@ -51,7 +51,7 @@ public class JMSTest extends MessageTestBase
    @BeforeClass
    public static void setup() throws Exception
    {
-      connectionFactory = new HornetQJMSConnectionFactory(manager.getQueueManager().getServerLocator());
+      connectionFactory = new ActiveMQJMSConnectionFactory(manager.getQueueManager().getServerLocator());
    }
 
    @XmlRootElement
@@ -118,7 +118,7 @@ public class JMSTest extends MessageTestBase
 
    public static Destination createDestination(String dest)
    {
-      HornetQDestination destination = (HornetQDestination) HornetQDestination.fromAddress(dest);
+      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress(dest);
       System.out.println("SimpleAddress: " + destination.getSimpleAddress());
       return destination;
    }
@@ -172,7 +172,7 @@ public class JMSTest extends MessageTestBase
    @Test
    public void testJmsConsumer() throws Exception
    {
-      String queueName = HornetQDestination.createQueueAddressFromName("testQueue2").toString();
+      String queueName = ActiveMQDestination.createQueueAddressFromName("testQueue2").toString();
       System.out.println("Queue name: " + queueName);
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
@@ -223,7 +223,7 @@ public class JMSTest extends MessageTestBase
    @Test
    public void testJmsProducer() throws Exception
    {
-      String queueName = HornetQDestination.createQueueAddressFromName("testQueue").toString();
+      String queueName = ActiveMQDestination.createQueueAddressFromName("testQueue").toString();
       System.out.println("Queue name: " + queueName);
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);

@@ -32,19 +32,19 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -95,7 +95,7 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
       server.start();
 
@@ -204,7 +204,7 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
       server.start();
 
@@ -357,7 +357,7 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
       server.start();
 
@@ -471,7 +471,7 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
       server.start();
 
@@ -571,7 +571,7 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
       server.start();
 
@@ -718,7 +718,7 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true, config, PAGE_SIZE, -1, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, -1, new HashMap<String, AddressSettings>());
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext context = new InVMNamingContext();
@@ -727,7 +727,7 @@ public class PagingOrderTest extends ServiceTestBase
 
       jmsServer.createTopic(true, "tt", "/topic/TT");
 
-      server.getHornetQServerControl().addAddressSettings("jms.topic.TT",
+      server.getActiveMQServerControl().addAddressSettings("jms.topic.TT",
                                                           "DLQ",
                                                           "DLQ",
                                                           -1,
@@ -746,8 +746,8 @@ public class PagingOrderTest extends ServiceTestBase
                                                           10,
                                                           "KILL");
 
-      HornetQJMSConnectionFactory cf = (HornetQJMSConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                       new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                                                        new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       Connection conn = cf.createConnection();
       conn.setClientID("tst");
@@ -795,14 +795,14 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true, config, -1, -1, AddressFullMessagePolicy.BLOCK, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, -1, -1, AddressFullMessagePolicy.BLOCK, new HashMap<String, AddressSettings>());
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext context = new InVMNamingContext();
       jmsServer.setContext(context);
       jmsServer.start();
 
-      server.getHornetQServerControl().addAddressSettings("jms.queue.Q1",
+      server.getActiveMQServerControl().addAddressSettings("jms.queue.Q1",
                                                           "DLQ",
                                                           "DLQ",
                                                           -1,
@@ -823,8 +823,8 @@ public class PagingOrderTest extends ServiceTestBase
 
       jmsServer.createQueue(true, "Q1", null, true, "/queue/Q1");
 
-      HornetQJMSConnectionFactory cf = (HornetQJMSConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                       new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                                                        new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       conn = cf.createConnection();
       conn.setClientID("tst");

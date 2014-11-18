@@ -14,13 +14,13 @@ package org.apache.activemq.tests.integration.client;
 
 import io.netty.bootstrap.Bootstrap;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +31,7 @@ import org.junit.Test;
  */
 public class NettyConnectorTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Override
    @Before
@@ -52,7 +52,7 @@ public class NettyConnectorTest extends ServiceTestBase
       TransportConfiguration transport = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       transport.getParams().put(TransportConstants.NETTY_CONNECT_TIMEOUT, timeout);
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(transport);
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(transport);
 
       ClientSessionFactoryImpl factory = (ClientSessionFactoryImpl) locator.createSessionFactory();
       NettyConnector connector = (NettyConnector) factory.getConnector();

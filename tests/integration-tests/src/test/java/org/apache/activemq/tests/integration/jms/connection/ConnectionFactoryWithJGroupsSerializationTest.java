@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
 import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.jgroups.JChannel;
 import org.jgroups.conf.PlainConfigurator;
@@ -36,8 +36,8 @@ import org.junit.Test;
 public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
 {
 
-   protected static HornetQConnectionFactory jmsCf1;
-   protected static HornetQConnectionFactory jmsCf2;
+   protected static ActiveMQConnectionFactory jmsCf1;
+   protected static ActiveMQConnectionFactory jmsCf2;
 
    private final String jgroupsConfigString = "UDP(oob_thread_pool.max_threads=300;"
                                             + "bind_addr=127.0.0.1;oob_thread_pool.keep_alive_time=1000;"
@@ -104,8 +104,8 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
             .setDiscoveryInitialWaitTimeout(5000)
             .setBroadcastEndpointFactoryConfiguration(jgroupsBroadcastCfg2);
 
-         jmsServer.getHornetQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig1.getName(), dcConfig1);
-         jmsServer.getHornetQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig2.getName(), dcConfig2);
+         jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig1.getName(), dcConfig1);
+         jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig2.getName(), dcConfig2);
 
          jmsServer.createConnectionFactory("ConnectionFactory1",
                                            false,
@@ -140,8 +140,8 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
    @Test
    public void testSerialization() throws Exception
    {
-      jmsCf1 = (HornetQConnectionFactory) namingContext.lookup("/ConnectionFactory1");
-      jmsCf2 = (HornetQConnectionFactory) namingContext.lookup("/ConnectionFactory2");
+      jmsCf1 = (ActiveMQConnectionFactory) namingContext.lookup("/ConnectionFactory1");
+      jmsCf2 = (ActiveMQConnectionFactory) namingContext.lookup("/ConnectionFactory2");
 
       try
       {
@@ -154,7 +154,7 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
 
       //now cf2 should be OK
       byte[] x = serialize(jmsCf2);
-      HornetQConnectionFactory jmsCf2Copy = deserialize(x, HornetQConnectionFactory.class);
+      ActiveMQConnectionFactory jmsCf2Copy = deserialize(x, ActiveMQConnectionFactory.class);
       assertNotNull(jmsCf2Copy);
       BroadcastEndpointFactoryConfiguration broadcastEndpoint = jmsCf2Copy.getDiscoveryGroupConfiguration().getBroadcastEndpointFactoryConfiguration();
       assertTrue(broadcastEndpoint instanceof JGroupsBroadcastGroupConfiguration);

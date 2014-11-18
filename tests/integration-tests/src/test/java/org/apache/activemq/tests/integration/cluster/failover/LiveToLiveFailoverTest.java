@@ -22,7 +22,7 @@ import org.apache.activemq.core.config.ScaleDownConfiguration;
 import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
 import org.apache.activemq.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
@@ -100,8 +100,8 @@ public class LiveToLiveFailoverTest extends FailoverTest
    @Override
    protected void waitForBackup()
    {
-      Map<String, HornetQServer> backupServers0 = liveServer.getServer().getClusterManager().getHAManager().getBackupServers();
-      Map<String, HornetQServer> backupServers1 = backupServer.getServer().getClusterManager().getHAManager().getBackupServers();
+      Map<String, ActiveMQServer> backupServers0 = liveServer.getServer().getClusterManager().getHAManager().getBackupServers();
+      Map<String, ActiveMQServer> backupServers1 = backupServer.getServer().getClusterManager().getHAManager().getBackupServers();
       final long toWait = 10000;
       final long time = System.currentTimeMillis();
       while (true)

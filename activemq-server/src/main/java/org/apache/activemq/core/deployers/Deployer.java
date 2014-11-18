@@ -14,14 +14,14 @@ package org.apache.activemq.core.deployers;
 
 import java.net.URI;
 
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 
 /**
  * abstract class that helps with deployment of messaging components.
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public interface Deployer extends HornetQComponent
+public interface Deployer extends ActiveMQComponent
 {
    /**
     * The name of the configuration files to look for for deployment

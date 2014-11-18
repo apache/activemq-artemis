@@ -18,28 +18,28 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="core-bridges">
     <title>Core Bridges</title>
     <para>The function of a bridge is to consume messages from a source queue, and forward them to a
-        target address, typically on a different HornetQ server.</para>
+        target address, typically on a different ActiveMQ server.</para>
     <para>The source and target servers do not have to be in the same cluster which makes bridging
         suitable for reliably sending messages from one cluster to another, for instance across a
         WAN, or internet and where the connection may be unreliable.</para>
     <para>The bridge has built in resilience to failure so if the target server connection is lost,
         e.g. due to network failure, the bridge will retry connecting to the target until it comes
         back online. When it comes back online it will resume operation as normal.</para>
-    <para>In summary, bridges are a way to reliably connect two separate HornetQ servers together.
-        With a core bridge both source and target servers must be HornetQ servers.</para>
+    <para>In summary, bridges are a way to reliably connect two separate ActiveMQ servers together.
+        With a core bridge both source and target servers must be ActiveMQ servers.</para>
     <para>Bridges can be configured to provide <emphasis>once and only once</emphasis> delivery
         guarantees even in the event of the failure of the source or the target server. They do this
         by using duplicate detection (described in <xref linkend="duplicate-detection"/>).</para>
     <note>
         <para>Although they have similar function, don't confuse core bridges with JMS
             bridges!</para>
-        <para>Core bridges are for linking a HornetQ node with another HornetQ node and do not use
+        <para>Core bridges are for linking a ActiveMQ node with another ActiveMQ node and do not use
             the JMS API. A JMS Bridge is used for linking any two JMS 1.1 compliant JMS providers.
             So, a JMS Bridge could be used for bridging to or from different JMS compliant messaging
             system. It's always preferable to use a core bridge if you can. Core bridges use
@@ -49,7 +49,7 @@
     </note>
     <section>
         <title>Configuring Bridges</title>
-        <para>Bridges are configured in <literal>hornetq-configuration.xml</literal>. Let's kick off
+        <para>Bridges are configured in <literal>activemq-configuration.xml</literal>. Let's kick off
             with an example (this is actually from the bridge example):</para>
         <programlisting>
 &lt;bridge name="my-bridge">
@@ -92,8 +92,8 @@
                     start-up.</para>
                 <note>
                     <para>If you're using JMS then normally the JMS configuration <literal
-                            >hornetq-jms.xml</literal> is loaded after the core configuration file
-                            <literal>hornetq-configuration.xml</literal> is loaded. If your bridge
+                            >activemq-jms.xml</literal> is loaded after the core configuration file
+                            <literal>activemq-configuration.xml</literal> is loaded. If your bridge
                         is consuming from a JMS queue then you'll need to make sure the JMS queue is
                         also deployed as a core queue in the core configuration. Take a look at the
                         bridge example for an example of how this is done.</para>
@@ -107,7 +107,7 @@
             <listitem>
                 <para><literal>filter-string</literal>. An optional filter string can be supplied.
                     If specified then only messages which match the filter expression specified in
-                    the filter string will be forwarded. The filter string follows the HornetQ
+                    the filter string will be forwarded. The filter string follows the ActiveMQ
                     filter expression syntax described in <xref linkend="filter-expressions"
                     />.</para>
             </listitem>
@@ -210,13 +210,13 @@
                 <para><literal>user</literal>. This optional parameter determines the user name to
                     use when creating the bridge connection to the remote server. If it is not
                     specified the default cluster user specified by <literal>cluster-user</literal>
-                    in <literal>hornetq-configuration.xml</literal> will be used. </para>
+                    in <literal>activemq-configuration.xml</literal> will be used. </para>
             </listitem>
             <listitem>
                 <para><literal>password</literal>. This optional parameter determines the password
                     to use when creating the bridge connection to the remote server. If it is not
                     specified the default cluster password specified by <literal
-                            >cluster-password</literal> in <literal>hornetq-configuration.xml</literal>
+                            >cluster-password</literal> in <literal>activemq-configuration.xml</literal>
                     will be used. </para>
             </listitem>
             <listitem>

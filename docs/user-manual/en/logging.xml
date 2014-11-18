@@ -18,12 +18,12 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="logging">
     <title>Logging</title>
-    <para>HornetQ uses the JBoss Logging framework to do its logging and is configurable via the <literal>logging.properties</literal>
+    <para>ActiveMQ uses the JBoss Logging framework to do its logging and is configurable via the <literal>logging.properties</literal>
        file found in the configuration directories. This is configured by Default to log to both the console and to a file.</para>
    <para>There are 6 loggers available which are as follows:</para>
     <table frame="topbot" border="2">
@@ -40,7 +40,7 @@
            <tbody>
                <row>
                    <entry>org.jboss.logging</entry>
-                   <entry>Logs any calls not handled by the HornetQ loggers</entry>
+                   <entry>Logs any calls not handled by the ActiveMQ loggers</entry>
                </row>
                <row>
                    <entry>org.apache.activemq.core.server</entry>
@@ -92,7 +92,7 @@
 &lt;/dependency>
 &lt;dependency>
    &lt;groupId>org.apache.activemq&lt;/groupId>
-   &lt;artifactId>hornetq-core-client&lt;/artifactId>
+   &lt;artifactId>activemq-core-client&lt;/artifactId>
    &lt;version>2.3.0.Final&lt;/version>
 &lt;/dependency></programlisting>
          The first dependency <literal>jnp-client</literal> is not actually needed for logging, however this is needed for
@@ -116,7 +116,7 @@ loggers=org.jboss.logging,org.apache.activemq.core.server,org.apache.activemq.ut
 
 # Root logger level
 logger.level=INFO
-# HornetQ logger levels
+# ActiveMQ logger levels
 logger.org.apache.activemq.core.server.level=INFO
 logger.org.apache.activemq.utils.level=INFO
 logger.org.apache.activemq.jms.level=DEBUG
@@ -136,7 +136,7 @@ handler.FILE=org.jboss.logmanager.handlers.FileHandler
 handler.FILE.level=FINE
 handler.FILE.properties=autoFlush,fileName
 handler.FILE.autoFlush=true
-handler.FILE.fileName=hornetq.log
+handler.FILE.fileName=activemq.log
 handler.FILE.formatter=PATTERN
 
 # Formatter pattern configuration
@@ -147,7 +147,7 @@ formatter.PATTERN.pattern=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n</programlisting>
    </section>
     <section>
         <title>Logging With The JBoss Application Server</title>
-        <para>When HornetQ is deployed within the JBoss Application Server version 7.x or above then
+        <para>When ActiveMQ is deployed within the JBoss Application Server version 7.x or above then
             it will still use JBoss Logging, refer to the AS7 documentation on how to configure AS7 logging.</para>
     </section>
 </chapter>

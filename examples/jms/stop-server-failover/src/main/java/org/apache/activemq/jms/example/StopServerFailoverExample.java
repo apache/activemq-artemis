@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.jms.example;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -30,7 +30,7 @@ import javax.naming.InitialContext;
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class StopServerFailoverExample extends HornetQExample
+public class StopServerFailoverExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

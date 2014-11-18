@@ -23,7 +23,7 @@ import javax.jms.TransactionRolledBackException;
 import javax.naming.InitialContext;
 
 import org.apache.activemq.api.core.Message;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates failover of the JMS connection from one node to another
@@ -31,7 +31,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class ReplicatedTransactionFailoverExample extends HornetQExample
+public class ReplicatedTransactionFailoverExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

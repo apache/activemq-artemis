@@ -45,7 +45,7 @@ public class AcknowledgementTest extends JMSTestCase
    {
       TopicConnection topicConn = createTopicConnection();
       TopicSession sess = topicConn.createTopicSession(true, 0);
-      TopicPublisher pub = sess.createPublisher(HornetQServerTestCase.topic1);
+      TopicPublisher pub = sess.createPublisher(ActiveMQServerTestCase.topic1);
       pub.setDeliveryMode(DeliveryMode.PERSISTENT);
 
       Message m = sess.createTextMessage("testing123");
@@ -54,7 +54,7 @@ public class AcknowledgementTest extends JMSTestCase
 
       topicConn.close();
 
-      checkEmpty(HornetQServerTestCase.topic1);
+      checkEmpty(ActiveMQServerTestCase.topic1);
    }
 
    /**
@@ -66,8 +66,8 @@ public class AcknowledgementTest extends JMSTestCase
       TopicConnection topicConn = createTopicConnection();
       topicConn.start();
       TopicSession sess = topicConn.createTopicSession(true, 0);
-      TopicPublisher pub = sess.createPublisher(HornetQServerTestCase.topic1);
-      TopicSubscriber sub = sess.createSubscriber(HornetQServerTestCase.topic1);
+      TopicPublisher pub = sess.createPublisher(ActiveMQServerTestCase.topic1);
+      TopicSubscriber sub = sess.createSubscriber(ActiveMQServerTestCase.topic1);
       pub.setDeliveryMode(DeliveryMode.PERSISTENT);
 
       Message m = sess.createTextMessage("testing123");
@@ -84,7 +84,7 @@ public class AcknowledgementTest extends JMSTestCase
 
       topicConn.close();
 
-      checkEmpty(HornetQServerTestCase.topic1);
+      checkEmpty(ActiveMQServerTestCase.topic1);
    }
 
    @Test
@@ -92,8 +92,8 @@ public class AcknowledgementTest extends JMSTestCase
    {
       TopicConnection topicConn = createTopicConnection();
       TopicSession sess = topicConn.createTopicSession(true, 0);
-      TopicPublisher pub = sess.createPublisher(HornetQServerTestCase.topic1);
-      TopicSubscriber cons = sess.createSubscriber(HornetQServerTestCase.topic1);
+      TopicPublisher pub = sess.createPublisher(ActiveMQServerTestCase.topic1);
+      TopicSubscriber cons = sess.createSubscriber(ActiveMQServerTestCase.topic1);
       topicConn.start();
 
       Message m = sess.createTextMessage("testing123");
@@ -118,8 +118,8 @@ public class AcknowledgementTest extends JMSTestCase
       // test 2
 
       TopicSession newsess = topicConn.createTopicSession(true, 0);
-      TopicPublisher newpub = newsess.createPublisher(HornetQServerTestCase.topic1);
-      TopicSubscriber newcons = newsess.createSubscriber(HornetQServerTestCase.topic1);
+      TopicPublisher newpub = newsess.createPublisher(ActiveMQServerTestCase.topic1);
+      TopicSubscriber newcons = newsess.createSubscriber(ActiveMQServerTestCase.topic1);
 
       Message m3 = newsess.createTextMessage("testing456");
       newpub.publish(m3);
@@ -636,10 +636,10 @@ public class AcknowledgementTest extends JMSTestCase
          conn = myCF.createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer producer = producerSess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = producerSess.createProducer(ActiveMQServerTestCase.topic1);
 
          Session consumerSess = conn.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-         MessageConsumer consumer = consumerSess.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer = consumerSess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
          // Send some messages
@@ -669,7 +669,7 @@ public class AcknowledgementTest extends JMSTestCase
             conn.close();
          }
 
-         HornetQServerTestCase.undeployConnectionFactory("MyConnectionFactory2");
+         ActiveMQServerTestCase.undeployConnectionFactory("MyConnectionFactory2");
       }
 
    }

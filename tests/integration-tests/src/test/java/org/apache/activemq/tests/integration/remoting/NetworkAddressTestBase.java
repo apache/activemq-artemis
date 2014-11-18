@@ -25,10 +25,10 @@ import java.util.Set;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -213,7 +213,7 @@ public abstract class NetworkAddressTestBase extends ServiceTestBase
 
       Configuration config = createDefaultConfig(true);
       config.setAcceptorConfigurations(transportConfigs);
-      HornetQServer messagingService = createServer(false, config);
+      ActiveMQServer messagingService = createServer(false, config);
       try
       {
          messagingService.start();
@@ -225,7 +225,7 @@ public abstract class NetworkAddressTestBase extends ServiceTestBase
             params.put(getLocalPortProperty(), localPort);
          }
          TransportConfiguration connectorConfig = new TransportConfiguration(getConnectorFactoryClassName(), params);
-         ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(connectorConfig));
+         ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(connectorConfig));
 
          if (mustConnect)
          {

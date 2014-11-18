@@ -93,7 +93,7 @@ public class NonDurableSubscriberTest extends JMSTestCase
 
       try
       {
-         s.createSubscriber(HornetQServerTestCase.topic1, "=TEST 'test'", false);
+         s.createSubscriber(ActiveMQServerTestCase.topic1, "=TEST 'test'", false);
          ProxyAssertSupport.fail("this should fail");
       }
       catch (InvalidSelectorException e)

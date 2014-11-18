@@ -25,9 +25,9 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.jms.server.management.JMSNotificationType;
 import org.apache.activemq.tests.integration.management.ManagementControlHelper;
@@ -50,7 +50,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private JMSServerManagerImpl serverManager;
 
@@ -70,13 +70,13 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
       ConnectionFactoryControl controlCF = createCFControl("test");
 
-      HornetQConnectionFactory cf = (HornetQConnectionFactory)ctx.lookup("test");
+      ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory)ctx.lookup("test");
 
       assertFalse(cf.isCompressLargeMessage());
 
       controlCF.setCompressLargeMessages(true);
 
-      cf = (HornetQConnectionFactory)ctx.lookup("test");
+      cf = (ActiveMQConnectionFactory)ctx.lookup("test");
       assertTrue(cf.isCompressLargeMessage());
 
       stopServer();
@@ -85,7 +85,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
       startServer();
 
-      cf = (HornetQConnectionFactory)ctx.lookup("test");
+      cf = (ActiveMQConnectionFactory)ctx.lookup("test");
       assertTrue(cf.isCompressLargeMessage());
 
    }
@@ -159,7 +159,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
          .setSecurityEnabled(false)
          .setJMXManagementEnabled(true)
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      server = HornetQServers.newHornetQServer(conf, mbeanServer, true);
+      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, true);
       server.start();
 
       serverManager = new JMSServerManagerImpl(server);

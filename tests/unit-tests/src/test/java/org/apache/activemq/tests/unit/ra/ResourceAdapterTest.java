@@ -22,19 +22,19 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.ra.ConnectionFactoryProperties;
-import org.apache.activemq.ra.HornetQRAManagedConnectionFactory;
-import org.apache.activemq.ra.HornetQResourceAdapter;
-import org.apache.activemq.ra.inflow.HornetQActivation;
-import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
+import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.ra.inflow.ActiveMQActivation;
+import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,90 +60,90 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testDefaultConnectionFactory() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
-      HornetQConnectionFactory factory = ra.getDefaultHornetQConnectionFactory();
-      Assert.assertEquals(factory.getCallTimeout(), HornetQClient.DEFAULT_CALL_TIMEOUT);
-      Assert.assertEquals(factory.getClientFailureCheckPeriod(), HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
+      ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
+      Assert.assertEquals(factory.getCallTimeout(), ActiveMQClient.DEFAULT_CALL_TIMEOUT);
+      Assert.assertEquals(factory.getClientFailureCheckPeriod(), ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
       Assert.assertEquals(factory.getClientID(), null);
       Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(),
-                          HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
-      Assert.assertEquals(factory.getConnectionTTL(), HornetQClient.DEFAULT_CONNECTION_TTL);
-      Assert.assertEquals(factory.getConsumerMaxRate(), HornetQClient.DEFAULT_CONSUMER_MAX_RATE);
-      Assert.assertEquals(factory.getConsumerWindowSize(), HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
-      Assert.assertEquals(factory.getDupsOKBatchSize(), HornetQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.getMinLargeMessageSize(), HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
-      Assert.assertEquals(factory.getProducerMaxRate(), HornetQClient.DEFAULT_PRODUCER_MAX_RATE);
-      Assert.assertEquals(factory.getConfirmationWindowSize(), HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE);
+                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
+      Assert.assertEquals(factory.getConnectionTTL(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
+      Assert.assertEquals(factory.getConsumerMaxRate(), ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE);
+      Assert.assertEquals(factory.getConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
+      Assert.assertEquals(factory.getDupsOKBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
+      Assert.assertEquals(factory.getMinLargeMessageSize(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      Assert.assertEquals(factory.getProducerMaxRate(), ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE);
+      Assert.assertEquals(factory.getConfirmationWindowSize(), ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE);
       // by default, reconnect attempts is set to -1
       Assert.assertEquals(-1, factory.getReconnectAttempts());
-      Assert.assertEquals(factory.getRetryInterval(), HornetQClient.DEFAULT_RETRY_INTERVAL);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
+      Assert.assertEquals(factory.getRetryInterval(), ActiveMQClient.DEFAULT_RETRY_INTERVAL);
+      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
                           0.00001);
-      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getThreadPoolMaxSize(), HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getTransactionBatchSize(), HornetQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.isAutoGroup(), HornetQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), HornetQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), HornetQClient.DEFAULT_USE_GLOBAL_POOLS);
+      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
+      Assert.assertEquals(factory.getThreadPoolMaxSize(), ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
+      Assert.assertEquals(factory.getTransactionBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
+      Assert.assertEquals(factory.isAutoGroup(), ActiveMQClient.DEFAULT_AUTO_GROUP);
+      Assert.assertEquals(factory.isBlockOnAcknowledge(), ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isBlockOnNonDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
+      Assert.assertEquals(factory.isBlockOnDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
+      Assert.assertEquals(factory.isPreAcknowledge(), ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isUseGlobalPools(), ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
    }
 
    @Test
    public void test2DefaultConnectionFactorySame() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
-      HornetQConnectionFactory factory = ra.getDefaultHornetQConnectionFactory();
-      HornetQConnectionFactory factory2 = ra.getDefaultHornetQConnectionFactory();
+      ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
+      ActiveMQConnectionFactory factory2 = ra.getDefaultActiveMQConnectionFactory();
       Assert.assertEquals(factory, factory2);
    }
 
    @Test
    public void testCreateConnectionFactoryNoOverrides() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(new ConnectionFactoryProperties());
-      Assert.assertEquals(factory.getCallTimeout(), HornetQClient.DEFAULT_CALL_TIMEOUT);
-      Assert.assertEquals(factory.getClientFailureCheckPeriod(), HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(new ConnectionFactoryProperties());
+      Assert.assertEquals(factory.getCallTimeout(), ActiveMQClient.DEFAULT_CALL_TIMEOUT);
+      Assert.assertEquals(factory.getClientFailureCheckPeriod(), ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
       Assert.assertEquals(factory.getClientID(), null);
       Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(),
-                          HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
-      Assert.assertEquals(factory.getConnectionTTL(), HornetQClient.DEFAULT_CONNECTION_TTL);
-      Assert.assertEquals(factory.getConsumerMaxRate(), HornetQClient.DEFAULT_CONSUMER_MAX_RATE);
-      Assert.assertEquals(factory.getConsumerWindowSize(), HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
-      Assert.assertEquals(factory.getDupsOKBatchSize(), HornetQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.getMinLargeMessageSize(), HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
-      Assert.assertEquals(factory.getProducerMaxRate(), HornetQClient.DEFAULT_PRODUCER_MAX_RATE);
-      Assert.assertEquals(factory.getConfirmationWindowSize(), HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE);
+                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
+      Assert.assertEquals(factory.getConnectionTTL(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
+      Assert.assertEquals(factory.getConsumerMaxRate(), ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE);
+      Assert.assertEquals(factory.getConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
+      Assert.assertEquals(factory.getDupsOKBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
+      Assert.assertEquals(factory.getMinLargeMessageSize(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      Assert.assertEquals(factory.getProducerMaxRate(), ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE);
+      Assert.assertEquals(factory.getConfirmationWindowSize(), ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE);
       // by default, reconnect attempts is set to -1
       Assert.assertEquals(-1, factory.getReconnectAttempts());
-      Assert.assertEquals(factory.getRetryInterval(), HornetQClient.DEFAULT_RETRY_INTERVAL);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
+      Assert.assertEquals(factory.getRetryInterval(), ActiveMQClient.DEFAULT_RETRY_INTERVAL);
+      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
                           0.000001);
-      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getThreadPoolMaxSize(), HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
-      Assert.assertEquals(factory.getTransactionBatchSize(), HornetQClient.DEFAULT_ACK_BATCH_SIZE);
-      Assert.assertEquals(factory.isAutoGroup(), HornetQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), HornetQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), HornetQClient.DEFAULT_USE_GLOBAL_POOLS);
+      Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
+      Assert.assertEquals(factory.getThreadPoolMaxSize(), ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
+      Assert.assertEquals(factory.getTransactionBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
+      Assert.assertEquals(factory.isAutoGroup(), ActiveMQClient.DEFAULT_AUTO_GROUP);
+      Assert.assertEquals(factory.isBlockOnAcknowledge(), ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isBlockOnNonDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
+      Assert.assertEquals(factory.isBlockOnDurableSend(), ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
+      Assert.assertEquals(factory.isPreAcknowledge(), ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isUseGlobalPools(), ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
    }
 
    @Test
    public void testDefaultConnectionFactoryOverrides() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
-      ra.setAutoGroup(!HornetQClient.DEFAULT_AUTO_GROUP);
-      ra.setBlockOnAcknowledge(!HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      ra.setBlockOnNonDurableSend(!HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      ra.setBlockOnDurableSend(!HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
+      ra.setAutoGroup(!ActiveMQClient.DEFAULT_AUTO_GROUP);
+      ra.setBlockOnAcknowledge(!ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
+      ra.setBlockOnNonDurableSend(!ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
+      ra.setBlockOnDurableSend(!ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
       ra.setCallTimeout(1L);
       ra.setClientFailureCheckPeriod(2L);
       ra.setClientID("myid");
@@ -155,7 +155,7 @@ public class ResourceAdapterTest extends ServiceTestBase
       ra.setDiscoveryRefreshTimeout(7L);
       ra.setDupsOKBatchSize(8);
       ra.setMinLargeMessageSize(10);
-      ra.setPreAcknowledge(!HornetQClient.DEFAULT_PRE_ACKNOWLEDGE);
+      ra.setPreAcknowledge(!ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
       ra.setProducerMaxRate(11);
       ra.setConfirmationWindowSize(12);
       ra.setReconnectAttempts(13);
@@ -164,8 +164,8 @@ public class ResourceAdapterTest extends ServiceTestBase
       ra.setScheduledThreadPoolMaxSize(16);
       ra.setThreadPoolMaxSize(17);
       ra.setTransactionBatchSize(18);
-      ra.setUseGlobalPools(!HornetQClient.DEFAULT_USE_GLOBAL_POOLS);
-      HornetQConnectionFactory factory = ra.getDefaultHornetQConnectionFactory();
+      ra.setUseGlobalPools(!ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
+      ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
       Assert.assertEquals(factory.getCallTimeout(), 1);
       Assert.assertEquals(factory.getClientFailureCheckPeriod(), 2);
       Assert.assertEquals(factory.getClientID(), "myid");
@@ -183,24 +183,24 @@ public class ResourceAdapterTest extends ServiceTestBase
       Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), 16);
       Assert.assertEquals(factory.getThreadPoolMaxSize(), 17);
       Assert.assertEquals(factory.getTransactionBatchSize(), 18);
-      Assert.assertEquals(factory.isAutoGroup(), !HornetQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), !HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), !HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), !HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), !HornetQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), !HornetQClient.DEFAULT_USE_GLOBAL_POOLS);
+      Assert.assertEquals(factory.isAutoGroup(), !ActiveMQClient.DEFAULT_AUTO_GROUP);
+      Assert.assertEquals(factory.isBlockOnAcknowledge(), !ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isBlockOnNonDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
+      Assert.assertEquals(factory.isBlockOnDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
+      Assert.assertEquals(factory.isPreAcknowledge(), !ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isUseGlobalPools(), !ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
    }
 
    @Test
    public void testCreateConnectionFactoryOverrides() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
-      connectionFactoryProperties.setAutoGroup(!HornetQClient.DEFAULT_AUTO_GROUP);
-      connectionFactoryProperties.setBlockOnAcknowledge(!HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      connectionFactoryProperties.setBlockOnNonDurableSend(!HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      connectionFactoryProperties.setBlockOnDurableSend(!HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
+      connectionFactoryProperties.setAutoGroup(!ActiveMQClient.DEFAULT_AUTO_GROUP);
+      connectionFactoryProperties.setBlockOnAcknowledge(!ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
+      connectionFactoryProperties.setBlockOnNonDurableSend(!ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
+      connectionFactoryProperties.setBlockOnDurableSend(!ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
       connectionFactoryProperties.setCallTimeout(1L);
       connectionFactoryProperties.setClientFailureCheckPeriod(2L);
       connectionFactoryProperties.setClientID("myid");
@@ -212,7 +212,7 @@ public class ResourceAdapterTest extends ServiceTestBase
       connectionFactoryProperties.setDiscoveryRefreshTimeout(7L);
       connectionFactoryProperties.setDupsOKBatchSize(8);
       connectionFactoryProperties.setMinLargeMessageSize(10);
-      connectionFactoryProperties.setPreAcknowledge(!HornetQClient.DEFAULT_PRE_ACKNOWLEDGE);
+      connectionFactoryProperties.setPreAcknowledge(!ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
       connectionFactoryProperties.setProducerMaxRate(11);
       connectionFactoryProperties.setConfirmationWindowSize(12);
       connectionFactoryProperties.setReconnectAttempts(13);
@@ -221,8 +221,8 @@ public class ResourceAdapterTest extends ServiceTestBase
       connectionFactoryProperties.setScheduledThreadPoolMaxSize(16);
       connectionFactoryProperties.setThreadPoolMaxSize(17);
       connectionFactoryProperties.setTransactionBatchSize(18);
-      connectionFactoryProperties.setUseGlobalPools(!HornetQClient.DEFAULT_USE_GLOBAL_POOLS);
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(connectionFactoryProperties);
+      connectionFactoryProperties.setUseGlobalPools(!ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(connectionFactoryProperties);
       Assert.assertEquals(factory.getCallTimeout(), 1);
       Assert.assertEquals(factory.getClientFailureCheckPeriod(), 2);
       Assert.assertEquals(factory.getClientID(), "myid");
@@ -240,39 +240,39 @@ public class ResourceAdapterTest extends ServiceTestBase
       Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), 16);
       Assert.assertEquals(factory.getThreadPoolMaxSize(), 17);
       Assert.assertEquals(factory.getTransactionBatchSize(), 18);
-      Assert.assertEquals(factory.isAutoGroup(), !HornetQClient.DEFAULT_AUTO_GROUP);
-      Assert.assertEquals(factory.isBlockOnAcknowledge(), !HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isBlockOnNonDurableSend(), !HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
-      Assert.assertEquals(factory.isBlockOnDurableSend(), !HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      Assert.assertEquals(factory.isPreAcknowledge(), !HornetQClient.DEFAULT_PRE_ACKNOWLEDGE);
-      Assert.assertEquals(factory.isUseGlobalPools(), !HornetQClient.DEFAULT_USE_GLOBAL_POOLS);
+      Assert.assertEquals(factory.isAutoGroup(), !ActiveMQClient.DEFAULT_AUTO_GROUP);
+      Assert.assertEquals(factory.isBlockOnAcknowledge(), !ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isBlockOnNonDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
+      Assert.assertEquals(factory.isBlockOnDurableSend(), !ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
+      Assert.assertEquals(factory.isPreAcknowledge(), !ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
+      Assert.assertEquals(factory.isUseGlobalPools(), !ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
    }
 
    @Test
    public void testCreateConnectionFactoryOverrideConnector() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
       ArrayList<String> value = new ArrayList<String>();
       value.add(NettyConnectorFactory.class.getName());
       connectionFactoryProperties.setParsedConnectorClassNames(value);
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(connectionFactoryProperties);
-      HornetQConnectionFactory defaultFactory = ra.getDefaultHornetQConnectionFactory();
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(connectionFactoryProperties);
+      ActiveMQConnectionFactory defaultFactory = ra.getDefaultActiveMQConnectionFactory();
       Assert.assertNotSame(factory, defaultFactory);
    }
 
    @Test
    public void testCreateConnectionFactoryOverrideDiscovery() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
       connectionFactoryProperties.setDiscoveryAddress("myhost");
       connectionFactoryProperties.setDiscoveryPort(5678);
       connectionFactoryProperties.setDiscoveryLocalBindAddress("newAddress");
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(connectionFactoryProperties);
-      HornetQConnectionFactory defaultFactory = ra.getDefaultHornetQConnectionFactory();
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(connectionFactoryProperties);
+      ActiveMQConnectionFactory defaultFactory = ra.getDefaultActiveMQConnectionFactory();
       Assert.assertNotSame(factory, defaultFactory);
       DiscoveryGroupConfiguration dc = factory.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastGroupConfiguration udpDg = (UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration();
@@ -284,9 +284,9 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testCreateConnectionFactoryMultipleConnectors()
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(new ConnectionFactoryProperties());
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(new ConnectionFactoryProperties());
       TransportConfiguration[] configurations = factory.getServerLocator().getStaticTransportConfigurations();
       assertNotNull(configurations);
       assertEquals(3, configurations.length);
@@ -301,10 +301,10 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testCreateConnectionFactoryMultipleConnectorsAndParams()
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ra.setConnectionParameters("host=host1;port=5445, serverid=0, host=host2;port=5446");
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(new ConnectionFactoryProperties());
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(new ConnectionFactoryProperties());
       TransportConfiguration[] configurations = factory.getServerLocator().getStaticTransportConfigurations();
       assertNotNull(configurations);
       assertEquals(3, configurations.length);
@@ -324,7 +324,7 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testCreateConnectionFactoryMultipleConnectorsOverride()
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
       ArrayList<String> value = new ArrayList<String>();
@@ -332,7 +332,7 @@ public class ResourceAdapterTest extends ServiceTestBase
       value.add(NETTY_CONNECTOR_FACTORY);
       value.add(INVM_CONNECTOR_FACTORY);
       overrideProperties.setParsedConnectorClassNames(value);
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(overrideProperties);
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(overrideProperties);
       TransportConfiguration[] configurations = factory.getServerLocator().getStaticTransportConfigurations();
       assertNotNull(configurations);
       assertEquals(3, configurations.length);
@@ -347,7 +347,7 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testCreateConnectionFactoryMultipleConnectorsOverrideAndParams()
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ra.setConnectionParameters("host=host1;port=5445, serverid=0, host=host2;port=5446");
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
@@ -368,7 +368,7 @@ public class ResourceAdapterTest extends ServiceTestBase
       map3.put("serverid", "1");
       connectionParameters.add(map3);
       overrideProperties.setParsedConnectionParameters(connectionParameters);
-      HornetQConnectionFactory factory = ra.createHornetQConnectionFactory(overrideProperties);
+      ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(overrideProperties);
       TransportConfiguration[] configurations = factory.getServerLocator().getStaticTransportConfigurations();
       assertNotNull(configurations);
       assertEquals(3, configurations.length);
@@ -387,11 +387,11 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testCreateConnectionFactoryThrowsException() throws Exception
    {
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
       try
       {
-         ra.createHornetQConnectionFactory(connectionFactoryProperties);
+         ra.createActiveMQConnectionFactory(connectionFactoryProperties);
          Assert.fail("should throw exception");
       }
       catch (IllegalArgumentException e)
@@ -403,22 +403,22 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testValidateProperties() throws Exception
    {
-      validateGettersAndSetters(new HornetQResourceAdapter(),
+      validateGettersAndSetters(new ActiveMQResourceAdapter(),
                                 "backupTransportConfiguration",
                                 "connectionParameters",
                                 "jndiParams");
-      validateGettersAndSetters(new HornetQRAManagedConnectionFactory(),
+      validateGettersAndSetters(new ActiveMQRAManagedConnectionFactory(),
                                 "connectionParameters",
                                 "sessionDefaultType",
                                 "backupConnectionParameters",
                                 "jndiParams");
-      validateGettersAndSetters(new HornetQActivationSpec(),
+      validateGettersAndSetters(new ActiveMQActivationSpec(),
                                 "connectionParameters",
                                 "acknowledgeMode",
                                 "subscriptionDurability",
                                 "jndiParams");
 
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
       spec.setAcknowledgeMode("DUPS_OK_ACKNOWLEDGE");
       Assert.assertEquals("Dups-ok-acknowledge", spec.getAcknowledgeMode());
@@ -429,8 +429,8 @@ public class ResourceAdapterTest extends ServiceTestBase
       spec.setSubscriptionDurability("NonDurable");
       Assert.assertEquals("NonDurable", spec.getSubscriptionDurability());
 
-      spec = new HornetQActivationSpec();
-      HornetQResourceAdapter adapter = new HornetQResourceAdapter();
+      spec = new ActiveMQActivationSpec();
+      ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();
 
       adapter.setUserName("us1");
       adapter.setPassword("ps1");
@@ -454,7 +454,7 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testStartActivation() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       try
       {
@@ -463,11 +463,11 @@ public class ResourceAdapterTest extends ServiceTestBase
          ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory factory = createSessionFactory(locator);
          ClientSession session = factory.createSession(false, false, false);
-         HornetQDestination queue = (HornetQDestination) HornetQJMSClient.createQueue("test");
+         ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
          session.createQueue(queue.getSimpleAddress(), queue.getSimpleAddress(), true);
          session.close();
 
-         HornetQResourceAdapter ra = new HornetQResourceAdapter();
+         ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
 
          ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
          ra.setUserName("userGlobal");
@@ -476,11 +476,11 @@ public class ResourceAdapterTest extends ServiceTestBase
          ra.setTransactionManagerLocatorMethod("");
          ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
-         Connection conn = ra.getDefaultHornetQConnectionFactory().createConnection();
+         Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
 
          conn.close();
 
-         HornetQActivationSpec spec = new HornetQActivationSpec();
+         ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
          spec.setResourceAdapter(ra);
 
@@ -495,7 +495,7 @@ public class ResourceAdapterTest extends ServiceTestBase
          spec.setMinSession(1);
          spec.setMaxSession(1);
 
-         HornetQActivation activation = new HornetQActivation(ra, new MessageEndpointFactory(), spec);
+         ActiveMQActivation activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
          activation.start();
          activation.stop();
@@ -514,16 +514,16 @@ public class ResourceAdapterTest extends ServiceTestBase
    @Test
    public void testForConnectionLeakDuringActivationWhenSessionCreationFails() throws Exception
    {
-      HornetQServer server = createServer(false);
-      HornetQResourceAdapter ra = null;
-      HornetQActivation activation = null;
+      ActiveMQServer server = createServer(false);
+      ActiveMQResourceAdapter ra = null;
+      ActiveMQActivation activation = null;
 
       try
       {
          server.getConfiguration().setSecurityEnabled(true);
          server.start();
 
-         ra = new HornetQResourceAdapter();
+         ra = new ActiveMQResourceAdapter();
 
          ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
          ra.setUserName("badUser");
@@ -532,7 +532,7 @@ public class ResourceAdapterTest extends ServiceTestBase
          ra.setTransactionManagerLocatorMethod("");
          ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
-         HornetQActivationSpec spec = new HornetQActivationSpec();
+         ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
          spec.setResourceAdapter(ra);
 
@@ -548,7 +548,7 @@ public class ResourceAdapterTest extends ServiceTestBase
          spec.setMaxSession(1);
          spec.setSetupAttempts(1);
 
-         activation = new HornetQActivation(ra, new MessageEndpointFactory(), spec);
+         activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
          try
          {

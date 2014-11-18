@@ -23,10 +23,10 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ConnectorService;
 import org.apache.activemq.core.server.ConnectorServiceFactory;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConfigurationHelper;
 
@@ -39,7 +39,7 @@ import org.apache.activemq.utils.ConfigurationHelper;
  *
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> Created Jun 29, 2010
  */
-public final class ConnectorsService implements HornetQComponent
+public final class ConnectorsService implements ActiveMQComponent
 {
    private final StorageManager storageManager;
 
@@ -93,7 +93,7 @@ public final class ConnectorsService implements HornetQComponent
          }
          catch (Throwable e)
          {
-            HornetQServerLogger.LOGGER.errorStartingConnectorService(e, connector.getName());
+            ActiveMQServerLogger.LOGGER.errorStartingConnectorService(e, connector.getName());
          }
       }
       isStarted = true;
@@ -106,7 +106,7 @@ public final class ConnectorsService implements HornetQComponent
          Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), info.getParams().keySet());
          if (!invalid.isEmpty())
          {
-            HornetQServerLogger.LOGGER.connectorKeysInvalid(ConfigurationHelper.stringSetToCommaListString(invalid));
+            ActiveMQServerLogger.LOGGER.connectorKeysInvalid(ConfigurationHelper.stringSetToCommaListString(invalid));
             return;
          }
       }
@@ -114,7 +114,7 @@ public final class ConnectorsService implements HornetQComponent
       Set<String> invalid = ConfigurationHelper.checkKeysExist(factory.getRequiredProperties(), info.getParams().keySet());
       if (!invalid.isEmpty())
       {
-         HornetQServerLogger.LOGGER.connectorKeysMissing(ConfigurationHelper.stringSetToCommaListString(invalid));
+         ActiveMQServerLogger.LOGGER.connectorKeysMissing(ConfigurationHelper.stringSetToCommaListString(invalid));
          return;
       }
       ConnectorService connectorService = factory.createConnectorService(info.getConnectorName(), info.getParams(), storageManager, postOffice, scheduledPool);
@@ -135,7 +135,7 @@ public final class ConnectorsService implements HornetQComponent
          }
          catch (Throwable e)
          {
-            HornetQServerLogger.LOGGER.errorStoppingConnectorService(e, connector.getName());
+            ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(e, connector.getName());
          }
       }
       connectors.clear();

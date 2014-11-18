@@ -24,8 +24,8 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;
-import org.proton.plug.exceptions.HornetQAMQPException;
-import org.proton.plug.exceptions.HornetQAMQPInternalErrorException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
 
 /**
  * ProtonSession is a direct representation of the session on the broker.
@@ -71,7 +71,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
             }
             catch (Exception e)
             {
-               throw new HornetQAMQPInternalErrorException(e.getMessage(), e);
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
       }
@@ -93,7 +93,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
          {
             protonConsumer.close();
          }
-         catch (HornetQAMQPException e)
+         catch (ActiveMQAMQPException e)
          {
             protonConsumer.getSender().setTarget(null);
             protonConsumer.getSender().setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
@@ -176,7 +176,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
    }
 
    @Override
-   public void removeSender(Sender sender) throws HornetQAMQPException
+   public void removeSender(Sender sender) throws ActiveMQAMQPException
    {
       senders.remove(sender);
    }

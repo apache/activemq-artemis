@@ -78,7 +78,7 @@ public class IncomingVertxEventHandler implements ConnectorService
       this.quorumSize = ConfigurationHelper.getIntProperty(VertxConstants.VERTX_QUORUM_SIZE,
                -1, configuration);
       this.haGroup = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_HA_GROUP,
-               "hornetq", configuration);
+               "activemq", configuration);
       this.vertxAddress = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_ADDRESS,
                "org.apache.activemq", configuration);
 
@@ -116,7 +116,7 @@ public class IncomingVertxEventHandler implements ConnectorService
       eventBus.registerHandler(vertxAddress, handler);
 
       isStarted = true;
-      HornetQVertxLogger.LOGGER.debug(connectorName + ": started");
+      ActiveMQVertxLogger.LOGGER.debug(connectorName + ": started");
    }
 
    @Override
@@ -130,7 +130,7 @@ public class IncomingVertxEventHandler implements ConnectorService
       platformManager.stop();
       System.clearProperty("vertx.clusterManagerFactory");
       isStarted = false;
-      HornetQVertxLogger.LOGGER.debug(connectorName + ": stopped");
+      ActiveMQVertxLogger.LOGGER.debug(connectorName + ": stopped");
    }
 
    @Override
@@ -175,7 +175,7 @@ public class IncomingVertxEventHandler implements ConnectorService
          }
          catch (Exception e)
          {
-            HornetQVertxLogger.LOGGER.error("failed to route msg " + msg, e);
+            ActiveMQVertxLogger.LOGGER.error("failed to route msg " + msg, e);
          }
       }
 

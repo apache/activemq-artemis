@@ -14,12 +14,12 @@ package org.apache.activemq.tests.integration.cluster;
 
 import org.apache.activemq.api.core.ActiveMQClusterSecurityException;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.core.server.cluster.ClusterControl;
 import org.apache.activemq.core.server.cluster.ClusterController;
-import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.After;
 import org.junit.Before;
@@ -66,9 +66,9 @@ public class ClusterControllerTest extends ClusterTestBase
    @Test
    public void controlWithDifferentConnector() throws Exception
    {
-      try (ServerLocatorImpl locator = (ServerLocatorImpl) HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY)))
+      try (ServerLocatorImpl locator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY)))
       {
-         locator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+         locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          ClusterController controller = new ClusterController(getServer(0), getServer(0).getScheduledPool());
          ClusterControl clusterControl = controller.connectToNodeInCluster((ClientSessionFactoryInternal) locator.createSessionFactory());
          clusterControl.authorize();
@@ -78,19 +78,19 @@ public class ClusterControllerTest extends ClusterTestBase
    @Test
    public void controlWithDifferentPassword() throws Exception
    {
-      try (ServerLocatorImpl locator = (ServerLocatorImpl) HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY)))
+      try (ServerLocatorImpl locator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY)))
       {
-         locator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+         locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          ClusterController controller = new ClusterController(getServer(1), getServer(1).getScheduledPool());
          ClusterControl clusterControl = controller.connectToNodeInCluster((ClientSessionFactoryInternal) locator.createSessionFactory());
          try
          {
             clusterControl.authorize();
-            fail("should throw HornetQClusterSecurityException");
+            fail("should throw ActiveMQClusterSecurityException");
          }
          catch (Exception e)
          {
-            assertTrue("should throw HornetQClusterSecurityException", e instanceof ActiveMQClusterSecurityException);
+            assertTrue("should throw ActiveMQClusterSecurityException", e instanceof ActiveMQClusterSecurityException);
          }
       }
    }

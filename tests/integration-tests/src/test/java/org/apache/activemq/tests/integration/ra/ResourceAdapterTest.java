@@ -29,16 +29,16 @@ import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.jms.server.recovery.RecoveryDiscovery;
 import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
-import org.apache.activemq.ra.HornetQResourceAdapter;
-import org.apache.activemq.ra.inflow.HornetQActivation;
-import org.apache.activemq.ra.inflow.HornetQActivationSpec;
+import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.ra.inflow.ActiveMQActivation;
+import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.tests.unit.ra.MessageEndpointFactory;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
@@ -48,7 +48,7 @@ import org.junit.Test;
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  *         Created Jul 7, 2010
  */
-public class ResourceAdapterTest extends HornetQRATestBase
+public class ResourceAdapterTest extends ActiveMQRATestBase
 {
    @Test
    public void testStartStopActivationManyTimes() throws Exception
@@ -56,11 +56,11 @@ public class ResourceAdapterTest extends HornetQRATestBase
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
-      HornetQDestination queue = (HornetQDestination) HornetQJMSClient.createQueue("test");
+      ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue("test");
       session.createQueue(queue.getSimpleAddress(), queue.getSimpleAddress(), true);
       session.close();
 
-      HornetQResourceAdapter ra = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
 
       ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
       ra.setUserName("userGlobal");
@@ -69,11 +69,11 @@ public class ResourceAdapterTest extends HornetQRATestBase
       ra.setTransactionManagerLocatorMethod("");
       ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
-      Connection conn = ra.getDefaultHornetQConnectionFactory().createConnection();
+      Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
 
       conn.close();
 
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
       spec.setResourceAdapter(ra);
 
@@ -88,9 +88,9 @@ public class ResourceAdapterTest extends HornetQRATestBase
       spec.setMinSession(1);
       spec.setMaxSession(15);
 
-      HornetQActivation activation = new HornetQActivation(ra, new MessageEndpointFactory(), spec);
+      ActiveMQActivation activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
-      ServerLocatorImpl serverLocator = (ServerLocatorImpl) ra.getDefaultHornetQConnectionFactory().getServerLocator();
+      ServerLocatorImpl serverLocator = (ServerLocatorImpl) ra.getDefaultActiveMQConnectionFactory().getServerLocator();
 
       Field f = Class.forName(ServerLocatorImpl.class.getName()).getDeclaredField("factories");
 
@@ -123,13 +123,13 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testStartStop() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -160,7 +160,7 @@ public class ResourceAdapterTest extends HornetQRATestBase
       String loadbalancer = "loadbalancer";
       String testpass = "testpass";
       String testuser = "testuser";
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       testParams(b,
                  l,
                  i,
@@ -194,7 +194,7 @@ public class ResourceAdapterTest extends HornetQRATestBase
       String loadbalancer = "loadbalancer2";
       String testpass = "testpass2";
       String testuser = "testuser2";
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       testParams(b,
                  l,
                  i,
@@ -224,7 +224,7 @@ public class ResourceAdapterTest extends HornetQRATestBase
                            String testaddress,
                            String testpass,
                            String testuser,
-                           HornetQResourceAdapter qResourceAdapter)
+                           ActiveMQResourceAdapter qResourceAdapter)
    {
       qResourceAdapter.setUseLocalTx(b);
       qResourceAdapter.setConnectorClassName(className);
@@ -300,9 +300,9 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetup() throws Exception
    {
-      HornetQResourceAdapter adapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();
       adapter.setDiscoveryAddress("231.1.1.1");
-      HornetQConnectionFactory factory = adapter.getDefaultHornetQConnectionFactory();
+      ActiveMQConnectionFactory factory = adapter.getDefaultActiveMQConnectionFactory();
       long initWait = factory.getDiscoveryGroupConfiguration().getDiscoveryInitialWaitTimeout();
       long refresh = factory.getDiscoveryGroupConfiguration().getRefreshTimeout();
       int port = ((UDPBroadcastGroupConfiguration) factory.getDiscoveryGroupConfiguration().getBroadcastEndpointFactoryConfiguration()).getGroupPort();
@@ -312,11 +312,11 @@ public class ResourceAdapterTest extends HornetQRATestBase
       assertEquals(10000L, initWait);
       assertEquals(9876, port);
 
-      adapter = new HornetQResourceAdapter();
+      adapter = new ActiveMQResourceAdapter();
       adapter.setDiscoveryAddress("231.1.1.1");
       adapter.setDiscoveryPort(9876);
       adapter.setDiscoveryRefreshTimeout(1234L);
-      factory = adapter.getDefaultHornetQConnectionFactory();
+      factory = adapter.getDefaultActiveMQConnectionFactory();
       initWait = factory.getDiscoveryGroupConfiguration().getDiscoveryInitialWaitTimeout();
       refresh = factory.getDiscoveryGroupConfiguration().getRefreshTimeout();
 
@@ -324,11 +324,11 @@ public class ResourceAdapterTest extends HornetQRATestBase
       assertEquals(1234L, refresh);
       assertEquals(10000L, initWait);
 
-      adapter = new HornetQResourceAdapter();
+      adapter = new ActiveMQResourceAdapter();
       adapter.setDiscoveryAddress("231.1.1.1");
       adapter.setDiscoveryPort(9876);
       adapter.setDiscoveryInitialWaitTimeout(9999L);
-      factory = adapter.getDefaultHornetQConnectionFactory();
+      factory = adapter.getDefaultActiveMQConnectionFactory();
       initWait = factory.getDiscoveryGroupConfiguration().getDiscoveryInitialWaitTimeout();
       refresh = factory.getDiscoveryGroupConfiguration().getRefreshTimeout();
 
@@ -336,11 +336,11 @@ public class ResourceAdapterTest extends HornetQRATestBase
       assertEquals(10000L, refresh);
       assertEquals(9999L, initWait);
 
-      adapter = new HornetQResourceAdapter();
+      adapter = new ActiveMQResourceAdapter();
       adapter.setDiscoveryAddress("231.1.1.1");
       adapter.setDiscoveryPort(9876);
       adapter.setDiscoveryInitialWaitTimeout(9999L);
-      factory = adapter.getDefaultHornetQConnectionFactory();
+      factory = adapter.getDefaultActiveMQConnectionFactory();
       initWait = factory.getDiscoveryGroupConfiguration().getDiscoveryInitialWaitTimeout();
       refresh = factory.getDiscoveryGroupConfiguration().getRefreshTimeout();
 
@@ -354,14 +354,14 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupOverrideCFParams() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -381,14 +381,14 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testRecoveryRegistrationOnFailure() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -410,14 +410,14 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupOverrideNoCFParams() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -435,21 +435,21 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupNoOverrideDiscovery() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setDiscoveryAddress("231.6.6.6");
       qResourceAdapter.setDiscoveryPort(1234);
       qResourceAdapter.setDiscoveryRefreshTimeout(1L);
       qResourceAdapter.setDiscoveryInitialWaitTimeout(1L);
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastGroupConfiguration udpDg = (UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration();
       assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
@@ -462,16 +462,16 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupOverrideDiscovery() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setDiscoveryAddress("231.7.7.7");
 
       // qResourceAdapter.getTransactionManagerLocatorClass
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
 
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -481,7 +481,7 @@ public class ResourceAdapterTest extends HornetQRATestBase
       spec.setDiscoveryPort(1234);
       spec.setDiscoveryInitialWaitTimeout(1L);
       spec.setDiscoveryRefreshTimeout(1L);
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastGroupConfiguration udpDg = (UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration();
       assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
@@ -494,21 +494,21 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupNoHAOverride() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
       qResourceAdapter.setHA(true);
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
 
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
 
       assertTrue(fac.isHA());
 
@@ -519,20 +519,20 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupNoHADefault() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
 
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
 
       assertFalse(fac.isHA());
 
@@ -543,20 +543,20 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupHAOverride() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
       spec.setHA(true);
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
 
       assertTrue(fac.isHA());
 
@@ -567,21 +567,21 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupNoReconnectAttemptsOverride() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
       qResourceAdapter.setReconnectAttempts(100);
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
 
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
 
       assertEquals(100, fac.getReconnectAttempts());
 
@@ -592,20 +592,20 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupReconnectAttemptDefault() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
 
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
 
       assertEquals(-1, fac.getReconnectAttempts());
 
@@ -616,20 +616,20 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testResourceAdapterSetupReconnectAttemptsOverride() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
       spec.setReconnectAttempts(100);
-      HornetQConnectionFactory fac = qResourceAdapter.createHornetQConnectionFactory(spec);
+      ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
 
       assertEquals(100, fac.getReconnectAttempts());
 
@@ -640,9 +640,9 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testMaskPassword() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
       String mask = (String) codec.encode("helloworld");
@@ -655,7 +655,7 @@ public class ResourceAdapterTest extends HornetQRATestBase
 
       assertEquals("helloworld", qResourceAdapter.getPassword());
 
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
@@ -678,9 +678,9 @@ public class ResourceAdapterTest extends HornetQRATestBase
    @Test
    public void testMaskPassword2() throws Exception
    {
-      HornetQResourceAdapter qResourceAdapter = new HornetQResourceAdapter();
+      ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
-      HornetQRATestBase.MyBootstrapContext ctx = new HornetQRATestBase.MyBootstrapContext();
+      ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setUseMaskedPassword(true);
       qResourceAdapter.setPasswordCodec(DefaultSensitiveStringCodec.class.getName() + ";key=anotherkey");
@@ -700,7 +700,7 @@ public class ResourceAdapterTest extends HornetQRATestBase
 
       assertEquals("helloworld", qResourceAdapter.getPassword());
 
-      HornetQActivationSpec spec = new HornetQActivationSpec();
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");

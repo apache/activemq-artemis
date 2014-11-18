@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import org.apache.activemq.tools.XmlDataExporter;
 import org.apache.activemq.tools.XmlDataImporter;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 import java.io.BufferedOutputStream;
@@ -40,7 +40,7 @@ public class XmlImportExportStressTest extends ServiceTestBase
       final String FILE_NAME = getTestDir() + "/export.out";
 
       final String QUEUE_NAME = "A1";
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = locator.createSessionFactory();

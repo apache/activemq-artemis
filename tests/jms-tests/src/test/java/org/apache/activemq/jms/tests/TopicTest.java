@@ -51,8 +51,8 @@ public class TopicTest extends JMSTestCase
       Connection conn = createConnection();
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer p = s.createProducer(HornetQServerTestCase.topic1);
-      MessageConsumer c = s.createConsumer(HornetQServerTestCase.topic1);
+      MessageProducer p = s.createProducer(ActiveMQServerTestCase.topic1);
+      MessageConsumer c = s.createConsumer(ActiveMQServerTestCase.topic1);
       conn.start();
 
       p.send(s.createTextMessage("payload"));
@@ -67,8 +67,8 @@ public class TopicTest extends JMSTestCase
       Connection conn = createConnection();
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer p = s.createProducer(HornetQServerTestCase.topic1);
-      MessageConsumer c = s.createConsumer(HornetQServerTestCase.topic1);
+      MessageProducer p = s.createProducer(ActiveMQServerTestCase.topic1);
+      MessageConsumer c = s.createConsumer(ActiveMQServerTestCase.topic1);
       conn.start();
 
       p.send(s.createTextMessage("payload"));
@@ -94,16 +94,16 @@ public class TopicTest extends JMSTestCase
 
       Session sSend = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      MessageProducer prod = sSend.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer prod = sSend.createProducer(ActiveMQServerTestCase.topic1);
       prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
       Session s1 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Session s2 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Session s3 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      MessageConsumer c1 = s1.createConsumer(HornetQServerTestCase.topic1);
-      MessageConsumer c2 = s2.createConsumer(HornetQServerTestCase.topic1);
-      MessageConsumer c3 = s3.createConsumer(HornetQServerTestCase.topic1);
+      MessageConsumer c1 = s1.createConsumer(ActiveMQServerTestCase.topic1);
+      MessageConsumer c2 = s2.createConsumer(ActiveMQServerTestCase.topic1);
+      MessageConsumer c3 = s3.createConsumer(ActiveMQServerTestCase.topic1);
 
       final int numMessages = 500;
 

@@ -21,7 +21,7 @@ import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.ChannelHandler;
 import org.apache.activemq.core.remoting.server.RemotingService;
 import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.cluster.ha.HAManager;
@@ -96,7 +96,7 @@ public abstract class Activation implements Runnable
    /*
    * create the Journal loader needed for this Activation.
    * */
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, HornetQServer parentServer) throws ActiveMQException
+   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, ActiveMQServer parentServer) throws ActiveMQException
    {
       return new PostOfficeJournalLoader(postOffice,
             pagingManager,

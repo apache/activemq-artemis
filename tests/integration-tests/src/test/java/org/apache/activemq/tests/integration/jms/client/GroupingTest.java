@@ -23,9 +23,9 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQMessage;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.After;
@@ -63,7 +63,7 @@ public class GroupingTest extends JMSTestBase
 
    protected void setProperty(Message message)
    {
-      ((HornetQMessage)message).getCoreMessage().putStringProperty(org.apache.activemq.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
+      ((ActiveMQMessage)message).getCoreMessage().putStringProperty(org.apache.activemq.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
    }
 
    protected ConnectionFactory getCF() throws Exception
@@ -135,7 +135,7 @@ public class GroupingTest extends JMSTestBase
    public void testManyGroups() throws Exception
    {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((HornetQConnectionFactory)fact).isAutoGroup());
+      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory)fact).isAutoGroup());
 
       Connection connection = fact.createConnection();
 
@@ -187,7 +187,7 @@ public class GroupingTest extends JMSTestBase
    @Test
    public void testGroupingRollbackOnClose() throws Exception
    {
-      HornetQConnectionFactory fact = (HornetQConnectionFactory) getCF();
+      ActiveMQConnectionFactory fact = (ActiveMQConnectionFactory) getCF();
       fact.setConsumerWindowSize(1000);
       fact.setTransactionBatchSize(0);
       Connection connection = fact.createConnection();
@@ -246,8 +246,8 @@ public class GroupingTest extends JMSTestBase
       //session.rollback();
       //session.close();
       //consume all msgs from 2nd first consumer
-     // ClientSession hqs = ((HornetQSession) session).getCoreSession();
-    //  ((DelegatingSession) hqs).getChannel().close();
+     // ClientSession amqs = ((ActiveMQSession) session).getCoreSession();
+    //  ((DelegatingSession) amqs).getChannel().close();
       rc.fail(new ActiveMQNotConnectedException());
       for (int j = 0; j < 10; j++)
       {
@@ -255,7 +255,7 @@ public class GroupingTest extends JMSTestBase
 
          assertNotNull(tm);
 
-         long text = ((HornetQTextMessage) tm).getCoreMessage().getMessageID();
+         long text = ((ActiveMQTextMessage) tm).getCoreMessage().getMessageID();
          System.out.println(tm.getJMSMessageID() + " text = " + text);
          //assertEquals("Message" + j, text);
 

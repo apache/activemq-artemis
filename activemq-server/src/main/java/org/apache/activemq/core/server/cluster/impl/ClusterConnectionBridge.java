@@ -35,12 +35,12 @@ import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ClusterManager;
-import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.core.server.cluster.Transformer;
 import org.apache.activemq.utils.UUID;
@@ -139,9 +139,9 @@ public class ClusterConnectionBridge extends BridgeImpl
       // we need to disable DLQ check on the clustered bridges
       queue.setInternalQueue(true);
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator,
+         ActiveMQServerLogger.LOGGER.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator,
                                           new Exception("trace"));
       }
    }
@@ -149,13 +149,13 @@ public class ClusterConnectionBridge extends BridgeImpl
    @Override
    protected ClientSessionFactoryInternal createSessionFactory() throws Exception
    {
-      serverLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
       ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) serverLocator.createSessionFactory(targetNodeID);
       setSessionFactory(factory);
 
       if (factory == null)
       {
-         HornetQServerLogger.LOGGER.nodeNotAvailable(targetNodeID);
+         ActiveMQServerLogger.LOGGER.nodeNotAvailable(targetNodeID);
          return null;
       }
       factory.setReconnectAttempts(0);
@@ -173,9 +173,9 @@ public class ClusterConnectionBridge extends BridgeImpl
       // Note we must copy since same message may get routed to other nodes which require different headers
       ServerMessage messageCopy = message.copy();
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("Clustered bridge  copied message " + message + " as " + messageCopy + " before delivery");
+         ActiveMQServerLogger.LOGGER.trace("Clustered bridge  copied message " + message + " as " + messageCopy + " before delivery");
       }
 
       // TODO - we can optimise this
@@ -187,7 +187,7 @@ public class ClusterConnectionBridge extends BridgeImpl
       if (queueIds == null)
       {
          // Sanity check only
-         HornetQServerLogger.LOGGER.noQueueIdDefined(message, messageCopy, idsHeaderName);
+         ActiveMQServerLogger.LOGGER.noQueueIdDefined(message, messageCopy, idsHeaderName);
          throw new IllegalStateException("no queueIDs defined");
       }
 
@@ -208,9 +208,9 @@ public class ClusterConnectionBridge extends BridgeImpl
 
    private void setupNotificationConsumer() throws Exception
    {
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
+         ActiveMQServerLogger.LOGGER.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
                                              " and " +
                                              flowRecord.getBridge().getForwardingConnection() +
                                              " clusterConnection = " +
@@ -226,7 +226,7 @@ public class ClusterConnectionBridge extends BridgeImpl
          {
             try
             {
-               HornetQServerLogger.LOGGER.debug("Closing notification Consumer for reopening " + notifConsumer +
+               ActiveMQServerLogger.LOGGER.debug("Closing notification Consumer for reopening " + notifConsumer +
                                                    " on bridge " +
                                                    this.getName());
                notifConsumer.close();
@@ -235,7 +235,7 @@ public class ClusterConnectionBridge extends BridgeImpl
             }
             catch (ActiveMQException e)
             {
-               HornetQServerLogger.LOGGER.errorClosingConsumer(e);
+               ActiveMQServerLogger.LOGGER.errorClosingConsumer(e);
             }
          }
 
@@ -282,9 +282,9 @@ public class ClusterConnectionBridge extends BridgeImpl
          session.start();
 
          ClientMessage message = session.createMessage(false);
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
+            ActiveMQServerLogger.LOGGER.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
          }
          ManagementHelper.putOperationInvocation(message,
                                                  ResourceNames.CORE_SERVER,
@@ -294,9 +294,9 @@ public class ClusterConnectionBridge extends BridgeImpl
 
          ClientProducer prod = session.createProducer(managementAddress);
 
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug("Cluster connetion bridge on " + clusterConnection + " requesting information on queues");
+            ActiveMQServerLogger.LOGGER.debug("Cluster connetion bridge on " + clusterConnection + " requesting information on queues");
          }
 
          prod.send(message);
@@ -392,12 +392,12 @@ public class ClusterConnectionBridge extends BridgeImpl
    @Override
    protected void fail(final boolean permanently)
    {
-      HornetQServerLogger.LOGGER.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
+      ActiveMQServerLogger.LOGGER.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
       super.fail(permanently);
 
       if (permanently)
       {
-         HornetQServerLogger.LOGGER.debug("cluster node for bridge " + this.getName() + " is permanently down");
+         ActiveMQServerLogger.LOGGER.debug("cluster node for bridge " + this.getName() + " is permanently down");
          clusterConnection.removeRecord(targetNodeID);
       }
       else

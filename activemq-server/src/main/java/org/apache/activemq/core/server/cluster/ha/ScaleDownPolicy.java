@@ -15,12 +15,12 @@ package org.apache.activemq.core.server.cluster.ha;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -110,48 +110,48 @@ public class ScaleDownPolicy
       this.enabled = enabled;
    }
 
-   public static ServerLocatorInternal getScaleDownConnector(ScaleDownPolicy scaleDownPolicy, HornetQServer hornetQServer) throws ActiveMQException
+   public static ServerLocatorInternal getScaleDownConnector(ScaleDownPolicy scaleDownPolicy, ActiveMQServer activeMQServer) throws ActiveMQException
    {
       if (!scaleDownPolicy.getConnectors().isEmpty())
       {
-         return (ServerLocatorInternal) HornetQClient.createServerLocatorWithHA(connectorNameListToArray(scaleDownPolicy.getConnectors(), hornetQServer));
+         return (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(connectorNameListToArray(scaleDownPolicy.getConnectors(), activeMQServer));
       }
       else if (scaleDownPolicy.getDiscoveryGroup() != null)
       {
-         DiscoveryGroupConfiguration dg = hornetQServer.getConfiguration().getDiscoveryGroupConfigurations().get(scaleDownPolicy.getDiscoveryGroup());
+         DiscoveryGroupConfiguration dg = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(scaleDownPolicy.getDiscoveryGroup());
 
          if (dg == null)
          {
-            throw HornetQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
+            throw ActiveMQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
          }
-         return  (ServerLocatorInternal) HornetQClient.createServerLocatorWithHA(dg);
+         return  (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(dg);
       }
       else
       {
-         Map<String, TransportConfiguration> connectorConfigurations = hornetQServer.getConfiguration().getConnectorConfigurations();
+         Map<String, TransportConfiguration> connectorConfigurations = activeMQServer.getConfiguration().getConnectorConfigurations();
          for (TransportConfiguration transportConfiguration : connectorConfigurations.values())
          {
             if (transportConfiguration.getFactoryClassName().equals(InVMConnectorFactory.class.getName()))
             {
-               return (ServerLocatorInternal) HornetQClient.createServerLocatorWithHA(transportConfiguration);
+               return (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(transportConfiguration);
             }
          }
       }
-      throw HornetQMessageBundle.BUNDLE.noConfigurationFoundForScaleDown();
+      throw ActiveMQMessageBundle.BUNDLE.noConfigurationFoundForScaleDown();
    }
 
-   private static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames, HornetQServer hornetQServer)
+   private static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames, ActiveMQServer activeMQServer)
    {
       TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class,
             connectorNames.size());
       int count = 0;
       for (String connectorName : connectorNames)
       {
-         TransportConfiguration connector = hornetQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
+         TransportConfiguration connector = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
 
          if (connector == null)
          {
-            HornetQServerLogger.LOGGER.bridgeNoConnector(connectorName);
+            ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
 
             return null;
          }

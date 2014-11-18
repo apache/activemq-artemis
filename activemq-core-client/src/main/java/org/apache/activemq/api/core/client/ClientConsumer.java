@@ -16,7 +16,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
 
 /**
- * A ClientConsumer receives messages from HornetQ queues.
+ * A ClientConsumer receives messages from ActiveMQ queues.
  * <br>
  * Messages can be consumed synchronously by using the <code>receive()</code> methods
  * which will block until a message is received (or a timeout expires) or asynchronously
@@ -36,7 +36,7 @@ public interface ClientConsumer extends AutoCloseable
 
    /**
     * The server's ID associated with this consumer.
-    * HornetQ implements this as a long but this could be protocol dependent.
+    * ActiveMQ implements this as a long but this could be protocol dependent.
     * @return
     */
    ConsumerContext getConsumerContext();
@@ -65,7 +65,7 @@ public interface ClientConsumer extends AutoCloseable
    ClientMessage receive(long timeout) throws ActiveMQException;
 
    /**
-    * Receives a message from a queue. This call will force a network trip to HornetQ server to
+    * Receives a message from a queue. This call will force a network trip to ActiveMQ server to
     * ensure that there are no messages in the queue which can be delivered to this consumer.
     * <p>
     * This call will never wait indefinitely for a message, it will return {@code null} if no

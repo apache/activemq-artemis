@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -62,7 +62,7 @@ public class NettyAcceptorFactoryTest extends UnitTestCase
          {
          }
 
-         public void connectionCreated(HornetQComponent component, final Connection connection, final String protocol)
+         public void connectionCreated(ActiveMQComponent component, final Connection connection, final String protocol)
          {
          }
 

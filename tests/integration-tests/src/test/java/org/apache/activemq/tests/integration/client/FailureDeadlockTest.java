@@ -23,13 +23,13 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQSession;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -48,13 +48,13 @@ public class FailureDeadlockTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private JMSServerManagerImpl jmsServer;
 
-   private HornetQConnectionFactory cf1;
+   private ActiveMQConnectionFactory cf1;
 
-   private HornetQConnectionFactory cf2;
+   private ActiveMQConnectionFactory cf2;
 
    @Override
    @Before
@@ -71,11 +71,11 @@ public class FailureDeadlockTest extends ServiceTestBase
       jmsServer.start();
 
       cf1 =
-               HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                 new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       cf2 =
-               HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                 new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
    @Override
@@ -106,12 +106,12 @@ public class FailureDeadlockTest extends ServiceTestBase
          final Connection conn1 = cf1.createConnection();
 
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         RemotingConnection rc1 = ((ClientSessionInternal)((HornetQSession)sess1).getCoreSession()).getConnection();
+         RemotingConnection rc1 = ((ClientSessionInternal)((ActiveMQSession)sess1).getCoreSession()).getConnection();
 
          final Connection conn2 = cf2.createConnection();
 
          Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         RemotingConnection rc2 = ((ClientSessionInternal)((HornetQSession)sess2).getCoreSession()).getConnection();
+         RemotingConnection rc2 = ((ClientSessionInternal)((ActiveMQSession)sess2).getCoreSession()).getConnection();
 
          ExceptionListener listener1 = new ExceptionListener()
          {
@@ -177,7 +177,7 @@ public class FailureDeadlockTest extends ServiceTestBase
          final Connection conn1 = cf1.createConnection();
 
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         RemotingConnection rc1 = ((ClientSessionInternal)((HornetQSession)sess1).getCoreSession()).getConnection();
+         RemotingConnection rc1 = ((ClientSessionInternal)((ActiveMQSession)sess1).getCoreSession()).getConnection();
 
          rc1.fail(new ActiveMQNotConnectedException( "blah"));
 

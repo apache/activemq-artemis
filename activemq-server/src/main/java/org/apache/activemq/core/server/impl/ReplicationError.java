@@ -21,8 +21,8 @@ import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
-import org.apache.activemq.core.server.HornetQServerLogger;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.LiveNodeLocator;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
@@ -30,15 +30,15 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
  * Stops the backup in case of an error at the start of Replication.
  * <p>
  * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0
- * handler at {@link org.apache.activemq.core.protocol.core.impl.HornetQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq.core.protocol.core.impl.HornetQClientProtocolManager}
- * is also shipped in the HQ-client JAR (which does not include {@link HornetQServer}).
+ * handler at {@link org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManager}
+ * is also shipped in the activemq-core-client JAR (which does not include {@link org.apache.activemq.core.server.ActiveMQServer}).
  */
 final class ReplicationError implements Interceptor
 {
-   private final HornetQServer server;
+   private final ActiveMQServer server;
    private LiveNodeLocator nodeLocator;
 
-   public ReplicationError(HornetQServer server, LiveNodeLocator nodeLocator)
+   public ReplicationError(ActiveMQServer server, LiveNodeLocator nodeLocator)
    {
       this.server = server;
       this.nodeLocator = nodeLocator;
@@ -70,7 +70,7 @@ final class ReplicationError implements Interceptor
 
    private void failed() throws ActiveMQInternalErrorException
    {
-      HornetQServerLogger.LOGGER.errorRegisteringBackup();
+      ActiveMQServerLogger.LOGGER.errorRegisteringBackup();
       nodeLocator.notifyRegistrationFailed(false);
    }
 

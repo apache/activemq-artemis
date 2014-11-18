@@ -216,7 +216,7 @@ public class ExtraStompTest extends StompV11TestBase
 
       assertEquals("Hello World", frame.getBody());
 
-      //if hornetq sends trailing garbage bytes, the second message
+      //if activemq sends trailing garbage bytes, the second message
       //will not be normal
       frame = connV10.receiveFrame(10000);
 
@@ -321,7 +321,7 @@ public class ExtraStompTest extends StompV11TestBase
 
       assertEquals("Hello World", frame.getBody());
 
-      //if hornetq sends trailing garbage bytes, the second message
+      //if activemq sends trailing garbage bytes, the second message
       //will not be normal
       frame = connV11.receiveFrame(10000);
 

@@ -21,14 +21,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that sends and consume message transactionally.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class TransactionalExample extends HornetQExample
+public class TransactionalExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

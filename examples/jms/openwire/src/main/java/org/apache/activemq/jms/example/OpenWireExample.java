@@ -22,7 +22,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue
@@ -30,7 +30,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * 
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class OpenWireExample extends HornetQExample
+public class OpenWireExample extends ActiveMQExample
 {
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;

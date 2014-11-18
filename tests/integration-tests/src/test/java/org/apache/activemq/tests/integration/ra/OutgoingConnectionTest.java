@@ -39,18 +39,18 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.ra.HornetQRAConnectionFactory;
-import org.apache.activemq.ra.HornetQRAConnectionFactoryImpl;
-import org.apache.activemq.ra.HornetQRAConnectionManager;
-import org.apache.activemq.ra.HornetQRAManagedConnectionFactory;
-import org.apache.activemq.ra.HornetQRASession;
-import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.ActiveMQRAConnectionFactory;
+import org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl;
+import org.apache.activemq.ra.ActiveMQRAConnectionManager;
+import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
+import org.apache.activemq.ra.ActiveMQRASession;
+import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.utils.UUIDGenerator;
-import org.apache.activemq.ra.HornetQXAResourceWrapper;
+import org.apache.activemq.ra.ActiveMQXAResourceWrapper;
 import org.apache.activemq.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -61,11 +61,11 @@ import org.junit.Test;
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  *         Created Jul 7, 2010
  */
-public class OutgoingConnectionTest extends HornetQRATestBase
+public class OutgoingConnectionTest extends ActiveMQRATestBase
 {
-   private HornetQResourceAdapter resourceAdapter;
-   private HornetQRAConnectionFactory qraConnectionFactory;
-   private HornetQRAManagedConnectionFactory mcf;
+   private ActiveMQResourceAdapter resourceAdapter;
+   private ActiveMQRAConnectionFactory qraConnectionFactory;
+   private ActiveMQRAManagedConnectionFactory mcf;
 
    @Override
    public boolean useSecurity()
@@ -73,7 +73,7 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       return true;
    }
 
-   HornetQRAConnectionManager qraConnectionManager = new HornetQRAConnectionManager();
+   ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
 
    @Override
    @Before
@@ -90,7 +90,7 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
 
-      resourceAdapter = new HornetQResourceAdapter();
+      resourceAdapter = new ActiveMQResourceAdapter();
       resourceAdapter.setTransactionManagerLocatorClass(JMSContextTest.class.getName());
       resourceAdapter.setTransactionManagerLocatorMethod("getTm");
       resourceAdapter.setEntries("[\"java://jmsXA\"]");
@@ -98,9 +98,9 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      mcf = new HornetQRAManagedConnectionFactory();
+      mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
    }
 
    @Override
@@ -122,7 +122,7 @@ public class OutgoingConnectionTest extends HornetQRATestBase
    {
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue q = HornetQJMSClient.createQueue(MDBQUEUE);
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
       MessageProducer mp = s.createProducer(q);
       MessageConsumer consumer = s.createConsumer(q);
       Message message = s.createTextMessage("test");
@@ -136,7 +136,7 @@ public class OutgoingConnectionTest extends HornetQRATestBase
    @Test
    public void testSimpleSendNoXAJMSContext() throws Exception
    {
-      Queue q = HornetQJMSClient.createQueue(MDBQUEUE);
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
 
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
@@ -160,7 +160,7 @@ public class OutgoingConnectionTest extends HornetQRATestBase
    @Test
    public void testSimpleSendNoXAJMS1() throws Exception
    {
-      Queue q = HornetQJMSClient.createQueue(MDBQUEUE);
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
            ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
@@ -190,7 +190,7 @@ public class OutgoingConnectionTest extends HornetQRATestBase
 
       XAResource resource = s.getXAResource();
       resource.start(xid, XAResource.TMNOFLAGS);
-      Queue q = HornetQJMSClient.createQueue(MDBQUEUE);
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
       MessageProducer mp = s.createProducer(q);
       MessageConsumer consumer = s.createConsumer(q);
       Message message = s.createTextMessage("test");
@@ -219,9 +219,9 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
 
       Connection conn = null;
       try
@@ -288,12 +288,12 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       DummyTransactionManager.tm.tx = new DummyTransaction();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       Session s = queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-      Queue q = HornetQJMSClient.createQueue(MDBQUEUE);
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
       MessageProducer mp = s.createProducer(q);
       MessageConsumer consumer = s.createConsumer(q);
       Message message = s.createTextMessage("test");
@@ -316,9 +316,9 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try
@@ -337,9 +337,9 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       QueueSession session = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -354,13 +354,13 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       QueueSession session = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ManagedConnection mc = ((HornetQRASession) session).getManagedConnection();
+      ManagedConnection mc = ((ActiveMQRASession) session).getManagedConnection();
       queueConnection.close();
       mc.destroy();
 
@@ -382,9 +382,9 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
       try
       {
          QueueConnection queueConnection = qraConnectionFactory.createQueueConnection("testuser", "testwrongpassword");
@@ -404,9 +404,9 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       QueueSession session = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -419,9 +419,9 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      HornetQRAConnectionFactory qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
 
       JMSContext jmsctx = qraConnectionFactory.createContext(JMSContext.DUPS_OK_ACKNOWLEDGE);
       assertEquals(JMSContext.DUPS_OK_ACKNOWLEDGE, jmsctx.getSessionMode());
@@ -523,11 +523,11 @@ public class OutgoingConnectionTest extends HornetQRATestBase
       XASession s = queueConnection.createXASession();
 
       XAResource resource = s.getXAResource();
-      assertTrue(resource instanceof HornetQXAResourceWrapper);
+      assertTrue(resource instanceof ActiveMQXAResourceWrapper);
 
-      HornetQXAResourceWrapper xaResourceWrapper  = (HornetQXAResourceWrapper) resource;
+      ActiveMQXAResourceWrapper xaResourceWrapper  = (ActiveMQXAResourceWrapper) resource;
       assertTrue(xaResourceWrapper.getJndiName().equals("java://jmsXA NodeId:" + server.getNodeID()));
       assertTrue(xaResourceWrapper.getProductVersion().equals(VersionLoader.getVersion().getFullVersion()));
-      assertTrue(xaResourceWrapper.getProductName().equals(HornetQResourceAdapter.PRODUCT_NAME));
+      assertTrue(xaResourceWrapper.getProductName().equals(ActiveMQResourceAdapter.PRODUCT_NAME));
    }
 }

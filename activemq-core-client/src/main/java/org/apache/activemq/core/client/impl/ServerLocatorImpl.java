@@ -45,21 +45,21 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.cluster.DiscoveryEntry;
 import org.apache.activemq.core.cluster.DiscoveryGroup;
 import org.apache.activemq.core.cluster.DiscoveryListener;
-import org.apache.activemq.core.protocol.core.impl.HornetQClientProtocolManagerFactory;
+import org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManagerFactory;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.spi.core.remoting.Connector;
 import org.apache.activemq.utils.ClassloadingUtil;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.UUIDGenerator;
 
 /**
@@ -84,7 +84,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
 
    // This is the default value
-   private ClientProtocolManagerFactory protocolManagerFactory = HornetQClientProtocolManagerFactory.getInstance();
+   private ClientProtocolManagerFactory protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance();
 
    private final boolean ha;
 
@@ -267,7 +267,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    {
       if (globalThreadPool == null)
       {
-         ThreadFactory factory = new HornetQThreadFactory("HornetQ-client-global-threads", true, getThisClassLoader());
+         ThreadFactory factory = new ActiveMQThreadFactory("ActiveMQ-client-global-threads", true, getThisClassLoader());
 
          globalThreadPool = Executors.newCachedThreadPool(factory);
       }
@@ -279,11 +279,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    {
       if (globalScheduledThreadPool == null)
       {
-         ThreadFactory factory = new HornetQThreadFactory("HornetQ-client-global-scheduled-threads",
+         ThreadFactory factory = new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads",
                                                           true,
                                                           getThisClassLoader());
 
-         globalScheduledThreadPool = Executors.newScheduledThreadPool(HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+         globalScheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
 
                                                                       factory);
       }
@@ -307,7 +307,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       {
          this.shutdownPool = true;
 
-         ThreadFactory factory = new HornetQThreadFactory("HornetQ-client-factory-threads-" + System.identityHashCode(this),
+         ThreadFactory factory = new ActiveMQThreadFactory("ActiveMQ-client-factory-threads-" + System.identityHashCode(this),
                                                           true,
                                                           getThisClassLoader());
 
@@ -320,7 +320,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             threadPool = Executors.newFixedThreadPool(threadPoolMaxSize, factory);
          }
 
-         factory = new HornetQThreadFactory("HornetQ-client-factory-pinger-threads-" + System.identityHashCode(this),
+         factory = new ActiveMQThreadFactory("ActiveMQ-client-factory-pinger-threads-" + System.identityHashCode(this),
                                             true,
                                             getThisClassLoader());
 
@@ -386,7 +386,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          catch (Exception e)
          {
             state = null;
-            throw HornetQClientMessageBundle.BUNDLE.failedToInitialiseSessionFactory(e);
+            throw ActiveMQClientMessageBundle.BUNDLE.failedToInitialiseSessionFactory(e);
          }
       }
    }
@@ -415,65 +415,65 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       this.nodeID = UUIDGenerator.getInstance().generateStringUUID();
 
-      clientFailureCheckPeriod = HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
+      clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
 
-      connectionTTL = HornetQClient.DEFAULT_CONNECTION_TTL;
+      connectionTTL = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
-      callTimeout = HornetQClient.DEFAULT_CALL_TIMEOUT;
+      callTimeout = ActiveMQClient.DEFAULT_CALL_TIMEOUT;
 
-      callFailoverTimeout = HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT;
+      callFailoverTimeout = ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT;
 
-      minLargeMessageSize = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+      minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
-      consumerWindowSize = HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
+      consumerWindowSize = ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
 
-      consumerMaxRate = HornetQClient.DEFAULT_CONSUMER_MAX_RATE;
+      consumerMaxRate = ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE;
 
-      confirmationWindowSize = HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
+      confirmationWindowSize = ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
 
-      producerWindowSize = HornetQClient.DEFAULT_PRODUCER_WINDOW_SIZE;
+      producerWindowSize = ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE;
 
-      producerMaxRate = HornetQClient.DEFAULT_PRODUCER_MAX_RATE;
+      producerMaxRate = ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE;
 
-      blockOnAcknowledge = HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE;
+      blockOnAcknowledge = ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE;
 
-      blockOnDurableSend = HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND;
+      blockOnDurableSend = ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND;
 
-      blockOnNonDurableSend = HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND;
+      blockOnNonDurableSend = ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND;
 
-      autoGroup = HornetQClient.DEFAULT_AUTO_GROUP;
+      autoGroup = ActiveMQClient.DEFAULT_AUTO_GROUP;
 
-      preAcknowledge = HornetQClient.DEFAULT_PRE_ACKNOWLEDGE;
+      preAcknowledge = ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE;
 
-      ackBatchSize = HornetQClient.DEFAULT_ACK_BATCH_SIZE;
+      ackBatchSize = ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
 
-      connectionLoadBalancingPolicyClassName = HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME;
+      connectionLoadBalancingPolicyClassName = ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME;
 
-      useGlobalPools = HornetQClient.DEFAULT_USE_GLOBAL_POOLS;
+      useGlobalPools = ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS;
 
-      scheduledThreadPoolMaxSize = HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
+      scheduledThreadPoolMaxSize = ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
 
-      threadPoolMaxSize = HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE;
+      threadPoolMaxSize = ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE;
 
-      retryInterval = HornetQClient.DEFAULT_RETRY_INTERVAL;
+      retryInterval = ActiveMQClient.DEFAULT_RETRY_INTERVAL;
 
-      retryIntervalMultiplier = HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
+      retryIntervalMultiplier = ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
 
-      maxRetryInterval = HornetQClient.DEFAULT_MAX_RETRY_INTERVAL;
+      maxRetryInterval = ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL;
 
-      reconnectAttempts = HornetQClient.DEFAULT_RECONNECT_ATTEMPTS;
+      reconnectAttempts = ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS;
 
-      initialConnectAttempts = HornetQClient.INITIAL_CONNECT_ATTEMPTS;
+      initialConnectAttempts = ActiveMQClient.INITIAL_CONNECT_ATTEMPTS;
 
-      failoverOnInitialConnection = HornetQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION;
+      failoverOnInitialConnection = ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION;
 
-      cacheLargeMessagesClient = HornetQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
+      cacheLargeMessagesClient = ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
 
-      initialMessagePacketSize = HornetQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
+      initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
 
-      cacheLargeMessagesClient = HornetQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
+      cacheLargeMessagesClient = ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
 
-      compressLargeMessage = HornetQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
+      compressLargeMessage = ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
 
       clusterConnection = false;
    }
@@ -633,7 +633,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                {
                   if (!isClosed())
                   {
-                     HornetQClientLogger.LOGGER.errorConnectingToNodes(e);
+                     ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
                   }
                }
             }
@@ -652,7 +652,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (protocolManagerFactory == null)
       {
          // this could happen over serialization from older versions
-         protocolManagerFactory = HornetQClientProtocolManagerFactory.getInstance();
+         protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance();
       }
       return protocolManagerFactory;
    }
@@ -711,9 +711,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    {
       TopologyMember topologyMember = topology.getMember(nodeID);
 
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("Creating connection factory towards " + nodeID + " = " + topologyMember + ", topology=" + topology.describe());
+         ActiveMQClientLogger.LOGGER.trace("Creating connection factory towards " + nodeID + " = " + topologyMember + ", topology=" + topology.describe());
       }
 
       if (topologyMember == null)
@@ -856,7 +856,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          if (!ok)
          {
-            throw HornetQClientMessageBundle.BUNDLE.connectionTimedOutInInitialBroadcast();
+            throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutInInitialBroadcast();
          }
       }
 
@@ -873,7 +873,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             TransportConfiguration tc = selectConnector();
             if (tc == null)
             {
-               throw HornetQClientMessageBundle.BUNDLE.noTCForSessionFactory();
+               throw ActiveMQClientMessageBundle.BUNDLE.noTCForSessionFactory();
             }
 
             // try each factory in the list until we find one which works
@@ -917,11 +917,11 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
                      if (topologyArray != null && attempts == topologyArray.length)
                      {
-                        throw HornetQClientMessageBundle.BUNDLE.cannotConnectToServers();
+                        throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
                      }
                      if (topologyArray == null && attempts == this.getNumInitialConnectors())
                      {
-                        throw HornetQClientMessageBundle.BUNDLE.cannotConnectToServers();
+                        throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
                      }
                   }
                   retry = true;
@@ -962,7 +962,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          {
             if (factory != null)
                factory.cleanup();
-            throw HornetQClientMessageBundle.BUNDLE.connectionTimedOutOnReceiveTopology(discoveryGroup);
+            throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutOnReceiveTopology(discoveryGroup);
          }
 
          addFactory(factory);
@@ -1465,9 +1465,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       {
          if (state == STATE.CLOSED)
          {
-            if (HornetQClientLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
             {
-               HornetQClientLogger.LOGGER.debug(this + " is already closed when calling closed");
+               ActiveMQClientLogger.LOGGER.debug(this + " is already closed when calling closed");
             }
             return;
          }
@@ -1495,7 +1495,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             }
             catch (Exception e)
             {
-               HornetQClientLogger.LOGGER.failedToStopDiscovery(e);
+               ActiveMQClientLogger.LOGGER.failedToStopDiscovery(e);
             }
          }
       }
@@ -1551,7 +1551,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             {
                if (!threadPool.awaitTermination(10000, TimeUnit.MILLISECONDS))
                {
-                  HornetQClientLogger.LOGGER.timedOutWaitingForTermination();
+                  ActiveMQClientLogger.LOGGER.timedOutWaitingForTermination();
                }
             }
             catch (InterruptedException e)
@@ -1568,7 +1568,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             {
                if (!scheduledThreadPool.awaitTermination(10000, TimeUnit.MILLISECONDS))
                {
-                  HornetQClientLogger.LOGGER.timedOutWaitingForScheduledPoolTermination();
+                  ActiveMQClientLogger.LOGGER.timedOutWaitingForScheduledPoolTermination();
                }
             }
             catch (InterruptedException e)
@@ -1598,9 +1598,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          return;
       }
 
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("nodeDown " + this + " nodeID=" + nodeID + " as being down", new Exception("trace"));
+         ActiveMQClientLogger.LOGGER.trace("nodeDown " + this + " nodeID=" + nodeID + " as being down", new Exception("trace"));
       }
 
       topology.removeMember(eventTime, nodeID);
@@ -1641,9 +1641,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                             final Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                             final boolean last)
    {
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("NodeUp " + this + "::nodeID=" + nodeID + ", connectorPair=" + connectorPair, new Exception("trace"));
+         ActiveMQClientLogger.LOGGER.trace("NodeUp " + this + "::nodeID=" + nodeID + ", connectorPair=" + connectorPair, new Exception("trace"));
       }
 
       TopologyMemberImpl member = new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, connectorPair.getA(), connectorPair.getB());
@@ -1757,7 +1757,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                }
                catch (ActiveMQException e)
                {
-                  HornetQClientLogger.LOGGER.errorConnectingToNodes(e);
+                  ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
                }
             }
          };
@@ -1879,9 +1879,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                retryNumber++;
                for (Connector conn : connectors)
                {
-                  if (HornetQClientLogger.LOGGER.isDebugEnabled())
+                  if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
                   {
-                     HornetQClientLogger.LOGGER.debug(this + "::Submitting connect towards " + conn);
+                     ActiveMQClientLogger.LOGGER.debug(this + "::Submitting connect towards " + conn);
                   }
 
                   csf = conn.tryConnect();
@@ -1904,7 +1904,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                               catch (Exception e)
                               {
                                  // There isn't much to be done if this happens here
-                                 HornetQClientLogger.LOGGER.errorStartingLocator(e);
+                                 ActiveMQClientLogger.LOGGER.errorStartingLocator(e);
                               }
                            }
                         }
@@ -1922,9 +1922,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                         }
                      });
 
-                     if (HornetQClientLogger.LOGGER.isDebugEnabled())
+                     if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
                      {
-                        HornetQClientLogger.LOGGER.debug("Returning " + csf +
+                        ActiveMQClientLogger.LOGGER.debug("Returning " + csf +
                                                             " after " +
                                                             retryNumber +
                                                             " retries on StaticConnector " +
@@ -1949,15 +1949,15 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          {
             if (isClosed() || skipWarnings)
                return null;
-            HornetQClientLogger.LOGGER.debug("Rejected execution", e);
+            ActiveMQClientLogger.LOGGER.debug("Rejected execution", e);
             throw e;
          }
          catch (Exception e)
          {
             if (isClosed() || skipWarnings)
                return null;
-            HornetQClientLogger.LOGGER.errorConnectingToNodes(e);
-            throw HornetQClientMessageBundle.BUNDLE.cannotConnectToStaticConnectors(e);
+            ActiveMQClientLogger.LOGGER.errorConnectingToNodes(e);
+            throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToStaticConnectors(e);
          }
 
          if (isClosed() || skipWarnings)
@@ -1965,8 +1965,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             return null;
          }
 
-         HornetQClientLogger.LOGGER.errorConnectingToNodes(traceException);
-         throw HornetQClientMessageBundle.BUNDLE.cannotConnectToStaticConnectors2();
+         ActiveMQClientLogger.LOGGER.errorConnectingToNodes(traceException);
+         throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToStaticConnectors2();
       }
 
       private synchronized void createConnectors()
@@ -2024,7 +2024,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       {
          if (!isClosed() && finalizeCheck)
          {
-            HornetQClientLogger.LOGGER.serverLocatorNotClosed(traceException, System.identityHashCode(this));
+            ActiveMQClientLogger.LOGGER.serverLocatorNotClosed(traceException, System.identityHashCode(this));
 
             if (ServerLocatorImpl.finalizeCallback != null)
             {
@@ -2051,9 +2051,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          public ClientSessionFactory tryConnect() throws ActiveMQException
          {
-            if (HornetQClientLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
             {
-               HornetQClientLogger.LOGGER.debug(this + "::Trying to connect to " + factory);
+               ActiveMQClientLogger.LOGGER.debug(this + "::Trying to connect to " + factory);
             }
             try
             {
@@ -2075,7 +2075,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             }
             catch (ActiveMQException e)
             {
-               HornetQClientLogger.LOGGER.debug(this + "::Exception on establish connector initial connection", e);
+               ActiveMQClientLogger.LOGGER.debug(this + "::Exception on establish connector initial connection", e);
                return null;
             }
          }

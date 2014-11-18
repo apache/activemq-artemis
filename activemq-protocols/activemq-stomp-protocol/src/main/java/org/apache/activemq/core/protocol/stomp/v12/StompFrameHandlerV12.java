@@ -13,7 +13,7 @@
 package org.apache.activemq.core.protocol.stomp.v12;
 
 import org.apache.activemq.core.protocol.stomp.FrameEventListener;
-import org.apache.activemq.core.protocol.stomp.HornetQStompException;
+import org.apache.activemq.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.protocol.stomp.StompConnection;
 import org.apache.activemq.core.protocol.stomp.StompDecoder;
@@ -21,10 +21,10 @@ import org.apache.activemq.core.protocol.stomp.StompFrame;
 import org.apache.activemq.core.protocol.stomp.StompSubscription;
 import org.apache.activemq.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.core.protocol.stomp.v11.StompFrameV11;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ServerMessage;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
@@ -72,12 +72,12 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
 
       if (txID != null)
       {
-         HornetQServerLogger.LOGGER.stompTXAckNorSupported();
+         ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
       }
 
       if (messageID == null)
       {
-         HornetQStompException error = BUNDLE.noIDInAck();
+         ActiveMQStompException error = BUNDLE.noIDInAck();
          error.setHandler(connection.getFrameHandler());
          return error.getFrame();
       }
@@ -86,7 +86,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
       {
          connection.acknowledge(messageID, null);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
@@ -112,7 +112,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
       }
 
       @Override
-      protected void checkEol() throws HornetQStompException
+      protected void checkEol() throws ActiveMQStompException
       {
          //either \n or \r\n
          if (workingBuffer[pos - 2] == NEW_LINE)
@@ -139,7 +139,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
       }
 
       @Override
-      protected boolean parseHeaders() throws HornetQStompException
+      protected boolean parseHeaders() throws ActiveMQStompException
       {
       outer:
          while (true)
@@ -283,7 +283,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
          return true;
       }
 
-      protected StompFrame parseBody() throws HornetQStompException
+      protected StompFrame parseBody() throws ActiveMQStompException
       {
          byte[] content = null;
 

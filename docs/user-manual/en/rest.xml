@@ -19,8 +19,8 @@
 <chapter id="rest">
     <title>REST Interface</title>
 
-    <para>The HornetQ REST interface allows you to leverage the reliability
-        and scalability features of HornetQ over a simple REST/HTTP interface.
+    <para>The ActiveMQ REST interface allows you to leverage the reliability
+        and scalability features of ActiveMQ over a simple REST/HTTP interface.
         Messages are produced and consumed by sending and receiving simple HTTP
         messages that contain the content you want to push around. For instance,
         here's a simple example of posting an order to an order processing queue
@@ -40,7 +40,7 @@ Content-Type: application/xml
 
     <para>As you can see, we're just posting some arbitrary XML
         document to a URL. When the XML is received on the server is it processed
-        within HornetQ as a JMS message and distributed through core HornetQ.
+        within ActiveMQ as a JMS message and distributed through core ActiveMQ.
         Simple and easy. Consuming messages from a queue or topic looks very
         similar. We'll discuss the entire interface in detail later in this
         docbook.
@@ -49,7 +49,7 @@ Content-Type: application/xml
     <section>
         <title>Goals of REST Interface</title>
 
-        <para>Why would you want to use HornetQ's REST interface? What are the
+        <para>Why would you want to use ActiveMQ's REST interface? What are the
             goals of the REST interface?
         </para>
 
@@ -59,10 +59,10 @@ Content-Type: application/xml
             </listitem>
 
             <listitem>
-                <para>Zero client footprint. We want HornetQ to be usable by any
+                <para>Zero client footprint. We want ActiveMQ to be usable by any
                     client/programming language that has an adequate HTTP client
                     library. You shouldn't have to download, install, and configure a
-                    special library to interact with HornetQ.
+                    special library to interact with ActiveMQ.
                 </para>
             </listitem>
 
@@ -72,7 +72,7 @@ Content-Type: application/xml
                     RESTful the HTTP uniform interface provides all the interoperability
                     you need to communicate between different languages, platforms, and
                     even messaging implementations that choose to implement the same
-                    RESTful interface as HornetQ (i.e. the
+                    RESTful interface as ActiveMQ (i.e. the
                     <ulink url="http://rest-star.org">REST-*</ulink> effort.)
                 </para>
             </listitem>
@@ -81,13 +81,13 @@ Content-Type: application/xml
                 <para>No envelope (e.g. SOAP) or feed (e.g. Atom) format
                     requirements. You shouldn't have to learn, use, or parse a specific
                     XML document format in order to send and receive messages through
-                    HornetQ's REST interface.
+                    ActiveMQ's REST interface.
                 </para>
             </listitem>
 
             <listitem>
                 <para>Leverage the reliability, scalability, and clustering features
-                    of HornetQ on the back end without sacrificing the simplicity of a
+                    of ActiveMQ on the back end without sacrificing the simplicity of a
                     REST interface.
                 </para>
             </listitem>
@@ -98,22 +98,22 @@ Content-Type: application/xml
     <section id="install">
         <title>Installation and Configuration</title>
 
-        <para>HornetQ's REST interface is installed as a Web archive (WAR). It
+        <para>ActiveMQ's REST interface is installed as a Web archive (WAR). It
             depends on the
             <ulink url="http://jboss.org/resteasy">RESTEasy</ulink>
             project and can currently only run within a servlet container. Installing
-            the HornetQ REST interface is a little bit different depending whether
-            HornetQ is already installed and configured for your environment (e.g.
-            you're deploying within JBoss AS 7) or you want the HornetQ REST
-            WAR to startup and manage the HornetQ server (e.g. you're deploying
+            the ActiveMQ REST interface is a little bit different depending whether
+            ActiveMQ is already installed and configured for your environment (e.g.
+            you're deploying within JBoss AS 7) or you want the ActiveMQ REST
+            WAR to startup and manage the ActiveMQ server (e.g. you're deploying
             within something like Apache Tomcat).
         </para>
 
         <section>
             <title>Installing Within Pre-configured Environment</title>
 
-            <para>This section should be used when you want to use the HornetQ REST
-                interface in an environment that already has HornetQ installed and
+            <para>This section should be used when you want to use the ActiveMQ REST
+                interface in an environment that already has ActiveMQ installed and
                 running, e.g. JBoss AS 7. You must create a Web archive
                 (.WAR) file with the following web.xml settings:
             </para>
@@ -146,7 +146,7 @@ Content-Type: application/xml
 &lt;/web-app></programlisting>
 
             <para>Within your WEB-INF/lib directory you must have the
-                hornetq-rest.jar file. If RESTEasy is not installed within your
+                activemq-rest.jar file. If RESTEasy is not installed within your
                 environment, you must add the RESTEasy jar files within the lib
                 directory as well. Here's a sample Maven pom.xml that can build your WAR
                 for this case.
@@ -186,7 +186,7 @@ Content-Type: application/xml
    &lt;dependencies>
       &lt;dependency>
          &lt;groupId>org.apache.activemq.rest&lt;/groupId>
-         &lt;artifactId>hornetq-rest&lt;/artifactId>
+         &lt;artifactId>activemq-rest&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
    &lt;/dependencies>
@@ -218,8 +218,8 @@ Content-Type: application/xml
                 It is worth noting that when deploying a WAR in a Java EE application server
                 like AS7 the URL for the resulting application will include the name of the
                 WAR by default.  For example, if you've constructed a WAR as described above
-                named "hornetq-rest.war" then clients will access it at, e.g.
-                http://localhost:8080/hornetq-rest/[queues|topics].  We'll see more about
+                named "activemq-rest.war" then clients will access it at, e.g.
+                http://localhost:8080/activemq-rest/[queues|topics].  We'll see more about
                 this later.
             </para>
             <note>
@@ -231,13 +231,13 @@ Content-Type: application/xml
         </section>
 
         <section>
-            <title>Bootstrapping HornetQ Along with REST</title>
+            <title>Bootstrapping ActiveMQ Along with REST</title>
 
-            <para>You can bootstrap HornetQ within your WAR as well. To do this, you
-                must have the HornetQ core and JMS jars along with Netty, Resteasy, and
-                the HornetQ REST jar within your WEB-INF/lib. You must also have a
-                hornetq-configuration.xml, hornetq-jms.xml, and hornetq-users.xml config
-                files within WEB-INF/classes. The examples that come with the HornetQ
+            <para>You can bootstrap ActiveMQ within your WAR as well. To do this, you
+                must have the ActiveMQ core and JMS jars along with Netty, Resteasy, and
+                the ActiveMQ REST jar within your WEB-INF/lib. You must also have a
+                activemq-configuration.xml, activemq-jms.xml, and activemq-users.xml config
+                files within WEB-INF/classes. The examples that come with the ActiveMQ
                 REST distribution show how to do this. You must also add an additional
                 listener to your web.xml file. Here's an example:
             </para>
@@ -252,7 +252,7 @@ Content-Type: application/xml
 
    &lt;listener>
       &lt;listener-class>
-         org.apache.activemq.rest.integration.HornetqBootstrapListener
+         org.apache.activemq.rest.integration.ActiveMQBootstrapListener
       &lt;/listener-class>
    &lt;/listener>
 
@@ -276,7 +276,7 @@ Content-Type: application/xml
 &lt;/web-app></programlisting>
 
             <para>Here's a Maven pom.xml file for creating a WAR for this
-                environment. Make sure your hornetq configuration files are within the
+                environment. Make sure your activemq configuration files are within the
                 src/main/resources directory so that they are stuffed within the WAR's
                 WEB-INF/classes directory!
             </para>
@@ -313,7 +313,7 @@ Content-Type: application/xml
    &lt;dependencies>
       &lt;dependency>
          &lt;groupId>org.apache.activemq&lt;/groupId>
-         &lt;artifactId>hornetq-core&lt;/artifactId>
+         &lt;artifactId>activemq-core&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
       &lt;dependency>
@@ -323,7 +323,7 @@ Content-Type: application/xml
       &lt;/dependency>
       &lt;dependency>
          &lt;groupId>org.apache.activemq&lt;/groupId>
-         &lt;artifactId>hornetq-jms&lt;/artifactId>
+         &lt;artifactId>activemq-jms&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
       &lt;dependency>
@@ -333,7 +333,7 @@ Content-Type: application/xml
       &lt;/dependency>
       &lt;dependency>
          &lt;groupId>org.apache.activemq.rest&lt;/groupId>
-         &lt;artifactId>hornetq-rest&lt;/artifactId>
+         &lt;artifactId>activemq-rest&lt;/artifactId>
          &lt;version>2.3.0-SNAPSHOT&lt;/version>
       &lt;/dependency>
       &lt;dependency>
@@ -353,7 +353,7 @@ Content-Type: application/xml
         <section id="configuration">
             <title>REST Configuration</title>
 
-            <para>The HornetQ REST implementation does have some configuration
+            <para>The ActiveMQ REST implementation does have some configuration
                 options. These are configured via XML configuration file that must be in
                 your WEB-INF/classes directory. You must set the web.xml context-param
                 <literal>rest.messaging.config.file</literal> to specify the name of the
@@ -380,15 +380,15 @@ Content-Type: application/xml
 
             <itemizedlist>
                 <listitem>
-                    <para><literal>server-in-vm-id</literal>. The HornetQ REST
-                        impl uses the IN-VM transport to communicate with HornetQ.
+                    <para><literal>server-in-vm-id</literal>. The ActiveMQ REST
+                        impl uses the IN-VM transport to communicate with ActiveMQ.
                         It uses the default server id, which is "0".
                     </para>
                 </listitem>
                 <listitem>
                     <para><literal>use-link-headers</literal>. By default, all
                         links (URLs) are published using custom headers. You can
-                        instead have the HornetQ REST implementation publish links
+                        instead have the ActiveMQ REST implementation publish links
                         using the <ulink url="http://tools.ietf.org/html/draft-nottingham-http-link-header-10">
                             Link Header specification
                         </ulink> instead if you desire.
@@ -421,7 +421,7 @@ Content-Type: application/xml
                 </listitem>
                 <listitem>
                     <para><literal>producer-session-pool-size</literal>. The REST
-                        implementation pools HornetQ sessions for sending messages.
+                        implementation pools ActiveMQ sessions for sending messages.
                         This is the size of the pool. That number of sessions will
                         be created at startup time.
                     </para>
@@ -446,9 +446,9 @@ Content-Type: application/xml
                 </listitem>
                 <listitem>
                     <para><literal>consumer-window-size</literal>. For consumers,
-                        this config option is the same as the HornetQ one of the
+                        this config option is the same as the ActiveMQ one of the
                         same name. It will be used by sessions created by the
-                        HornetQ REST implementation.
+                        ActiveMQ REST implementation.
                     </para>
                 </listitem>
             </itemizedlist>
@@ -457,9 +457,9 @@ Content-Type: application/xml
 
 
     <section id="basics">
-        <title>HornetQ REST Interface Basics</title>
+        <title>ActiveMQ REST Interface Basics</title>
 
-        <para>The HornetQ REST interface publishes a variety of REST resources to
+        <para>The ActiveMQ REST interface publishes a variety of REST resources to
             perform various tasks on a queue or topic. Only the top-level queue and
             topic URI schemes are published to the outside world. You must discover
             all over resources to interact with by looking for and traversing links.
@@ -479,16 +479,16 @@ Content-Type: application/xml
 /topics/{name}</programlisting>
 
             <para>The base of the URI is the base URL of the WAR you deployed the
-                HornetQ REST server within as defined in the
+                ActiveMQ REST server within as defined in the
                 <link linkend="install">Installation and Configuration</link>
                 section of this document. Replace the <literal>{name}</literal>
                 string within the above URI pattern with the name of the queue or
                 topic you are interested in interacting with. For example if you
                 have configured a JMS topic named "foo" within your
-                <literal>hornetq-jms.xml</literal> file, the URI name should be
+                <literal>activemq-jms.xml</literal> file, the URI name should be
                 "jms.topic.foo". If you have configured a JMS queue name "bar" within
-                your <literal>hornetq-jms.xml</literal> file, the URI name should be
-                "jms.queue.bar". Internally, HornetQ prepends the "jms.topic" or
+                your <literal>activemq-jms.xml</literal> file, the URI name should be
+                "jms.queue.bar". Internally, ActiveMQ prepends the "jms.topic" or
                 "jms.queue" strings to the name of the deployed destination. Next,
                 perform your HEAD or GET request on this URI. Here's what a
                 request/response would look like.
@@ -522,7 +522,7 @@ curl --head http://example.com/queues/jms.queue.bar</programlisting>
                 are an implementation detail. Treat them as opaque and query for them
                 each and every time you initially interact (at boot time) with the
                 server. If you treat all URLs as opaque then you will be isolated from
-                implementation changes as the HornetQ REST interface evolves over
+                implementation changes as the ActiveMQ REST interface evolves over
                 time.
             </para>
         </section>
@@ -557,7 +557,7 @@ curl --head http://example.com/queues/jms.queue.bar</programlisting>
                 </listitem>
                 <listitem>
                     <para><literal>msg-push-consumers</literal>. This is a URL for
-                        registering other URLs you want the HornetQ REST server to
+                        registering other URLs you want the ActiveMQ REST server to
                         push messages to. The semantics of this link are described
                         in <link linkend="message-push">Pushing Messages</link>.
                     </para>
@@ -595,7 +595,7 @@ curl --head http://example.com/queues/jms.queue.bar</programlisting>
                 </listitem>
                 <listitem>
                     <para><literal>msg-push-subscriptions</literal>. This is a
-                        URL for registering other URLs you want the HornetQ REST
+                        URL for registering other URLs you want the ActiveMQ REST
                         server to push messages to. The semantics of this link
                         are described in <link linkend="message-push">Pushing
                         Messages</link>.
@@ -610,13 +610,13 @@ curl --head http://example.com/queues/jms.queue.bar</programlisting>
         <title>Posting Messages</title>
 
         <para>This chapter discusses the protocol for posting messages to a queue
-            or a topic. In <link linkend="basics">HornetQ REST Interface Basics</link>,
+            or a topic. In <link linkend="basics">ActiveMQ REST Interface Basics</link>,
             you saw that a queue or topic resource publishes variable custom headers
             that are links to other RESTful resources. The <literal>msg-create</literal>
             header is a URL you can post a message to. Messages are published to a queue
             or topic by sending a simple HTTP message to the URL published by the
             <literal>msg-create</literal> header. The HTTP message contains whatever
-            content you want to publish to the HornetQ destination. Here's an example
+            content you want to publish to the ActiveMQ destination. Here's an example
             scenario:
         </para>
 
@@ -724,11 +724,11 @@ msg-create-next: http://example.com/queues/jms.queue.bar/create</programlisting>
                 messages to a queue or topic. You may do a POST and never receive a
                 response. Unfortunately, you don't know whether or not the server
                 received the message and so a re-post of the message might cause
-                duplicates to be posted to the queue or topic. By default, the HornetQ
+                duplicates to be posted to the queue or topic. By default, the ActiveMQ
                 REST interface is configured to accept and post duplicate messages. You
                 can change this by turning on duplicate message detection by setting the
                 <literal>dups-ok</literal> config option to <literal>false</literal>
-                as described in <link linkend="basics">HornetQ REST Interface Basics</link>.
+                as described in <link linkend="basics">ActiveMQ REST Interface Basics</link>.
                 When you do this, the initial POST to the <literal>msg-create</literal>
                 URL will redirect you, using the standard HTTP 307 redirection mechanism
                 to a unique URL to POST to. All other interactions remain the same as
@@ -832,10 +832,10 @@ msg-create-next: http://example.com/queues/jms.queue.bar/create/13582001787374</
             </orderedlist>
 
             <para>How can this work? As you can see, with each successful response,
-                the HornetQ REST server returns a uniquely generated URL within the
+                the ActiveMQ REST server returns a uniquely generated URL within the
                 msg-create-next header. This URL is dedicated to the next new message
                 you want to post. Behind the scenes, the code extracts an identify from
-                the URL and uses HornetQ's duplicate detection mechanism by setting the
+                the URL and uses ActiveMQ's duplicate detection mechanism by setting the
                 <literal>DUPLICATE_DETECTION_ID</literal> property of the JMS message
                 that is actually posted to the system.
             </para>
@@ -844,7 +844,7 @@ msg-create-next: http://example.com/queues/jms.queue.bar/create/13582001787374</
                 like this on the server:
             </para>
             <programlisting>
-WARN  [org.apache.activemq.core.server] (Thread-3 (HornetQ-remoting-threads-HornetQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) HQ112098: Duplicate message detected - message will not be routed. Message information:
+WARN  [org.apache.activemq.core.server] (Thread-3 (ActiveMQ-remoting-threads-ActiveMQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) HQ112098: Duplicate message detected - message will not be routed. Message information:
 ServerMessage[messageID=20,priority=4, bodySize=1500,expiration=0, durable=true, address=jms.queue.bar,properties=TypedProperties[{http_content$type=application/x-www-form-urlencoded, http_content$length=3, postedAsHttpMessage=true, _HQ_DUPL_ID=42}]]@12835058</programlisting>
 
             <para>An alternative to this approach is to use the <literal>msg-create-with-id</literal>
@@ -877,7 +877,7 @@ msg-create-with-id: http://example.com/queues/jms.queue.bar/create/{id}</program
             <title>Persistent Messages</title>
 
             <para>By default, posted messages are not durable and will not be
-                persisted in HornetQ's journal. You can create durable messages by
+                persisted in ActiveMQ's journal. You can create durable messages by
                 modifying the default configuration as expressed in Chapter 2 so that
                 all messages are persisted when sent. Alternatively, you can set a URL
                 query parameter called <literal>durable</literal> to true when you post
@@ -935,7 +935,7 @@ Content-Type: application/xml
             important caveats. To start consuming you must create a consumer resource
             on the server that is dedicated to your client. Now, this pretty much
             breaks the stateless principle of REST, but after much prototyping, this
-            is the best way to work most effectively with HornetQ through a REST
+            is the best way to work most effectively with ActiveMQ through a REST
             interface.
         </para>
 
@@ -944,7 +944,7 @@ Content-Type: application/xml
             response header if you are interacting with a queue, the
             <literal>msg-pull-subscribers</literal> response header if you're
             interacting with a topic. These headers are provided by the main queue or
-            topic resource discussed in <link linkend="basics">HornetQ REST Interface
+            topic resource discussed in <link linkend="basics">ActiveMQ REST Interface
             Basics</link>. Doing an empty POST to one of these
             URLs will create a consumer resource that follows an auto-acknowledge
             protocol and, if you are interacting with a topic, creates a temporarily 
@@ -979,7 +979,7 @@ Content-Type: application/xml
             </listitem>
             <listitem>
                 <para><literal>selector</literal>. This is an optional JMS selector
-                    string. The HornetQ REST interface adds HTTP headers to the
+                    string. The ActiveMQ REST interface adds HTTP headers to the
                     JMS message for REST produced messages. HTTP headers are
                     prefixed with "http_" and every '-' character is converted
                     to a '$'.
@@ -1223,7 +1223,7 @@ msg-consume-next: http://example.com/queues/jms.queue.bar/pull-consumers/333/con
                             should retry a post. Also notice, that another new
                             msg-consume-next URL is present. Although it probably is the same
                             URL you used last post, get in the habit of using URLs returned in
-                            response headers as future versions of HornetQ REST might be
+                            response headers as future versions of ActiveMQ REST might be
                             redirecting you or adding additional data to the URL after
                             timeouts like this.
                         </para>
@@ -1594,7 +1594,7 @@ http://example.com/queues/jms.queue.bar/pull-consumers/333/acknowledge-next-2</p
             <para>Unless your queue or topic has a high rate of message flowing
                 though it, if you use the pull protocol, you're going to be receiving a
                 lot of 503 responses as you continuously pull the server for new
-                messages. To alleviate this problem, the HornetQ REST interface provides
+                messages. To alleviate this problem, the ActiveMQ REST interface provides
                 the <literal>Accept-Wait</literal> header. This is a generic HTTP
                 request header that is a hint to the server for how long the client is
                 willing to wait for a response from the server. The value of this header
@@ -1643,9 +1643,9 @@ msg-consume-next: http://example.com/queues/jms.queue.bar/pull-consumers/333/con
     <section id="message-push">
         <title>Pushing Messages</title>
 
-        <para>You can configure the HornetQ REST server to push messages to a
+        <para>You can configure the ActiveMQ REST server to push messages to a
             registered URL either remotely through the REST interface, or by creating
-            a pre-configured XML file for the HornetQ REST server to load at boot
+            a pre-configured XML file for the ActiveMQ REST server to load at boot
             time.
         </para>
 
@@ -1702,7 +1702,7 @@ msg-consume-next: http://example.com/queues/jms.queue.bar/pull-consumers/333/con
                 will disable the registration if all retries have failed. It will not
                 disable the connection on non-connection-failure issues (like a bad
                 request for instance). In these cases, the dead letter queue logic of
-                HornetQ will take over.
+                ActiveMQ will take over.
             </para>
 
             <para>The <literal>link</literal> element specifies the basis of the
@@ -1720,10 +1720,10 @@ msg-consume-next: http://example.com/queues/jms.queue.bar/pull-consumers/333/con
             <itemizedlist>
                 <listitem>
                     <para><literal>destination</literal>. The href URL is assumed to be a queue or topic resource of
-                        another HornetQ REST server. The push registration will initially
+                        another ActiveMQ REST server. The push registration will initially
                         do a HEAD request to this URL to obtain a msg-create-with-id
                         header. It will use this header to push new messages to the
-                        HornetQ REST endpoint reliably. Here's an example:
+                        ActiveMQ REST endpoint reliably. Here's an example:
                     </para>
 
                     <programlisting>
@@ -1962,13 +1962,13 @@ Location: http://example.com/topics/jms.topic.bar/push-subscriptions/1-333-1212<
             Currently you cannot create a temporary queue or topic. To create a queue
             you do a POST to the relative URL /queues with an XML representation of
             the queue. The XML syntax is the same queue syntax that you would specify
-            in hornetq-jms.xml if you were creating a queue there. For example:
+            in activemq-jms.xml if you were creating a queue there. For example:
         </para>
 
         <programlisting>
 POST /queues
 Host: example.com
-Content-Type: application/hornetq.jms.queue+xml
+Content-Type: application/activemq.jms.queue+xml
 
 &lt;queue name="testQueue">
    &lt;durable>true&lt;/durable>
@@ -1978,14 +1978,14 @@ Content-Type: application/hornetq.jms.queue+xml
 HTTP/1.1 201 Created
 Location: http://example.com/queues/jms.queue.testQueue</programlisting>
 
-        <para>Notice that the Content-Type is application/hornetq.jms.queue+xml.</para>
+        <para>Notice that the Content-Type is application/activemq.jms.queue+xml.</para>
 
         <para>Here's what creating a topic would look like:</para>
 
         <programlisting>
 POST /topics
 Host: example.com
-Content-Type: application/hornetq.jms.topic+xml
+Content-Type: application/activemq.jms.topic+xml
 
 &lt;topic name="testTopic">
 &lt;/topic>
@@ -1997,23 +1997,23 @@ Location: http://example.com/topics/jms.topic.testTopic</programlisting>
 
 
     <section>
-        <title>Securing the HornetQ REST Interface</title>
+        <title>Securing the ActiveMQ REST Interface</title>
 
         <section>
             <title>Within JBoss Application server</title>
 
-            <para>Securing the HornetQ REST interface is very simple with the JBoss
+            <para>Securing the ActiveMQ REST interface is very simple with the JBoss
                 Application Server. You turn on authentication for all URLs within your
-                WAR's web.xml, and let the user Principal to propagate to HornetQ. This
-                only works if you are using the JBossSecurityManager with HornetQ. See
-                the HornetQ documentation for more details.
+                WAR's web.xml, and let the user Principal to propagate to ActiveMQ. This
+                only works if you are using the JBossSecurityManager with ActiveMQ. See
+                the ActiveMQ documentation for more details.
             </para>
         </section>
 
         <section>
             <title>Security in other environments</title>
 
-            <para>To secure the HornetQ REST interface in other environments you
+            <para>To secure the ActiveMQ REST interface in other environments you
                 must role your own security by specifying security constraints with your
                 web.xml for every path of every queue and topic you have deployed. Here
                 is a list of URI patterns:
@@ -2091,7 +2091,7 @@ Location: http://example.com/topics/jms.topic.testTopic</programlisting>
     <section>
         <title>Mixing JMS and REST</title>
 
-        <para>The HornetQ REST interface supports mixing JMS and REST producers
+        <para>The ActiveMQ REST interface supports mixing JMS and REST producers
             and consumers. You can send an ObjectMessage through a JMS Producer, and
             have a REST client consume it. You can have a REST client POST a message
             to a topic and have a JMS Consumer receive it. Some simple transformations
@@ -2101,11 +2101,11 @@ Location: http://example.com/topics/jms.topic.testTopic</programlisting>
         <section>
             <title>JMS Producers - REST Consumers</title>
 
-            <para>If you have a JMS producer, the HornetQ REST interface only
+            <para>If you have a JMS producer, the ActiveMQ REST interface only
                 supports ObjectMessage type. If the JMS producer is aware that there may
                 be REST consumers, it should set a JMS property to specify what
                 Content-Type the Java object should be translated into by REST clients.
-                The HornetQ REST server will use RESTEasy content handlers
+                The ActiveMQ REST server will use RESTEasy content handlers
                 (MessageBodyReader/Writers) to transform the Java object to the type
                 desired. Here's an example of a JMS producer setting the content type of
                 the message.
@@ -2129,7 +2129,7 @@ message.setStringProperty(org.apache.activemq.rest.HttpHeaderProperty.CONTENT_TY
             <title>REST Producers - JMS Consumers</title>
 
             <para>If you have a REST client producing messages and a JMS consumer,
-                HornetQ REST has a simple helper class for you to transform the HTTP
+                ActiveMQ REST has a simple helper class for you to transform the HTTP
                 body to a Java object. Here's some example code:
             </para>
 

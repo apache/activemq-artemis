@@ -58,10 +58,10 @@ import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.core.protocol.ProtocolHandler;
 import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq.core.security.HornetQPrincipal;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.server.management.NotificationService;
@@ -71,7 +71,7 @@ import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.utils.ConfigurationHelper;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.TypedProperties;
 
 /**
@@ -316,7 +316,7 @@ public class NettyAcceptor implements Acceptor
             threadsToUse = this.nioRemotingThreads;
          }
          channelClazz = NioServerSocketChannel.class;
-         eventLoopGroup = new NioEventLoopGroup(threadsToUse, new HornetQThreadFactory("hornetq-netty-threads", true, getThisClassLoader()));
+         eventLoopGroup = new NioEventLoopGroup(threadsToUse, new ActiveMQThreadFactory("activemq-netty-threads", true, getThisClassLoader()));
       }
 
       bootstrap = new ServerBootstrap();
@@ -374,7 +374,7 @@ public class NettyAcceptor implements Acceptor
                   }
                   catch (IllegalArgumentException e)
                   {
-                     HornetQServerLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
+                     ActiveMQServerLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
                      throw e;
                   }
                }
@@ -387,7 +387,7 @@ public class NettyAcceptor implements Acceptor
                   }
                   catch (IllegalArgumentException e)
                   {
-                     HornetQServerLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
+                     ActiveMQServerLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
                      throw e;
                   }
                }
@@ -404,7 +404,7 @@ public class NettyAcceptor implements Acceptor
                {
                   if (s.equals("SSLv3") || s.equals("SSLv2Hello"))
                   {
-                     HornetQServerLogger.LOGGER.disallowedProtocol(s);
+                     ActiveMQServerLogger.LOGGER.disallowedProtocol(s);
                      continue;
                   }
                   set.add(s);
@@ -438,9 +438,9 @@ public class NettyAcceptor implements Acceptor
       bootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
       bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
       bootstrap.childOption(ChannelOption.ALLOCATOR, PartialPooledByteBufAllocator.INSTANCE);
-      channelGroup = new DefaultChannelGroup("hornetq-accepted-channels", GlobalEventExecutor.INSTANCE);
+      channelGroup = new DefaultChannelGroup("activemq-accepted-channels", GlobalEventExecutor.INSTANCE);
 
-      serverChannelGroup = new DefaultChannelGroup("hornetq-acceptor-channels", GlobalEventExecutor.INSTANCE);
+      serverChannelGroup = new DefaultChannelGroup("activemq-acceptor-channels", GlobalEventExecutor.INSTANCE);
 
       if (httpUpgradeEnabled)
       {
@@ -474,7 +474,7 @@ public class NettyAcceptor implements Acceptor
                                                                             TimeUnit.MILLISECONDS);
          }
 
-         HornetQServerLogger.LOGGER.startedNettyAcceptor(TransportConstants.NETTY_VERSION, host, port);
+         ActiveMQServerLogger.LOGGER.startedNettyAcceptor(TransportConstants.NETTY_VERSION, host, port);
       }
    }
 
@@ -543,14 +543,14 @@ public class NettyAcceptor implements Acceptor
 
       if (!future.isSuccess())
       {
-         HornetQServerLogger.LOGGER.nettyChannelGroupError();
+         ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
          Iterator<Channel> iterator = future.group().iterator();
          while (iterator.hasNext())
          {
             Channel channel = iterator.next();
             if (channel.isActive())
             {
-               HornetQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
+               ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
             }
          }
       }
@@ -612,14 +612,14 @@ public class NettyAcceptor implements Acceptor
       ChannelGroupFuture future = serverChannelGroup.close().awaitUninterruptibly();
       if (!future.isSuccess())
       {
-         HornetQServerLogger.LOGGER.nettyChannelGroupBindError();
+         ActiveMQServerLogger.LOGGER.nettyChannelGroupBindError();
          Iterator<Channel> iterator = future.group().iterator();
          while (iterator.hasNext())
          {
             Channel channel = iterator.next();
             if (channel.isActive())
             {
-               HornetQServerLogger.LOGGER.nettyChannelStillBound(channel, channel.remoteAddress());
+               ActiveMQServerLogger.LOGGER.nettyChannelStillBound(channel, channel.remoteAddress());
             }
          }
       }
@@ -634,9 +634,9 @@ public class NettyAcceptor implements Acceptor
    /**
     * not allowed
     *
-    * @param defaultHornetQPrincipal
+    * @param defaultActiveMQPrincipal
     */
-   public void setDefaultHornetQPrincipal(HornetQPrincipal defaultHornetQPrincipal)
+   public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal)
    {
       throw new IllegalStateException("unsecure connections not allowed");
    }
@@ -659,17 +659,17 @@ public class NettyAcceptor implements Acceptor
 
    public ConnectionCreator createConnectionCreator()
    {
-      return new HornetQServerChannelHandler(channelGroup, handler, new Listener());
+      return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener());
    }
 
    // Inner classes -----------------------------------------------------------------------------
 
-   private final class HornetQServerChannelHandler extends HornetQChannelHandler implements ConnectionCreator
+   private final class ActiveMQServerChannelHandler extends ActiveMQChannelHandler implements ConnectionCreator
    {
 
-      HornetQServerChannelHandler(final ChannelGroup group,
-                                  final BufferHandler handler,
-                                  final ConnectionLifeCycleListener listener)
+      ActiveMQServerChannelHandler(final ChannelGroup group,
+                                   final BufferHandler handler,
+                                   final ConnectionLifeCycleListener listener)
       {
          super(group, handler, listener);
       }
@@ -711,11 +711,11 @@ public class NettyAcceptor implements Acceptor
 
    private class Listener implements ConnectionLifeCycleListener
    {
-      public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
       {
          if (connections.putIfAbsent(connection.getID(), (NettyServerConnection) connection) != null)
          {
-            throw HornetQMessageBundle.BUNDLE.connectionExists(connection.getID());
+            throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
          listener.connectionCreated(component, connection, protocol);

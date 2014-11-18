@@ -19,7 +19,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -32,7 +32,7 @@ public class PagingReceiveTest extends ServiceTestBase
 
    private static final SimpleString ADDRESS = new SimpleString("jms.queue.catalog-service.price.change.bm");
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ServerLocator locator;
 
@@ -91,9 +91,9 @@ public class PagingReceiveTest extends ServiceTestBase
 
    }
 
-   private HornetQServer internalCreateServer() throws Exception
+   private ActiveMQServer internalCreateServer() throws Exception
    {
-      final HornetQServer server = newHornetQServer();
+      final ActiveMQServer server = newActiveMQServer();
 
       server.start();
 
@@ -127,9 +127,9 @@ public class PagingReceiveTest extends ServiceTestBase
       return message;
    }
 
-   private HornetQServer newHornetQServer() throws Exception
+   private ActiveMQServer newActiveMQServer() throws Exception
    {
-      final HornetQServer server = createServer(true, isNetty());
+      final ActiveMQServer server = createServer(true, isNetty());
 
       final AddressSettings settings = new AddressSettings();
       settings.setMaxSizeBytes(67108864);

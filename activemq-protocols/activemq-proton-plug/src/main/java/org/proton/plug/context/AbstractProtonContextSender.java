@@ -20,12 +20,12 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.proton.plug.AMQPSessionCallback;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.util.CreditsSemaphore;
 import org.proton.plug.util.NettyWritable;
 
 /**
- * A this is a wrapper around a HornetQ ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
+ * A this is a wrapper around a ActiveMQ ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
  *
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
@@ -55,7 +55,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    /*
    * start the session
    * */
-   public void start() throws HornetQAMQPException
+   public void start() throws ActiveMQAMQPException
    {
       sessionSPI.start();
       // protonSession.getServerSession().start();
@@ -64,7 +64,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    /*
    * close the session
    * */
-   public void close() throws HornetQAMQPException
+   public void close() throws ActiveMQAMQPException
    {
       closed = true;
       protonSession.removeSender(sender);
@@ -78,9 +78,9 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
 
    @Override
    /*
-   * handle an incoming Ack from Proton, basically pass to HornetQ to handle
+   * handle an incoming Ack from Proton, basically pass to ActiveMQ to handle
    * */
-   public abstract void onMessage(Delivery delivery) throws HornetQAMQPException;
+   public abstract void onMessage(Delivery delivery) throws ActiveMQAMQPException;
 
    /*
    * check the state of the consumer, i.e. are there any more messages. only really needed for browsers?

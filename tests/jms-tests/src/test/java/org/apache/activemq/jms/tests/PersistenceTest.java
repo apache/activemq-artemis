@@ -55,7 +55,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // HornetQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -146,7 +146,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // HornetQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -217,7 +217,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // HornetQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -417,9 +417,9 @@ public class PersistenceTest extends JMSTestCase
 
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer ds = s.createDurableSubscriber(HornetQServerTestCase.topic1, "sub", null, false);
+         MessageConsumer ds = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub", null, false);
 
-         MessageProducer p = s.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = s.createProducer(ActiveMQServerTestCase.topic1);
          p.setDeliveryMode(DeliveryMode.PERSISTENT);
          TextMessage tm = s.createTextMessage("thebody");
 
@@ -440,7 +440,7 @@ public class PersistenceTest extends JMSTestCase
          s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn.start();
 
-         ds = s.createDurableSubscriber(HornetQServerTestCase.topic1, "sub", null, false);
+         ds = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub", null, false);
 
          TextMessage rm = (TextMessage)ds.receive(3000);
          ProxyAssertSupport.assertNotNull(rm);
@@ -474,12 +474,12 @@ public class PersistenceTest extends JMSTestCase
 
          Session sessConsume = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer sub1 = sessConsume.createDurableSubscriber(HornetQServerTestCase.topic1, "sub1", null, false);
-         MessageConsumer sub2 = sessConsume.createDurableSubscriber(HornetQServerTestCase.topic1, "sub2", null, false);
-         MessageConsumer sub3 = sessConsume.createDurableSubscriber(HornetQServerTestCase.topic1, "sub3", null, false);
+         MessageConsumer sub1 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub1", null, false);
+         MessageConsumer sub2 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub2", null, false);
+         MessageConsumer sub3 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub3", null, false);
 
          Session sessSend = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = sessSend.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = sessSend.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          for (int i = 0; i < 10; i++)
@@ -494,7 +494,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // HornetQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -503,9 +503,9 @@ public class PersistenceTest extends JMSTestCase
          sessConsume = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn.start();
 
-         sub1 = sessConsume.createDurableSubscriber(HornetQServerTestCase.topic1, "sub1", null, false);
-         sub2 = sessConsume.createDurableSubscriber(HornetQServerTestCase.topic1, "sub2", null, false);
-         sub3 = sessConsume.createDurableSubscriber(HornetQServerTestCase.topic1, "sub3", null, false);
+         sub1 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub1", null, false);
+         sub2 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub2", null, false);
+         sub3 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub3", null, false);
 
          for (int i = 0; i < 10; i++)
          {

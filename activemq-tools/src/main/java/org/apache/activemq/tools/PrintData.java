@@ -19,13 +19,13 @@ import org.apache.activemq.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.core.server.impl.FileLockNodeManager;
 
 /**
- * Writes a human-readable interpretation of the contents of a HornetQ {@link org.apache.activemq.core.journal.Journal}.
+ * Writes a human-readable interpretation of the contents of a ActiveMQ {@link org.apache.activemq.core.journal.Journal}.
  * <p>
  * To run this class with Maven, use:
  *
  * <pre>
- * cd hornetq-server
- * mvn -q exec:java -Dexec.args="/foo/hornetq/bindings /foo/hornetq/journal" -Dexec.mainClass="org.apache.activemq.tools.PrintData"
+ * cd activemq-server
+ * mvn -q exec:java -Dexec.args="/foo/activemq/bindings /foo/activemq/journal" -Dexec.mainClass="org.apache.activemq.tools.PrintData"
  * </pre>
  * @author clebertsuconic
  */

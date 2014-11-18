@@ -20,10 +20,10 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
@@ -37,7 +37,7 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 public class SynchronousCloseTest extends ServiceTestBase
 {
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    // Static --------------------------------------------------------
 
@@ -71,11 +71,11 @@ public class SynchronousCloseTest extends ServiceTestBase
       ServerLocator locator;
       if (isNetty())
       {
-         locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY));
+         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY));
       }
       else
       {
-         locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
       }
 
       return createSessionFactory(locator);
@@ -88,7 +88,7 @@ public class SynchronousCloseTest extends ServiceTestBase
    @Test
    public void testSynchronousClose() throws Exception
    {
-      Assert.assertEquals(0, server.getHornetQServerControl().listRemoteAddresses().length);
+      Assert.assertEquals(0, server.getActiveMQServerControl().listRemoteAddresses().length);
 
       ClientSessionFactory sf = createSessionFactory();
 

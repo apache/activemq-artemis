@@ -32,14 +32,14 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * An example that shows how to manage HornetQ using JMX.
+ * An example that shows how to manage ActiveMQ using JMX.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class JMXExample extends HornetQExample
+public class JMXExample extends ActiveMQExample
 {
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3000/jmxrmi";
 

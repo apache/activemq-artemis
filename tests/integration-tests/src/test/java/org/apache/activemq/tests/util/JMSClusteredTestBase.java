@@ -23,14 +23,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -50,13 +50,13 @@ public class JMSClusteredTestBase extends ServiceTestBase
 
    protected MBeanServer mBeanServer1;
 
-   protected HornetQServer server1;
+   protected ActiveMQServer server1;
 
    protected JMSServerManagerImpl jmsServer1;
 
    protected MBeanServer mBeanServer2;
 
-   protected HornetQServer server2;
+   protected ActiveMQServer server2;
 
    protected JMSServerManagerImpl jmsServer2;
 
@@ -122,20 +122,20 @@ public class JMSClusteredTestBase extends ServiceTestBase
 
       jmsServer1.start();
       jmsServer1.activated();
-      waitForServer(jmsServer1.getHornetQServer());
+      waitForServer(jmsServer1.getActiveMQServer());
 
       jmsServer2.start();
       jmsServer2.activated();
-      waitForServer(jmsServer2.getHornetQServer());
+      waitForServer(jmsServer2.getActiveMQServer());
 
-      waitForTopology(jmsServer1.getHornetQServer(), 2);
+      waitForTopology(jmsServer1.getActiveMQServer(), 2);
 
-      waitForTopology(jmsServer2.getHornetQServer(), 2);
+      waitForTopology(jmsServer2.getActiveMQServer(), 2);
 
-      cf1 = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                                                generateInVMParams(0)));
-      cf2 = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                                                generateInVMParams(1)));
+      cf1 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
+                                                                                                             generateInVMParams(0)));
+      cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
+                                                                                                             generateInVMParams(1)));
    }
 
    /**
@@ -148,7 +148,7 @@ public class JMSClusteredTestBase extends ServiceTestBase
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
       mBeanServer2 = MBeanServerFactory.createMBeanServer();
-      server2 = HornetQServers.newHornetQServer(conf2, mBeanServer2, enablePersistence());
+      server2 = ActiveMQServers.newActiveMQServer(conf2, mBeanServer2, enablePersistence());
       jmsServer2 = new JMSServerManagerImpl(server2, jmsconfig);
       context2 = new InVMNamingContext();
       jmsServer2.setContext(context2);
@@ -195,7 +195,7 @@ public class JMSClusteredTestBase extends ServiceTestBase
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
       mBeanServer1 = MBeanServerFactory.createMBeanServer();
-      server1 = HornetQServers.newHornetQServer(conf1, mBeanServer1, enablePersistence());
+      server1 = ActiveMQServers.newActiveMQServer(conf1, mBeanServer1, enablePersistence());
       jmsServer1 = new JMSServerManagerImpl(server1, jmsconfig);
       context1 = new InVMNamingContext();
       jmsServer1.setContext(context1);
@@ -256,9 +256,9 @@ public class JMSClusteredTestBase extends ServiceTestBase
          log.warn("Can't stop server2", e);
       }
 
-      ((HornetQConnectionFactory) cf1).close();
+      ((ActiveMQConnectionFactory) cf1).close();
 
-      ((HornetQConnectionFactory) cf2).close();
+      ((ActiveMQConnectionFactory) cf2).close();
 
       server2 = null;
 

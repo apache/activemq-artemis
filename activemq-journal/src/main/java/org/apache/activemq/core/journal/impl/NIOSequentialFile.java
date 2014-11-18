@@ -28,8 +28,8 @@ import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.journal.HornetQJournalBundle;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalBundle;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A NIOSequentialFile
@@ -162,7 +162,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       {
          while (!maxIOSemaphore.tryAcquire(maxIO, 60, TimeUnit.SECONDS))
          {
-            HornetQJournalLogger.LOGGER.errorClosingFile(getFileName());
+            ActiveMQJournalLogger.LOGGER.errorClosingFile(getFileName());
          }
       }
 
@@ -336,7 +336,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
          }
          else
          {
-            throw HornetQJournalBundle.BUNDLE.fileNotOpened();
+            throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
          }
          return;
       }
@@ -372,13 +372,13 @@ public final class NIOSequentialFile extends AbstractSequentialFile
                   }
                   catch (IOException e)
                   {
-                     HornetQJournalLogger.LOGGER.errorSubmittingWrite(e);
+                     ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
                      factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), NIOSequentialFile.this);
                      callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
                   }
                   catch (Throwable e)
                   {
-                     HornetQJournalLogger.LOGGER.errorSubmittingWrite(e);
+                     ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
                      callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
                   }
                }

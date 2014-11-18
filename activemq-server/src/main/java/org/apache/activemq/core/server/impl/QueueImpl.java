@@ -53,11 +53,11 @@ import org.apache.activemq.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.Consumer;
 import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
@@ -97,7 +97,7 @@ import org.apache.activemq.utils.TypedProperties;
  */
 public class QueueImpl implements Queue
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    public static final int REDISTRIBUTOR_BATCH_SIZE = 100;
 
@@ -421,7 +421,7 @@ public class QueueImpl implements Queue
    }
 
    // Queue implementation ----------------------------------------------------------------------------------------
-   public synchronized void setConsumersRefCount(final HornetQServer server)
+   public synchronized void setConsumersRefCount(final ActiveMQServer server)
    {
       if (refCountForConsumers == null)
       {
@@ -489,11 +489,11 @@ public class QueueImpl implements Queue
                {
                   if (groups.remove(groupIDToRemove) != null)
                   {
-                     HornetQServerLogger.LOGGER.debug("Removing group after unproposal " + groupID + " from queue " + QueueImpl.this);
+                     ActiveMQServerLogger.LOGGER.debug("Removing group after unproposal " + groupID + " from queue " + QueueImpl.this);
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.debug("Couldn't remove Removing group " + groupIDToRemove + " after unproposal on queue " + QueueImpl.this);
+                     ActiveMQServerLogger.LOGGER.debug("Couldn't remove Removing group " + groupIDToRemove + " after unproposal on queue " + QueueImpl.this);
                   }
                }
             }
@@ -616,13 +616,13 @@ public class QueueImpl implements Queue
          }
          else
          {
-            HornetQServerLogger.LOGGER.timeoutFlushInTransit(getName().toString(), getAddress().toString());
+            ActiveMQServerLogger.LOGGER.timeoutFlushInTransit(getName().toString(), getAddress().toString());
             return false;
          }
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          return false;
       }
    }
@@ -633,14 +633,14 @@ public class QueueImpl implements Queue
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Force delivery scheduling depage");
+            ActiveMQServerLogger.LOGGER.trace("Force delivery scheduling depage");
          }
          scheduleDepage(false);
       }
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Force delivery deliverying async");
+         ActiveMQServerLogger.LOGGER.trace("Force delivery deliverying async");
       }
 
       deliverAsync();
@@ -682,7 +682,7 @@ public class QueueImpl implements Queue
             catch (Exception e)
             {
                // nothing that could be done anyway.. just logging
-               HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
       });
@@ -720,7 +720,7 @@ public class QueueImpl implements Queue
 
       if (!ok)
       {
-         HornetQServerLogger.LOGGER.errorFlushingExecutorsOnQueue();
+         ActiveMQServerLogger.LOGGER.errorFlushingExecutorsOnQueue();
       }
 
       return ok;
@@ -736,16 +736,16 @@ public class QueueImpl implements Queue
 
       if (!result)
       {
-         HornetQServerLogger.LOGGER.queueBusy(this.name.toString(), timeout);
+         ActiveMQServerLogger.LOGGER.queueBusy(this.name.toString(), timeout);
       }
       return result;
    }
 
    public void addConsumer(final Consumer consumer) throws Exception
    {
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug(this + " adding consumer " + consumer);
+         ActiveMQServerLogger.LOGGER.debug(this + " adding consumer " + consumer);
       }
 
       synchronized (this)
@@ -1184,7 +1184,7 @@ public class QueueImpl implements Queue
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("moving expired reference " + ref + " to address = " + expiryAddress + " from queue=" + this.getName());
+            ActiveMQServerLogger.LOGGER.trace("moving expired reference " + ref + " to address = " + expiryAddress + " from queue=" + this.getName());
          }
          move(expiryAddress, ref, true, false);
       }
@@ -1192,7 +1192,7 @@ public class QueueImpl implements Queue
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
+            ActiveMQServerLogger.LOGGER.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
          }
          acknowledge(ref);
       }
@@ -1487,8 +1487,8 @@ public class QueueImpl implements Queue
       if (expiryAddress != null && expiryAddress.equals(this.address))
       {
          // check expire with itself would be silly (waste of time)
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
-            HornetQServerLogger.LOGGER.debug("Cannot expire from " + address + " into " + expiryAddress);
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+            ActiveMQServerLogger.LOGGER.debug("Cannot expire from " + address + " into " + expiryAddress);
          return false;
       }
 
@@ -1521,8 +1521,8 @@ public class QueueImpl implements Queue
       if (expiryAddress != null && expiryAddress.equals(this.address))
       {
          // check expire with itself would be silly (waste of time)
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
-            HornetQServerLogger.LOGGER.debug("Cannot expire from " + address + " into " + expiryAddress);
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+            ActiveMQServerLogger.LOGGER.debug("Cannot expire from " + address + " into " + expiryAddress);
          return 0;
       }
 
@@ -1562,8 +1562,8 @@ public class QueueImpl implements Queue
       if (expiryAddress != null && expiryAddress.equals(this.address))
       {
          // check expire with itself would be silly (waste of time)
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
-            HornetQServerLogger.LOGGER.debug("Cannot expire from " + address + " into " + expiryAddress);
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+            ActiveMQServerLogger.LOGGER.debug("Cannot expire from " + address + " into " + expiryAddress);
          return;
       }
 
@@ -1610,7 +1610,7 @@ public class QueueImpl implements Queue
                   }
                   catch (Exception e)
                   {
-                     HornetQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
+                     ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
                   }
 
                }
@@ -1758,7 +1758,7 @@ public class QueueImpl implements Queue
                {
                   if (targetDuplicateCache.contains(duplicateBytes))
                   {
-                     HornetQServerLogger.LOGGER.messageWithDuplicateID(ref.getMessage().getDuplicateProperty(), toAddress, address, address);
+                     ActiveMQServerLogger.LOGGER.messageWithDuplicateID(ref.getMessage().getDuplicateProperty(), toAddress, address, address);
                      acknowledge(tx, ref);
                      ignored = true;
                   }
@@ -1860,7 +1860,7 @@ public class QueueImpl implements Queue
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
       }
       paused = true;
    }
@@ -1973,9 +1973,9 @@ public class QueueImpl implements Queue
     */
    private void deliver()
    {
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug(this + " doing deliver. messageReferences=" + messageReferences.size());
+         ActiveMQServerLogger.LOGGER.debug(this + " doing deliver. messageReferences=" + messageReferences.size());
       }
 
       doInternalPoll();
@@ -2007,7 +2007,7 @@ public class QueueImpl implements Queue
          {
             if (isTrace)
             {
-               HornetQServerLogger.LOGGER.trace("delivery has been running for too long. Scheduling another delivery task now");
+               ActiveMQServerLogger.LOGGER.trace("delivery has been running for too long. Scheduling another delivery task now");
             }
 
             deliverAsync();
@@ -2077,7 +2077,7 @@ public class QueueImpl implements Queue
                {
                   if (isTrace)
                   {
-                     HornetQServerLogger.LOGGER.trace("Reference " + ref + " being expired");
+                     ActiveMQServerLogger.LOGGER.trace("Reference " + ref + " being expired");
                   }
                   holder.iter.remove();
 
@@ -2091,7 +2091,7 @@ public class QueueImpl implements Queue
 
                if (isTrace)
                {
-                  HornetQServerLogger.LOGGER.trace("Queue " + this.getName() + " is delivering reference " + ref);
+                  ActiveMQServerLogger.LOGGER.trace("Queue " + this.getName() + " is delivering reference " + ref);
                }
 
                // If a group id is set, then this overrides the consumer chosen round-robin
@@ -2150,13 +2150,13 @@ public class QueueImpl implements Queue
                   {
                      // this shouldn't really happen,
                      // however I'm keeping this as an assertion case future developers ever change the logic here on this class
-                     HornetQServerLogger.LOGGER.warn("Internal error! Delivery logic has identified a non delivery and still handled a consumer!");
+                     ActiveMQServerLogger.LOGGER.warn("Internal error! Delivery logic has identified a non delivery and still handled a consumer!");
                   }
                   else
                   {
-                     if (HornetQServerLogger.LOGGER.isDebugEnabled())
+                     if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                      {
-                        HornetQServerLogger.LOGGER.debug(this + "::All the consumers were busy, giving up now");
+                        ActiveMQServerLogger.LOGGER.debug(this + "::All the consumers were busy, giving up now");
                      }
                      break;
                   }
@@ -2232,7 +2232,7 @@ public class QueueImpl implements Queue
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Scheduling depage for queue " + this.getName());
+            ActiveMQServerLogger.LOGGER.trace("Scheduling depage for queue " + this.getName());
          }
          depagePending = true;
          pageSubscription.getExecutor().execute(new DepageRunner(scheduleExpiry));
@@ -2258,7 +2258,7 @@ public class QueueImpl implements Queue
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("QueueMemorySize before depage on queue=" + this.getName() + " is " + queueMemorySize.get());
+         ActiveMQServerLogger.LOGGER.trace("QueueMemorySize before depage on queue=" + this.getName() + " is " + queueMemorySize.get());
       }
 
       this.directDeliver = false;
@@ -2270,22 +2270,22 @@ public class QueueImpl implements Queue
          PagedReference reference = pageIterator.next();
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Depaging reference " + reference + " on queue " + this.getName());
+            ActiveMQServerLogger.LOGGER.trace("Depaging reference " + reference + " on queue " + this.getName());
          }
          addTail(reference, false);
          pageIterator.remove();
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
          if (depaged == 0 && queueMemorySize.get() >= maxSize)
          {
-            HornetQServerLogger.LOGGER.debug("Couldn't depage any message as the maxSize on the queue was achieved. " + "There are too many pending messages to be acked in reference to the page configuration");
+            ActiveMQServerLogger.LOGGER.debug("Couldn't depage any message as the maxSize on the queue was achieved. " + "There are too many pending messages to be acked in reference to the page configuration");
          }
 
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug("Queue Memory Size after depage on queue=" + this.getName() +
+            ActiveMQServerLogger.LOGGER.debug("Queue Memory Size after depage on queue=" + this.getName() +
                                                 " is " +
                                                 queueMemorySize.get() +
                                                 " with maxSize = " +
@@ -2336,7 +2336,7 @@ public class QueueImpl implements Queue
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Queue " + this.getName() + " is an internal queue, no checkRedelivery");
+            ActiveMQServerLogger.LOGGER.trace("Queue " + this.getName() + " is an internal queue, no checkRedelivery");
          }
          // no DLQ check on internal queues
          return true;
@@ -2358,7 +2358,7 @@ public class QueueImpl implements Queue
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Sending reference " + reference + " to DLA = " + addressSettings.getDeadLetterAddress() + " since ref.getDeliveryCount=" + reference.getDeliveryCount() + "and maxDeliveries=" + maxDeliveries + " from queue=" + this.getName());
+            ActiveMQServerLogger.LOGGER.trace("Sending reference " + reference + " to DLA = " + addressSettings.getDeadLetterAddress() + " since ref.getDeliveryCount=" + reference.getDeliveryCount() + "and maxDeliveries=" + maxDeliveries + " from queue=" + this.getName());
          }
          sendToDeadLetterAddress(reference, addressSettings.getDeadLetterAddress());
 
@@ -2373,7 +2373,7 @@ public class QueueImpl implements Queue
 
             if (isTrace)
             {
-               HornetQServerLogger.LOGGER.trace("Setting redeliveryDelay=" + redeliveryDelay + " on reference=" + reference);
+               ActiveMQServerLogger.LOGGER.trace("Setting redeliveryDelay=" + redeliveryDelay + " on reference=" + reference);
             }
 
             reference.setScheduledDeliveryTime(timeBase + redeliveryDelay);
@@ -2429,7 +2429,7 @@ public class QueueImpl implements Queue
          if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
          {
             oldRouteToIDs = (byte[]) copyMessage.removeProperty(propName);
-            HornetQServerLogger.LOGGER.debug("Removed property from message: " + propName + " = " + oldRouteToIDs + " (" + ByteBuffer.wrap(oldRouteToIDs).getLong() + ")");
+            ActiveMQServerLogger.LOGGER.debug("Removed property from message: " + propName + " = " + oldRouteToIDs + " (" + ByteBuffer.wrap(oldRouteToIDs).getLong() + ")");
 
             // there should only be one of these properties so potentially save some loop iterations
             break;
@@ -2454,11 +2454,11 @@ public class QueueImpl implements Queue
 
          if (targetBinding == null)
          {
-            HornetQServerLogger.LOGGER.unableToFindTargetQueue(targetNodeID);
+            ActiveMQServerLogger.LOGGER.unableToFindTargetQueue(targetNodeID);
          }
          else
          {
-            HornetQServerLogger.LOGGER.debug("Routing on binding: " + targetBinding);
+            ActiveMQServerLogger.LOGGER.debug("Routing on binding: " + targetBinding);
             targetBinding.route(copyMessage, routingContext);
          }
       }
@@ -2475,7 +2475,7 @@ public class QueueImpl implements Queue
 
          public void onError(final int errorCode, final String errorMessage)
          {
-            HornetQServerLogger.LOGGER.ioErrorRedistributing(errorCode, errorMessage);
+            ActiveMQServerLogger.LOGGER.ioErrorRedistributing(errorCode, errorMessage);
          }
 
          public void done()
@@ -2509,7 +2509,7 @@ public class QueueImpl implements Queue
                // parse the queue name of the remote queue binding to determine the node ID
                String temp = remoteQueueBinding.getQueue().getName().toString();
                targetNodeID = temp.substring(temp.lastIndexOf(".") + 1);
-               HornetQServerLogger.LOGGER.debug("Message formerly destined for " + oldQueueName + " with ID: " + oldQueueID + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
+               ActiveMQServerLogger.LOGGER.debug("Message formerly destined for " + oldQueueName + " with ID: " + oldQueueID + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
 
                // now that we have the name of the queue we need to look through all the bindings again to find the new remote queue binding
                for (Map.Entry<SimpleString, Binding> entry2 : postOffice.getAllBindings().entrySet())
@@ -2525,15 +2525,15 @@ public class QueueImpl implements Queue
                      if (oldQueueName.equals(remoteQueueBinding.getRoutingName()) && targetNodeID.equals(queueSuffix.toString()))
                      {
                         targetBinding = remoteQueueBinding;
-                        if (HornetQServerLogger.LOGGER.isDebugEnabled())
+                        if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                         {
-                           HornetQServerLogger.LOGGER.debug("Message now destined for " + remoteQueueBinding.getRoutingName() + " with ID: " + remoteQueueBinding.getRemoteQueueID() + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
+                           ActiveMQServerLogger.LOGGER.debug("Message now destined for " + remoteQueueBinding.getRoutingName() + " with ID: " + remoteQueueBinding.getRemoteQueueID() + " on address " + copyMessage.getAddress() + " on node " + targetNodeID);
                         }
                         break;
                      }
                      else
                      {
-                        HornetQServerLogger.LOGGER.debug("Failed to match: " + remoteQueueBinding);
+                        ActiveMQServerLogger.LOGGER.debug("Failed to match: " + remoteQueueBinding);
                      }
                   }
                }
@@ -2578,7 +2578,7 @@ public class QueueImpl implements Queue
 
          if (bindingList.getBindings().isEmpty())
          {
-            HornetQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
+            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
          }
          else
          {
@@ -2587,7 +2587,7 @@ public class QueueImpl implements Queue
       }
       else
       {
-         HornetQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
+         ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoQueue(name);
 
          acknowledge(tx, ref);
       }
@@ -2607,18 +2607,18 @@ public class QueueImpl implements Queue
 
          if (bindingList.getBindings().isEmpty())
          {
-            HornetQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
+            ActiveMQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
             acknowledge(ref);
          }
          else
          {
-            HornetQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
+            ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
             move(deadLetterAddress, ref, false, false);
          }
       }
       else
       {
-         HornetQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(name);
+         ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(name);
 
          acknowledge(ref);
       }
@@ -2727,7 +2727,7 @@ public class QueueImpl implements Queue
       }
       catch (Throwable t)
       {
-         HornetQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
+         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
 
          synchronized (this)
          {
@@ -2738,7 +2738,7 @@ public class QueueImpl implements Queue
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorRemovingConsumer(e);
+               ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
             }
 
             // The message failed to be delivered, hence we try again
@@ -2757,7 +2757,7 @@ public class QueueImpl implements Queue
       {
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Reference " + reference + " is expired");
+            ActiveMQServerLogger.LOGGER.trace("Reference " + reference + " is expired");
          }
          reference.handled();
 
@@ -2767,7 +2767,7 @@ public class QueueImpl implements Queue
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorExpiringRef(e);
+            ActiveMQServerLogger.LOGGER.errorExpiringRef(e);
          }
 
          return true;
@@ -2787,7 +2787,7 @@ public class QueueImpl implements Queue
       }
       catch (Throwable t)
       {
-         HornetQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
+         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
 
          // If the consumer throws an exception we remove the consumer
          try
@@ -2796,7 +2796,7 @@ public class QueueImpl implements Queue
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorRemovingConsumer(e);
+            ActiveMQServerLogger.LOGGER.errorRemovingConsumer(e);
          }
          return HandleStatus.BUSY;
       }
@@ -2842,7 +2842,7 @@ public class QueueImpl implements Queue
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.errorDecrementingRefCount(e);
+         ActiveMQServerLogger.LOGGER.errorDecrementingRefCount(e);
       }
 
       if (durableRef)
@@ -2871,7 +2871,7 @@ public class QueueImpl implements Queue
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
+               ActiveMQServerLogger.LOGGER.errorRemovingMessage(e, message.getMessageID());
             }
          }
       }
@@ -2979,7 +2979,7 @@ public class QueueImpl implements Queue
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorDelivering(e);
+            ActiveMQServerLogger.LOGGER.errorDelivering(e);
          }
          finally
          {
@@ -3005,7 +3005,7 @@ public class QueueImpl implements Queue
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorDelivering(e);
+            ActiveMQServerLogger.LOGGER.errorDelivering(e);
          }
       }
    }
@@ -3175,9 +3175,9 @@ public class QueueImpl implements Queue
             slowConsumerReaperFuture.cancel(false);
             slowConsumerReaperFuture = null;
             slowConsumerReaperRunnable = null;
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("Cancelled slow-consumer-reaper thread for queue \"" + getName() + "\"");
+               ActiveMQServerLogger.LOGGER.debug("Cancelled slow-consumer-reaper thread for queue \"" + getName() + "\"");
             }
          }
       }
@@ -3208,9 +3208,9 @@ public class QueueImpl implements Queue
                                                                           settings.getSlowConsumerCheckPeriod(),
                                                                           TimeUnit.SECONDS);
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Scheduled slow-consumer-reaper thread for queue \"" + getName() +
+         ActiveMQServerLogger.LOGGER.debug("Scheduled slow-consumer-reaper thread for queue \"" + getName() +
                                              "\"; slow-consumer-check-period=" + settings.getSlowConsumerCheckPeriod() +
                                              ", slow-consumer-threshold=" + settings.getSlowConsumerThreshold() +
                                              ", slow-consumer-policy=" + settings.getSlowConsumerPolicy());
@@ -3245,9 +3245,9 @@ public class QueueImpl implements Queue
       public void run()
       {
          float queueRate = getRate();
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug(getAddress() + ":" + getName() + " has " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
+            ActiveMQServerLogger.LOGGER.debug(getAddress() + ":" + getName() + " has " + getConsumerCount() + " consumer(s) and is receiving messages at a rate of " + queueRate + " msgs/second.");
          }
          for (Consumer consumer : getConsumers())
          {
@@ -3257,9 +3257,9 @@ public class QueueImpl implements Queue
                float consumerRate = serverConsumer.getRate();
                if (queueRate < threshold)
                {
-                  if (HornetQServerLogger.LOGGER.isDebugEnabled())
+                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                   {
-                     HornetQServerLogger.LOGGER.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
+                     ActiveMQServerLogger.LOGGER.debug("Insufficient messages received on queue \"" + getName() + "\" to satisfy slow-consumer-threshold. Skipping inspection of consumer.");
                   }
                }
                else if (consumerRate < threshold)
@@ -3277,11 +3277,11 @@ public class QueueImpl implements Queue
 
                   if (connection != null)
                   {
-                     HornetQServerLogger.LOGGER.slowConsumerDetected(serverConsumer.getSessionID(), serverConsumer.getID(), getName().toString(), connection.getRemoteAddress(), threshold, consumerRate);
+                     ActiveMQServerLogger.LOGGER.slowConsumerDetected(serverConsumer.getSessionID(), serverConsumer.getID(), getName().toString(), connection.getRemoteAddress(), threshold, consumerRate);
                      if (policy.equals(SlowConsumerPolicy.KILL))
                      {
                         remotingService.removeConnection(connection.getID());
-                        connection.fail(HornetQMessageBundle.BUNDLE.connectionsClosedByManagement(connection.getRemoteAddress()));
+                        connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsClosedByManagement(connection.getRemoteAddress()));
                      }
                      else if (policy.equals(SlowConsumerPolicy.NOTIFY))
                      {
@@ -3314,7 +3314,7 @@ public class QueueImpl implements Queue
                         }
                         catch (Exception e)
                         {
-                           HornetQServerLogger.LOGGER.failedToSendSlowConsumerNotification(notification, e);
+                           ActiveMQServerLogger.LOGGER.failedToSendSlowConsumerNotification(notification, e);
                         }
                      }
                   }

@@ -25,7 +25,7 @@ import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.paging.cursor.PagePosition;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
@@ -98,7 +98,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.pageTxDeleteError(e, recordID);
+            ActiveMQServerLogger.LOGGER.pageTxDeleteError(e, recordID);
          }
 
          pagingManager.removeTransaction(this.transactionID);

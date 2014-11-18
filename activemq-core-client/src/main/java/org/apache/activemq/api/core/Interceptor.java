@@ -16,10 +16,10 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
- * This is class is a simple way to intercepting calls on HornetQ client and servers.
+ * This is class is a simple way to intercepting calls on ActiveMQ client and servers.
  * <p>
- * To add an interceptor to HornetQ server, you have to modify the server configuration file
- * {@literal hornetq-configuration.xml}.<br>
+ * To add an interceptor to ActiveMQ server, you have to modify the server configuration file
+ * {@literal activemq-configuration.xml}.<br>
  * To add it to a client, use {@link org.apache.activemq.api.core.client.ServerLocator#addIncomingInterceptor(Interceptor)}
  *
  * @author clebert.suconic@jboss.com

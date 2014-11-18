@@ -19,7 +19,7 @@ import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.cluster.ha.BackupPolicy;
 import org.apache.activemq.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.core.server.cluster.ha.HAPolicy;
@@ -119,7 +119,7 @@ public final class ConfigurationUtils
          }
 
       }
-      throw HornetQMessageBundle.BUNDLE.unsupportedHAPolicyConfiguration(conf);
+      throw ActiveMQMessageBundle.BUNDLE.unsupportedHAPolicyConfiguration(conf);
    }
 
    public static ScaleDownPolicy getScaleDownPolicy(ScaleDownConfiguration scaleDownConfiguration)

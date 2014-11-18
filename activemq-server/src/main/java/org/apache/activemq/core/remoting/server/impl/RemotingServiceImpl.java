@@ -42,11 +42,11 @@ import org.apache.activemq.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.security.HornetQPrincipal;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ClusterManager;
 import org.apache.activemq.core.server.impl.ServiceRegistry;
@@ -63,7 +63,7 @@ import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConfigurationHelper;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
@@ -75,7 +75,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 {
    // Constants -----------------------------------------------------
 
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    public static final long CONNECTION_TTL_CHECK_INTERVAL = 2000;
 
@@ -93,7 +93,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private final Map<Object, ConnectionEntry> connections = new ConcurrentHashMap<Object, ConnectionEntry>();
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final ManagementService managementService;
 
@@ -109,7 +109,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private final Map<String, ProtocolManager> protocolMap = new ConcurrentHashMap();
 
-   private HornetQPrincipal defaultInvmSecurityPrincipal;
+   private ActiveMQPrincipal defaultInvmSecurityPrincipal;
 
    private ServiceRegistry serviceRegistry;
 
@@ -119,7 +119,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    public RemotingServiceImpl(final ClusterManager clusterManager,
                               final Configuration config,
-                              final HornetQServer server,
+                              final ActiveMQServer server,
                               final ManagementService managementService,
                               final ScheduledExecutorService scheduledThreadPool,
                               List<ProtocolManagerFactory> protocolManagerFactories,
@@ -144,7 +144,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       //i know there is only 1
       this.flushExecutor = flushExecutor;
 
-      HornetQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0]);
+      ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0]);
       this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0],
                            coreProtocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
 
@@ -158,7 +158,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                String[] protocols = next.getProtocols();
                for (String protocol : protocols)
                {
-                  HornetQServerLogger.LOGGER.addingProtocolSupport(protocol);
+                  ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol);
                   protocolMap.put(protocol, next.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
                }
             }
@@ -172,7 +172,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             String[] protocols = protocolManagerFactory.getProtocols();
             for (String protocol : protocols)
             {
-               HornetQServerLogger.LOGGER.addingProtocolSupport(protocol);
+               ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol);
                protocolMap.put(protocol, protocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
             }
          }
@@ -219,7 +219,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       // This needs to be a different thread pool to the main thread pool especially for OIO where we may need
       // to support many hundreds of connections, but the main thread pool must be kept small for better performance
 
-      ThreadFactory tFactory = new HornetQThreadFactory("HornetQ-remoting-threads-" + server.toString() +
+      ThreadFactory tFactory = new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() +
                                                            "-" +
                                                            System.identityHashCode(this), false, tccl);
 
@@ -244,7 +244,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
                if (!invalid.isEmpty())
                {
-                  HornetQServerLogger.LOGGER.invalidAcceptorKeys(ConfigurationHelper.stringSetToCommaListString(invalid));
+                  ActiveMQServerLogger.LOGGER.invalidAcceptorKeys(ConfigurationHelper.stringSetToCommaListString(invalid));
 
                   continue;
                }
@@ -257,12 +257,12 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
             if (protocol != null)
             {
-               HornetQServerLogger.LOGGER.warnDeprecatedProtocol();
+               ActiveMQServerLogger.LOGGER.warnDeprecatedProtocol();
                ProtocolManager protocolManager = protocolMap.get(protocol);
 
                if (protocolManager == null)
                {
-                  throw HornetQMessageBundle.BUNDLE.noProtocolManagerFound(protocol);
+                  throw ActiveMQMessageBundle.BUNDLE.noProtocolManagerFound(protocol);
                }
                else
                {
@@ -285,7 +285,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
                      if (protocolManager == null)
                      {
-                        throw HornetQMessageBundle.BUNDLE.noProtocolManagerFound(actualProtocol);
+                        throw ActiveMQMessageBundle.BUNDLE.noProtocolManagerFound(actualProtocol);
                      }
                      else
                      {
@@ -308,7 +308,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
             if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable())
             {
-               acceptor.setDefaultHornetQPrincipal(defaultInvmSecurityPrincipal);
+               acceptor.setDefaultActiveMQPrincipal(defaultInvmSecurityPrincipal);
             }
 
             acceptors.put(info.getName(), acceptor);
@@ -322,7 +322,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorCreatingAcceptor(e, info.getFactoryClassName());
+            ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(e, info.getFactoryClassName());
          }
       }
 
@@ -339,14 +339,14 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       started = true;
    }
 
-   public synchronized void allowInvmSecurityOverride(HornetQPrincipal principal)
+   public synchronized void allowInvmSecurityOverride(ActiveMQPrincipal principal)
    {
       defaultInvmSecurityPrincipal = principal;
       for (Acceptor acceptor : acceptors.values())
       {
          if (acceptor.isUnsecurable())
          {
-            acceptor.setDefaultHornetQPrincipal(principal);
+            acceptor.setDefaultActiveMQPrincipal(principal);
          }
       }
    }
@@ -365,7 +365,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorStoppingAcceptor();
+            ActiveMQServerLogger.LOGGER.errorStoppingAcceptor();
          }
       }
       HashMap<Object, ConnectionEntry> connectionEntries = new HashMap<Object, ConnectionEntry>(connections);
@@ -379,9 +379,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          if (conn.equals(connectionToKeepOpen))
             continue;
 
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace("Sending connection.disconnection packet to " + conn);
+            ActiveMQServerLogger.LOGGER.trace("Sending connection.disconnection packet to " + conn);
          }
 
          if (!conn.isClient())
@@ -404,16 +404,16 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       // We need to stop them accepting first so no new connections are accepted after we send the disconnect message
       for (Acceptor acceptor : acceptors.values())
       {
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug("Pausing acceptor " + acceptor);
+            ActiveMQServerLogger.LOGGER.debug("Pausing acceptor " + acceptor);
          }
          acceptor.pause();
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Sending disconnect on live connections");
+         ActiveMQServerLogger.LOGGER.debug("Sending disconnect on live connections");
       }
 
       HashSet<ConnectionEntry> connectionEntries = new HashSet<ConnectionEntry>(connections.values());
@@ -424,9 +424,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       {
          RemotingConnection conn = entry.connection;
 
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace("Sending connection.disconnection packet to " + conn);
+            ActiveMQServerLogger.LOGGER.trace("Sending connection.disconnection packet to " + conn);
          }
 
          conn.disconnect(criticalError);
@@ -454,7 +454,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
          if (!ok)
          {
-            HornetQServerLogger.LOGGER.timeoutRemotingThreadPool();
+            ActiveMQServerLogger.LOGGER.timeoutRemotingThreadPool();
          }
       }
 
@@ -484,7 +484,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
       else
       {
-         HornetQServerLogger.LOGGER.errorRemovingConnection();
+         ActiveMQServerLogger.LOGGER.errorRemovingConnection();
 
          return null;
       }
@@ -500,7 +500,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
       else
       {
-         HornetQServerLogger.LOGGER.errorRemovingConnection();
+         ActiveMQServerLogger.LOGGER.errorRemovingConnection();
 
          return null;
       }
@@ -525,7 +525,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       return protocolMap.get(protocol);
    }
 
-   public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+   public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
    {
       if (server == null)
       {
@@ -536,14 +536,14 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       if (pmgr == null)
       {
-         throw HornetQMessageBundle.BUNDLE.unknownProtocol(protocol);
+         throw ActiveMQMessageBundle.BUNDLE.unknownProtocol(protocol);
       }
 
       ConnectionEntry entry = pmgr.createConnectionEntry((Acceptor) component, connection);
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Connection created " + connection);
+         ActiveMQServerLogger.LOGGER.trace("Connection created " + connection);
       }
 
       connections.put(connection.getID(), entry);
@@ -554,7 +554,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Connection removed " + connectionID + " from server " + this.server, new Exception("trace"));
+         ActiveMQServerLogger.LOGGER.trace("Connection removed " + connectionID + " from server " + this.server, new Exception("trace"));
       }
 
       ConnectionEntry conn = connections.get(connectionID);
@@ -662,9 +662,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          }
          else
          {
-            if (HornetQServerLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
             {
-               HornetQServerLogger.LOGGER.trace("ConnectionID = " + connectionID + " was already closed, so ignoring packet");
+               ActiveMQServerLogger.LOGGER.trace("ConnectionID = " + connectionID + " was already closed, so ignoring packet");
             }
          }
       }
@@ -679,7 +679,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       FailureCheckAndFlushThread(final long pauseInterval)
       {
-         super("hornetq-failure-check-thread");
+         super("activemq-failure-check-thread");
 
          this.pauseInterval = pauseInterval;
       }
@@ -752,7 +752,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                            }
                            catch (Throwable e)
                            {
-                              HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+                              ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                            }
 
                         }
@@ -765,7 +765,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                   RemotingConnection conn = getConnection(id);
                   if (conn != null)
                   {
-                     conn.fail(HornetQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
+                     conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
                      removeConnection(id);
                   }
                }
@@ -775,7 +775,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             }
             catch (Throwable e)
             {
-               HornetQServerLogger.LOGGER.errorOnFailureCheck(e);
+               ActiveMQServerLogger.LOGGER.errorOnFailureCheck(e);
             }
          }
       }

@@ -37,8 +37,8 @@ import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.tests.integration.SimpleNotificationService;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -59,13 +59,13 @@ public class ClusterConnectionControlTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server_0;
+   private ActiveMQServer server_0;
 
    private ClusterConnectionConfiguration clusterConnectionConfig1;
 
    private ClusterConnectionConfiguration clusterConnectionConfig2;
 
-   private HornetQServer server_1;
+   private ActiveMQServer server_1;
 
    private MBeanServer mbeanServer_1;
 
@@ -270,10 +270,10 @@ public class ClusterConnectionControlTest extends ManagementTestBase
          .addDiscoveryGroupConfiguration(discoveryGroupName, discoveryGroupConfig);
 
       mbeanServer_1 = MBeanServerFactory.createMBeanServer();
-      server_1 = addServer(HornetQServers.newHornetQServer(conf_1, mbeanServer_1, false));
+      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, mbeanServer_1, false));
       server_1.start();
 
-      server_0 = addServer(HornetQServers.newHornetQServer(conf_0, mbeanServer, false));
+      server_0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
       server_0.start();
    }
 

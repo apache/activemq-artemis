@@ -88,8 +88,8 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
 import org.apache.activemq.core.replication.ReplicatedJournal;
 import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
@@ -110,7 +110,7 @@ import org.apache.activemq.utils.Base64;
 import org.apache.activemq.utils.ByteUtil;
 import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.ExecutorFactory;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.XidCodecSupport;
 
 import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
@@ -235,7 +235,7 @@ public class JournalStorageManager implements StorageManager
 
       if (config.getJournalType() != JournalType.NIO && config.getJournalType() != JournalType.ASYNCIO)
       {
-         throw HornetQMessageBundle.BUNDLE.invalidJournal();
+         throw ActiveMQMessageBundle.BUNDLE.invalidJournal();
       }
 
       bindingsDir = config.getBindingsDirectory();
@@ -255,7 +255,7 @@ public class JournalStorageManager implements StorageManager
                                               config.getJournalCompactMinFiles(),
                                               config.getJournalCompactPercentage(),
                                               bindingsFF,
-                                              "hornetq-bindings",
+                                              "activemq-bindings",
                                               "bindings",
                                               1);
 
@@ -275,7 +275,7 @@ public class JournalStorageManager implements StorageManager
 
       if (config.getJournalType() == JournalType.ASYNCIO)
       {
-         HornetQServerLogger.LOGGER.journalUseAIO();
+         ActiveMQServerLogger.LOGGER.journalUseAIO();
 
          journalFF = new AIOSequentialFileFactory(journalDir,
                                                   config.getJournalBufferSize_AIO(),
@@ -285,7 +285,7 @@ public class JournalStorageManager implements StorageManager
       }
       else if (config.getJournalType() == JournalType.NIO)
       {
-         HornetQServerLogger.LOGGER.journalUseNIO();
+         ActiveMQServerLogger.LOGGER.journalUseNIO();
          journalFF = new NIOSequentialFileFactory(journalDir,
                                                   true,
                                                   config.getJournalBufferSize_NIO(),
@@ -295,7 +295,7 @@ public class JournalStorageManager implements StorageManager
       }
       else
       {
-         throw HornetQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
+         throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
       }
 
       idGenerator = new BatchingIDGenerator(0, JournalStorageManager.CHECKPOINT_BATCH_SIZE, this);
@@ -305,8 +305,8 @@ public class JournalStorageManager implements StorageManager
                                              config.getJournalCompactMinFiles(),
                                              config.getJournalCompactPercentage(),
                                              journalFF,
-                                             "hornetq-data",
-                                             "hq",
+                                             "activemq-data",
+                                             "amq",
                                              config.getJournalType() == JournalType.ASYNCIO ? config.getJournalMaxIO_AIO()
                                                 : config.getJournalMaxIO_NIO());
 
@@ -370,7 +370,7 @@ public class JournalStorageManager implements StorageManager
 
       if (!(messageJournal instanceof JournalImpl) || !(bindingsJournal instanceof JournalImpl))
       {
-         throw HornetQMessageBundle.BUNDLE.notJournalImpl();
+         throw ActiveMQMessageBundle.BUNDLE.notJournalImpl();
       }
 
 
@@ -512,7 +512,7 @@ public class JournalStorageManager implements StorageManager
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorStoppingReplicationManager(e);
+            ActiveMQServerLogger.LOGGER.errorStoppingReplicationManager(e);
          }
          replicator = null;
          // delete inside the writeLock. Avoids a lot of state checking and races with
@@ -540,7 +540,7 @@ public class JournalStorageManager implements StorageManager
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeMsgId);
+            ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeMsgId);
          }
          if (replicator != null)
          {
@@ -664,7 +664,7 @@ public class JournalStorageManager implements StorageManager
    {
       if (!started)
       {
-         HornetQServerLogger.LOGGER.serverIsStopped();
+         ActiveMQServerLogger.LOGGER.serverIsStopped();
          throw new IllegalStateException("Server is stopped");
       }
       waitOnOperations(0);
@@ -675,7 +675,7 @@ public class JournalStorageManager implements StorageManager
    {
       if (!started)
       {
-         HornetQServerLogger.LOGGER.serverIsStopped();
+         ActiveMQServerLogger.LOGGER.serverIsStopped();
          throw new IllegalStateException("Server is stopped");
       }
       return getContext().waitCompletion(timeout);
@@ -898,7 +898,7 @@ public class JournalStorageManager implements StorageManager
       if (message.getMessageID() <= 0)
       {
          // Sanity check only... this shouldn't happen unless there is a bug
-         throw HornetQMessageBundle.BUNDLE.messageIdNotAssigned();
+         throw ActiveMQMessageBundle.BUNDLE.messageIdNotAssigned();
       }
 
       readLock();
@@ -1058,7 +1058,7 @@ public class JournalStorageManager implements StorageManager
    {
       if (message.getMessageID() <= 0)
       {
-         throw HornetQMessageBundle.BUNDLE.messageIdNotAssigned();
+         throw ActiveMQMessageBundle.BUNDLE.messageIdNotAssigned();
       }
 
       readLock();
@@ -1556,7 +1556,7 @@ public class JournalStorageManager implements StorageManager
             {
                long percent = (long) ((((double) reccount) / ((double) totalSize)) * 100f);
 
-               HornetQServerLogger.LOGGER.percentLoaded(percent);
+               ActiveMQServerLogger.LOGGER.percentLoaded(percent);
             }
 
             RecordInfo record = records.get(reccount);
@@ -1622,7 +1622,7 @@ public class JournalStorageManager implements StorageManager
 
                   if (message == null)
                   {
-                     HornetQServerLogger.LOGGER.cannotFindMessage(record.id);
+                     ActiveMQServerLogger.LOGGER.cannotFindMessage(record.id);
                   }
                   else
                   {
@@ -1643,7 +1643,7 @@ public class JournalStorageManager implements StorageManager
 
                   if (queueMessages == null)
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueue(encoding.queueID, messageID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueue(encoding.queueID, messageID);
                   }
                   else
                   {
@@ -1651,7 +1651,7 @@ public class JournalStorageManager implements StorageManager
 
                      if (rec == null)
                      {
-                        HornetQServerLogger.LOGGER.cannotFindMessage(messageID);
+                        ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
                      }
                   }
 
@@ -1669,7 +1669,7 @@ public class JournalStorageManager implements StorageManager
 
                   if (queueMessages == null)
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueueDelCount(encoding.queueID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueDelCount(encoding.queueID);
                   }
                   else
                   {
@@ -1677,7 +1677,7 @@ public class JournalStorageManager implements StorageManager
 
                      if (rec == null)
                      {
-                        HornetQServerLogger.LOGGER.journalCannotFindMessageDelCount(messageID);
+                        ActiveMQServerLogger.LOGGER.journalCannotFindMessageDelCount(messageID);
                      }
                      else
                      {
@@ -1724,7 +1724,7 @@ public class JournalStorageManager implements StorageManager
 
                   if (queueMessages == null)
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueueScheduled(encoding.queueID, messageID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueScheduled(encoding.queueID, messageID);
                   }
                   else
                   {
@@ -1733,7 +1733,7 @@ public class JournalStorageManager implements StorageManager
 
                      if (rec == null)
                      {
-                        HornetQServerLogger.LOGGER.cannotFindMessage(messageID);
+                        ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
                      }
                      else
                      {
@@ -1784,7 +1784,7 @@ public class JournalStorageManager implements StorageManager
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueueReloading(encoding.queueID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloading(encoding.queueID);
                      messageJournal.appendDeleteRecord(record.id, false);
 
                   }
@@ -1805,7 +1805,7 @@ public class JournalStorageManager implements StorageManager
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueueReloadingPage(encoding.queueID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPage(encoding.queueID);
                      messageJournal.appendDeleteRecord(record.id, false);
                   }
 
@@ -1826,7 +1826,7 @@ public class JournalStorageManager implements StorageManager
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueueReloadingPageCursor(encoding.queueID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPageCursor(encoding.queueID);
                      messageJournal.appendDeleteRecord(record.id, false);
                   }
 
@@ -1848,7 +1848,7 @@ public class JournalStorageManager implements StorageManager
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.cantFindQueueOnPageComplete(encoding.queueID);
+                     ActiveMQServerLogger.LOGGER.cantFindQueueOnPageComplete(encoding.queueID);
                      messageJournal.appendDeleteRecord(record.id, false);
                   }
 
@@ -1908,7 +1908,7 @@ public class JournalStorageManager implements StorageManager
          {
             if (msg.getRefCount() == 0)
             {
-               HornetQServerLogger.LOGGER.largeMessageWithNoRef(msg.getMessageID());
+               ActiveMQServerLogger.LOGGER.largeMessageWithNoRef(msg.getMessageID());
                msg.decrementDelayDeletionCount();
             }
          }
@@ -2211,7 +2211,7 @@ public class JournalStorageManager implements StorageManager
       }
    }
 
-   // HornetQComponent implementation
+   // ActiveMQComponent implementation
    // ------------------------------------------------------
 
    public synchronized void start() throws Exception
@@ -2229,7 +2229,7 @@ public class JournalStorageManager implements StorageManager
 
       cleanupIncompleteFiles();
 
-      singleThreadExecutor = Executors.newSingleThreadExecutor(new HornetQThreadFactory("HornetQ-IO-SingleThread",
+      singleThreadExecutor = Executors.newSingleThreadExecutor(new ActiveMQThreadFactory("ActiveMQ-IO-SingleThread",
                                                                                         true,
                                                                                         getThisClassLoader()));
 
@@ -2392,7 +2392,7 @@ public class JournalStorageManager implements StorageManager
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
    }
@@ -2466,7 +2466,7 @@ public class JournalStorageManager implements StorageManager
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeServerMessage.getMessageID());
+               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeServerMessage.getMessageID());
             }
          }
 
@@ -2518,7 +2518,7 @@ public class JournalStorageManager implements StorageManager
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.cannotCreateDir(dir);
+            throw ActiveMQMessageBundle.BUNDLE.cannotCreateDir(dir);
          }
       }
    }
@@ -2708,13 +2708,13 @@ public class JournalStorageManager implements StorageManager
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.queueID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.queueID);
                   }
                   break;
                }
                case PAGE_CURSOR_COUNTER_VALUE:
                {
-                  HornetQServerLogger.LOGGER.journalPAGEOnPrepared();
+                  ActiveMQServerLogger.LOGGER.journalPAGEOnPrepared();
 
                   break;
                }
@@ -2737,7 +2737,7 @@ public class JournalStorageManager implements StorageManager
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.queueID);
+                     ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.queueID);
                   }
 
                   break;
@@ -2745,7 +2745,7 @@ public class JournalStorageManager implements StorageManager
 
                default:
                {
-                  HornetQServerLogger.LOGGER.journalInvalidRecordType(recordType);
+                  ActiveMQServerLogger.LOGGER.journalInvalidRecordType(recordType);
                }
             }
          }
@@ -2767,13 +2767,13 @@ public class JournalStorageManager implements StorageManager
                      if (!pendingLargeMessages.remove(new Pair<Long, Long>(recordDeleted.id, messageID)))
                      {
                         // TODO: Logging
-                        HornetQServerLogger.LOGGER.warn("Large message " + recordDeleted.id + " wasn't found when dealing with add pending large message");
+                        ActiveMQServerLogger.LOGGER.warn("Large message " + recordDeleted.id + " wasn't found when dealing with add pending large message");
                      }
                      installLargeMessageConfirmationOnTX(tx, recordDeleted.id);
                      break;
                   }
                   default:
-                     HornetQServerLogger.LOGGER.journalInvalidRecordTypeOnPreparedTX(b);
+                     ActiveMQServerLogger.LOGGER.journalInvalidRecordTypeOnPreparedTX(b);
                }
             }
 
@@ -3110,7 +3110,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
        */
       public void decode(final ActiveMQBuffer buffer)
       {
@@ -3118,7 +3118,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
        */
       public void encode(final ActiveMQBuffer buffer)
       {
@@ -3149,7 +3149,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
        */
       public void decode(final ActiveMQBuffer buffer)
       {
@@ -3157,7 +3157,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
        */
       public void encode(final ActiveMQBuffer buffer)
       {
@@ -3283,7 +3283,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.api.core.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.api.core.ActiveMQBuffer)
        */
       @Override
       public void encode(ActiveMQBuffer buffer)
@@ -3293,7 +3293,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.api.core.HornetQBuffer)
+       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.api.core.ActiveMQBuffer)
        */
       @Override
       public void decode(ActiveMQBuffer buffer)
@@ -3730,7 +3730,7 @@ public class JournalStorageManager implements StorageManager
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.journalError(e);
+                  ActiveMQServerLogger.LOGGER.journalError(e);
                }
             }
          }
@@ -3853,7 +3853,7 @@ public class JournalStorageManager implements StorageManager
             }
             catch (Throwable e)
             {
-               HornetQServerLogger.LOGGER.journalErrorConfirmingLargeMessage(e, msg);
+               ActiveMQServerLogger.LOGGER.journalErrorConfirmingLargeMessage(e, msg);
             }
          }
       }

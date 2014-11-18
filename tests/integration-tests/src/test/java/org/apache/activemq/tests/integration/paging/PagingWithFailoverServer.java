@@ -13,7 +13,7 @@
 
 package org.apache.activemq.tests.integration.paging;
 
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.SpawnedVMSupport;
 
 /**
@@ -33,10 +33,10 @@ public class PagingWithFailoverServer extends SpawnedServerSupport
    }
 
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
 
-   public HornetQServer getServer()
+   public ActiveMQServer getServer()
    {
       return server;
    }
@@ -58,7 +58,7 @@ public class PagingWithFailoverServer extends SpawnedServerSupport
       }
    }
 
-   public static HornetQServer createServer(String folder, int thisPort, int otherPort, boolean isBackup)
+   public static ActiveMQServer createServer(String folder, int thisPort, int otherPort, boolean isBackup)
    {
       return createSharedFolderServer(folder, thisPort, otherPort, isBackup);
    }

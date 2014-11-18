@@ -14,7 +14,7 @@ package org.apache.activemq.core.server.cluster;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.management.NotificationService;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
@@ -29,7 +29,7 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
  *
  *
  */
-public interface Bridge extends Consumer, HornetQComponent
+public interface Bridge extends Consumer, ActiveMQComponent
 {
    SimpleString getName();
 

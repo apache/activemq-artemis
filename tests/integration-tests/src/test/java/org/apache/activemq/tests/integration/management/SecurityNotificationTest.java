@@ -32,16 +32,16 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
@@ -58,7 +58,7 @@ public class SecurityNotificationTest extends UnitTestCase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession adminSession;
 
@@ -79,7 +79,7 @@ public class SecurityNotificationTest extends UnitTestCase
 
       SecurityNotificationTest.flush(notifConsumer);
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ClientSessionFactory sf = createSessionFactory(locator);
 
       try
@@ -108,12 +108,12 @@ public class SecurityNotificationTest extends UnitTestCase
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), roles);
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addRole("guest", "roleCanNotCreateQueue");
 
       SecurityNotificationTest.flush(notifConsumer);
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
@@ -153,12 +153,12 @@ public class SecurityNotificationTest extends UnitTestCase
          // the notifications are independent of JMX
          .setJMXManagementEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      server = HornetQServers.newHornetQServer(conf, false);
+      server = ActiveMQServers.newActiveMQServer(conf, false);
       server.start();
 
       notifQueue = RandomUtil.randomSimpleString();
 
-      HornetQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getSecurityManager();
       securityManager.addUser("admin", "admin");
       securityManager.addUser("guest", "guest");
       securityManager.setDefaultUser("guest");
@@ -171,7 +171,7 @@ public class SecurityNotificationTest extends UnitTestCase
 
       securityManager.addRole("admin", "notif");
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ClientSessionFactory sf = createSessionFactory(locator);
       adminSession = sf.createSession("admin", "admin", false, true, true, false, 1);
       adminSession.start();

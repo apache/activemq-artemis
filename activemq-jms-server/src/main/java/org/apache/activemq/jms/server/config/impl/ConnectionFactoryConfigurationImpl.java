@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.utils.BufferHelper;
@@ -50,65 +50,65 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private String clientID = null;
 
-   private boolean ha = HornetQClient.DEFAULT_HA;
+   private boolean ha = ActiveMQClient.DEFAULT_HA;
 
-   private long clientFailureCheckPeriod = HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
+   private long clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
 
-   private long connectionTTL = HornetQClient.DEFAULT_CONNECTION_TTL;
+   private long connectionTTL = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
-   private long callTimeout = HornetQClient.DEFAULT_CALL_TIMEOUT;
+   private long callTimeout = ActiveMQClient.DEFAULT_CALL_TIMEOUT;
 
-   private long callFailoverTimeout = HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT;
+   private long callFailoverTimeout = ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT;
 
-   private boolean cacheLargeMessagesClient = HornetQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
+   private boolean cacheLargeMessagesClient = ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
 
-   private int minLargeMessageSize = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+   private int minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
-   private boolean compressLargeMessage = HornetQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
+   private boolean compressLargeMessage = ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
 
-   private int consumerWindowSize = HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
+   private int consumerWindowSize = ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
 
-   private int consumerMaxRate = HornetQClient.DEFAULT_CONSUMER_MAX_RATE;
+   private int consumerMaxRate = ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE;
 
-   private int confirmationWindowSize = HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
+   private int confirmationWindowSize = ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
 
-   private int producerWindowSize = HornetQClient.DEFAULT_PRODUCER_WINDOW_SIZE;
+   private int producerWindowSize = ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE;
 
-   private int producerMaxRate = HornetQClient.DEFAULT_PRODUCER_MAX_RATE;
+   private int producerMaxRate = ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE;
 
-   private boolean blockOnAcknowledge = HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE;
+   private boolean blockOnAcknowledge = ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE;
 
-   private boolean blockOnDurableSend = HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND;
+   private boolean blockOnDurableSend = ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND;
 
-   private boolean blockOnNonDurableSend = HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND;
+   private boolean blockOnNonDurableSend = ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND;
 
-   private boolean autoGroup = HornetQClient.DEFAULT_AUTO_GROUP;
+   private boolean autoGroup = ActiveMQClient.DEFAULT_AUTO_GROUP;
 
-   private boolean preAcknowledge = HornetQClient.DEFAULT_PRE_ACKNOWLEDGE;
+   private boolean preAcknowledge = ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE;
 
-   private String loadBalancingPolicyClassName = HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME;
+   private String loadBalancingPolicyClassName = ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME;
 
-   private int transactionBatchSize = HornetQClient.DEFAULT_ACK_BATCH_SIZE;
+   private int transactionBatchSize = ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
 
-   private int dupsOKBatchSize = HornetQClient.DEFAULT_ACK_BATCH_SIZE;
+   private int dupsOKBatchSize = ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
 
-   private long initialWaitTimeout = HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
+   private long initialWaitTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
 
-   private boolean useGlobalPools = HornetQClient.DEFAULT_USE_GLOBAL_POOLS;
+   private boolean useGlobalPools = ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS;
 
-   private int scheduledThreadPoolMaxSize = HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
+   private int scheduledThreadPoolMaxSize = ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
 
-   private int threadPoolMaxSize = HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE;
+   private int threadPoolMaxSize = ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE;
 
-   private long retryInterval = HornetQClient.DEFAULT_RETRY_INTERVAL;
+   private long retryInterval = ActiveMQClient.DEFAULT_RETRY_INTERVAL;
 
-   private double retryIntervalMultiplier = HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
+   private double retryIntervalMultiplier = ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
 
-   private long maxRetryInterval = HornetQClient.DEFAULT_MAX_RETRY_INTERVAL;
+   private long maxRetryInterval = ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL;
 
-   private int reconnectAttempts = HornetQClient.DEFAULT_RECONNECT_ATTEMPTS;
+   private int reconnectAttempts = ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS;
 
-   private boolean failoverOnInitialConnection = HornetQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION;
+   private boolean failoverOnInitialConnection = ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION;
 
    private String groupID = null;
 

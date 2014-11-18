@@ -30,8 +30,8 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.protocol.core.impl.HornetQConsumerContext;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.protocol.core.impl.ActiveMQConsumerContext;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -58,7 +58,7 @@ public class AcknowledgeTest extends ServiceTestBase
    @Test
    public void testReceiveAckLastMessageOnly() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       locator.setAckBatchSize(0);
@@ -92,7 +92,7 @@ public class AcknowledgeTest extends ServiceTestBase
    @Test
    public void testAsyncConsumerNoAck() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       server.start();
       ServerLocator locator = createInVMNonHALocator();
@@ -133,7 +133,7 @@ public class AcknowledgeTest extends ServiceTestBase
    @Test
    public void testAsyncConsumerAck() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
@@ -189,7 +189,7 @@ public class AcknowledgeTest extends ServiceTestBase
    @Test
    public void testInvalidACK() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -274,7 +274,7 @@ public class AcknowledgeTest extends ServiceTestBase
    @Test
    public void testAsyncConsumerAckLastMessageOnly() throws Exception
    {
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
@@ -337,7 +337,7 @@ public class AcknowledgeTest extends ServiceTestBase
       @Override
       public ConsumerContext getConsumerContext()
       {
-         return new HornetQConsumerContext(this.id);
+         return new ActiveMQConsumerContext(this.id);
       }
 
       @Override

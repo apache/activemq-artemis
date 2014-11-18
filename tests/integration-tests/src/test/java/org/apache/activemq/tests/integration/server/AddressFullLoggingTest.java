@@ -26,7 +26,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.logging.AssertionLoggerHandler;
@@ -56,7 +56,7 @@ public class AddressFullLoggingTest extends ServiceTestBase
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
-      HornetQServer server = createServer(false);
+      ActiveMQServer server = createServer(false);
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(10 * 1024);
@@ -130,8 +130,8 @@ public class AddressFullLoggingTest extends ServiceTestBase
       server.stop();
 
       // Using the code only so the test doesn't fail just because someone edits the log text
-      Assert.assertTrue("Expected to find HQ222183", AssertionLoggerHandler.findText("HQ222183", "myAddress"));
-      Assert.assertTrue("Expected to find HQ221046", AssertionLoggerHandler.findText("HQ221046", "myAddress"));
+      Assert.assertTrue("Expected to find AMQ222183", AssertionLoggerHandler.findText("AMQ222183", "myAddress"));
+      Assert.assertTrue("Expected to find AMQ221046", AssertionLoggerHandler.findText("AMQ221046", "myAddress"));
    }
 
    @AfterClass

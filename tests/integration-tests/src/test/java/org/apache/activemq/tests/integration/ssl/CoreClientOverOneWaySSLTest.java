@@ -30,12 +30,12 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -73,21 +73,21 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
    /** These artifacts are required for testing 1-way SSL
     *
     * Commands to create the JKS artifacts:
-    * keytool -genkey -keystore server-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
-    * keytool -export -keystore server-side-keystore.jks -file hornetq-jks.cer -storepass secureexample
-    * keytool -import -keystore client-side-truststore.jks -file hornetq-jks.cer -storepass secureexample -keypass secureexample -noprompt
+    * keytool -genkey -keystore server-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ, OU=ActiveMQ, O=ActiveMQ, L=ActiveMQ, S=ActiveMQ, C=AMQ"
+    * keytool -export -keystore server-side-keystore.jks -file activemq-jks.cer -storepass secureexample
+    * keytool -import -keystore client-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
     * Commands to create the JCEKS artifacts:
-    * keytool -genkey -keystore server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
-    * keytool -export -keystore server-side-keystore.jceks -file hornetq-jceks.cer -storetype jceks -storepass secureexample
-    * keytool -import -keystore client-side-truststore.jceks -storetype JCEKS -file hornetq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
+    * keytool -genkey -keystore server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ, OU=ActiveMQ, O=ActiveMQ, L=ActiveMQ, S=ActiveMQ, C=AMQ"
+    * keytool -export -keystore server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
+    * keytool -import -keystore client-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */
    private static String storeType;
    private static String SERVER_SIDE_KEYSTORE;
    private static String CLIENT_SIDE_TRUSTSTORE;
    private static final String PASSWORD = "secureexample";
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private TransportConfiguration tc;
 
@@ -102,7 +102,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       ClientSession session = addClientSession(sf.createSession(false, true, true));
       session.createQueue(CoreClientOverOneWaySSLTest.QUEUE, CoreClientOverOneWaySSLTest.QUEUE, false);
@@ -129,7 +129,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -150,7 +150,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -173,7 +173,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, getEnabledCipherSuites()[1]);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -195,7 +195,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -216,7 +216,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -238,7 +238,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -261,7 +261,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "SSLv3");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -286,7 +286,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, getSuitableCipherSuite());
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
       try
       {
@@ -324,7 +324,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
       try
       {
@@ -362,7 +362,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
       try
       {
@@ -400,7 +400,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
       try
       {
@@ -473,7 +473,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);
@@ -498,7 +498,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "invalid password");
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          ClientSessionFactory sf = createSessionFactory(locator);
@@ -522,7 +522,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "incorrect path");
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          ClientSessionFactory sf = createSessionFactory(locator);
@@ -545,7 +545,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, false);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       locator.setCallTimeout(2000);
       try
       {

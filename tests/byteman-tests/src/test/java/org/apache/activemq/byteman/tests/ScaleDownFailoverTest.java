@@ -17,7 +17,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.core.config.ScaleDownConfiguration;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 public class ScaleDownFailoverTest extends ClusterTestBase
 {
    protected static int stopCount = 0;
-   private static HornetQServer[] staticServers;
+   private static ActiveMQServer[] staticServers;
 
    @Override
    @Before
@@ -171,15 +171,15 @@ public class ScaleDownFailoverTest extends ClusterTestBase
       {
          try
          {
-            for (HornetQServer hornetQServer : staticServers)
+            for (ActiveMQServer activeMQServer : staticServers)
             {
-               if (hornetQServer != null)
+               if (activeMQServer != null)
                {
-                  for (TransportConfiguration transportConfiguration : hornetQServer.getConfiguration().getAcceptorConfigurations())
+                  for (TransportConfiguration transportConfiguration : activeMQServer.getConfiguration().getAcceptorConfigurations())
                   {
                      if (transportConfiguration.getParams().get(TransportConstants.PORT_PROP_NAME).equals(tc.getParams().get(TransportConstants.PORT_PROP_NAME)))
                      {
-                        hornetQServer.stop();
+                        activeMQServer.stop();
                         stopCount++;
                         System.out.println("Stopping server listening at: " + tc.getParams().get(TransportConstants.PORT_PROP_NAME));
                      }

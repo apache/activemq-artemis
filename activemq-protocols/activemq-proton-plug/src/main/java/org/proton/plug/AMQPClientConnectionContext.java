@@ -13,7 +13,7 @@
 
 package org.proton.plug;
 
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * This is valid only on a client connection.
@@ -30,5 +30,5 @@ public interface AMQPClientConnectionContext extends AMQPConnectionContext
     */
    void clientOpen(ClientSASL sasl) throws Exception;
 
-   AMQPClientSessionContext createClientSession() throws HornetQAMQPException;
+   AMQPClientSessionContext createClientSession() throws ActiveMQAMQPException;
 }

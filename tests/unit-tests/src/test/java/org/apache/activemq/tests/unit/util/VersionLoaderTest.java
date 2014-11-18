@@ -43,16 +43,16 @@ public class VersionLoaderTest extends UnitTestCase
       Properties props = new Properties();
       props.load(ClassLoader.getSystemResourceAsStream(VersionLoader.DEFAULT_PROP_FILE_NAME));
 
-      Assert.assertEquals(props.get("hornetq.version.versionName"), version.getVersionName());
-      Assert.assertEquals(props.get("hornetq.version.versionSuffix"), version.getVersionSuffix());
+      Assert.assertEquals(props.get("activemq.version.versionName"), version.getVersionName());
+      Assert.assertEquals(props.get("activemq.version.versionSuffix"), version.getVersionSuffix());
 
-      Assert.assertEquals(Integer.parseInt(props.getProperty("hornetq.version.majorVersion")),
+      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.majorVersion")),
                           version.getMajorVersion());
-      Assert.assertEquals(Integer.parseInt(props.getProperty("hornetq.version.minorVersion")),
+      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.minorVersion")),
                           version.getMinorVersion());
-      Assert.assertEquals(Integer.parseInt(props.getProperty("hornetq.version.microVersion")),
+      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.microVersion")),
                           version.getMicroVersion());
-      Assert.assertEquals(Integer.parseInt(new StringTokenizer(props.getProperty("hornetq.version.incrementingVersion"), ",").nextToken()),
+      Assert.assertEquals(Integer.parseInt(new StringTokenizer(props.getProperty("activemq.version.incrementingVersion"), ",").nextToken()),
                           version.getIncrementingVersion());
    }
 

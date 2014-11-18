@@ -84,7 +84,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
       this.quorumSize = ConfigurationHelper.getIntProperty(VertxConstants.VERTX_QUORUM_SIZE,
                -1, configuration);
       this.haGroup = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_HA_GROUP,
-               "hornetq", configuration);
+               "activemq", configuration);
       this.vertxAddress = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_ADDRESS,
                "org.apache.activemq", configuration);
       this.publish = ConfigurationHelper.getBooleanProperty(VertxConstants.VERTX_PUBLISH, false,
@@ -133,7 +133,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
       this.queue.deliverAsync();
       this.isStarted = true;
 
-      HornetQVertxLogger.LOGGER.debug(connectorName + ": started");
+      ActiveMQVertxLogger.LOGGER.debug(connectorName + ": started");
    }
 
    @Override
@@ -144,14 +144,14 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
          return;
       }
 
-      HornetQVertxLogger.LOGGER.debug(connectorName + ": receive shutdown request");
+      ActiveMQVertxLogger.LOGGER.debug(connectorName + ": receive shutdown request");
 
       this.queue.removeConsumer(this);
 
       this.platformManager.stop();
       System.clearProperty("vertx.clusterManagerFactory");
       this.isStarted = false;
-      HornetQVertxLogger.LOGGER.debug(connectorName + ": stopped");
+      ActiveMQVertxLogger.LOGGER.debug(connectorName + ": stopped");
    }
 
    @Override
@@ -187,7 +187,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
          if (type == null)
          {
             // log a warning and default to raw bytes
-            HornetQVertxLogger.LOGGER.nonVertxMessage(message);
+            ActiveMQVertxLogger.LOGGER.nonVertxMessage(message);
             type = VertxConstants.TYPE_RAWBYTES;
          }
 
@@ -211,7 +211,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
 
          queue.acknowledge(ref);
 
-         HornetQVertxLogger.LOGGER.debug(connectorName + ": forwarded to vertx: "
+         ActiveMQVertxLogger.LOGGER.debug(connectorName + ": forwarded to vertx: "
                   + message.getMessageID());
          return HandleStatus.HANDLED;
       }
@@ -284,7 +284,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
             vertxMsgBody = rawBytes;
             break;
          default:
-            HornetQVertxLogger.LOGGER.invalidVertxType(type);
+            ActiveMQVertxLogger.LOGGER.invalidVertxType(type);
             break;
       }
       return vertxMsgBody;

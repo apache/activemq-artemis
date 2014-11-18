@@ -26,7 +26,7 @@ import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,7 +72,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
+      pollerExecutor = Executors.newCachedThreadPool(new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
                                                                               false, this.getClass().getClassLoader()));
       executor = Executors.newSingleThreadExecutor();
    }

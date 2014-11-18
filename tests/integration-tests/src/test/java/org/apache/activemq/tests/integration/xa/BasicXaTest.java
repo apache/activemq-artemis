@@ -30,10 +30,10 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.ra.HornetQRAXAResource;
+import org.apache.activemq.ra.ActiveMQRAXAResource;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.utils.UUIDGenerator;
@@ -51,7 +51,7 @@ public class BasicXaTest extends ServiceTestBase
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
 
-   private HornetQServer messagingService;
+   private ActiveMQServer messagingService;
 
    private ClientSession clientSession;
 
@@ -168,8 +168,8 @@ public class BasicXaTest extends ServiceTestBase
          ClientSession session1 = nettyFactory.createSession(true, false, false);
          ClientSession session2 = nettyFactory2.createSession(true, false, false);
          assertTrue(session1.isSameRM(session2));
-         HornetQRAXAResource hornetQRAXAResource = new HornetQRAXAResource(null, session2);
-         assertTrue(session1.isSameRM(hornetQRAXAResource));
+         ActiveMQRAXAResource activeMQRAXAResource = new ActiveMQRAXAResource(null, session2);
+         assertTrue(session1.isSameRM(activeMQRAXAResource));
       }
    }
 
@@ -541,16 +541,16 @@ public class BasicXaTest extends ServiceTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      String[] preparedTransactions = messagingService.getHornetQServerControl().listPreparedTransactions();
+      String[] preparedTransactions = messagingService.getActiveMQServerControl().listPreparedTransactions();
       Assert.assertEquals(1, preparedTransactions.length);
       System.out.println(preparedTransactions[0]);
-      Assert.assertTrue(messagingService.getHornetQServerControl()
+      Assert.assertTrue(messagingService.getActiveMQServerControl()
                            .commitPreparedTransaction(XidImpl.toBase64String(xid)));
-      Assert.assertEquals(1, messagingService.getHornetQServerControl().listHeuristicCommittedTransactions().length);
+      Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicCommittedTransactions().length);
 
       clientSession.forget(xid);
 
-      Assert.assertEquals(0, messagingService.getHornetQServerControl().listHeuristicCommittedTransactions().length);
+      Assert.assertEquals(0, messagingService.getActiveMQServerControl().listHeuristicCommittedTransactions().length);
    }
 
    @Test
@@ -561,17 +561,17 @@ public class BasicXaTest extends ServiceTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      String[] preparedTransactions = messagingService.getHornetQServerControl().listPreparedTransactions();
+      String[] preparedTransactions = messagingService.getActiveMQServerControl().listPreparedTransactions();
       Assert.assertEquals(1, preparedTransactions.length);
       System.out.println(preparedTransactions[0]);
 
-      Assert.assertTrue(messagingService.getHornetQServerControl()
+      Assert.assertTrue(messagingService.getActiveMQServerControl()
                            .rollbackPreparedTransaction(XidImpl.toBase64String(xid)));
-      Assert.assertEquals(1, messagingService.getHornetQServerControl().listHeuristicRolledBackTransactions().length);
+      Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicRolledBackTransactions().length);
 
       clientSession.forget(xid);
 
-      Assert.assertEquals(0, messagingService.getHornetQServerControl().listHeuristicRolledBackTransactions().length);
+      Assert.assertEquals(0, messagingService.getActiveMQServerControl().listHeuristicRolledBackTransactions().length);
    }
 
    @Test
@@ -870,22 +870,22 @@ public class BasicXaTest extends ServiceTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      String[] preparedTransactions = messagingService.getHornetQServerControl().listPreparedTransactions();
+      String[] preparedTransactions = messagingService.getActiveMQServerControl().listPreparedTransactions();
       Assert.assertEquals(1, preparedTransactions.length);
 
       if (heuristicCommit)
       {
-         Assert.assertTrue(messagingService.getHornetQServerControl()
+         Assert.assertTrue(messagingService.getActiveMQServerControl()
                               .commitPreparedTransaction(XidImpl.toBase64String(xid)));
-         Assert.assertEquals(1, messagingService.getHornetQServerControl().listHeuristicCommittedTransactions().length);
+         Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicCommittedTransactions().length);
       }
       else
       {
-         Assert.assertTrue(messagingService.getHornetQServerControl()
+         Assert.assertTrue(messagingService.getActiveMQServerControl()
                               .rollbackPreparedTransaction(XidImpl.toBase64String(xid)));
-         Assert.assertEquals(1, messagingService.getHornetQServerControl().listHeuristicRolledBackTransactions().length);
+         Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicRolledBackTransactions().length);
       }
-      Assert.assertEquals(0, messagingService.getHornetQServerControl().listPreparedTransactions().length);
+      Assert.assertEquals(0, messagingService.getActiveMQServerControl().listPreparedTransactions().length);
 
       try
       {
@@ -914,11 +914,11 @@ public class BasicXaTest extends ServiceTestBase
 
       if (heuristicCommit)
       {
-         Assert.assertEquals(1, messagingService.getHornetQServerControl().listHeuristicCommittedTransactions().length);
+         Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicCommittedTransactions().length);
       }
       else
       {
-         Assert.assertEquals(1, messagingService.getHornetQServerControl().listHeuristicRolledBackTransactions().length);
+         Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicRolledBackTransactions().length);
       }
    }
 

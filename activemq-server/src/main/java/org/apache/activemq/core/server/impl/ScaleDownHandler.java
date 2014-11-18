@@ -42,7 +42,7 @@ import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
@@ -80,7 +80,7 @@ public class ScaleDownHandler
       ClusterControl clusterControl = clusterController.connectToNodeInCluster((ClientSessionFactoryInternal) sessionFactory);
       clusterControl.authorize();
       long num = scaleDownMessages(sessionFactory, targetNodeId);
-      HornetQServerLogger.LOGGER.info("Scaled down " + num + " messages total.");
+      ActiveMQServerLogger.LOGGER.info("Scaled down " + num + " messages total.");
       scaleDownTransactions(sessionFactory, resourceManager);
       scaleDownDuplicateIDs(duplicateIDMap, sessionFactory, managementAddress);
       clusterControl.announceScaleDown(new SimpleString(this.targetNodeId), nodeManager.getNodeId());
@@ -222,7 +222,7 @@ public class ScaleDownHandler
                               message.putBytesProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS, oldRouteToIDs);
                            }
 
-                           HornetQServerLogger.LOGGER.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
+                           ActiveMQServerLogger.LOGGER.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
                            producer.send(message.getAddress(), message);
                            messageCount++;
                            bigLoopQueue.deleteReference(message.getMessageID());
@@ -259,7 +259,7 @@ public class ScaleDownHandler
                            }
 
                            logMessage.delete(logMessage.length() - 2, logMessage.length());  // trim off the trailing comma and space
-                           HornetQServerLogger.LOGGER.debug(logMessage.append(" on address ").append(address));
+                           ActiveMQServerLogger.LOGGER.debug(logMessage.append(" on address ").append(address));
 
                            message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
                            //we need this incase we are sending back to the source server of the message, this basically
@@ -316,7 +316,7 @@ public class ScaleDownHandler
       Map<String, Long> queueIDs = new HashMap<>();
       for (Xid xid : preparedTransactions)
       {
-         HornetQServerLogger.LOGGER.debug("Scaling down transaction: " + xid);
+         ActiveMQServerLogger.LOGGER.debug("Scaling down transaction: " + xid);
          Transaction transaction = resourceManager.getTransaction(xid);
          session.start(xid, XAResource.TMNOFLAGS);
          List<TransactionOperation> allOperations = transaction.getAllOperations();
@@ -515,22 +515,22 @@ public class ScaleDownHandler
       if (queueID == -1)
       {
          session.createQueue(addressName, queue.getName(), queue.getFilter() == null ? null : queue.getFilter().getFilterString(), queue.isDurable());
-         HornetQServerLogger.LOGGER.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
+         ActiveMQServerLogger.LOGGER.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
          queueID = getQueueID(session, queue.getName());
       }
 
-      HornetQServerLogger.LOGGER.debug("ID for " + queue + " is: " + queueID);
+      ActiveMQServerLogger.LOGGER.debug("ID for " + queue + " is: " + queueID);
       return queueID;
    }
 
    private Integer getQueueID(ClientSession session, SimpleString queueName) throws Exception
    {
       Integer queueID = -1;
-      ClientRequestor requestor = new ClientRequestor(session, "jms.queue.hornetq.management");
+      ClientRequestor requestor = new ClientRequestor(session, "jms.queue.activemq.management");
       ClientMessage managementMessage = session.createMessage(false);
       ManagementHelper.putAttribute(managementMessage, "core.queue." + queueName, "ID");
       session.start();
-      HornetQServerLogger.LOGGER.debug("Requesting ID for: " + queueName);
+      ActiveMQServerLogger.LOGGER.debug("Requesting ID for: " + queueName);
       ClientMessage reply = requestor.request(managementMessage);
       Object result = ManagementHelper.getResult(reply);
       if (result != null && result instanceof Integer)

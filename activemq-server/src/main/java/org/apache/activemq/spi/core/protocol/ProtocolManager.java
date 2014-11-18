@@ -36,7 +36,7 @@ public interface ProtocolManager
    boolean isProtocol(byte[] array);
 
    /**
-    * Gets the Message Converter towards HornetQ.
+    * Gets the Message Converter towards ActiveMQ.
     * Notice this being null means no need to convert
     * @return
     */

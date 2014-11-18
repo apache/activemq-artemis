@@ -14,7 +14,7 @@ package org.apache.activemq.tests.integration.persistence;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.unit.util.InVMContext;
@@ -32,14 +32,14 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.tools.XmlDataConstants;
 import org.apache.activemq.tools.XmlDataExporter;
 import org.apache.activemq.tools.XmlDataImporter;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.utils.UUIDGenerator;
@@ -61,7 +61,7 @@ public class XmlImportExportTest extends ServiceTestBase
    public static final int CONSUMER_TIMEOUT = 5000;
    private static final String QUEUE_NAME = "A1";
    private ServerLocator locator;
-   private HornetQServer server;
+   private ActiveMQServer server;
    private JMSServerManager jmsServer;
    private ClientSessionFactory factory;
    private InVMContext namingContext;
@@ -166,7 +166,7 @@ public class XmlImportExportTest extends ServiceTestBase
       server.getConfiguration().getConnectorConfigurations().put("in-vm1", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       server.getConfiguration().getConnectorConfigurations().put("in-vm2", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       jmsServer = new JMSServerManagerImpl(server);
-      addHornetQComponent(jmsServer);
+      addActiveMQComponent(jmsServer);
       namingContext = new InVMContext();
       jmsServer.setContext(namingContext);
       jmsServer.start();
@@ -424,7 +424,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ConnectionFactory cf1 = (ConnectionFactory) namingContext.lookup(jndi_binding1);
       assertNotNull(cf1);
-      HornetQConnectionFactory hcf1 = (HornetQConnectionFactory) cf1;
+      ActiveMQConnectionFactory hcf1 = (ActiveMQConnectionFactory) cf1;
       assertEquals(ha, hcf1.isHA());
       assertEquals(type.intValue(), hcf1.getFactoryType());
       assertEquals(clientId, hcf1.getClientID());
@@ -581,12 +581,12 @@ public class XmlImportExportTest extends ServiceTestBase
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);
 
-      for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
          fileMessage.addBytes(new byte[]{getSamplebyte(i)});
       }
 
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       fileMessage.releaseResources();
 
@@ -628,9 +628,9 @@ public class XmlImportExportTest extends ServiceTestBase
 
       assertNotNull(msg);
 
-      assertEquals(2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+      assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
-      for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
          assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
@@ -695,7 +695,7 @@ public class XmlImportExportTest extends ServiceTestBase
       final String MY_QUEUE = "myQueue";
       final String MY_QUEUE2 = "myQueue2";
 
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(10 * 1024);
@@ -836,7 +836,7 @@ public class XmlImportExportTest extends ServiceTestBase
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(10 * 1024);
@@ -871,12 +871,12 @@ public class XmlImportExportTest extends ServiceTestBase
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);
 
-      for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
          fileMessage.addBytes(new byte[]{getSamplebyte(i)});
       }
 
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       fileMessage.releaseResources();
 
@@ -918,9 +918,9 @@ public class XmlImportExportTest extends ServiceTestBase
 
       assertNotNull(msg);
 
-      assertEquals(2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+      assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
-      for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
          assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
@@ -973,7 +973,7 @@ public class XmlImportExportTest extends ServiceTestBase
    public void testBody() throws Exception
    {
       final String QUEUE_NAME = "A1";
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = locator.createSessionFactory();
@@ -1022,7 +1022,7 @@ public class XmlImportExportTest extends ServiceTestBase
    public void testBody2() throws Exception
    {
       final String QUEUE_NAME = "A1";
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = locator.createSessionFactory();

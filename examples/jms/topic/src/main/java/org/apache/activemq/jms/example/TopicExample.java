@@ -21,14 +21,14 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Topic example that creates a producer and consumer on a queue and sends and receives a message.
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class TopicExample extends HornetQExample
+public class TopicExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

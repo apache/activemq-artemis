@@ -30,12 +30,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
-import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.apache.activemq.utils.ReusableLatch;
@@ -68,14 +68,14 @@ public class ConsumerTest extends JMSTestBase
       super.setUp();
 
 
-      topic = HornetQJMSClient.createTopic(T_NAME);
-      topic2 = HornetQJMSClient.createTopic(T2_NAME);
+      topic = ActiveMQJMSClient.createTopic(T_NAME);
+      topic2 = ActiveMQJMSClient.createTopic(T2_NAME);
 
 
       jmsServer.createQueue(false, ConsumerTest.Q_NAME, null, true, ConsumerTest.Q_NAME);
       jmsServer.createTopic(true, T_NAME, "/topic/" + T_NAME);
       jmsServer.createTopic(true, T2_NAME, "/topic/" + T2_NAME);
-      cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
+      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
    }
 
    @Override
@@ -132,8 +132,8 @@ public class ConsumerTest extends JMSTestBase
    public void testPreCommitAcks() throws Exception
    {
       conn = cf.createConnection();
-      Session session = conn.createSession(false, HornetQJMSConstants.PRE_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      Session session = conn.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -149,7 +149,7 @@ public class ConsumerTest extends JMSTestBase
          Assert.assertNotNull(m);
       }
 
-      SimpleString queueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
@@ -158,8 +158,8 @@ public class ConsumerTest extends JMSTestBase
    public void testIndividualACK() throws Exception
    {
       Connection conn = cf.createConnection();
-      Session session = conn.createSession(false, HornetQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      Session session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -183,7 +183,7 @@ public class ConsumerTest extends JMSTestBase
 
       session.close();
 
-      session = conn.createSession(false, HornetQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+      session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
 
       consumer = session.createConsumer(jBossQueue);
 
@@ -201,7 +201,7 @@ public class ConsumerTest extends JMSTestBase
          assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       conn.close();
@@ -211,8 +211,8 @@ public class ConsumerTest extends JMSTestBase
    public void testIndividualACKMessageConsumer() throws Exception
    {
       Connection conn = cf.createConnection();
-      Session session = conn.createSession(false, HornetQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      Session session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -268,7 +268,7 @@ public class ConsumerTest extends JMSTestBase
 
       session.close();
 
-      session = conn.createSession(false, HornetQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+      session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
 
       consumer = session.createConsumer(jBossQueue);
 
@@ -286,7 +286,7 @@ public class ConsumerTest extends JMSTestBase
          assertEquals("m" + i, m.getText());
       }
 
-      SimpleString queueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
       conn.close();
@@ -295,11 +295,11 @@ public class ConsumerTest extends JMSTestBase
    @Test
    public void testPreCommitAcksSetOnConnectionFactory() throws Exception
    {
-      ((HornetQConnectionFactory) cf).setPreAcknowledge(true);
+      ((ActiveMQConnectionFactory) cf).setPreAcknowledge(true);
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
@@ -316,7 +316,7 @@ public class ConsumerTest extends JMSTestBase
       }
 
       // Messages should all have been acked since we set pre ack on the cf
-      SimpleString queueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
+      SimpleString queueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + ConsumerTest.Q_NAME);
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queueName).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount((Queue) server.getPostOffice().getBinding(queueName).getBindable()));
    }
@@ -327,8 +327,8 @@ public class ConsumerTest extends JMSTestBase
       ConsumerTest.log.info("starting test");
 
       conn = cf.createConnection();
-      Session session = conn.createSession(false, HornetQJMSConstants.PRE_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      Session session = conn.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 1000;
@@ -355,10 +355,10 @@ public class ConsumerTest extends JMSTestBase
    @Test
    public void testPreCommitAcksWithMessageExpirySetOnConnectionFactory() throws Exception
    {
-      ((HornetQConnectionFactory) cf).setPreAcknowledge(true);
+      ((ActiveMQConnectionFactory) cf).setPreAcknowledge(true);
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 1000;
@@ -384,11 +384,11 @@ public class ConsumerTest extends JMSTestBase
    @Test
    public void testBrowserAndConsumerSimultaneous() throws Exception
    {
-      ((HornetQConnectionFactory) cf).setConsumerWindowSize(0);
+      ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
 
       QueueBrowser browser = session.createBrowser(jBossQueue);
@@ -431,14 +431,14 @@ public class ConsumerTest extends JMSTestBase
    @Test
    public void testBrowserAndConsumerSimultaneousDifferentConnections() throws Exception
    {
-      ((HornetQConnectionFactory) cf).setConsumerWindowSize(0);
+      ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
 
       Connection connConsumer = cf.createConnection();
       Session sessionConsumer = connConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = sessionConsumer.createConsumer(jBossQueue);
       int noOfMessages = 1000;
@@ -475,11 +475,11 @@ public class ConsumerTest extends JMSTestBase
    @Test
    public void testBrowserOnly() throws Exception
    {
-      ((HornetQConnectionFactory) cf).setConsumerWindowSize(0);
+      ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       int noOfMessages = 10;
       for (int i = 0; i < noOfMessages; i++)
@@ -515,7 +515,7 @@ public class ConsumerTest extends JMSTestBase
    {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       consumer.setMessageListener(new MessageListener()
       {
@@ -533,7 +533,7 @@ public class ConsumerTest extends JMSTestBase
    {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      jBossQueue = HornetQJMSClient.createQueue(ConsumerTest.Q_NAME);
+      jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       consumer.setMessageListener(new MessageListener()
       {
@@ -559,7 +559,7 @@ public class ConsumerTest extends JMSTestBase
       conn = cf.createConnection();
       conn.start();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      topic = HornetQJMSClient.createTopic(T_NAME);
+      topic = ActiveMQJMSClient.createTopic(T_NAME);
 
 
       MessageConsumer cons = session.createSharedConsumer(topic, "test1");
@@ -579,7 +579,7 @@ public class ConsumerTest extends JMSTestBase
       conn = cf.createConnection();
       conn.start();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      topic = HornetQJMSClient.createTopic(T_NAME);
+      topic = ActiveMQJMSClient.createTopic(T_NAME);
 
 
       MessageConsumer cons = session.createSharedDurableConsumer(topic, "test1");
@@ -622,7 +622,7 @@ public class ConsumerTest extends JMSTestBase
          conn3.close();
       }
 
-      topic = HornetQJMSClient.createTopic(T_NAME);
+      topic = ActiveMQJMSClient.createTopic(T_NAME);
 
 
       MessageConsumer cons = session.createSharedDurableConsumer(topic, "test1");
@@ -725,7 +725,7 @@ public class ConsumerTest extends JMSTestBase
    @Test
    public void testShareDurale() throws Exception
    {
-      ((HornetQConnectionFactory) cf).setConsumerWindowSize(0);
+      ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
       conn.start();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -788,7 +788,7 @@ public class ConsumerTest extends JMSTestBase
    @Test
    public void testShareDuraleWithJMSContext() throws Exception
    {
-      ((HornetQConnectionFactory) cf).setConsumerWindowSize(0);
+      ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       JMSContext conn = cf.createContext(JMSContext.AUTO_ACKNOWLEDGE);
 
       JMSConsumer consumer = conn.createSharedDurableConsumer(topic, "c1");

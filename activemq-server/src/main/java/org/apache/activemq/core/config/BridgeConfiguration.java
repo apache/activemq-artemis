@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 
 /**
  * A BridgeConfiguration
@@ -42,9 +42,9 @@ public final class BridgeConfiguration implements Serializable
 
    private String transformerClassName = null;
 
-   private long retryInterval = HornetQClient.DEFAULT_RETRY_INTERVAL;
+   private long retryInterval = ActiveMQClient.DEFAULT_RETRY_INTERVAL;
 
-   private double retryIntervalMultiplier = HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
+   private double retryIntervalMultiplier = ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER;
 
    private int initialConnectAttempts = ActiveMQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts();
 
@@ -54,23 +54,23 @@ public final class BridgeConfiguration implements Serializable
 
    private boolean useDuplicateDetection = ActiveMQDefaultConfiguration.isDefaultBridgeDuplicateDetection();
 
-   private int confirmationWindowSize = HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
+   private int confirmationWindowSize = ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
 
-   private long clientFailureCheckPeriod = HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
+   private long clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
 
    private String user = ActiveMQDefaultConfiguration.getDefaultClusterUser();
 
    private String password = ActiveMQDefaultConfiguration.getDefaultClusterPassword();
 
-   private long connectionTTL = HornetQClient.DEFAULT_CONNECTION_TTL;
+   private long connectionTTL = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
-   private long maxRetryInterval = HornetQClient.DEFAULT_MAX_RETRY_INTERVAL;
+   private long maxRetryInterval = ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL;
 
-   private int minLargeMessageSize = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+   private int minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
    // At this point this is only changed on testcases
    // The bridge shouldn't be sending blocking anyways
-   private long callTimeout = HornetQClient.DEFAULT_CALL_TIMEOUT;
+   private long callTimeout = ActiveMQClient.DEFAULT_CALL_TIMEOUT;
 
 
    public BridgeConfiguration()

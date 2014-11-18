@@ -16,15 +16,14 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.junit.Test;
 
 import java.util.Set;
-
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
 /**
  * A SecurityManagementTest
@@ -86,15 +85,15 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    // Protected -----------------------------------------------------
 
    @Override
-   protected HornetQServer setupAndStartHornetQServer() throws Exception
+   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception
    {
       Configuration conf = createBasicConfig()
          .setSecurityEnabled(true)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      HornetQServer server = addServer(HornetQServers.newHornetQServer(conf, false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HornetQSecurityManagerImpl securityManager = (HornetQSecurityManagerImpl)server.getSecurityManager();
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl)server.getSecurityManager();
       securityManager.addUser(validAdminUser, validAdminPassword);
       securityManager.addUser(invalidAdminUser, invalidAdminPassword);
 

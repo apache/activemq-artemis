@@ -32,19 +32,19 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.FailoverEventListener;
 import org.apache.activemq.api.core.client.FailoverEventType;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.jms.bridge.DestinationFactory;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.unit.util.InVMContext;
@@ -160,7 +160,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
             .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration())
             .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()));
 
-         HornetQServer server0 = addServer(HornetQServers.newHornetQServer(conf0, true));
+         ActiveMQServer server0 = addServer(ActiveMQServers.newActiveMQServer(conf0, true));
 
          liveContext = new InVMContext();
          liveNode = new JMSServerManagerImpl(server0);
@@ -176,7 +176,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
             .setHAPolicyConfiguration(new ReplicaPolicyConfiguration())
             .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
-         HornetQServer backup = addServer(HornetQServers.newHornetQServer(conf, true));
+         ActiveMQServer backup = addServer(ActiveMQServers.newActiveMQServer(conf, true));
 
          Context context = new InVMContext();
 
@@ -187,11 +187,11 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
       public void start() throws Exception
       {
          liveNode.start();
-         waitForServer(liveNode.getHornetQServer());
+         waitForServer(liveNode.getActiveMQServer());
          backupNode.start();
-         waitForRemoteBackupSynchronization(backupNode.getHornetQServer());
+         waitForRemoteBackupSynchronization(backupNode.getActiveMQServer());
 
-         locator = HornetQClient.createServerLocatorWithHA(liveConnector);
+         locator = ActiveMQClient.createServerLocatorWithHA(liveConnector);
          locator.setReconnectAttempts(-1);
          sessionFactory = locator.createSessionFactory();
       }
@@ -215,8 +215,8 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
          {
             public ConnectionFactory createConnectionFactory() throws Exception
             {
-               HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF,
-                                                                                            liveConnector);
+               ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF,
+                                                                                              liveConnector);
                cf.getServerLocator().setReconnectAttempts(-1);
                return cf;
             }
@@ -298,7 +298,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
             }
          });
 
-         liveNode.getHornetQServer().stop();
+         liveNode.getActiveMQServer().stop();
 
          boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
          assertTrue(ok);

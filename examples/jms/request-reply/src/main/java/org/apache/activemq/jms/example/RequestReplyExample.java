@@ -29,7 +29,7 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how to use Request/Replay style messaging.
@@ -41,7 +41,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class RequestReplyExample extends HornetQExample
+public class RequestReplyExample extends ActiveMQExample
 {
    private final Map<String, TextMessage> requestMap = new HashMap<String, TextMessage>();
 

@@ -29,12 +29,12 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
@@ -52,7 +52,7 @@ public class SessionCloseTest extends UnitTestCase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSessionFactory sf;
 
@@ -72,7 +72,7 @@ public class SessionCloseTest extends UnitTestCase
 
       Assert.assertTrue(session.isClosed());
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -80,7 +80,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -88,7 +88,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -98,7 +98,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -106,7 +106,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -114,7 +114,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -122,7 +122,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -130,7 +130,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -138,7 +138,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -146,7 +146,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -167,7 +167,7 @@ public class SessionCloseTest extends UnitTestCase
       Assert.assertTrue(session.isXA());
       Assert.assertTrue(session.isClosed());
 
-      UnitTestCase.expectXAException(XAException.XA_RETRY, new HornetQAction()
+      UnitTestCase.expectXAException(XAException.XA_RETRY, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -175,7 +175,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new HornetQAction()
+      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -183,7 +183,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new HornetQAction()
+      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -191,7 +191,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new HornetQAction()
+      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -199,7 +199,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new HornetQAction()
+      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -207,7 +207,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new HornetQAction()
+      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -215,7 +215,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new HornetQAction()
+      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -259,11 +259,11 @@ public class SessionCloseTest extends UnitTestCase
       Configuration config = createDefaultConfig()
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
          .setSecurityEnabled(false);
-      server = HornetQServers.newHornetQServer(config, false);
+      server = ActiveMQServers.newActiveMQServer(config, false);
 
       server.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       sf = createSessionFactory(locator);
 
    }

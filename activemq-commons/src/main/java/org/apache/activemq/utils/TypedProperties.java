@@ -547,7 +547,7 @@ public final class TypedProperties
                }
                default:
                {
-                  throw HornetQUtilBundle.BUNDLE.invalidType(type);
+                  throw ActiveMQUtilBundle.BUNDLE.invalidType(type);
                }
             }
          }

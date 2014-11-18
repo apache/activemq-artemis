@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.protocol.ServerPacketDecoder;
@@ -42,10 +42,10 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.Ping;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 import org.apache.activemq.core.remoting.CloseListener;
-import org.apache.activemq.core.remoting.impl.netty.HornetQFrameDecoder2;
+import org.apache.activemq.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.spi.core.protocol.MessageConverter;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
@@ -60,15 +60,15 @@ import org.apache.activemq.spi.core.remoting.Connection;
  */
 class CoreProtocolManager implements ProtocolManager
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final List<Interceptor> incomingInterceptors;
 
    private final List<Interceptor> outgoingInterceptors;
 
-   CoreProtocolManager(final HornetQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
+   CoreProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
       this.server = server;
 
@@ -102,11 +102,11 @@ class CoreProtocolManager implements ProtocolManager
 
       Channel channel1 = rc.getChannel(CHANNEL_ID.SESSION.id, -1);
 
-      ChannelHandler handler = new HornetQPacketHandler(this, server, channel1, rc);
+      ChannelHandler handler = new ActiveMQPacketHandler(this, server, channel1, rc);
 
       channel1.setHandler(handler);
 
-      long ttl = HornetQClient.DEFAULT_CONNECTION_TTL;
+      long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
       if (config.getConnectionTTLOverride() != -1)
       {
@@ -148,30 +148,31 @@ class CoreProtocolManager implements ProtocolManager
    @Override
    public void addChannelHandlers(ChannelPipeline pipeline)
    {
-      pipeline.addLast("hornetq-decoder", new HornetQFrameDecoder2());
+      pipeline.addLast("activemq-decoder", new ActiveMQFrameDecoder2());
    }
 
    @Override
    public boolean isProtocol(byte[] array)
    {
       String frameStart = new String(array, StandardCharsets.US_ASCII);
-      return frameStart.startsWith("HORNETQ");
+      return frameStart.startsWith("ACTIVEMQ");
    }
 
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
    {
       //if we are not an old client then handshake
-      if (buffer.getByte(0) == 'H' &&
-         buffer.getByte(1) == 'O' &&
-         buffer.getByte(2) == 'R' &&
-         buffer.getByte(3) == 'N' &&
-         buffer.getByte(4) == 'E' &&
-         buffer.getByte(5) == 'T' &&
-         buffer.getByte(6) == 'Q')
+      if (buffer.getByte(0) == 'A' &&
+         buffer.getByte(1) == 'C' &&
+         buffer.getByte(2) == 'T' &&
+         buffer.getByte(3) == 'I' &&
+         buffer.getByte(4) == 'V' &&
+         buffer.getByte(5) == 'E' &&
+         buffer.getByte(6) == 'M' &&
+         buffer.getByte(7) == 'Q')
       {
          //todo add some handshaking
-         buffer.readBytes(7);
+         buffer.readBytes(8);
       }
    }
 

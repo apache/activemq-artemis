@@ -14,7 +14,7 @@ package org.apache.activemq.core.settings.impl;
 
 import java.util.regex.Pattern;
 
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
 /**
     a Match is the holder for the match string and the object to hold against it.
@@ -124,11 +124,11 @@ public class Match<T>
    {
       if (match == null)
       {
-         throw HornetQMessageBundle.BUNDLE.nullMatch();
+         throw ActiveMQMessageBundle.BUNDLE.nullMatch();
       }
       if (match.contains("#") && match.indexOf("#") < match.length() - 1)
       {
-         throw HornetQMessageBundle.BUNDLE.invalidMatch();
+         throw ActiveMQMessageBundle.BUNDLE.invalidMatch();
       }
    }
 
