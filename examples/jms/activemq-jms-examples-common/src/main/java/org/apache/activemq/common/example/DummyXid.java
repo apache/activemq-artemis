@@ -10,11 +10,11 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.common.example;
+package org.apache.activemq.common.example;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq6.utils.Base64;
+import org.apache.activemq.utils.Base64;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>

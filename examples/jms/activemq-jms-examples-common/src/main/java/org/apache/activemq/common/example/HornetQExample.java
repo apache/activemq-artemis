@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.apache.activemq6.common.example;
+package org.apache.activemq.common.example;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Properties;
@@ -20,14 +20,14 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.naming.InitialContext;
 
-import org.apache.activemq6.api.core.TransportConfiguration;
-import org.apache.activemq6.api.core.client.ClientSession;
-import org.apache.activemq6.api.jms.HornetQJMSClient;
-import org.apache.activemq6.api.jms.JMSFactoryType;
-import org.apache.activemq6.core.client.impl.DelegatingSession;
-import org.apache.activemq6.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq6.jms.client.HornetQConnection;
-import org.apache.activemq6.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.client.impl.DelegatingSession;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.jms.client.HornetQConnection;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
 
 /**
  * Base class for HornetQ examples.
