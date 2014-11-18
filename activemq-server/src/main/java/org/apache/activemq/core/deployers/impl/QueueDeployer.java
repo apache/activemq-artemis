@@ -87,7 +87,7 @@ public class QueueDeployer extends XmlDeployer
    @Override
    public String[] getDefaultConfigFileNames()
    {
-      return new String[]{"hornetq-configuration.xml", "hornetq-queues.xml"};
+      return new String[]{"activemq-configuration.xml", "activemq-queues.xml"};
    }
 
 }

@@ -1,0 +1,67 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+
+   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+
+
+   <!-- Connectors -->
+   <connectors>
+      <connector name="netty-connector">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+      </connector>
+   </connectors>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+      </acceptor>
+   </acceptors>
+
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="jms.queue.exampleQueue">
+         <permission type="createDurableQueue" roles="guest"/>
+         <permission type="deleteDurableQueue" roles="guest"/>
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+
+      <security-setting match="jms.queue.pagingQueue">
+         <permission type="createDurableQueue" roles="guest"/>
+         <permission type="deleteDurableQueue" roles="guest"/>
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+   <address-settings>
+      <address-setting match="jms.queue.pagingQueue">
+         <max-size-bytes>100000</max-size-bytes>
+         <page-size-bytes>20000</page-size-bytes>
+      </address-setting>
+
+      <address-setting match="jms.queue.exampleQueue">
+          <max-size-bytes>10485760</max-size-bytes>
+         <page-size-bytes>1048576</page-size-bytes>
+      </address-setting>
+      <address-setting match="#">
+          <max-size-bytes>10485760</max-size-bytes>
+         <page-size-bytes>1048576</page-size-bytes>
+      </address-setting>
+   </address-settings>
+
+</configuration>

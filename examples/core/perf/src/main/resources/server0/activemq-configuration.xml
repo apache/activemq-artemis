@@ -1,0 +1,53 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+
+
+
+   <bindings-directory>target/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>target/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>target/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>target/server0/data/messaging/paging</paging-directory>
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <param key="tcp-no-delay" value="false"/>
+         <param key="tcp-send-buffer-size" value="1048576"/>
+         <param key="tcp-receive-buffer-size" value="1048576"/>
+      </acceptor>
+   </acceptors>
+   
+   <security-enabled>false</security-enabled>
+   
+   <persistence-enabled>true</persistence-enabled>
+
+   <journal-sync-non-transactional>true</journal-sync-non-transactional>
+   <journal-sync-transactional>true</journal-sync-transactional>
+   <journal-type>ASYNCIO</journal-type>
+   <journal-min-files>20</journal-min-files>
+   <journal-buffer-timeout>20000</journal-buffer-timeout>
+   <log-journal-write-rate>false</log-journal-write-rate>
+   <run-sync-speed-test>false</run-sync-speed-test>
+
+   <!-- <perf-blast-pages>5000</perf-blast-pages> -->
+  
+   <queues>
+	   <queue name="perfQueue">
+	   	<address>perfAddress</address>
+	   </queue>
+   </queues>
+
+<!--
+   <address-settings>      
+      <address-setting match="perfAddress">
+         <max-size-bytes>10485760</max-size-bytes>
+         <address-full-policy>BLOCK</address-full-policy>
+      </address-setting>
+   </address-settings>
+-->
+
+</configuration>

@@ -140,6 +140,6 @@ public class BasicUserCredentialsDeployer extends XmlDeployer
    @Override
    public String[] getDefaultConfigFileNames()
    {
-      return new String[]{"hornetq-users.xml"};
+      return new String[]{"activemq-users.xml"};
    }
 }

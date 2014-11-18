@@ -44,7 +44,7 @@ public class ConfigurationValidationTest extends UnitTestCase
    // Public --------------------------------------------------------
 
    /**
-    * test does not pass in eclipse (because it can not find hornetq-configuration.xsd).
+    * test does not pass in eclipse (because it can not find activemq-configuration.xsd).
     * It runs fine on the CLI with the proper env setting.
     */
    @Test
@@ -53,7 +53,7 @@ public class ConfigurationValidationTest extends UnitTestCase
       String xml = "<configuration xmlns='urn:hornetq'>" + "</configuration>";
       Element element = XMLUtil.stringToElement(xml);
       Assert.assertNotNull(element);
-      XMLUtil.validate(element, "schema/hornetq-configuration.xsd");
+      XMLUtil.validate(element, "schema/activemq-configuration.xsd");
    }
 
    @Test

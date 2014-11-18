@@ -62,7 +62,7 @@ public class WrongRoleFileConfigurationParserTest extends UnitTestCase
    private static final String configuration =
       "<configuration xmlns=\"urn:hornetq\"\n" +
          "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-         "xsi:schemaLocation=\"urn:hornetq /schema/hornetq-configuration.xsd\">\n" +
+         "xsi:schemaLocation=\"urn:hornetq /schema/activemq-configuration.xsd\">\n" +
          "<name>HornetQ.main.config</name>" + "\n" +
          "<backup-group-name>anodegroupname</backup-group-name>" + "\n" +
          "<log-delegate-factory-class-name>org.apache.activemq.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +

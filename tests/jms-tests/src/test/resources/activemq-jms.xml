@@ -1,0 +1,126 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/activemq-jms.xsd">
+
+   <connection-factory name="ConnectionFactory">
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="ConnectionFactory"/>
+         <entry name="/ConnectionFactory"/>
+         <entry name="/XAConnectionFactory"/>
+         <entry name="java:/ConnectionFactory"/>
+         <entry name="java:/XAConnectionFactory"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory1">
+      <xa>true</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_XA_TRUE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory2">
+      <xa>false</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_XA_FALSE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory3" signature="generic">
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_GENERIC"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory4" signature="generic">
+      <xa>true</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_GENERIC_XA_TRUE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory5" signature="generic">
+      <xa>false</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_GENERIC_XA_FALSE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory6" signature="queue">
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_QUEUE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory7" signature="queue">
+      <xa>true</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_QUEUE_XA_TRUE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory8" signature="queue">
+      <xa>false</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_QUEUE_XA_FALSE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory9" signature="topic">
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_TOPIC"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory10" signature="topic">
+      <xa>true</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_TOPIC_XA_TRUE"/>
+      </entries>
+   </connection-factory>
+
+   <connection-factory name="JMSConnectionFactory11" signature="topic">
+      <xa>false</xa>
+      <connectors>
+         <connector-ref connector-name="netty"/>
+      </connectors>
+      <entries>
+         <entry name="/CF_TOPIC_XA_FALSE"/>
+      </entries>
+   </connection-factory>
+
+</configuration>
+

@@ -80,7 +80,7 @@ public class JMSServerDeployer extends XmlDeployer
    @Override
    public void validate(final Node rootNode) throws Exception
    {
-      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/hornetq-jms.xsd");
+      org.apache.activemq.utils.XMLUtil.validate(rootNode, "schema/activemq-jms.xsd");
    }
 
    /**

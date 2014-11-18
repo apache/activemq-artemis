@@ -1,0 +1,80 @@
+<configuration xmlns="urn:activemq"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="urn:hornetq ../../../../../../../../hornetq-server/src/main/resources/schema/activemq-configuration.xsd">
+
+   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+
+   <cluster-user>exampleUser</cluster-user>
+
+   <cluster-password>secret</cluster-password>
+
+   <ha-policy>
+      <replication>
+         <master>
+            <!--we need this for auto failback-->
+            <check-for-live-server>true</check-for-live-server>
+            <allow-failback>true</allow-failback>
+         </master>
+      </replication>
+   </ha-policy>
+
+   <connectors>
+      <connector name="netty-connector">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <param key="port" value="5445"/>
+      </connector>
+   </connectors>
+
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <param key="port" value="5445"/>
+      </acceptor>
+   </acceptors>
+
+	<broadcast-groups>
+		<broadcast-group name="bg-group1">
+			<group-address>${udp-address:231.7.7.7}</group-address>
+			<group-port>9876</group-port>
+			<broadcast-period>1000</broadcast-period>
+         <connector-ref>netty-connector</connector-ref>
+		</broadcast-group>
+	</broadcast-groups>
+
+	<discovery-groups>
+		<discovery-group name="dg-group1">
+			<group-address>${udp-address:231.7.7.7}</group-address>
+			<group-port>9876</group-port>
+			<refresh-timeout>60000</refresh-timeout>
+		</discovery-group>
+	</discovery-groups>
+
+	<cluster-connections>
+		<cluster-connection name="my-cluster">
+			<address>jms</address>
+         <connector-ref>netty-connector</connector-ref>
+			<discovery-group-ref discovery-group-name="dg-group1"/>
+		</cluster-connection>
+	</cluster-connections>
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="jms.queue.exampleQueue">
+         <permission type="createDurableQueue" roles="guest"/>
+         <permission type="deleteDurableQueue" roles="guest"/>
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+</configuration>
