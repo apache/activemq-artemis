@@ -32,7 +32,7 @@ public final class FileConfiguration extends ConfigurationImpl
    private static final long serialVersionUID = -4766689627675039596L;
    // Constants ------------------------------------------------------------------------
 
-   private static final String DEFAULT_CONFIGURATION_URL = "hornetq-configuration.xml";
+   private static final String DEFAULT_CONFIGURATION_URL = "activemq-configuration.xml";
 
    // For a bridge confirmations must be activated or send acknowledgments won't return
    public static final int DEFAULT_CONFIRMATION_WINDOW_SIZE = 1024 * 1024;

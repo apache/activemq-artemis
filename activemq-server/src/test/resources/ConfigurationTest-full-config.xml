@@ -1,7 +1,7 @@
 <configuration
    xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/hornetq-configuration.xsd">
+   xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/activemq-configuration.xsd">
       <name>SomeNameForUseOnTheApplicationServer</name>
       <resolve-protocols>false</resolve-protocols>
       <clustered>true</clustered>

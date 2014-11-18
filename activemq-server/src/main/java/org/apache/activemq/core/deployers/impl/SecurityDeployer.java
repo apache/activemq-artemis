@@ -108,6 +108,6 @@ public class SecurityDeployer extends XmlDeployer
    @Override
    public String[] getDefaultConfigFileNames()
    {
-      return new String[]{"hornetq-configuration.xml", SecurityDeployer.QUEUES_XML};
+      return new String[]{"activemq-configuration.xml", SecurityDeployer.QUEUES_XML};
    }
 }

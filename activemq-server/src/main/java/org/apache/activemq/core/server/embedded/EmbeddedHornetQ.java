@@ -36,7 +36,7 @@ public class EmbeddedHornetQ
    protected MBeanServer mbeanServer;
 
    /**
-    * Classpath resource for hornetq server config.  Defaults to 'hornetq-configuration.xml'.
+    * Classpath resource for hornetq server config.  Defaults to 'activemq-configuration.xml'.
     *
     * @param filename
     */
@@ -92,7 +92,7 @@ public class EmbeddedHornetQ
    {
       if (configuration == null)
       {
-         if (configResourcePath == null) configResourcePath = "hornetq-configuration.xml";
+         if (configResourcePath == null) configResourcePath = "activemq-configuration.xml";
          FileConfiguration config = new FileConfiguration(configResourcePath);
          config.start();
          configuration = config;

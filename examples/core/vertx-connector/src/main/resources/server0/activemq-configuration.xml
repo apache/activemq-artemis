@@ -1,0 +1,61 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+
+
+   <bindings-directory>target/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>target/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>target/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>target/server0/data/messaging/paging</paging-directory>
+   <!-- Connectors -->
+
+   <connectors>
+      <connector name="netty-connector">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+      </connector>
+   </connectors>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+      </acceptor>
+   </acceptors>
+
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="queue.vertxQueue">
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+   <queues>
+      <queue name="queue.vertxQueue">
+         <address>queue.vertxQueue</address>
+      </queue>
+   </queues>
+
+   <connector-services>
+      <connector-service name="my-incoming-vertx">
+         <factory-class>org.apache.activemq.integration.vertx.VertxIncomingConnectorServiceFactory</factory-class>
+         <param key="queue" value="queue.vertxQueue"/>
+         <param key="host" value="localhost"/>
+         <param key="port" value="0"/>
+         <param key="vertx-address" value="incoming.vertx.address"/>
+      </connector-service>
+      <connector-service name="my-outgoing-vertx">
+         <factory-class>org.apache.activemq.integration.vertx.VertxOutgoingConnectorServiceFactory</factory-class>
+         <param key="queue" value="queue.vertxQueue"/>
+         <param key="host" value="localhost"/>
+         <param key="port" value="0"/>
+         <param key="vertx-address" value="outgoing.vertx.address"/>
+      </connector-service>
+   </connector-services>
+   
+</configuration>

@@ -1,0 +1,75 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+   
+
+   <paging-directory>server1/paging</paging-directory>
+   
+   <bindings-directory>server1/bindings</bindings-directory>
+   
+   <journal-directory>server1/journal</journal-directory>
+   
+   <large-messages-directory>server1/large-messages</large-messages-directory>
+
+   <!-- Connectors -->
+   <connectors>
+      <connector name="netty-connector">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <param key="port" value="5446"/>
+      </connector>
+   </connectors>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <param key="port" value="5446"/>
+      </acceptor>
+   </acceptors>
+   
+   <!-- Clustering configuration -->
+
+   <broadcast-groups>
+      <broadcast-group name="my-broadcast-group">
+         <broadcast-period>5000</broadcast-period>
+         <jgroups-file>test-jgroups-file_ping.xml</jgroups-file>
+         <jgroups-channel>hornetq_broadcast_channel</jgroups-channel>
+         <connector-ref>netty-connector</connector-ref>
+      </broadcast-group>
+   </broadcast-groups>
+
+   <discovery-groups>
+      <discovery-group name="my-discovery-group">
+         <jgroups-file>test-jgroups-file_ping.xml</jgroups-file>
+         <jgroups-channel>hornetq_broadcast_channel</jgroups-channel>
+         <refresh-timeout>10000</refresh-timeout>
+      </discovery-group>
+   </discovery-groups>
+   
+   <cluster-connections>
+      <cluster-connection name="my-cluster">
+         <address>jms</address>
+         <connector-ref>netty-connector</connector-ref>
+         <retry-interval>500</retry-interval>
+         <use-duplicate-detection>true</use-duplicate-detection>
+         <forward-when-no-consumers>true</forward-when-no-consumers>
+         <max-hops>1</max-hops>
+         <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      </cluster-connection>
+   </cluster-connections>
+   
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="jms.queue.exampleQueue">
+         <permission type="createDurableQueue" roles="guest"/>
+         <permission type="deleteDurableQueue" roles="guest"/>
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+</configuration>

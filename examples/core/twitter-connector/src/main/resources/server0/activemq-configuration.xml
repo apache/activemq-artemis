@@ -1,0 +1,71 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+
+
+   <bindings-directory>target/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>target/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>target/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>target/server0/data/messaging/paging</paging-directory>
+   <!-- Connectors -->
+
+   <connectors>
+      <connector name="netty-connector">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+      </connector>
+   </connectors>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+      </acceptor>
+   </acceptors>
+
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="queue.incomingQueue">
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+      <security-setting match="queue.outgoingQueue">
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+   <queues>
+      <queue name="queue.incomingQueue">
+         <address>queue.incomingQueue</address>
+      </queue>
+      <queue name="queue.outgoingQueue">
+         <address>queue.outgoingQueue</address>
+      </queue>
+   </queues>
+
+   <connector-services>
+      <connector-service name="my-incoming-tweets">
+         <factory-class>org.apache.activemq.integration.twitter.TwitterIncomingConnectorServiceFactory</factory-class>
+         <param key="queue" value="queue.incomingQueue"/>
+         <param key="consumerKey" value="${twitter.consumerKey}"/>
+         <param key="consumerSecret" value="${twitter.consumerSecret}"/>
+         <param key="accessToken" value="${twitter.accessToken}"/>
+         <param key="accessTokenSecret" value="${twitter.accessTokenSecret}"/>
+         <param key="interval" value="60"/>
+      </connector-service>
+       <connector-service name="my-outgoing-tweets">
+         <factory-class>org.apache.activemq.integration.twitter.TwitterOutgoingConnectorServiceFactory</factory-class>
+         <param key="queue" value="queue.outgoingQueue"/>
+         <param key="consumerKey" value="${twitter.consumerKey}"/>
+         <param key="consumerSecret" value="${twitter.consumerSecret}"/>
+         <param key="accessToken" value="${twitter.accessToken}"/>
+         <param key="accessTokenSecret" value="${twitter.accessTokenSecret}"/>
+      </connector-service>
+   </connector-services>
+   
+</configuration>

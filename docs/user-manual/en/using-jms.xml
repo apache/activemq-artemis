@@ -65,7 +65,7 @@
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
+   xsi:schemaLocation="urn:hornetq ../schemas/activemq-jms.xsd ">
     
    &lt;connection-factory name="ConnectionFactory">
       &lt;connectors>
@@ -151,7 +151,7 @@
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
+   xsi:schemaLocation="urn:hornetq ../schemas/activemq-jms.xsd ">
 
    &lt;connection-factory name="ConnectionFactory" signature="queue">
       &lt;xa>true&lt;/xa>

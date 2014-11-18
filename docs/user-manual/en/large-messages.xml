@@ -47,7 +47,7 @@
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
+   xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
 ...
 &lt;large-messages-directory>/data/large-messages&lt;/large-messages-directory>
 ...

@@ -129,7 +129,7 @@ public class FileConfigurationParserTest extends UnitTestCase
    private static String firstPart =
       "<configuration xmlns=\"urn:hornetq\"\n" +
          "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-         "xsi:schemaLocation=\"urn:hornetq /schema/hornetq-configuration.xsd\">\n" +
+         "xsi:schemaLocation=\"urn:hornetq /schema/activemq-configuration.xsd\">\n" +
          "<name>HornetQ.main.config</name>" + "\n" +
          "<backup-group-name>abackupgroupname</backup-group-name>" + "\n" +
          "<scale-down-group-name>ascaledowngroupname</scale-down-group-name>" + "\n" +
