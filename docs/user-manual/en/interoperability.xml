@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="interoperability">
@@ -26,12 +26,12 @@
     <section id="stomp">
         <title>Stomp</title>
         <para><ulink url="http://stomp.github.com/">Stomp</ulink> is a text-orientated wire protocol that allows
-            Stomp clients to communicate with Stomp Brokers. HornetQ now supports Stomp 1.0, 1.1 and 1.2.</para>
+            Stomp clients to communicate with Stomp Brokers. ActiveMQ now supports Stomp 1.0, 1.1 and 1.2.</para>
         <para>Stomp clients are available for
         several languages and platforms making it a good choice for interoperability.</para>
         <section id="stomp.native">
           <title>Native Stomp support</title>
-          <para>HornetQ provides native support for Stomp. To be able to send and receive Stomp messages,
+          <para>ActiveMQ provides native support for Stomp. To be able to send and receive Stomp messages,
             you must configure a <literal>NettyAcceptor</literal> with a <literal>protocols</literal>
             parameter set to have <literal>stomp</literal>:</para>
 <programlisting>
@@ -40,9 +40,9 @@
    &lt;param key="protocols"  value="STOMP"/>
    &lt;param key="port"  value="61613"/>
 &lt;/acceptor></programlisting>
-          <para>With this configuration, HornetQ will accept Stomp connections on 
+          <para>With this configuration, ActiveMQ will accept Stomp connections on
             the port <literal>61613</literal> (which is the default port of the Stomp brokers).</para>
-          <para>See the <literal>stomp</literal> example which shows how to configure a HornetQ server with Stomp.</para>
+          <para>See the <literal>stomp</literal> example which shows how to configure a ActiveMQ server with Stomp.</para>
           <section>
             <title>Limitations</title>
             <para>Message acknowledgements are not transactional. The ACK frame can not be part of a transaction
@@ -52,12 +52,12 @@
             <title>Stomp 1.1/1.2 Notes</title>
             <section>
 				<title>Virtual Hosting</title>
-                <para>HornetQ currently doesn't support virtual hosting, which means the 'host' header 
+                <para>ActiveMQ currently doesn't support virtual hosting, which means the 'host' header
                 in CONNECT fram will be ignored.</para>
             </section>
             <section>
 				<title>Heart-beating</title>
-                <para>HornetQ specifies a minimum value for both client and server heart-beat intervals. 
+                <para>ActiveMQ specifies a minimum value for both client and server heart-beat intervals.
                 The minimum interval for both client and server heartbeats is 500 milliseconds. That means if 
                 a client sends a CONNECT frame with heartbeat values lower than 500, the server will defaults 
                 the value to 500 milliseconds regardless the values of the 'heart-beat' header in the frame.</para>
@@ -66,15 +66,15 @@
         </section>
 
         <section>
-          <title>Mapping Stomp destinations to HornetQ addresses and queues</title>
+          <title>Mapping Stomp destinations to ActiveMQ addresses and queues</title>
           <para>Stomp clients deals with <emphasis>destinations</emphasis> when sending messages and subscribing.
             Destination names are simply strings which are mapped to some form of destination on the 
             server - how the server translates these is left to the server implementation.</para>
-           <para>In HornetQ, these destinations are mapped to <emphasis>addresses</emphasis> and <emphasis>queues</emphasis>.
+           <para>In ActiveMQ, these destinations are mapped to <emphasis>addresses</emphasis> and <emphasis>queues</emphasis>.
             When a Stomp client sends a message (using a <literal>SEND</literal> frame), the specified destination is mapped
             to an address.
             When a Stomp client subscribes (or unsubscribes) for a destination (using a <literal>SUBSCRIBE</literal>
-            or <literal>UNSUBSCRIBE</literal> frame), the destination is mapped to a HornetQ queue.</para>
+            or <literal>UNSUBSCRIBE</literal> frame), the destination is mapped to a ActiveMQ queue.</para>
         </section>
       <section>
         <title>STOMP and connection-ttl</title>
@@ -108,7 +108,7 @@
           <title>Stomp and JMS interoperability</title>
           <section>
             <title>Using JMS destinations</title>
-            <para>As explained in <xref linkend="jms-core-mapping" />, JMS destinations are also mapped to HornetQ addresses and queues.
+            <para>As explained in <xref linkend="jms-core-mapping" />, JMS destinations are also mapped to ActiveMQ addresses and queues.
               If you want to use Stomp to send messages to JMS destinations, the Stomp destinations must follow the same convention:</para>
             <itemizedlist>
               <listitem>
@@ -134,8 +134,8 @@ destination:jms.topic.stocks
            </section>
 
            <section>
-             <title>Sending and consuming Stomp message from JMS or HornetQ Core API</title>
-             <para>Stomp is mainly a text-orientated protocol. To make it simpler to interoperate with JMS and HornetQ Core API, 
+             <title>Sending and consuming Stomp message from JMS or ActiveMQ Core API</title>
+             <para>Stomp is mainly a text-orientated protocol. To make it simpler to interoperate with JMS and ActiveMQ Core API,
                our Stomp implementation checks for presence of the <literal>content-length</literal> header to decide how to map a Stomp message
                to a JMS Message or a Core message.
              </para>
@@ -151,7 +151,7 @@ destination:jms.topic.stocks
             <title>Message IDs for Stomp messages</title>
             <para>When receiving Stomp messages via a JMS consumer or a QueueBrowser, the messages have
             no properties like JMSMessageID by default. However this may bring some inconvenience to 
-            clients who wants an ID for their purpose. HornetQ Stomp provides a parameter to enable
+            clients who wants an ID for their purpose. ActiveMQ Stomp provides a parameter to enable
             message ID on each incoming Stomp message. If you want each Stomp message to have a unique ID,
             just set the <literal>stomp-enable-message-id</literal> to true. For example:</para>
 <programlisting>
@@ -172,9 +172,9 @@ hq-message-id : STOMP12345</programlisting>
           </section>
           <section>
             <title>Handling of Large Messages with Stomp</title>
-            <para>Stomp clients may send very large bodys of frames which can exceed the size of HornetQ 
+            <para>Stomp clients may send very large bodys of frames which can exceed the size of ActiveMQ
             server's internal buffer, causing unexpected errors. To prevent this situation from happening,
-            HornetQ provides a stomp configuration attribute <literal>stomp-min-large-message-size</literal>. 
+            ActiveMQ provides a stomp configuration attribute <literal>stomp-min-large-message-size</literal>.
             This attribute can be configured inside a stomp acceptor, as a parameter. For example: </para>
 <programlisting>
    &lt;acceptor name="stomp-acceptor">
@@ -183,7 +183,7 @@ hq-message-id : STOMP12345</programlisting>
    &lt;param key="port" value="61613"/>
    &lt;param key="stomp-min-large-message-size" value="10240"/>
 &lt;/acceptor></programlisting>
-            <para>The type of this attribute is integer. When this attributed is configured, HornetQ server 
+            <para>The type of this attribute is integer. When this attributed is configured, ActiveMQ server
             will check the size of the body of each Stomp frame arrived from connections established with 
             this acceptor. If the size of the body is equal or greater than the value of 
             <literal>stomp-min-large-message</literal>, the message will be persisted as a large message.
@@ -197,8 +197,8 @@ hq-message-id : STOMP12345</programlisting>
         
         <section id="stomp.websockets">
          <title>Stomp Over Web Sockets</title>
-         <para>HornetQ also support Stomp over <ulink url="http://dev.w3.org/html5/websockets/">Web Sockets</ulink>. Modern web browser which support Web Sockets can send and receive
-            Stomp messages from HornetQ.</para>
+         <para>ActiveMQ also support Stomp over <ulink url="http://dev.w3.org/html5/websockets/">Web Sockets</ulink>. Modern web browser which support Web Sockets can send and receive
+            Stomp messages from ActiveMQ.</para>
          <para>To enable Stomp over Web Sockets, you must configure a <literal>NettyAcceptor</literal> with a <literal>protocol</literal>
             parameter set to <literal>stomp_ws</literal>:</para>
          <programlisting>
@@ -207,14 +207,14 @@ hq-message-id : STOMP12345</programlisting>
    &lt;param key="protocols" value="STOMP_WS"/>
    &lt;param key="port" value="61614"/>
 &lt;/acceptor></programlisting>
-         <para>With this configuration, HornetQ will accept Stomp connections over Web Sockets on 
+         <para>With this configuration, ActiveMQ will accept Stomp connections over Web Sockets on
             the port <literal>61614</literal> with the URL path <literal>/stomp</literal>.
             Web browser can then connect to <literal>ws://&lt;server>:61614/stomp</literal> using a Web Socket to send and receive Stomp
             messages.</para>
          <para>A companion JavaScript library to ease client-side development is available from 
             <ulink url="http://github.com/jmesnil/stomp-websocket">GitHub</ulink> (please see
             its <ulink url="http://jmesnil.net/stomp-websocket/doc/">documentation</ulink> for a complete description).</para>
-         <para>The <literal>stomp-websockets</literal> example shows how to configure HornetQ server to have web browsers and Java
+         <para>The <literal>stomp-websockets</literal> example shows how to configure ActiveMQ server to have web browsers and Java
             applications exchanges messages on a JMS topic.</para>
         </section>
 
@@ -222,10 +222,10 @@ hq-message-id : STOMP12345</programlisting>
           <title>StompConnect</title>
           <para><ulink url="http://stomp.codehaus.org/StompConnect">StompConnect</ulink> is a server that
             can act as a Stomp broker and proxy the Stomp protocol to the standard JMS API.
-            Consequently, using StompConnect it is possible to turn HornetQ into a Stomp Broker and
+            Consequently, using StompConnect it is possible to turn ActiveMQ into a Stomp Broker and
             use any of the available stomp clients. These include clients written in C, C++, c# and
             .net etc.</para>
-          <para>To run StompConnect first start the HornetQ server and make sure that it is using
+          <para>To run StompConnect first start the ActiveMQ server and make sure that it is using
             JNDI.</para>
           <para>Stomp requires the file <literal>jndi.properties</literal> to be available on the
             classpath. This should look something like:</para>
@@ -234,7 +234,7 @@ java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
 java.naming.provider.url=jnp://localhost:1099
 java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting>
           <para>Make sure this file is in the classpath along with the StompConnect jar and the
-            HornetQ jars and simply run <literal>java org.codehaus.stomp.jms.Main</literal>.</para>
+            ActiveMQ jars and simply run <literal>java org.codehaus.stomp.jms.Main</literal>.</para>
         </section>
         
     </section>
@@ -244,7 +244,7 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
     </section>
     <section>
         <title>AMQP</title>
-        <para>HornetQ supports the <ulink url="https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp">AMQP 1.0</ulink>
+        <para>ActiveMQ supports the <ulink url="https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp">AMQP 1.0</ulink>
         specification. To enable AMQP you must configure a Netty Acceptor to receive AMQP clients, like so:</para>
         <programlisting>
 &lt;acceptor name="stomp-acceptor">
@@ -253,20 +253,20 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
 &lt;param key="port"  value="5672"/>
 &lt;/acceptor>
         </programlisting>
-        <para>HornetQ will then accept AMQP 1.0 clients on port 5672 which is the default AMQP port.</para>
+        <para>ActiveMQ will then accept AMQP 1.0 clients on port 5672 which is the default AMQP port.</para>
         <para>There are 2 Stomp examples available see proton-j and proton-ruby which use the qpid Java and Ruby clients
         respectively</para>
         <section>
             <title>AMQP and security</title>
-        <para>The HornetQ Server accepts AMQP SASL Authentication and will use this to map onto the underlying session created
-            for the connection so you can use the normal HornetQ security configuration.</para>
+        <para>The ActiveMQ Server accepts AMQP SASL Authentication and will use this to map onto the underlying session created
+            for the connection so you can use the normal ActiveMQ security configuration.</para>
         </section>
         <section>
             <title>AMQP Links</title>
         <para>An AMQP Link is a uni directional transport for messages between a source and a target, i.e. a client and the
-        HornetQ Broker. A link will have an endpoint of which there are 2 kinds, a Sender and A Receiver. At the Broker a
-            Sender will have its messages converted into a HornetQ Message and forwarded to its destination or target. A
-        Receiver will map onto a HornetQ Server Consumer and convert HornetQ messages back into AMQP messages before being delivered.</para>
+        ActiveMQ Broker. A link will have an endpoint of which there are 2 kinds, a Sender and A Receiver. At the Broker a
+            Sender will have its messages converted into a ActiveMQ Message and forwarded to its destination or target. A
+        Receiver will map onto a ActiveMQ Server Consumer and convert ActiveMQ messages back into AMQP messages before being delivered.</para>
         </section>
         <section>
             <title>AMQP and destinations</title>
@@ -282,13 +282,13 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
             coordinator is used the the underlying HormetQ Server session will be transacted and will be either rolled back
                 or committed via the coordinator.</para>
             <note><para>AMQP allows the use of multiple transactions per session, <literal>amqp:multi-txns-per-ssn</literal>,
-                however in this version HornetQ will only support single transactions per session</para></note>
+                however in this version ActiveMQ will only support single transactions per session</para></note>
         </section>
     </section>
     <section>
         <title>OpenWire</title>
-        <para>HornetQ now supports the <ulink url="http://activemq.apache.org/openwire.html">OpenWire</ulink>
-        protocol so that an ActiveMQ JMS client can talk directly to a HornetQ server. To enable OpenWire support
+        <para>ActiveMQ now supports the <ulink url="http://activemq.apache.org/openwire.html">OpenWire</ulink>
+        protocol so that an ActiveMQ JMS client can talk directly to a ActiveMQ server. To enable OpenWire support
         you must configure a Netty Acceptor, like so:</para>
         <programlisting>
 &lt;acceptor name="openwire-acceptor">
@@ -297,11 +297,11 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
 &lt;param key="port"  value="61616"/>
 &lt;/acceptor>
         </programlisting>
-        <para>The HornetQ server will then listens on port 61616 for incoming openwire commands. Please note the "protocols" is not mandatory here. 
-        The openwire configuration conforms to HornetQ's "Single Port" feature. Please refer to 
+        <para>The ActiveMQ server will then listens on port 61616 for incoming openwire commands. Please note the "protocols" is not mandatory here.
+        The openwire configuration conforms to ActiveMQ's "Single Port" feature. Please refer to
         <link linkend="configuring-transports.single-port">Configuring Single Port</link> for details.</para>
         <para>Please refer to the openwire example for more coding details.</para>
         <para>Currently we support ActiveMQ clients that using standard JMS APIs. In the future we will get more supports
-        for some advanced, ActiveMQ specific features into HornetQ.</para>
+        for some advanced, ActiveMQ specific features into ActiveMQ.</para>
     </section>
 </chapter>

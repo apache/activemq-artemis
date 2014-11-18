@@ -20,52 +20,52 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
-<chapter id="embedding-hornetq">
-  <title>Embedding HornetQ</title>
+<chapter id="embedding-activemq">
+  <title>Embedding ActiveMQ</title>
 
-  <para>HornetQ is designed as set of simple Plain Old Java Objects (POJOs).
-  This means HornetQ can be instantiated and run in any dependency injection
+  <para>ActiveMQ is designed as set of simple Plain Old Java Objects (POJOs).
+  This means ActiveMQ can be instantiated and run in any dependency injection
   framework such as JBoss Microcontainer, Spring or Google Guice. It also
   means that if you have an application that could use messaging functionality
-  internally, then it can <emphasis>directly instantiate</emphasis> HornetQ
+  internally, then it can <emphasis>directly instantiate</emphasis> ActiveMQ
   clients and servers in its own application code to perform that
-  functionality. We call this <emphasis>embedding</emphasis> HornetQ.</para>
+  functionality. We call this <emphasis>embedding</emphasis> ActiveMQ.</para>
 
   <para>Examples of applications that might want to do this include any
   application that needs very high performance, transactional, persistent
   messaging but doesn't want the hassle of writing it all from scratch.</para>
 
-  <para>Embedding HornetQ can be done in very few easy steps. Instantiate the
+  <para>Embedding ActiveMQ can be done in very few easy steps. Instantiate the
   configuration object, instantiate the server, start it, and you have a
-  HornetQ running in your virtual machine. It's as simple and easy as
+  ActiveMQ running in your virtual machine. It's as simple and easy as
   that.</para>
 
   <section>
     <title>Simple Config File Embedding</title>
 
-    <para>The simplest way to embed HornetQ is to use the embedded wrapper
-    classes and configure HornetQ through its configuration files. There are
+    <para>The simplest way to embed ActiveMQ is to use the embedded wrapper
+    classes and configure ActiveMQ through its configuration files. There are
     two different helper classes for this depending on whether your using the
-    HornetQ Core API or JMS.</para>
+    ActiveMQ Core API or JMS.</para>
 
     <section>
       <title>Core API Only</title>
-      <para>For instantiating a core HornetQ Server only, the steps are pretty
+      <para>For instantiating a core ActiveMQ Server only, the steps are pretty
       simple. The example requires that you have defined a configuration file
-      <literal>hornetq-configuration.xml</literal> in your
+      <literal>activemq-configuration.xml</literal> in your
       classpath:</para>
         <programlisting>
-import org.apache.activemq.core.server.embedded.EmbeddedHornetQ;
+import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
 
 ...
 
-EmbeddedHornetQ embedded = new EmbeddedHornetQ();
+EmbeddedActiveMQ embedded = new EmbeddedActiveMQ();
 embedded.start();
 
-ClientSessionFactory nettyFactory =  HornetQClient.createClientSessionFactory(
+ClientSessionFactory nettyFactory =  ActiveMQClient.createClientSessionFactory(
                                         new TransportConfiguration(
                                            InVMConnectorFactory.class.getName()));
 
@@ -91,7 +91,7 @@ System.out.println("message = " + msgReceived.getBody().readString());
 
 session.close();</programlisting>
 
-<para>The <literal>EmbeddedHornetQ</literal> class has a
+<para>The <literal>EmbeddedActiveMQ</literal> class has a
       few additional setter methods that allow you to specify a different
       config file name as well as other properties. See the javadocs for this
       class for more details.</para>
@@ -102,11 +102,11 @@ session.close();</programlisting>
 
       <para>JMS embedding is simple as well. This example requires that you
       have defined the config files
-      <literal>hornetq-configuration.xml</literal>,
-      <literal>hornetq-jms.xml</literal>, and a
-      <literal>hornetq-users.xml</literal> if you have security enabled. Let's
+      <literal>activemq-configuration.xml</literal>,
+      <literal>activemq-jms.xml</literal>, and a
+      <literal>activemq-users.xml</literal> if you have security enabled. Let's
       also assume that a queue and connection factory has been defined in the
-      <literal>hornetq-jms.xml</literal> config file.</para>
+      <literal>activemq-jms.xml</literal> config file.</para>
 
       <programlisting>
 import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
@@ -116,14 +116,14 @@ import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 EmbeddedJMS jms = new EmbeddedJMS();
 jms.start();
 
-// This assumes we have configured hornetq-jms.xml with the appropriate config information
+// This assumes we have configured activemq-jms.xml with the appropriate config information
 ConnectionFactory connectionFactory = jms.lookup("ConnectionFactory");
 Destination destination = jms.lookup("/example/queue");
 
 ... regular JMS code ...</programlisting>
         <para>By default, the <literal>EmbeddedJMS</literal>
       class will store component entries defined within your
-      <literal>hornetq-jms.xml</literal> file in an internal concurrent hash
+      <literal>activemq-jms.xml</literal> file in an internal concurrent hash
       map. The <literal>EmbeddedJMS.lookup()</literal> method returns
       components stored in this map. If you want to use JNDI, call the
       <literal>EmbeddedJMS.setContext()</literal> method with the root JNDI
@@ -136,10 +136,10 @@ Destination destination = jms.lookup("/example/queue");
     <title>POJO instantiation - Embedding Programmatically</title>
 
     <para>You can follow this step-by-step guide to programmatically embed the
-    core, non-JMS HornetQ Server instance:</para>
+    core, non-JMS ActiveMQ Server instance:</para>
 
     <para>Create the configuration object - this contains configuration
-    information for a HornetQ instance. The setter methods of this class allow
+    information for a ActiveMQ instance. The setter methods of this class allow
     you to programmatically set configuration options as describe in the <xref
     linkend="server.configuration" /> section.</para>
 
@@ -163,25 +163,25 @@ transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 config.setAcceptorConfigurations(transports);</programlisting>
 
     <para>You need to instantiate an instance of
-    <literal>org.apache.activemq.api.core.server.embedded.EmbeddedHornetQ</literal>
+    <literal>org.apache.activemq.api.core.server.embedded.EmbeddedActiveMQ</literal>
     and add the configuration object to it.</para>
 
     <programlisting>
-import org.apache.activemq.api.core.server.HornetQ;
-import org.apache.activemq.core.server.embedded.EmbeddedHornetQ;
+import org.apache.activemq.api.core.server.ActiveMQ;
+import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
 
 ...
 
-EmbeddedHornetQ server = new EmbeddedHornetQ();
+EmbeddedActiveMQ server = new EmbeddedActiveMQ();
 server.setConfiguration(config);
 
 server.start();</programlisting>
 
     <para>You also have the option of instantiating
-    <literal>HornetQServerImpl</literal> directly:</para>
+    <literal>ActiveMQServerImpl</literal> directly:</para>
 
     <programlisting>
-HornetQServer server = new HornetQServerImpl(config);
+ActiveMQServer server = new ActiveMQServerImpl(config);
 server.start();</programlisting>
 
     <para>For JMS POJO instantiation, you work with the EmbeddedJMS class
@@ -191,7 +191,7 @@ server.start();</programlisting>
     example of this:</para>
 
     <programlisting>
-// Step 1. Create HornetQ core configuration, and set the properties accordingly
+// Step 1. Create ActiveMQ core configuration, and set the properties accordingly
 Configuration configuration = new ConfigurationImpl();
 configuration.setPersistenceEnabled(false);
 configuration.setSecurityEnabled(false);
@@ -209,14 +209,14 @@ jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl("queue1", null, false, "/queue/queue1");
 jmsConfig.getQueueConfigurations().add(queueConfig);
 
-// Step 5. Start the JMS Server using the HornetQ core server and the JMS configuration
+// Step 5. Start the JMS Server using the ActiveMQ core server and the JMS configuration
 EmbeddedJMS jmsServer = new EmbeddedJMS();
 jmsServer.setConfiguration(configuration);
 jmsServer.setJmsConfiguration(jmsConfig);
 jmsServer.start();</programlisting>
 
     <para>Please see <xref linkend="examples.embedded.jms" /> for an example which
-    shows how to setup and run HornetQ embedded with JMS.</para>
+    shows how to setup and run ActiveMQ embedded with JMS.</para>
   </section>
 
   <section>
@@ -225,17 +225,17 @@ jmsServer.start();</programlisting>
     <para>You may also choose to use a dependency injection framework such as
     <trademark>JBoss Micro Container</trademark> or <trademark>Spring
     Framework</trademark>. See <xref linkend="spring.integration" /> for more
-    details on Spring and HornetQ, but here's how you would do things with the
+    details on Spring and ActiveMQ, but here's how you would do things with the
     JBoss Micro Container.</para>
 
-    <para>HornetQ standalone uses JBoss Micro Container as the injection
-    framework. <literal>HornetQBootstrapServer</literal> and
-    <literal>hornetq-beans.xml</literal> which are part of the HornetQ
+    <para>ActiveMQ standalone uses JBoss Micro Container as the injection
+    framework. <literal>ActiveMQBootstrapServer</literal> and
+    <literal>activemq-beans.xml</literal> which are part of the ActiveMQ
     distribution provide a very complete implementation of what's needed to
     bootstrap the server using JBoss Micro Container.</para>
 
     <para>When using JBoss Micro Container, you need to provide an XML file
-    declaring the <literal>HornetQServer</literal> and
+    declaring the <literal>ActiveMQServer</literal> and
     <literal>Configuration</literal> object, you can also inject a security
     manager and a MBean server if you want, but those are optional.</para>
 
@@ -251,8 +251,8 @@ jmsServer.start();</programlisting>
    &lt;/bean>
 
      &lt;!-- The core server -->
-   &lt;bean name="HornetQServer" 
-         class="org.apache.activemq.core.server.impl.HornetQServerImpl">
+   &lt;bean name="ActiveMQServer"
+         class="org.apache.activemq.core.server.impl.ActiveMQServerImpl">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="Configuration"/>
@@ -261,11 +261,11 @@ jmsServer.start();</programlisting>
    &lt;/bean>
 &lt;/deployment></programlisting>
 
-    <para><literal>HornetQBootstrapServer</literal> provides an easy
+    <para><literal>ActiveMQBootstrapServer</literal> provides an easy
     encapsulation of JBoss Micro Container.</para>
 
     <programlisting>
-HornetQBootstrapServer bootStrap = new HornetQBootstrapServer(new String[] {"hornetq-beans.xml"});
+ActiveMQBootstrapServer bootStrap = new ActiveMQBootstrapServer(new String[] {"activemq-beans.xml"});
 bootStrap.run();</programlisting>
   </section>
 </chapter>

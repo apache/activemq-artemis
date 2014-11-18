@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="flow-control">
@@ -36,14 +36,14 @@
          in time.</para>
       <section id="flow-control.consumer.window">
          <title>Window-Based Flow Control</title>
-         <para>By default, HornetQ consumers buffer messages from the server in a client side buffer
+         <para>By default, ActiveMQ consumers buffer messages from the server in a client side buffer
             before the client consumes them. This improves performance: otherwise every time the
-            client consumes a message, HornetQ would have to go the server to request the next
+            client consumes a message, ActiveMQ would have to go the server to request the next
             message. In turn, this message would then get sent to the client side, if one was
             available.</para>
          <para>A network round trip would be involved for <emphasis>every</emphasis> message and
             considerably reduce performance.</para>
-         <para>To prevent this, HornetQ pre-fetches messages into a buffer on each consumer. The
+         <para>To prevent this, ActiveMQ pre-fetches messages into a buffer on each consumer. The
             total maximum size of messages (in bytes) that will be buffered on each consumer is
             determined by the <literal>consumer-window-size</literal> parameter.</para>
          <para>By default, the <literal>consumer-window-size</literal> is set to 1 MiB (1024 * 1024
@@ -106,14 +106,14 @@
             find the optimal value, but a value of 1MiB is fine in most cases.</para>
          <section id="flow-control.core.api">
             <title>Using Core API</title>
-            <para>If HornetQ Core API is used, the consumer window size is specified by <literal
+            <para>If ActiveMQ Core API is used, the consumer window size is specified by <literal
                   >ServerLocator.setConsumerWindowSize()</literal> method and some of the
                   <literal>ClientSession.createConsumer()</literal> methods.</para>
          </section>
          <section>
             <title>Using JMS</title>
             <para>if JNDI is used to look up the connection factory, the consumer window size is
-               configured in <literal>hornetq-jms.xml</literal>:</para>
+               configured in <literal>activemq-jms.xml</literal>:</para>
             <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -127,10 +127,10 @@
    &lt;consumer-window-size>0&lt;/consumer-window-size>
 &lt;/connection-factory></programlisting>
             <para>If the connection factory is directly instantiated, the consumer window size is
-               specified by <literal>HornetQConnectionFactory.setConsumerWindowSize()</literal>
+               specified by <literal>ActiveMQConnectionFactory.setConsumerWindowSize()</literal>
                method.</para>
             <para>Please see <xref linkend="examples.no-consumer-buffering"/> for an example which
-               shows how to configure HornetQ to prevent consumer buffering when dealing with slow
+               shows how to configure ActiveMQ to prevent consumer buffering when dealing with slow
                consumers.</para>
          </section>
       </section>
@@ -147,7 +147,7 @@
             limiting consumer rate.</para>
          <section id="flow-control.rate.core.api">
             <title>Using Core API</title>
-            <para>If the HornetQ core API is being used the rate can be set via the <literal
+            <para>If the ActiveMQ core API is being used the rate can be set via the <literal
                   >ServerLocator.setConsumerMaxRate(int consumerMaxRate)</literal> method or
                alternatively via some of the <literal>ClientSession.createConsumer()</literal>
                methods. </para>
@@ -155,7 +155,7 @@
          <section>
             <title>Using JMS</title>
             <para>If JNDI is used to look up the connection factory, the max rate can be configured
-               in <literal>hornetq-jms.xml</literal>:</para>
+               in <literal>activemq-jms.xml</literal>:</para>
             <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -169,7 +169,7 @@
    &lt;consumer-max-rate>10&lt;/consumer-max-rate>
 &lt;/connection-factory></programlisting>
             <para>If the connection factory is directly instantiated, the max rate size can be set
-               via the <literal>HornetQConnectionFactory.setConsumerMaxRate(int
+               via the <literal>ActiveMQConnectionFactory.setConsumerMaxRate(int
                   consumerMaxRate)</literal> method.</para>
             <note>
                <para>Rate limited flow control can be used in conjunction with window based flow
@@ -179,18 +179,18 @@
                   soon fill up with messages.</para>
             </note>
             <para>Please see <xref linkend="examples.consumer-rate-limit"/> for an example which
-               shows how to configure HornetQ to prevent consumer buffering when dealing with slow
+               shows how to configure ActiveMQ to prevent consumer buffering when dealing with slow
                consumers.</para>
          </section>
       </section>
    </section>
    <section>
       <title>Producer flow control</title>
-      <para>HornetQ also can limit the amount of data sent from a client to a server to prevent the
+      <para>ActiveMQ also can limit the amount of data sent from a client to a server to prevent the
          server being overwhelmed.</para>
       <section>
          <title>Window based flow control</title>
-         <para>In a similar way to consumer window based flow control, HornetQ producers, by
+         <para>In a similar way to consumer window based flow control, ActiveMQ producers, by
             default, can only send messages to an address as long as they have sufficient credits to
             do so. The amount of credits required to send a message is given by the size of the
             message.</para>
@@ -203,14 +203,14 @@
             getting overloaded.</para>
          <section>
             <title>Using Core API</title>
-            <para>If the HornetQ core API is being used, window size can be set via the <literal
+            <para>If the ActiveMQ core API is being used, window size can be set via the <literal
                   >ServerLocator.setProducerWindowSize(int producerWindowSize)</literal>
                method.</para>
          </section>
          <section>
             <title>Using JMS</title>
             <para>If JNDI is used to look up the connection factory, the producer window size can be
-               configured in <literal>hornetq-jms.xml</literal>:</para>
+               configured in <literal>activemq-jms.xml</literal>:</para>
             <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -222,7 +222,7 @@
    &lt;producer-window-size>10&lt;/producer-window-size>
 &lt;/connection-factory></programlisting>
             <para>If the connection factory is directly instantiated, the producer window size can
-               be set via the <literal>HornetQConnectionFactory.setProducerWindowSize(int
+               be set via the <literal>ActiveMQConnectionFactory.setProducerWindowSize(int
                   producerWindowSize)</literal> method.</para>
          </section>
          <section>
@@ -275,8 +275,8 @@
       </section>
       <section>
          <title>Rate limited flow control</title>
-         <para>HornetQ also allows the rate a producer can emit message to be limited, in units of
-            messages per second. By specifying such a rate, HornetQ will ensure that producer never
+         <para>ActiveMQ also allows the rate a producer can emit message to be limited, in units of
+            messages per second. By specifying such a rate, ActiveMQ will ensure that producer never
             produces messages at a rate higher than that specified.</para>
          <para>The rate must be a positive integer to enable this functionality and is the maximum
             desired message consumption rate specified in units of messages per second. Setting this
@@ -286,7 +286,7 @@
             of limiting producer rate.</para>
          <section id="flow-control.producer.rate.core.api">
             <title>Using Core API</title>
-            <para>If the HornetQ core API is being used the rate can be set via the <literal
+            <para>If the ActiveMQ core API is being used the rate can be set via the <literal
                   >ServerLocator.setProducerMaxRate(int consumerMaxRate)</literal> method or
                alternatively via some of the <literal>ClientSession.createProducer()</literal>
                methods. </para>
@@ -294,7 +294,7 @@
          <section>
             <title>Using JMS</title>
             <para>If JNDI is used to look up the connection factory, the max rate can be configured
-               in <literal>hornetq-jms.xml</literal>:</para>
+               in <literal>activemq-jms.xml</literal>:</para>
             <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -308,7 +308,7 @@
    &lt;producer-max-rate>10&lt;/producer-max-rate>
 &lt;/connection-factory></programlisting>
             <para>If the connection factory is directly instantiated, the max rate size can be set
-               via the <literal>HornetQConnectionFactory.setProducerMaxRate(int
+               via the <literal>ActiveMQConnectionFactory.setProducerMaxRate(int
                   consumerMaxRate)</literal> method.</para>
          </section>
       </section>

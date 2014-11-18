@@ -18,26 +18,26 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="security">
     <title>Security</title>
-    <para>This chapter describes how security works with HornetQ and how you can configure it. To
+    <para>This chapter describes how security works with ActiveMQ and how you can configure it. To
         disable security completely simply set the <literal>security-enabled</literal> property to
-        false in the <literal>hornetq-configuration.xml</literal> file.</para>
+        false in the <literal>activemq-configuration.xml</literal> file.</para>
     <para>For performance reasons security is cached and invalidated every so long. To change this
         period set the property <literal>security-invalidation-interval</literal>, which is in
         milliseconds. The default is <literal>10000</literal> ms.</para>
     <section id="security.settings.roles">
         <title>Role based security for addresses</title>
-        <para>HornetQ contains a flexible role-based security model for applying security to queues,
+        <para>ActiveMQ contains a flexible role-based security model for applying security to queues,
             based on their addresses.</para>
-        <para>As explained in <xref linkend="using-core"/>, HornetQ core consists mainly of sets of
+        <para>As explained in <xref linkend="using-core"/>, ActiveMQ core consists mainly of sets of
             queues bound to addresses. A message is sent to an address and the server looks up the
             set of queues that are bound to that address, the server then routes the message to
             those set of queues.</para>
-        <para>HornetQ allows sets of permissions to be defined against the queues based on their
+        <para>ActiveMQ allows sets of permissions to be defined against the queues based on their
             address. An exact match on the address can be used or a wildcard match can be used using
             the wildcard characters '<literal>#</literal>' and '<literal>*</literal>'.</para>
         <para>Seven different permissions can be given to the set of queues which match the address.
@@ -77,7 +77,7 @@
             the user has any of those roles, he/she will be granted that permission for that set of
             addresses.</para>
         <para>Let's take a simple example, here's a security block from <literal
-                >hornetq-configuration.xml</literal> or <literal>hornetq-queues.xml</literal>
+                >activemq-configuration.xml</literal> or <literal>activemq-queues.xml</literal>
             file:</para>
         <programlisting>
 &lt;security-setting match="globalqueues.europe.#">
@@ -101,7 +101,7 @@
             can send messages to these addresses or consume messages from queues bound to an address
             that starts with the string "globalqueues.europe."</para>
         <para>The mapping between a user and what roles they have is handled by the security
-            manager. HornetQ ships with a user manager that reads user credentials from a file on
+            manager. ActiveMQ ships with a user manager that reads user credentials from a file on
             disk, and can also plug into JAAS or JBoss Application Server security.</para>
         <para>For more information on configuring the security manager, please see <xref
                 linkend="change-security-manager"/>.</para>
@@ -135,23 +135,23 @@
     <section>
         <title>Secure Sockets Layer (SSL) Transport</title>
         <para>When messaging clients are connected to servers, or servers are connected to other
-            servers (e.g. via bridges) over an untrusted network then HornetQ allows that traffic to
+            servers (e.g. via bridges) over an untrusted network then ActiveMQ allows that traffic to
             be encrypted using the Secure Sockets Layer (SSL) transport.</para>
         <para>For more information on configuring the SSL transport, please see <xref
                 linkend="configuring-transports"/>.</para>
     </section>
     <section>
         <title>Basic user credentials</title>
-        <para>HornetQ ships with a security manager implementation that reads user credentials, i.e.
+        <para>ActiveMQ ships with a security manager implementation that reads user credentials, i.e.
             user names, passwords and role information from an xml file on the classpath called
-                <literal>hornetq-users.xml</literal>. This is the default security manager.</para>
+                <literal>activemq-users.xml</literal>. This is the default security manager.</para>
         <para>If you wish to use this security manager, then users, passwords and roles can easily
             be added into this file.</para>
         <para>Let's take a look at an example file:</para>
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq ../schemas/activemq-users.xsd ">
+   xsi:schemaLocation="urn:activemq ../schemas/activemq-users.xsd ">
 
    &lt;defaultuser name="guest" password="guest">
       &lt;role name="guest"/>
@@ -185,23 +185,23 @@
     <section id="change-security-manager">
         <title>Changing the security manager</title>
         <para>If you do not want to use the default security manager then you can specify a
-            different one by editing the file <literal>hornetq-beans.xml</literal> (or <literal
-                >hornetq-jboss-beans.xml</literal> if you're running JBoss Application Server) and
-            changing the class for the <literal>HornetQSecurityManager</literal> bean.</para>
+            different one by editing the file <literal>activemq-beans.xml</literal> (or <literal
+                >activemq-jboss-beans.xml</literal> if you're running JBoss Application Server) and
+            changing the class for the <literal>ActiveMQSecurityManager</literal> bean.</para>
         <para>Let's take a look at a snippet from the default beans file:</para>
         <programlisting>           
-&lt;bean name="HornetQSecurityManager" class="org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl">
+&lt;bean name="ActiveMQSecurityManager" class="org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl">
    &lt;start ignored="true"/>
    &lt;stop ignored="true"/>
 &lt;/bean></programlisting>
-        <para>The class <literal>org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl</literal>
+        <para>The class <literal>org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl</literal>
             is the default security manager that is used by the standalone server.</para>
-        <para>HornetQ ships with two other security manager implementations you can use
+        <para>ActiveMQ ships with two other security manager implementations you can use
             off-the-shelf; one a JAAS security manager and another for integrating with JBoss
             Application Sever security, alternatively you could write your own implementation by
-            implementing the <literal>org.apache.activemq.spi.core.security.HornetQSecurityManager</literal>
+            implementing the <literal>org.apache.activemq.spi.core.security.ActiveMQSecurityManager</literal>
             interface, and specifying the classname of your implementation in the file <literal
-            >hornetq-beans.xml</literal> (or <literal>hornetq-jboss-beans.xml</literal> if
+            >activemq-beans.xml</literal> (or <literal>activemq-jboss-beans.xml</literal> if
             you're running JBoss Application Server).</para>
         <para>These two implementations are discussed in the next two sections.</para>
     </section>
@@ -214,7 +214,7 @@
             you need to specify the security manager as a <literal>JAASSecurityManager</literal> in
             the beans file. Here's an example:</para>
         <programlisting>
-&lt;bean name="HornetQSecurityManager" class="org.apache.activemq.integration.jboss.security.JAASSecurityManager">
+&lt;bean name="ActiveMQSecurityManager" class="org.apache.activemq.integration.jboss.security.JAASSecurityManager">
    &lt;start ignored="true"/>
    &lt;stop ignored="true"/>
 
@@ -243,27 +243,27 @@
         </itemizedlist>
         <section>
             <title>Example</title>
-            <para>See <xref linkend="examples.jaas"/> for an example which shows how HornetQ can be
+            <para>See <xref linkend="examples.jaas"/> for an example which shows how ActiveMQ can be
                 configured to use JAAS.</para>
         </section>
     </section>
     <section>
         <title>JBoss AS Security Manager</title>
-        <para>The JBoss AS security manager is used when running HornetQ inside the JBoss
+        <para>The JBoss AS security manager is used when running ActiveMQ inside the JBoss
             Application server. This allows tight integration with the JBoss Application Server's
             security model.</para>
         <para>The class name of this security manager is <literal
                 >org.apache.activemq.integration.jboss.security.JBossASSecurityManager</literal></para>
-        <para>Take a look at one of the default <literal>hornetq-jboss-beans.xml</literal> files for
+        <para>Take a look at one of the default <literal>activemq-jboss-beans.xml</literal> files for
             JBoss Application Server that are bundled in the distribution for an example of how this
             is configured.</para>
        <section>
           <title>Configuring Client Login</title>
           <para>JBoss can be configured to allow client login, basically this is when a JEE component such as a Servlet
              or EJB sets security credentials on the current security context  and these are used throughout the call.
-             If you would like these credentials to be used by HornetQ when sending or consuming messages then
-          set <literal>allowClientLogin</literal> to true. This will bypass HornetQ authentication and propagate the
-          provided Security Context. If you would like HornetQ to authenticate using the propagated security then set the
+             If you would like these credentials to be used by ActiveMQ when sending or consuming messages then
+          set <literal>allowClientLogin</literal> to true. This will bypass ActiveMQ authentication and propagate the
+          provided Security Context. If you would like ActiveMQ to authenticate using the propagated security then set the
           <literal>authoriseOnClientLogin</literal> to true also.</para>
           <para>There is more info on using the JBoss client login module <ulink
                 url="http://community.jboss.org/wiki/ClientLoginModule">here</ulink> </para>
@@ -273,7 +273,7 @@
        </section>
        <section>
           <title>Changing the Security Domain</title>
-          <para>The name of the security domain used by the JBoss AS security manager defaults to <literal>java:/jaas/hornetq
+          <para>The name of the security domain used by the JBoss AS security manager defaults to <literal>java:/jaas/activemq
           </literal>.  This can be changed by specifying <literal>securityDomainName</literal> (e.g. java:/jaas/myDomain).
           </para>
        </section>

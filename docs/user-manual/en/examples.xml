@@ -18,12 +18,12 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="examples">
     <title>Examples</title>
-    <para>The HornetQ distribution comes with over 70 run out-of-the-box examples demonstrating many
+    <para>The ActiveMQ distribution comes with over 70 run out-of-the-box examples demonstrating many
         of the features.</para>
     <para>The examples are available in the distribution, in the <literal>examples</literal>
         directory. Examples are split into JMS and core examples. JMS examples show how a particular
@@ -49,11 +49,11 @@
         </section>
         <section id="application-level-failover">
             <title>Application-Layer Failover</title>
-            <para>HornetQ also supports Application-Layer failover, useful in the case that
+            <para>ActiveMQ also supports Application-Layer failover, useful in the case that
                 replication is not enabled on the server side.</para>
             <para>With Application-Layer failover, it's up to the application to register a JMS
-                    <literal>ExceptionListener</literal> with HornetQ which will be called by
-                HornetQ in the event that connection failure is detected.</para>
+                    <literal>ExceptionListener</literal> with ActiveMQ which will be called by
+                ActiveMQ in the event that connection failure is detected.</para>
             <para>The code in the <literal>ExceptionListener</literal> then recreates the JMS
                 connection, session, etc on another node and the application can continue.</para>
             <para>Application-layer failover is an alternative approach to High Availability (HA).
@@ -68,7 +68,7 @@
             <para>The <literal>bridge</literal> example demonstrates a core bridge deployed on one
                 server, which consumes messages from a local queue and forwards them to an address
                 on a second server.</para>
-            <para>Core bridges are used to create message flows between any two HornetQ servers
+            <para>Core bridges are used to create message flows between any two ActiveMQ servers
                 which are remotely separated. Core bridges are resilient and will cope with
                 temporary connection failure allowing them to be an ideal choice for forwarding over
                 unreliable connections, e.g. a WAN.</para>
@@ -76,7 +76,7 @@
         <section id="examples.browsers">
             <title>Browser</title>
             <para>The <literal>browser</literal> example shows you how to use a JMS <literal
-                    >QueueBrowser</literal> with HornetQ.</para>
+                    >QueueBrowser</literal> with ActiveMQ.</para>
             <para>Queues are a standard part of JMS, please consult the JMS 1.1 specification for
                 full details.</para>
             <para> A <literal>QueueBrowser</literal> is used to look at messages on the queue
@@ -98,7 +98,7 @@
             <para>The <literal>client-side-load-balancing</literal> example demonstrates how
                 sessions created from a single JMS <literal>Connection</literal> can
                 be created to different nodes of the cluster. In other words it demonstrates how
-                HornetQ does client-side load-balancing of sessions across the cluster.</para>
+                ActiveMQ does client-side load-balancing of sessions across the cluster.</para>
         </section>
         <section id="examples.clustered.durable">
             <title>Clustered Durable Subscription</title>
@@ -154,10 +154,10 @@
         </section>
         <section id="examples.consumer-rate-limit">
             <title>Message Consumer Rate Limiting</title>
-            <para>With HornetQ you can specify a maximum consume rate at which a JMS MessageConsumer
+            <para>With ActiveMQ you can specify a maximum consume rate at which a JMS MessageConsumer
                 will consume messages. This can be specified when creating or deploying the
                 connection factory.</para>
-            <para>If this value is specified then HornetQ will ensure that messages are never
+            <para>If this value is specified then ActiveMQ will ensure that messages are never
                 consumed at a rate higher than the specified rate. This is a form of consumer
                 throttling.</para>
         </section>
@@ -176,7 +176,7 @@
         </section>
         <section id="examples.delayed-redelivery">
             <title>Delayed Redelivery</title>
-            <para>The <literal>delayed-redelivery</literal> example demonstrates how HornetQ can be
+            <para>The <literal>delayed-redelivery</literal> example demonstrates how ActiveMQ can be
                 configured to provide a delayed redelivery in the case a message needs to be
                 redelivered.</para>
             <para>Delaying redelivery can often be useful in the case that clients regularly fail or
@@ -187,14 +187,14 @@
         </section>
         <section id="divert-example">
             <title>Divert</title>
-            <para>HornetQ diverts allow messages to be transparently "diverted" or copied from one
+            <para>ActiveMQ diverts allow messages to be transparently "diverted" or copied from one
                 address to another with just some simple configuration defined on the server
                 side.</para>
         </section>
         <section>
             <title>Durable Subscription</title>
             <para>The <literal>durable-subscription</literal> example shows you how to use a durable
-                subscription with HornetQ. Durable subscriptions are a standard part of JMS, please
+                subscription with ActiveMQ. Durable subscriptions are a standard part of JMS, please
                 consult the JMS 1.1 specification for full details.</para>
             <para>Unlike non-durable subscriptions, the key function of durable subscriptions is
                 that the messages contained in them persist longer than the lifetime of the
@@ -210,7 +210,7 @@
         </section>
         <section id="examples.embedded.jms.simple">
             <title>Embedded Simple</title>
-            <para>The <literal>embedded</literal> example shows how to embed JMS within your own code using regular HornetQ XML files.</para>
+            <para>The <literal>embedded</literal> example shows how to embed JMS within your own code using regular ActiveMQ XML files.</para>
         </section>
         <section id="examples.expiry">
             <title>Message Expiration</title>
@@ -219,19 +219,19 @@
                 period of time before being removed. JMS specification states that clients should
                 not receive messages that have been expired (but it does not guarantee this will not
                 happen).</para>
-            <para>HornetQ can assign an expiry address to a given queue so that when messages
+            <para>ActiveMQ can assign an expiry address to a given queue so that when messages
                 are expired, they are removed from the queue and sent to the expiry address.
                 These "expired" messages can later be consumed from the expiry address for
                 further inspection.</para>
         </section>
-        <section id="examples.hornetq-ra-rar">
-            <title>HornetQ Resource Adapter example</title>
-            <para>This examples shows how to build the hornetq resource adapters a rar for deployment in other Application
+        <section id="examples.activemq-ra-rar">
+            <title>ActiveMQ Resource Adapter example</title>
+            <para>This examples shows how to build the activemq resource adapters a rar for deployment in other Application
             Server's</para>
         </section>
         <section>
             <title>HTTP Transport</title>
-            <para>The <literal>http-transport</literal> example shows you how to configure HornetQ
+            <para>The <literal>http-transport</literal> example shows you how to configure ActiveMQ
                 to use the HTTP protocol as its transport layer.</para>
         </section>
         <section>
@@ -241,18 +241,18 @@
                 before being used by the client code. This objects are called "administered objects"
                 in JMS terminology.</para>
             <para>However, in some cases a JNDI server may not be available or desired. To come to
-                the rescue HornetQ also supports the direct instantiation of these administered
+                the rescue ActiveMQ also supports the direct instantiation of these administered
                 objects on the client side so you don't have to use JNDI for JMS.</para>
         </section>
         <section id="examples.interceptor">
             <title>Interceptor</title>
-            <para>HornetQ allows an application to use an interceptor to hook into the messaging
-                system. Interceptors allow you to handle various message events in HornetQ.</para>
+            <para>ActiveMQ allows an application to use an interceptor to hook into the messaging
+                system. Interceptors allow you to handle various message events in ActiveMQ.</para>
         </section>
         <section id="examples.jaas">
             <title>JAAS</title>
-            <para>The <literal>jaas</literal> example shows you how to configure HornetQ to use JAAS
-                for security. HornetQ can leverage JAAS to delegate user authentication and
+            <para>The <literal>jaas</literal> example shows you how to configure ActiveMQ to use JAAS
+                for security. ActiveMQ can leverage JAAS to delegate user authentication and
                 authorization to existing security infrastructure.</para>
         </section>
         <section id="examples.jms.auto-closeable">
@@ -263,18 +263,18 @@
         <section id="examples.jms.completion-listener">
             <title>JMS Completion Listener</title>
             <para>The <literal>jms-completion-listener</literal> example shows how to send a message
-            asynchronously to HornetQ and use a CompletionListener to be notified of the Broker
+            asynchronously to ActiveMQ and use a CompletionListener to be notified of the Broker
             receiving it.</para>
         </section>
         <section id="examples.jms.jms-bridge">
             <title>JMS Bridge</title>
             <para>The <literal>jms-brige</literal> example shows how to setup a bridge
-            between two standalone HornetQ servers.</para>
+            between two standalone ActiveMQ servers.</para>
         </section>
         <section id="examples.jms.jms-context">
             <title>JMS Context</title>
             <para>The <literal>jms-context</literal> example shows how to send and receive a message
-            to a JMS Queue using HornetQ by using a JMS Context.</para>
+            to a JMS Queue using ActiveMQ by using a JMS Context.</para>
             <para>A JMSContext is part of JMS 2.0 and combines the JMS Connection and Session Objects
             into a simple Interface.</para>
         </section>
@@ -287,17 +287,17 @@
         </section>
         <section id="examples.jmx">
             <title>JMX Management</title>
-            <para>The <literal>jmx</literal> example shows how to manage HornetQ using JMX.</para>
+            <para>The <literal>jmx</literal> example shows how to manage ActiveMQ using JMX.</para>
         </section>
         <section id="examples.large-message">
             <title>Large Message</title>
             <para>The <literal>large-message</literal> example shows you how to send and receive
-                very large messages with HornetQ. HornetQ supports the sending and receiving of huge
+                very large messages with ActiveMQ. ActiveMQ supports the sending and receiving of huge
                 messages, much larger than can fit in available RAM on the client or server.
                 Effectively the only limit to message size is the amount of disk space you have on
                 the server.</para>
             <para>Large messages are persisted on the server so they can survive a server restart.
-                In other words HornetQ doesn't just do a simple socket stream from the sender to the
+                In other words ActiveMQ doesn't just do a simple socket stream from the sender to the
                 consumer.</para>
         </section>
         <section id="examples.last-value-queue">
@@ -312,13 +312,13 @@
         </section>
         <section id="examples.management">
             <title>Management</title>
-            <para>The <literal>management</literal> example shows how to manage HornetQ using JMS
+            <para>The <literal>management</literal> example shows how to manage ActiveMQ using JMS
                 Messages to invoke management operations on the server.</para>
         </section>
         <section id="examples.management-notifications">
             <title>Management Notification</title>
             <para>The <literal>management-notification</literal> example shows how to receive
-                management notifications from HornetQ using JMS messages. HornetQ servers emit
+                management notifications from ActiveMQ using JMS messages. ActiveMQ servers emit
                 management notifications when events of interest occur (consumers are created or
                 closed, addresses are created or deleted, security authentication fails,
                 etc.).</para>
@@ -331,7 +331,7 @@
         <section id="examples.message-group">
             <title>Message Group</title>
             <para>The <literal>message-group</literal> example shows you how to configure and use
-                message groups with HornetQ. Message groups allow you to pin messages so they are
+                message groups with ActiveMQ. Message groups allow you to pin messages so they are
                 only consumed by a single consumer. Message groups are sets of messages that has the
                 following characteristics:</para>
             <para>
@@ -350,7 +350,7 @@
        <section id="examples.message-group2">
             <title>Message Group</title>
             <para>The <literal>message-group2</literal> example shows you how to configure and use
-                message groups with HornetQ via a connection factory.</para>
+                message groups with ActiveMQ via a connection factory.</para>
         </section>
         <section id="examples.message-priority">
             <title>Message Priority</title>
@@ -376,16 +376,16 @@
         </section>
         <section id="examples.no-consumer-buffering">
             <title>No Consumer Buffering</title>
-            <para>By default, HornetQ consumers buffer messages from the server in a client side
+            <para>By default, ActiveMQ consumers buffer messages from the server in a client side
                 buffer before you actually receive them on the client side. This improves
                 performance since otherwise every time you called receive() or had processed the
-                last message in a <literal>MessageListener onMessage()</literal> method, the HornetQ
+                last message in a <literal>MessageListener onMessage()</literal> method, the ActiveMQ
                 client would have to go the server to request the next message, which would then get
                 sent to the client side, if one was available.</para>
             <para>This would involve a network round trip for every message and reduce performance.
-                Therefore, by default, HornetQ pre-fetches messages into a buffer on each
+                Therefore, by default, ActiveMQ pre-fetches messages into a buffer on each
                 consumer.</para>
-            <para>In some case buffering is not desirable, and HornetQ allows it to be switched off.
+            <para>In some case buffering is not desirable, and ActiveMQ allows it to be switched off.
                 This example demonstrates that.</para>
         </section>
         <section id="examples.non-transaction-failover">
@@ -394,7 +394,7 @@
                 as a live-backup pair for high availability (HA), and a client using a <emphasis>non-transacted
                 </emphasis> JMS session failing over from live to backup when the live server is
                 crashed.</para>
-            <para>HornetQ implements failover of client connections between
+            <para>ActiveMQ implements failover of client connections between
                 live and backup servers. This is implemented by the replication of state between
                 live and backup nodes. When replication is configured and a live node crashes, the
                 client connections can carry and continue to send and consume messages. When non-transacted
@@ -403,12 +403,12 @@
         </section>
         <section id="examples.openwire">
             <title>OpenWire</title>
-            <para>The <literal>Openwire</literal> example shows how to configure a HornetQ
+            <para>The <literal>Openwire</literal> example shows how to configure a ActiveMQ
             server to communicate with an ActiveMQ JMS client that uses open-wire protocol.</para>
         </section>
         <section id="examples.paging">
             <title>Paging</title>
-            <para>The <literal>paging</literal> example shows how HornetQ can support huge queues
+            <para>The <literal>paging</literal> example shows how ActiveMQ can support huge queues
                 even when the server is running in limited RAM. It does this by transparently
                     <emphasis>paging</emphasis> messages to disk, and <emphasis>depaging</emphasis>
                 them when they are required.</para>
@@ -422,24 +422,24 @@
             <para>All of these standard modes involve sending acknowledgements from the client to
                 the server. However in some cases, you really don't mind losing messages in event of
                 failure, so it would make sense to acknowledge the message on the server before
-                delivering it to the client. This example demonstrates how HornetQ allows this with
+                delivering it to the client. This example demonstrates how ActiveMQ allows this with
                 an extra acknowledgement mode.</para>
         </section>
         <section id="producer-rate-limiting-example">
             <title>Message Producer Rate Limiting</title>
-            <para>The <literal>producer-rte-limit</literal> example demonstrates how, with HornetQ,
+            <para>The <literal>producer-rte-limit</literal> example demonstrates how, with ActiveMQ,
                 you can specify a maximum send rate at which a JMS message producer will send
                 messages.</para>
         </section>
         <section id="examples.proton-qpid">
             <title>Proton Qpid</title>
-            <para>HornetQ can be configured to accept requests from any AMQP client that supports the
+            <para>ActiveMQ can be configured to accept requests from any AMQP client that supports the
             1.0 version of the protocol. This <literal>proton-j</literal> example shows a simply 
             qpid java 1.0 client example.</para>
         </section>
         <section id="examples.proton-ruby">
             <title>Proton Ruby</title>
-            <para>HornetQ can be configured to accept requests from any AMQP client that supports the
+            <para>ActiveMQ can be configured to accept requests from any AMQP client that supports the
             1.0 version of the protocol. This example shows a simply proton ruby client
             that sends and receives messages</para>
         </section>
@@ -466,7 +466,7 @@
             <title>Reattach Node example</title>
             <para>The <literal>Reattach Node</literal> example shows how a client can try to reconnect to
                the same server instead of failing the connection immediately and
-               notifying any user ExceptionListener objects. HornetQ can be configured to automatically
+               notifying any user ExceptionListener objects. ActiveMQ can be configured to automatically
                retry the connection, and reattach to the server when it becomes available again across
                the network.</para>
         </section>
@@ -494,71 +494,71 @@
         </section>
         <section id="examples.rest">
             <title>Rest example</title>
-            <para>An example showing how to use the HornetQ Rest API</para>
+            <para>An example showing how to use the ActiveMQ Rest API</para>
         </section>
         <section id="examples.scheduled-message">
             <title>Scheduled Message</title>
             <para>The <literal>scheduled-message</literal> example shows you how to send a scheduled
-                message to a JMS Queue with HornetQ. Scheduled messages won't get delivered until a
+                message to a JMS Queue with ActiveMQ. Scheduled messages won't get delivered until a
                 specified time in the future.</para>
         </section>
         <section id="examples.security">
             <title>Security</title>
             <para>The <literal>security</literal> example shows you how configure and use role based
-                queue security with HornetQ.</para>
+                queue security with ActiveMQ.</para>
         </section>
         <section id="asynchronous-send-acknowledgements-example">
             <title>Send Acknowledgements</title>
             <para>The <literal>send-acknowledgements</literal> example shows you how to use
-                HornetQ's advanced <emphasis>asynchronous send acknowledgements</emphasis> feature
+                ActiveMQ's advanced <emphasis>asynchronous send acknowledgements</emphasis> feature
                 to obtain acknowledgement from the server that sends have been received and
                 processed in a separate stream to the sent messages. </para>
         </section>
 	<section id="examples.jms.spring.integration">
 	  <title>Spring Integration</title>
-	  <para>This example shows how to use embedded JMS using HornetQ's Spring integration.</para>
+	  <para>This example shows how to use embedded JMS using ActiveMQ's Spring integration.</para>
 	</section>
         <section id="examples.ssl-transport">
             <title>SSL Transport</title>
-            <para>The <literal>ssl-enabled</literal> shows you how to configure SSL with HornetQ to
+            <para>The <literal>ssl-enabled</literal> shows you how to configure SSL with ActiveMQ to
                 send and receive message.</para>
         </section>
         <section id="examples.static-message-selector">
             <title>Static Message Selector</title>
             <para>The <literal>static-selector</literal> example shows you how to configure a
-                HornetQ core queue with static message selectors (filters).</para>
+                ActiveMQ core queue with static message selectors (filters).</para>
         </section>
         <section id="examples.static-message-selector-jms">
             <title>Static Message Selector Using JMS</title>
             <para>The <literal>static-selector-jms</literal> example shows you how to configure a
-                HornetQ queue with static message selectors (filters) using JMS.</para>
+                ActiveMQ queue with static message selectors (filters) using JMS.</para>
         </section>
         <section id="examples.stomp">
             <title>Stomp</title>
             <para>The <literal>stomp</literal> example shows you how to configure a
-                HornetQ server to send and receive Stomp messages.</para>
+                ActiveMQ server to send and receive Stomp messages.</para>
         </section>
         <section id="examples.stomp1.1">
             <title>Stomp1.1</title>
             <para>The <literal>stomp</literal> example shows you how to configure a
-                HornetQ server to send and receive Stomp messages via a Stomp 1.1 connection.</para>
+                ActiveMQ server to send and receive Stomp messages via a Stomp 1.1 connection.</para>
         </section>
         <section id="examples.stomp1.2">
             <title>Stomp1.2</title>
             <para>The <literal>stomp</literal> example shows you how to configure a
-                HornetQ server to send and receive Stomp messages via a Stomp 1.2 connection.</para>
+                ActiveMQ server to send and receive Stomp messages via a Stomp 1.2 connection.</para>
         </section>
         <section id="examples.stomp-web-socket">
             <title>Stomp Over Web Sockets</title>
             <para>The <literal>stomp-websockets</literal> example shows you how to configure a
-                HornetQ server to send and receive Stomp messages directly from Web browsers (provided
+                ActiveMQ server to send and receive Stomp messages directly from Web browsers (provided
                 they support Web Sockets).</para>
         </section>
         <section id="examples.symmetric-cluster">
             <title>Symmetric Cluster</title>
             <para>The <literal>symmetric-cluster</literal> example demonstrates a symmetric cluster
-                set-up with HornetQ.</para>
-            <para>HornetQ has extremely flexible clustering which allows you to set-up servers in
+                set-up with ActiveMQ.</para>
+            <para>ActiveMQ has extremely flexible clustering which allows you to set-up servers in
                 many different topologies. The most common topology that you'll perhaps be familiar
                 with if you are used to application server clustering is a symmetric cluster.</para>
             <para>With a symmetric cluster, the cluster is homogeneous, i.e. each node is configured
@@ -575,14 +575,14 @@
         </section>
         <section id="topic-hierarchy-example">
             <title>Topic Hierarchy</title>
-            <para>HornetQ supports topic hierarchies. With a topic hierarchy you can register a
+            <para>ActiveMQ supports topic hierarchies. With a topic hierarchy you can register a
                 subscriber with a wild-card and that subscriber will receive any messages sent to an
                 address that matches the wild card.</para>
         </section>
         <section id="examples.topic-selector-1">
             <title>Topic Selector 1</title>
             <para>The <literal>topic-selector-example1</literal> example shows you how to send
-                message to a JMS Topic, and subscribe them using selectors with HornetQ.</para>
+                message to a JMS Topic, and subscribe them using selectors with ActiveMQ.</para>
         </section>
         <section id="examples.topic-selector-2">
             <title>Topic Selector 2</title>
@@ -595,7 +595,7 @@
                 as a live-backup pair for high availability (HA), and a client using a transacted JMS
                 session failing over from live to backup when the live server is
                 crashed.</para>
-            <para>HornetQ implements failover of client connections between
+            <para>ActiveMQ implements failover of client connections between
                 live and backup servers. This is implemented by the sharing of a journal between the
                servers. When a live node crashes, the
                 client connections can carry and continue to send and consume messages. When transacted
@@ -610,29 +610,29 @@
         <section id="examples.transactional-session">
             <title>Transactional Session</title>
             <para>The <literal>transactional</literal> example shows you how to use a transactional
-                Session with HornetQ.</para>
+                Session with ActiveMQ.</para>
         </section>
         <section>
             <title>XA Heuristic</title>
             <para>The <literal>xa-heuristic</literal> example shows you how to make an XA heuristic
-                decision through HornetQ Management Interface. A heuristic decision is a unilateral
+                decision through ActiveMQ Management Interface. A heuristic decision is a unilateral
                 decision to commit or rollback an XA transaction branch after it has been
                 prepared.</para>
         </section>
         <section>
             <title>XA Receive</title>
             <para>The <literal>xa-receive</literal> example shows you how message receiving behaves
-                in an XA transaction in HornetQ.</para>
+                in an XA transaction in ActiveMQ.</para>
         </section>
         <section>
             <title>XA Send</title>
             <para>The <literal>xa-send</literal> example shows you how message sending behaves in an
-                XA transaction in HornetQ.</para>
+                XA transaction in ActiveMQ.</para>
         </section>
         <section>
             <title>XA with Transaction Manager</title>
             <para>The <literal>xa-with-jta</literal> example shows you how to use JTA interfaces to
-                control transactions with HornetQ.</para>
+                control transactions with ActiveMQ.</para>
         </section>
     </section>
     <section>
@@ -641,7 +641,7 @@
             directory and type <literal>ant</literal></para>
         <section id="examples.embedded">
             <title>Embedded</title>
-            <para>The <literal>embedded</literal> example shows how to embed the HornetQ server
+            <para>The <literal>embedded</literal> example shows how to embed the ActiveMQ server
                 within your own code.</para>
         </section>
     </section>
@@ -653,8 +653,8 @@
             variable set. Please refer to the examples documentation for further instructions.</para>
         <note>
            <para>When running the Java EE examples you may see warning messages in the WildFly log about incompatible client and
-           server versions. This is normal if a newer version of the HornetQ project is being used with a version of WildFly that
-           ships an older version of HornetQ. These examples should still complete without any functional errors.</para>
+           server versions. This is normal if a newer version of the ActiveMQ project is being used with a version of WildFly that
+           ships an older version of ActiveMQ. These examples should still complete without any functional errors.</para>
         </note>
         <section>
             <title>EJB/JMS Transaction</title>
@@ -662,16 +662,16 @@
         </section>
         <section>
             <title>Resource Adapter Configuration</title>
-            <para>This example demonstrates how to configure several properties on the HornetQ JCA
+            <para>This example demonstrates how to configure several properties on the ActiveMQ JCA
                 resource adaptor.</para>
         </section>
         <section>
             <title>Resource Adapter Remote Server Configuration</title>
-            <para>This example demonstrates how to configure the HornetQ resource adapter to talk to a remote HornetQ server</para>
+            <para>This example demonstrates how to configure the ActiveMQ resource adapter to talk to a remote ActiveMQ server</para>
         </section>
         <section id="examples.javaee.jms-bridge">
             <title>JMS Bridge</title>
-            <para>An example demonstrating the use of the HornetQ JMS bridge.</para>
+            <para>An example demonstrating the use of the ActiveMQ JMS bridge.</para>
         </section>
         <section>
             <title>MDB (Message Driven Bean)</title>
@@ -679,16 +679,16 @@
         </section>
         <section>
             <title>Servlet Transport</title>
-            <para>An example of how to use the HornetQ servlet transport.</para>
+            <para>An example of how to use the ActiveMQ servlet transport.</para>
         </section>
         <section>
             <title>Servlet SSL Transport</title>
-            <para>An example of how to use the HornetQ servlet transport over SSL.</para>
+            <para>An example of how to use the ActiveMQ servlet transport over SSL.</para>
         </section>
         <section id="xa-recovery-example">
             <title>XA Recovery</title>
             <para>An example of how XA recovery works within the JBoss Application server using
-                HornetQ.</para>
+                ActiveMQ.</para>
         </section>
     </section>
 </chapter>

@@ -13,29 +13,29 @@
   -->
 
 <!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
-<bookinfo id="HornetQ_User_Manual">
-  <title>HornetQ User Manual</title>
+<bookinfo id="ActiveMQ_User_Manual">
+  <title>ActiveMQ User Manual</title>
   <subtitle>Putting the buzz in messaging</subtitle>
-  <productname>HornetQ</productname>
+  <productname>ActiveMQ</productname>
   <productnumber>2</productnumber>
   <edition>2.1.0</edition>
   <pubsnumber>1</pubsnumber>
   <abstract>
-    <para>The User manual is an in depth manual on all aspects of HornetQ</para>
+    <para>The User manual is an in depth manual on all aspects of ActiveMQ</para>
   </abstract>
-  <corpauthor>
+  <!--corpauthor>
     <inlinemediaobject>
       <imageobject>
         <imagedata fileref="images/hornetQ_logo_600px.png" format="PNG"/>
       </imageobject>
       <textobject>
-        <phrase>HornetQ Logo</phrase>
+        <phrase>ActiveMQ Logo</phrase>
       </textobject>
     </inlinemediaobject>
-  </corpauthor>
+  </corpauthor-->
   <copyright>
     <year>&YEAR;</year>
     <holder>&HOLDER;</holder>

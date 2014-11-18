@@ -13,7 +13,7 @@
   -->
 
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 
 ]>
@@ -63,7 +63,7 @@
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="thread-pooling.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="logging.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="rest.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="embedding-hornetq.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="embedding-activemq.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="spring-integration.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="aerogear-integration.xml"/>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="vertx-integration.xml"/>

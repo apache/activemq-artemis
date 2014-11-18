@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="ha">
@@ -33,13 +33,13 @@
     <section>
         <title>Live - Backup Groups</title>
 
-        <para>HornetQ allows servers to be linked together as <emphasis>live - backup</emphasis>
+        <para>ActiveMQ allows servers to be linked together as <emphasis>live - backup</emphasis>
            groups where each live server can have 1 or more backup servers. A backup server is owned by
            only one live server.  Backup servers are not operational until failover occurs, however 1
            chosen backup, which will be in passive mode, announces its status and waits to take over
            the live servers work</para>
 
-        <para>Before failover, only the live server is serving the HornetQ clients while the backup
+        <para>Before failover, only the live server is serving the ActiveMQ clients while the backup
            servers remain passive or awaiting to become a backup server. When a live server crashes or
            is brought down in the correct mode, the backup server currently in passive mode will become
            live and another backup server will become passive. If a live server restarts after a
@@ -49,7 +49,7 @@
 
         <section id="ha.policies">
             <title>HA Policies</title>
-            <para>HornetQ supports two different strategies for backing up a server <emphasis>shared
+            <para>ActiveMQ supports two different strategies for backing up a server <emphasis>shared
                store</emphasis> and <emphasis>replication</emphasis>. Which is configured via the
                <literal>ha-policy</literal> configuration element.</para>
            <programlisting>
@@ -73,7 +73,7 @@
            <note>
               <para>
                  The <literal>ha-policy</literal> configurations replaces any current HA configuration in the root of the
-                 <literal>hornetq-configuration.xml</literal> configuration. All old configuration is now deprecated altho
+                 <literal>activemq-configuration.xml</literal> configuration. All old configuration is now deprecated altho
                  best efforts will be made to honour it if configured this way.
               </para>
            </note>
@@ -162,7 +162,7 @@
                     <para><literal>specifying a node group</literal>. You can specify a group of live servers that a backup
                        server can connect to. This is done by configuring <literal>group-name</literal> in either the <literal>master</literal>
                        or the <literal>slave</literal> element of the
-                       <literal>hornetq-configuration.xml</literal>. A Backup server will only connect to a live server that
+                       <literal>activemq-configuration.xml</literal>. A Backup server will only connect to a live server that
                        shares the same node group name</para>
                 </listitem>
                 <listitem>
@@ -226,7 +226,7 @@
                 <title>Configuration</title>
 
                 <para>To configure the live and backup servers to be a replicating pair, configure
-                   the live server in ' <literal>hornetq-configuration.xml</literal> to have:</para>
+                   the live server in ' <literal>activemq-configuration.xml</literal> to have:</para>
 
                 <programlisting>
 &lt;ha-policy>
@@ -362,7 +362,7 @@
             <section id="ha/mode.shared.configuration">
                 <title>Configuration</title>
                 <para>To configure the live and backup servers to share their store, configure
-                   id via the <literal>ha-policy</literal> configuration in <literal>hornetq-configuration.xml</literal>:</para>
+                   id via the <literal>ha-policy</literal> configuration in <literal>activemq-configuration.xml</literal>:</para>
                <programlisting>
 &lt;ha-policy>
    &lt;shared-store>
@@ -427,7 +427,7 @@
               request the other server (which it assumes it is a back that has assumed its duties) to shutdown for it to
               take over. This is necessary because otherwise the live server has no means to know whether there was a
               fail-over or not, and if there was if the server that took its duties is still running or not.
-              To configure this option at your <literal>hornetq-configuration.xml</literal> configuration file as follows:</para>
+              To configure this option at your <literal>activemq-configuration.xml</literal> configuration file as follows:</para>
            <programlisting>
 &lt;ha-policy>
    &lt;replication>
@@ -459,7 +459,7 @@
                API as explained at <xref linkend="management.core.server"/></para>
             <para>You can also force the running live server to shutdown when the old live server comes back up allowing
                the original live server to take over automatically by setting the following property in the
-               <literal>hornetq-configuration.xml</literal> configuration file as follows:</para>
+               <literal>activemq-configuration.xml</literal> configuration file as follows:</para>
             <programlisting>
 &lt;ha-policy>
    &lt;shared-store>
@@ -550,7 +550,7 @@
                  and its Connectors and Acceptors which are discussed later on in this chapter. A live server can also
                 be configured to allow requests from backups and also how many backups a live server can start. this way
                 you can evenly distribute backups around the cluster. This is configured via the <literal>ha-policy</literal>
-                element in the <literal>hornetq-configuration.xml</literal> file like so:</para>
+                element in the <literal>activemq-configuration.xml</literal> file like so:</para>
             <programlisting>
 &lt;ha-policy>
    &lt;replication>
@@ -741,7 +741,7 @@
    </section>
     <section id="failover">
         <title>Failover Modes</title>
-        <para>HornetQ defines two types of client failover:</para>
+        <para>ActiveMQ defines two types of client failover:</para>
         <itemizedlist>
             <listitem>
                 <para>Automatic client failover</para>
@@ -750,7 +750,7 @@
                 <para>Application-level client failover</para>
             </listitem>
         </itemizedlist>
-        <para>HornetQ also provides 100% transparent automatic reattachment of connections to the
+        <para>ActiveMQ also provides 100% transparent automatic reattachment of connections to the
             same server (e.g. in case of transient network problems). This is similar to failover,
             except it is reconnecting to the same server and is discussed in
             <xref linkend="client-reconnection"/></para>
@@ -759,20 +759,20 @@
             since the backup node will not have any knowledge of non persistent queues.</para>
         <section id="ha.automatic.failover">
             <title>Automatic Client Failover</title>
-            <para>HornetQ clients can be configured to receive knowledge of all live and backup servers, so
+            <para>ActiveMQ clients can be configured to receive knowledge of all live and backup servers, so
                 that in event of connection failure at the client - live server connection, the
                 client will detect this and reconnect to the backup server. The backup server will
                 then automatically recreate any sessions and consumers that existed on each
                 connection before failover, thus saving the user from having to hand-code manual
                 reconnection logic.</para>
-            <para>HornetQ clients detect connection failure when it has not received packets from
+            <para>ActiveMQ clients detect connection failure when it has not received packets from
                 the server within the time given by <literal>client-failure-check-period</literal>
                 as explained in section <xref linkend="connection-ttl"/>. If the client does not
                 receive data in good time, it will assume the connection has failed and attempt
                 failover. Also if the socket is closed by the OS, usually if the server process is
                 killed rather than the machine itself crashing, then the client will failover straight away.
                 </para>
-            <para>HornetQ clients can be configured to discover the list of live-backup server groups in a
+            <para>ActiveMQ clients can be configured to discover the list of live-backup server groups in a
                 number of different ways. They can be configured explicitly or probably the most
                 common way of doing this is to use <emphasis>server discovery</emphasis> for the
                 client to automatically discover the list. For full details on how to configure
@@ -794,7 +794,7 @@
                     connection is made there is a window where it does not know about the backup. If a failure happens at
                     this point the client can only try reconnecting to the original live server. To configure
                     how many attempts the client will make you can set the property <literal>initialConnectAttempts</literal>
-                    on the <literal>ClientSessionFactoryImpl</literal> or <literal >HornetQConnectionFactory</literal> or
+                    on the <literal>ClientSessionFactoryImpl</literal> or <literal >ActiveMQConnectionFactory</literal> or
                     <literal>initial-connect-attempts</literal> in xml. The default for this is <literal>0</literal>, that
                     is try only once. Once the number of attempts has been made an exception will be thrown.
                 </para>
@@ -804,7 +804,7 @@
                     linkend="examples.non-transaction-failover"/>.</para>
             <section id="ha.automatic.failover.noteonreplication">
                 <title>A Note on Server Replication</title>
-                <para>HornetQ does not replicate full server state between live and backup servers.
+                <para>ActiveMQ does not replicate full server state between live and backup servers.
                     When the new session is automatically recreated on the backup it won't have any
                     knowledge of messages already sent or acknowledged in that session. Any
                     in-flight sends or acknowledgements at the time of failover might also be
@@ -838,14 +838,14 @@
                     to continue its execution, when failover occurs, the new session will not have
                     any knowledge of the call that was in progress. This call might otherwise hang
                     for ever, waiting for a response that will never come.</para>
-                <para>To prevent this, HornetQ will unblock any blocking calls that were in progress
+                <para>To prevent this, ActiveMQ will unblock any blocking calls that were in progress
                     at the time of failover by making them throw a <literal
                         >javax.jms.JMSException</literal> (if using JMS), or a <literal
                         >ActiveMQException</literal> with error code <literal
                         >ActiveMQException.UNBLOCKED</literal>. It is up to the client code to catch
                     this exception and retry any operations if desired.</para>
                 <para>If the method being unblocked is a call to commit(), or prepare(), then the
-                    transaction will be automatically rolled back and HornetQ will throw a <literal
+                    transaction will be automatically rolled back and ActiveMQ will throw a <literal
                         >javax.jms.TransactionRolledBackException</literal> (if using JMS), or a
                         <literal>ActiveMQException</literal> with error code <literal
                         >ActiveMQException.TRANSACTION_ROLLED_BACK</literal> if using the core
@@ -879,7 +879,7 @@
                     rollback code as necessary. There is no need to manually rollback the session -
                     it is already rolled back. The user can then just retry the transactional
                     operations again on the same session.</para>
-                <para>HornetQ ships with a fully functioning example demonstrating how to do this,
+                <para>ActiveMQ ships with a fully functioning example demonstrating how to do this,
                     please see <xref linkend="examples.transaction-failover"/></para>
                 <para>If failover occurs when a commit call is being executed, the server, as
                     previously described, will unblock the call to prevent a hang, since no response
@@ -925,10 +925,10 @@
                 connection failure: <literal>java.jms.ExceptionListener</literal>. Please consult
                 the JMS javadoc or any good JMS tutorial for more information on how to use
                 this.</para>
-            <para>The HornetQ core API also provides a similar feature in the form of the class
-                    <literal>org.hornet.core.client.SessionFailureListener</literal></para>
+            <para>The ActiveMQ core API also provides a similar feature in the form of the class
+                    <literal>org.apache.activemq.core.client.SessionFailureListener</literal></para>
             <para>Any ExceptionListener or SessionFailureListener instance will always be called by
-                HornetQ on event of connection failure, <emphasis role="bold"
+                ActiveMQ on event of connection failure, <emphasis role="bold"
                     >irrespective</emphasis> of whether the connection was successfully failed over,
                 reconnected or reattached, however you can find out if reconnect or reattach has happened
             by either the <literal>failedOver</literal> flag passed in on the <literal>connectionFailed</literal>
@@ -970,7 +970,7 @@
                 failover, since the failover is handled at the user application level.</para>
             <para>To implement application-level failover, if you're using JMS then you need to set
                 an <literal>ExceptionListener</literal> class on the JMS connection. The
-                <literal>ExceptionListener</literal> will be called by HornetQ in the event that
+                <literal>ExceptionListener</literal> will be called by ActiveMQ in the event that
                 connection failure is detected. In your <literal>ExceptionListener</literal>, you
                 would close your old JMS connections, potentially look up new connection factory
                 instances from JNDI and creating new connections. In this case you may well be using

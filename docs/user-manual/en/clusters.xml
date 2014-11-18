@@ -18,15 +18,15 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-        <!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+        <!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
         %BOOK_ENTITIES;
         ]>
 <chapter id="clusters">
     <title>Clusters</title>
     <section>
         <title>Clusters Overview</title>
-        <para>HornetQ clusters allow groups of HornetQ servers to be grouped together in order to
-            share message processing load. Each active node in the cluster is an active HornetQ
+        <para>ActiveMQ clusters allow groups of ActiveMQ servers to be grouped together in order to
+            share message processing load. Each active node in the cluster is an active ActiveMQ
             server which manages its own messages and handles its own connections. </para>
         <note id="clustered-deprecation">
             <para>The <emphasis>clustered</emphasis> parameter is deprecated and no longer needed for
@@ -35,7 +35,7 @@
         </note>
         <para>The cluster is formed by each node declaring <emphasis>cluster connections</emphasis>
             to other nodes in the core configuration file <literal
-                    >hornetq-configuration.xml</literal>. When a node forms a cluster connection to
+                    >activemq-configuration.xml</literal>. When a node forms a cluster connection to
             another node, internally it creates a <emphasis>core bridge</emphasis> (as described in
             <xref linkend="core-bridges"/>) connection between it and the other node, this is
             done transparently behind the scenes - you don't have to declare an explicit bridge for
@@ -44,7 +44,7 @@
         <para>Nodes can be connected together to form a cluster in many different topologies, we
             will discuss a couple of the more common topologies later in this chapter.</para>
         <para>We'll also discuss client side load balancing, where we can balance client connections
-            across the nodes of the cluster, and we'll consider message redistribution where HornetQ
+            across the nodes of the cluster, and we'll consider message redistribution where ActiveMQ
             will redistribute messages between nodes to avoid starvation.</para>
         <para>Another important part of clustering is <emphasis>server discovery</emphasis> where
             servers can broadcast their connection details so clients or other servers can connect
@@ -52,7 +52,7 @@
         <warning id="copy-warning">
             <para>Once a cluster node has been configured it is common to simply copy that configuration
             to other nodes to produce a symmetric cluster. However, care must be taken when copying the
-            HornetQ files. Do not copy the HornetQ <emphasis>data</emphasis> (i.e. the
+            ActiveMQ files. Do not copy the ActiveMQ <emphasis>data</emphasis> (i.e. the
             <literal>bindings</literal>, <literal>journal</literal>, and <literal>large-messages</literal>
             directories) from one node to another. When a node is started for the first time and initializes
             its journal files it also persists a special identifier to the <literal>journal</literal>
@@ -78,7 +78,7 @@
             </listitem>
         </itemizedlist>
         <para>
-            This information, let's call it the Cluster Topology, is actually sent around normal HornetQ
+            This information, let's call it the Cluster Topology, is actually sent around normal ActiveMQ
             connections to clients and to other servers over cluster connections. This being the case we need a
             way of establishing the initial first connection. This can be done using
             dynamic discovery techniques like <ulink url="http://en.wikipedia.org/wiki/User_Datagram_Protocol" >UDP</ulink>
@@ -102,11 +102,11 @@
                     the network. Depending on which broadcasting technique you configure the cluster, it
                     uses either UDP or JGroups to broadcast connector pairs information.</para>
                 <para>Broadcast groups are defined in the server configuration file <literal
-                        >hornetq-configuration.xml</literal>. There can be many broadcast groups per
-                    HornetQ server. All broadcast groups must be defined in a <literal
+                        >activemq-configuration.xml</literal>. There can be many broadcast groups per
+                    ActiveMQ server. All broadcast groups must be defined in a <literal
                             >broadcast-groups</literal> element.</para>
                 <para>Let's take a look at an example broadcast group from <literal
-                        >hornetq-configuration.xml</literal> that defines a UDP broadcast group:</para>
+                        >activemq-configuration.xml</literal> that defines a UDP broadcast group:</para>
                 <programlisting>
 &lt;broadcast-groups>
    &lt;broadcast-group name="my-broadcast-group">
@@ -171,7 +171,7 @@
 &lt;broadcast-groups>
    &lt;broadcast-group name="my-broadcast-group">
       &lt;jgroups-file>test-jgroups-file_ping.xml&lt;/jgroups-file>
-      &lt;jgroups-channel>hornetq_broadcast_channel&lt;/jgroups-channel>
+      &lt;jgroups-channel>activemq_broadcast_channel&lt;/jgroups-channel>
       &lt;broadcast-period>2000&lt;/broadcast-period>
     &lt;connector-ref connector-name="netty-connector"/>
    &lt;/broadcast-group>
@@ -183,7 +183,7 @@
                     <listitem>
                         <para><literal>jgroups-file</literal> attribute. This is the name of JGroups configuration
                             file. It will be used to initialize JGroups channels. Make sure the file is in the 
-                            java resource path so that HornetQ can load it. </para>
+                            java resource path so that ActiveMQ can load it. </para>
                     </listitem>
                     <listitem>
                         <para><literal>jgroups-channel</literal> attribute. The name that JGroups channels connect
@@ -251,7 +251,7 @@
 &lt;/config></programlisting>
                 </para>
                 <para>
-                   As it shows, the file content defines a jgroups protocol stacks. If you want hornetq
+                   As it shows, the file content defines a jgroups protocol stacks. If you want activemq
                    to use this stacks for channel creation, you have to make sure the value of 
                    <literal>jgroups-file</literal> in your broadcast-group/discovery-group configuration
                    to be the name of this jgroups configuration file. For example if the above stacks 
@@ -271,7 +271,7 @@
                     particular server it updates its entry in the list for that server.</para>
                 <para>If it has not received a broadcast from a particular server for a length of time
                     it will remove that server's entry from its list.</para>
-                <para>Discovery groups are used in two places in HornetQ:</para>
+                <para>Discovery groups are used in two places in ActiveMQ:</para>
                 <itemizedlist>
                     <listitem>
                         <para>By cluster connections so they know how to obtain an initial connection to download the topology</para>
@@ -283,7 +283,7 @@
                 <para>
                     Although a discovery group will always accept broadcasts, its current list of available live and
                     backup servers is only ever used when an initial connection is made, from then server discovery is
-                    done over the normal HornetQ connections.
+                    done over the normal ActiveMQ connections.
                 </para>
                 <note>
                     <para>
@@ -296,9 +296,9 @@
             <section>
                 <title>Defining Discovery Groups on the Server</title>
                 <para>For cluster connections, discovery groups are defined in the server side
-                    configuration file <literal>hornetq-configuration.xml</literal>. All discovery
+                    configuration file <literal>activemq-configuration.xml</literal>. All discovery
                     groups must be defined inside a <literal>discovery-groups</literal> element. There
-                    can be many discovery groups defined by HornetQ server. Let's look at an
+                    can be many discovery groups defined by ActiveMQ server. Let's look at an
                     example:</para>
                 <programlisting>
 &lt;discovery-groups>
@@ -348,7 +348,7 @@
 &lt;discovery-groups>
    &lt;discovery-group name="my-broadcast-group">
       &lt;jgroups-file>test-jgroups-file_ping.xml&lt;/jgroups-file>
-      &lt;jgroups-channel>hornetq_broadcast_channel&lt;/jgroups-channel>
+      &lt;jgroups-channel>activemq_broadcast_channel&lt;/jgroups-channel>
       &lt;refresh-timeout>10000&lt;/refresh-timeout>
    &lt;/discovery-group>
 &lt;/discovery-groups></programlisting>
@@ -359,7 +359,7 @@
                     <listitem>
                         <para><literal>jgroups-file</literal> attribute. This is the name of JGroups configuration
                             file. It will be used to initialize JGroups channels. Make sure the file is in the 
-                            java resource path so that HornetQ can load it. </para>
+                            java resource path so that ActiveMQ can load it. </para>
                     </listitem>
                     <listitem>
                         <para><literal>jgroups-channel</literal> attribute. The name that JGroups channels connect
@@ -374,7 +374,7 @@
             </section>
             <section id="clusters-discovery.groups.clientside">
                 <title>Discovery Groups on the Client Side</title>
-                <para>Let's discuss how to configure a HornetQ client to use discovery to discover a
+                <para>Let's discuss how to configure a ActiveMQ client to use discovery to discover a
                     list of servers to which it can connect. The way to do this differs depending on
                     whether you're using JMS or the core API.</para>
                 <section>
@@ -382,7 +382,7 @@
                     <para>If you're using JMS and you're also using the JMS Service on the server to
                         load your JMS connection factory instances into JNDI, then you can specify which
                         discovery group to use for your JMS connection factory in the server side xml
-                        configuration <literal>hornetq-jms.xml</literal>. Let's take a look at an
+                        configuration <literal>activemq-jms.xml</literal>. Let's take a look at an
                         example:</para>
                     <programlisting>
 &lt;connection-factory name="ConnectionFactory">
@@ -392,7 +392,7 @@
    &lt;/entries>
 &lt;/connection-factory></programlisting>
                     <para>The element <literal>discovery-group-ref</literal> specifies the name of a
-                        discovery group defined in <literal>hornetq-configuration.xml</literal>.</para>
+                        discovery group defined in <literal>activemq-configuration.xml</literal>.</para>
                     <para>When this connection factory is downloaded from JNDI by a client application
                         and JMS connections are created from it, those connections will be load-balanced
                         across the list of servers that the discovery group maintains by listening on
@@ -408,7 +408,7 @@ final String groupAddress = "231.7.7.7";
 final int groupPort = 9876;
 
 ConnectionFactory jmsConnectionFactory =
-HornetQJMSClient.createConnectionFactory(new DiscoveryGroupConfiguration(groupAddress, groupPort,
+ActiveMQJMSClient.createConnectionFactory(new DiscoveryGroupConfiguration(groupAddress, groupPort,
                        new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1)), JMSFactoryType.CF);
 
 Connection jmsConnection1 = jmsConnectionFactory.createConnection();
@@ -434,7 +434,7 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
                         <programlisting>
 final String groupAddress = "231.7.7.7";
 final int groupPort = 9876;
-ServerLocator factory = HornetQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration(groupAddress, groupPort,
+ServerLocator factory = ActiveMQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration(groupAddress, groupPort,
                            new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1))));
 ClientSessionFactory factory = locator.createSessionFactory();
 ClientSession session1 = factory.createSession();
@@ -475,7 +475,7 @@ ClientSession session2 = factory.createSession();</programlisting>
                     <para>If you're using JMS and you're also using the JMS Service on the server to
                         load your JMS connection factory instances into JNDI, then you can specify which
                         connectors to use for your JMS connection factory in the server side xml
-                        configuration <literal>hornetq-jms.xml</literal>. Let's take a look at an
+                        configuration <literal>activemq-jms.xml</literal>. Let's take a look at an
                         example:</para>
                     <programlisting>
 &lt;connection-factory name="ConnectionFactory">
@@ -490,7 +490,7 @@ ClientSession session2 = factory.createSession();</programlisting>
 &lt;/connection-factory></programlisting>
                     <para>
                         The element <literal>connectors</literal> contains a list of pre defined connectors in the
-                        <literal>hornetq-configuration.xml</literal> file. When this connection factory is downloaded
+                        <literal>activemq-configuration.xml</literal> file. When this connection factory is downloaded
                         from JNDI by a client application and JMS connections are created from it, those connections will
                         be load-balanced across the list of servers defined by these connectors.
                     </para>
@@ -509,7 +509,7 @@ map2.put("host", "myhost2");
 map2.put("port", "5446");
 TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
 
-HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, server1, server2);</programlisting>
+ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, server1, server2);</programlisting>
                 </section>
                 <section>
                     <title>Configuring client discovery using Core</title>
@@ -524,7 +524,7 @@ map2.put("host", "myhost2");
 map2.put("port", "5446");
 TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
 
-ServerLocator locator = HornetQClient.createServerLocatorWithHA(server1, server2);
+ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
 ClientSessionFactory factory = locator.createSessionFactory();
 ClientSession session = factory.createSession();</programlisting>
                 </section>
@@ -533,7 +533,7 @@ ClientSession session = factory.createSession();</programlisting>
     </section>
     <section>
         <title>Server-Side Message Load Balancing</title>
-        <para>If cluster connections are defined between nodes of a cluster, then HornetQ will load
+        <para>If cluster connections are defined between nodes of a cluster, then ActiveMQ will load
             balance messages arriving at a particular node from a client.</para>
         <para>Let's take a simple example of a cluster of four nodes A, B, C, and D arranged in a
             <emphasis>symmetric cluster</emphasis> (described in
@@ -552,7 +552,7 @@ ClientSession session = factory.createSession();</programlisting>
         <para>For example, messages arriving on node A might be distributed in the following order
             between the nodes: B, D, C, A, B, D, C, A, B, D. The exact order depends on the order
             the nodes started up, but the algorithm used is round robin.</para>
-        <para>HornetQ cluster connections can be configured to always blindly load balance messages
+        <para>ActiveMQ cluster connections can be configured to always blindly load balance messages
             in a round robin fashion irrespective of whether there are any matching consumers on
             other nodes, but they can be a bit cleverer than that and also be configured to only
             distribute to other nodes if they have matching consumers. We'll look at both these
@@ -563,9 +563,9 @@ ClientSession session = factory.createSession();</programlisting>
             <para>Cluster connections group servers into clusters so that messages can be load
                 balanced between the nodes of the cluster. Let's take a look at a typical cluster
                 connection. Cluster connections are always defined in <literal
-                        >hornetq-configuration.xml</literal> inside a <literal
+                        >activemq-configuration.xml</literal> inside a <literal
                         >cluster-connection</literal> element. There can be zero or more cluster
-                connections defined per HornetQ server.</para>
+                connections defined per ActiveMQ server.</para>
             <programlisting>
 &lt;cluster-connections>
    &lt;cluster-connection name="my-cluster">
@@ -607,7 +607,7 @@ ClientSession session = factory.createSession();</programlisting>
                         with different values of <literal>address</literal>, simultaneously
                         balancing messages for those addresses, potentially to different clusters of
                         servers. By having multiple cluster connections on different addresses a
-                        single HornetQ Server can effectively take part in multiple clusters
+                        single ActiveMQ Server can effectively take part in multiple clusters
                         simultaneously.</para>
                     <para>Be careful not to have multiple cluster connections with overlapping
                         values of <literal>address</literal>, e.g. "europe" and "europe.news" since
@@ -708,11 +708,11 @@ ClientSession session = factory.createSession();</programlisting>
                     <para>If this is set to <literal>true</literal> then each incoming message will
                         be round robin'd even though the same queues on the other nodes of the
                         cluster may have no consumers at all, or they may have consumers that have
-                        non matching message filters (selectors). Note that HornetQ will
+                        non matching message filters (selectors). Note that ActiveMQ will
                         <emphasis>not</emphasis> forward messages to other nodes if there are no
                         <emphasis>queues</emphasis> of the same name on the other nodes, even if
                         this parameter is set to <literal>true</literal>.</para>
-                    <para>If this is set to <literal>false</literal> then HornetQ will only forward
+                    <para>If this is set to <literal>false</literal> then ActiveMQ will only forward
                         messages to other nodes of the cluster if the address to which they are
                         being forwarded has queues which have consumers, and if those consumers have
                         message filters (selectors) at least one of those selectors must match the
@@ -722,15 +722,15 @@ ClientSession session = factory.createSession();</programlisting>
                 <listitem>
                     <para><literal>max-hops</literal>. When a cluster connection decides the set of
                         nodes to which it might load balance a message, those nodes do not have to
-                        be directly connected to it via a cluster connection. HornetQ can be
+                        be directly connected to it via a cluster connection. ActiveMQ can be
                         configured to also load balance messages to nodes which might be connected
-                        to it only indirectly with other HornetQ servers as intermediates in a
+                        to it only indirectly with other ActiveMQ servers as intermediates in a
                         chain.</para>
-                    <para>This allows HornetQ to be configured in more complex topologies and still
+                    <para>This allows ActiveMQ to be configured in more complex topologies and still
                         provide message load balancing. We'll discuss this more later in this
                         chapter.</para>
                     <para>The default value for this parameter is <literal>1</literal>, which means
-                        messages are only load balanced to other HornetQ serves which are directly
+                        messages are only load balanced to other ActiveMQ serves which are directly
                         connected to this server. This parameter is optional.</para>
                 </listitem>
                 <listitem>
@@ -777,26 +777,26 @@ ClientSession session = factory.createSession();</programlisting>
         <section id="clusters.clusteruser">
             <title>Cluster User Credentials</title>
             <para>When creating connections between nodes of a cluster to form a cluster connection,
-                HornetQ uses a cluster user and cluster password which is defined in <literal
-                        >hornetq-configuration.xml</literal>:</para>
+                ActiveMQ uses a cluster user and cluster password which is defined in <literal
+                        >activemq-configuration.xml</literal>:</para>
             <programlisting>
-&lt;cluster-user>HORNETQ.CLUSTER.ADMIN.USER&lt;/cluster-user>
+&lt;cluster-user>ACTIVEMQ.CLUSTER.ADMIN.USER&lt;/cluster-user>
 &lt;cluster-password>CHANGE ME!!&lt;/cluster-password></programlisting>
             <warning>
                 <para>It is imperative that these values are changed from their default, or remote
                     clients will be able to make connections to the server using the default values.
-                    If they are not changed from the default, HornetQ will detect this and pester
+                    If they are not changed from the default, ActiveMQ will detect this and pester
                     you with a warning on every start-up.</para>
             </warning>
         </section>
     </section>
     <section id="clusters.client.loadbalancing">
         <title>Client-Side Load balancing</title>
-        <para>With HornetQ client-side load balancing, subsequent sessions created using a single
+        <para>With ActiveMQ client-side load balancing, subsequent sessions created using a single
             session factory can be connected to different nodes of the cluster. This allows sessions
             to spread smoothly across the nodes of a cluster and not be "clumped" on any particular
             node.</para>
-        <para>The load balancing policy to be used by the client factory is configurable. HornetQ
+        <para>The load balancing policy to be used by the client factory is configurable. ActiveMQ
             provides four out-of-the-box load balancing policies, and you can also implement your own
             and use that.</para>
         <para>The out-of-the-box policies are</para>
@@ -833,7 +833,7 @@ ClientSession session = factory.createSession();</programlisting>
                     >org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>.</para>
         <para>If you're using JMS, and you're using JNDI on the server to put your JMS connection
             factories into JNDI, then you can specify the load balancing policy directly in the
-            <literal>hornetq-jms.xml</literal> configuration file on the server as follows:</para>
+            <literal>activemq-jms.xml</literal> configuration file on the server as follows:</para>
             <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;discovery-group-ref discovery-group-name="my-discovery-group"/>
@@ -848,14 +848,14 @@ ClientSession session = factory.createSession();</programlisting>
             balancing policy. </para>
         <para>If you're using JMS but you're instantiating your connection factory directly on the
             client side then you can set the load balancing policy using the setter on the
-            <literal>HornetQConnectionFactory</literal> before using it:</para>
+            <literal>ActiveMQConnectionFactory</literal> before using it:</para>
             <programlisting>
-ConnectionFactory jmsConnectionFactory = HornetQJMSClient.createConnectionFactory(...);
+ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactory(...);
 jmsConnectionFactory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");</programlisting>
         <para>If you're using the core API, you can set the load balancing policy directly on the
             <literal>ServerLocator</literal> instance you are using:</para>
             <programlisting>
-ServerLocator locator = HornetQClient.createServerLocatorWithHA(server1, server2);
+ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
 locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");</programlisting>
         <para>The set of servers over which the factory load balances can be determined in one of
             two ways:</para>
@@ -904,7 +904,7 @@ locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");</prog
             it doesn't solve: What happens if the consumers on a queue close after the messages have
             been sent to the node? If there are no consumers on the queue the message won't get
             consumed and we have a <emphasis>starvation</emphasis> situation.</para>
-        <para>This is where message redistribution comes in. With message redistribution HornetQ can
+        <para>This is where message redistribution comes in. With message redistribution ActiveMQ can
             be configured to automatically <emphasis>redistribute</emphasis> messages from queues
             which have no consumers back to other nodes in the cluster which do have matching
             consumers.</para>
@@ -915,7 +915,7 @@ locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");</prog
         <para>Message redistribution can be configured on a per address basis, by specifying the
             redistribution delay in the address settings, for more information on configuring
             address settings, please see <xref linkend="queue-attributes"/>.</para>
-        <para>Here's an address settings snippet from <literal>hornetq-configuration.xml</literal>
+        <para>Here's an address settings snippet from <literal>activemq-configuration.xml</literal>
             showing how message redistribution is enabled for a set of queues:</para>
         <programlisting>
 &lt;address-settings>
@@ -929,7 +929,7 @@ locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");</prog
             to addresses that start with "jms.", so the above would enable instant (no delay)
             redistribution for all JMS queues and topic subscriptions.</para>
         <para>The attribute <literal>match</literal> can be an exact match or it can be a string
-            that conforms to the HornetQ wildcard syntax (described in <xref
+            that conforms to the ActiveMQ wildcard syntax (described in <xref
                     linkend="wildcard-syntax"/>).</para>
         <para>The element <literal>redistribution-delay</literal> defines the delay in milliseconds
             after the last consumer is closed on a queue before redistributing messages from that
@@ -944,7 +944,7 @@ locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");</prog
     </section>
     <section>
         <title>Cluster topologies</title>
-        <para>HornetQ clusters can be connected together in many different topologies, let's
+        <para>ActiveMQ clusters can be connected together in many different topologies, let's
             consider the two most common ones here</para>
         <section id="symmetric-cluster">
             <title>Symmetric cluster</title>
@@ -994,11 +994,11 @@ locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");</prog
     </section>
    <section>
       <title>Scaling Down</title>
-      <para>HornetQ supports scaling down a cluster with no message loss (even for non-durable messages). This is especially
+      <para>ActiveMQ supports scaling down a cluster with no message loss (even for non-durable messages). This is especially
          useful in certain environments (e.g. the cloud) where the size of a cluster may change relatively frequently.
          When scaling up a cluster (i.e. adding nodes) there is no risk of message loss, but when scaling down a cluster
          (i.e. removing nodes) the messages on those nodes would be lost unless the broker sent them to another node in
-         the cluster. HornetQ can be configured to do just that.</para>
+         the cluster. ActiveMQ can be configured to do just that.</para>
       <para>The simplest way to enable this behavior is to set <literal>scale-down</literal> to
          <literal>true</literal>. If the server is clustered and <literal>scale-down</literal> is
          <literal>true</literal> then when the server is shutdown gracefully (i.e. stopped without crashing) it will find

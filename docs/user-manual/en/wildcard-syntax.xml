@@ -19,16 +19,16 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 
 <chapter id="wildcard-syntax">
-    <title>Understanding the HornetQ Wildcard Syntax</title>
-    <para>HornetQ uses a specific syntax for representing wildcards in security settings,
+    <title>Understanding the ActiveMQ Wildcard Syntax</title>
+    <para>ActiveMQ uses a specific syntax for representing wildcards in security settings,
         address settings and when creating consumers.</para>
     <para>The syntax is similar to that used by <ulink url="http://www.amqp.org">AMQP</ulink>.</para>
-    <para>A HornetQ wildcard expression contains words delimited by the character '<literal
+    <para>A ActiveMQ wildcard expression contains words delimited by the character '<literal
             >.</literal>' (full stop).</para>
     <para>The special characters '<literal>#</literal>' and '<literal>*</literal>' also have special
         meaning and can take the place of a word.</para>

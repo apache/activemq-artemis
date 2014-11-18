@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="message-grouping">
@@ -28,7 +28,7 @@
       <listitem>
          <para>Messages in a message group share the same group id, i.e. they have same group
             identifier property (<literal>JMSXGroupID</literal> for JMS, <literal
-               >_HQ_GROUP_ID</literal> for HornetQ Core API).</para>
+               >_HQ_GROUP_ID</literal> for ActiveMQ Core API).</para>
       </listitem>
       <listitem>
          <para>Messages in a message group are always consumed by the same consumer, even if there
@@ -79,8 +79,8 @@
  message.setStringProperty("JMSXGroupID", "Group-0");
  producer.send(message);</programlisting>
       <para>Alternatively, you can set <literal>autogroup</literal> to true on the <literal
-            >HornetQConnectonFactory</literal> which will pick a random unique id. This can also be
-         set in the <literal>hornetq-jms.xml</literal> file like this:</para>
+            >ActiveMQConnectonFactory</literal> which will pick a random unique id. This can also be
+         set in the <literal>activemq-jms.xml</literal> file like this:</para>
       <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -94,7 +94,7 @@
       <para>Alternatively you can set the group id via the connection factory. All messages sent
          with producers created via this connection factory will set the <literal
             >JMSXGroupID</literal> to the specified value on all messages sent. To configure the
-         group id set it on the connection factory in the <literal>hornetq-jms.xml</literal> config
+         group id set it on the connection factory in the <literal>activemq-jms.xml</literal> config
          file as follows
          <programlisting>
 &lt;connection-factory name="ConnectionFactory">
@@ -132,7 +132,7 @@
          local handler that actually makes the decision as to what route should be used, all the
          other remote handlers converse with this. Here is a sample config for both types of
          handler, this should be configured in the <emphasis role="italic"
-            >hornetq-configuration.xml</emphasis>
+            >activemq-configuration.xml</emphasis>
          file.<programlisting>
 &lt;grouping-handler name="my-grouping-handler">
    &lt;type>LOCAL&lt;/type>
@@ -201,7 +201,7 @@
       <section>
          <title>Clustered Grouping Example</title>
          <para>See <xref linkend="examples.clustered.grouping"/> for an example of how to configure
-            message groups with a HornetQ cluster</para>
+            message groups with a ActiveMQ cluster</para>
       </section>
    </section>
 </chapter>

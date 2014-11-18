@@ -18,14 +18,14 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="send-guarantees">
     <title>Guarantees of sends and commits</title>
     <section>
         <title>Guarantees of Transaction Completion</title>
-        <para>When committing or rolling back a transaction with HornetQ, the request to commit or
+        <para>When committing or rolling back a transaction with ActiveMQ, the request to commit or
             rollback is sent to the server, and the call will block on the client side until a
             response has been received from the server that the commit or rollback was
             executed.</para>
@@ -41,11 +41,11 @@
             storage by the time the call to commit or rollback returns.</para>
         <para>Setting this parameter to <literal>false</literal> can improve performance at the
             expense of some loss of transaction durability.</para>
-        <para>This parameter is set in <literal>hornetq-configuration.xml</literal></para>
+        <para>This parameter is set in <literal>activemq-configuration.xml</literal></para>
     </section>
     <section id="non-transactional-sends">
         <title>Guarantees of Non Transactional Message Sends</title>
-        <para>If you are sending messages to a server using a non transacted session, HornetQ can be
+        <para>If you are sending messages to a server using a non transacted session, ActiveMQ can be
             configured to block the call to send until the message has definitely reached the
             server, and a response has been sent back to the client. This can be configured
             individually for durable and non-durable messages, and is determined by the
@@ -72,14 +72,14 @@
             your network, rather than the bandwidth of your network. For better performance we
             recommend either batching many messages sends together in a transaction since with a
             transactional session, only the commit / rollback blocks not every send, or, using
-            HornetQ's advanced <emphasis>asynchronous send acknowledgements feature</emphasis>
+            ActiveMQ's advanced <emphasis>asynchronous send acknowledgements feature</emphasis>
             described in <xref linkend="asynchronous-send-acknowledgements"/>.</para>
         <para>If you are using JMS and you're using the JMS service on the server to load your JMS
             connection factory instances into JNDI then these parameters can be configured in
-                <literal>hornetq-jms.xml</literal> using the elements <literal
+                <literal>activemq-jms.xml</literal> using the elements <literal
                 >block-on-durable-send</literal> and <literal
                 >block-on-non-durable-send</literal>. If you're using JMS but not using JNDI then
-            you can set these values directly on the <literal>HornetQConnectionFactory</literal>
+            you can set these values directly on the <literal>ActiveMQConnectionFactory</literal>
             instance using the appropriate setter methods.</para>
         <para>If you're using core you can set these values directly on the <literal
                 >ClientSessionFactory</literal> instance using the appropriate setter
@@ -95,7 +95,7 @@
     <section id="send-guarantees.nontrans.acks">
         <title>Guarantees of Non Transactional Acknowledgements</title>
         <para>If you are acknowledging the delivery of a message at the client side using a non
-            transacted session, HornetQ can be configured to block the call to acknowledge until the
+            transacted session, ActiveMQ can be configured to block the call to acknowledge until the
             acknowledge has definitely reached the server, and a response has been sent back to the
             client. This is configured with the parameter <literal>BlockOnAcknowledge</literal>. If
             this is set to <literal>true</literal> then all calls to acknowledge on non transacted
@@ -108,7 +108,7 @@
         <title>Asynchronous Send Acknowledgements</title>
         <para>If you are using a non transacted session but want a guarantee that every message sent
             to the server has reached it, then, as discussed in <xref
-                linkend="non-transactional-sends"/>, you can configure HornetQ to block the call to
+                linkend="non-transactional-sends"/>, you can configure ActiveMQ to block the call to
             send until the server has received the message, persisted it and sent back a response.
             This works well but has a severe performance penalty - each call to send needs to block
             for at least the time of a network round trip (RTT) - the performance of sending is thus
@@ -124,8 +124,8 @@
             * 1024 * 1024 / 8) / 1500 = 89478 messages per second if messages are sent without
             blocking! These figures aren't an exact science but you can clearly see that being
             limited by network RTT can have serious effect on performance.</para>
-        <para>To remedy this, HornetQ provides an advanced new feature called <emphasis>asynchronous
-                send acknowledgements</emphasis>. With this feature, HornetQ can be configured to
+        <para>To remedy this, ActiveMQ provides an advanced new feature called <emphasis>asynchronous
+                send acknowledgements</emphasis>. With this feature, ActiveMQ can be configured to
             send messages without blocking in one direction and asynchronously getting
             acknowledgement from the server that the messages were received in a separate stream. By
             de-coupling the send from the acknowledgement of the send, the system is not limited by
@@ -142,7 +142,7 @@
             <para>Then, you just send messages as normal using your <literal
                 >ClientSession</literal>, and as messages reach the server, the server will send
                 back an acknowledgement of the send asynchronously, and some time later you are
-                informed at the client side by HornetQ calling your handler's <literal
+                informed at the client side by ActiveMQ calling your handler's <literal
                     >sendAcknowledged(ClientMessage message)</literal> method, passing in a
                     reference to the message that was sent.</para>
             <para>To enable asynchronous send acknowledgements you must make sure <literal>confirmation-window-size</literal> is set to a positive integer value, e.g. 10MiB</para>

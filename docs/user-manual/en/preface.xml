@@ -18,36 +18,36 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="preface">
     <title>Preface</title>
-    <para>What is HornetQ?</para>
+    <para>What is ActiveMQ?</para>
     <itemizedlist>
         <listitem>
-            <para>HornetQ is an open source project to build a multi-protocol, embeddable, very high
+            <para>ActiveMQ is an open source project to build a multi-protocol, embeddable, very high
                 performance, clustered, asynchronous messaging system.</para>
         </listitem>
         <listitem>
-            <para>HornetQ is an example of Message Oriented Middleware (MoM). For a description of
+            <para>ActiveMQ is an example of Message Oriented Middleware (MoM). For a description of
                 MoMs and other messaging concepts please see the <xref linkend="messaging-concepts"
                 />.</para>
         </listitem>
         <listitem>
-            <para>For answers to more questions about what HornetQ is and what it isn't please visit
-                the <ulink url="http://www.jboss.org/community/wiki/HornetQGeneralFAQs">FAQs wiki
+            <para>For answers to more questions about what ActiveMQ is and what it isn't please visit
+                the <ulink url="http://www.jboss.org/community/wiki/ActiveMQGeneralFAQs">FAQs wiki
                     page</ulink>.</para>
         </listitem>
     </itemizedlist>
-    <para>Why use HornetQ? Here are just a few of the reasons:</para>
+    <para>Why use ActiveMQ? Here are just a few of the reasons:</para>
     <itemizedlist>
         <listitem>
-            <para>100% open source software. HornetQ is licensed using the Apache Software License v
+            <para>100% open source software. ActiveMQ is licensed using the Apache Software License v
                 2.0 to minimise barriers to adoption.</para>
         </listitem>
         <listitem>
-            <para>HornetQ is designed with usability in mind.</para>
+            <para>ActiveMQ is designed with usability in mind.</para>
         </listitem>
         <listitem>
             <para>Written in Java. Runs on any platform with a Java 6+ runtime, that's everything
@@ -63,7 +63,7 @@
                 and others you won't find anywhere else.</para>
         </listitem>
         <listitem>
-            <para>Elegant, clean-cut design with minimal third party dependencies. Run HornetQ
+            <para>Elegant, clean-cut design with minimal third party dependencies. Run ActiveMQ
                 stand-alone, run it in integrated in your favourite JEE application server, or run
                 it embedded inside your own product. It's up to you.</para>
         </listitem>
@@ -80,7 +80,7 @@
         </listitem>
         <listitem>
             <para>For a full list of features, please see the <ulink
-                    url="http://www.jboss.org/community/wiki/HornetQFeatures">features wiki
+                    url="http://www.jboss.org/community/wiki/ActiveMQFeatures">features wiki
                     page</ulink> .</para>
         </listitem>
     </itemizedlist>

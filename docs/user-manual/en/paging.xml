@@ -17,19 +17,19 @@
 <!-- permitted by applicable law.                                                  -->
 <!-- ============================================================================= -->
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="paging">
     <title>Paging</title>
-    <para>HornetQ transparently supports huge queues containing millions of messages while the
+    <para>ActiveMQ transparently supports huge queues containing millions of messages while the
         server is running with limited memory.</para>
     <para>In such a situation it's not possible to store all of the queues in memory at any one
-        time, so HornetQ transparently <emphasis>pages</emphasis> messages into and out of memory as
+        time, so ActiveMQ transparently <emphasis>pages</emphasis> messages into and out of memory as
         they are needed, thus allowing massive queues with a low memory footprint.</para>
-    <para>HornetQ will start paging messages to disk, when the size of all messages in memory for an
+    <para>ActiveMQ will start paging messages to disk, when the size of all messages in memory for an
         address exceeds a configured maximum size.</para>
-    <para>By default, HornetQ does not page messages - this must be explicitly configured to
+    <para>By default, ActiveMQ does not page messages - this must be explicitly configured to
         activate it.</para>
     <section>
         <title>Page Files</title>
@@ -46,11 +46,11 @@
         <title>Configuration</title>
         <para>You can configure the location of the paging folder</para>
         <para>Global paging parameters are specified on the main configuration file (<literal
-                >hornetq-configuration.xml</literal>).</para>
+                >activemq-configuration.xml</literal>).</para>
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+   xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
 ...
 &lt;paging-directory>/somewhere/paging-directory&lt;/paging-directory>
 ...</programlisting>
@@ -71,7 +71,7 @@
                     <tbody>
                         <row>
                             <entry><literal>paging-directory</literal></entry>
-                            <entry>Where page files are stored. HornetQ will create one folder for
+                            <entry>Where page files are stored. ActiveMQ will create one folder for
                                 each address being paged under this configured location.</entry>
                             <entry>data/paging</entry>
                         </row>
@@ -93,7 +93,7 @@
         <section>
             <title>Configuration</title>
             <para>Configuration is done at the address settings, done at the main configuration file
-                    (<literal>hornetq-configuration.xml</literal>).</para>
+                    (<literal>activemq-configuration.xml</literal>).</para>
             <programlisting>
 &lt;address-settings>
    &lt;address-setting match="jms.someaddress">
@@ -211,6 +211,6 @@
     <section>
         <title>Example</title>
         <para>See <xref linkend="examples.paging"/> for an example which shows how to use paging
-            with HornetQ.</para>
+            with ActiveMQ.</para>
     </section>
 </chapter>

@@ -16,7 +16,6 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.junit.Test;
 
 import java.util.Set;
-
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;

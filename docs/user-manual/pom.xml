@@ -32,8 +32,8 @@
 
     <properties>
         <translation>en</translation>
-        <docname>HornetQ_User_Manual</docname>
-        <bookname>HornetQ User Manual</bookname>
+        <docname>ActiveMQ_User_Manual</docname>
+        <bookname>ActiveMQ User Manual</bookname>
     </properties>
 
     <repositories>

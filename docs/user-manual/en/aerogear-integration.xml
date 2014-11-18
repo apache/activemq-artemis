@@ -18,13 +18,13 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-        <!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+        <!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
         %BOOK_ENTITIES;
         ]>
 <chapter id="aerogear-integration">
     <title>AeroGear Integration</title>
     <para>AeroGears push technology provides support for different push notification technologies like Google Cloud Messaging,
-        Apple's APNs or Mozilla's SimplePush. HornetQ allows you to configure a Connector Service that will consume messages
+        Apple's APNs or Mozilla's SimplePush. ActiveMQ allows you to configure a Connector Service that will consume messages
     from a queue and forward them to an AeroGear push server and subsequently sent as notifications to mobile devices.</para>
     <section>
     <title>Configuring an AeroGear Connector Service</title>
@@ -96,7 +96,7 @@
         <programlisting>
     Message message = session.createMessage();
 
-    message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from HornetQ");
+    message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from ActiveMQ");
 
     producer.send(message);
         </programlisting>

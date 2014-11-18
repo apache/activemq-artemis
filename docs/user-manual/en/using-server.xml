@@ -18,16 +18,16 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="using-server">
     <title>Using the Server</title>
-    <para>This chapter will familiarise you with how to use the HornetQ server.</para>
+    <para>This chapter will familiarise you with how to use the ActiveMQ server.</para>
     <para>We'll show where it is, how to start and stop it, and we'll describe the directory layout
         and what all the files are and what they do.</para>
-    <para>For the remainder of this chapter when we talk about the HornetQ server we mean the
-        HornetQ standalone server, in its default configuration with a JMS Service and JNDI service
+    <para>For the remainder of this chapter when we talk about the ActiveMQ server we mean the
+        ActiveMQ standalone server, in its default configuration with a JMS Service and JNDI service
         enabled.</para>
     <para>When running embedded in JBoss Application Server the layout may be slightly different but
         by-and-large will be the same.</para>
@@ -35,19 +35,19 @@
         <title>Starting and Stopping the standalone server</title>
         <para>In the distribution you will find a directory called <literal>bin</literal>.</para>
         <para><literal>cd</literal> into that directory and you will find a Unix/Linux script called
-                <literal>hornetq</literal> and a Windows script called <literal>hornetq.cmd</literal>.</para>
-        <para>To start the HornetQ instance on Unix/Linux type <literal>./hornetq run</literal></para>
-        <para>To start the HornetQ instance on Windows type <literal>hornetq.cmd run</literal></para>
+                <literal>activemq</literal> and a Windows script called <literal>activemq.cmd</literal>.</para>
+        <para>To start the ActiveMQ instance on Unix/Linux type <literal>./activemq run</literal></para>
+        <para>To start the ActiveMQ instance on Windows type <literal>activemq.cmd run</literal></para>
         <para>These scripts are very simple and basically just set-up the classpath and some JVM
             parameters and bootstrap the server using <ulink
                    url="https://github.com/airlift/airline">Airline</ulink>.</para>
-        <para>To stop the HornetQ instance you will use the same <literal>hornetq</literal> script.</para>
-        <para>To run on Unix/Linux type <literal>./hornetq stop</literal></para>
-        <para>To run on Windows type <literal>hornetq.cmd stop</literal></para>
-        <para>Please note that HornetQ requires a Java 6 or later runtime to run.</para>
+        <para>To stop the ActiveMQ instance you will use the same <literal>activemq</literal> script.</para>
+        <para>To run on Unix/Linux type <literal>./activemq stop</literal></para>
+        <para>To run on Windows type <literal>activemq.cmd stop</literal></para>
+        <para>Please note that ActiveMQ requires a Java 6 or later runtime to run.</para>
         <para>By default the <literal>config/non-clustered/bootstrap.xml</literal> configuration is used. The
             configuration can be changed e.g. by running
-            <literal>./hornetq run -- xml:../config/clustered/bootstrap.xml</literal> or another config of
+            <literal>./activemq run -- xml:../config/clustered/bootstrap.xml</literal> or another config of
             your choosing.</para>
     </section>
     <section>
@@ -55,7 +55,7 @@
         <para>The run scripts set some JVM settings for tuning the garbage collection policy
             and heap size. We recommend using a parallel garbage collection algorithm to smooth
             out latency and minimise large GC pauses.</para>
-        <para>By default HornetQ runs in a maximum of 1GiB of RAM. To increase the memory settings
+        <para>By default ActiveMQ runs in a maximum of 1GiB of RAM. To increase the memory settings
             change the <literal>-Xms</literal> and <literal>-Xmx</literal> memory settings as you
             would for any Java program.</para>
         <para>If you wish to add any more JVM arguments or tune the existing ones, the run scripts
@@ -91,7 +91,7 @@
     </section>
     <section>
         <title>System properties</title>
-        <para>HornetQ can take a system property on the command line for configuring logging.</para>
+        <para>ActiveMQ can take a system property on the command line for configuring logging.</para>
         <para>For more information on configuring logging, please see <xref linkend="logging"
             />.</para>
     </section>
@@ -101,31 +101,31 @@
             by default) references the specific broker configuration files.</para>
         <itemizedlist>
             <listitem>
-                <para><literal>hornetq-configuration.xml</literal>. This is the main HornetQ
+                <para><literal>activemq-configuration.xml</literal>. This is the main ActiveMQ
                     configuration file. All the parameters in this file are described in <xref
                         linkend="configuration-index"/>. Please see <xref
                         linkend="usingserver.mainconfig"/> for more information on this file.</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-queues.xml</literal>. This file contains predefined queues,
+                <para><literal>activemq-queues.xml</literal>. This file contains predefined queues,
                     queue settings and security settings. The file is optional - all this
-                    configuration can also live in <literal>hornetq-configuration.xml</literal>. In
+                    configuration can also live in <literal>activemq-configuration.xml</literal>. In
                     fact, the default configuration sets do not have a <literal
-                        >hornetq-queues.xml</literal> file. The purpose of allowing queues to be
+                        >activemq-queues.xml</literal> file. The purpose of allowing queues to be
                     configured in these files is to allow you to manage your queue configuration
                     over many files instead of being forced to maintain it in a single file. There
-                    can be many <literal>hornetq-queues.xml</literal> files on the classpath. All
+                    can be many <literal>activemq-queues.xml</literal> files on the classpath. All
                     will be loaded if found.</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-users.xml</literal> HornetQ ships with a basic security
+                <para><literal>activemq-users.xml</literal> ActiveMQ ships with a basic security
                     manager implementation which obtains user credentials from the <literal
-                        >hornetq-users.xml</literal> file. This file contains user, password and
+                        >activemq-users.xml</literal> file. This file contains user, password and
                     role information. For more information on security, please see <xref
                         linkend="security"/>.</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-jms.xml</literal> The distro configuration by default
+                <para><literal>activemq-jms.xml</literal> The distro configuration by default
                     includes a server side JMS service which mainly deploys JMS Queues, Topics and
                     ConnectionFactorys from this file into JNDI. If you're not using JMS, or you
                     don't need to deploy JMS objects on the server side, then you don't need this
@@ -135,7 +135,7 @@
         </itemizedlist>
         <note>
             <para>The property <literal>file-deployment-enabled</literal> in the <literal
-                    >hornetq-configuration.xml</literal> configuration when set to false means that
+                    >activemq-configuration.xml</literal> configuration when set to false means that
                 the other configuration files are not loaded. This is true by default.</para>
         </note>
         <para>It is also possible to use system property substitution in all the configuration
@@ -144,15 +144,15 @@
         <programlisting>
 &lt;connector name="netty">
    &lt;factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
-   &lt;param key="host" value="${hornetq.remoting.netty.host:localhost}"/>
-   &lt;param key="port" value="${hornetq.remoting.netty.port:5445}"/>
+   &lt;param key="host" value="${activemq.remoting.netty.host:localhost}"/>
+   &lt;param key="port" value="${activemq.remoting.netty.port:5445}"/>
 &lt;/connector></programlisting>
         <para>Here you can see we have replaced 2 values with system properties <literal
-                >hornetq.remoting.netty.host</literal> and <literal
-                >hornetq.remoting.netty.port</literal>. These values will be replaced by the value
+                >activemq.remoting.netty.host</literal> and <literal
+                >activemq.remoting.netty.port</literal>. These values will be replaced by the value
             found in the system property if there is one, if not they default back to localhost or
             5445 respectively. It is also possible to not supply a default. i.e. <literal
-                >${hornetq.remoting.netty.host}</literal>, however the system property
+                >${activemq.remoting.netty.host}</literal>, however the system property
                 <emphasis>must</emphasis> be supplied in that case.</para>
     </section>
     <section id="server.bootstrap.configuration">
@@ -161,10 +161,10 @@
         <para>The bootstrap file is very simple.  Let's take a look at an example:</para>
         <para>
             <programlisting>
-&lt;broker xmlns="http://hornetq.org/schema">
+&lt;broker xmlns="http://activemq.org/schema">
 
-   &lt;file:core configuration="${hornetq.home}/config/stand-alone/non-clustered/hornetq-configuration.xml">&lt;/core>
-   &lt;file:jms configuration="${hornetq.home}/config/stand-alone/non-clustered/hornetq-jms.xml">&lt;/jms>
+   &lt;file:core configuration="${activemq.home}/config/stand-alone/non-clustered/activemq-configuration.xml">&lt;/core>
+   &lt;file:jms configuration="${activemq.home}/config/stand-alone/non-clustered/activemq-jms.xml">&lt;/jms>
 
    &lt;basic-security/>
 
@@ -182,7 +182,7 @@
             <listitem id="jms">
                 <para>jms</para>
                 <para>This deploys any JMS Objects such as JMS Queues, Topics and ConnectionFactory
-                    instances from the <literal>hornetq-jms.xml</literal> file specified. It also
+                    instances from the <literal>activemq-jms.xml</literal> file specified. It also
                     provides a simple management API for manipulating JMS Objects. On the whole it
                     just translates and delegates its work to the core server. If you don't need to
                     deploy JMS Queues, Topics and ConnectionFactories from server side configuration
@@ -197,10 +197,10 @@
     </section>
     <section id="usingserver.mainconfig">
         <title>The main configuration file.</title>
-        <para>The configuration for the HornetQ core server is contained in <literal
-                >hornetq-configuration.xml</literal>. This is what the FileConfiguration bean uses
+        <para>The configuration for the ActiveMQ core server is contained in <literal
+                >activemq-configuration.xml</literal>. This is what the FileConfiguration bean uses
             to configure the messaging server.</para>
-        <para>There are many attributes which you can configure HornetQ. In most cases the defaults
+        <para>There are many attributes which you can configure ActiveMQ. In most cases the defaults
             will do fine, in fact every attribute can be defaulted which means a file with a single
             empty <literal>configuration</literal> element is a valid configuration file. The
             different configuration will be explained throughout the manual or you can refer to the

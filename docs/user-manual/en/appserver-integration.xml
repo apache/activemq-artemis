@@ -18,14 +18,14 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="appserver-integration">
     <title>Application Server Integration and Java EE</title>
-    <para>HornetQ can be easily installed in JBoss Application Server 4 or later. For details on
-        installing HornetQ in the JBoss Application Server please refer to quick-start guide.</para>
-    <para>Since HornetQ also provides a JCA adapter, it is also possible to integrate HornetQ
+    <para>ActiveMQ can be easily installed in JBoss Application Server 4 or later. For details on
+        installing ActiveMQ in the JBoss Application Server please refer to quick-start guide.</para>
+    <para>Since ActiveMQ also provides a JCA adapter, it is also possible to integrate ActiveMQ
         as a JMS provider in other JEE compliant app servers. For instructions on how to integrate a
         remote JCA adaptor into another application sever, please consult the other application server's
         instructions.</para>
@@ -35,10 +35,10 @@
         AS.</para>
     <section id="configuring-mdbs">
         <title>Configuring Message-Driven Beans</title>
-        <para>The delivery of messages to an MDB using HornetQ is configured on the JCA Adapter via
+        <para>The delivery of messages to an MDB using ActiveMQ is configured on the JCA Adapter via
             a configuration file <literal>ra.xml</literal> which can be found under the <literal
                 >jms-ra.rar</literal> directory. By default this is configured to consume
-            messages using an InVM connector from the instance of HornetQ running within the
+            messages using an InVM connector from the instance of ActiveMQ running within the
             application server. The configuration properties are listed later in this chapter. </para>
         <para>All MDBs however need to have the destination type and the destination configured.
             The following example shows how this can be done using annotations:</para>
@@ -48,14 +48,14 @@
    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
    @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
 })
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDBExample implements MessageListener
 {
    public void onMessage(Message message)...
 }</programlisting>
         <para>In this example you can see that the MDB will consume messages from a queue that is
             mapped into JNDI with the binding <literal>queue/testQueue</literal>. This queue must be
-            preconfigured in the usual way using the HornetQ configuration files.</para>
+            preconfigured in the usual way using the ActiveMQ configuration files.</para>
         <para>The <literal>ResourceAdapter</literal> annotation is used to specify which adaptor
             should be used. To use this you will need to import <literal
                 >org.jboss.ejb3.annotation.ResourceAdapter</literal> for JBoss AS 5.X and later version which can be found in the
@@ -66,18 +66,18 @@ public class MDBExample implements MessageListener
             the following to <literal
             >jboss.xml</literal><programlisting>&lt;message-driven>
    &lt;ejb-name>ExampleMDB&lt;/ejb-name>
-   &lt;resource-adapter-name>hornetq-ra.rar&lt;/resource-adapter-name>
+   &lt;resource-adapter-name>activemq-ra.rar&lt;/resource-adapter-name>
 &lt;/message-driven>
 </programlisting>You
-            can also rename the hornetq-ra.rar directory to jms-ra.rar and neither the annotation or
+            can also rename the activemq-ra.rar directory to jms-ra.rar and neither the annotation or
             the extra descriptor information will be needed. If you do this you will need to edit
             the <literal>jms-ds.xml</literal> datasource file and change <literal>rar-name</literal>
             element.</para>
         <note>
-           <para>HornetQ is the default JMS provider for JBoss AS 6. Starting with this AS version, HornetQ resource
+           <para>ActiveMQ is the default JMS provider for JBoss AS 6. Starting with this AS version, ActiveMQ resource
               adapter is named <literal>jms-ra.rar</literal> and you no longer need to annotate the MDB for the resource adapter name.</para>
         </note>
-        <para>All the examples shipped with the HornetQ distribution use the annotation.</para>
+        <para>All the examples shipped with the ActiveMQ distribution use the annotation.</para>
         <section>
             <title>Using Container-Managed Transactions</title>
             <para>When an MDB is using Container-Managed Transactions (CMT), the delivery of the
@@ -94,7 +94,7 @@ public class MDBExample implements MessageListener
 })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDB_CMP_TxRequiredExample implements MessageListener
 {
    public void onMessage(Message message)...
@@ -137,7 +137,7 @@ public void onMessage(Message message)
 })
 @TransactionManagement(value = TransactionManagementType.CONTAINER)
 @TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDB_CMP_TxLocalExample implements MessageListener
 {
    public void onMessage(Message message)...
@@ -156,7 +156,7 @@ public class MDB_CMP_TxLocalExample implements MessageListener
    @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Dups-ok-acknowledge")
 })
 @TransactionManagement(value= TransactionManagementType.BEAN)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDB_BMPExample implements MessageListener
 {
    public void onMessage(Message message)
@@ -211,7 +211,7 @@ public void onMessage(Message message)
 })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDBMessageSelectorExample implements MessageListener
 {
    public void onMessage(Message message)....
@@ -236,7 +236,7 @@ public class MDBMessageSelectorExample implements MessageListener
 })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDBMessageSendTxExample implements MessageListener
 {
    @Resource(mappedName = "java:/JmsXA")
@@ -308,24 +308,24 @@ public class MDBMessageSendTxExample implements MessageListener
 })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MyMDB implements MessageListener
 { ....}
       </programlisting>
    </section>
     <section>
         <title>Configuring the JCA Adaptor</title>
-        <para>The Java Connector Architecture (JCA) Adapter is what allows HornetQ to be integrated
+        <para>The Java Connector Architecture (JCA) Adapter is what allows ActiveMQ to be integrated
             with JEE components such as MDBs and EJBs. It configures how components such as MDBs
-            consume messages from the HornetQ server and also how components such as EJBs or
+            consume messages from the ActiveMQ server and also how components such as EJBs or
             Servlets can send messages.</para>
-        <para>The HornetQ JCA adapter is deployed via the <literal>jms-ra.rar</literal> archive. The
+        <para>The ActiveMQ JCA adapter is deployed via the <literal>jms-ra.rar</literal> archive. The
             configuration of the adapter is found in this archive under <literal
                 >META-INF/ra.xml</literal>.</para>
         <para>The configuration will look something like the following:</para>
         <programlisting>
 &lt;resourceadapter>
-   &lt;resourceadapter-class>org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class>
+   &lt;resourceadapter-class>org.apache.activemq.ra.ActiveMQResourceAdapter&lt;/resourceadapter-class>
    &lt;config-property>
       &lt;description>The transport type. Multiple connectors can be configured by using a comma separated list,
          i.e. org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory,org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory.&lt;/description>
@@ -344,7 +344,7 @@ public class MyMDB implements MessageListener
 
    &lt;outbound-resourceadapter>
       &lt;connection-definition>
-         &lt;managedconnectionfactory-class>org.apache.activemq.ra.HornetQRAManagedConnection
+         &lt;managedconnectionfactory-class>org.apache.activemq.ra.ActiveMQRAManagedConnection
          Factory&lt;/managedconnectionfactory-class>
 
          &lt;config-property>
@@ -361,12 +361,12 @@ public class MyMDB implements MessageListener
             &lt;config-property-value>0&lt;/config-property-value>
          &lt;/config-property>
 
-         &lt;connectionfactory-interface>org.apache.activemq.ra.HornetQRAConnectionFactory
+         &lt;connectionfactory-interface>org.apache.activemq.ra.ActiveMQRAConnectionFactory
          &lt;/connectionfactory-interface>
-         &lt;connectionfactororg.apache.activemq.ra.HornetQConnectionFactoryImplonFactoryImpl
+         &lt;connectionfactororg.apache.activemq.ra.ActiveMQConnectionFactoryImplonFactoryImpl
          &lt;/connectionfactory-impl-class>
          &lt;connection-interface>javax.jms.Session&lt;/connection-interface>
-         &lt;connection-impl-class>org.apache.activemq.ra.HornetQRASession
+         &lt;connection-impl-class>org.apache.activemq.ra.ActiveMQRASession
          &lt;/connection-impl-class>
       &lt;/connection-definition>
       &lt;transaction-support>XATransaction&lt;/transaction-support>
@@ -384,7 +384,7 @@ public class MyMDB implements MessageListener
          &lt;messagelistener>
             &lt;messagelistener-type>javax.jms.MessageListener&lt;/messagelistener-type>
             &lt;activationspec>
-               &lt;activationspec-class>org.apache.activemq.ra.inflow.HornetQActivationSpec
+               &lt;activationspec-class>org.apache.activemq.ra.inflow.ActiveMQActivationSpec
                &lt;/activationspec-class>
                &lt;required-config-property>
                    &lt;config-property-name>destination&lt;/config-property-name>
@@ -411,7 +411,7 @@ public class MyMDB implements MessageListener
         <section>
             <title>Global Properties</title>
             <para>The first element you see is <literal>resourceadapter-class</literal> which should
-                be left unchanged. This is the HornetQ resource adapter class.</para>
+                be left unchanged. This is the ActiveMQ resource adapter class.</para>
             <para>After that there is a list of configuration properties. This will be where most of
                 the configuration is done. The first two properties configure the transport used by the adapter
                 and the rest configure the connection factory itself.
@@ -699,12 +699,12 @@ public class MyMDB implements MessageListener
                 factories that are used by Java EE components. These Connection Factories can be
                 defined inside a configuration file that matches the name <literal
                     >*-ds.xml</literal>. You'll find a default <literal>jms-ds.xml</literal>
-                configuration under the <literal>hornetq</literal> directory in the JBoss AS
+                configuration under the <literal>activemq</literal> directory in the JBoss AS
                 deployment. The connection factories defined in this file inherit their
                 properties from the main <literal>ra.xml</literal> configuration but can also be
                 overridden. The following example shows how to override them.</para>
             <note>
-               <para>Please note that this configuration only applies when HornetQ resource adapter is installed in 
+               <para>Please note that this configuration only applies when ActiveMQ resource adapter is installed in
                 JBoss Application Server. If you are using another JEE application
                 server please refer to your application servers documentation for how to do
                 this.</para>
@@ -714,7 +714,7 @@ public class MyMDB implements MessageListener
    &lt;jndi-name>RemoteJmsXA&lt;/jndi-name>
    &lt;xa-transaction/>
    &lt;rar-name>jms-ra.rar&lt;/rar-name>
-   &lt;connection-definition>org.apache.activemq.ra.HornetQRAConnectionFactory
+   &lt;connection-definition>org.apache.activemq.ra.ActiveMQRAConnectionFactory
 &lt;/connection-definition>
 &lt;config-property name="SessionDefaultType" type="String">javax.jms.Topic&lt;/config-property>
    &lt;config-property name="ConnectorClassName" type="String">
@@ -811,8 +811,8 @@ private ConnectionFactory connectionFactory;</programlisting>
                                 <entry>JndiParams</entry>
                                 <entry>String</entry>
                                 <entry>A semicolon (';') delimited string of name=value pairs which represent the properties to be used for the destination JNDI
-                                   look up. The properties depends on the JNDI implementation of the server hosting HornetQ. Typically only be used when the MDB is
-                                   configured to consume from a remote destination and needs to look up a JNDI reference rather than the HornetQ name of the
+                                   look up. The properties depends on the JNDI implementation of the server hosting ActiveMQ. Typically only be used when the MDB is
+                                   configured to consume from a remote destination and needs to look up a JNDI reference rather than the ActiveMQ name of the
                                    destination. Only relevant when <literal>useJNDI</literal> is <literal>true</literal> (default is an empty string).</entry>
                             </row>
                             <row>
@@ -856,9 +856,9 @@ private ConnectionFactory connectionFactory;</programlisting>
 
         </section>
        <section>
-          <title>Configuring the adapter to use a standalone HornetQ Server</title>
+          <title>Configuring the adapter to use a standalone ActiveMQ Server</title>
           <para>Sometime you may want your messaging server on a different machine or separate from the application server.
-          If this is the case you will only need the hornetq client libs installed. This section explains what config to create
+          If this is the case you will only need the activemq client libs installed. This section explains what config to create
           and what jar dependencies are needed.</para>
           <section>
              <para>There are two configuration files needed to do this, one for the incoming adapter used for MDB's
@@ -870,7 +870,7 @@ private ConnectionFactory connectionFactory;</programlisting>
                    <literal>deploy</literal>
                    directory ending in
                    <literal>.rar.</literal>
-                      For this example we will name the directory <literal>hornetq-ra.rar</literal>. This detail is
+                      For this example we will name the directory <literal>activemq-ra.rar</literal>. This detail is
                       important as
                       the name of directory is referred to by the MDB's and the outgoing configuration.
 
@@ -882,7 +882,7 @@ private ConnectionFactory connectionFactory;</programlisting>
                    </para>
                 </note>
                 <para>Under the
-                   <literal>hornetq-ra.rar</literal>
+                   <literal>activemq-ra.rar</literal>
                    directory you will need to create a
                    <literal>META-INF</literal>
                    directory into which you should create an
@@ -890,19 +890,19 @@ private ConnectionFactory connectionFactory;</programlisting>
                    configuration file. You can find a template
                    for the
                    <literal>ra.xml</literal>
-                   under the config directory of the HornetQ distribution.
+                   under the config directory of the ActiveMQ distribution.
                 </para>
-                <para>To configure MDB's to consume messages from a remote HornetQ server you need to edit the
+                <para>To configure MDB's to consume messages from a remote ActiveMQ server you need to edit the
                    <literal>ra.xml</literal>
                    file under
-                   <literal>deploy/hornet-ra.rar/META-INF</literal>
+                   <literal>deploy/activemq-ra.rar/META-INF</literal>
                    and change the transport type to
                    use a netty connector (instead of the invm connector that is defined) and configure its transport
                    parameters.
                    Heres an example of what this would look like:
                 </para>
                 <programlisting>
-&lt;resourceadapter-class>org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class>
+&lt;resourceadapter-class>org.apache.activemq.ra.ActiveMQResourceAdapter&lt;/resourceadapter-class>
    &lt;config-property>
       &lt;description>The transport type&lt;/description>
       &lt;config-property-name>ConnectorClassName&lt;/config-property-name>
@@ -921,7 +921,7 @@ private ConnectionFactory connectionFactory;</programlisting>
                 </para>
 
                 <programlisting>
-&lt;resourceadapter-class>org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class>
+&lt;resourceadapter-class>org.apache.activemq.ra.ActiveMQResourceAdapter&lt;/resourceadapter-class>
    &lt;config-property>
       &lt;description>The transport type&lt;/description>
       &lt;config-property-name>ConnectorClassName&lt;/config-property-name>
@@ -948,30 +948,30 @@ private ConnectionFactory connectionFactory;</programlisting>
 
              <section>
                 <title>Configuring the outgoing adaptor</title>
-                <para>You will also need to configure the outbound connection by creating a <literal>hornetq-ds.xml</literal>
+                <para>You will also need to configure the outbound connection by creating a <literal>activemq-ds.xml</literal>
                    and placing it under any directory that will be deployed under the <literal>deploy</literal> directory.
-                   In a standard HornetQ jboss configuration this would be under <literal>hornetq</literal> or <literal>hornetq.sar</literal>
+                   In a standard ActiveMQ jboss configuration this would be under <literal>activemq</literal> or <literal>activemq.sar</literal>
                    but you can place it where ever you like. Actually as long as it ends in <literal>-ds.xml</literal> you can
                    call it anything you like. You can again find a template for this file under the config directory of the
-                   HornetQ distribution but called <literal>jms-ds.xml</literal> which is the jboss default.
+                   ActiveMQ distribution but called <literal>jms-ds.xml</literal> which is the jboss default.
                 </para>
                 <para>The following example shows a sample configuration</para>
                 <programlisting>
 &lt;tx-connection-factory>
    &lt;jndi-name>RemoteJmsXA&lt;/jndi-name>
    &lt;xa-transaction/>
-   &lt;rar-name>hornetq-ra.rar&lt;/rar-name>
-   &lt;connection-definition>org.apache.activemq.ra.HornetQRAConnectionFactory&lt;/connection-definition>
+   &lt;rar-name>activemq-ra.rar&lt;/rar-name>
+   &lt;connection-definition>org.apache.activemq.ra.ActiveMQRAConnectionFactory&lt;/connection-definition>
    &lt;config-property name="SessionDefaultType" type="java.lang.String">javax.jms.Topic&lt;/config-property>
    &lt;config-property name="ConnectorClassName" type="java.lang.String">org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property>
    &lt;config-property name="ConnectionParameters" type="java.lang.String">host=127.0.0.1;port=5446&lt;/config-property>
    &lt;max-pool-size>20&lt;/max-pool-size>
 &lt;/tx-connection-factory></programlisting>
-                <para>Again you will see that this uses the netty connector type and will connect to the HornetQ server
+                <para>Again you will see that this uses the netty connector type and will connect to the ActiveMQ server
                    running on localhost and listening on port 5446. JEE components can access this by using JNDI and looking
                    up the connection factory using JNDI using <literal>java:/RemoteJmsXA</literal>, you can see that this
                    is defined under the<literal>jndi-name</literal> attribute. You will also note that the outgoing connection
-                   will be created by the resource adaptor configured under the directory <literal>hornetq-ra.rar</literal>
+                   will be created by the resource adaptor configured under the directory <literal>activemq-ra.rar</literal>
                    as explained in the last section.
                 </para>
                 <para>
@@ -981,7 +981,7 @@ private ConnectionFactory connectionFactory;</programlisting>
 
              <section>
                 <title>Jar dependencies</title>
-                <para>This is a list of the HornetQ and third party jars needed</para>
+                <para>This is a list of the ActiveMQ and third party jars needed</para>
                 <table frame="topbot" border="2">
                     <title>Jar Dependencies</title>
                     <tgroup cols="3">
@@ -997,18 +997,18 @@ private ConnectionFactory connectionFactory;</programlisting>
                         </thead>
                         <tbody>
                             <row>
-                                <entry>hornetq-ra.jar</entry>
-                                <entry>The HornetQ resource adaptor classes</entry>
-                                <entry>deploy/hornetq-ra.rar or equivalent</entry>
+                                <entry>activemq-ra.jar</entry>
+                                <entry>The ActiveMQ resource adaptor classes</entry>
+                                <entry>deploy/activemq-ra.rar or equivalent</entry>
                             </row>
                             <row>
-                                <entry>hornetq-core-client.jar</entry>
-                                <entry>The HornetQ core client classes</entry>
+                                <entry>activemq-core-client.jar</entry>
+                                <entry>The ActiveMQ core client classes</entry>
                                 <entry>either in the config lib, i.e. default/lib or the common lib dir, i.e. $JBOSS_HOME/common lib </entry>
                             </row>
                             <row>
-                                <entry>hornetq-jms-client.jar</entry>
-                                <entry>The HornetQ JMS classes</entry>
+                                <entry>activemq-jms-client.jar</entry>
+                                <entry>The ActiveMQ JMS classes</entry>
                                 <entry>as above</entry>
                             </row>
                             <row>
@@ -1025,26 +1025,26 @@ private ConnectionFactory connectionFactory;</programlisting>
        </section>
     </section>
     <section>
-        <title>Configuring the JBoss Application Server to connect to Remote HornetQ Server</title>
-        <para>This is a step by step guide on how to configure a JBoss application server that doesn't have HornetQ installed
-            to use a remote instance of HornetQ</para>
+        <title>Configuring the JBoss Application Server to connect to Remote ActiveMQ Server</title>
+        <para>This is a step by step guide on how to configure a JBoss application server that doesn't have ActiveMQ installed
+            to use a remote instance of ActiveMQ</para>
         <section>
             <title>Configuring JBoss 5</title>
-            <para>Firstly download and install JBoss AS 5 as per the JBoss installation guide and HornetQ as per the
-                HornetQ installation guide. After that the following steps are required</para>
+            <para>Firstly download and install JBoss AS 5 as per the JBoss installation guide and ActiveMQ as per the
+                ActiveMQ installation guide. After that the following steps are required</para>
             <itemizedlist>
                 <listitem>
-                    <para>Copy the following jars from the HornetQ distribution to the <literal>lib</literal> directory of
+                    <para>Copy the following jars from the ActiveMQ distribution to the <literal>lib</literal> directory of
                     which ever JBossAs configuration you have chosen, i.e. <literal>default</literal>.</para>
                     <itemizedlist>
                         <listitem>
-                            <para>hornetq-core-client.jar</para>
+                            <para>activemq-core-client.jar</para>
                         </listitem>
                         <listitem>
-                            <para>hornetq-jms-client.jar</para>
+                            <para>activemq-jms-client.jar</para>
                         </listitem>
                         <listitem>
-                            <para>hornetq-ra.jar (this can be found inside the <literal>hornetq-ra.rar</literal> archive)</para>
+                            <para>activemq-ra.jar (this can be found inside the <literal>activemq-ra.rar</literal> archive)</para>
                         </listitem>
                         <listitem>
                             <para>netty.jar</para>
@@ -1052,12 +1052,12 @@ private ConnectionFactory connectionFactory;</programlisting>
                     </itemizedlist>
                 </listitem>
                 <listitem>
-                    <para>create the directories <literal>hornetq-ra.rar</literal> and <literal>hornetq-ra.rar/META-INF</literal>
+                    <para>create the directories <literal>activemq-ra.rar</literal> and <literal>activemq-ra.rar/META-INF</literal>
                         under the <literal>deploy</literal> directory in your JBoss config directory</para>
                 </listitem>
                 <listitem>
-                    <para>under the <literal>hornetq-ra.rar/META-INF</literal> create a <literal>ra.xml</literal> file or
-                    copy it from the HornetQ distribution (again it can be found in the <literal>hornetq-ra.rar</literal> archive)
+                    <para>under the <literal>activemq-ra.rar/META-INF</literal> create a <literal>ra.xml</literal> file or
+                    copy it from the ActiveMQ distribution (again it can be found in the <literal>activemq-ra.rar</literal> archive)
                     and configure it as follows</para>
                     <programlisting>
 &lt;?xml version="1.0" encoding="UTF-8"?>
@@ -1068,8 +1068,8 @@ private ConnectionFactory connectionFactory;</programlisting>
            http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
            version="1.5">
 
-   &lt;description>HornetQ 2.0 Resource Adapter Alternate Configuration&lt;/description>
-   &lt;display-name>HornetQ 2.0 Resource Adapter Alternate Configuration&lt;/display-name>
+   &lt;description>ActiveMQ 2.0 Resource Adapter Alternate Configuration&lt;/description>
+   &lt;display-name>ActiveMQ 2.0 Resource Adapter Alternate Configuration&lt;/display-name>
 
    &lt;vendor-name>Red Hat Middleware LLC&lt;/vendor-name>
    &lt;eis-type>JMS 1.1 Server&lt;/eis-type>
@@ -1092,7 +1092,7 @@ Copyright 2009 Red Hat, Inc.
    &lt;/license>
 
    &lt;resourceadapter>
-      &lt;resourceadapter-class>org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class>
+      &lt;resourceadapter-class>org.apache.activemq.ra.ActiveMQResourceAdapter&lt;/resourceadapter-class>
       &lt;config-property>
          &lt;description>The transport type&lt;/description>
          &lt;config-property-name>ConnectorClassName&lt;/config-property-name>
@@ -1108,7 +1108,7 @@ Copyright 2009 Red Hat, Inc.
 
       &lt;outbound-resourceadapter>
          &lt;connection-definition>
-            &lt;managedconnectionfactory-class>org.apache.activemq.ra.HornetQRAManagedConnectionFactory&lt;/managedconnectionfactory-class>
+            &lt;managedconnectionfactory-class>org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory&lt;/managedconnectionfactory-class>
 
             &lt;config-property>
                &lt;description>The default session type&lt;/description>
@@ -1123,10 +1123,10 @@ Copyright 2009 Red Hat, Inc.
                &lt;config-property-value>0&lt;/config-property-value>
             &lt;/config-property>
 
-            &lt;connectionfactory-interface>org.apache.activemq.ra.HornetQRAConnectionFactory&lt;/connectionfactory-interface>
-            &lt;connectionfactory-impl-class>org.apache.activemq.ra.HornetQRAConnectionFactoryImpl&lt;/connectionfactory-impl-class>
+            &lt;connectionfactory-interface>org.apache.activemq.ra.ActiveMQRAConnectionFactory&lt;/connectionfactory-interface>
+            &lt;connectionfactory-impl-class>org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl&lt;/connectionfactory-impl-class>
             &lt;connection-interface>javax.jms.Session&lt;/connection-interface>
-            &lt;connection-impl-class>org.apache.activemq.ra.HornetQRASession&lt;/connection-impl-class>
+            &lt;connection-impl-class>org.apache.activemq.ra.ActiveMQRASession&lt;/connection-impl-class>
          &lt;/connection-definition>
          &lt;transaction-support>XATransaction&lt;/transaction-support>
          &lt;authentication-mechanism>
@@ -1141,7 +1141,7 @@ Copyright 2009 Red Hat, Inc.
             &lt;messagelistener>
                &lt;messagelistener-type>javax.jms.MessageListener&lt;/messagelistener-type>
                &lt;activationspec>
-                  &lt;activationspec-class>org.apache.activemq.ra.inflow.HornetQActivationSpec&lt;/activationspec-class>
+                  &lt;activationspec-class>org.apache.activemq.ra.inflow.ActiveMQActivationSpec&lt;/activationspec-class>
                   &lt;required-config-property>
                       &lt;config-property-name>destination&lt;/config-property-name>
                   &lt;/required-config-property>
@@ -1153,19 +1153,19 @@ Copyright 2009 Red Hat, Inc.
    &lt;/resourceadapter>
 &lt;/connector></programlisting>
                     <para>The important part of this configuration is the part in bold, i.e. &lt;config-property-value>host=127.0.0.1;port=5445&lt;/config-property-value>.
-                    This should be configured to the host and port of the remote HornetQ server.</para>
+                    This should be configured to the host and port of the remote ActiveMQ server.</para>
                 </listitem>
             </itemizedlist>
             <para>At this point you should be able to now deploy MDB's that consume from the remote server. You will however,
-                have to make sure that your MDB's have the annotation <literal>@ResourceAdapter("hornetq-ra.rar")</literal>
+                have to make sure that your MDB's have the annotation <literal>@ResourceAdapter("activemq-ra.rar")</literal>
             added, this is illustrated in the <xref linkend="configuring-mdbs">Configuring Message-Driven Beans</xref> section.
             If you don't want to add this annotation then you can delete the generic resource adapter <literal>jms-ra.rar</literal>
-            and rename the <literal>hornetq-ra.rar</literal> to this.</para>
-            <para>If you also want to use the remote HornetQ server for outgoing connections, i.e. sending messages, then
+            and rename the <literal>activemq-ra.rar</literal> to this.</para>
+            <para>If you also want to use the remote ActiveMQ server for outgoing connections, i.e. sending messages, then
             do the following:</para>
             <itemizedlist>
                 <listitem>
-                    <para>Create a file called <literal>hornetq-ds.xml</literal> in the <literal>deploy</literal> directory
+                    <para>Create a file called <literal>activemq-ds.xml</literal> in the <literal>deploy</literal> directory
                     (in fact you can call this anything you want as long as it ends in <literal>-ds.xml</literal>). Then
                         add the following:</para>
                     <programlisting>
@@ -1177,8 +1177,8 @@ Copyright 2009 Red Hat, Inc.
   &lt;tx-connection-factory>
      &lt;jndi-name>RemoteJmsXA&lt;/jndi-name>
      &lt;xa-transaction/>
-     &lt;rar-name>hornetq-ra.rar&lt;/rar-name>
-     &lt;connection-definition>org.apache.activemq.ra.HornetQRAConnectionFactory&lt;/connection-definition>
+     &lt;rar-name>activemq-ra.rar&lt;/rar-name>
+     &lt;connection-definition>org.apache.activemq.ra.ActiveMQRAConnectionFactory&lt;/connection-definition>
      &lt;config-property name="SessionDefaultType" type="java.lang.String">javax.jms.Topic&lt;/config-property>
      &lt;config-property name="ConnectorClassName" type="java.lang.String">org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property>
      &lt;config-property name="ConnectionParameters" type="java.lang.String">host=127.0.0.1;port=5445&lt;/config-property>
@@ -1187,7 +1187,7 @@ Copyright 2009 Red Hat, Inc.
 
 
 &lt;/connection-factories></programlisting>
-                    <para>Again you will see that the host and port are configured here to match the remote HornetQ servers
+                    <para>Again you will see that the host and port are configured here to match the remote ActiveMQ servers
                         configuration. The other important attributes are:</para>
                     <itemizedlist>
                         <listitem>
@@ -1244,32 +1244,32 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
             or lose network connectivity. For more information on XA Recovery,please refer to <ulink
                 url="http://www.jboss.org/community/wiki/JBossTransactions">JBoss
                 Transactions</ulink>.</para>
-        <para>When HornetQ is integrated with JBoss AS, it can take advantage of JBoss Transactions
+        <para>When ActiveMQ is integrated with JBoss AS, it can take advantage of JBoss Transactions
             to provide recovery of messaging resources. If messages are involved in a XA
             transaction, in the event of a server crash, the recovery manager will ensure that the
             transactions are recovered and the messages will either be committed or rolled back
             (depending on the transaction outcome) when the server is restarted.</para>
         <section>
             <title>XA Recovery Configuration</title>
-            <para>To enable HornetQ's XA Recovery, the Recovery Manager must be configured to connect
-                to HornetQ to recover its resources. The following property must be added to the
+            <para>To enable ActiveMQ's XA Recovery, the Recovery Manager must be configured to connect
+                to ActiveMQ to recover its resources. The following property must be added to the
                     <literal>jta</literal> section of <literal>conf/jbossts-properties.xml</literal>
                 of JBoss AS profiles:</para>
             <programlisting>
 &lt;properties depends="arjuna" name="jta">
    ...
                      
-   &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HornetQ1"
-                value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;[connection configuration]"/>
+   &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ActiveMQ1"
+                value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;[connection configuration]"/>
    &lt;property name="com.arjuna.ats.jta.xaRecoveryNode" value="1"/>
 &lt;/properties></programlisting>
             <para>The <literal>[connection configuration]</literal> contains all the information
-                required to connect to HornetQ node under the form <literal>[connector factory class
+                required to connect to ActiveMQ node under the form <literal>[connector factory class
                     name],[user name], [password], [connector parameters]</literal>. </para>
             <itemizedlist>
                 <listitem>
                     <para><literal>[connector factory class name]</literal> corresponds to the name
-                        of the <literal>ConnectorFactory</literal> used to connect to HornetQ.
+                        of the <literal>ConnectorFactory</literal> used to connect to ActiveMQ.
                         Values can be <literal
                             >org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</literal> or
                             <literal
@@ -1294,12 +1294,12 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
               enabled then this must be configured to what ever the tx node id is set to, this is configured in the
            same file by the <literal>com.arjuna.ats.arjuna.xa.nodeIdentifier</literal> property.</para>
             <note>
-                <para>HornetQ must have a valid acceptor which corresponds to the connector
+                <para>ActiveMQ must have a valid acceptor which corresponds to the connector
                     specified in <literal>conf/jbossts-properties.xml</literal>.</para>
             </note>
             <section>
                 <title>Configuration Settings</title>
-                <para>If HornetQ is configured with a default in-vm acceptor:</para>
+                <para>If ActiveMQ is configured with a default in-vm acceptor:</para>
                 <programlisting>
 &lt;acceptor name="in-vm">
    &lt;factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory&lt;/factory-class>
@@ -1307,8 +1307,8 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                 <para>the corresponding configuration in <literal
                         >conf/jbossts-properties.xml</literal> is:</para>
                 <programlisting>
-&lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-   value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"/></programlisting>
+&lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ1"
+   value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"/></programlisting>
                 <para>If it is now configured with a netty acceptor on a non-default port:</para>
                 <programlisting>
 &lt;acceptor name="netty">
@@ -1318,8 +1318,8 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                 <para>the corresponding configuration in <literal
                         >conf/jbossts-properties.xml</literal> is:</para>
                 <programlisting>
-&lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-       value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, , , port=8888"/></programlisting>
+&lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ1"
+       value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, , , port=8888"/></programlisting>
                 <note>
                     <para>Note the additional commas to skip the user and password before connector
                         parameters</para>
@@ -1327,9 +1327,9 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                 <para>If the recovery must use <literal>admin, adminpass</literal>, the
                     configuration would have been:</para>
                 <programlisting>
-&lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-      value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, admin, adminpass, port=8888"/></programlisting>
-                <para>Configuring HornetQ with an invm acceptor and configuring the Recovery Manager
+&lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ1"
+      value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, admin, adminpass, port=8888"/></programlisting>
+                <para>Configuring ActiveMQ with an invm acceptor and configuring the Recovery Manager
                     with an invm connector is the recommended way to enable XA Recovery.</para>
             </section>
         </section>

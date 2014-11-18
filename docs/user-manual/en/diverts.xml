@@ -19,13 +19,13 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 
 <chapter id="diverts">
     <title>Diverting and Splitting Message Flows</title>
-    <para>HornetQ allows you to configure objects called <emphasis>diverts</emphasis> with
+    <para>ActiveMQ allows you to configure objects called <emphasis>diverts</emphasis> with
         some simple server configuration.</para>
     <para>Diverts allow you to transparently divert messages routed to one address to some other
         address, without making any changes to any client application logic.</para>
@@ -49,7 +49,7 @@
         thought of as a type of routing table for messages. Combining diverts with bridges allows
         you to create a distributed network of reliable routing connections between multiple
         geographically distributed servers, creating your global messaging mesh.</para>
-    <para>Diverts are defined as xml in the <literal>hornetq-configuration.xml</literal> file. There can
+    <para>Diverts are defined as xml in the <literal>activemq-configuration.xml</literal> file. There can
         be zero or more diverts in the file.</para>
     <para>Please see <xref linkend="divert-example" /> for a full working
         example showing you how to configure and use diverts.</para>
@@ -86,7 +86,7 @@
             change the messages body or properties before it is diverted. In this example the
             transformer simply adds a header that records the time the divert happened.</para>
         <para>This example is actually diverting messages to a local store and forward queue, which
-            is configured with a bridge which forwards the message to an address on another HornetQ
+            is configured with a bridge which forwards the message to an address on another ActiveMQ
             server. Please see the example for more details.</para>
     </section>
     <section>

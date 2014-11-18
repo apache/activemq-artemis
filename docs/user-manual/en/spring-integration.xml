@@ -20,27 +20,27 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="spring.integration">
   <title>Spring Integration</title>
 
-  <para>HornetQ provides a simple bootstrap class,
+  <para>ActiveMQ provides a simple bootstrap class,
   <literal>org.apache.activemq.integration.spring.SpringJmsBootstrap</literal>, for
-  integration with Spring. To use it, you configure HornetQ as you always
+  integration with Spring. To use it, you configure ActiveMQ as you always
   would, through its various configuration files like
-  <literal>hornetq-configuration.xml</literal>,
-  <literal>hornetq-jms.xml</literal>, and
-  <literal>hornetq-users.xml</literal>. The Spring helper class starts the
-  HornetQ server and adds any factories or destinations configured within
-  <literal>hornetq-jms.xml</literal> directly into the namespace of the Spring
-  context. Let's take this <literal>hornetq-jms.xml</literal> file for
+  <literal>activemq-configuration.xml</literal>,
+  <literal>activemq-jms.xml</literal>, and
+  <literal>activemq-users.xml</literal>. The Spring helper class starts the
+  ActiveMQ server and adds any factories or destinations configured within
+  <literal>activemq-jms.xml</literal> directly into the namespace of the Spring
+  context. Let's take this <literal>activemq-jms.xml</literal> file for
   instance: </para>
     <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq /schema/activemq-jms.xsd">
+   xsi:schemaLocation="urn:activemq /schema/activemq-jms.xsd">
    &lt;!--the connection factory used by the example-->
    &lt;connection-factory name="ConnectionFactory">
       &lt;connectors>
@@ -82,7 +82,7 @@
 &lt;/beans></programlisting>
     <para>As you can see, the
   <literal>listenerContainer</literal> bean references the components defined
-  in the <literal>hornetq-jms.xml</literal> file. The
+  in the <literal>activemq-jms.xml</literal> file. The
   <literal>SpringJmsBootstrap</literal> class extends the EmbeddedJMS class
   talked about in <xref
   linkend="simple.embedded.jms" /> and the same defaults and

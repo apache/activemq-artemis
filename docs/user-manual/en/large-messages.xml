@@ -17,18 +17,18 @@
 <!-- permitted by applicable law.                                                  -->
 <!-- ============================================================================= -->
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="large-messages">
     <title>Large Messages</title>
-    <para>HornetQ supports sending and receiving of huge messages, even when the client and server
+    <para>ActiveMQ supports sending and receiving of huge messages, even when the client and server
         are running with limited memory. The only realistic limit to the size of a message that can
         be sent or consumed is the amount of disk space you have available. We have tested sending
         and consuming messages up to 8 GiB in size with a client and server running in just 50MiB of
         RAM!</para>
     <para>To send a large message, the user can set an <literal>InputStream</literal> on a message
-        body, and when that message is sent, HornetQ will read the <literal>InputStream</literal>. A
+        body, and when that message is sent, ActiveMQ will read the <literal>InputStream</literal>. A
             <literal>FileInputStream</literal> could be used for example to send a huge message from
         a huge file on disk.</para>
     <para>As the <literal>InputStream</literal> is read the data is sent to the server as a stream
@@ -47,7 +47,7 @@
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+   xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
 ...
 &lt;large-messages-directory>/data/large-messages&lt;/large-messages-directory>
 ...
@@ -62,8 +62,8 @@
             will be split up and sent in fragments. This is determined by the parameter <literal
                 >min-large-message-size</literal></para>
         <note>
-           <para>HornetQ messages are encoded using 2 bytes per character so if the message data is filled
-              with ASCII characters (which are 1 byte) the size of the resulting HornetQ message would roughly
+           <para>ActiveMQ messages are encoded using 2 bytes per character so if the message data is filled
+              with ASCII characters (which are 1 byte) the size of the resulting ActiveMQ message would roughly
               double. This is important when calculating the size of a "large" message as it may appear to be
               less than the <literal>min-large-message-size</literal> before it is sent, but it then turns into
               a "large" message once it is encoded.</para>
@@ -71,21 +71,21 @@
         <para>The default value is 100KiB.</para>
         <section id="large-messages.core.config">
             <title>Using Core API</title>
-            <para>If the HornetQ Core API is used, the minimal large message size is specified by
+            <para>If the ActiveMQ Core API is used, the minimal large message size is specified by
                     <literal>ServerLocator.setMinLargeMessageSize</literal>.</para>
             <programlisting>
-ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()))
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()))
 
 locator.setMinLargeMessageSize(25 * 1024);
 
-ClientSessionFactory factory = HornetQClient.createClientSessionFactory();</programlisting>
+ClientSessionFactory factory = ActiveMQClient.createClientSessionFactory();</programlisting>
             <para><xref linkend="configuring-transports.client.side"/> will provide more information
                 on how to instantiate the session factory.</para>
         </section>
         <section>
             <title>Using JMS</title>
             <para>If JNDI is used to look up the connection factory, the minimum large message size
-                is specified in <literal>hornetq-jms.xml</literal></para>
+                is specified in <literal>activemq-jms.xml</literal></para>
             <programlisting>...
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -101,7 +101,7 @@ ClientSessionFactory factory = HornetQClient.createClientSessionFactory();</prog
 ...</programlisting>
             <para>If the connection factory is being instantiated directly, the minimum large
                 message size is specified by <literal
-                    >HornetQConnectionFactory.setMinLargeMessageSize</literal>.</para>
+                    >ActiveMQConnectionFactory.setMinLargeMessageSize</literal>.</para>
         </section>
         <section>
             <title>Compressed Large Messages</title>
@@ -138,7 +138,7 @@ ClientSessionFactory factory = HornetQClient.createClientSessionFactory();</prog
     </section>
     <section>
         <title>Streaming large messages</title>
-        <para>HornetQ supports setting the body of messages using input and output streams (<literal
+        <para>ActiveMQ supports setting the body of messages using input and output streams (<literal
                 >java.lang.io</literal>)</para>
         <para>These streams are then used directly for sending (input streams) and receiving (output
             streams) messages.</para>
@@ -221,7 +221,7 @@ msg.setInputStream(dataInputStream);
         </section>
         <section id="large-messages.streaming.over.jms">
             <title>Streaming over JMS</title>
-            <para>When using JMS, HornetQ maps the streaming methods on the core API (see <xref
+            <para>When using JMS, ActiveMQ maps the streaming methods on the core API (see <xref
                     linkend="large-messages.ClientMessageAPI"/>) by setting object properties . You
                 can use the method <literal>Message.setObjectProperty</literal> to set the input and
                 output streams.</para>
@@ -264,7 +264,7 @@ messageReceived.setObjectProperty("JMS_HQ_OutputStream", bufferedOutput);</progr
     <section>
         <title>Streaming Alternative</title>
         <para>If you choose not to use the <literal>InputStream</literal> or <literal
-                >OutputStream</literal> capability of HornetQ You could still access the data
+                >OutputStream</literal> capability of ActiveMQ You could still access the data
             directly in an alternative fashion.</para>
         <para>On the Core API just get the bytes of the body as you normally would.</para>
         <programlisting>

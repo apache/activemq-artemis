@@ -18,12 +18,12 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="client-reconnection">
     <title>Client Reconnection and Session Reattachment</title>
-    <para>HornetQ clients can be configured to automatically reconnect or re-attach to the server in
+    <para>ActiveMQ clients can be configured to automatically reconnect or re-attach to the server in
         the event that a failure is detected in the connection between the client and the server. </para>
     <section>
         <title>100% Transparent session re-attachment</title>
@@ -31,11 +31,11 @@
             and the target server was not restarted, then the sessions will still be existent on the
             server, assuming the client hasn't been disconnected for more than connection-ttl <xref
                 linkend="connection-ttl"/>.</para>
-        <para>In this scenario, HornetQ will automatically re-attach the client sessions to the
+        <para>In this scenario, ActiveMQ will automatically re-attach the client sessions to the
             server sessions when the connection reconnects. This is done 100% transparently and the
             client can continue exactly as if nothing had happened.</para>
         <para>The way this works is as follows:</para>
-        <para>As HornetQ clients send commands to their servers they store each sent command in an
+        <para>As ActiveMQ clients send commands to their servers they store each sent command in an
             in-memory buffer. In the case that connection failure occurs and the client subsequently
             reattaches to the same server, as part of the reattachment protocol the server informs
             the client during reattachment with the id of the last command it successfully received
@@ -49,9 +49,9 @@
             and the client can then free up space in the buffer.</para>
         <para>If you are using JMS and you're using the JMS service on the server to load your JMS
             connection factory instances into JNDI then this parameter can be configured in <literal
-                >hornetq-jms.xml</literal> using the element <literal
+                >activemq-jms.xml</literal> using the element <literal
                 >confirmation-window-size</literal> a. If you're using JMS but not using JNDI then
-            you can set these values directly on the <literal>HornetQConnectionFactory</literal>
+            you can set these values directly on the <literal>ActiveMQConnectionFactory</literal>
             instance using the appropriate setter method.</para>
         <para>If you're using the core API you can set these values directly on the <literal
                 >ServerLocator</literal> instance using the appropriate setter method.</para>
@@ -65,7 +65,7 @@
         <para>Alternatively, the server might have actually been restarted after crashing or being
             stopped. In this case any sessions will no longer be existent on the server and it won't
             be possible to 100% transparently re-attach to them.</para>
-        <para>In this case, HornetQ will automatically reconnect the connection and <emphasis
+        <para>In this case, ActiveMQ will automatically reconnect the connection and <emphasis
                 role="italic">recreate</emphasis> any sessions and consumers on the server
             corresponding to the sessions and consumers on the client. This process is exactly the
             same as what happens during failover onto a backup server.</para>
@@ -118,7 +118,7 @@
         </itemizedlist>
         <para>If you're using JMS, and you're using the JMS Service on the server to load your JMS
             connection factory instances directly into JNDI, then you can specify these parameters
-            in the xml configuration in <literal>hornetq-jms.xml</literal>, for example:</para>
+            in the xml configuration in <literal>activemq-jms.xml</literal>, for example:</para>
         <programlisting>
 &lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
@@ -135,7 +135,7 @@
 &lt;/connection-factory></programlisting>
         <para>If you're using JMS, but instantiating your JMS connection factory directly, you can
             specify the parameters using the appropriate setter methods on the <literal
-                >HornetQConnectionFactory</literal> immediately after creating it.</para>
+                >ActiveMQConnectionFactory</literal> immediately after creating it.</para>
         <para>If you're using the core API and instantiating the <literal
                 >ServerLocator</literal> instance directly you can also specify the
             parameters using the appropriate setter methods on the <literal

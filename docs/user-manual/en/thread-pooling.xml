@@ -18,22 +18,22 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_User_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_User_Manual.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="thread-pooling">
     <title>Thread management</title>
-    <para>This chapter describes how HornetQ uses and pools threads and how you can manage
+    <para>This chapter describes how ActiveMQ uses and pools threads and how you can manage
         them.</para>
     <para>First we'll discuss how threads are managed and used on the server side, then we'll look
         at the client side.</para>
     <section>
         <title>Server-Side Thread Management</title>
-        <para>Each HornetQ Server maintains a single thread pool for general use, and a scheduled
+        <para>Each ActiveMQ Server maintains a single thread pool for general use, and a scheduled
             thread pool for scheduled use. A Java scheduled thread pool cannot be configured to use
             a standard thread pool, otherwise we could use a single thread pool for both scheduled
             and non scheduled activity.</para>
-        <para>A separate thread pool is also used to service connections. HornetQ can use "old"
+        <para>A separate thread pool is also used to service connections. ActiveMQ can use "old"
             (blocking) IO or "new" (non-blocking) IO also called NIO.  Both of these options use
             a separate thread pool, but each of them behaves uniquely.</para>
         <para>Since old IO requires a thread per connection its thread pool is unbounded. The thread
@@ -49,7 +49,7 @@
             since it has no remaining threads to do anything else. However, even an unbounded thread
             pool can run into trouble if it becomes too large. If you require the server to handle
             many concurrent connections you should use NIO, not old IO.</para>
-        <para>When using new IO (NIO), HornetQ will, by default, cap its thread pool at three times
+        <para>When using new IO (NIO), ActiveMQ will, by default, cap its thread pool at three times
             the number of cores (or hyper-threads) as reported by <literal>
             Runtime.getRuntime().availableProcessors()</literal> for processing incoming packets.
             To override this value, you can set the number of threads by specifying the parameter
@@ -63,7 +63,7 @@
                 that require running periodically or with delays. It maps internally to a <literal
                     >java.util.concurrent.ScheduledThreadPoolExecutor</literal> instance.</para>
             <para>The maximum number of thread used by this pool is configure in <literal
-                    >hornetq-configuration.xml</literal> with the <literal
+                    >activemq-configuration.xml</literal> with the <literal
                     >scheduled-thread-pool-max-size</literal> parameter. The default value is
                     <literal>5</literal> threads. A small number of threads is usually sufficient
                 for this pool.</para>
@@ -74,7 +74,7 @@
                 server side. It maps internally to a <literal
                     >java.util.concurrent.ThreadPoolExecutor</literal> instance.</para>
             <para>The maximum number of thread used by this pool is configure in <literal
-                    >hornetq-configuration.xml</literal> with the <literal
+                    >activemq-configuration.xml</literal> with the <literal
                     >thread-pool-max-size</literal> parameter.</para>
             <para>If a value of <literal>-1</literal> is used this signifies that the thread pool
                 has no upper bound and new threads will be created on demand if there are not enough
@@ -105,21 +105,21 @@
             <title>Asynchronous IO</title>
             <para>Asynchronous IO has a thread pool for receiving and dispatching events out of the
                 native layer. You will find it on a thread dump with the prefix
-                HornetQ-AIO-poller-pool. HornetQ uses one thread per opened file on the journal
+                ActiveMQ-AIO-poller-pool. ActiveMQ uses one thread per opened file on the journal
                 (there is usually one).</para>
             <para>There is also a single thread used to invoke writes on libaio. We do that to avoid
                 context switching on libaio that would cause performance issues. You will find this
-                thread on a thread dump with the prefix HornetQ-AIO-writer-pool.</para>
+                thread on a thread dump with the prefix ActiveMQ-AIO-writer-pool.</para>
         </section>
     </section>
     <section id="thread-pooling.client.side">
         <title>Client-Side Thread Management</title>
-        <para>On the client side, HornetQ maintains a single static scheduled thread pool and a
+        <para>On the client side, ActiveMQ maintains a single static scheduled thread pool and a
             single static general thread pool for use by all clients using the same classloader in
             that JVM instance.</para>
         <para>The static scheduled thread pool has a maximum size of <literal>5</literal> threads,
             and the general purpose thread pool has an unbounded maximum size.</para>
-        <para>If required HornetQ can also be configured so that each <literal
+        <para>If required ActiveMQ can also be configured so that each <literal
                 >ClientSessionFactory</literal> instance does not use these static pools but instead
             maintains its own scheduled and general purpose pool. Any sessions created from that
                 <literal>ClientSessionFactory</literal> will use those pools instead.</para>
@@ -127,7 +127,7 @@
             simply use the appropriate setter methods immediately after creation, for
             example:</para>
         <programlisting>
-ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(...)
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(...)
 ClientSessionFactory myFactory = locator.createClientSessionFactory();
 myFactory.setUseGlobalPools(false);
 myFactory.setScheduledThreadPoolMaxSize(10);
@@ -136,9 +136,9 @@ myFactory.setThreadPoolMaxSize(-1);   </programlisting>
             ClientSessionFactory and use it to create the <literal>ConnectionFactory</literal>
             instance, for example:</para>
         <programlisting>
-ConnectionFactory myConnectionFactory = HornetQJMSClient.createConnectionFactory(myFactory);</programlisting>
-        <para>If you're using JNDI to instantiate <literal>HornetQConnectionFactory</literal>
-            instances, you can also set these parameters in the <literal>hornetq-jms.xml</literal>
+ConnectionFactory myConnectionFactory = ActiveMQJMSClient.createConnectionFactory(myFactory);</programlisting>
+        <para>If you're using JNDI to instantiate <literal>ActiveMQConnectionFactory</literal>
+            instances, you can also set these parameters in the <literal>activemq-jms.xml</literal>
             file where you describe your connection factory, for example:</para>
         <programlisting>
 &lt;connection-factory name="ConnectionFactory">

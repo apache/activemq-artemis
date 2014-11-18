@@ -998,7 +998,7 @@ public interface Configuration extends Serializable
    /*
    * @see #setResolveProtocols()
    * @return whether HornetQ should resolve and use any Protocols available on the classpath
-   * Default value is {@value org.apache.activemq.api.config.HornetQDefaultConfiguration#DEFAULT_RESOLVE_PROTOCOLS}.
+   * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_RESOLVE_PROTOCOLS}.
    * */
    boolean isResolveProtocols();
 

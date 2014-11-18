@@ -20,7 +20,7 @@
                       minOccurs="0">
             <xsd:annotation amq:linkend="resolveProtocols">
                <xsd:documentation>
-                  If true then the HornetQ Server will make use of any Protocol Managers that are in available on the
+                  If true then the ActiveMQ Server will make use of any Protocol Managers that are in available on the
                   classpath. If false then only the core protocol will be available, unless in Embedded mode where users
                   can inject their own Protocol Managers.
                </xsd:documentation>
@@ -31,7 +31,7 @@
                       minOccurs="0">
             <xsd:annotation amq:linkend="clusters">
                <xsd:documentation>
-                  DEPRECATED. This option is deprecated and its value will be ignored (HQ221038). A HornetQ server will
+                  DEPRECATED. This option is deprecated and its value will be ignored (HQ221038). A ActiveMQ server will
                   be "clustered" when its configuration contain a cluster-configuration.
                </xsd:documentation>
             </xsd:annotation>
@@ -112,7 +112,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="management-address" type="xsd:string" default="jms.queue.hornetq.management" maxOccurs="1"
+         <xsd:element name="management-address" type="xsd:string" default="jms.queue.activemq.management" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation amq:linkend="management.core.configuration"
                             amq:type="SimpleString">
@@ -123,7 +123,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="management-notification-address" type="xsd:string" default="hornetq.notifications"
+         <xsd:element name="management-notification-address" type="xsd:string" default="activemq.notifications"
                       maxOccurs="1" minOccurs="0">
             <xsd:annotation amq:linkend="management.notifications.core.configuration"
                             amq:type="SimpleString">
@@ -133,7 +133,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="cluster-user" type="xsd:string" default="HORNETQ.CLUSTER.ADMIN.USER" maxOccurs="1"
+         <xsd:element name="cluster-user" type="xsd:string" default="ACTIVEMQ.CLUSTER.ADMIN.USER" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation amq:linkend="clusters">
                <xsd:documentation>
@@ -221,7 +221,7 @@
          <xsd:element name="jmx-domain" type="xsd:string" default="org.apache.activemq" maxOccurs="1" minOccurs="0">
             <xsd:annotation amq:linkend="management.jmx.configuration">
                <xsd:documentation>
-                  the JMX domain used to registered HornetQ MBeans in the MBeanServer
+                  the JMX domain used to registered ActiveMQ MBeans in the MBeanServer
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
