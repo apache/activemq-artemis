@@ -17,8 +17,8 @@ import javax.jms.JMSException;
 import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -367,7 +367,7 @@ public class HornetQBytesMessage extends HornetQMessage implements BytesMessage
    }
 
    @Override
-   public void doBeforeReceive() throws HornetQException
+   public void doBeforeReceive() throws ActiveMQException
    {
       bodyLength = message.getBodySize();
    }
@@ -412,7 +412,7 @@ public class HornetQBytesMessage extends HornetQMessage implements BytesMessage
       return HornetQBytesMessage.TYPE;
    }
 
-   private HornetQBuffer getBuffer()
+   private ActiveMQBuffer getBuffer()
    {
       return message.getBodyBuffer();
    }

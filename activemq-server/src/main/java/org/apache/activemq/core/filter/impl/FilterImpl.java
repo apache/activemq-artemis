@@ -12,12 +12,12 @@
  */
 package org.apache.activemq.core.filter.impl;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.selector.filter.BooleanExpression;
 import org.apache.activemq.selector.filter.FilterException;
 import org.apache.activemq.selector.filter.Filterable;
 import org.apache.activemq.selector.SelectorParser;
 import org.apache.activemq.api.core.FilterConstants;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.server.HornetQMessageBundle;
@@ -68,18 +68,18 @@ public class FilterImpl implements Filter
 
    /**
     * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
-    * @throws HornetQException if the string does not correspond to a valid filter
+    * @throws org.apache.activemq.api.core.ActiveMQException if the string does not correspond to a valid filter
     */
-   public static Filter createFilter(final String filterStr) throws HornetQException
+   public static Filter createFilter(final String filterStr) throws ActiveMQException
    {
       return FilterImpl.createFilter(SimpleString.toSimpleString(filterStr == null ? null : filterStr.trim()));
    }
 
    /**
     * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
-    * @throws HornetQException if the string does not correspond to a valid filter
+    * @throws org.apache.activemq.api.core.ActiveMQException if the string does not correspond to a valid filter
     */
-   public static Filter createFilter(final SimpleString filterStr) throws HornetQException
+   public static Filter createFilter(final SimpleString filterStr) throws ActiveMQException
    {
       if (filterStr == null || filterStr.length() == 0)
       {

@@ -13,7 +13,7 @@
 package org.apache.activemq.core.server.impl;
 
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.TopologyMember;
@@ -33,13 +33,13 @@ public class NamedNodeIdNodeLocator extends LiveNodeLocator
 
 
    @Override
-   public void locateNode(long timeout) throws HornetQException
+   public void locateNode(long timeout) throws ActiveMQException
    {
       //noop
    }
 
    @Override
-   public void locateNode() throws HornetQException
+   public void locateNode() throws ActiveMQException
    {
       //noop
    }

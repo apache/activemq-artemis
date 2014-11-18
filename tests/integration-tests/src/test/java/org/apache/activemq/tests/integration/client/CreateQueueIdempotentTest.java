@@ -14,8 +14,8 @@ package org.apache.activemq.tests.integration.client;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQQueueExistsException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -66,11 +66,11 @@ public class CreateQueueIdempotentTest extends ServiceTestBase
          session.createQueue(QUEUE, QUEUE, null, true);
          fail("Expected exception, queue already exists");
       }
-      catch (HornetQQueueExistsException qee)
+      catch (ActiveMQQueueExistsException qee)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -150,7 +150,7 @@ public class CreateQueueIdempotentTest extends ServiceTestBase
             session.createQueue(QUEUE, QUEUE, null, true);
             queuesCreated.incrementAndGet();
          }
-         catch (HornetQQueueExistsException qne)
+         catch (ActiveMQQueueExistsException qne)
          {
             failedAttempts.incrementAndGet();
          }
@@ -170,7 +170,7 @@ public class CreateQueueIdempotentTest extends ServiceTestBase
                {
                   session.close();
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   e.printStackTrace();
                }

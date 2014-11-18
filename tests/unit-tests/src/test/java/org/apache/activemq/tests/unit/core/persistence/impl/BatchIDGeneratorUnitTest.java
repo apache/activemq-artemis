@@ -13,8 +13,8 @@
 package org.apache.activemq.tests.unit.core.persistence.impl;
 import java.util.ArrayList;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.core.journal.Journal;
 import org.apache.activemq.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.core.journal.RecordInfo;
@@ -137,7 +137,7 @@ public class BatchIDGeneratorUnitTest extends UnitTestCase
       {
          if (record.userRecordType == JournalRecordIds.ID_COUNTER_RECORD)
          {
-            HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(record.data);
+            ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
             batch.loadState(record.id, buffer);
          }
       }

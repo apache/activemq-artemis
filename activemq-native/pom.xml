@@ -41,7 +41,7 @@
                         <resource>
                            <directory>bin/</directory>
                            <includes>
-                              <include>libHornetQAIO32.so</include>
+                              <include>libActiveMQAIO32.so</include>
                            </includes>
                         </resource>
                      </resources>
@@ -59,7 +59,7 @@
                         <resource>
                            <directory>bin/</directory>
                            <includes>
-                              <include>libHornetQAIO64.so</include>
+                              <include>libActiveMQAIO64.so</include>
                            </includes>
                         </resource>
                      </resources>

@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.client;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -368,7 +368,7 @@ public class RedeliveryConsumerTest extends ServiceTestBase
       {
          session.createQueue(ADDRESS, ADDRESS, true);
       }
-      catch (HornetQException expected)
+      catch (ActiveMQException expected)
       {
          // in case of restart
       }

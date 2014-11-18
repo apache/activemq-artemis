@@ -21,6 +21,7 @@ import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -30,7 +31,6 @@ import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.apache.activemq.api.core.HornetQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
@@ -260,7 +260,7 @@ public class TestConversions extends Assert
    }
 
 
-   class EmptyBuffer implements HornetQBuffer
+   class EmptyBuffer implements ActiveMQBuffer
    {
       @Override
       public ByteBuf byteBuf()
@@ -407,19 +407,19 @@ public class TestConversions extends Assert
       }
 
       @Override
-      public void getBytes(int index, HornetQBuffer dst)
+      public void getBytes(int index, ActiveMQBuffer dst)
       {
 
       }
 
       @Override
-      public void getBytes(int index, HornetQBuffer dst, int length)
+      public void getBytes(int index, ActiveMQBuffer dst, int length)
       {
 
       }
 
       @Override
-      public void getBytes(int index, HornetQBuffer dst, int dstIndex, int length)
+      public void getBytes(int index, ActiveMQBuffer dst, int dstIndex, int length)
       {
 
       }
@@ -485,19 +485,19 @@ public class TestConversions extends Assert
       }
 
       @Override
-      public void setBytes(int index, HornetQBuffer src)
+      public void setBytes(int index, ActiveMQBuffer src)
       {
 
       }
 
       @Override
-      public void setBytes(int index, HornetQBuffer src, int length)
+      public void setBytes(int index, ActiveMQBuffer src, int length)
       {
 
       }
 
       @Override
-      public void setBytes(int index, HornetQBuffer src, int srcIndex, int length)
+      public void setBytes(int index, ActiveMQBuffer src, int srcIndex, int length)
       {
 
       }
@@ -635,31 +635,31 @@ public class TestConversions extends Assert
       }
 
       @Override
-      public HornetQBuffer readBytes(int length)
+      public ActiveMQBuffer readBytes(int length)
       {
          return null;
       }
 
       @Override
-      public HornetQBuffer readSlice(int length)
+      public ActiveMQBuffer readSlice(int length)
       {
          return null;
       }
 
       @Override
-      public void readBytes(HornetQBuffer dst)
+      public void readBytes(ActiveMQBuffer dst)
       {
 
       }
 
       @Override
-      public void readBytes(HornetQBuffer dst, int length)
+      public void readBytes(ActiveMQBuffer dst, int length)
       {
 
       }
 
       @Override
-      public void readBytes(HornetQBuffer dst, int dstIndex, int length)
+      public void readBytes(ActiveMQBuffer dst, int dstIndex, int length)
       {
 
       }
@@ -767,13 +767,13 @@ public class TestConversions extends Assert
       }
 
       @Override
-      public void writeBytes(HornetQBuffer src, int length)
+      public void writeBytes(ActiveMQBuffer src, int length)
       {
 
       }
 
       @Override
-      public void writeBytes(HornetQBuffer src, int srcIndex, int length)
+      public void writeBytes(ActiveMQBuffer src, int srcIndex, int length)
       {
 
       }
@@ -797,31 +797,31 @@ public class TestConversions extends Assert
       }
 
       @Override
-      public HornetQBuffer copy()
+      public ActiveMQBuffer copy()
       {
          return null;
       }
 
       @Override
-      public HornetQBuffer copy(int index, int length)
+      public ActiveMQBuffer copy(int index, int length)
       {
          return null;
       }
 
       @Override
-      public HornetQBuffer slice()
+      public ActiveMQBuffer slice()
       {
          return null;
       }
 
       @Override
-      public HornetQBuffer slice(int index, int length)
+      public ActiveMQBuffer slice(int index, int length)
       {
          return null;
       }
 
       @Override
-      public HornetQBuffer duplicate()
+      public ActiveMQBuffer duplicate()
       {
          return null;
       }

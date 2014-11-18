@@ -15,8 +15,8 @@ package org.apache.activemq.core.client.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
 import org.apache.activemq.utils.DataConstants;
@@ -84,20 +84,20 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       largeMessageController = controller;
    }
 
-   public void checkCompletion() throws HornetQException
+   public void checkCompletion() throws ActiveMQException
    {
       checkBuffer();
    }
 
    @Override
-   public HornetQBuffer getBodyBuffer()
+   public ActiveMQBuffer getBodyBuffer()
    {
 
       try
       {
          checkBuffer();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new RuntimeException(e.getMessage(), e);
       }
@@ -117,7 +117,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    }
 
    @Override
-   public void saveToOutputStream(final OutputStream out) throws HornetQException
+   public void saveToOutputStream(final OutputStream out) throws ActiveMQException
    {
       if (bodyBuffer != null)
       {
@@ -131,7 +131,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    }
 
    @Override
-   public ClientLargeMessageImpl setOutputStream(final OutputStream out) throws HornetQException
+   public ClientLargeMessageImpl setOutputStream(final OutputStream out) throws ActiveMQException
    {
       if (bodyBuffer != null)
       {
@@ -146,7 +146,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    }
 
    @Override
-   public boolean waitOutputStreamCompletion(final long timeMilliseconds) throws HornetQException
+   public boolean waitOutputStreamCompletion(final long timeMilliseconds) throws ActiveMQException
    {
       if (bodyBuffer != null)
       {
@@ -171,7 +171,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       }
    }
 
-   private void checkBuffer() throws HornetQException
+   private void checkBuffer() throws ActiveMQException
    {
       if (bodyBuffer == null)
       {
@@ -193,9 +193,9 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
 
    private static class HornetQOutputStream extends OutputStream
    {
-      private final HornetQBuffer bufferOut;
+      private final ActiveMQBuffer bufferOut;
 
-      HornetQOutputStream(HornetQBuffer out)
+      HornetQOutputStream(ActiveMQBuffer out)
       {
          this.bufferOut = out;
       }

@@ -18,7 +18,7 @@ import javax.transaction.xa.Xid;
 import java.util.HashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -70,9 +70,9 @@ public abstract class SessionContext
     *
     * @param newConnection
     * @return true if it was possible to reattach
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   public abstract boolean reattachOnNewConnection(RemotingConnection newConnection) throws HornetQException;
+   public abstract boolean reattachOnNewConnection(RemotingConnection newConnection) throws ActiveMQException;
 
    public RemotingConnection getRemotingConnection()
    {
@@ -80,7 +80,7 @@ public abstract class SessionContext
    }
 
 
-   public abstract void closeConsumer(ClientConsumer consumer) throws HornetQException;
+   public abstract void closeConsumer(ClientConsumer consumer) throws ActiveMQException;
 
    public abstract void sendConsumerCredits(ClientConsumer consumer, int credits);
 
@@ -136,19 +136,19 @@ public abstract class SessionContext
 
    public abstract int getCreditsOnSendingFull(MessageInternal msgI);
 
-   public abstract void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler, SimpleString defaultAddress) throws HornetQException;
+   public abstract void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler, SimpleString defaultAddress) throws ActiveMQException;
 
    /**
     * it should return the number of credits (or bytes) used to send this packet
     *
     * @param msgI
     * @return
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   public abstract int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws HornetQException;
+   public abstract int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws ActiveMQException;
 
 
-   public abstract int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws HornetQException;
+   public abstract int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
 
    public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
@@ -156,19 +156,19 @@ public abstract class SessionContext
    public abstract void createSharedQueue(SimpleString address,
                                           SimpleString queueName,
                                           SimpleString filterString,
-                                          boolean durable) throws HornetQException;
+                                          boolean durable) throws ActiveMQException;
 
-   public abstract void deleteQueue(SimpleString queueName) throws HornetQException;
+   public abstract void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
-   public abstract void createQueue(SimpleString address, SimpleString queueName, SimpleString filterString, boolean durable, boolean temp) throws HornetQException;
+   public abstract void createQueue(SimpleString address, SimpleString queueName, SimpleString filterString, boolean durable, boolean temp) throws ActiveMQException;
 
-   public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws HornetQException;
+   public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 
-   public abstract void forceDelivery(ClientConsumer consumer, long sequence) throws HornetQException;
+   public abstract void forceDelivery(ClientConsumer consumer, long sequence) throws ActiveMQException;
 
-   public abstract ClientSession.AddressQuery addressQuery(final SimpleString address) throws HornetQException;
+   public abstract ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException;
 
-   public abstract void simpleCommit() throws HornetQException;
+   public abstract void simpleCommit() throws ActiveMQException;
 
 
    /**
@@ -178,51 +178,51 @@ public abstract class SessionContext
     * this is because we only ACK after on the RA, We may review this if we always acked earlier.
     *
     * @param lastMessageAsDelivered
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   public abstract void simpleRollback(boolean lastMessageAsDelivered) throws HornetQException;
+   public abstract void simpleRollback(boolean lastMessageAsDelivered) throws ActiveMQException;
 
-   public abstract void sessionStart() throws HornetQException;
+   public abstract void sessionStart() throws ActiveMQException;
 
-   public abstract void sessionStop() throws HornetQException;
+   public abstract void sessionStop() throws ActiveMQException;
 
-   public abstract void sendACK(boolean individual, boolean block, final ClientConsumer consumer, final Message message) throws HornetQException;
+   public abstract void sendACK(boolean individual, boolean block, final ClientConsumer consumer, final Message message) throws ActiveMQException;
 
-   public abstract void expireMessage(final ClientConsumer consumer, Message message) throws HornetQException;
+   public abstract void expireMessage(final ClientConsumer consumer, Message message) throws ActiveMQException;
 
-   public abstract void sessionClose() throws HornetQException;
+   public abstract void sessionClose() throws ActiveMQException;
 
-   public abstract void addSessionMetadata(String key, String data) throws HornetQException;
+   public abstract void addSessionMetadata(String key, String data) throws ActiveMQException;
 
-   public abstract void addUniqueMetaData(String key, String data) throws HornetQException;
+   public abstract void addUniqueMetaData(String key, String data) throws ActiveMQException;
 
    public abstract void sendProducerCreditsMessage(final int credits, final SimpleString address);
 
-   public abstract void xaCommit(Xid xid, boolean onePhase) throws XAException, HornetQException;
+   public abstract void xaCommit(Xid xid, boolean onePhase) throws XAException, ActiveMQException;
 
-   public abstract void xaEnd(Xid xid, int flags) throws XAException, HornetQException;
+   public abstract void xaEnd(Xid xid, int flags) throws XAException, ActiveMQException;
 
-   public abstract void xaForget(Xid xid) throws XAException, HornetQException;
+   public abstract void xaForget(Xid xid) throws XAException, ActiveMQException;
 
-   public abstract int xaPrepare(Xid xid) throws XAException, HornetQException;
+   public abstract int xaPrepare(Xid xid) throws XAException, ActiveMQException;
 
-   public abstract Xid[] xaScan() throws HornetQException;
+   public abstract Xid[] xaScan() throws ActiveMQException;
 
-   public abstract void xaRollback(Xid xid, boolean wasStarted) throws HornetQException, XAException;
+   public abstract void xaRollback(Xid xid, boolean wasStarted) throws ActiveMQException, XAException;
 
-   public abstract void xaStart(Xid xid, int flags) throws XAException, HornetQException;
+   public abstract void xaStart(Xid xid, int flags) throws XAException, ActiveMQException;
 
-   public abstract boolean configureTransactionTimeout(int seconds) throws HornetQException;
+   public abstract boolean configureTransactionTimeout(int seconds) throws ActiveMQException;
 
    public abstract ClientConsumerInternal createConsumer(SimpleString queueName, SimpleString filterString, int windowSize, int maxRate, int ackBatchSize, boolean browseOnly,
-                                                         Executor executor, Executor flowControlExecutor) throws HornetQException;
+                                                         Executor executor, Executor flowControlExecutor) throws ActiveMQException;
 
    /**
     * Performs a round trip to the server requesting what is the current tx timeout on the session
     *
     * @return
     */
-   public abstract int recoverSessionTimeout() throws HornetQException;
+   public abstract int recoverSessionTimeout() throws ActiveMQException;
 
    public abstract int getServerVersion();
 
@@ -233,14 +233,14 @@ public abstract class SessionContext
                                         final boolean autoCommitSends,
                                         final boolean autoCommitAcks,
                                         final boolean preAcknowledge,
-                                        final SimpleString defaultAddress) throws HornetQException;
+                                        final SimpleString defaultAddress) throws ActiveMQException;
 
 
-   public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws HornetQException;
+   public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws ActiveMQException;
 
-   public abstract void xaFailed(Xid xid) throws HornetQException;
+   public abstract void xaFailed(Xid xid) throws ActiveMQException;
 
-   public abstract void restartSession() throws HornetQException;
+   public abstract void restartSession() throws ActiveMQException;
 
    public abstract void resetMetadata(HashMap<String, String> metaDataToSend);
 
@@ -250,7 +250,7 @@ public abstract class SessionContext
    /**
     * Interrupt and return any blocked calls
     */
-   public abstract void returnBlocking(HornetQException cause);
+   public abstract void returnBlocking(ActiveMQException cause);
 
    /**
     * it will lock the communication channel of the session avoiding anything to come while failover is happening.

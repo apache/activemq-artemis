@@ -34,8 +34,8 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -977,20 +977,20 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
    class FakeSession implements ClientSession
    {
-      public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws HornetQException
+      public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws ActiveMQException
       {
          // TODO Auto-generated method stub
          return null;
       }
 
 
-      public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws HornetQException
+      public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException
       {
          // TODO Auto-generated method stub
          return null;
       }
 
-      public void createQueue(final String address, final String queueName) throws HornetQException
+      public void createQueue(final String address, final String queueName) throws ActiveMQException
       {
          // TODO Auto-generated method stub
 
@@ -1006,88 +1006,88 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       public void createQueue(final SimpleString address,
                               final SimpleString queueName,
                               final SimpleString filterString,
-                              final boolean durable) throws HornetQException
+                              final boolean durable) throws ActiveMQException
       {
       }
 
-      public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws HornetQException
-      {
-      }
-
-      @Override
-      public void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws HornetQException
+      public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws ActiveMQException
       {
       }
 
       @Override
-      public void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws HornetQException
+      public void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException
       {
       }
 
-      public void createQueue(final String address, final String queueName, final boolean durable) throws HornetQException
+      @Override
+      public void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException
+      {
+      }
+
+      public void createQueue(final String address, final String queueName, final boolean durable) throws ActiveMQException
       {
       }
 
       public void createQueue(final SimpleString address,
                               final SimpleString queueName,
                               final boolean durable,
-                              final boolean temporary) throws HornetQException
+                              final boolean temporary) throws ActiveMQException
       {
       }
 
       public void createQueue(final String address,
                               final String queueName,
                               final boolean durable,
-                              final boolean temporary) throws HornetQException
+                              final boolean temporary) throws ActiveMQException
       {
       }
 
       public void createQueue(final String address,
                               final String queueName,
                               final String filterString,
-                              final boolean durable) throws HornetQException
+                              final boolean durable) throws ActiveMQException
       {
       }
 
-      public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws HornetQException
+      public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
       {
       }
 
-      public void createTemporaryQueue(final String address, final String queueName) throws HornetQException
+      public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException
       {
       }
 
       public void createTemporaryQueue(final SimpleString address,
                                        final SimpleString queueName,
-                                       final SimpleString filter) throws HornetQException
+                                       final SimpleString filter) throws ActiveMQException
       {
       }
 
-      public void createTemporaryQueue(final String address, final String queueName, final String filter) throws HornetQException
+      public void createTemporaryQueue(final String address, final String queueName, final String filter) throws ActiveMQException
       {
       }
 
-      public void deleteQueue(final SimpleString queueName) throws HornetQException
+      public void deleteQueue(final SimpleString queueName) throws ActiveMQException
       {
       }
 
-      public void deleteQueue(final String queueName) throws HornetQException
+      public void deleteQueue(final String queueName) throws ActiveMQException
       {
       }
 
-      public ClientConsumer createConsumer(final SimpleString queueName) throws HornetQException
+      public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws HornetQException
+      public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws ActiveMQException
       {
          return null;
       }
 
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final SimpleString filterString,
-                                           final boolean browseOnly) throws HornetQException
+                                           final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
@@ -1096,22 +1096,22 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                            final SimpleString filterString,
                                            final int windowSize,
                                            final int maxRate,
-                                           final boolean browseOnly) throws HornetQException
+                                           final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientConsumer createConsumer(final String queueName) throws HornetQException
+      public ClientConsumer createConsumer(final String queueName) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientConsumer createConsumer(final String queueName, final String filterString) throws HornetQException
+      public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws HornetQException
+      public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
@@ -1120,19 +1120,19 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                            final String filterString,
                                            final int windowSize,
                                            final int maxRate,
-                                           final boolean browseOnly) throws HornetQException
+                                           final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientConsumer createFileConsumer(final File directory, final SimpleString queueName) throws HornetQException
+      public ClientConsumer createFileConsumer(final File directory, final SimpleString queueName) throws ActiveMQException
       {
          return null;
       }
 
       public ClientConsumer createFileConsumer(final File directory,
                                                final SimpleString queueName,
-                                               final SimpleString filterString) throws HornetQException
+                                               final SimpleString filterString) throws ActiveMQException
       {
          return null;
       }
@@ -1140,7 +1140,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       public ClientConsumer createFileConsumer(final File directory,
                                                final SimpleString queueName,
                                                final SimpleString filterString,
-                                               final boolean browseOnly) throws HornetQException
+                                               final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
@@ -1150,17 +1150,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                                final SimpleString filterString,
                                                final int windowSize,
                                                final int maxRate,
-                                               final boolean browseOnly) throws HornetQException
+                                               final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientConsumer createFileConsumer(final File directory, final String queueName) throws HornetQException
+      public ClientConsumer createFileConsumer(final File directory, final String queueName) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientConsumer createFileConsumer(final File directory, final String queueName, final String filterString) throws HornetQException
+      public ClientConsumer createFileConsumer(final File directory, final String queueName, final String filterString) throws ActiveMQException
       {
          return null;
       }
@@ -1168,7 +1168,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       public ClientConsumer createFileConsumer(final File directory,
                                                final String queueName,
                                                final String filterString,
-                                               final boolean browseOnly) throws HornetQException
+                                               final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
@@ -1178,22 +1178,22 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                                final String filterString,
                                                final int windowSize,
                                                final int maxRate,
-                                               final boolean browseOnly) throws HornetQException
+                                               final boolean browseOnly) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientProducer createProducer() throws HornetQException
+      public ClientProducer createProducer() throws ActiveMQException
       {
          return null;
       }
 
-      public ClientProducer createProducer(final SimpleString address) throws HornetQException
+      public ClientProducer createProducer(final SimpleString address) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientProducer createProducer(final SimpleString address, final int rate) throws HornetQException
+      public ClientProducer createProducer(final SimpleString address, final int rate) throws ActiveMQException
       {
          return null;
       }
@@ -1201,17 +1201,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       public ClientProducer createProducer(final SimpleString address,
                                            final int maxRate,
                                            final boolean blockOnNonDurableSend,
-                                           final boolean blockOnDurableSend) throws HornetQException
+                                           final boolean blockOnDurableSend) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientProducer createProducer(final String address) throws HornetQException
+      public ClientProducer createProducer(final String address) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientProducer createProducer(final String address, final int rate) throws HornetQException
+      public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException
       {
          return null;
       }
@@ -1219,17 +1219,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       public ClientProducer createProducer(final String address,
                                            final int maxRate,
                                            final boolean blockOnNonDurableSend,
-                                           final boolean blockOnDurableSend) throws HornetQException
+                                           final boolean blockOnDurableSend) throws ActiveMQException
       {
          return null;
       }
 
-      public QueueQuery queueQuery(final SimpleString queueName) throws HornetQException
+      public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException
       {
          return null;
       }
 
-      public AddressQuery addressQuery(final SimpleString address) throws HornetQException
+      public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
       {
          return null;
       }
@@ -1239,7 +1239,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
          return null;
       }
 
-      public void commit() throws HornetQException
+      public void commit() throws ActiveMQException
       {
       }
 
@@ -1249,15 +1249,15 @@ public class MessageHeaderTest extends MessageHeaderTestBase
          return false;
       }
 
-      public void rollback() throws HornetQException
+      public void rollback() throws ActiveMQException
       {
       }
 
-      public void rollback(final boolean considerLastMessageAsDelivered) throws HornetQException
+      public void rollback(final boolean considerLastMessageAsDelivered) throws ActiveMQException
       {
       }
 
-      public void close() throws HornetQException
+      public void close() throws ActiveMQException
       {
       }
 
@@ -1305,12 +1305,12 @@ public class MessageHeaderTest extends MessageHeaderTestBase
          return message;
       }
 
-      public FakeSession start() throws HornetQException
+      public FakeSession start() throws ActiveMQException
       {
          return this;
       }
 
-      public void stop() throws HornetQException
+      public void stop() throws ActiveMQException
       {
       }
 
@@ -1390,7 +1390,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.api.core.client.ClientSession#createBuffer(byte[])
        */
-      public HornetQBuffer createBuffer(final byte[] bytes)
+      public ActiveMQBuffer createBuffer(final byte[] bytes)
       {
          // TODO Auto-generated method stub
          return null;
@@ -1399,7 +1399,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.api.core.client.ClientSession#createBuffer(int)
        */
-      public HornetQBuffer createBuffer(final int size)
+      public ActiveMQBuffer createBuffer(final int size)
       {
          // TODO Auto-generated method stub
          return null;
@@ -1421,7 +1421,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.api.core.client.ClientSession#createQueue(org.apache.activemq.utils.SimpleString, org.apache.activemq.utils.SimpleString)
        */
-      public void createQueue(SimpleString address, SimpleString queueName) throws HornetQException
+      public void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException
       {
          // TODO Auto-generated method stub
 
@@ -1439,7 +1439,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.api.core.client.ClientSession#addMetaData(java.lang.String, java.lang.String)
        */
-      public void addMetaData(String key, String data) throws HornetQException
+      public void addMetaData(String key, String data) throws ActiveMQException
       {
          // TODO Auto-generated method stub
 
@@ -1448,7 +1448,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.api.core.client.ClientSession#addUniqueMetaData(java.lang.String, java.lang.String)
        */
-      public void addUniqueMetaData(String key, String data) throws HornetQException
+      public void addUniqueMetaData(String key, String data) throws ActiveMQException
       {
          // TODO Auto-generated method stub
 

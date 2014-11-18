@@ -14,8 +14,8 @@ package org.apache.activemq.core.message.impl;
 
 import java.io.InputStream;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.BodyEncoder;
@@ -30,7 +30,7 @@ import org.apache.activemq.utils.TypedProperties;
  */
 public interface MessageInternal extends Message
 {
-   void decodeFromBuffer(HornetQBuffer buffer);
+   void decodeFromBuffer(ActiveMQBuffer buffer);
 
    int getEndOfMessagePosition();
 
@@ -44,17 +44,17 @@ public interface MessageInternal extends Message
 
    boolean isServerMessage();
 
-   HornetQBuffer getEncodedBuffer();
+   ActiveMQBuffer getEncodedBuffer();
 
    int getHeadersAndPropertiesEncodeSize();
 
-   HornetQBuffer getWholeBuffer();
+   ActiveMQBuffer getWholeBuffer();
 
-   void encodeHeadersAndProperties(HornetQBuffer buffer);
+   void encodeHeadersAndProperties(ActiveMQBuffer buffer);
 
-   void decodeHeadersAndProperties(HornetQBuffer buffer);
+   void decodeHeadersAndProperties(ActiveMQBuffer buffer);
 
-   BodyEncoder getBodyEncoder() throws HornetQException;
+   BodyEncoder getBodyEncoder() throws ActiveMQException;
 
    InputStream getBodyInputStream();
 

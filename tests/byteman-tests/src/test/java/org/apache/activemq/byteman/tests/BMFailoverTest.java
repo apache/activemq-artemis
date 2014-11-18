@@ -17,9 +17,9 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQTransactionOutcomeUnknownException;
-import org.apache.activemq.api.core.HornetQTransactionRolledBackException;
-import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.api.core.ActiveMQTransactionOutcomeUnknownException;
+import org.apache.activemq.api.core.ActiveMQTransactionRolledBackException;
+import org.apache.activemq.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -77,7 +77,7 @@ public class BMFailoverTest extends FailoverTestBase
    }
 
    private static boolean stopped = false;
-   public static void stopAndThrow() throws HornetQUnBlockedException
+   public static void stopAndThrow() throws ActiveMQUnBlockedException
    {
       if (!stopped)
       {
@@ -326,7 +326,7 @@ public class BMFailoverTest extends FailoverTestBase
          session.commit();
          fail("should have thrown an exception");
       }
-      catch (HornetQTransactionOutcomeUnknownException e)
+      catch (ActiveMQTransactionOutcomeUnknownException e)
       {
          //pass
       }
@@ -378,11 +378,11 @@ public class BMFailoverTest extends FailoverTestBase
          session.commit();
          fail("should have thrown an exception");
       }
-      catch (HornetQTransactionOutcomeUnknownException e)
+      catch (ActiveMQTransactionOutcomeUnknownException e)
       {
          //pass
       }
-      catch (HornetQTransactionRolledBackException e1)
+      catch (ActiveMQTransactionRolledBackException e1)
       {
          //pass
       }

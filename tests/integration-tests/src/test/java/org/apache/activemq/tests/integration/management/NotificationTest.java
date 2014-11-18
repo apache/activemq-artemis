@@ -13,7 +13,7 @@
 package org.apache.activemq.tests.integration.management;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -291,7 +291,7 @@ public class NotificationTest extends UnitTestCase
 
    // Private -------------------------------------------------------
 
-   private static void flush(final ClientConsumer notifConsumer) throws HornetQException
+   private static void flush(final ClientConsumer notifConsumer) throws ActiveMQException
    {
       ClientMessage message = null;
       do

@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.util;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.utils.TypedProperties;
@@ -82,7 +82,7 @@ public class TypedPropertiesConversionTest
          props.getBooleanProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -104,7 +104,7 @@ public class TypedPropertiesConversionTest
          props.getCharProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -136,7 +136,7 @@ public class TypedPropertiesConversionTest
          props.getByteProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -172,7 +172,7 @@ public class TypedPropertiesConversionTest
          props.getIntProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -216,7 +216,7 @@ public class TypedPropertiesConversionTest
          props.getLongProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -248,7 +248,7 @@ public class TypedPropertiesConversionTest
          props.getDoubleProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -281,7 +281,7 @@ public class TypedPropertiesConversionTest
          props.getFloatProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -318,7 +318,7 @@ public class TypedPropertiesConversionTest
          props.getShortProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 
@@ -354,7 +354,7 @@ public class TypedPropertiesConversionTest
          props.getBytesProperty(key);
          Assert.fail();
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
       }
 

@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.SimpleString;
 
 import static org.apache.activemq.utils.DataConstants.BOOLEAN;
@@ -168,7 +168,7 @@ public final class TypedProperties
       return doGetProperty(key);
    }
 
-   public Boolean getBooleanProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Boolean getBooleanProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -185,11 +185,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid conversion");
+         throw new ActiveMQPropertyConversionException("Invalid conversion");
       }
    }
 
-   public Byte getByteProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Byte getByteProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -206,11 +206,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid conversion");
+         throw new ActiveMQPropertyConversionException("Invalid conversion");
       }
    }
 
-   public Character getCharProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Character getCharProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -224,11 +224,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid conversion");
+         throw new ActiveMQPropertyConversionException("Invalid conversion");
       }
    }
 
-   public byte[] getBytesProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public byte[] getBytesProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -241,11 +241,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid conversion");
+         throw new ActiveMQPropertyConversionException("Invalid conversion");
       }
    }
 
-   public Double getDoubleProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Double getDoubleProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -266,11 +266,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid conversion");
+         throw new ActiveMQPropertyConversionException("Invalid conversion");
       }
    }
 
-   public Integer getIntProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Integer getIntProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -295,11 +295,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid conversion");
+         throw new ActiveMQPropertyConversionException("Invalid conversion");
       }
    }
 
-   public Long getLongProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Long getLongProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -328,11 +328,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid conversion");
+         throw new ActiveMQPropertyConversionException("Invalid conversion");
       }
    }
 
-   public Short getShortProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Short getShortProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -353,11 +353,11 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException("Invalid Conversion.");
+         throw new ActiveMQPropertyConversionException("Invalid Conversion.");
       }
    }
 
-   public Float getFloatProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Float getFloatProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
       if (value == null)
@@ -370,10 +370,10 @@ public final class TypedProperties
       {
          return Float.parseFloat(((SimpleString) value).toString());
       }
-      throw new HornetQPropertyConversionException("Invalid conversion: " + key);
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
-   public SimpleString getSimpleStringProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public SimpleString getSimpleStringProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       Object value = doGetProperty(key);
 
@@ -418,7 +418,7 @@ public final class TypedProperties
       {
          return new SimpleString(value.toString());
       }
-      throw new HornetQPropertyConversionException("Invalid conversion");
+      throw new ActiveMQPropertyConversionException("Invalid conversion");
    }
 
    public Object removeProperty(final SimpleString key)
@@ -451,7 +451,7 @@ public final class TypedProperties
       }
    }
 
-   public synchronized void decode(final HornetQBuffer buffer)
+   public synchronized void decode(final ActiveMQBuffer buffer)
    {
       byte b = buffer.readByte();
 
@@ -554,7 +554,7 @@ public final class TypedProperties
       }
    }
 
-   public synchronized void encode(final HornetQBuffer buffer)
+   public synchronized void encode(final ActiveMQBuffer buffer)
    {
       if (properties == null)
       {
@@ -741,7 +741,7 @@ public final class TypedProperties
    {
       abstract Object getValue();
 
-      abstract void write(HornetQBuffer buffer);
+      abstract void write(ActiveMQBuffer buffer);
 
       abstract int encodeSize();
 
@@ -765,7 +765,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.NULL);
       }
@@ -787,7 +787,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public BooleanValue(final HornetQBuffer buffer)
+      public BooleanValue(final ActiveMQBuffer buffer)
       {
          val = buffer.readBoolean();
       }
@@ -799,7 +799,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.BOOLEAN);
          buffer.writeBoolean(val);
@@ -822,7 +822,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public ByteValue(final HornetQBuffer buffer)
+      public ByteValue(final ActiveMQBuffer buffer)
       {
          val = buffer.readByte();
       }
@@ -834,7 +834,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.BYTE);
          buffer.writeByte(val);
@@ -856,7 +856,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public BytesValue(final HornetQBuffer buffer)
+      public BytesValue(final ActiveMQBuffer buffer)
       {
          int len = buffer.readInt();
          val = new byte[len];
@@ -870,7 +870,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.BYTES);
          buffer.writeInt(val.length);
@@ -894,7 +894,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public ShortValue(final HornetQBuffer buffer)
+      public ShortValue(final ActiveMQBuffer buffer)
       {
          val = buffer.readShort();
       }
@@ -906,7 +906,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.SHORT);
          buffer.writeShort(val);
@@ -928,7 +928,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public IntValue(final HornetQBuffer buffer)
+      public IntValue(final ActiveMQBuffer buffer)
       {
          val = buffer.readInt();
       }
@@ -940,7 +940,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.INT);
          buffer.writeInt(val);
@@ -962,7 +962,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public LongValue(final HornetQBuffer buffer)
+      public LongValue(final ActiveMQBuffer buffer)
       {
          val = buffer.readLong();
       }
@@ -974,7 +974,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.LONG);
          buffer.writeLong(val);
@@ -996,7 +996,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public FloatValue(final HornetQBuffer buffer)
+      public FloatValue(final ActiveMQBuffer buffer)
       {
          val = Float.intBitsToFloat(buffer.readInt());
       }
@@ -1008,7 +1008,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.FLOAT);
          buffer.writeInt(Float.floatToIntBits(val));
@@ -1031,7 +1031,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public DoubleValue(final HornetQBuffer buffer)
+      public DoubleValue(final ActiveMQBuffer buffer)
       {
          val = Double.longBitsToDouble(buffer.readLong());
       }
@@ -1043,7 +1043,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.DOUBLE);
          buffer.writeLong(Double.doubleToLongBits(val));
@@ -1065,7 +1065,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public CharValue(final HornetQBuffer buffer)
+      public CharValue(final ActiveMQBuffer buffer)
       {
          val = (char) buffer.readShort();
       }
@@ -1077,7 +1077,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.CHAR);
          buffer.writeShort((short) val);
@@ -1099,7 +1099,7 @@ public final class TypedProperties
          this.val = val;
       }
 
-      public StringValue(final HornetQBuffer buffer)
+      public StringValue(final ActiveMQBuffer buffer)
       {
          val = buffer.readSimpleString();
       }
@@ -1111,7 +1111,7 @@ public final class TypedProperties
       }
 
       @Override
-      public void write(final HornetQBuffer buffer)
+      public void write(final ActiveMQBuffer buffer)
       {
          buffer.writeByte(DataConstants.STRING);
          buffer.writeSimpleString(val);
@@ -1206,7 +1206,7 @@ public final class TypedProperties
       }
       else
       {
-         throw new HornetQPropertyConversionException(value.getClass() + " is not a valid property type");
+         throw new ActiveMQPropertyConversionException(value.getClass() + " is not a valid property type");
       }
    }
 }

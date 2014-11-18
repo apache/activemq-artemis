@@ -14,7 +14,7 @@ package org.apache.activemq.utils;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 
 /**
@@ -31,7 +31,7 @@ public class XidCodecSupport
 
    // Static --------------------------------------------------------
 
-   public static void encodeXid(final Xid xid, final HornetQBuffer out)
+   public static void encodeXid(final Xid xid, final ActiveMQBuffer out)
    {
       out.writeInt(xid.getFormatId());
       out.writeInt(xid.getBranchQualifier().length);
@@ -40,7 +40,7 @@ public class XidCodecSupport
       out.writeBytes(xid.getGlobalTransactionId());
    }
 
-   public static Xid decodeXid(final HornetQBuffer in)
+   public static Xid decodeXid(final ActiveMQBuffer in)
    {
       int formatID = in.readInt();
       byte[] bq = new byte[in.readInt()];

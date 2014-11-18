@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
@@ -24,13 +24,13 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 public class HornetQExceptionMessage extends PacketImpl
 {
 
-   private HornetQException exception;
+   private ActiveMQException exception;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public HornetQExceptionMessage(final HornetQException exception)
+   public HornetQExceptionMessage(final ActiveMQException exception)
    {
       super(EXCEPTION);
 
@@ -50,25 +50,25 @@ public class HornetQExceptionMessage extends PacketImpl
       return true;
    }
 
-   public HornetQException getException()
+   public ActiveMQException getException()
    {
       return exception;
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeInt(exception.getType().getCode());
       buffer.writeNullableString(exception.getMessage());
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       int code = buffer.readInt();
       String msg = buffer.readNullableString();
 
-      exception = HornetQExceptionType.createException(code, msg);
+      exception = ActiveMQExceptionType.createException(code, msg);
    }
 
    @Override

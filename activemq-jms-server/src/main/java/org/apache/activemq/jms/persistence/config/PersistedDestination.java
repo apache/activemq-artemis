@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.jms.persistence.config;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.utils.BufferHelper;
@@ -109,7 +109,7 @@ public class PersistedDestination implements EncodingSupport
             DataConstants.SIZE_BOOLEAN;
    }
 
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       buffer.writeByte(type.getType());
       buffer.writeSimpleString(SimpleString.toSimpleString(name));
@@ -117,7 +117,7 @@ public class PersistedDestination implements EncodingSupport
       buffer.writeBoolean(durable);
    }
 
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       type = PersistedType.getType(buffer.readByte());
       name = buffer.readSimpleString().toString();

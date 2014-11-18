@@ -111,7 +111,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipJoramTests}</skipTests>
-               <argLine>${hornetq-surefire-argline}</argLine>
+               <argLine>${activemq-surefire-argline}</argLine>
                <excludes>
                   <exclude>org/objectweb/**</exclude>
                </excludes>

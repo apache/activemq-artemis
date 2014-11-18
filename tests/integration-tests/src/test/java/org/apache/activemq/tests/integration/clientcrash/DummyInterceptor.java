@@ -14,9 +14,9 @@ package org.apache.activemq.tests.integration.clientcrash;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
@@ -46,13 +46,13 @@ public class DummyInterceptor implements Interceptor
       syncCounter.set(0);
    }
 
-   public boolean intercept(final Packet packet, final RemotingConnection conn) throws HornetQException
+   public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException
    {
       log.debug("DummyFilter packet = " + packet.getClass().getName());
       syncCounter.addAndGet(1);
       if (sendException)
       {
-         throw new HornetQInternalErrorException();
+         throw new ActiveMQInternalErrorException();
       }
       if (changeMessage)
       {

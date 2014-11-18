@@ -165,7 +165,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns the blocking calls timeout.
     * <p>
     * If client's blocking calls to the server take more than this timeout, the call will throw a
-    * {@link org.apache.activemq.api.core.HornetQException} with the code {@link org.apache.activemq.api.core.HornetQExceptionType#CONNECTION_TIMEDOUT}. Value
+    * {@link org.apache.activemq.api.core.ActiveMQException} with the code {@link org.apache.activemq.api.core.ActiveMQExceptionType#CONNECTION_TIMEDOUT}. Value
     * is in milliseconds, default value is {@link HornetQClient#DEFAULT_CALL_TIMEOUT}.
     *
     * @return the blocking calls timeout

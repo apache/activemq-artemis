@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.integration.aerogear;
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.Messages;
@@ -33,14 +33,14 @@ public interface HornetQAeroGearBundle
    HornetQAeroGearBundle BUNDLE = Messages.getBundle(HornetQAeroGearBundle.class);
 
    @Message(id = 239000, value = "endpoint can not be null", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException endpointNull();
+   ActiveMQIllegalStateException endpointNull();
 
    @Message(id = 239001, value = "application-id can not be null", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException applicationIdNull();
+   ActiveMQIllegalStateException applicationIdNull();
 
    @Message(id = 239002, value = "master-secret can not be null", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException masterSecretNull();
+   ActiveMQIllegalStateException masterSecretNull();
 
    @Message(id = 239003, value = "{0}: queue {1} not found", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException noQueue(String connectorName, String queueName);
+   ActiveMQIllegalStateException noQueue(String connectorName, String queueName);
 }

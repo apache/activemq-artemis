@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
-import org.apache.activemq.api.core.HornetQUnBlockedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -175,12 +175,12 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
          session.deleteQueue(rand);
          return session;
       }
-      catch (HornetQObjectClosedException oce)
+      catch (ActiveMQObjectClosedException oce)
       {
          ClientSessionFactory sf = createSessionFactory(locator);
          return sf.createSession();
       }
-      catch (HornetQUnBlockedException obe)
+      catch (ActiveMQUnBlockedException obe)
       {
          ClientSessionFactory sf = createSessionFactory(locator);
          return sf.createSession();
@@ -378,9 +378,9 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
          session = checkSessionOrReconnect(session, locator);
          fail();
       }
-      catch (HornetQException expected)
+      catch (ActiveMQException expected)
       {
-         assertEquals(HornetQExceptionType.NOT_CONNECTED, expected.getType());
+         assertEquals(ActiveMQExceptionType.NOT_CONNECTED, expected.getType());
       }
    }
 

@@ -294,7 +294,7 @@ public class TransportConfiguration implements Serializable
     *
     * @param buffer the buffer to encode into
     */
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       buffer.writeString(name);
       buffer.writeString(factoryClassName);
@@ -344,7 +344,7 @@ public class TransportConfiguration implements Serializable
     *
     * @param buffer the buffer to decode from
     */
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       name = buffer.readString();
       factoryClassName = buffer.readString();

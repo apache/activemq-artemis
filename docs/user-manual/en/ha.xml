@@ -841,14 +841,14 @@
                 <para>To prevent this, HornetQ will unblock any blocking calls that were in progress
                     at the time of failover by making them throw a <literal
                         >javax.jms.JMSException</literal> (if using JMS), or a <literal
-                        >HornetQException</literal> with error code <literal
-                        >HornetQException.UNBLOCKED</literal>. It is up to the client code to catch
+                        >ActiveMQException</literal> with error code <literal
+                        >ActiveMQException.UNBLOCKED</literal>. It is up to the client code to catch
                     this exception and retry any operations if desired.</para>
                 <para>If the method being unblocked is a call to commit(), or prepare(), then the
                     transaction will be automatically rolled back and HornetQ will throw a <literal
                         >javax.jms.TransactionRolledBackException</literal> (if using JMS), or a
-                        <literal>HornetQException</literal> with error code <literal
-                        >HornetQException.TRANSACTION_ROLLED_BACK</literal> if using the core
+                        <literal>ActiveMQException</literal> with error code <literal
+                        >ActiveMQException.TRANSACTION_ROLLED_BACK</literal> if using the core
                     API.</para>
             </section>
             <section id="ha.automatic.failover.transactions">
@@ -859,8 +859,8 @@
                 <para>Consequently the transaction will be marked as rollback-only, and any
                     subsequent attempt to commit it will throw a <literal
                         >javax.jms.TransactionRolledBackException</literal> (if using JMS), or a
-                        <literal>HornetQException</literal> with error code <literal
-                        >HornetQException.TRANSACTION_ROLLED_BACK</literal> if using the core
+                        <literal>ActiveMQException</literal> with error code <literal
+                        >ActiveMQException.TRANSACTION_ROLLED_BACK</literal> if using the core
                     API.</para>
                <warning>
                   <title>2 phase commit</title>

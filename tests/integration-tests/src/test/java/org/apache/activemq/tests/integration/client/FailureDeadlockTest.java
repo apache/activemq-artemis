@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.junit.Before;
 import org.junit.After;
 
@@ -21,7 +22,6 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.HornetQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -162,7 +162,7 @@ public class FailureDeadlockTest extends ServiceTestBase
       @Override
       public void run()
       {
-         conn.fail(new HornetQNotConnectedException("blah"));
+         conn.fail(new ActiveMQNotConnectedException("blah"));
       }
    }
 
@@ -179,7 +179,7 @@ public class FailureDeadlockTest extends ServiceTestBase
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
          RemotingConnection rc1 = ((ClientSessionInternal)((HornetQSession)sess1).getCoreSession()).getConnection();
 
-         rc1.fail(new HornetQNotConnectedException( "blah"));
+         rc1.fail(new ActiveMQNotConnectedException( "blah"));
 
          try
          {

@@ -28,9 +28,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -242,7 +242,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
             {
                consumer.close();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                // ignore
             }
@@ -253,7 +253,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
             {
                session.close();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                // ignore
             }

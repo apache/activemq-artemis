@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.impl.Topology;
@@ -174,7 +174,7 @@ public class ColocatedActivation extends LiveActivation
       }
 
       @Override
-      public Vote decode(HornetQBuffer voteBuffer)
+      public Vote decode(ActiveMQBuffer voteBuffer)
       {
          RequestBackupVote requestBackupVote = new RequestBackupVote();
          requestBackupVote.decode(voteBuffer);
@@ -301,7 +301,7 @@ public class ColocatedActivation extends LiveActivation
       }
 
       @Override
-      public void encode(HornetQBuffer buff)
+      public void encode(ActiveMQBuffer buff)
       {
          buff.writeInt(backupsSize);
          buff.writeNullableString(nodeID);
@@ -309,7 +309,7 @@ public class ColocatedActivation extends LiveActivation
       }
 
       @Override
-      public void decode(HornetQBuffer buff)
+      public void decode(ActiveMQBuffer buff)
       {
          backupsSize = buff.readInt();
          nodeID = buff.readNullableString();

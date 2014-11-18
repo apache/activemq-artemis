@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -134,7 +134,7 @@ public class PagingOrderTest extends ServiceTestBase
       {
          ClientMessage message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -283,7 +283,7 @@ public class PagingOrderTest extends ServiceTestBase
       {
          ClientMessage message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -432,7 +432,7 @@ public class PagingOrderTest extends ServiceTestBase
       {
          ClientMessage message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -511,7 +511,7 @@ public class PagingOrderTest extends ServiceTestBase
       {
          ClientMessage message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 
@@ -611,7 +611,7 @@ public class PagingOrderTest extends ServiceTestBase
       {
          ClientMessage message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 

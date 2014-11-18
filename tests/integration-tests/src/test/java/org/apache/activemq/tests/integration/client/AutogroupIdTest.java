@@ -14,7 +14,7 @@ package org.apache.activemq.tests.integration.client;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -219,7 +219,7 @@ public class AutogroupIdTest extends ServiceTestBase
          {
             message.acknowledge();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             e.printStackTrace();
          }

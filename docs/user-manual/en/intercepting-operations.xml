@@ -39,7 +39,7 @@ package org.apache.activemq.api.core.interceptor;
 
 public interface Interceptor
 {   
-   boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException;
+   boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException;
 }</programlisting>
       <para>The returned boolean value is important:</para>
       <itemizedlist>
@@ -79,7 +79,7 @@ public interface Interceptor
          packet is aborted which means that no other interceptors are be called and the packet is not
          be processed further by the client. Typically this process happens transparently to the client
          (i.e. it has no idea if a packet was aborted or not). However, in the case of an outgoing packet
-         that is sent in a <literal>blocking</literal> fashion a <literal>HornetQException</literal> will
+         that is sent in a <literal>blocking</literal> fashion a <literal>ActiveMQException</literal> will
          be thrown to the caller. The exception is thrown because blocking sends provide reliability and
          it is considered an error for them not to succeed. <literal>Blocking</literal> sends occurs when,
          for example, an application invokes <literal>setBlockOnNonDurableSend(true)</literal> or
@@ -87,7 +87,7 @@ public interface Interceptor
          application is using a JMS connection factory retrieved from JNDI that has either
          <literal>block-on-durable-send</literal> or <literal>block-on-non-durable-send</literal>
          set to <literal>true</literal>. Blocking is also used for packets dealing with transactions (e.g.
-         commit, roll-back, etc.). The <literal>HornetQException</literal> thrown will contain the name
+         commit, roll-back, etc.). The <literal>ActiveMQException</literal> thrown will contain the name
          of the interceptor that returned false.</para>
       <para>As on the server, the client interceptor classes (and their dependencies) must be added to the classpath
          to be properly instantiated and invoked.</para>

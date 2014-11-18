@@ -19,8 +19,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.core.persistence.OperationContext;
@@ -243,7 +243,7 @@ public class OperationContextImpl implements OperationContext
       {
          HornetQServerLogger.LOGGER.errorExecutingIOAsyncTask(e);
          executorsPending.decrementAndGet();
-         task.onError(HornetQExceptionType.INTERNAL_ERROR.getCode(),
+         task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(),
                       "It wasn't possible to complete IO operation - " + e.getMessage());
       }
    }
@@ -312,7 +312,7 @@ public class OperationContextImpl implements OperationContext
    }
 
    @Override
-   public boolean waitCompletion(final long timeout) throws InterruptedException, HornetQException
+   public boolean waitCompletion(final long timeout) throws InterruptedException, ActiveMQException
    {
       SimpleWaitIOCallback waitCallback = new SimpleWaitIOCallback();
       executeOnCompletion(waitCallback);

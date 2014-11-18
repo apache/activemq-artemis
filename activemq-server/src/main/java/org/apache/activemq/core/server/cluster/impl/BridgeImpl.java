@@ -22,8 +22,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -619,12 +619,12 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       // no op
    }
 
-   public void connectionFailed(final HornetQException me, boolean failedOver)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver)
    {
       connectionFailed(me, failedOver, null);
    }
 
-   public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
    {
       HornetQServerLogger.LOGGER.bridgeConnectionFailed(me, failedOver);
 
@@ -689,12 +689,12 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       tryScheduleRetryReconnect(me.getType());
    }
 
-   protected void tryScheduleRetryReconnect(final HornetQExceptionType type)
+   protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type)
    {
       scheduleRetryConnect();
    }
 
-   public void beforeReconnect(final HornetQException exception)
+   public void beforeReconnect(final ActiveMQException exception)
    {
       // log.warn(name + "::Connection failed before reconnect ", exception);
       // fail(false);
@@ -722,7 +722,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                   queue.deliverAsync();
                }
             }
-            catch (final HornetQException e)
+            catch (final ActiveMQException e)
             {
                unsetLargeMessageDelivery();
                HornetQServerLogger.LOGGER.bridgeUnableToSendMessage(e, ref);
@@ -754,7 +754,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       {
          producer.send(dest, message);
       }
-      catch (final HornetQException e)
+      catch (final ActiveMQException e)
       {
          HornetQServerLogger.LOGGER.bridgeUnableToSendMessage(e, ref);
 
@@ -996,10 +996,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             keepConnecting = false;
             return;
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             // the session was created while its server was starting, retry it:
-            if (e.getType() == HornetQExceptionType.SESSION_CREATION_REJECTED)
+            if (e.getType() == ActiveMQExceptionType.SESSION_CREATION_REJECTED)
             {
                HornetQServerLogger.LOGGER.errorStartingBridge(name);
 
@@ -1185,7 +1185,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                   session.close();
                   session = null;
                }
-               catch (HornetQException dontcare)
+               catch (ActiveMQException dontcare)
                {
                }
             }

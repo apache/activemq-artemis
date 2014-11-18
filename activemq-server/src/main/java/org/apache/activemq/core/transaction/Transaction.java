@@ -16,7 +16,7 @@ import java.util.List;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.RefsOperation;
 
@@ -53,7 +53,7 @@ public interface Transaction
 
    void setState(State state);
 
-   void markAsRollbackOnly(HornetQException exception);
+   void markAsRollbackOnly(ActiveMQException exception);
 
    long getCreateTime();
 

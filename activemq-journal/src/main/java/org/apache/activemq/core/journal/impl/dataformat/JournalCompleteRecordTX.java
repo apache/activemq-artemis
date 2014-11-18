@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.journal.impl.dataformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 
@@ -55,7 +55,7 @@ public class JournalCompleteRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       if (txRecordType == TX_RECORD_TYPE.COMMIT)
       {

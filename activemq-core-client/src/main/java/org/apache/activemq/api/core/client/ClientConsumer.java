@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.api.core.client;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
 
 /**
@@ -23,7 +23,7 @@ import org.apache.activemq.spi.core.remoting.ConsumerContext;
  * by setting a {@link MessageHandler}.
  * <br>
  * These 2 types of consumption are exclusive: a ClientConsumer with a MessageHandler set will
- * throw HornetQException if its <code>receive()</code> methods are called.
+ * throw ActiveMQException if its <code>receive()</code> methods are called.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
@@ -46,23 +46,23 @@ public interface ClientConsumer extends AutoCloseable
     * <p>
     * This call will block indefinitely until a message is received.
     * <p>
-    * Calling this method on a closed consumer will throw a HornetQException.
+    * Calling this method on a closed consumer will throw a ActiveMQException.
     * @return a ClientMessage
-    * @throws HornetQException if an exception occurs while waiting to receive a message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while waiting to receive a message
     */
-   ClientMessage receive() throws HornetQException;
+   ClientMessage receive() throws ActiveMQException;
 
    /**
     * Receives a message from a queue.
     * <p>
     * This call will block until a message is received or the given timeout expires.
     * <p>
-    * Calling this method on a closed consumer will throw a HornetQException.
+    * Calling this method on a closed consumer will throw a ActiveMQException.
     * @param timeout time (in milliseconds) to wait to receive a message
     * @return a message or {@code null} if the time out expired
-    * @throws HornetQException if an exception occurs while waiting to receive a message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while waiting to receive a message
     */
-   ClientMessage receive(long timeout) throws HornetQException;
+   ClientMessage receive(long timeout) throws ActiveMQException;
 
    /**
     * Receives a message from a queue. This call will force a network trip to HornetQ server to
@@ -74,38 +74,38 @@ public interface ClientConsumer extends AutoCloseable
     * Note however that there is a performance cost as an additional network trip to the server may
     * required to check the queue status.
     * <p>
-    * Calling this method on a closed consumer will throw a HornetQException.
+    * Calling this method on a closed consumer will throw a ActiveMQException.
     * @return a message or {@code null} if there are no messages in the queue for this consumer
-    * @throws HornetQException if an exception occurs while waiting to receive a message
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while waiting to receive a message
     */
-   ClientMessage receiveImmediate() throws HornetQException;
+   ClientMessage receiveImmediate() throws ActiveMQException;
 
    /**
     * Returns the MessageHandler associated to this consumer.
     * <p>
-    * Calling this method on a closed consumer will throw a HornetQException.
+    * Calling this method on a closed consumer will throw a ActiveMQException.
     * @return the MessageHandler associated to this consumer or {@code null}
-    * @throws HornetQException if an exception occurs while getting the MessageHandler
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while getting the MessageHandler
     */
-   MessageHandler getMessageHandler() throws HornetQException;
+   MessageHandler getMessageHandler() throws ActiveMQException;
 
    /**
     * Sets the MessageHandler for this consumer to consume messages asynchronously.
     * <p>
-    * Calling this method on a closed consumer will throw a HornetQException.
+    * Calling this method on a closed consumer will throw a ActiveMQException.
     * @param handler a MessageHandler
-    * @throws HornetQException if an exception occurs while setting the MessageHandler
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while setting the MessageHandler
     */
-   ClientConsumer setMessageHandler(MessageHandler handler) throws HornetQException;
+   ClientConsumer setMessageHandler(MessageHandler handler) throws ActiveMQException;
 
    /**
     * Closes the consumer.
     * <p>
     * Once this consumer is closed, it can not receive messages, whether synchronously or
     * asynchronously.
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   void close() throws HornetQException;
+   void close() throws ActiveMQException;
 
    /**
     * Returns whether the consumer is closed or not.

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.impl.Validators;
@@ -422,7 +422,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
       return cfConfig;
    }
 
-   private JMSFactoryType resolveFactoryType(String fact, boolean isXA) throws HornetQException
+   private JMSFactoryType resolveFactoryType(String fact, boolean isXA) throws ActiveMQException
    {
       if ("".equals(fact))
       {

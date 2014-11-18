@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.spi.core.remoting;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 /**
  * A BufferDecoder
@@ -24,11 +24,11 @@ import org.apache.activemq.api.core.HornetQBuffer;
 public interface BufferDecoder
 {
    /**
-    * called by the remoting system prior to {@link org.apache.activemq.spi.core.remoting.BufferHandler#bufferReceived(Object, org.apache.activemq.api.core.HornetQBuffer)}.
+    * called by the remoting system prior to {@link org.apache.activemq.spi.core.remoting.BufferHandler#bufferReceived(Object, org.apache.activemq.api.core.ActiveMQBuffer)}.
     * <p>
     * The implementation should return true if there is enough data in the buffer to decode. otherwise false.
     *                  * @param buffer the buffer
     * @return true id the buffer can be decoded..
     */
-   int isReadyToHandle(HornetQBuffer buffer);
+   int isReadyToHandle(ActiveMQBuffer buffer);
 }

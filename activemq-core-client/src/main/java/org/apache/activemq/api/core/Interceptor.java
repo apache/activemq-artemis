@@ -34,7 +34,7 @@ public interface Interceptor
     * @param connection the connection the packet was received on
     * @return {@code true} to process the next interceptor and handle the packet,
     * {@code false} to abort processing of the packet
-    * @throws HornetQException
+    * @throws ActiveMQException
     */
-   boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException;
+   boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException;
 }

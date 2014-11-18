@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Assume;
 import org.junit.Before;
 
@@ -25,7 +26,6 @@ import javax.transaction.xa.Xid;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -651,7 +651,7 @@ public class MessageGroupingTest extends UnitTestCase
             {
                message.acknowledge();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                // ignore
             }

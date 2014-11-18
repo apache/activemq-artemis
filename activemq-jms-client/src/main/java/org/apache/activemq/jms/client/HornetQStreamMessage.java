@@ -17,7 +17,7 @@ import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 import javax.jms.StreamMessage;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -452,7 +452,7 @@ public final class HornetQStreamMessage extends HornetQMessage implements Stream
       reset();
    }
 
-   private HornetQBuffer getBuffer()
+   private ActiveMQBuffer getBuffer()
    {
       return message.getBodyBuffer();
    }

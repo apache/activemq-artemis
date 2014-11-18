@@ -20,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -217,18 +217,18 @@ public class HornetQMessageHandlerTest extends HornetQRATestBase
       {
 
          @Override
-         public void connectionFailed(HornetQException exception, boolean failedOver)
+         public void connectionFailed(ActiveMQException exception, boolean failedOver)
          {
          }
 
          @Override
-         public void connectionFailed(HornetQException exception, boolean failedOver, String scaleDownTargetNodeID)
+         public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID)
          {
             connectionFailed(exception, failedOver);
          }
 
          @Override
-         public void beforeReconnect(HornetQException exception)
+         public void beforeReconnect(ActiveMQException exception)
          {
             failedLatch.countDown();
          }

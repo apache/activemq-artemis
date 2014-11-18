@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
@@ -54,19 +54,19 @@ public interface Packet
    byte getType();
 
    /**
-    * Encodes the packet and returns a {@link org.apache.activemq.api.core.HornetQBuffer} containing the data
+    * Encodes the packet and returns a {@link org.apache.activemq.api.core.ActiveMQBuffer} containing the data
     *
     * @param connection the connection
     * @return the buffer to encode to
     */
-   HornetQBuffer encode(RemotingConnection connection);
+   ActiveMQBuffer encode(RemotingConnection connection);
 
    /**
     * decodes the buffer into this packet
     *
     * @param buffer the buffer to decode from
     */
-   void decode(HornetQBuffer buffer);
+   void decode(ActiveMQBuffer buffer);
 
    /**
     * returns the size needed to encode this packet.

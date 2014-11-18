@@ -13,7 +13,7 @@
 
 package org.apache.activemq.core.server.cluster.qourum;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +31,9 @@ public abstract class Vote<T>
    }
 
 
-   public abstract void encode(final HornetQBuffer buff);
+   public abstract void encode(final ActiveMQBuffer buff);
 
-   public abstract void decode(final HornetQBuffer buff);
+   public abstract void decode(final ActiveMQBuffer buff);
    //whether or note we should ask the target server for an answer or decide ourselves, for instance if we couldn't
    //connect to the node in the first place.
    public abstract boolean isRequestServerVote();

@@ -15,7 +15,7 @@ package org.apache.activemq.integration.vertx;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.Binding;
@@ -179,7 +179,7 @@ public class IncomingVertxEventHandler implements ConnectorService
          }
       }
 
-      private void manualEncodeVertxMessageBody(HornetQBuffer bodyBuffer, Object body, int type)
+      private void manualEncodeVertxMessageBody(ActiveMQBuffer bodyBuffer, Object body, int type)
       {
          switch (type)
          {

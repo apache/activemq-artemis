@@ -39,8 +39,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOAsyncTask;
@@ -318,11 +318,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       class MyRecord implements EncodingSupport
       {
 
-         public void decode(final HornetQBuffer buffer)
+         public void decode(final ActiveMQBuffer buffer)
          {
          }
 
-         public void encode(final HornetQBuffer buffer)
+         public void encode(final ActiveMQBuffer buffer)
          {
             buffer.writeBytes(bytes);
          }
@@ -2723,7 +2723,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       // We don't need to release buffers while writing.
       ByteBuffer bb = fileFactory.newBuffer(JournalImpl.SIZE_HEADER);
 
-      HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(bb);
+      ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(bb);
 
       try
       {
@@ -2750,7 +2750,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * @param userVersion
     * @param fileID
     */
-   public static void writeHeader(final HornetQBuffer buffer, final int userVersion, final long fileID)
+   public static void writeHeader(final ActiveMQBuffer buffer, final int userVersion, final long fileID)
    {
       buffer.writeInt(JournalImpl.FORMAT_VERSION);
 
@@ -3031,7 +3031,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   return byteEncoder.getEncodeSize();
                }
 
-               public void encode(final HornetQBuffer buffer)
+               public void encode(final ActiveMQBuffer buffer)
                {
                   byteEncoder.encode(buffer);
                }

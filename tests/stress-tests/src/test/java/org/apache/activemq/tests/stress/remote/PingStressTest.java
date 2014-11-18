@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.stress.remote;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -18,7 +19,6 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -85,7 +85,7 @@ public class PingStressTest extends ServiceTestBase
 
       Interceptor noPongInterceptor = new Interceptor()
       {
-         public boolean intercept(final Packet packet, final RemotingConnection conn) throws HornetQException
+         public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException
          {
             PingStressTest.log.info("In interceptor, packet is " + packet.getType());
             if (packet.getType() == PacketImpl.PING)

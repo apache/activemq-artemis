@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.api.core.client;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
@@ -31,9 +31,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * Creates a session with XA transaction semantics.
     *
     * @return a ClientSession with XA transaction semantics
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createXASession() throws HornetQException;
+   ClientSession createXASession() throws ActiveMQException;
 
    /**
     * Creates a <em>transacted</em> session.
@@ -41,10 +41,10 @@ public interface ClientSessionFactory extends AutoCloseable
     * It is up to the client to commit when sending and acknowledging messages.
     *
     * @return a transacted ClientSession
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     * @see ClientSession#commit()
     */
-   ClientSession createTransactedSession() throws HornetQException;
+   ClientSession createTransactedSession() throws ActiveMQException;
 
 
    /**
@@ -54,9 +54,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * the session will automatically commit the transaction containing the acknowledgements.
     *
     * @return a non-transacted ClientSession
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createSession() throws HornetQException;
+   ClientSession createSession() throws ActiveMQException;
 
    /**
     * Creates a session.
@@ -64,9 +64,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @return a ClientSession
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createSession(boolean autoCommitSends, boolean autoCommitAcks) throws HornetQException;
+   ClientSession createSession(boolean autoCommitSends, boolean autoCommitAcks) throws ActiveMQException;
 
    /**
     * Creates a session.
@@ -75,9 +75,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @param ackBatchSize    the batch size of the acknowledgements
     * @return a ClientSession
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createSession(boolean autoCommitSends, boolean autoCommitAcks, int ackBatchSize) throws HornetQException;
+   ClientSession createSession(boolean autoCommitSends, boolean autoCommitAcks, int ackBatchSize) throws ActiveMQException;
 
    /**
     * Creates a session.
@@ -86,9 +86,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @return a ClientSession
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createSession(boolean xa, boolean autoCommitSends, boolean autoCommitAcks) throws HornetQException;
+   ClientSession createSession(boolean xa, boolean autoCommitSends, boolean autoCommitAcks) throws ActiveMQException;
 
    /**
     * Creates a session.
@@ -102,9 +102,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
     * @return a ClientSession
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createSession(boolean xa, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge) throws HornetQException;
+   ClientSession createSession(boolean xa, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge) throws ActiveMQException;
 
    /**
     * Creates an <em>authenticated</em> session.
@@ -120,7 +120,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
     * @return a ClientSession
-    * @throws HornetQException if an exception occurs while creating the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createSession(String username,
                                String password,
@@ -128,7 +128,7 @@ public interface ClientSessionFactory extends AutoCloseable
                                boolean autoCommitSends,
                                boolean autoCommitAcks,
                                boolean preAcknowledge,
-                               int ackBatchSize) throws HornetQException;
+                               int ackBatchSize) throws ActiveMQException;
 
    /**
     * Closes this factory and any session created by it.

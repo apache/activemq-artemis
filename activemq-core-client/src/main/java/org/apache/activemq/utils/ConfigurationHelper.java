@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.utils;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
 
@@ -232,7 +232,7 @@ public class ConfigurationHelper
       {
          codec = PasswordMaskingUtil.getCodec(classImpl);
       }
-      catch (HornetQException e1)
+      catch (ActiveMQException e1)
       {
          throw HornetQClientMessageBundle.BUNDLE.failedToGetDecoder(e1);
       }

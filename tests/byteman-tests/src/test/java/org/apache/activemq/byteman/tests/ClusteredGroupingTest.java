@@ -15,7 +15,7 @@ package org.apache.activemq.byteman.tests;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.ManagementHelper;
@@ -105,7 +105,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
          {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (HornetQNonExistentQueueException e)
+         catch (ActiveMQNonExistentQueueException e)
          {
             fail("did not handle removal of queue");
          }
@@ -188,7 +188,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
          {
             sendWithProperty(1, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (HornetQNonExistentQueueException e)
+         catch (ActiveMQNonExistentQueueException e)
          {
             fail("did not handle removal of queue");
          }
@@ -273,7 +273,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
          {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (HornetQNonExistentQueueException e)
+         catch (ActiveMQNonExistentQueueException e)
          {
             fail("did not handle removal of queue");
          }
@@ -366,7 +366,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
          {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (HornetQNonExistentQueueException e)
+         catch (ActiveMQNonExistentQueueException e)
          {
             fail("did not handle removal of queue");
          }

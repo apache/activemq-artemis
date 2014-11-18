@@ -151,7 +151,7 @@
                   <exclude>org.apache.activemq/jms/tests/stress/*.java</exclude>
                   <exclude>org.apache.activemq/jms/tests/manual/**</exclude>
                </excludes>
-               <argLine>${hornetq-surefire-argline}</argLine>
+               <argLine>${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
       </plugins>

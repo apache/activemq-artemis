@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -233,7 +233,7 @@ public class ClusterConnectionBridge extends BridgeImpl
 
                notifConsumer = null;
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                HornetQServerLogger.LOGGER.errorClosingConsumer(e);
             }
@@ -384,7 +384,7 @@ public class ClusterConnectionBridge extends BridgeImpl
    }
 
    @Override
-   protected void tryScheduleRetryReconnect(final HornetQExceptionType type)
+   protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type)
    {
       scheduleRetryConnect();
    }

@@ -11,6 +11,8 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.junit.Before;
 import org.junit.After;
 
@@ -21,8 +23,6 @@ import javax.transaction.xa.XAResource;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -72,25 +72,25 @@ public class SessionCloseTest extends UnitTestCase
 
       Assert.assertTrue(session.isClosed());
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.createProducer();
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.createConsumer(RandomUtil.randomSimpleString());
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.createQueue(RandomUtil.randomSimpleString(),
                                 RandomUtil.randomSimpleString(),
@@ -98,57 +98,57 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.createTemporaryQueue(RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString());
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.start();
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.stop();
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.commit();
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.rollback();
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.queueQuery(RandomUtil.randomSimpleString());
          }
       });
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             session.addressQuery(RandomUtil.randomSimpleString());
          }

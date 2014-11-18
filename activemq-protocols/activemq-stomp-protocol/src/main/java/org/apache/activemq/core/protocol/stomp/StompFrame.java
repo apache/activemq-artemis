@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 
 /**
  * Represents all the data in a STOMP frame.
@@ -38,7 +38,7 @@ public class StompFrame
 
    protected byte[] bytesBody;
 
-   protected HornetQBuffer buffer = null;
+   protected ActiveMQBuffer buffer = null;
 
    protected int size;
 
@@ -97,17 +97,17 @@ public class StompFrame
       isPing = ping;
    }
 
-   public HornetQBuffer toHornetQBuffer() throws Exception
+   public ActiveMQBuffer toHornetQBuffer() throws Exception
    {
       if (buffer == null)
       {
          if (bytesBody != null)
          {
-            buffer = HornetQBuffers.dynamicBuffer(bytesBody.length + 512);
+            buffer = ActiveMQBuffers.dynamicBuffer(bytesBody.length + 512);
          }
          else
          {
-            buffer = HornetQBuffers.dynamicBuffer(512);
+            buffer = ActiveMQBuffers.dynamicBuffer(512);
          }
 
          if (isPing())

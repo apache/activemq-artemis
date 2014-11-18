@@ -14,7 +14,7 @@ package org.apache.activemq.tests.integration.vertx;
 
 import java.util.HashMap;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -201,7 +201,7 @@ public class HornetQVertxUnitTest extends ServiceTestBase
       vertxType = msg.getIntProperty(VertxConstants.VERTX_MESSAGE_TYPE);
       assertEquals(VertxConstants.TYPE_BUFFER, vertxType);
 
-      HornetQBuffer hqBuf = msg.getBodyBuffer();
+      ActiveMQBuffer hqBuf = msg.getBodyBuffer();
       int len = hqBuf.readInt();
       System.out.println("==== len is: " + len);
       assertEquals(content.length, len);

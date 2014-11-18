@@ -24,7 +24,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -84,7 +84,7 @@ public class QueueConsumer
       lastPing = System.currentTimeMillis() + (offsetSecs * 1000);
    }
 
-   public QueueConsumer(ClientSessionFactory factory, String destination, String id, DestinationServiceManager serviceManager, String selector) throws HornetQException
+   public QueueConsumer(ClientSessionFactory factory, String destination, String id, DestinationServiceManager serviceManager, String selector) throws ActiveMQException
    {
       this.factory = factory;
       this.destination = destination;
@@ -210,7 +210,7 @@ public class QueueConsumer
       }
    }
 
-   protected void createSession() throws HornetQException
+   protected void createSession() throws ActiveMQException
    {
       session = factory.createSession(true, true, 0);
       HornetQRestLogger.LOGGER.debug("Created session: " + session);

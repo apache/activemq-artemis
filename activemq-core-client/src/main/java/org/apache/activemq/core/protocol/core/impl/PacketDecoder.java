@@ -76,7 +76,7 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SUBSCRIBE_T
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverMessage;
@@ -144,7 +144,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTo
  */
 public abstract class PacketDecoder implements Serializable
 {
-   public abstract Packet decode(final HornetQBuffer in);
+   public abstract Packet decode(final ActiveMQBuffer in);
 
    public Packet decode(byte packetType)
    {

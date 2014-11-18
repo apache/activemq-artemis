@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.journal.impl;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOCompletion;
 import org.apache.activemq.core.journal.Journal;
@@ -194,12 +194,12 @@ abstract class JournalBase implements Journal
 
       private static NullEncoding instance = new NullEncoding();
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          // no-op
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          // no-op
       }

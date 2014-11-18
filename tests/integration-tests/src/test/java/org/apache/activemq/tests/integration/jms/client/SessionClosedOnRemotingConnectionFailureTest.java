@@ -12,6 +12,7 @@
  */
 package org.apache.activemq.tests.integration.jms.client;
 
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ import javax.jms.Session;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -126,7 +126,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase
 
          RemotingConnection connection = ((ClientSessionInternal)((HornetQSession)session).getCoreSession()).getConnection();
 
-         connection.fail(new HornetQNotConnectedException());
+         connection.fail(new ActiveMQNotConnectedException());
 
          // Now try and use the producer
 
@@ -138,7 +138,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase
          }
          catch (JMSException e)
          {
-            // assertEquals(HornetQException.OBJECT_CLOSED, e.getCode());
+            // assertEquals(ActiveMQException.OBJECT_CLOSED, e.getCode());
          }
 
          try
@@ -149,7 +149,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase
          }
          catch (JMSException e)
          {
-            // assertEquals(HornetQException.OBJECT_CLOSED, e.getCode());
+            // assertEquals(ActiveMQException.OBJECT_CLOSED, e.getCode());
          }
 
          session.close();

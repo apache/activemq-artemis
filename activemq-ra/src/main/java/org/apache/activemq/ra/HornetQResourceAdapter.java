@@ -34,9 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
@@ -161,7 +161,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
          {
             setup();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new ResourceException("Unable to create activation", e);
          }
@@ -255,7 +255,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
          {
             setup();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new ResourceAdapterInternalException("Unable to create activation", e);
          }
@@ -1777,7 +1777,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
    /**
     * Setup the factory
     */
-   protected void setup() throws HornetQException
+   protected void setup() throws ActiveMQException
    {
       raProperties.init();
       defaultHornetQConnectionFactory = createHornetQConnectionFactory(raProperties);
@@ -1798,7 +1798,7 @@ public class HornetQResourceAdapter implements ResourceAdapter, Serializable
          {
             setup();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new ResourceException("Unable to create activation", e);
          }

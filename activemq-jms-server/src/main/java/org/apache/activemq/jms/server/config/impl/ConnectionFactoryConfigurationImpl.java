@@ -15,7 +15,7 @@ package org.apache.activemq.jms.server.config.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -523,7 +523,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    // Encoding Support Implementation --------------------------------------------------------------
 
    @Override
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       persisted = true;
 
@@ -611,7 +611,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    }
 
    @Override
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       persisted = true;
 

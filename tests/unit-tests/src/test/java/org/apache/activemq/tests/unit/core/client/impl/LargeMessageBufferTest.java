@@ -26,9 +26,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -146,7 +146,7 @@ public class LargeMessageBufferTest extends UnitTestCase
    {
       LargeMessageControllerImpl buffer = create15BytesSample();
 
-      HornetQBuffer dstBuffer = HornetQBuffers.fixedBuffer(20);
+      ActiveMQBuffer dstBuffer = ActiveMQBuffers.fixedBuffer(20);
 
       dstBuffer.setIndex(0, 5);
 
@@ -235,7 +235,7 @@ public class LargeMessageBufferTest extends UnitTestCase
    @Test
    public void testReadData() throws Exception
    {
-      HornetQBuffer dynamic = HornetQBuffers.dynamicBuffer(1);
+      ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
 
       String str1 = RandomUtil.randomString();
       String str2 = RandomUtil.randomString();
@@ -265,7 +265,7 @@ public class LargeMessageBufferTest extends UnitTestCase
    {
       clearDataRecreateServerDirs();
 
-      HornetQBuffer dynamic = HornetQBuffers.dynamicBuffer(1);
+      ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
 
       String str1 = RandomUtil.randomString();
       String str2 = RandomUtil.randomString();
@@ -564,7 +564,7 @@ public class LargeMessageBufferTest extends UnitTestCase
          outBuffer.waitCompletion(0);
          fail("supposed to throw an exception");
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
       }
 
@@ -658,7 +658,7 @@ public class LargeMessageBufferTest extends UnitTestCase
          byteArray[i] = getSamplebyte(i);
       }
 
-      HornetQBuffer splitbuffer = splitBuffer(3, byteArray);
+      ActiveMQBuffer splitbuffer = splitBuffer(3, byteArray);
 
       HornetQBufferInputStream is = new HornetQBufferInputStream(splitbuffer);
 
@@ -779,7 +779,7 @@ public class LargeMessageBufferTest extends UnitTestCase
       }
 
 
-      public void close() throws HornetQException
+      public void close() throws ActiveMQException
       {
       }
 
@@ -788,7 +788,7 @@ public class LargeMessageBufferTest extends UnitTestCase
          return null;
       }
 
-      public MessageHandler getMessageHandler() throws HornetQException
+      public MessageHandler getMessageHandler() throws ActiveMQException
       {
          return null;
       }
@@ -798,40 +798,40 @@ public class LargeMessageBufferTest extends UnitTestCase
          return false;
       }
 
-      public ClientMessage receive() throws HornetQException
+      public ClientMessage receive() throws ActiveMQException
       {
          return null;
       }
 
-      public ClientMessage receive(final long timeout) throws HornetQException
+      public ClientMessage receive(final long timeout) throws ActiveMQException
       {
          return null;
       }
 
-      public ClientMessage receiveImmediate() throws HornetQException
+      public ClientMessage receiveImmediate() throws ActiveMQException
       {
          return null;
       }
 
-      public FakeConsumerInternal setMessageHandler(final MessageHandler handler) throws HornetQException
+      public FakeConsumerInternal setMessageHandler(final MessageHandler handler) throws ActiveMQException
       {
          return this;
       }
 
-      public void acknowledge(final ClientMessage message) throws HornetQException
+      public void acknowledge(final ClientMessage message) throws ActiveMQException
       {
       }
 
       @Override
-      public void individualAcknowledge(ClientMessage message) throws HornetQException
+      public void individualAcknowledge(ClientMessage message) throws ActiveMQException
       {
       }
 
-      public void cleanUp() throws HornetQException
+      public void cleanUp() throws ActiveMQException
       {
       }
 
-      public void clear(boolean waitForOnMessage) throws HornetQException
+      public void clear(boolean waitForOnMessage) throws ActiveMQException
       {
       }
 
@@ -839,11 +839,11 @@ public class LargeMessageBufferTest extends UnitTestCase
       {
       }
 
-      public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws HornetQException
+      public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException
       {
       }
 
-      public void flushAcks() throws HornetQException
+      public void flushAcks() throws ActiveMQException
       {
       }
 
@@ -904,13 +904,13 @@ public class LargeMessageBufferTest extends UnitTestCase
 
       }
 
-      public void stop() throws HornetQException
+      public void stop() throws ActiveMQException
       {
 
 
       }
 
-      public void stop(boolean waitForOnMessage) throws HornetQException
+      public void stop(boolean waitForOnMessage) throws ActiveMQException
       {
       }
 
@@ -931,7 +931,7 @@ public class LargeMessageBufferTest extends UnitTestCase
       /* (non-Javadoc)
        * @see org.apache.activemq.core.client.impl.ClientConsumerInternal#prepareForClose()
        */
-      public Thread prepareForClose(FutureLatch future) throws HornetQException
+      public Thread prepareForClose(FutureLatch future) throws ActiveMQException
       {
          return null;
       }

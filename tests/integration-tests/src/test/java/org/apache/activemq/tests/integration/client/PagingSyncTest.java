@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.client;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -96,7 +96,7 @@ public class PagingSyncTest extends ServiceTestBase
       {
          ClientMessage message = session.createMessage(persistentMessages);
 
-         HornetQBuffer bodyLocal = message.getBodyBuffer();
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
 
          bodyLocal.writeBytes(body);
 

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.rest.queue.push;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
@@ -124,7 +124,7 @@ public class PushConsumer
                session.close();
             }
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
 
          }

@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
@@ -55,7 +55,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
    protected long nextOrderingID;
 
-   private HornetQBuffer writingChannel;
+   private ActiveMQBuffer writingChannel;
 
    private final Set<Long> recordsSnapshot = new ConcurrentHashSet<Long>();
 
@@ -95,7 +95,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
          JournalImpl.initFileHeader(fileFactory, controlFile, 0, 0);
 
-         HornetQBuffer filesToRename = HornetQBuffers.dynamicBuffer(1);
+         ActiveMQBuffer filesToRename = ActiveMQBuffers.dynamicBuffer(1);
 
          // DataFiles first
 
@@ -150,7 +150,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
                                                                     new ByteArrayEncoding(filesToRename.toByteBuffer()
                                                                                                        .array()));
 
-         HornetQBuffer renameBuffer = HornetQBuffers.dynamicBuffer(filesToRename.writerIndex());
+         ActiveMQBuffer renameBuffer = ActiveMQBuffers.dynamicBuffer(filesToRename.writerIndex());
 
          controlRecord.setFileID(0);
 
@@ -208,7 +208,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
       ByteBuffer bufferWrite = fileFactory.newBuffer(journal.getFileSize());
 
-      writingChannel = HornetQBuffers.wrappedBuffer(bufferWrite);
+      writingChannel = ActiveMQBuffers.wrappedBuffer(bufferWrite);
 
       currentFile = filesRepository.takeFile(false, false, false, true);
 
@@ -229,7 +229,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
    /**
     * @return the writingChannel
     */
-   protected HornetQBuffer getWritingChannel()
+   protected ActiveMQBuffer getWritingChannel()
    {
       return writingChannel;
    }

@@ -11,14 +11,14 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.junit.Before;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -54,9 +54,9 @@ public class ProducerCloseTest extends ServiceTestBase
 
       Assert.assertTrue(producer.isClosed());
 
-      UnitTestCase.expectHornetQException(HornetQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
       {
-         public void run() throws HornetQException
+         public void run() throws ActiveMQException
          {
             producer.send(session.createMessage(false));
          }

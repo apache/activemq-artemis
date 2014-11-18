@@ -23,10 +23,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
@@ -781,7 +781,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
             tx.commit();
          }
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          if (startedTransaction)
          {
@@ -796,7 +796,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
       catch (Throwable e)
       {
          HornetQServerLogger.LOGGER.errorAckingMessage((Exception) e);
-         HornetQException hqex = new HornetQIllegalStateException(e.getMessage());
+         ActiveMQException hqex = new ActiveMQIllegalStateException(e.getMessage());
          if (startedTransaction)
          {
             tx.rollback();
@@ -1122,7 +1122,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
                localChunkLen = (int) Math.min(sizePendingLargeMessage - positionPendingLargeMessage, minLargeMessageSize);
 
-               HornetQBuffer bodyBuffer = HornetQBuffers.fixedBuffer(localChunkLen);
+               ActiveMQBuffer bodyBuffer = ActiveMQBuffers.fixedBuffer(localChunkLen);
 
                context.encode(bodyBuffer, localChunkLen);
 

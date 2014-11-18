@@ -40,7 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import io.netty.channel.Channel;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
@@ -577,7 +577,7 @@ public interface HornetQServerLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222067, value = "Connection failure has been detected: {0} [code={1}]", format = Message.Format.MESSAGE_FORMAT)
-   void connectionFailureDetected(String message, HornetQExceptionType type);
+   void connectionFailureDetected(String message, ActiveMQExceptionType type);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222069, value = "error cleaning up stomp connection", format = Message.Format.MESSAGE_FORMAT)

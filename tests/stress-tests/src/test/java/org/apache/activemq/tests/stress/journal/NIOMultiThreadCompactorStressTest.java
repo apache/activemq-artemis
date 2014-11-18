@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -146,7 +146,7 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
 
    /**
     * @param xid
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private void addEmptyTransaction(final Xid xid) throws Exception
    {
@@ -264,9 +264,9 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
    /**
     * @param numberOfMessagesExpected
     * @param queue
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void drainQueue(final int numberOfMessagesExpected, final SimpleString queue) throws HornetQException
+   private void drainQueue(final int numberOfMessagesExpected, final SimpleString queue) throws ActiveMQException
    {
       ClientSession sess = sf.createSession(true, true);
 
@@ -292,9 +292,9 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
    }
 
    /**
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void addBogusData(final int nmessages, final String queue) throws HornetQException
+   private void addBogusData(final int nmessages, final String queue) throws ActiveMQException
    {
       ClientSession session = sf.createSession(false, false);
       try

@@ -15,7 +15,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 import java.util.Collections;
@@ -78,13 +78,13 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeInt(problem.code);
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       problem = getType(buffer.readInt());
    }

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -186,7 +186,7 @@ public final class SharedStoreBackupActivation extends Activation
    }
 
    @Override
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, HornetQServer parentServer) throws HornetQException
+   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, HornetQServer parentServer) throws ActiveMQException
    {
       if (sharedStoreSlavePolicy.getScaleDownPolicy() != null)
       {

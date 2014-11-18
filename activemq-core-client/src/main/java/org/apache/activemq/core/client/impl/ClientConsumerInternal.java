@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.client.impl;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -38,17 +38,17 @@ public interface ClientConsumerInternal extends ClientConsumer
 
    void handleLargeMessageContinuation(byte[] chunk, int flowControlSize, boolean isContinues) throws Exception;
 
-   void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws HornetQException;
+   void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException;
 
-   void clear(boolean waitForOnMessage) throws HornetQException;
+   void clear(boolean waitForOnMessage) throws ActiveMQException;
 
    /**
     * To be called by things like MDBs during shutdown of the server
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * @param future
     */
-   Thread prepareForClose(FutureLatch future) throws HornetQException;
+   Thread prepareForClose(FutureLatch future) throws ActiveMQException;
 
    void clearAtFailover();
 
@@ -56,15 +56,15 @@ public interface ClientConsumerInternal extends ClientConsumer
 
    int getBufferSize();
 
-   void cleanUp() throws HornetQException;
+   void cleanUp() throws ActiveMQException;
 
-   void acknowledge(ClientMessage message) throws HornetQException;
+   void acknowledge(ClientMessage message) throws ActiveMQException;
 
-   void individualAcknowledge(ClientMessage message) throws HornetQException;
+   void individualAcknowledge(ClientMessage message) throws ActiveMQException;
 
-   void flushAcks() throws HornetQException;
+   void flushAcks() throws ActiveMQException;
 
-   void stop(boolean waitForOnMessage) throws HornetQException;
+   void stop(boolean waitForOnMessage) throws ActiveMQException;
 
    void start();
 

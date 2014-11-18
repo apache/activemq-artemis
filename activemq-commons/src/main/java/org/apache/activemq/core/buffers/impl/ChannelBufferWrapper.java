@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.UTF8Util;
@@ -27,7 +27,7 @@ import org.apache.activemq.utils.UTF8Util;
  *
  * @author Tim Fox
  */
-public class ChannelBufferWrapper implements HornetQBuffer
+public class ChannelBufferWrapper implements ActiveMQBuffer
 {
    protected ByteBuf buffer; // NO_UCD (use final)
    private final boolean releasable;
@@ -215,12 +215,12 @@ public class ChannelBufferWrapper implements HornetQBuffer
       buffer.clear();
    }
 
-   public HornetQBuffer copy()
+   public ActiveMQBuffer copy()
    {
       return new ChannelBufferWrapper(buffer.copy(), releasable);
    }
 
-   public HornetQBuffer copy(final int index, final int length)
+   public ActiveMQBuffer copy(final int index, final int length)
    {
       return new ChannelBufferWrapper(buffer.copy(index, length), releasable);
    }
@@ -230,7 +230,7 @@ public class ChannelBufferWrapper implements HornetQBuffer
       buffer.discardReadBytes();
    }
 
-   public HornetQBuffer duplicate()
+   public ActiveMQBuffer duplicate()
    {
       return new ChannelBufferWrapper(buffer.duplicate(), releasable);
    }
@@ -255,17 +255,17 @@ public class ChannelBufferWrapper implements HornetQBuffer
       buffer.getBytes(index, dst);
    }
 
-   public void getBytes(final int index, final HornetQBuffer dst, final int dstIndex, final int length)
+   public void getBytes(final int index, final ActiveMQBuffer dst, final int dstIndex, final int length)
    {
       buffer.getBytes(index, dst.byteBuf(), dstIndex, length);
    }
 
-   public void getBytes(final int index, final HornetQBuffer dst, final int length)
+   public void getBytes(final int index, final ActiveMQBuffer dst, final int length)
    {
       buffer.getBytes(index, dst.byteBuf(), length);
    }
 
-   public void getBytes(final int index, final HornetQBuffer dst)
+   public void getBytes(final int index, final ActiveMQBuffer dst)
    {
       buffer.getBytes(index, dst.byteBuf());
    }
@@ -355,22 +355,22 @@ public class ChannelBufferWrapper implements HornetQBuffer
       buffer.readBytes(dst);
    }
 
-   public void readBytes(final HornetQBuffer dst, final int dstIndex, final int length)
+   public void readBytes(final ActiveMQBuffer dst, final int dstIndex, final int length)
    {
       buffer.readBytes(dst.byteBuf(), dstIndex, length);
    }
 
-   public void readBytes(final HornetQBuffer dst, final int length)
+   public void readBytes(final ActiveMQBuffer dst, final int length)
    {
       buffer.readBytes(dst.byteBuf(), length);
    }
 
-   public void readBytes(final HornetQBuffer dst)
+   public void readBytes(final ActiveMQBuffer dst)
    {
       buffer.readBytes(dst.byteBuf());
    }
 
-   public HornetQBuffer readBytes(final int length)
+   public ActiveMQBuffer readBytes(final int length)
    {
       return new ChannelBufferWrapper(buffer.readBytes(length), releasable);
    }
@@ -415,7 +415,7 @@ public class ChannelBufferWrapper implements HornetQBuffer
       return buffer.readShort();
    }
 
-   public HornetQBuffer readSlice(final int length)
+   public ActiveMQBuffer readSlice(final int length)
    {
       return new ChannelBufferWrapper(buffer.readSlice(length), releasable);
    }
@@ -465,17 +465,17 @@ public class ChannelBufferWrapper implements HornetQBuffer
       buffer.setBytes(index, src);
    }
 
-   public void setBytes(final int index, final HornetQBuffer src, final int srcIndex, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       buffer.setBytes(index, src.byteBuf(), srcIndex, length);
    }
 
-   public void setBytes(final int index, final HornetQBuffer src, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int length)
    {
       buffer.setBytes(index, src.byteBuf(), length);
    }
 
-   public void setBytes(final int index, final HornetQBuffer src)
+   public void setBytes(final int index, final ActiveMQBuffer src)
    {
       buffer.setBytes(index, src.byteBuf());
    }
@@ -520,12 +520,12 @@ public class ChannelBufferWrapper implements HornetQBuffer
       buffer.skipBytes(length);
    }
 
-   public HornetQBuffer slice()
+   public ActiveMQBuffer slice()
    {
       return new ChannelBufferWrapper(buffer.slice(), releasable);
    }
 
-   public HornetQBuffer slice(final int index, final int length)
+   public ActiveMQBuffer slice(final int index, final int length)
    {
       return new ChannelBufferWrapper(buffer.slice(index, length), releasable);
    }
@@ -570,12 +570,12 @@ public class ChannelBufferWrapper implements HornetQBuffer
       buffer.writeBytes(src);
    }
 
-   public void writeBytes(final HornetQBuffer src, final int srcIndex, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       buffer.writeBytes(src.byteBuf(), srcIndex, length);
    }
 
-   public void writeBytes(final HornetQBuffer src, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int length)
    {
       buffer.writeBytes(src.byteBuf(), length);
    }

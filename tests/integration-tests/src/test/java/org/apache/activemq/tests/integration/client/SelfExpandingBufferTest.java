@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -85,7 +85,7 @@ public class SelfExpandingBufferTest extends ServiceTestBase
 
          ClientMessage msg = session.createMessage(true);
 
-         HornetQBuffer buffer = msg.getBodyBuffer();
+         ActiveMQBuffer buffer = msg.getBodyBuffer();
 
          SelfExpandingBufferTest.log.info("buffer is " + buffer);
 

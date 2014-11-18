@@ -14,7 +14,7 @@ package org.apache.activemq.tests.stress.paging;
 
 import java.util.HashMap;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -239,7 +239,7 @@ public class PageStressTest extends ServiceTestBase
 
    }
 
-   private int readMessages(final ClientSession session, final ClientConsumer consumer, final SimpleString queue) throws HornetQException
+   private int readMessages(final ClientSession session, final ClientConsumer consumer, final SimpleString queue) throws ActiveMQException
    {
       session.start();
       int msgs = 0;

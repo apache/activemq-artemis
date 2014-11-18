@@ -11,14 +11,14 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.timing.util;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.junit.After;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.UTF8Util;
 
@@ -51,7 +51,7 @@ public class UTF8Test extends UnitTestCase
    @Test
    public void testWriteUTF() throws Exception
    {
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(10 * 1024);
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(10 * 1024);
 
       long start = System.currentTimeMillis();
 
@@ -77,7 +77,7 @@ public class UTF8Test extends UnitTestCase
    @Test
    public void testReadUTF() throws Exception
    {
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(10 * 1024);
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(10 * 1024);
 
       buffer.writeUTF(str);
 

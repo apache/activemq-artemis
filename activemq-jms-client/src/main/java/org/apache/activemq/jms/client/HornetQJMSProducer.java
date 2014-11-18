@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.TypedProperties;
 
@@ -497,7 +497,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          TypedProperties.setObjectProperty(new SimpleString(name), value, properties);
       }
-      catch (HornetQPropertyConversionException hqe)
+      catch (ActiveMQPropertyConversionException hqe)
       {
          throw new MessageFormatRuntimeException(hqe.getMessage());
       }
@@ -536,7 +536,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          return properties.getBooleanProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -553,7 +553,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          return properties.getByteProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -566,7 +566,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          return properties.getShortProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -579,7 +579,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          return properties.getIntProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -592,7 +592,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          return properties.getLongProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -605,7 +605,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          return properties.getFloatProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -618,7 +618,7 @@ public final class HornetQJMSProducer implements JMSProducer
       {
          return properties.getDoubleProperty(new SimpleString(name));
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -634,7 +634,7 @@ public final class HornetQJMSProducer implements JMSProducer
             return null;
          return prop.toString();
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -657,7 +657,7 @@ public final class HornetQJMSProducer implements JMSProducer
          }
          return property;
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
@@ -681,7 +681,7 @@ public final class HornetQJMSProducer implements JMSProducer
          }
          return propNames;
       }
-      catch (HornetQPropertyConversionException ce)
+      catch (ActiveMQPropertyConversionException ce)
       {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }

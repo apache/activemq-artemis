@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.cluster.reattach;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Before;
 import org.junit.After;
 
@@ -25,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -1436,7 +1436,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          {
             message.acknowledge();
          }
-         catch (HornetQException me)
+         catch (ActiveMQException me)
          {
             log.error("Failed to process", me);
          }

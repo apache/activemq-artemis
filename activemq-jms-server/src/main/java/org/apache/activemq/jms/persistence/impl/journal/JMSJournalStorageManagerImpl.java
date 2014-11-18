@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.journal.Journal;
@@ -294,7 +294,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
       {
          long id = record.id;
 
-         HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(record.data);
+         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
 
          byte rec = record.getUserRecordType();
 

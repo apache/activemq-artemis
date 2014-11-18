@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -333,7 +333,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
                         else
                         {
 
-                           HornetQBuffer buffer = message.getBodyBuffer();
+                           ActiveMQBuffer buffer = message.getBodyBuffer();
                            buffer.resetReaderIndex();
                            for (long b = 0; b < numberOfBytes; b++)
                            {
@@ -455,7 +455,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
                   }
                   else
                   {
-                     HornetQBuffer buffer = message.getBodyBuffer();
+                     ActiveMQBuffer buffer = message.getBodyBuffer();
                      buffer.resetReaderIndex();
 
                      for (long b = 0; b < numberOfBytes; b++)
@@ -532,7 +532,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
     * @param producer
     * @throws FileNotFoundException
     * @throws IOException
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private void sendMessages(final int numberOfMessages,
                              final long numberOfBytes,
@@ -578,9 +578,9 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
       }
    }
 
-   protected HornetQBuffer createLargeBuffer(final int numberOfIntegers)
+   protected ActiveMQBuffer createLargeBuffer(final int numberOfIntegers)
    {
-      HornetQBuffer body = HornetQBuffers.fixedBuffer(DataConstants.SIZE_INT * numberOfIntegers);
+      ActiveMQBuffer body = ActiveMQBuffers.fixedBuffer(DataConstants.SIZE_INT * numberOfIntegers);
 
       for (int i = 0; i < numberOfIntegers; i++)
       {
@@ -619,11 +619,11 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
     * @param session
     * @param queueToRead
     * @param numberOfBytes
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * @throws FileNotFoundException
     * @throws IOException
     */
-   protected void readMessage(final ClientSession session, final SimpleString queueToRead, final int numberOfBytes) throws HornetQException,
+   protected void readMessage(final ClientSession session, final SimpleString queueToRead, final int numberOfBytes) throws ActiveMQException,
       IOException
    {
       session.start();

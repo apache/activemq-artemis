@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.jms.connection;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.junit.Before;
 import org.junit.After;
 
@@ -26,7 +27,6 @@ import javax.jms.Session;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQInternalErrorException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.HornetQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -120,7 +120,7 @@ public class ExceptionListenerTest extends UnitTestCase
 
       ClientSessionInternal coreSession = (ClientSessionInternal)((HornetQConnection)conn).getInitialSession();
 
-      coreSession.getConnection().fail(new HornetQInternalErrorException("blah"));
+      coreSession.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 
       latch.await(5, TimeUnit.SECONDS);
 
@@ -153,13 +153,13 @@ public class ExceptionListenerTest extends UnitTestCase
 
       ClientSessionInternal coreSession3 = (ClientSessionInternal)((HornetQSession)sess3).getCoreSession();
 
-      coreSession0.getConnection().fail(new HornetQInternalErrorException("blah"));
+      coreSession0.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 
-      coreSession1.getConnection().fail(new HornetQInternalErrorException("blah"));
+      coreSession1.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 
-      coreSession2.getConnection().fail(new HornetQInternalErrorException("blah"));
+      coreSession2.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 
-      coreSession3.getConnection().fail(new HornetQInternalErrorException("blah"));
+      coreSession3.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 
       latch.await(5, TimeUnit.SECONDS);
       // Listener should only be called once even if all sessions connections die

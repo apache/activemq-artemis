@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -194,7 +194,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       assertNoMoreMessages();
    }
 
-   protected void assertNoMoreMessages() throws HornetQException
+   protected void assertNoMoreMessages() throws ActiveMQException
    {
       session.start();
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
@@ -370,7 +370,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
    }
 
-   protected void createProducerSendSomeMessages() throws HornetQException
+   protected void createProducerSendSomeMessages() throws ActiveMQException
    {
       session = addClientSession(sessionFactory.createSession(true, true));
       session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
@@ -381,7 +381,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       session.commit();
    }
 
-   protected void receiveMsgsInRange(int start, int end) throws HornetQException
+   protected void receiveMsgsInRange(int start, int end) throws ActiveMQException
    {
       session.start();
       ClientConsumer consumer = addClientConsumer(session.createConsumer(FailoverTestBase.ADDRESS));

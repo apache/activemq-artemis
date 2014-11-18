@@ -12,6 +12,7 @@
  */
 package org.apache.activemq.tests.integration.remoting;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.SessionFailureListener;
@@ -82,19 +82,19 @@ public class ReconnectTest extends ServiceTestBase
          session.addFailureListener(new SessionFailureListener()
          {
             @Override
-            public void connectionFailed(final HornetQException me, boolean failedOver)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver)
             {
                count.incrementAndGet();
                latch.countDown();
             }
 
             @Override
-            public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
             {
                connectionFailed(me, failedOver);
             }
 
-            public void beforeReconnect(final HornetQException exception)
+            public void beforeReconnect(final ActiveMQException exception)
             {
             }
 
@@ -181,18 +181,18 @@ public class ReconnectTest extends ServiceTestBase
          {
 
             @Override
-            public void connectionFailed(HornetQException exception, boolean failedOver)
+            public void connectionFailed(ActiveMQException exception, boolean failedOver)
             {
             }
 
             @Override
-            public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
             {
                connectionFailed(me, failedOver);
             }
 
             @Override
-            public void beforeReconnect(HornetQException exception)
+            public void beforeReconnect(ActiveMQException exception)
             {
                latchCommit.countDown();
                threadToBeInterrupted.add(Thread.currentThread());
@@ -210,19 +210,19 @@ public class ReconnectTest extends ServiceTestBase
          session.addFailureListener(new SessionFailureListener()
          {
 
-            public void connectionFailed(final HornetQException me, boolean failedOver)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver)
             {
                count.incrementAndGet();
                latch.countDown();
             }
 
             @Override
-            public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
             {
                connectionFailed(me, failedOver);
             }
 
-            public void beforeReconnect(final HornetQException exception)
+            public void beforeReconnect(final ActiveMQException exception)
             {
             }
 
@@ -239,7 +239,7 @@ public class ReconnectTest extends ServiceTestBase
                {
                   session.commit();
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   e.printStackTrace();
                }

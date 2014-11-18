@@ -22,9 +22,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.SessionFailureListener;
@@ -60,7 +60,6 @@ import org.apache.activemq.core.server.HornetQComponent;
 import org.apache.activemq.core.server.HornetQServerLogger;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.ExecutorFactory;
-import org.omg.CORBA.portable.ResponseHandler;
 
 /**
  * Manages replication tasks on the live server (that is the live server side of a "remote backup"
@@ -263,7 +262,7 @@ public final class ReplicationManager implements HornetQComponent
    }
 
    @Override
-   public synchronized void start() throws HornetQException
+   public synchronized void start() throws ActiveMQException
    {
       if (started)
       {
@@ -413,9 +412,9 @@ public final class ReplicationManager implements HornetQComponent
    private final class ReplicatedSessionFailureListener implements SessionFailureListener
    {
       @Override
-      public void connectionFailed(final HornetQException me, boolean failedOver)
+      public void connectionFailed(final ActiveMQException me, boolean failedOver)
       {
-         if (me.getType() == HornetQExceptionType.DISCONNECTED)
+         if (me.getType() == ActiveMQExceptionType.DISCONNECTED)
          {
             // Backup has shut down - no need to log a stack trace
             HornetQServerLogger.LOGGER.replicationStopOnBackupShutdown();
@@ -436,12 +435,12 @@ public final class ReplicationManager implements HornetQComponent
       }
 
       @Override
-      public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
       {
          connectionFailed(me, failedOver);
       }
 
-      public void beforeReconnect(final HornetQException me)
+      public void beforeReconnect(final ActiveMQException me)
       {
       }
    }
@@ -462,11 +461,11 @@ public final class ReplicationManager implements HornetQComponent
    {
       static final NullEncoding instance = new NullEncoding();
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
       }
 
@@ -479,7 +478,7 @@ public final class ReplicationManager implements HornetQComponent
    /**
     * Sends the whole content of the file to be duplicated.
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * @throws Exception
     */
    public void syncJournalFile(JournalFile jf, JournalContent content) throws Exception
@@ -594,10 +593,10 @@ public final class ReplicationManager implements HornetQComponent
     *
     * @param datafiles
     * @param contentType
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    public void sendStartSyncMessage(JournalFile[] datafiles, JournalContent contentType, String nodeID,
-                                    boolean allowsAutoFailBack) throws HornetQException
+                                    boolean allowsAutoFailBack) throws ActiveMQException
    {
       if (enabled)
          sendReplicatePacket(new ReplicationStartSyncMessage(datafiles, contentType, nodeID, allowsAutoFailBack));

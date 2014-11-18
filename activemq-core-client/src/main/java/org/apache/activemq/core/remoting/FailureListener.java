@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.remoting;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  * A FailureListener notifies the user when a connection failure occurred.
@@ -28,7 +28,7 @@ public interface FailureListener
     * @param exception exception which has caused the connection to fail
     * @param failedOver
     */
-   void connectionFailed(HornetQException exception, boolean failedOver);
+   void connectionFailed(ActiveMQException exception, boolean failedOver);
 
    /**
     * Notifies that a connection has failed due to the specified exception.
@@ -37,5 +37,5 @@ public interface FailureListener
     * @param failedOver
     * @param scaleDownTargetNodeID the ID of the node to which messages are scaling down
     */
-   void connectionFailed(HornetQException exception, boolean failedOver, String scaleDownTargetNodeID);
+   void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID);
 }

@@ -21,7 +21,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.jms.client.HornetQConnectionFactory;
 import org.apache.activemq.jms.client.HornetQMessage;
@@ -248,7 +248,7 @@ public class GroupingTest extends JMSTestBase
       //consume all msgs from 2nd first consumer
      // ClientSession hqs = ((HornetQSession) session).getCoreSession();
     //  ((DelegatingSession) hqs).getChannel().close();
-      rc.fail(new HornetQNotConnectedException());
+      rc.fail(new ActiveMQNotConnectedException());
       for (int j = 0; j < 10; j++)
       {
          TextMessage tm = (TextMessage)consumer2.receive(10000);

@@ -20,7 +20,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -141,7 +141,7 @@ class CoreProtocolManager implements ProtocolManager
       sessionHandlers.remove(name);
    }
 
-   public void handleBuffer(RemotingConnection connection, HornetQBuffer buffer)
+   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
    {
    }
 
@@ -159,7 +159,7 @@ class CoreProtocolManager implements ProtocolManager
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, HornetQBuffer buffer)
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
    {
       //if we are not an old client then handshake
       if (buffer.getByte(0) == 'H' &&

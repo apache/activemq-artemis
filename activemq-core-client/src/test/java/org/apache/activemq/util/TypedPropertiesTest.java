@@ -13,8 +13,8 @@
 package org.apache.activemq.util;
 import java.util.Iterator;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.utils.TypedProperties;
@@ -204,7 +204,7 @@ public class TypedPropertiesTest
       SimpleString keyToRemove = RandomUtil.randomSimpleString();
       props.putSimpleStringProperty(keyToRemove, RandomUtil.randomSimpleString());
 
-      HornetQBuffer buffer = HornetQBuffers.dynamicBuffer(1024);
+      ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
       props.encode(buffer);
 
       Assert.assertEquals(props.getEncodeSize(), buffer.writerIndex());
@@ -228,7 +228,7 @@ public class TypedPropertiesTest
    {
       TypedProperties emptyProps = new TypedProperties();
 
-      HornetQBuffer buffer = HornetQBuffers.dynamicBuffer(1024);
+      ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
       emptyProps.encode(buffer);
 
       Assert.assertEquals(props.getEncodeSize(), buffer.writerIndex());

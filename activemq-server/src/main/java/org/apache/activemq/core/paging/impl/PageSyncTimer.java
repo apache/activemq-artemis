@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.persistence.OperationContext;
 
@@ -97,7 +97,7 @@ final class PageSyncTimer
       {
          for (OperationContext ctx : pendingSyncsArray)
          {
-            ctx.onError(HornetQExceptionType.IO_ERROR.getCode(), e.getMessage());
+            ctx.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
          }
       }
       finally

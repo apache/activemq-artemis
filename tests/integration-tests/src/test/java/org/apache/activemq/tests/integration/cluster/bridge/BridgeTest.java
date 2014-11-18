@@ -23,8 +23,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -300,7 +300,7 @@ public class BridgeTest extends ServiceTestBase
             latch = new CountDownLatch(numberOfIgnores);
          }
 
-         public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
          {
             if (ignoreSends && packet instanceof SessionSendMessage ||
                ignoreSends && packet instanceof SessionSendLargeMessage ||
@@ -1553,7 +1553,7 @@ public class BridgeTest extends ServiceTestBase
       static int count = 0;
 
       @Override
-      public synchronized boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+      public synchronized boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
       {
 
          if (packet instanceof SessionSendMessage && count == 1000)
@@ -1705,7 +1705,7 @@ public class BridgeTest extends ServiceTestBase
 
             Assert.assertEquals(i, message.getObjectProperty(propKey));
 
-            HornetQBuffer buff = message.getBodyBuffer();
+            ActiveMQBuffer buff = message.getBodyBuffer();
 
             for (int posMsg = 0; posMsg < LARGE_MESSAGE_SIZE; posMsg++)
             {

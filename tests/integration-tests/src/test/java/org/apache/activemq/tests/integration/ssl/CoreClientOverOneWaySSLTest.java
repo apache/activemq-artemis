@@ -19,9 +19,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQConnectionTimedOutException;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQConnectionTimedOutException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -135,7 +135,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.assertTrue(true);
       }
@@ -156,7 +156,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.assertTrue(true);
       }
@@ -179,7 +179,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.assertTrue(true);
       }
@@ -201,7 +201,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.assertTrue(true);
       }
@@ -222,7 +222,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.assertTrue(true);
       }
@@ -244,7 +244,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.assertTrue(true);
       }
@@ -267,7 +267,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.assertTrue(true);
       }
@@ -292,7 +292,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       {
          sf = createSessionFactory(locator);
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.fail();
       }
@@ -330,7 +330,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       {
          sf = createSessionFactory(locator);
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.fail();
       }
@@ -369,7 +369,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          sf = createSessionFactory(locator);
          Assert.assertTrue(true);
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.fail();
       }
@@ -407,7 +407,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          sf = createSessionFactory(locator);
          Assert.assertTrue(true);
       }
-      catch (HornetQNotConnectedException e)
+      catch (ActiveMQNotConnectedException e)
       {
          Assert.fail();
       }
@@ -479,11 +479,11 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException se)
+      catch (ActiveMQNotConnectedException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -504,11 +504,11 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          ClientSessionFactory sf = createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException se)
+      catch (ActiveMQNotConnectedException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -528,11 +528,11 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          ClientSessionFactory sf = createSessionFactory(locator);
          Assert.fail();
       }
-      catch (HornetQNotConnectedException se)
+      catch (ActiveMQNotConnectedException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -552,15 +552,15 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          createSessionFactory(locator);
          fail("expecting exception");
       }
-      catch (HornetQNotConnectedException se)
+      catch (ActiveMQNotConnectedException se)
       {
          //ok
       }
-      catch (HornetQConnectionTimedOutException ctoe)
+      catch (ActiveMQConnectionTimedOutException ctoe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

@@ -51,9 +51,9 @@ import java.util.List;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.core.exception.HornetQXAException;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -162,7 +162,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
       return channel.getID();
    }
 
-   public void connectionFailed(final HornetQException exception, boolean failedOver)
+   public void connectionFailed(final ActiveMQException exception, boolean failedOver)
    {
       HornetQServerLogger.LOGGER.clientConnectionFailed(session.getName());
 
@@ -547,7 +547,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
                HornetQServerLogger.LOGGER.caughtXaException(e);
             }
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             if (requiresResponse)
             {
@@ -556,7 +556,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
             }
             else
             {
-               if (e.getType() == HornetQExceptionType.QUEUE_EXISTS)
+               if (e.getType() == ActiveMQExceptionType.QUEUE_EXISTS)
                {
                   HornetQServerLogger.LOGGER.debug("Caught exception", e);
                }
@@ -571,7 +571,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
             if (requiresResponse)
             {
                HornetQServerLogger.LOGGER.warn("Sending unexpected exception to the client", t);
-               HornetQException hqe = new HornetQInternalErrorException();
+               ActiveMQException hqe = new ActiveMQInternalErrorException();
                hqe.initCause(t);
                response = new HornetQExceptionMessage(hqe);
             }
@@ -600,7 +600,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
          {
             HornetQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
-            HornetQExceptionMessage exceptionMessage = new HornetQExceptionMessage( HornetQExceptionType.createException(errorCode, errorMessage));
+            HornetQExceptionMessage exceptionMessage = new HornetQExceptionMessage( ActiveMQExceptionType.createException(errorCode, errorMessage));
 
             doConfirmAndResponse(confirmPacket, exceptionMessage, flush, closeChannel);
          }

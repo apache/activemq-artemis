@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQInvalidTransientQueueUseException;
+import org.apache.activemq.api.core.ActiveMQInvalidTransientQueueUseException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -169,7 +169,7 @@ public class TransientQueueTest extends SingleServerTestBase
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address2, queue, false);
       }
-      catch (HornetQInvalidTransientQueueUseException e)
+      catch (ActiveMQInvalidTransientQueueUseException e)
       {
          exHappened = true;
       }
@@ -184,7 +184,7 @@ public class TransientQueueTest extends SingleServerTestBase
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, SimpleString.toSimpleString("a=1"), false);
       }
-      catch (HornetQInvalidTransientQueueUseException e)
+      catch (ActiveMQInvalidTransientQueueUseException e)
       {
          exHappened = true;
       }
@@ -206,7 +206,7 @@ public class TransientQueueTest extends SingleServerTestBase
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, SimpleString.toSimpleString("q=2"), false);
       }
-      catch (HornetQInvalidTransientQueueUseException e)
+      catch (ActiveMQInvalidTransientQueueUseException e)
       {
          exHappened = true;
       }
@@ -220,7 +220,7 @@ public class TransientQueueTest extends SingleServerTestBase
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, false);
       }
-      catch (HornetQInvalidTransientQueueUseException e)
+      catch (ActiveMQInvalidTransientQueueUseException e)
       {
          exHappened = true;
       }

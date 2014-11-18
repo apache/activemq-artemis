@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -238,7 +238,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
          return destFactory;
       }
 
-      public void sendMessages(String queueName, int num) throws HornetQException
+      public void sendMessages(String queueName, int num) throws ActiveMQException
       {
          ClientSession session = sessionFactory.createSession();
          ClientProducer producer = session.createProducer("jms.queue." + queueName);
@@ -252,7 +252,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
          session.close();
       }
 
-      public void receiveMessages(String queueName, int num, boolean checkDup) throws HornetQException
+      public void receiveMessages(String queueName, int num, boolean checkDup) throws ActiveMQException
       {
          ClientSession session = sessionFactory.createSession();
          session.start();

@@ -12,10 +12,10 @@
  */
 package org.apache.activemq.core.server.impl;
 
+import org.apache.activemq.api.core.ActiveMQAlreadyReplicatingException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQAlreadyReplicatingException;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -131,11 +131,11 @@ public class SharedNothingLiveActivation extends LiveActivation
                   startReplication(channel.getConnection(), clusterConnection, getPair(msg.getConnector(), true),
                         msg.isFailBackRequest());
                }
-               catch (HornetQAlreadyReplicatingException are)
+               catch (ActiveMQAlreadyReplicatingException are)
                {
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.ALREADY_REPLICATING));
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.EXCEPTION));
                }
@@ -145,16 +145,16 @@ public class SharedNothingLiveActivation extends LiveActivation
    }
 
    public void startReplication(CoreRemotingConnection rc, final ClusterConnection clusterConnection,
-                                final Pair<TransportConfiguration, TransportConfiguration> pair, final boolean isFailBackRequest) throws HornetQException
+                                final Pair<TransportConfiguration, TransportConfiguration> pair, final boolean isFailBackRequest) throws ActiveMQException
    {
       if (replicationManager != null)
       {
-         throw new HornetQAlreadyReplicatingException();
+         throw new ActiveMQAlreadyReplicatingException();
       }
 
       if (!hornetQServer.isStarted())
       {
-         throw new HornetQIllegalStateException();
+         throw new ActiveMQIllegalStateException();
       }
 
       synchronized (replicationLock)
@@ -162,7 +162,7 @@ public class SharedNothingLiveActivation extends LiveActivation
 
          if (replicationManager != null)
          {
-            throw new HornetQAlreadyReplicatingException();
+            throw new ActiveMQAlreadyReplicatingException();
          }
          ReplicationFailureListener listener = new ReplicationFailureListener();
          rc.addCloseListener(listener);
@@ -256,13 +256,13 @@ public class SharedNothingLiveActivation extends LiveActivation
    {
 
       @Override
-      public void connectionFailed(HornetQException exception, boolean failedOver)
+      public void connectionFailed(ActiveMQException exception, boolean failedOver)
       {
          connectionClosed();
       }
 
       @Override
-      public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
       {
          connectionFailed(me, failedOver);
       }
@@ -313,7 +313,7 @@ public class SharedNothingLiveActivation extends LiveActivation
       {
          nodeId0 = hornetQServer.getNodeManager().readNodeId();
       }
-      catch (HornetQIllegalStateException e)
+      catch (ActiveMQIllegalStateException e)
       {
          nodeId0 = null;
       }
@@ -405,7 +405,7 @@ public class SharedNothingLiveActivation extends LiveActivation
       }
    }
 
-   private ServerLocatorInternal getLocator(ClusterConnectionConfiguration config) throws HornetQException
+   private ServerLocatorInternal getLocator(ClusterConnectionConfiguration config) throws ActiveMQException
    {
       ServerLocatorInternal locator;
       if (config.getDiscoveryGroupName() != null)

@@ -17,7 +17,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
@@ -96,9 +96,9 @@ public class HornetQChannelHandler extends ChannelDuplexHandler
       }
       // We don't want to log this - since it is normal for this to happen during failover/reconnect
       // and we don't want to spew out stack traces in that event
-      // The user has access to this exeception anyway via the HornetQException initial cause
+      // The user has access to this exeception anyway via the ActiveMQException initial cause
 
-      HornetQException me = HornetQClientMessageBundle.BUNDLE.nettyError();
+      ActiveMQException me = HornetQClientMessageBundle.BUNDLE.nettyError();
       me.initCause(cause);
 
       synchronized (listener)

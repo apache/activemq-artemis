@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -172,7 +172,7 @@ public class HornetQSessionContext extends SessionContext
    // Failover utility methods
 
    @Override
-   public void returnBlocking(HornetQException cause)
+   public void returnBlocking(ActiveMQException cause)
    {
       sessionChannel.returnBlocking(cause);
    }
@@ -215,17 +215,17 @@ public class HornetQSessionContext extends SessionContext
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
                                  SimpleString filterString,
-                                 boolean durable) throws HornetQException
+                                 boolean durable) throws ActiveMQException
    {
       sessionChannel.sendBlocking(new CreateSharedQueueMessage(address, queueName, filterString, durable, true), PacketImpl.NULL_RESPONSE);
    }
 
-   public void deleteQueue(final SimpleString queueName) throws HornetQException
+   public void deleteQueue(final SimpleString queueName) throws ActiveMQException
    {
       sessionChannel.sendBlocking(new SessionDeleteQueueMessage(queueName), PacketImpl.NULL_RESPONSE);
    }
 
-   public ClientSession.QueueQuery queueQuery(final SimpleString queueName) throws HornetQException
+   public ClientSession.QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException
    {
       SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
       SessionQueueQueryResponseMessage response = (SessionQueueQueryResponseMessage) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP);
@@ -237,7 +237,7 @@ public class HornetQSessionContext extends SessionContext
 
    public ClientConsumerInternal createConsumer(SimpleString queueName, SimpleString filterString,
                                                 int windowSize, int maxRate, int ackBatchSize, boolean browseOnly,
-                                                Executor executor, Executor flowControlExecutor) throws HornetQException
+                                                Executor executor, Executor flowControlExecutor) throws ActiveMQException
    {
       long consumerID = idGenerator.generateID();
 
@@ -278,7 +278,7 @@ public class HornetQSessionContext extends SessionContext
       return serverVersion;
    }
 
-   public ClientSession.AddressQuery addressQuery(final SimpleString address) throws HornetQException
+   public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
    {
       SessionBindingQueryResponseMessage response =
          (SessionBindingQueryResponseMessage) sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP);
@@ -288,7 +288,7 @@ public class HornetQSessionContext extends SessionContext
 
 
    @Override
-   public void closeConsumer(final ClientConsumer consumer) throws HornetQException
+   public void closeConsumer(final ClientConsumer consumer) throws ActiveMQException
    {
       sessionChannel.sendBlocking(new SessionConsumerCloseMessage(getConsumerID(consumer)), PacketImpl.NULL_RESPONSE);
    }
@@ -298,44 +298,44 @@ public class HornetQSessionContext extends SessionContext
       sessionChannel.send(new SessionConsumerFlowCreditMessage(getConsumerID(consumer), credits));
    }
 
-   public void forceDelivery(final ClientConsumer consumer, final long sequence) throws HornetQException
+   public void forceDelivery(final ClientConsumer consumer, final long sequence) throws ActiveMQException
    {
       SessionForceConsumerDelivery request = new SessionForceConsumerDelivery(getConsumerID(consumer), sequence);
       sessionChannel.send(request);
    }
 
-   public void simpleCommit() throws HornetQException
+   public void simpleCommit() throws ActiveMQException
    {
       sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_COMMIT), PacketImpl.NULL_RESPONSE);
    }
 
-   public void simpleRollback(boolean lastMessageAsDelivered) throws HornetQException
+   public void simpleRollback(boolean lastMessageAsDelivered) throws ActiveMQException
    {
       sessionChannel.sendBlocking(new RollbackMessage(lastMessageAsDelivered), PacketImpl.NULL_RESPONSE);
    }
 
-   public void sessionStart() throws HornetQException
+   public void sessionStart() throws ActiveMQException
    {
       sessionChannel.send(new PacketImpl(PacketImpl.SESS_START));
    }
 
-   public void sessionStop() throws HornetQException
+   public void sessionStop() throws ActiveMQException
    {
       sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_STOP), PacketImpl.NULL_RESPONSE);
    }
 
-   public void addSessionMetadata(String key, String data) throws HornetQException
+   public void addSessionMetadata(String key, String data) throws ActiveMQException
    {
       sessionChannel.sendBlocking(new SessionAddMetaDataMessageV2(key, data), PacketImpl.NULL_RESPONSE);
    }
 
 
-   public void addUniqueMetaData(String key, String data) throws HornetQException
+   public void addUniqueMetaData(String key, String data) throws ActiveMQException
    {
       sessionChannel.sendBlocking(new SessionUniqueAddMetaDataMessage(key, data), PacketImpl.NULL_RESPONSE);
    }
 
-   public void xaCommit(Xid xid, boolean onePhase) throws XAException, HornetQException
+   public void xaCommit(Xid xid, boolean onePhase) throws XAException, ActiveMQException
    {
       SessionXACommitMessage packet = new SessionXACommitMessage(xid, onePhase);
       SessionXAResponseMessage response = (SessionXAResponseMessage) sessionChannel.sendBlocking(packet, PacketImpl.SESS_XA_RESP);
@@ -351,7 +351,7 @@ public class HornetQSessionContext extends SessionContext
       }
    }
 
-   public void xaEnd(Xid xid, int flags) throws XAException, HornetQException
+   public void xaEnd(Xid xid, int flags) throws XAException, ActiveMQException
    {
       Packet packet;
       if (flags == XAResource.TMSUSPEND)
@@ -401,7 +401,7 @@ public class HornetQSessionContext extends SessionContext
       return msgI.getEncodeSize();
    }
 
-   public void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler, SimpleString defaultAddress) throws HornetQException
+   public void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler, SimpleString defaultAddress) throws ActiveMQException
    {
       SessionSendMessage packet = new SessionSendMessage(msgI, sendBlocking, handler);
 
@@ -416,7 +416,7 @@ public class HornetQSessionContext extends SessionContext
    }
 
    @Override
-   public int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws HornetQException
+   public int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws ActiveMQException
    {
       SessionSendLargeMessage initialChunk = new SessionSendLargeMessage(msgI);
 
@@ -426,7 +426,7 @@ public class HornetQSessionContext extends SessionContext
    }
 
    @Override
-   public int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws HornetQException
+   public int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException
    {
       final boolean requiresResponse = lastChunk && sendBlocking;
       final SessionSendContinuationMessage chunkPacket =
@@ -446,7 +446,7 @@ public class HornetQSessionContext extends SessionContext
       return chunkPacket.getPacketSize();
    }
 
-   public void sendACK(boolean individual, boolean block, final ClientConsumer consumer, final Message message) throws HornetQException
+   public void sendACK(boolean individual, boolean block, final ClientConsumer consumer, final Message message) throws ActiveMQException
    {
       PacketImpl messagePacket;
       if (individual)
@@ -468,7 +468,7 @@ public class HornetQSessionContext extends SessionContext
       }
    }
 
-   public void expireMessage(final ClientConsumer consumer, Message message) throws HornetQException
+   public void expireMessage(final ClientConsumer consumer, Message message) throws ActiveMQException
    {
       SessionExpireMessage messagePacket = new SessionExpireMessage(getConsumerID(consumer), message.getMessageID());
 
@@ -476,12 +476,12 @@ public class HornetQSessionContext extends SessionContext
    }
 
 
-   public void sessionClose() throws HornetQException
+   public void sessionClose() throws ActiveMQException
    {
       sessionChannel.sendBlocking(new SessionCloseMessage(), PacketImpl.NULL_RESPONSE);
    }
 
-   public void xaForget(Xid xid) throws XAException, HornetQException
+   public void xaForget(Xid xid) throws XAException, ActiveMQException
    {
       SessionXAResponseMessage response = (SessionXAResponseMessage) sessionChannel.sendBlocking(new SessionXAForgetMessage(xid), PacketImpl.SESS_XA_RESP);
 
@@ -491,7 +491,7 @@ public class HornetQSessionContext extends SessionContext
       }
    }
 
-   public int xaPrepare(Xid xid) throws XAException, HornetQException
+   public int xaPrepare(Xid xid) throws XAException, ActiveMQException
    {
       SessionXAPrepareMessage packet = new SessionXAPrepareMessage(xid);
 
@@ -507,7 +507,7 @@ public class HornetQSessionContext extends SessionContext
       }
    }
 
-   public Xid[] xaScan() throws HornetQException
+   public Xid[] xaScan() throws ActiveMQException
    {
       SessionXAGetInDoubtXidsResponseMessage response = (SessionXAGetInDoubtXidsResponseMessage) sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_XA_INDOUBT_XIDS), PacketImpl.SESS_XA_INDOUBT_XIDS_RESP);
 
@@ -518,7 +518,7 @@ public class HornetQSessionContext extends SessionContext
       return xidArray;
    }
 
-   public void xaRollback(Xid xid, boolean wasStarted) throws HornetQException, XAException
+   public void xaRollback(Xid xid, boolean wasStarted) throws ActiveMQException, XAException
    {
       SessionXARollbackMessage packet = new SessionXARollbackMessage(xid);
 
@@ -530,7 +530,7 @@ public class HornetQSessionContext extends SessionContext
       }
    }
 
-   public void xaStart(Xid xid, int flags) throws XAException, HornetQException
+   public void xaStart(Xid xid, int flags) throws XAException, ActiveMQException
    {
       Packet packet;
       if (flags == XAResource.TMJOIN)
@@ -560,28 +560,28 @@ public class HornetQSessionContext extends SessionContext
       }
    }
 
-   public boolean configureTransactionTimeout(int seconds) throws HornetQException
+   public boolean configureTransactionTimeout(int seconds) throws ActiveMQException
    {
       SessionXASetTimeoutResponseMessage response = (SessionXASetTimeoutResponseMessage) sessionChannel.sendBlocking(new SessionXASetTimeoutMessage(seconds), PacketImpl.SESS_XA_SET_TIMEOUT_RESP);
 
       return response.isOK();
    }
 
-   public int recoverSessionTimeout() throws HornetQException
+   public int recoverSessionTimeout() throws ActiveMQException
    {
       SessionXAGetTimeoutResponseMessage response = (SessionXAGetTimeoutResponseMessage) sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_XA_GET_TIMEOUT), PacketImpl.SESS_XA_GET_TIMEOUT_RESP);
 
       return response.getTimeoutSeconds();
    }
 
-   public void createQueue(SimpleString address, SimpleString queueName, SimpleString filterString, boolean durable, boolean temp) throws HornetQException
+   public void createQueue(SimpleString address, SimpleString queueName, SimpleString filterString, boolean durable, boolean temp) throws ActiveMQException
    {
       CreateQueueMessage request = new CreateQueueMessage(address, queueName, filterString, durable, temp, true);
       sessionChannel.sendBlocking(request, PacketImpl.NULL_RESPONSE);
    }
 
    @Override
-   public boolean reattachOnNewConnection(RemotingConnection newConnection) throws HornetQException
+   public boolean reattachOnNewConnection(RemotingConnection newConnection) throws ActiveMQException
    {
 
       this.remotingConnection = newConnection;
@@ -623,7 +623,7 @@ public class HornetQSessionContext extends SessionContext
                                final boolean autoCommitSends,
                                final boolean autoCommitAcks,
                                final boolean preAcknowledge,
-                               final SimpleString defaultAddress) throws HornetQException
+                               final SimpleString defaultAddress) throws ActiveMQException
    {
       Packet createRequest = new CreateSessionMessage(name,
                                                       sessionChannel.getID(),
@@ -646,10 +646,10 @@ public class HornetQSessionContext extends SessionContext
             getCreateChannel().sendBlocking(createRequest, PacketImpl.CREATESESSION_RESP);
             retry = false;
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             // the session was created while its server was starting, retry it:
-            if (e.getType() == HornetQExceptionType.SESSION_CREATION_REJECTED)
+            if (e.getType() == ActiveMQExceptionType.SESSION_CREATION_REJECTED)
             {
                HornetQClientLogger.LOGGER.retryCreateSessionSeverStarting(name);
                retry = true;
@@ -674,7 +674,7 @@ public class HornetQSessionContext extends SessionContext
    }
 
    @Override
-   public void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws HornetQException
+   public void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws ActiveMQException
    {
       ClientSession.QueueQuery queueInfo = consumerInternal.getQueueInfo();
 
@@ -719,12 +719,12 @@ public class HornetQSessionContext extends SessionContext
       }
    }
 
-   public void xaFailed(Xid xid) throws HornetQException
+   public void xaFailed(Xid xid) throws ActiveMQException
    {
       sendPacketWithoutLock(sessionChannel, new SessionXAAfterFailedMessage(xid));
    }
 
-   public void restartSession() throws HornetQException
+   public void restartSession() throws ActiveMQException
    {
       sendPacketWithoutLock(sessionChannel, new PacketImpl(PacketImpl.SESS_START));
    }
@@ -754,9 +754,9 @@ public class HornetQSessionContext extends SessionContext
    /**
     * This doesn't apply to other protocols probably, so it will be a hornetq exclusive feature
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void handleConsumerDisconnected(DisconnectConsumerMessage packet) throws HornetQException
+   private void handleConsumerDisconnected(DisconnectConsumerMessage packet) throws ActiveMQException
    {
       DisconnectConsumerMessage message = packet;
 
@@ -931,7 +931,7 @@ public class HornetQSessionContext extends SessionContext
 
       Connection conn = parameterChannel.getConnection().getTransportConnection();
 
-      HornetQBuffer buffer = packet.encode(this.getCoreConnection());
+      ActiveMQBuffer buffer = packet.encode(this.getCoreConnection());
 
       conn.write(buffer, false, false);
    }

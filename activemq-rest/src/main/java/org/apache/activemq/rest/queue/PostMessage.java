@@ -28,7 +28,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -94,7 +94,7 @@ public class PostMessage
          {
             pooled.session.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
          }
          addPooled();
@@ -227,7 +227,7 @@ public class PostMessage
       }
    }
 
-   protected void addPooled() throws HornetQException
+   protected void addPooled() throws ActiveMQException
    {
       ClientSession session = sessionFactory.createSession();
       ClientProducer producer = session.createProducer(destination);
@@ -253,7 +253,7 @@ public class PostMessage
          {
             pooled.session.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new RuntimeException(e);
          }

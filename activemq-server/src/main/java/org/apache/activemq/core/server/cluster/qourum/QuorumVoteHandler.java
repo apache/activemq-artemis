@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.cluster.qourum;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
@@ -33,5 +33,5 @@ public interface QuorumVoteHandler
     */
    SimpleString getQuorumName();
 
-   Vote decode(HornetQBuffer voteBuffer);
+   Vote decode(ActiveMQBuffer voteBuffer);
 }

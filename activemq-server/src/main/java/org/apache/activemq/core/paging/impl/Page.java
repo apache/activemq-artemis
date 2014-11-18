@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
@@ -116,7 +116,7 @@ public final class Page implements Comparable<Page>
       size.set((int) file.size());
       // Using direct buffer, as described on https://jira.jboss.org/browse/HORNETQ-467
       ByteBuffer directBuffer = storage.allocateDirectBuffer((int) file.size());
-      HornetQBuffer fileBuffer = null;
+      ActiveMQBuffer fileBuffer = null;
       try
       {
 
@@ -125,7 +125,7 @@ public final class Page implements Comparable<Page>
 
          directBuffer.rewind();
 
-         fileBuffer = HornetQBuffers.wrappedBuffer(directBuffer);
+         fileBuffer = ActiveMQBuffers.wrappedBuffer(directBuffer);
          fileBuffer.writerIndex(fileBuffer.capacity());
 
          while (fileBuffer.readable())
@@ -198,7 +198,7 @@ public final class Page implements Comparable<Page>
 
       ByteBuffer buffer = fileFactory.newBuffer(message.getEncodeSize() + Page.SIZE_RECORD);
 
-      HornetQBuffer wrap = HornetQBuffers.wrappedBuffer(buffer);
+      ActiveMQBuffer wrap = ActiveMQBuffers.wrappedBuffer(buffer);
       wrap.clear();
 
       wrap.writeByte(Page.START_BYTE);

@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.client;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -192,13 +192,13 @@ public class CommitRollbackTest extends ServiceTestBase
             {
                message.acknowledge();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                try
                {
                   session.close();
                }
-               catch (HornetQException e1)
+               catch (ActiveMQException e1)
                {
                   e1.printStackTrace();
                }
@@ -276,13 +276,13 @@ public class CommitRollbackTest extends ServiceTestBase
          {
             message.acknowledge();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             try
             {
                session.close();
             }
-            catch (HornetQException e1)
+            catch (ActiveMQException e1)
             {
                e1.printStackTrace();
             }

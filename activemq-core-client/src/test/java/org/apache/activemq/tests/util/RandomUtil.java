@@ -16,8 +16,8 @@ import javax.transaction.xa.Xid;
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 
@@ -70,9 +70,9 @@ public final class RandomUtil
    }
 
 
-   public static HornetQBuffer randomBuffer(final int size, final long... data)
+   public static ActiveMQBuffer randomBuffer(final int size, final long... data)
    {
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(size + 8 * data.length);
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(size + 8 * data.length);
 
       for (long d : data)
       {

@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.asyncio.AIOCallback;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
@@ -72,7 +72,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("HornetQ-AIO-poller-pool" + System.identityHashCode(this),
+      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
                                                                               false, this.getClass().getClassLoader()));
       executor = Executors.newSingleThreadExecutor();
    }
@@ -313,7 +313,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
          }
          catch (Exception e)
          {
-            callback.onError(HornetQExceptionType.GENERIC_EXCEPTION.getCode(), e.toString());
+            callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.toString());
             e.printStackTrace();
          }
       }

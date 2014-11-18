@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.persistence.impl.nullpm;
 
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
@@ -39,7 +39,7 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
    {
       if (buffer == null)
       {
-         buffer = HornetQBuffers.dynamicBuffer(bytes.length);
+         buffer = ActiveMQBuffers.dynamicBuffer(bytes.length);
       }
 
       // expand the buffer

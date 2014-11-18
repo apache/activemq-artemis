@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -428,7 +428,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
             producer.send(message);
          }
       }
-      catch (HornetQObjectClosedException expected)
+      catch (ActiveMQObjectClosedException expected)
       {
       }
 

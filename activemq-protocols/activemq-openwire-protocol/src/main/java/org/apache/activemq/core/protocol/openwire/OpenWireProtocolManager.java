@@ -28,6 +28,7 @@ import javax.jms.InvalidClientIDException;
 import io.netty.channel.ChannelPipeline;
 
 import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -57,7 +58,6 @@ import org.apache.activemq.state.SessionState;
 import org.apache.activemq.util.IdGenerator;
 import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
-import org.apache.activemq.api.core.HornetQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.protocol.openwire.amq.AMQConnectionContext;
@@ -150,7 +150,7 @@ public class OpenWireProtocolManager implements ProtocolManager
    }
 
    @Override
-   public void handleBuffer(RemotingConnection connection, HornetQBuffer buffer)
+   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
    {
    }
 
@@ -196,7 +196,7 @@ public class OpenWireProtocolManager implements ProtocolManager
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, HornetQBuffer buffer)
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
    {
       // TODO Auto-generated method stub
 

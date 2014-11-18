@@ -31,9 +31,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
@@ -589,7 +589,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
-   public void connectionException(final Object connectionID, final HornetQException me)
+   public void connectionException(final Object connectionID, final ActiveMQException me)
    {
       // We DO NOT call fail on connection exception, otherwise in event of real connection failure, the
       // connection will be failed, the session will be closed and won't be able to reconnect
@@ -652,7 +652,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private final class DelegatingBufferHandler implements BufferHandler
    {
-      public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+      public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
       {
          ConnectionEntry conn = connections.get(connectionID);
 
@@ -698,7 +698,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
       }

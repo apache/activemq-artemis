@@ -14,7 +14,7 @@ package org.apache.activemq.core.client.impl;
 
 import java.util.concurrent.locks.Lock;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.SessionFailureListener;
@@ -47,7 +47,7 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory
 
    void removeSession(final ClientSessionInternal session, boolean failingOver);
 
-   void connect(int reconnectAttempts, boolean failoverOnInitialConnection) throws HornetQException;
+   void connect(int reconnectAttempts, boolean failoverOnInitialConnection) throws ActiveMQException;
 
    void setBackupConnector(TransportConfiguration live, TransportConfiguration backUp);
 

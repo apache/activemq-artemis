@@ -13,7 +13,7 @@
 package org.apache.activemq.journal;
 
 
-import org.apache.activemq.api.core.HornetQIOErrorException;
+import org.apache.activemq.api.core.ActiveMQIOErrorException;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.Messages;
@@ -34,15 +34,15 @@ public interface HornetQJournalBundle
    HornetQJournalBundle BUNDLE = Messages.getBundle(HornetQJournalBundle.class);
 
    @Message(id = 149000, value =  "failed to rename file {0} to {1}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIOErrorException ioRenameFileError(String name, String newFileName);
+   ActiveMQIOErrorException ioRenameFileError(String name, String newFileName);
 
    @Message(id = 149001, value =  "Journal data belong to a different version", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIOErrorException journalDifferentVersion();
+   ActiveMQIOErrorException journalDifferentVersion();
 
    @Message(id = 149002, value =  "Journal files version mismatch. You should export the data from the previous version and import it as explained on the user''s manual",
          format = Message.Format.MESSAGE_FORMAT)
-   HornetQIOErrorException journalFileMisMatch();
+   ActiveMQIOErrorException journalFileMisMatch();
 
    @Message(id = 149003, value =   "File not opened", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIOErrorException fileNotOpened();
+   ActiveMQIOErrorException fileNotOpened();
 }

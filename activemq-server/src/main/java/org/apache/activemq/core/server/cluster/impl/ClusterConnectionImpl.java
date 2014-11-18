@@ -25,8 +25,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -526,7 +526,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                             false,
                                             localMember.getLive(), localMember.getBackup());
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             HornetQServerLogger.LOGGER.clusterControlAuthfailure();
          }

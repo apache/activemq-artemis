@@ -14,7 +14,7 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
@@ -67,7 +67,7 @@ public class ReplicationAddTXMessage extends PacketImpl
    // Public --------------------------------------------------------
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeByte(journalID);
       buffer.writeBoolean(operation.toBoolean());
@@ -79,7 +79,7 @@ public class ReplicationAddTXMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       journalID = buffer.readByte();
       operation = ADD_OPERATION_TYPE.toOperation(buffer.readBoolean());

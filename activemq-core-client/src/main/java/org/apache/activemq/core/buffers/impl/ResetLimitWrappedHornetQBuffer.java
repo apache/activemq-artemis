@@ -14,7 +14,7 @@ package org.apache.activemq.core.buffers.impl;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.impl.MessageInternal;
 
@@ -40,7 +40,7 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
       this.message = message;
    }
 
-   public ResetLimitWrappedHornetQBuffer(final int limit, final HornetQBuffer buffer, final MessageInternal message)
+   public ResetLimitWrappedHornetQBuffer(final int limit, final ActiveMQBuffer buffer, final MessageInternal message)
    {
       super(buffer.byteBuf());
 
@@ -64,7 +64,7 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
       }
    }
 
-   public void setBuffer(final HornetQBuffer buffer)
+   public void setBuffer(final ActiveMQBuffer buffer)
    {
       if (this.buffer != null)
       {
@@ -175,7 +175,7 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void setBytes(final int index, final HornetQBuffer src, final int srcIndex, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       changed();
 
@@ -183,7 +183,7 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void setBytes(final int index, final HornetQBuffer src, final int length)
+   public void setBytes(final int index, final ActiveMQBuffer src, final int length)
    {
       changed();
 
@@ -191,7 +191,7 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void setBytes(final int index, final HornetQBuffer src)
+   public void setBytes(final int index, final ActiveMQBuffer src)
    {
       changed();
 
@@ -287,7 +287,7 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void writeBytes(final HornetQBuffer src, final int srcIndex, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length)
    {
       changed();
 
@@ -295,7 +295,7 @@ public final class ResetLimitWrappedHornetQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void writeBytes(final HornetQBuffer src, final int length)
+   public void writeBytes(final ActiveMQBuffer src, final int length)
    {
       changed();
 

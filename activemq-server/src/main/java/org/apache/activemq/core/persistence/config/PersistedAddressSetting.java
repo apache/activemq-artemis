@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.persistence.config;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -97,7 +97,7 @@ public class PersistedAddressSetting implements EncodingSupport
    }
 
    @Override
-   public void decode(HornetQBuffer buffer)
+   public void decode(ActiveMQBuffer buffer)
    {
       addressMatch = buffer.readSimpleString();
 
@@ -106,7 +106,7 @@ public class PersistedAddressSetting implements EncodingSupport
    }
 
    @Override
-   public void encode(HornetQBuffer buffer)
+   public void encode(ActiveMQBuffer buffer)
    {
       buffer.writeSimpleString(addressMatch);
 

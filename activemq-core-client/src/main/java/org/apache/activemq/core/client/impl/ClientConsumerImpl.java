@@ -20,9 +20,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -186,7 +186,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       return consumerContext;
    }
 
-   private ClientMessage receive(final long timeout, final boolean forcingDelivery) throws HornetQException
+   private ClientMessage receive(final long timeout, final boolean forcingDelivery) throws ActiveMQException
    {
       checkClosed();
 
@@ -259,7 +259,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                   }
                   catch (InterruptedException e)
                   {
-                     throw new HornetQInterruptedException(e);
+                     throw new ActiveMQInterruptedException(e);
                   }
 
                   if (m != null || closed)
@@ -391,7 +391,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       }
    }
 
-   public ClientMessage receive(final long timeout) throws HornetQException
+   public ClientMessage receive(final long timeout) throws ActiveMQException
    {
       ClientMessage msg = receive(timeout, false);
 
@@ -403,17 +403,17 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       return msg;
    }
 
-   public ClientMessage receive() throws HornetQException
+   public ClientMessage receive() throws ActiveMQException
    {
       return receive(0, false);
    }
 
-   public ClientMessage receiveImmediate() throws HornetQException
+   public ClientMessage receiveImmediate() throws ActiveMQException
    {
       return receive(0, true);
    }
 
-   public MessageHandler getMessageHandler() throws HornetQException
+   public MessageHandler getMessageHandler() throws ActiveMQException
    {
       checkClosed();
 
@@ -422,7 +422,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    // Must be synchronized since messages may be arriving while handler is being set and might otherwise end
    // up not queueing enough executors - so messages get stranded
-   public synchronized ClientConsumerImpl setMessageHandler(final MessageHandler theHandler) throws HornetQException
+   public synchronized ClientConsumerImpl setMessageHandler(final MessageHandler theHandler) throws ActiveMQException
    {
       checkClosed();
 
@@ -454,7 +454,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       return this;
    }
 
-   public void close() throws HornetQException
+   public void close() throws ActiveMQException
    {
       doCleanUp(true);
    }
@@ -462,10 +462,10 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    /**
     * To be used by MDBs to stop any more handling of messages.
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * @param future the future to run once the onMessage Thread has completed
     */
-   public Thread prepareForClose(final FutureLatch future) throws HornetQException
+   public Thread prepareForClose(final FutureLatch future) throws ActiveMQException
    {
       closing = true;
 
@@ -490,7 +490,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       {
          doCleanUp(false);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          HornetQClientLogger.LOGGER.warn("problem cleaning up: " + this);
       }
@@ -501,7 +501,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       return closed;
    }
 
-   public void stop(final boolean waitForOnMessage) throws HornetQException
+   public void stop(final boolean waitForOnMessage) throws ActiveMQException
    {
       waitForOnMessageToComplete(waitForOnMessage);
 
@@ -661,7 +661,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       currentLargeMessageController.setLocal(true);
 
       //sets the packet
-      HornetQBuffer qbuff = clMessage.getBodyBuffer();
+      ActiveMQBuffer qbuff = clMessage.getBodyBuffer();
       int bytesToRead = qbuff.writerIndex() - qbuff.readerIndex();
       final byte[] body = qbuff.readBytes(bytesToRead).toByteBuffer().array();
 
@@ -727,7 +727,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       }
    }
 
-   public void clear(boolean waitForOnMessage) throws HornetQException
+   public void clear(boolean waitForOnMessage) throws ActiveMQException
    {
       synchronized (this)
       {
@@ -794,7 +794,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       return buffer.size();
    }
 
-   public void acknowledge(final ClientMessage message) throws HornetQException
+   public void acknowledge(final ClientMessage message) throws ActiveMQException
    {
       ClientMessageInternal cmi = (ClientMessageInternal) message;
 
@@ -817,7 +817,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       }
    }
 
-   public void individualAcknowledge(ClientMessage message) throws HornetQException
+   public void individualAcknowledge(ClientMessage message) throws ActiveMQException
    {
       if (lastAckedMessage != null)
       {
@@ -827,7 +827,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       session.individualAcknowledge(this, message);
    }
 
-   public void flushAcks() throws HornetQException
+   public void flushAcks() throws ActiveMQException
    {
       if (lastAckedMessage != null)
       {
@@ -841,7 +841,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
     *
     * @param discountSlowConsumer When dealing with slowConsumers, we need to discount one credit that was pre-sent when the first receive was called. For largeMessage that is only done at the latest packet
     */
-   public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws HornetQException
+   public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException
    {
       if (clientWindowSize >= 0)
       {
@@ -945,7 +945,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
       }
    }
@@ -1015,7 +1015,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       }
    }
 
-   private void checkClosed() throws HornetQException
+   private void checkClosed() throws ActiveMQException
    {
       if (closed)
       {
@@ -1139,9 +1139,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    /**
     * @param message
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void flowControlBeforeConsumption(final ClientMessageInternal message) throws HornetQException
+   private void flowControlBeforeConsumption(final ClientMessageInternal message) throws ActiveMQException
    {
       // Chunk messages will execute the flow control while receiving the chunks
       if (message.getFlowControlSize() != 0)
@@ -1151,7 +1151,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       }
    }
 
-   private void doCleanUp(final boolean sendCloseMessage) throws HornetQException
+   private void doCleanUp(final boolean sendCloseMessage) throws ActiveMQException
    {
       try
       {
@@ -1207,7 +1207,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       buffer.clear();
    }
 
-   private void doAck(final ClientMessageInternal message) throws HornetQException
+   private void doAck(final ClientMessageInternal message) throws ActiveMQException
    {
       ackBytes = 0;
 

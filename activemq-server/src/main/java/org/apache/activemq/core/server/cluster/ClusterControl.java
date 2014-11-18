@@ -14,7 +14,7 @@
 package org.apache.activemq.core.server.cluster;
 
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
@@ -67,9 +67,9 @@ public class ClusterControl implements AutoCloseable
     * authorise this cluster control so it can communicate with the cluster, it will set the cluster channel on a successful
     * authentication.
     *
-    * @throws HornetQException if authorisation wasn't successful.
+    * @throws org.apache.activemq.api.core.ActiveMQException if authorisation wasn't successful.
     */
-   public void authorize() throws HornetQException
+   public void authorize() throws ActiveMQException
    {
       CoreRemotingConnection connection = (CoreRemotingConnection)sessionFactory.getConnection();
 
@@ -90,16 +90,16 @@ public class ClusterControl implements AutoCloseable
     * @param attemptingFailBack if {@code true} then this server wants to trigger a fail-back when
     *                           up-to-date, that is it wants to take over the role of 'live' from the current 'live'
     *                           server.
-    * @throws org.apache.activemq.api.core.HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   public void announceReplicatingBackupToLive(final boolean attemptingFailBack, String replicationClusterName) throws HornetQException
+   public void announceReplicatingBackupToLive(final boolean attemptingFailBack, String replicationClusterName) throws ActiveMQException
    {
 
       ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(server.getConfiguration(), replicationClusterName);
       if (config == null)
       {
          HornetQServerLogger.LOGGER.announceBackupNoClusterConnections();
-         throw new HornetQException("lacking cluster connection");
+         throw new ActiveMQException("lacking cluster connection");
 
       }
       TransportConfiguration connector = server.getConfiguration().getConnectorConfigurations().get(config.getConnectorName());
@@ -107,7 +107,7 @@ public class ClusterControl implements AutoCloseable
       if (connector == null)
       {
          HornetQServerLogger.LOGGER.announceBackupNoConnector(config.getConnectorName());
-         throw new HornetQException("lacking cluster connection");
+         throw new ActiveMQException("lacking cluster connection");
       }
 
       clusterChannel.send(new BackupRegistrationMessage(connector, clusterUser, clusterPassword, attemptingFailBack));
@@ -174,7 +174,7 @@ public class ClusterControl implements AutoCloseable
          replyMessage.decodeRest(voteHandler);
          return replyMessage.getVote();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          return null;
       }
@@ -193,7 +193,7 @@ public class ClusterControl implements AutoCloseable
       {
          packet = (BackupResponseMessage) clusterChannel.sendBlocking(backupRequestMessage, PacketImpl.BACKUP_REQUEST_RESPONSE);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          return false;
       }

@@ -17,7 +17,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -101,12 +101,12 @@ public class DelegatingSession implements ClientSessionInternal
       return session.isClosing();
    }
 
-   public void acknowledge(final ClientConsumer consumer, final Message message) throws HornetQException
+   public void acknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException
    {
       session.acknowledge(consumer, message);
    }
 
-   public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws HornetQException
+   public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException
    {
       session.individualAcknowledge(consumer, message);
    }
@@ -131,17 +131,17 @@ public class DelegatingSession implements ClientSessionInternal
       session.addProducer(producer);
    }
 
-   public AddressQuery addressQuery(final SimpleString address) throws HornetQException
+   public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
    {
       return session.addressQuery(address);
    }
 
-   public void cleanUp(boolean failingOver) throws HornetQException
+   public void cleanUp(boolean failingOver) throws ActiveMQException
    {
       session.cleanUp(failingOver);
    }
 
-   public void close() throws HornetQException
+   public void close() throws ActiveMQException
    {
       closed = true;
 
@@ -153,7 +153,7 @@ public class DelegatingSession implements ClientSessionInternal
       session.close();
    }
 
-   public void commit() throws HornetQException
+   public void commit() throws ActiveMQException
    {
       session.commit();
    }
@@ -184,7 +184,7 @@ public class DelegatingSession implements ClientSessionInternal
 
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final SimpleString filterString,
-                                        final boolean browseOnly) throws HornetQException
+                                        final boolean browseOnly) throws ActiveMQException
    {
       return session.createConsumer(queueName, filterString, browseOnly);
    }
@@ -193,22 +193,22 @@ public class DelegatingSession implements ClientSessionInternal
                                         final SimpleString filterString,
                                         final int windowSize,
                                         final int maxRate,
-                                        final boolean browseOnly) throws HornetQException
+                                        final boolean browseOnly) throws ActiveMQException
    {
       return session.createConsumer(queueName, filterString, windowSize, maxRate, browseOnly);
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws HornetQException
+   public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws ActiveMQException
    {
       return session.createConsumer(queueName, filterString);
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName) throws HornetQException
+   public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException
    {
       return session.createConsumer(queueName);
    }
 
-   public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws ActiveMQException
    {
       return session.createConsumer(queueName, filterString, browseOnly);
    }
@@ -217,74 +217,74 @@ public class DelegatingSession implements ClientSessionInternal
                                         final String filterString,
                                         final int windowSize,
                                         final int maxRate,
-                                        final boolean browseOnly) throws HornetQException
+                                        final boolean browseOnly) throws ActiveMQException
    {
       return session.createConsumer(queueName, filterString, windowSize, maxRate, browseOnly);
    }
 
-   public ClientConsumer createConsumer(final String queueName, final String filterString) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException
    {
       return session.createConsumer(queueName, filterString);
    }
 
-   public ClientConsumer createConsumer(final String queueName) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName) throws ActiveMQException
    {
       return session.createConsumer(queueName);
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws HornetQException
+   public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws ActiveMQException
    {
       return session.createConsumer(queueName, browseOnly);
    }
 
-   public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws HornetQException
+   public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException
    {
       return session.createConsumer(queueName, browseOnly);
    }
 
-   public ClientProducer createProducer() throws HornetQException
+   public ClientProducer createProducer() throws ActiveMQException
    {
       return session.createProducer();
    }
 
-   public ClientProducer createProducer(final SimpleString address, final int rate) throws HornetQException
+   public ClientProducer createProducer(final SimpleString address, final int rate) throws ActiveMQException
    {
       return session.createProducer(address, rate);
    }
 
-   public ClientProducer createProducer(final SimpleString address) throws HornetQException
+   public ClientProducer createProducer(final SimpleString address) throws ActiveMQException
    {
       return session.createProducer(address);
    }
 
-   public ClientProducer createProducer(final String address) throws HornetQException
+   public ClientProducer createProducer(final String address) throws ActiveMQException
    {
       return session.createProducer(address);
    }
 
-   public void createQueue(final String address, final String queueName) throws HornetQException
+   public void createQueue(final String address, final String queueName) throws ActiveMQException
    {
       session.createQueue(address, queueName);
    }
 
-   public void createQueue(final SimpleString address, final SimpleString queueName) throws HornetQException
+   public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
    {
       session.createQueue(address, queueName);
    }
 
-   public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws HornetQException
+   public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws ActiveMQException
    {
       session.createQueue(address, queueName, durable);
    }
 
    @Override
-   public void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws HornetQException
+   public void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException
    {
       session.createSharedQueue(address, queueName, durable);
    }
 
    @Override
-   public void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws HornetQException
+   public void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException
    {
       session.createSharedQueue(address, queueName, filter, durable);
    }
@@ -292,12 +292,12 @@ public class DelegatingSession implements ClientSessionInternal
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final SimpleString filterString,
-                           final boolean durable) throws HornetQException
+                           final boolean durable) throws ActiveMQException
    {
       session.createQueue(address, queueName, filterString, durable);
    }
 
-   public void createQueue(final String address, final String queueName, final boolean durable) throws HornetQException
+   public void createQueue(final String address, final String queueName, final boolean durable) throws ActiveMQException
    {
       session.createQueue(address, queueName, durable);
    }
@@ -305,37 +305,37 @@ public class DelegatingSession implements ClientSessionInternal
    public void createQueue(final String address,
                            final String queueName,
                            final String filterString,
-                           final boolean durable) throws HornetQException
+                           final boolean durable) throws ActiveMQException
    {
       session.createQueue(address, queueName, filterString, durable);
    }
 
-   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName, final SimpleString filter) throws HornetQException
+   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName, final SimpleString filter) throws ActiveMQException
    {
       session.createTemporaryQueue(address, queueName, filter);
    }
 
-   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws HornetQException
+   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
    {
       session.createTemporaryQueue(address, queueName);
    }
 
-   public void createTemporaryQueue(final String address, final String queueName, final String filter) throws HornetQException
+   public void createTemporaryQueue(final String address, final String queueName, final String filter) throws ActiveMQException
    {
       session.createTemporaryQueue(address, queueName, filter);
    }
 
-   public void createTemporaryQueue(final String address, final String queueName) throws HornetQException
+   public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException
    {
       session.createTemporaryQueue(address, queueName);
    }
 
-   public void deleteQueue(final SimpleString queueName) throws HornetQException
+   public void deleteQueue(final SimpleString queueName) throws ActiveMQException
    {
       session.deleteQueue(queueName);
    }
 
-   public void deleteQueue(final String queueName) throws HornetQException
+   public void deleteQueue(final String queueName) throws ActiveMQException
    {
       session.deleteQueue(queueName);
    }
@@ -345,7 +345,7 @@ public class DelegatingSession implements ClientSessionInternal
       session.end(xid, flags);
    }
 
-   public void expire(final ClientConsumer consumer, final Message message) throws HornetQException
+   public void expire(final ClientConsumer consumer, final Message message) throws ActiveMQException
    {
       session.expire(consumer, message);
    }
@@ -390,7 +390,7 @@ public class DelegatingSession implements ClientSessionInternal
       session.preHandleFailover(connection);
    }
 
-   public void handleFailover(final RemotingConnection backupConnection, HornetQException cause)
+   public void handleFailover(final RemotingConnection backupConnection, ActiveMQException cause)
    {
       session.handleFailover(backupConnection, cause);
    }
@@ -414,7 +414,7 @@ public class DelegatingSession implements ClientSessionInternal
    }
 
    @Override
-   public void handleConsumerDisconnect(ConsumerContext consumerContext) throws HornetQException
+   public void handleConsumerDisconnect(ConsumerContext consumerContext) throws ActiveMQException
    {
       session.handleConsumerDisconnect(consumerContext);
    }
@@ -459,7 +459,7 @@ public class DelegatingSession implements ClientSessionInternal
       return session.prepare(xid);
    }
 
-   public QueueQuery queueQuery(final SimpleString queueName) throws HornetQException
+   public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException
    {
       return session.queueQuery(queueName);
    }
@@ -469,7 +469,7 @@ public class DelegatingSession implements ClientSessionInternal
       return session.recover(flag);
    }
 
-   public void removeConsumer(final ClientConsumerInternal consumer) throws HornetQException
+   public void removeConsumer(final ClientConsumerInternal consumer) throws ActiveMQException
    {
       session.removeConsumer(consumer);
    }
@@ -489,7 +489,7 @@ public class DelegatingSession implements ClientSessionInternal
       session.removeProducer(producer);
    }
 
-   public void rollback() throws HornetQException
+   public void rollback() throws ActiveMQException
    {
       session.rollback();
    }
@@ -499,7 +499,7 @@ public class DelegatingSession implements ClientSessionInternal
       return session.isRollbackOnly();
    }
 
-   public void rollback(final boolean considerLastMessageAsDelivered) throws HornetQException
+   public void rollback(final boolean considerLastMessageAsDelivered) throws ActiveMQException
    {
       session.rollback(considerLastMessageAsDelivered);
    }
@@ -520,12 +520,12 @@ public class DelegatingSession implements ClientSessionInternal
       return session.setTransactionTimeout(seconds);
    }
 
-   public void resetIfNeeded() throws HornetQException
+   public void resetIfNeeded() throws ActiveMQException
    {
       session.resetIfNeeded();
    }
 
-   public DelegatingSession start() throws HornetQException
+   public DelegatingSession start() throws ActiveMQException
    {
       session.start();
       return this;
@@ -536,7 +536,7 @@ public class DelegatingSession implements ClientSessionInternal
       session.start(xid, flags);
    }
 
-   public void stop() throws HornetQException
+   public void stop() throws ActiveMQException
    {
       session.stop();
    }
@@ -596,7 +596,7 @@ public class DelegatingSession implements ClientSessionInternal
       session.setPacketSize(packetSize);
    }
 
-   public void addMetaData(String key, String data) throws HornetQException
+   public void addMetaData(String key, String data) throws ActiveMQException
    {
       session.addMetaData(key, data);
    }
@@ -613,7 +613,7 @@ public class DelegatingSession implements ClientSessionInternal
    }
 
    @Override
-   public void addUniqueMetaData(String key, String data) throws HornetQException
+   public void addUniqueMetaData(String key, String data) throws ActiveMQException
    {
       session.addUniqueMetaData(key, data);
 

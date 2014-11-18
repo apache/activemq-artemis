@@ -16,10 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
@@ -118,27 +118,27 @@ public class ClientProducerImpl implements ClientProducerInternal
       return address;
    }
 
-   public void send(final Message msg) throws HornetQException
+   public void send(final Message msg) throws ActiveMQException
    {
       checkClosed();
 
       doSend(null, msg, null, false);
    }
 
-   public void send(final SimpleString address1, final Message msg) throws HornetQException
+   public void send(final SimpleString address1, final Message msg) throws ActiveMQException
    {
       checkClosed();
 
       doSend(address1, msg, null, false);
    }
 
-   public void send(final String address1, final Message message) throws HornetQException
+   public void send(final String address1, final Message message) throws ActiveMQException
    {
       send(SimpleString.toSimpleString(address1), message);
    }
 
    @Override
-   public void send(SimpleString address1, Message message, SendAcknowledgementHandler handler) throws HornetQException
+   public void send(SimpleString address1, Message message, SendAcknowledgementHandler handler) throws ActiveMQException
    {
       checkClosed();
       boolean confirmationWindowEnabled = session.isConfirmationWindowEnabled();
@@ -157,12 +157,12 @@ public class ClientProducerImpl implements ClientProducerInternal
    }
 
    @Override
-   public void send(Message message, SendAcknowledgementHandler handler) throws HornetQException
+   public void send(Message message, SendAcknowledgementHandler handler) throws ActiveMQException
    {
       send(null, message, handler);
    }
 
-   public synchronized void close() throws HornetQException
+   public synchronized void close() throws ActiveMQException
    {
       if (closed)
       {
@@ -222,7 +222,7 @@ public class ClientProducerImpl implements ClientProducerInternal
    }
 
    private void doSend(final SimpleString address1, final Message msg, final SendAcknowledgementHandler handler,
-                       final boolean forceAsync) throws HornetQException
+                       final boolean forceAsync) throws ActiveMQException
    {
       session.startCall();
 
@@ -307,7 +307,7 @@ public class ClientProducerImpl implements ClientProducerInternal
       }
    }
 
-   private void sendRegularMessage(final MessageInternal msgI, final boolean sendBlocking, final ClientProducerCredits theCredits, final SendAcknowledgementHandler handler) throws HornetQException
+   private void sendRegularMessage(final MessageInternal msgI, final boolean sendBlocking, final ClientProducerCredits theCredits, final SendAcknowledgementHandler handler) throws ActiveMQException
    {
       try
       {
@@ -323,13 +323,13 @@ public class ClientProducerImpl implements ClientProducerInternal
       }
       catch (InterruptedException e)
       {
-         throw new HornetQInterruptedException(e);
+         throw new ActiveMQInterruptedException(e);
       }
 
       sessionContext.sendFullMessage(msgI, sendBlocking, handler, address);
    }
 
-   private void checkClosed() throws HornetQException
+   private void checkClosed() throws ActiveMQException
    {
       if (closed)
       {
@@ -342,10 +342,10 @@ public class ClientProducerImpl implements ClientProducerInternal
    /**
     * @param msgI
     * @param handler
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private void largeMessageSend(final boolean sendBlocking, final MessageInternal msgI,
-                                 final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws HornetQException
+                                 final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws ActiveMQException
    {
       int headerSize = msgI.getHeadersAndPropertiesEncodeSize();
 
@@ -376,7 +376,7 @@ public class ClientProducerImpl implements ClientProducerInternal
       }
    }
 
-   private void sendInitialLargeMessageHeader(MessageInternal msgI, ClientProducerCredits credits) throws HornetQException
+   private void sendInitialLargeMessageHeader(MessageInternal msgI, ClientProducerCredits credits) throws ActiveMQException
    {
       int creditsUsed = sessionContext.sendInitialChunkOnLargeMessage(msgI);
 
@@ -389,7 +389,7 @@ public class ClientProducerImpl implements ClientProducerInternal
       }
       catch (InterruptedException e)
       {
-         throw new HornetQInterruptedException(e);
+         throw new ActiveMQInterruptedException(e);
       }
    }
 
@@ -400,10 +400,10 @@ public class ClientProducerImpl implements ClientProducerInternal
     * @param sendBlocking
     * @param msgI
     * @param handler
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private void largeMessageSendServer(final boolean sendBlocking, final MessageInternal msgI,
-                                       final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws HornetQException
+                                       final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws ActiveMQException
    {
       sendInitialLargeMessageHeader(msgI, credits);
 
@@ -421,7 +421,7 @@ public class ClientProducerImpl implements ClientProducerInternal
 
             final int chunkLength = Math.min((int) (bodySize - pos), minLargeMessageSize);
 
-            final HornetQBuffer bodyBuffer = HornetQBuffers.fixedBuffer(chunkLength);
+            final ActiveMQBuffer bodyBuffer = ActiveMQBuffers.fixedBuffer(chunkLength);
 
             context.encode(bodyBuffer, chunkLength);
 
@@ -438,7 +438,7 @@ public class ClientProducerImpl implements ClientProducerInternal
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
       }
@@ -452,11 +452,11 @@ public class ClientProducerImpl implements ClientProducerInternal
     * @param sendBlocking
     * @param msgI
     * @param handler
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private void
    largeMessageSendBuffered(final boolean sendBlocking, final MessageInternal msgI,
-                            final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws HornetQException
+                            final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws ActiveMQException
    {
       msgI.getBodyBuffer().readerIndex(0);
       largeMessageSendStreamed(sendBlocking, msgI, new HornetQBufferInputStream(msgI.getBodyBuffer()), credits,
@@ -468,11 +468,11 @@ public class ClientProducerImpl implements ClientProducerInternal
     * @param msgI
     * @param inputStreamParameter
     * @param credits
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    private void largeMessageSendStreamed(final boolean sendBlocking, final MessageInternal msgI,
                                          final InputStream inputStreamParameter, final ClientProducerCredits credits,
-                                         SendAcknowledgementHandler handler) throws HornetQException
+                                         SendAcknowledgementHandler handler) throws ActiveMQException
    {
       boolean lastPacket = false;
 
@@ -570,7 +570,7 @@ public class ClientProducerImpl implements ClientProducerInternal
                }
                catch (InterruptedException e)
                {
-                  throw new HornetQInterruptedException(e);
+                  throw new ActiveMQInterruptedException(e);
                }
             }
          }
@@ -590,7 +590,7 @@ public class ClientProducerImpl implements ClientProducerInternal
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
          }
       }

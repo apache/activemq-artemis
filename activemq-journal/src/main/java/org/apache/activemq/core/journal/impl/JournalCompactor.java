@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.journal.RecordInfo;
 import org.apache.activemq.core.journal.SequentialFile;
@@ -90,7 +90,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          }
          else
          {
-            HornetQBuffer input = HornetQBuffers.wrappedBuffer(records.get(0).data);
+            ActiveMQBuffer input = ActiveMQBuffers.wrappedBuffer(records.get(0).data);
 
             int numberDataFiles = input.readInt();
 

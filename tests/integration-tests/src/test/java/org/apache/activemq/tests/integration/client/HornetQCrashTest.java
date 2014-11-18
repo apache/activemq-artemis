@@ -11,13 +11,13 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Before;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -109,7 +109,7 @@ public class HornetQCrashTest extends UnitTestCase
          this.server = server;
       }
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          HornetQCrashTest.log.info("AckInterceptor.intercept " + packet);
 

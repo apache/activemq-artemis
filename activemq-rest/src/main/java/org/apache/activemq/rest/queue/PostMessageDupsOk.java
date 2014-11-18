@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.rest.queue;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.rest.HornetQRestLogger;
@@ -56,7 +56,7 @@ public class PostMessageDupsOk extends PostMessage
          {
             pooled.session.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
          }
          addPooled();

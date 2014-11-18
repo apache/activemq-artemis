@@ -21,9 +21,9 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
-import org.apache.activemq.api.core.HornetQInvalidFilterExpressionException;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.SimpleString;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
@@ -46,13 +46,13 @@ public interface HornetQJMSClientBundle
    HornetQJMSClientBundle BUNDLE = Messages.getBundle(HornetQJMSClientBundle.class);
 
    @Message(id = 129000, value =  "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
+   ActiveMQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
 
    @Message(id = 129001, value =  "Invalid Subscription Name. It is required to set the subscription name", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException invalidSubscriptionName();
+   ActiveMQIllegalStateException invalidSubscriptionName();
 
    @Message(id = 129002, value =  "Destination {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNonExistentQueueException destinationDoesNotExist(SimpleString destination);
+   ActiveMQNonExistentQueueException destinationDoesNotExist(SimpleString destination);
 
    @Message(id = 129003, value =  "name cannot be null", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException nameCannotBeNull();

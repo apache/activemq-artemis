@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.BroadcastEndpoint;
 import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQInterruptedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.CoreNotificationType;
@@ -161,7 +161,7 @@ public final class DiscoveryGroup implements HornetQComponent
       }
       catch (InterruptedException e)
       {
-         throw new HornetQInterruptedException(e);
+         throw new ActiveMQInterruptedException(e);
       }
 
       thread = null;
@@ -215,7 +215,7 @@ public final class DiscoveryGroup implements HornetQComponent
             }
             catch (InterruptedException e)
             {
-               throw new HornetQInterruptedException(e);
+               throw new ActiveMQInterruptedException(e);
             }
 
             if (timeout != 0)
@@ -295,7 +295,7 @@ public final class DiscoveryGroup implements HornetQComponent
                   }
                }
 
-               HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(data);
+               ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(data);
 
                String originatingNodeID = buffer.readString();
 

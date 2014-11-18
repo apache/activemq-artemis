@@ -24,10 +24,10 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -591,13 +591,13 @@ public final class ClusterManager implements HornetQComponent
       }
 
       @Override
-      public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.EXCEPTION)
          {
             HornetQExceptionMessage msg = (HornetQExceptionMessage) packet;
-            final HornetQException exception = msg.getException();
-            if (exception.getType() == HornetQExceptionType.CLUSTER_SECURITY_EXCEPTION)
+            final ActiveMQException exception = msg.getException();
+            if (exception.getType() == ActiveMQExceptionType.CLUSTER_SECURITY_EXCEPTION)
             {
                HornetQServerLogger.LOGGER.clusterManagerAuthenticationError(exception.getMessage());
                executor.execute(new Runnable()

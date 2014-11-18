@@ -24,9 +24,9 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
 import io.netty.handler.ssl.SslHandler;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.core.client.HornetQClientLogger;
@@ -60,7 +60,7 @@ public class NettyConnection implements Connection
 
    private final boolean directDeliver;
 
-   private volatile HornetQBuffer batchBuffer;
+   private volatile ActiveMQBuffer batchBuffer;
 
    private final Map<String, Object> configuration;
 
@@ -168,7 +168,7 @@ public class NettyConnection implements Connection
       listener.connectionDestroyed(getID());
    }
 
-   public HornetQBuffer createBuffer(final int size)
+   public ActiveMQBuffer createBuffer(final int size)
    {
       return new ChannelBufferWrapper(channel.alloc().buffer(size));
    }
@@ -205,17 +205,17 @@ public class NettyConnection implements Connection
       }
    }
 
-   public void write(final HornetQBuffer buffer)
+   public void write(final ActiveMQBuffer buffer)
    {
       write(buffer, false, false);
    }
 
-   public void write(HornetQBuffer buffer, final boolean flush, final boolean batched)
+   public void write(ActiveMQBuffer buffer, final boolean flush, final boolean batched)
    {
       write(buffer, flush, batched, null);
    }
 
-   public void write(HornetQBuffer buffer, final boolean flush, final boolean batched, final ChannelFutureListener futureListener)
+   public void write(ActiveMQBuffer buffer, final boolean flush, final boolean batched, final ChannelFutureListener futureListener)
    {
 
       try
@@ -228,7 +228,7 @@ public class NettyConnection implements Connection
             {
                // Lazily create batch buffer
 
-               batchBuffer = HornetQBuffers.dynamicBuffer(BATCHING_BUFFER_SIZE);
+               batchBuffer = ActiveMQBuffers.dynamicBuffer(BATCHING_BUFFER_SIZE);
             }
 
             if (batchBuffer != null)
@@ -254,7 +254,7 @@ public class NettyConnection implements Connection
                {
                   // Create a new buffer
 
-                  batchBuffer = HornetQBuffers.dynamicBuffer(BATCHING_BUFFER_SIZE);
+                  batchBuffer = ActiveMQBuffers.dynamicBuffer(BATCHING_BUFFER_SIZE);
                }
             }
 
@@ -327,7 +327,7 @@ public class NettyConnection implements Connection
                   }
                   catch (InterruptedException e)
                   {
-                     throw new HornetQInterruptedException(e);
+                     throw new ActiveMQInterruptedException(e);
                   }
                }
             }
@@ -339,7 +339,7 @@ public class NettyConnection implements Connection
       }
       catch (InterruptedException e)
       {
-         throw new HornetQInterruptedException(e);
+         throw new ActiveMQInterruptedException(e);
       }
    }
 

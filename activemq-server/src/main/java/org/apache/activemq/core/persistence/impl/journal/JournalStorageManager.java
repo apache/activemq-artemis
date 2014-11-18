@@ -41,11 +41,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -356,7 +356,7 @@ public class JournalStorageManager implements StorageManager
     *
     * @param replicationManager
     * @param pagingManager
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
    @Override
    public void startReplication(ReplicationManager replicationManager, PagingManager pagingManager, String nodeID,
@@ -393,7 +393,7 @@ public class JournalStorageManager implements StorageManager
          try
          {
             if (isReplicated())
-               throw new HornetQIllegalStateException("already replicating");
+               throw new ActiveMQIllegalStateException("already replicating");
             replicator = replicationManager;
 
             // Establishes lock
@@ -1562,7 +1562,7 @@ public class JournalStorageManager implements StorageManager
             RecordInfo record = records.get(reccount);
             byte[] data = record.data;
 
-            HornetQBuffer buff = HornetQBuffers.wrappedBuffer(data);
+            ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
             byte recordType = record.getUserRecordType();
 
@@ -2160,7 +2160,7 @@ public class JournalStorageManager implements StorageManager
       {
          long id = record.id;
 
-         HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(record.data);
+         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
 
          byte rec = record.getUserRecordType();
 
@@ -2398,7 +2398,7 @@ public class JournalStorageManager implements StorageManager
    }
 
    // This should be accessed from this package only
-   void deleteLargeMessageFile(final LargeServerMessage largeServerMessage) throws HornetQException
+   void deleteLargeMessageFile(final LargeServerMessage largeServerMessage) throws ActiveMQException
    {
       if (largeServerMessage.getPendingRecordID() < 0)
       {
@@ -2412,7 +2412,7 @@ public class JournalStorageManager implements StorageManager
          }
          catch (Exception e)
          {
-            throw new HornetQInternalErrorException(e.getMessage(), e);
+            throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
       }
       final SequentialFile file = largeServerMessage.getFile();
@@ -2529,7 +2529,7 @@ public class JournalStorageManager implements StorageManager
     * @return
     * @throws Exception
     */
-   private LargeServerMessage parseLargeMessage(final Map<Long, ServerMessage> messages, final HornetQBuffer buff) throws Exception
+   private LargeServerMessage parseLargeMessage(final Map<Long, ServerMessage> messages, final ActiveMQBuffer buff) throws Exception
    {
       LargeServerMessage largeMessage = createLargeMessage();
 
@@ -2590,7 +2590,7 @@ public class JournalStorageManager implements StorageManager
          {
             byte[] data = record.data;
 
-            HornetQBuffer buff = HornetQBuffers.wrappedBuffer(data);
+            ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
             byte recordType = record.getUserRecordType();
 
@@ -2756,7 +2756,7 @@ public class JournalStorageManager implements StorageManager
 
             if (data.length > 0)
             {
-               HornetQBuffer buff = HornetQBuffers.wrappedBuffer(data);
+               ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
                byte b = buff.readByte();
 
                switch (b)
@@ -2891,15 +2891,15 @@ public class JournalStorageManager implements StorageManager
 
       XidEncoding(final byte[] data)
       {
-         xid = XidCodecSupport.decodeXid(HornetQBuffers.wrappedBuffer(data));
+         xid = XidCodecSupport.decodeXid(ActiveMQBuffers.wrappedBuffer(data));
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          throw new IllegalStateException("Non Supported Operation");
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          XidCodecSupport.encodeXid(xid, buffer);
       }
@@ -2932,13 +2932,13 @@ public class JournalStorageManager implements StorageManager
       {
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          xid = XidCodecSupport.decodeXid(buffer);
          isCommit = buffer.readBoolean();
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          XidCodecSupport.encodeXid(xid, buffer);
          buffer.writeBoolean(isCommit);
@@ -2974,13 +2974,13 @@ public class JournalStorageManager implements StorageManager
          return SimpleString.sizeofString(groupId) + SimpleString.sizeofString(clusterName);
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeSimpleString(groupId);
          buffer.writeSimpleString(clusterName);
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          groupId = buffer.readSimpleString();
          clusterName = buffer.readSimpleString();
@@ -3079,14 +3079,14 @@ public class JournalStorageManager implements StorageManager
          return name;
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          name = buffer.readSimpleString();
          address = buffer.readSimpleString();
          filterString = buffer.readNullableSimpleString();
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeSimpleString(name);
          buffer.writeSimpleString(address);
@@ -3112,7 +3112,7 @@ public class JournalStorageManager implements StorageManager
       /* (non-Javadoc)
        * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          message.decodeHeadersAndProperties(buffer);
       }
@@ -3120,7 +3120,7 @@ public class JournalStorageManager implements StorageManager
       /* (non-Javadoc)
        * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          message.encode(buffer);
       }
@@ -3151,7 +3151,7 @@ public class JournalStorageManager implements StorageManager
       /* (non-Javadoc)
        * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          largeMessageID = buffer.readLong();
       }
@@ -3159,7 +3159,7 @@ public class JournalStorageManager implements StorageManager
       /* (non-Javadoc)
        * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.HornetQBuffer)
        */
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeLong(largeMessageID);
       }
@@ -3198,13 +3198,13 @@ public class JournalStorageManager implements StorageManager
          this.count = count;
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          queueID = buffer.readLong();
          count = buffer.readInt();
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeLong(queueID);
          buffer.writeInt(count);
@@ -3238,12 +3238,12 @@ public class JournalStorageManager implements StorageManager
          super();
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          queueID = buffer.readLong();
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeLong(queueID);
       }
@@ -3286,7 +3286,7 @@ public class JournalStorageManager implements StorageManager
        * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.api.core.HornetQBuffer)
        */
       @Override
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
          buffer.writeByte(recordType);
          buffer.writeLong(id);
@@ -3296,7 +3296,7 @@ public class JournalStorageManager implements StorageManager
        * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.api.core.HornetQBuffer)
        */
       @Override
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
          recordType = buffer.readByte();
          id = buffer.readLong();
@@ -3339,14 +3339,14 @@ public class JournalStorageManager implements StorageManager
          this.recods = records;
       }
 
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
          this.pageTX = buffer.readLong();
          this.recods = buffer.readInt();
       }
 
       @Override
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
          buffer.writeLong(pageTX);
          buffer.writeInt(recods);
@@ -3391,14 +3391,14 @@ public class JournalStorageManager implements StorageManager
       }
 
       @Override
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          super.encode(buffer);
          buffer.writeLong(scheduledDeliveryTime);
       }
 
       @Override
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          super.decode(buffer);
          scheduledDeliveryTime = buffer.readLong();
@@ -3422,7 +3422,7 @@ public class JournalStorageManager implements StorageManager
       {
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          address = buffer.readSimpleString();
 
@@ -3433,7 +3433,7 @@ public class JournalStorageManager implements StorageManager
          buffer.readBytes(duplID);
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeSimpleString(address);
 
@@ -3530,14 +3530,14 @@ public class JournalStorageManager implements StorageManager
       }
 
       @Override
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
          buffer.writeLong(queueID);
          buffer.writeLong(value);
       }
 
       @Override
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
          queueID = buffer.readLong();
          value = buffer.readLong();
@@ -3599,14 +3599,14 @@ public class JournalStorageManager implements StorageManager
       }
 
       @Override
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
          buffer.writeLong(queueID);
          buffer.writeLong(pageID);
       }
 
       @Override
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
          queueID = buffer.readLong();
          pageID = buffer.readLong();
@@ -3643,13 +3643,13 @@ public class JournalStorageManager implements StorageManager
          return DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
       }
 
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
          buffer.writeLong(queueID);
          buffer.writeInt(value);
       }
 
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
          queueID = buffer.readLong();
          value = buffer.readInt();
@@ -3685,14 +3685,14 @@ public class JournalStorageManager implements StorageManager
          return DataConstants.SIZE_LONG + DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
       }
 
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
          buffer.writeLong(queueID);
          buffer.writeLong(position.getPageNr());
          buffer.writeInt(position.getMessageNr());
       }
 
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
          queueID = buffer.readLong();
          long pageNR = buffer.readLong();
@@ -3721,7 +3721,7 @@ public class JournalStorageManager implements StorageManager
             {
                byte[] data = record.data;
 
-               HornetQBuffer buff = HornetQBuffers.wrappedBuffer(data);
+               ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
                try
                {
@@ -3761,7 +3761,7 @@ public class JournalStorageManager implements StorageManager
     * @param buffer
     * @return
     */
-   protected static PersistedRoles newSecurityRecord(long id, HornetQBuffer buffer)
+   protected static PersistedRoles newSecurityRecord(long id, ActiveMQBuffer buffer)
    {
       PersistedRoles roles = new PersistedRoles();
       roles.decode(buffer);
@@ -3774,7 +3774,7 @@ public class JournalStorageManager implements StorageManager
     * @param buffer
     * @return
     */
-   static PersistedAddressSetting newAddressEncoding(long id, HornetQBuffer buffer)
+   static PersistedAddressSetting newAddressEncoding(long id, ActiveMQBuffer buffer)
    {
       PersistedAddressSetting setting = new PersistedAddressSetting();
       setting.decode(buffer);
@@ -3787,7 +3787,7 @@ public class JournalStorageManager implements StorageManager
     * @param buffer
     * @return
     */
-   static GroupingEncoding newGroupEncoding(long id, HornetQBuffer buffer)
+   static GroupingEncoding newGroupEncoding(long id, ActiveMQBuffer buffer)
    {
       GroupingEncoding encoding = new GroupingEncoding();
       encoding.decode(buffer);
@@ -3800,7 +3800,7 @@ public class JournalStorageManager implements StorageManager
     * @param buffer
     * @return
     */
-   protected static PersistentQueueBindingEncoding newBindingEncoding(long id, HornetQBuffer buffer)
+   protected static PersistentQueueBindingEncoding newBindingEncoding(long id, ActiveMQBuffer buffer)
    {
       PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding();
 

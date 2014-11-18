@@ -27,10 +27,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.api.core.HornetQAddressFullException;
-import org.apache.activemq.api.core.HornetQDuplicateIdException;
-import org.apache.activemq.api.core.HornetQInterruptedException;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQAddressFullException;
+import org.apache.activemq.api.core.ActiveMQDuplicateIdException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -498,7 +498,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       if (binding == null)
       {
-         throw new HornetQNonExistentQueueException();
+         throw new ActiveMQNonExistentQueueException();
       }
 
       if (addressManager.getBindingsForRoutingAddress(binding.getAddress()) == null)
@@ -733,7 +733,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          {
             processRoute(message, context, direct);
          }
-         catch (HornetQAddressFullException e)
+         catch (ActiveMQAddressFullException e)
          {
             if (startedTX.get())
             {
@@ -1268,7 +1268,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             if (context.getTransaction() != null)
             {
-               context.getTransaction().markAsRollbackOnly(new HornetQDuplicateIdException());
+               context.getTransaction().markAsRollbackOnly(new ActiveMQDuplicateIdException());
             }
 
             message.decrementRefCount();
@@ -1313,7 +1313,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                if (context.getTransaction() != null)
                {
-                  context.getTransaction().markAsRollbackOnly(new HornetQDuplicateIdException(warnMessage));
+                  context.getTransaction().markAsRollbackOnly(new ActiveMQDuplicateIdException(warnMessage));
                }
 
                message.decrementRefCount();
@@ -1406,7 +1406,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
             catch (InterruptedException e1)
             {
-               throw new HornetQInterruptedException(e1);
+               throw new ActiveMQInterruptedException(e1);
             }
             if (!isStarted())
                return;

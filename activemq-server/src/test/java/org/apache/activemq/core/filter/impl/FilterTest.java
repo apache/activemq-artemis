@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.core.filter.impl;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInvalidFilterExpressionException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.server.ServerMessage;
@@ -734,11 +734,11 @@ public class FilterTest extends SilentTestCase
          filter = FilterImpl.createFilter(filterString);
          Assert.fail("Should throw exception");
       }
-      catch (HornetQInvalidFilterExpressionException ife)
+      catch (ActiveMQInvalidFilterExpressionException ife)
       {
          //pass
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid exception type:" + e.getType());
       }
@@ -751,11 +751,11 @@ public class FilterTest extends SilentTestCase
          filter = FilterImpl.createFilter(filterString);
          Assert.fail("Should throw exception");
       }
-      catch (HornetQInvalidFilterExpressionException ife)
+      catch (ActiveMQInvalidFilterExpressionException ife)
       {
          //pass
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid exception type:" + e.getType());
       }

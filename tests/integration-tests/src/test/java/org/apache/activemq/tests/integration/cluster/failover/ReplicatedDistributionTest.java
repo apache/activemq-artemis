@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.cluster.failover;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -175,7 +175,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
       RemotingConnection conn = ((ClientSessionInternal) session).getConnection();
 
       // Simulate failure on connection
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       // Wait to be informed of failure
 

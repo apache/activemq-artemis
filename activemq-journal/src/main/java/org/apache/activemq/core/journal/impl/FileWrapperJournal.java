@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQUnsupportedPacketException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQUnsupportedPacketException;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOCompletion;
 import org.apache.activemq.core.journal.Journal;
@@ -189,7 +189,7 @@ public final class FileWrapperJournal extends JournalBase
       writeRecord(prepareRecord, sync, callback);
    }
 
-   private int count(long txID) throws HornetQException
+   private int count(long txID) throws ActiveMQException
    {
       AtomicInteger defaultValue = new AtomicInteger(1);
       AtomicInteger count = transactions.putIfAbsent(Long.valueOf(txID), defaultValue);
@@ -211,19 +211,19 @@ public final class FileWrapperJournal extends JournalBase
    @Override
    public void appendRollbackRecord(long txID, boolean sync, IOCompletion callback) throws Exception
    {
-      throw new HornetQUnsupportedPacketException();
+      throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
    public JournalLoadInformation load(LoaderCallback reloadManager) throws Exception
    {
-      throw new HornetQUnsupportedPacketException();
+      throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
    public JournalLoadInformation loadInternalOnly() throws Exception
    {
-      throw new HornetQUnsupportedPacketException();
+      throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
@@ -236,13 +236,13 @@ public final class FileWrapperJournal extends JournalBase
    public JournalLoadInformation load(List<RecordInfo> committedRecords,
                                       List<PreparedTransactionInfo> preparedTransactions, TransactionFailureCallback transactionFailure) throws Exception
    {
-      throw new HornetQUnsupportedPacketException();
+      throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
    public int getAlignment() throws Exception
    {
-      throw new HornetQUnsupportedPacketException();
+      throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override

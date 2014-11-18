@@ -20,7 +20,7 @@ import static org.apache.activemq.core.server.impl.InVMNodeManager.State.PAUSED;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.utils.UUIDGenerator;
@@ -157,7 +157,7 @@ public final class InVMNodeManager extends NodeManager
    }
 
    @Override
-   public SimpleString readNodeId() throws HornetQIllegalStateException, IOException
+   public SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException
    {
       return getNodeId();
    }

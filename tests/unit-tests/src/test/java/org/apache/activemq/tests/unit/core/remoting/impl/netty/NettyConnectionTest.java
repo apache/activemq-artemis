@@ -19,9 +19,9 @@ import java.util.Map;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.core.server.HornetQComponent;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -51,7 +51,7 @@ public class NettyConnectionTest extends UnitTestCase
    @Test
    public void testWrite() throws Exception
    {
-      HornetQBuffer buff = HornetQBuffers.wrappedBuffer(ByteBuffer.allocate(128));
+      ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(ByteBuffer.allocate(128));
       EmbeddedChannel channel = createChannel();
 
       Assert.assertEquals(0, channel.outboundMessages().size());
@@ -70,7 +70,7 @@ public class NettyConnectionTest extends UnitTestCase
 
       final int size = 1234;
 
-      HornetQBuffer buff = conn.createBuffer(size);
+      ActiveMQBuffer buff = conn.createBuffer(size);
       buff.writeByte((byte) 0x00); // Netty buffer does lazy initialization.
       Assert.assertEquals(size, buff.capacity());
 
@@ -94,7 +94,7 @@ public class NettyConnectionTest extends UnitTestCase
 
       }
 
-      public void connectionException(final Object connectionID, final HornetQException me)
+      public void connectionException(final Object connectionID, final ActiveMQException me)
       {
 
       }

@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 
 /**
@@ -209,7 +209,7 @@ public class JournalTransaction
 
       if (currentCallback.getErrorMessage() != null)
       {
-         throw HornetQExceptionType.createException(currentCallback.getErrorCode(), currentCallback.getErrorMessage());
+         throw ActiveMQExceptionType.createException(currentCallback.getErrorCode(), currentCallback.getErrorMessage());
       }
 
       currentCallback.countUp();

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
@@ -34,14 +34,14 @@ public class ScaleDownAnnounceMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(HornetQBuffer buffer)
+   public void encodeRest(ActiveMQBuffer buffer)
    {
       buffer.writeSimpleString(targetNodeId);
       buffer.writeSimpleString(scaledDownNodeId);
    }
 
    @Override
-   public void decodeRest(HornetQBuffer buffer)
+   public void decodeRest(ActiveMQBuffer buffer)
    {
       targetNodeId = buffer.readSimpleString();
       scaledDownNodeId = buffer.readSimpleString();

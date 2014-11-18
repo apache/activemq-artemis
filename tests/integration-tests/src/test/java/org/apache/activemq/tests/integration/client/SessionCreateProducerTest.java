@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -79,11 +79,11 @@ public class SessionCreateProducerTest extends ServiceTestBase
          clientSession.createProducer();
          Assert.fail("should throw exception");
       }
-      catch (HornetQObjectClosedException oce)
+      catch (ActiveMQObjectClosedException oce)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

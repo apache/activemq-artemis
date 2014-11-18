@@ -14,7 +14,7 @@ package org.apache.activemq.core.persistence.impl.journal;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.HornetQServerLogger;
@@ -56,7 +56,7 @@ public final class BatchingIDGenerator implements IDGenerator
       storeID(recordID, recordID);
    }
 
-   public void loadState(final long journalID, final HornetQBuffer buffer)
+   public void loadState(final long journalID, final ActiveMQBuffer buffer)
    {
       IDCounterEncoding encoding = new IDCounterEncoding();
 
@@ -131,12 +131,12 @@ public final class BatchingIDGenerator implements IDGenerator
       {
       }
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
          id = buffer.readLong();
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeLong(id);
       }

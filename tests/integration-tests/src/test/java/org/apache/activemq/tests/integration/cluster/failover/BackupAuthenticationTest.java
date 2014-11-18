@@ -14,6 +14,7 @@
  *
  */
 package org.apache.activemq.tests.integration.cluster.failover;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -22,7 +23,6 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.protocol.core.Packet;
@@ -85,7 +85,7 @@ public class BackupAuthenticationTest extends FailoverTestBase
    {
 
       @Override
-      public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
       {
          if (packet.getType() == PacketImpl.BACKUP_REGISTRATION)
          {

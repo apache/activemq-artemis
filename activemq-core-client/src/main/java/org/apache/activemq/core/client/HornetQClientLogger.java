@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.client;
 
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.jboss.logging.BasicLogger;
@@ -223,7 +223,7 @@ public interface HornetQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212037, value = "Connection failure has been detected: {0} [code={1}]", format = Message.Format.MESSAGE_FORMAT)
-   void connectionFailureDetected(String message, HornetQExceptionType type);
+   void connectionFailureDetected(String message, ActiveMQExceptionType type);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212038, value = "Failure in calling interceptor: {0}", format = Message.Format.MESSAGE_FORMAT)

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.api.core.client;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.remoting.FailureListener;
 
 /**
@@ -29,5 +29,5 @@ public interface SessionFailureListener extends FailureListener
     *
     * @param exception exception which has caused the connection to fail
     */
-   void beforeReconnect(HornetQException exception);
+   void beforeReconnect(ActiveMQException exception);
 }

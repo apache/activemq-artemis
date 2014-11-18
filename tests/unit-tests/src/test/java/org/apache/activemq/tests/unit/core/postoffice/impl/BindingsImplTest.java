@@ -12,6 +12,7 @@
  */
 package org.apache.activemq.tests.unit.core.postoffice.impl;
 
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.server.impl.RefsOperation;
 import org.junit.Test;
 
@@ -21,7 +22,6 @@ import java.util.Set;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.postoffice.Binding;
@@ -178,7 +178,7 @@ public class BindingsImplTest extends UnitTestCase
          return null;
       }
 
-      public void markAsRollbackOnly(final HornetQException exception)
+      public void markAsRollbackOnly(final ActiveMQException exception)
       {
 
       }

@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
@@ -192,7 +192,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
                msg.checkCompletion();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                e.printStackTrace();
                expectedErrors.incrementAndGet();
@@ -754,7 +754,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       private static CountDownLatch latch = new CountDownLatch(1);
 
       @Override
-      public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
       {
          if (packet instanceof SessionContinuationMessage)
          {

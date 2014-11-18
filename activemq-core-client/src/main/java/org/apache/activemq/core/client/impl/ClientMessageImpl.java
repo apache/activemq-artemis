@@ -17,10 +17,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
@@ -97,7 +97,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public ClientMessageImpl acknowledge() throws HornetQException
+   public ClientMessageImpl acknowledge() throws ActiveMQException
    {
       if (consumer != null)
       {
@@ -108,7 +108,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public ClientMessageImpl individualAcknowledge() throws HornetQException
+   public ClientMessageImpl individualAcknowledge() throws ActiveMQException
    {
       if (consumer != null)
       {
@@ -162,7 +162,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public void saveToOutputStream(final OutputStream out) throws HornetQException
+   public void saveToOutputStream(final OutputStream out) throws ActiveMQException
    {
       try
       {
@@ -178,14 +178,14 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public ClientMessageImpl setOutputStream(final OutputStream out) throws HornetQException
+   public ClientMessageImpl setOutputStream(final OutputStream out) throws ActiveMQException
    {
       saveToOutputStream(out);
       return this;
    }
 
    @Override
-   public boolean waitOutputStreamCompletion(final long timeMilliseconds) throws HornetQException
+   public boolean waitOutputStreamCompletion(final long timeMilliseconds) throws ActiveMQException
    {
       return true;
    }
@@ -215,7 +215,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public BodyEncoder getBodyEncoder() throws HornetQException
+   public BodyEncoder getBodyEncoder() throws ActiveMQException
    {
       return new DecodingContext();
    }
@@ -287,13 +287,13 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public ClientMessageImpl putObjectProperty(final SimpleString key, final Object value) throws HornetQPropertyConversionException
+   public ClientMessageImpl putObjectProperty(final SimpleString key, final Object value) throws ActiveMQPropertyConversionException
    {
       return (ClientMessageImpl) super.putObjectProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putObjectProperty(final String key, final Object value) throws HornetQPropertyConversionException
+   public ClientMessageImpl putObjectProperty(final String key, final Object value) throws ActiveMQPropertyConversionException
    {
       return (ClientMessageImpl) super.putObjectProperty(key, value);
    }
@@ -395,14 +395,14 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
       }
 
       @Override
-      public int encode(final ByteBuffer bufferRead) throws HornetQException
+      public int encode(final ByteBuffer bufferRead) throws ActiveMQException
       {
-         HornetQBuffer buffer1 = HornetQBuffers.wrappedBuffer(bufferRead);
+         ActiveMQBuffer buffer1 = ActiveMQBuffers.wrappedBuffer(bufferRead);
          return encode(buffer1, bufferRead.capacity());
       }
 
       @Override
-      public int encode(final HornetQBuffer bufferOut, final int size)
+      public int encode(final ActiveMQBuffer bufferOut, final int size)
       {
          byte[] bytes = new byte[size];
          getWholeBuffer().readBytes(bytes);

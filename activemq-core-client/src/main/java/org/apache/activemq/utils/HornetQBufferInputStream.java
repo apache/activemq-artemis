@@ -15,7 +15,7 @@ package org.apache.activemq.utils;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 
 /**
  * Used to send large messages
@@ -33,7 +33,7 @@ public class HornetQBufferInputStream extends InputStream
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
-   private HornetQBuffer bb;
+   private ActiveMQBuffer bb;
 
    // Static --------------------------------------------------------
 
@@ -41,7 +41,7 @@ public class HornetQBufferInputStream extends InputStream
 
    // Public --------------------------------------------------------
 
-   public HornetQBufferInputStream(final HornetQBuffer paramByteBuffer)
+   public HornetQBufferInputStream(final ActiveMQBuffer paramByteBuffer)
    {
       bb = paramByteBuffer;
    }

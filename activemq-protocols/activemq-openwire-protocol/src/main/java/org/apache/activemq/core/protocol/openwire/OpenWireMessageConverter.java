@@ -24,6 +24,8 @@ import java.util.Map.Entry;
 
 import javax.jms.JMSException;
 
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.command.ActiveMQBytesMessage;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMapMessage;
@@ -45,8 +47,6 @@ import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.util.MarshallingSupport;
 import org.apache.activemq.wireformat.WireFormat;
 import org.fusesource.hawtbuf.UTF8Buffer;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.core.server.ServerMessage;
@@ -118,7 +118,7 @@ public class OpenWireMessageConverter implements MessageConverter
       ByteSequence contents = messageSend.getContent();
       if (contents != null)
       {
-         HornetQBuffer body = coreMessage.getBodyBuffer();
+         ActiveMQBuffer body = coreMessage.getBodyBuffer();
          switch (coreType)
          {
             case org.apache.activemq.api.core.Message.TEXT_TYPE:
@@ -320,7 +320,7 @@ public class OpenWireMessageConverter implements MessageConverter
             {
                coreMessage.putObjectProperty(ent.getKey(), value);
             }
-            catch (HornetQPropertyConversionException e)
+            catch (ActiveMQPropertyConversionException e)
             {
                coreMessage.putStringProperty(ent.getKey(), value.toString());
             }
@@ -460,7 +460,7 @@ public class OpenWireMessageConverter implements MessageConverter
       }
       amqMsg.setBrokerInTime(brokerInTime);
 
-      HornetQBuffer buffer = coreMessage.getBodyBuffer();
+      ActiveMQBuffer buffer = coreMessage.getBodyBuffer();
       if (buffer != null)
       {
          buffer.resetReaderIndex();

@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
@@ -123,7 +123,7 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
 
       int size = config.getEncodeSize();
 
-      HornetQBuffer buffer = HornetQBuffers.fixedBuffer(size);
+      ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(size);
 
       config.encode(buffer);
 
@@ -133,7 +133,7 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
 
       size = persistedCF.getEncodeSize();
 
-      buffer = HornetQBuffers.fixedBuffer(size);
+      buffer = ActiveMQBuffers.fixedBuffer(size);
 
       persistedCF.encode(buffer);
 

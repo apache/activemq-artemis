@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.tests.unit.core.journal.impl.fakes;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
@@ -41,13 +41,13 @@ public class SimpleEncoding implements EncodingSupport
    }
 
    // Public --------------------------------------------------------
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       throw new UnsupportedOperationException();
 
    }
 
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       for (int i = 0; i < size; i++)
       {

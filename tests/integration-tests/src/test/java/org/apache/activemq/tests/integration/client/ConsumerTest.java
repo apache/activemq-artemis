@@ -19,8 +19,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -279,7 +279,7 @@ public class ConsumerTest extends ServiceTestBase
       final CountDownLatch latch = new CountDownLatch(numMessages);
       server.getRemotingService().addIncomingInterceptor(new Interceptor()
       {
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
          {
             if (packet.getType() == PacketImpl.SESS_ACKNOWLEDGE)
             {
@@ -302,7 +302,7 @@ public class ConsumerTest extends ServiceTestBase
             {
                message.acknowledge();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                e.printStackTrace();
             }
@@ -403,11 +403,11 @@ public class ConsumerTest extends ServiceTestBase
          consumer.receiveImmediate();
          Assert.fail("Should throw exception");
       }
-      catch (HornetQIllegalStateException ise)
+      catch (ActiveMQIllegalStateException ise)
       {
          //ok
       }
-      catch (HornetQException me)
+      catch (ActiveMQException me)
       {
          Assert.fail("Wrong exception code");
       }

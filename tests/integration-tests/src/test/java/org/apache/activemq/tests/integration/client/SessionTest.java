@@ -15,8 +15,8 @@ package org.apache.activemq.tests.integration.client;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -88,18 +88,18 @@ public class SessionTest extends ServiceTestBase
             boolean called = false;
 
             @Override
-            public void connectionFailed(final HornetQException me, boolean failedOver)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver)
             {
                called = true;
             }
 
             @Override
-            public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
             {
                connectionFailed(me, failedOver);
             }
 
-            public void beforeReconnect(final HornetQException me)
+            public void beforeReconnect(final ActiveMQException me)
             {
             }
          }
@@ -142,7 +142,7 @@ public class SessionTest extends ServiceTestBase
 
       RemotingConnection rc = clientSession.getConnection();
 
-      rc.fail(new HornetQInternalErrorException());
+      rc.fail(new ActiveMQInternalErrorException());
 
       clientSession.close();
 

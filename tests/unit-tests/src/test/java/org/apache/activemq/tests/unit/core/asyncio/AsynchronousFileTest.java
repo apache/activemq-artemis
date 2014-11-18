@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.asyncio.AIOCallback;
 import org.apache.activemq.core.asyncio.BufferCallback;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
@@ -92,7 +92,7 @@ public class AsynchronousFileTest extends AIOTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("HornetQ-AIO-poller-pool" + System.identityHashCode(this),
+      pollerExecutor = Executors.newCachedThreadPool(new HornetQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
                                                                               false,
                                                                               this.getClass().getClassLoader()));
       executor = Executors.newSingleThreadExecutor();
@@ -127,7 +127,7 @@ public class AsynchronousFileTest extends AIOTestBase
    public void testOpenClose() throws Exception
    {
       controller = new AsynchronousFileImpl(executor, pollerExecutor);
-      for (int i = 0; i < 1000; i++)
+      for (int i = 0; i < 100; i++)
       {
          controller.open(fileName, 10000);
          controller.close();
@@ -192,7 +192,7 @@ public class AsynchronousFileTest extends AIOTestBase
    public void testFileNonExistent() throws Exception
    {
       controller = new AsynchronousFileImpl(executor, pollerExecutor);
-      for (int i = 0; i < 1000; i++)
+      for (int i = 0; i < 100; i++)
       {
          try
          {
@@ -415,7 +415,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
             Assert.fail("An exception was supposed to be thrown");
          }
-         catch (HornetQException ignored)
+         catch (ActiveMQException ignored)
          {
             System.out.println(ignored);
          }

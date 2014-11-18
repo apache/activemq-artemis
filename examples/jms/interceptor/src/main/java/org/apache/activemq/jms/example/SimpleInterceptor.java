@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.jms.example;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
@@ -28,7 +28,7 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 public class SimpleInterceptor implements Interceptor
 {
 
-   public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
    {
       System.out.println("SimpleInterceptor gets called!");
       System.out.println("Packet: " + packet.getClass().getName());

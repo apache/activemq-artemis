@@ -13,7 +13,7 @@
 
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.core.message.impl.MessageInternal;
 
@@ -29,7 +29,7 @@ public class SessionReceiveClientLargeMessage extends SessionReceiveLargeMessage
    }
 
    @Override
-   public void decodeRest(HornetQBuffer buffer)
+   public void decodeRest(ActiveMQBuffer buffer)
    {
       super.decodeRest(buffer);
 

@@ -24,8 +24,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.asyncio.AIOCallback;
 import org.apache.activemq.core.asyncio.AsynchronousFile;
 import org.apache.activemq.core.asyncio.BufferCallback;
@@ -133,7 +133,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
 
    static
    {
-      String[] libraries = new String[]{"HornetQAIO", "HornetQAIO64", "HornetQAIO32", "HornetQAIO_ia64"};
+      String[] libraries = new String[]{"activemqAIO", "activemqAIO64", "activemqAIO32", "activemqAIO_ia64"};
 
       for (String library : libraries)
       {
@@ -220,7 +220,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
       this(writeExecutor, pollerExecutor, null);
    }
 
-   public void open(final String fileName1, final int maxIOArgument) throws HornetQException
+   public void open(final String fileName1, final int maxIOArgument) throws ActiveMQException
    {
       writeLock.lock();
 
@@ -240,12 +240,12 @@ public class AsynchronousFileImpl implements AsynchronousFile
          {
             handler = Native.init(AsynchronousFileImpl.class, fileName1, this.maxIO, HornetQJournalLogger.LOGGER);
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
-            HornetQException ex = null;
-            if (e.getType() == HornetQExceptionType.NATIVE_ERROR_CANT_INITIALIZE_AIO)
+            ActiveMQException ex = null;
+            if (e.getType() == ActiveMQExceptionType.NATIVE_ERROR_CANT_INITIALIZE_AIO)
             {
-               ex = new HornetQException(e.getType(),
+               ex = new ActiveMQException(e.getType(),
                                          "Can't initialize AIO. Currently AIO in use = " + AsynchronousFileImpl.totalMaxIO.get() +
                                             ", trying to allocate more " +
                                             maxIOArgument,
@@ -268,7 +268,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
       }
    }
 
-   public void close() throws InterruptedException, HornetQException
+   public void close() throws InterruptedException, ActiveMQException
    {
       checkOpened();
 
@@ -308,13 +308,13 @@ public class AsynchronousFileImpl implements AsynchronousFile
    }
 
 
-   public void writeInternal(long positionToWrite, long size, ByteBuffer bytes) throws HornetQException
+   public void writeInternal(long positionToWrite, long size, ByteBuffer bytes) throws ActiveMQException
    {
       try
       {
          Native.writeInternal(handler, positionToWrite, size, bytes);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fireExceptionListener(e.getType().getCode(), e.getMessage());
          throw e;
@@ -358,7 +358,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
                {
                   Native.write(AsynchronousFileImpl.this, handler, sequence, position, size, directByteBuffer, aioCallback);
                }
-               catch (HornetQException e)
+               catch (ActiveMQException e)
                {
                   callbackError(aioCallback, sequence, directByteBuffer, e.getType().getCode(), e.getMessage());
                }
@@ -367,7 +367,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
                   callbackError(aioCallback,
                                 sequence,
                                 directByteBuffer,
-                                HornetQExceptionType.INTERNAL_ERROR.getCode(),
+                                ActiveMQExceptionType.INTERNAL_ERROR.getCode(),
                                 e.getMessage());
                }
             }
@@ -383,13 +383,13 @@ public class AsynchronousFileImpl implements AsynchronousFile
          {
             Native.write(this, handler, sequence, position, size, directByteBuffer, aioCallback);
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             callbackError(aioCallback, sequence, directByteBuffer, e.getType().getCode(), e.getMessage());
          }
          catch (RuntimeException e)
          {
-            callbackError(aioCallback, sequence, directByteBuffer, HornetQExceptionType.INTERNAL_ERROR.getCode(), e.getMessage());
+            callbackError(aioCallback, sequence, directByteBuffer, ActiveMQExceptionType.INTERNAL_ERROR.getCode(), e.getMessage());
          }
       }
 
@@ -398,7 +398,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
    public void read(final long position,
                     final long size,
                     final ByteBuffer directByteBuffer,
-                    final AIOCallback aioPackage) throws HornetQException
+                    final AIOCallback aioPackage) throws ActiveMQException
    {
       checkOpened();
       if (poller == null)
@@ -411,7 +411,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
       {
          Native.read(this, handler, position, size, directByteBuffer, aioPackage);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          // Release only if an exception happened
          maxIOSemaphore.release();
@@ -427,20 +427,20 @@ public class AsynchronousFileImpl implements AsynchronousFile
       }
    }
 
-   public long size() throws HornetQException
+   public long size() throws ActiveMQException
    {
       checkOpened();
       return Native.size0(handler);
    }
 
-   public void fill(final long position, final int blocks, final long size, final byte fillChar) throws HornetQException
+   public void fill(final long position, final int blocks, final long size, final byte fillChar) throws ActiveMQException
    {
       checkOpened();
       try
       {
          Native.fill(handler, position, blocks, size, fillChar);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fireExceptionListener(e.getType().getCode(), e.getMessage());
          throw e;
@@ -619,7 +619,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
       HornetQJournalLogger.LOGGER.ioError(errorCode, errorMessage);
       if (ioExceptionListener != null)
       {
-         ioExceptionListener.onIOException(HornetQExceptionType.getType(errorCode).createException(errorMessage), errorMessage);
+         ioExceptionListener.onIOException(ActiveMQExceptionType.getType(errorCode).createException(errorMessage), errorMessage);
       }
    }
 
@@ -668,10 +668,10 @@ public class AsynchronousFileImpl implements AsynchronousFile
    }
 
    /**
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * @throws InterruptedException
     */
-   private void stopPoller() throws HornetQException, InterruptedException
+   private void stopPoller() throws ActiveMQException, InterruptedException
    {
       Native.stopPoller(handler);
       // We need to make sure we won't call close until Poller is

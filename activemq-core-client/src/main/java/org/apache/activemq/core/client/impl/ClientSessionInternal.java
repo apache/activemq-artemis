@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.client.impl;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -30,9 +30,9 @@ public interface ClientSessionInternal extends ClientSession
 {
    String getName();
 
-   void acknowledge(ClientConsumer consumer, Message message) throws HornetQException;
+   void acknowledge(ClientConsumer consumer, Message message) throws ActiveMQException;
 
-   void individualAcknowledge(final ClientConsumer consumer, final Message message) throws HornetQException;
+   void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException;
 
    boolean isCacheLargeMessageClient();
 
@@ -40,13 +40,13 @@ public interface ClientSessionInternal extends ClientSession
 
    boolean isCompressLargeMessages();
 
-   void expire(ClientConsumer consumer, Message message) throws HornetQException;
+   void expire(ClientConsumer consumer, Message message) throws ActiveMQException;
 
    void addConsumer(ClientConsumerInternal consumer);
 
    void addProducer(ClientProducerInternal producer);
 
-   void removeConsumer(ClientConsumerInternal consumer) throws HornetQException;
+   void removeConsumer(ClientConsumerInternal consumer) throws ActiveMQException;
 
    void removeProducer(ClientProducerInternal producer);
 
@@ -56,15 +56,15 @@ public interface ClientSessionInternal extends ClientSession
 
    void handleReceiveContinuation(ConsumerContext consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception;
 
-   void handleConsumerDisconnect(ConsumerContext consumerContext) throws HornetQException;
+   void handleConsumerDisconnect(ConsumerContext consumerContext) throws ActiveMQException;
 
    void preHandleFailover(RemotingConnection connection);
 
-   void handleFailover(RemotingConnection backupConnection, HornetQException cause);
+   void handleFailover(RemotingConnection backupConnection, ActiveMQException cause);
 
    RemotingConnection getConnection();
 
-   void cleanUp(boolean failingOver) throws HornetQException;
+   void cleanUp(boolean failingOver) throws ActiveMQException;
 
    void setForceNotSameRM(boolean force);
 
@@ -86,7 +86,7 @@ public interface ClientSessionInternal extends ClientSession
 
    void setPacketSize(int packetSize);
 
-   void resetIfNeeded() throws HornetQException;
+   void resetIfNeeded() throws ActiveMQException;
 
    /**
     * This is used internally to control and educate the user

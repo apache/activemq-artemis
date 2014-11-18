@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -871,7 +871,7 @@ public abstract class ServiceTestBase extends UnitTestCase
     * @throws Exception
     */
    public final void
-   sendMessages(ClientSession session, ClientProducer producer, int numMessages) throws HornetQException
+   sendMessages(ClientSession session, ClientProducer producer, int numMessages) throws ActiveMQException
    {
       for (int i = 0; i < numMessages; i++)
       {
@@ -880,7 +880,7 @@ public abstract class ServiceTestBase extends UnitTestCase
    }
 
    protected final ClientMessage
-   createMessage(ClientSession session, int counter, boolean durable) throws HornetQException
+   createMessage(ClientSession session, int counter, boolean durable) throws ActiveMQException
    {
       ClientMessage message = session.createMessage(durable);
       setBody(counter, message);
@@ -890,7 +890,7 @@ public abstract class ServiceTestBase extends UnitTestCase
    }
 
    protected final void
-   receiveMessages(ClientConsumer consumer, final int start, final int msgCount, final boolean ack) throws HornetQException
+   receiveMessages(ClientConsumer consumer, final int start, final int msgCount, final boolean ack) throws ActiveMQException
    {
       for (int i = start; i < msgCount; i++)
       {

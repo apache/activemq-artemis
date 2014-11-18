@@ -18,7 +18,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.TopologyMember;
@@ -47,13 +47,13 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator
    }
 
    @Override
-   public void locateNode() throws HornetQException
+   public void locateNode() throws ActiveMQException
    {
       locateNode(-1L);
    }
 
    @Override
-   public void locateNode(long timeout) throws HornetQException
+   public void locateNode(long timeout) throws ActiveMQException
    {
       try
       {

@@ -218,13 +218,13 @@
                     因此客户端可能永远也不会得到响应，也就可能一直阻塞在那里。</para>
                 <para>为了防止这种情况的发生，HornetQ在失效备援时会解除所有的阻塞调用，同时抛出一个
                     <literal>javax.jms.JMSException</literal>异常（如果是JMS）或<literal
-                        >HornetQException</literal>异常。异常的错误代码是<literal
-                        >HornetQException.UNBLOCKED</literal>。客户端需要自行处理这个异常，并且进行
+                        >ActiveMQException</literal>异常。异常的错误代码是<literal
+                        >ActiveMQException.UNBLOCKED</literal>。客户端需要自行处理这个异常，并且进行
                     必要的操作重试。</para>
                 <para>如果被解除阻塞的调用是commit()或者prepare()，那么这个事务会被自动地回滚，并且HornetQ
                     会抛出一个<literal>javax.jms.TransactionRolledBackException</literal>（如果是JMS）
-                    或都是一个<literal>HornetQException</literal>，错误代码为 <literal
-                        >HornetQException.TRANSACTION_ROLLED_BACK</literal>（如果是核心接口）。</para>
+                    或都是一个<literal>ActiveMQException</literal>，错误代码为 <literal
+                        >ActiveMQException.TRANSACTION_ROLLED_BACK</literal>（如果是核心接口）。</para>
             </section>
             <section id="ha.automatic.failover.transactions">
                 <title>事务的失效备援处理</title>
@@ -232,8 +232,8 @@
                     能保证发出的消息或通知没有丢失。</para>
                 <para>因此这个事务就会被标记为只回滚，任何尝试提交的操作都会抛出一个<literal
                         >javax.jms.TransactionRolledBackException</literal>异常（如果是JMS），或者是一
-                        个<literal>HornetQException</literal>的异常，错误代码为<literal
-                        >HornetQException.TRANSACTION_ROLLED_BACK</literal>（如果是核心接口）。</para>
+                        个<literal>ActiveMQException</literal>的异常，错误代码为<literal
+                        >ActiveMQException.TRANSACTION_ROLLED_BACK</literal>（如果是核心接口）。</para>
                 <para>客户端需要自行处理这些异常，进行必要的回滚处理。注意这里不需要人工将会话进行回滚－此时它已经
                       被回滚了。用户可以通过同一个会话重试该事务操作。</para>
                 <para>HornetQ发布包中包括了一个完整的例子来展示如何处理这种情况。参见

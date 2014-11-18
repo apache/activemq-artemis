@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.HornetQClient;
@@ -351,7 +351,7 @@ public class JMSServerControlTest extends ManagementTestBase
          }
          catch (javax.jms.IllegalStateException e)
          {
-            assertTrue(e.getCause() instanceof HornetQObjectClosedException);
+            assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
       finally
@@ -513,7 +513,7 @@ public class JMSServerControlTest extends ManagementTestBase
          }
          catch (javax.jms.IllegalStateException e)
          {
-            assertTrue(e.getCause() instanceof HornetQObjectClosedException);
+            assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
       finally
@@ -564,7 +564,7 @@ public class JMSServerControlTest extends ManagementTestBase
          }
          catch (javax.jms.IllegalStateException e)
          {
-            assertTrue(e.getCause() instanceof HornetQObjectClosedException);
+            assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
       finally

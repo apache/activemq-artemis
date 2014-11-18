@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.client.impl;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 
 /**
@@ -24,7 +24,7 @@ import org.apache.activemq.spi.core.remoting.SessionContext;
  */
 public interface ClientProducerCredits
 {
-   void acquireCredits(int credits) throws InterruptedException, HornetQException;
+   void acquireCredits(int credits) throws InterruptedException, ActiveMQException;
 
    void receiveCredits(int credits);
 

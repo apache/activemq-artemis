@@ -14,7 +14,7 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.utils.DataConstants;
 
@@ -75,7 +75,7 @@ public abstract class SessionContinuationMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeInt(body.length);
       buffer.writeBytes(body);
@@ -83,7 +83,7 @@ public abstract class SessionContinuationMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       int size = buffer.readInt();
       body = new byte[size];

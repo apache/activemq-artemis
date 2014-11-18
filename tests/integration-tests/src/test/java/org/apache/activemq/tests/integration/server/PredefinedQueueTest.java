@@ -15,8 +15,8 @@ package org.apache.activemq.tests.integration.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQQueueExistsException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -96,11 +96,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQQueueExistsException se)
+      catch (ActiveMQQueueExistsException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -110,11 +110,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQQueueExistsException se)
+      catch (ActiveMQQueueExistsException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -124,11 +124,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQQueueExistsException se)
+      catch (ActiveMQQueueExistsException se)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

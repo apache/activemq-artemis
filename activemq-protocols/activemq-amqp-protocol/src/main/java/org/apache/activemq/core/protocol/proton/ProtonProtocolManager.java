@@ -16,7 +16,7 @@ package org.apache.activemq.core.protocol.proton;
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
 import org.apache.activemq.core.protocol.proton.plug.HornetQProtonConnectionCallback;
@@ -94,7 +94,7 @@ public class ProtonProtocolManager implements ProtocolManager, NotificationListe
    }
 
    @Override
-   public void handleBuffer(RemotingConnection connection, HornetQBuffer buffer)
+   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
    {
       HornetQProtonRemotingConnection protonConnection = (HornetQProtonRemotingConnection)connection;
 
@@ -114,7 +114,7 @@ public class ProtonProtocolManager implements ProtocolManager, NotificationListe
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, HornetQBuffer buffer)
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
    {
    }
 

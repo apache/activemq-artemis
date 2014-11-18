@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.jms.bridge;
 import javax.transaction.TransactionManager;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.jms.bridge.DestinationFactory;
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
@@ -233,31 +233,31 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase
       }
    }
 
-   private void sendMessages(ServerGroup server, String queueName, int num) throws HornetQException
+   private void sendMessages(ServerGroup server, String queueName, int num) throws ActiveMQException
    {
       server.sendMessages(queueName, num);
    }
 
-   private void receiveMessages(ServerGroup server, String queueName, int num, boolean checkDup) throws HornetQException
+   private void receiveMessages(ServerGroup server, String queueName, int num, boolean checkDup) throws ActiveMQException
    {
       try
       {
          server.receiveMessages(queueName, num, checkDup);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          e.printStackTrace();
          throw e;
       }
    }
 
-   private void receiveMessages(ServerGroup server, String queueName, int num) throws HornetQException
+   private void receiveMessages(ServerGroup server, String queueName, int num) throws ActiveMQException
    {
       try
       {
          server.receiveMessages(queueName, num, false);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          e.printStackTrace();
          throw e;

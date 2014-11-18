@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.message.impl.MessageInternal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.DataConstants;
@@ -58,9 +58,9 @@ public class SessionReceiveMessage extends MessagePacket
    }
 
    @Override
-   public HornetQBuffer encode(final RemotingConnection connection)
+   public ActiveMQBuffer encode(final RemotingConnection connection)
    {
-      HornetQBuffer buffer = message.getEncodedBuffer();
+      ActiveMQBuffer buffer = message.getEncodedBuffer();
 
       // Sanity check
       if (buffer.writerIndex() != message.getEndOfMessagePosition())
@@ -87,7 +87,7 @@ public class SessionReceiveMessage extends MessagePacket
    }
 
    @Override
-   public void decode(final HornetQBuffer buffer)
+   public void decode(final ActiveMQBuffer buffer)
    {
       channelID = buffer.readLong();
 

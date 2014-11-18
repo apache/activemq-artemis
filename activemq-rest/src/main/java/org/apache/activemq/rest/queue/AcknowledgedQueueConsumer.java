@@ -25,7 +25,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
@@ -44,7 +44,7 @@ public class AcknowledgedQueueConsumer extends QueueConsumer
    protected String startup = Long.toString(System.currentTimeMillis());
    protected volatile Acknowledgement ack;
 
-   public AcknowledgedQueueConsumer(ClientSessionFactory factory, String destination, String id, DestinationServiceManager serviceManager, String selector) throws HornetQException
+   public AcknowledgedQueueConsumer(ClientSessionFactory factory, String destination, String id, DestinationServiceManager serviceManager, String selector) throws ActiveMQException
    {
       super(factory, destination, id, serviceManager, selector);
       autoAck = false;
@@ -153,7 +153,7 @@ public class AcknowledgedQueueConsumer extends QueueConsumer
             //System.out.println("Acknowledge message: " + ack.getMessage());
             ack.getMessage().acknowledge();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             throw new RuntimeException(e);
          }
@@ -217,14 +217,14 @@ public class AcknowledgedQueueConsumer extends QueueConsumer
          {
             old.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
          }
          try
          {
             oldSession.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
          }
       }

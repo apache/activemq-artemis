@@ -11,6 +11,9 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.jms.connection;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.junit.Before;
 import org.junit.After;
 
@@ -23,9 +26,6 @@ import javax.jms.Session;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.jms.HornetQJMSClient;
@@ -78,7 +78,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
    }
 
    @Test
-   public void testClosingTemporaryTopicDeletesQueue() throws JMSException, HornetQException
+   public void testClosingTemporaryTopicDeletesQueue() throws JMSException, ActiveMQException
    {
       conn = cf.createConnection();
 
@@ -98,9 +98,9 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
          cs.createConsumer(address);
          fail("the address from the TemporaryTopic still exists!");
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
-         assertEquals("expecting 'queue does not exist'", HornetQExceptionType.QUEUE_DOES_NOT_EXIST, e.getType());
+         assertEquals("expecting 'queue does not exist'", ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, e.getType());
       }
    }
 
@@ -142,7 +142,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
 
       RemotingConnection rc = sessi.getConnection();
 
-      rc.fail(new HornetQInternalErrorException());
+      rc.fail(new ActiveMQInternalErrorException());
 
       // Now close the connection
 

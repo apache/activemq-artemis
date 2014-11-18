@@ -72,11 +72,11 @@
        Also see: http://youtrack.jetbrains.com/issue/IDEA-125696
      -->
  
-      <hornetq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
+      <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration=file:${hornetq.basedir}/tests/config/logging.properties
-         -Djava.library.path=${hornetq.basedir}/hornetq-native/bin/ -Djgroups.bind_addr=localhost
+         -Djava.library.path=${hornetq.basedir}/activemq-native/bin/ -Djgroups.bind_addr=localhost
          -Djava.net.preferIPv4Stack=true
-      </hornetq-surefire-argline>
+      </activemq-surefire-argline>
       <hornetq.basedir>${project.basedir}</hornetq.basedir>
       <skipLicenseCheck>false</skipLicenseCheck>
       <skipStyleCheck>false</skipStyleCheck>
@@ -743,7 +743,7 @@
                   <testFailureIgnore>true</testFailureIgnore>
                   <runOrder>alphabetical</runOrder>
                   <redirectTestOutputToFile>false</redirectTestOutputToFile>
-                  <argLine>${hornetq-surefire-argline}</argLine>
+                  <argLine>${activemq-surefire-argline}</argLine>
                </configuration>
             </plugin>
             <plugin>

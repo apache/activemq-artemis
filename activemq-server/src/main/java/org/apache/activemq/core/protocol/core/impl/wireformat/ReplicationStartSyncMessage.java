@@ -16,7 +16,7 @@ import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.impl.JournalFile;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.JournalContent;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
@@ -115,7 +115,7 @@ public class ReplicationStartSyncMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeBoolean(synchronizationIsFinished);
       buffer.writeBoolean(allowsAutoFailBack);
@@ -131,7 +131,7 @@ public class ReplicationStartSyncMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       synchronizationIsFinished = buffer.readBoolean();
       allowsAutoFailBack = buffer.readBoolean();

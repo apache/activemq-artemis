@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -665,7 +665,7 @@ public class BasicXaTest extends ServiceTestBase
    }
 
    /**
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     * @throws XAException
     */
    protected void multipleQueuesInternalTest(final boolean createQueues,
@@ -956,7 +956,7 @@ public class BasicXaTest extends ServiceTestBase
          {
             message.acknowledge();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
             BasicXaTest.log.error("Failed to process message", e);
          }
@@ -973,7 +973,7 @@ public class BasicXaTest extends ServiceTestBase
             {
                session.close();
             }
-            catch (HornetQException e1)
+            catch (ActiveMQException e1)
             {
                //
             }

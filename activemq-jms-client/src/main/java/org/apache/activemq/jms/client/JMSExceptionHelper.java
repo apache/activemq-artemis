@@ -17,7 +17,7 @@ import javax.jms.InvalidSelectorException;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  *
@@ -29,7 +29,7 @@ import org.apache.activemq.api.core.HornetQException;
 public final class JMSExceptionHelper
 {
 
-   public static JMSException convertFromHornetQException(final HornetQException me)
+   public static JMSException convertFromHornetQException(final ActiveMQException me)
    {
       JMSException je;
       switch (me.getType())

@@ -15,7 +15,7 @@ package org.apache.activemq.api.core.client;
 import javax.transaction.xa.XAResource;
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
@@ -111,24 +111,24 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Starts the session.
     * The session must be started before ClientConsumers created by the session can consume messages from the queue.
     *
-    * @throws HornetQException if an exception occurs while starting the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while starting the session
     */
-   ClientSession start() throws HornetQException;
+   ClientSession start() throws ActiveMQException;
 
    /**
     * Stops the session.
     * ClientConsumers created by the session can not consume messages when the session is stopped.
     *
-    * @throws HornetQException if an exception occurs while stopping the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while stopping the session
     */
-   void stop() throws HornetQException;
+   void stop() throws ActiveMQException;
 
    /**
     * Closes the session.
     *
-    * @throws HornetQException if an exception occurs while closing the session
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while closing the session
     */
-   void close() throws HornetQException;
+   void close() throws ActiveMQException;
 
    /**
     * Returns whether the session is closed or not.
@@ -183,9 +183,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createQueue(SimpleString address, SimpleString queueName, boolean durable) throws HornetQException;
+   void createQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
     * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
@@ -195,9 +195,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param durable   if the queue is durable
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws HornetQException;
+   void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
     * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
@@ -208,9 +208,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName the name of the queue
     * @param filter    whether the queue is durable or not
     * @param durable   if the queue is durable
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws HornetQException;
+   void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em> queue.
@@ -218,27 +218,27 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createQueue(String address, String queueName, boolean durable) throws HornetQException;
+   void createQueue(String address, String queueName, boolean durable) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createQueue(String address, String queueName) throws HornetQException;
+   void createQueue(String address, String queueName) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createQueue(SimpleString address, SimpleString queueName) throws HornetQException;
+   void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em> queue.
@@ -247,9 +247,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @param durable   whether the queue is durable or not
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws HornetQException;
+   void createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em>queue.
@@ -258,27 +258,27 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
     * @param filter    only messages which match this filter will be put in the queue
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createQueue(String address, String queueName, String filter, boolean durable) throws HornetQException;
+   void createQueue(String address, String queueName, String filter, boolean durable) throws ActiveMQException;
 
    /**
     * Creates a <em>temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createTemporaryQueue(SimpleString address, SimpleString queueName) throws HornetQException;
+   void createTemporaryQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
 
    /**
     * Creates a <em>temporary</em> queue.
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createTemporaryQueue(String address, String queueName) throws HornetQException;
+   void createTemporaryQueue(String address, String queueName) throws ActiveMQException;
 
    /**
     * Creates a <em>temporary</em> queue with a filter.
@@ -286,9 +286,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createTemporaryQueue(SimpleString address, SimpleString queueName, SimpleString filter) throws HornetQException;
+   void createTemporaryQueue(SimpleString address, SimpleString queueName, SimpleString filter) throws ActiveMQException;
 
    /**
     * Creates a <em>temporary</em> queue with a filter.
@@ -296,25 +296,25 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
-    * @throws HornetQException in an exception occurs while creating the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
     */
-   void createTemporaryQueue(String address, String queueName, String filter) throws HornetQException;
+   void createTemporaryQueue(String address, String queueName, String filter) throws ActiveMQException;
 
    /**
     * Deletes the queue.
     *
     * @param queueName the name of the queue to delete
-    * @throws HornetQException if there is no queue for the given name or if the queue has consumers
+    * @throws org.apache.activemq.api.core.ActiveMQException if there is no queue for the given name or if the queue has consumers
     */
-   void deleteQueue(SimpleString queueName) throws HornetQException;
+   void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
    /**
     * Deletes the queue.
     *
     * @param queueName the name of the queue to delete
-    * @throws HornetQException if there is no queue for the given name or if the queue has consumers
+    * @throws org.apache.activemq.api.core.ActiveMQException if there is no queue for the given name or if the queue has consumers
     */
-   void deleteQueue(String queueName) throws HornetQException;
+   void deleteQueue(String queueName) throws ActiveMQException;
 
    // Consumer Operations -------------------------------------------
 
@@ -323,18 +323,18 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param queueName name of the queue to consume messages from
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName) throws HornetQException;
+   ClientConsumer createConsumer(SimpleString queueName) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume messages from the queue with the given name.
     *
     * @param queueName name of the queue to consume messages from
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(String queueName) throws HornetQException;
+   ClientConsumer createConsumer(String queueName) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume messages matching the filter from the queue with the given name.
@@ -342,9 +342,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName name of the queue to consume messages from
     * @param filter    only messages which match this filter will be consumed
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter) throws HornetQException;
+   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume messages matching the filter from the queue with the given name.
@@ -352,9 +352,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName name of the queue to consume messages from
     * @param filter    only messages which match this filter will be consumed
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(String queueName, String filter) throws HornetQException;
+   ClientConsumer createConsumer(String queueName, String filter) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume or browse messages from the queue with the given name.
@@ -370,9 +370,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName  name of the queue to consume messages from
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName, boolean browseOnly) throws HornetQException;
+   ClientConsumer createConsumer(SimpleString queueName, boolean browseOnly) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume or browse messages from the queue with the given name.
@@ -388,9 +388,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName  name of the queue to consume messages from
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(String queueName, boolean browseOnly) throws HornetQException;
+   ClientConsumer createConsumer(String queueName, boolean browseOnly) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
@@ -408,9 +408,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param filter     only messages which match this filter will be consumed
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(String queueName, String filter, boolean browseOnly) throws HornetQException;
+   ClientConsumer createConsumer(String queueName, String filter, boolean browseOnly) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
@@ -428,9 +428,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param filter     only messages which match this filter will be consumed
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, boolean browseOnly) throws HornetQException;
+   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, boolean browseOnly) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
@@ -450,13 +450,13 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param maxRate    the maximum rate to consume messages
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(SimpleString queueName,
                                  SimpleString filter,
                                  int windowSize,
                                  int maxRate,
-                                 boolean browseOnly) throws HornetQException;
+                                 boolean browseOnly) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
@@ -476,9 +476,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param maxRate    the maximum rate to consume messages
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws HornetQException if an exception occurs while creating the ClientConsumer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(String queueName, String filter, int windowSize, int maxRate, boolean browseOnly) throws HornetQException;
+   ClientConsumer createConsumer(String queueName, String filter, int windowSize, int maxRate, boolean browseOnly) throws ActiveMQException;
 
    // Producer Operations -------------------------------------------
 
@@ -489,25 +489,25 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @return a ClientProducer
     * @see ClientProducer#send(SimpleString, org.apache.activemq.api.core.Message)
     */
-   ClientProducer createProducer() throws HornetQException;
+   ClientProducer createProducer() throws ActiveMQException;
 
    /**
     * Creates a producer which sends messages to the given address
     *
     * @param address the address to send messages to
     * @return a ClientProducer
-    * @throws HornetQException if an exception occurs while creating the ClientProducer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientProducer
     */
-   ClientProducer createProducer(SimpleString address) throws HornetQException;
+   ClientProducer createProducer(SimpleString address) throws ActiveMQException;
 
    /**
     * Creates a producer which sends messages to the given address
     *
     * @param address the address to send messages to
     * @return a ClientProducer
-    * @throws HornetQException if an exception occurs while creating the ClientProducer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientProducer
     */
-   ClientProducer createProducer(String address) throws HornetQException;
+   ClientProducer createProducer(String address) throws ActiveMQException;
 
    /**
     * Creates a producer which sends messages to the given address
@@ -515,9 +515,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address the address to send messages to
     * @param rate    the producer rate
     * @return a ClientProducer
-    * @throws HornetQException if an exception occurs while creating the ClientProducer
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientProducer
     */
-   ClientProducer createProducer(SimpleString address, int rate) throws HornetQException;
+   ClientProducer createProducer(SimpleString address, int rate) throws ActiveMQException;
 
    // Message operations --------------------------------------------
 
@@ -557,18 +557,18 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param queueName the name of the queue to query
     * @return a QueueQuery containing information on the given queue
-    * @throws HornetQException if an exception occurs while querying the queue
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while querying the queue
     */
-   QueueQuery queueQuery(SimpleString queueName) throws HornetQException;
+   QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 
    /**
     * Queries information on a binding.
     *
     * @param address the address of the biding to query
     * @return a AddressQuery containing information on the binding attached to the given address
-    * @throws HornetQException if an exception occurs while querying the binding
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while querying the binding
     */
-   AddressQuery addressQuery(SimpleString address) throws HornetQException;
+   AddressQuery addressQuery(SimpleString address) throws ActiveMQException;
 
    // Transaction operations ----------------------------------------
 
@@ -589,24 +589,24 @@ public interface ClientSession extends XAResource, AutoCloseable
    /**
     * Commits the current transaction.
     *
-    * @throws HornetQException if an exception occurs while committing the transaction
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while committing the transaction
     */
-   void commit() throws HornetQException;
+   void commit() throws ActiveMQException;
 
    /**
     * Rolls back the current transaction.
     *
-    * @throws HornetQException if an exception occurs while rolling back the transaction
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while rolling back the transaction
     */
-   void rollback() throws HornetQException;
+   void rollback() throws ActiveMQException;
 
    /**
     * Rolls back the current transaction.
     *
     * @param considerLastMessageAsDelivered the first message on deliveringMessage Buffer is considered as delivered
-    * @throws HornetQException if an exception occurs while rolling back the transaction
+    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while rolling back the transaction
     */
-   void rollback(boolean considerLastMessageAsDelivered) throws HornetQException;
+   void rollback(boolean considerLastMessageAsDelivered) throws ActiveMQException;
 
    /**
     * Returns <code>true</code> if the current transaction has been flagged to rollback, <code>false</code> else.
@@ -649,18 +649,18 @@ public interface ClientSession extends XAResource, AutoCloseable
    /**
     * Attach any metadata to the session.
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   void addMetaData(String key, String data) throws HornetQException;
+   void addMetaData(String key, String data) throws ActiveMQException;
 
    /**
     * Attach any metadata to the session. Throws an exception if there's already a metadata available.
     * You can use this metadata to ensure that there is no other session with the same meta-data you are passing as an argument.
     * This is useful to simulate unique client-ids, where you may want to avoid multiple instances of your client application connected.
     *
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   void addUniqueMetaData(String key, String data) throws HornetQException;
+   void addUniqueMetaData(String key, String data) throws ActiveMQException;
 
    /**
     * Return the sessionFactory used to created this Session.

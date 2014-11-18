@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.BroadcastEndpoint;
 import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
 import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -1396,7 +1396,7 @@ public class DiscoveryTest extends UnitTestCase
       }
 
       @Override
-      public SimpleString readNodeId() throws HornetQIllegalStateException, IOException
+      public SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException
       {
          return null;
       }

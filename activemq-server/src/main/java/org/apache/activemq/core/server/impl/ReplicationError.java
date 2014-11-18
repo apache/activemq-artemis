@@ -15,8 +15,8 @@
  */
 package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
@@ -45,7 +45,7 @@ final class ReplicationError implements Interceptor
    }
 
    @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
    {
       if (packet.getType() != PacketImpl.BACKUP_REGISTRATION_FAILED)
          return true;
@@ -68,7 +68,7 @@ final class ReplicationError implements Interceptor
       return false;
    }
 
-   private void failed() throws HornetQInternalErrorException
+   private void failed() throws ActiveMQInternalErrorException
    {
       HornetQServerLogger.LOGGER.errorRegisteringBackup();
       nodeLocator.notifyRegistrationFailed(false);

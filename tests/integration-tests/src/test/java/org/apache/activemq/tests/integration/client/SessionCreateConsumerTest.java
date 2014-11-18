@@ -12,9 +12,9 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQInvalidFilterExpressionException;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -69,11 +69,11 @@ public class SessionCreateConsumerTest extends ServiceTestBase
          clientSession.createConsumer(queueName);
          Assert.fail("should throw exception");
       }
-      catch (HornetQNonExistentQueueException neqe)
+      catch (ActiveMQNonExistentQueueException neqe)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -96,11 +96,11 @@ public class SessionCreateConsumerTest extends ServiceTestBase
          clientSession.createConsumer(queueName, "this is not valid filter");
          Assert.fail("should throw exception");
       }
-      catch (HornetQInvalidFilterExpressionException ifee)
+      catch (ActiveMQInvalidFilterExpressionException ifee)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

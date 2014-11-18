@@ -15,8 +15,8 @@ package org.apache.activemq.tests.integration.client;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.HornetQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -115,14 +115,14 @@ public class ServerLocatorConnectTest extends ServiceTestBase
       {
          csf = locator.connect();
       }
-      catch (HornetQNotConnectedException nce)
+      catch (ActiveMQNotConnectedException nce)
       {
          //ok
       }
       catch (Exception e)
       {
-         assertTrue(e instanceof HornetQException);
-         fail("Invalid Exception type:" + ((HornetQException) e).getType());
+         assertTrue(e instanceof ActiveMQException);
+         fail("Invalid Exception type:" + ((ActiveMQException) e).getType());
       }
       assertNull(csf);
       locator.close();

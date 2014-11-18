@@ -18,9 +18,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 
@@ -54,7 +54,7 @@ public class MessageUtil
 
 
 
-   public static HornetQBuffer getBodyBuffer(Message message)
+   public static ActiveMQBuffer getBodyBuffer(Message message)
    {
       return message.getBodyBuffer();
    }
@@ -97,11 +97,11 @@ public class MessageUtil
    }
 
 
-   public static final void setJMSCorrelationIDAsBytes(Message message, final byte[] correlationID) throws HornetQException
+   public static final void setJMSCorrelationIDAsBytes(Message message, final byte[] correlationID) throws ActiveMQException
    {
       if (correlationID == null || correlationID.length == 0)
       {
-         throw new HornetQException("Please specify a non-zero length byte[]");
+         throw new ActiveMQException("Please specify a non-zero length byte[]");
       }
       message.putBytesProperty(CORRELATIONID_HEADER_NAME, correlationID);
    }
@@ -124,7 +124,7 @@ public class MessageUtil
       {
          return message.getStringProperty(CORRELATIONID_HEADER_NAME);
       }
-      catch (HornetQPropertyConversionException e)
+      catch (ActiveMQPropertyConversionException e)
       {
          return null;
       }

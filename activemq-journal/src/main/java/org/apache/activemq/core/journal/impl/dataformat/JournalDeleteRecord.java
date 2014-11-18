@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.journal.impl.dataformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 
 /**
@@ -35,7 +35,7 @@ public class JournalDeleteRecord extends JournalInternalRecord
       this.id = id;
    }
 
-   public void encode(final HornetQBuffer buffer)
+   public void encode(final ActiveMQBuffer buffer)
    {
       buffer.writeByte(JournalImpl.DELETE_RECORD);
 

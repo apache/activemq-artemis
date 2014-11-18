@@ -13,23 +13,23 @@
 
 package org.apache.activemq.core.server;
 
+import org.apache.activemq.api.core.ActiveMQAddressFullException;
+import org.apache.activemq.api.core.ActiveMQClusterSecurityException;
+import org.apache.activemq.api.core.ActiveMQConnectionTimedOutException;
+import org.apache.activemq.api.core.ActiveMQDisconnectedException;
+import org.apache.activemq.api.core.ActiveMQDuplicateMetaDataException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQIOErrorException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIncompatibleClientServerException;
+import org.apache.activemq.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.api.core.ActiveMQInvalidTransientQueueUseException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.api.core.ActiveMQSecurityException;
+import org.apache.activemq.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.HornetQAddressFullException;
-import org.apache.activemq.api.core.HornetQClusterSecurityException;
-import org.apache.activemq.api.core.HornetQConnectionTimedOutException;
-import org.apache.activemq.api.core.HornetQDisconnectedException;
-import org.apache.activemq.api.core.HornetQDuplicateMetaDataException;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQIOErrorException;
-import org.apache.activemq.api.core.HornetQIllegalStateException;
-import org.apache.activemq.api.core.HornetQIncompatibleClientServerException;
-import org.apache.activemq.api.core.HornetQInternalErrorException;
-import org.apache.activemq.api.core.HornetQInvalidFilterExpressionException;
-import org.apache.activemq.api.core.HornetQInvalidTransientQueueUseException;
-import org.apache.activemq.api.core.HornetQNonExistentQueueException;
-import org.apache.activemq.api.core.HornetQQueueExistsException;
-import org.apache.activemq.api.core.HornetQSecurityException;
-import org.apache.activemq.api.core.HornetQSessionCreationException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
@@ -73,31 +73,31 @@ public interface HornetQMessageBundle
    String serverDescribe(String identity, String describe);
 
    @Message(id = 119005, value = "connections for {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException connectionsClosedByManagement(String ipAddress);
+   ActiveMQInternalErrorException connectionsClosedByManagement(String ipAddress);
 
    @Message(id = 119006, value = "journals are not JournalImpl. You can''t set a replicator!", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException notJournalImpl();
+   ActiveMQInternalErrorException notJournalImpl();
 
    @Message(id = 119007, value = "unhandled error during replication", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException replicationUnhandledError(@Cause Exception e);
+   ActiveMQInternalErrorException replicationUnhandledError(@Cause Exception e);
 
    @Message(id = 119008, value = "Live Node contains more journals than the backup node. Probably a version match error", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException replicationTooManyJournals();
+   ActiveMQInternalErrorException replicationTooManyJournals();
 
    @Message(id = 119009, value = "Unhandled file type {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException replicationUnhandledFileType(ReplicationSyncFileMessage.FileType fileType);
+   ActiveMQInternalErrorException replicationUnhandledFileType(ReplicationSyncFileMessage.FileType fileType);
 
    @Message(id = 119010, value = "Remote Backup can not be up-to-date!", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException replicationBackupUpToDate();
+   ActiveMQInternalErrorException replicationBackupUpToDate();
 
    @Message(id = 119011, value = "unhandled data type!", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException replicationUnhandledDataType();
+   ActiveMQInternalErrorException replicationUnhandledDataType();
 
    @Message(id = 119012, value = "No binding for divert {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException noBindingForDivert(SimpleString name);
+   ActiveMQInternalErrorException noBindingForDivert(SimpleString name);
 
    @Message(id = 119013, value = "Binding {0} is not a divert", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException bindingNotDivert(SimpleString name);
+   ActiveMQInternalErrorException bindingNotDivert(SimpleString name);
 
    @Message(id = 119014,
             value = "Did not receive data from {0}. It is likely the client has exited or crashed without "
@@ -106,70 +106,70 @@ public interface HornetQMessageBundle
                "You also might have configured connection-ttl and client-failure-check-period incorrectly. " +
                "Please check user manual for more information." +
                " The connection will now be closed.", format = Message.Format.MESSAGE_FORMAT)
-   HornetQConnectionTimedOutException clientExited(String remoteAddress);
+   ActiveMQConnectionTimedOutException clientExited(String remoteAddress);
 
    @Message(id = 119015, value = "Timeout on waiting I/O completion", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIOErrorException ioTimeout();
+   ActiveMQIOErrorException ioTimeout();
 
    @Message(id = 119016, value = "queue {0} has been removed cannot deliver message, queues should not be removed when grouping is used", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNonExistentQueueException groupingQueueRemoved(SimpleString chosenClusterName);
+   ActiveMQNonExistentQueueException groupingQueueRemoved(SimpleString chosenClusterName);
 
    @Message(id = 119017, value = "Queue {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
-   HornetQNonExistentQueueException noSuchQueue(SimpleString queueName);
+   ActiveMQNonExistentQueueException noSuchQueue(SimpleString queueName);
 
    @Message(id = 119018, value = "Binding already exists {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQQueueExistsException bindingAlreadyExists(Binding binding);
+   ActiveMQQueueExistsException bindingAlreadyExists(Binding binding);
 
    @Message(id = 119019, value = "Queue already exists {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQQueueExistsException queueAlreadyExists(SimpleString queueName);
+   ActiveMQQueueExistsException queueAlreadyExists(SimpleString queueName);
 
    @Message(id = 119020, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
+   ActiveMQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
 
    @Message(id = 119021, value = "MessageId was not assigned to Message", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException messageIdNotAssigned();
+   ActiveMQIllegalStateException messageIdNotAssigned();
 
    @Message(id = 119022, value = "Cannot compare journals if not in sync!", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException journalsNotInSync();
+   ActiveMQIllegalStateException journalsNotInSync();
 
    @Message(id = 119023, value = "Connected server is not a backup server", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException serverNotBackupServer();
+   ActiveMQIllegalStateException serverNotBackupServer();
 
    @Message(id = 119024, value = "Backup replication server is already connected to another server", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException alreadyHaveReplicationServer();
+   ActiveMQIllegalStateException alreadyHaveReplicationServer();
 
    @Message(id = 119025, value = "Cannot delete queue {0} on binding {1} - it has consumers = {2}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException cannotDeleteQueue(SimpleString name, SimpleString queueName, String s);
+   ActiveMQIllegalStateException cannotDeleteQueue(SimpleString name, SimpleString queueName, String s);
 
    @Message(id = 119026, value = "Backup Server was not yet in sync with live", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException backupServerNotInSync();
+   ActiveMQIllegalStateException backupServerNotInSync();
 
    @Message(id = 119027, value = "Could not find reference on consumer ID={0}, messageId = {1} queue = {2}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException consumerNoReference(Long id, Long messageID, SimpleString name);
+   ActiveMQIllegalStateException consumerNoReference(Long id, Long messageID, SimpleString name);
 
    @Message(id = 119028, value = "Consumer {0} doesn''t exist on the server", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException consumerDoesntExist(long consumerID);
+   ActiveMQIllegalStateException consumerDoesntExist(long consumerID);
 
    @Message(id = 119029, value = "No address configured on the Server''s Session", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException noAddress();
+   ActiveMQIllegalStateException noAddress();
 
    @Message(id = 119030, value = "large-message not initialized on server", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException largeMessageNotInitialised();
+   ActiveMQIllegalStateException largeMessageNotInitialised();
 
    @Message(id = 119031, value = "Unable to validate user: {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQSecurityException unableToValidateUser(String user);
+   ActiveMQSecurityException unableToValidateUser(String user);
 
    @Message(id = 119032, value = "User: {0} does not have permission=''{1}'' on address {2}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQSecurityException userNoPermissions(String username, CheckType checkType, String saddress);
+   ActiveMQSecurityException userNoPermissions(String username, CheckType checkType, String saddress);
 
    @Message(id = 119033, value = "Server and client versions incompatible", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIncompatibleClientServerException incompatibleClientServer();
+   ActiveMQIncompatibleClientServerException incompatibleClientServer();
 
    @Message(id = 119034, value = "Server not started", format = Message.Format.MESSAGE_FORMAT)
-   HornetQSessionCreationException serverNotStarted();
+   ActiveMQSessionCreationException serverNotStarted();
 
    @Message(id = 119035, value = "Metadata {0}={1} had been set already", format = Message.Format.MESSAGE_FORMAT)
-   HornetQDuplicateMetaDataException duplicateMetadata(String key, String data);
+   ActiveMQDuplicateMetaDataException duplicateMetadata(String key, String data);
 
    @Message(id = 119036, value = "Invalid type: {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidType(Object type);
@@ -307,7 +307,7 @@ public interface HornetQMessageBundle
     * Exception used on on {@link org.apache.activemq.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119078, value = "Disconnected per admin''s request on {0}={1}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQDisconnectedException destroyConnectionWithSessionMetadataSendException(String key, String value);
+   ActiveMQDisconnectedException destroyConnectionWithSessionMetadataSendException(String key, String value);
 
    /**
     * Message used on on {@link org.apache.activemq.core.server.impl.HornetQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
@@ -316,25 +316,25 @@ public interface HornetQMessageBundle
    String destroyConnectionWithSessionMetadataNoSessionFound(String key, String value);
 
    @Message(id = 119080, value = "Invalid Page IO, PagingManager was stopped or closed", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException invalidPageIO();
+   ActiveMQIllegalStateException invalidPageIO();
 
    @Message(id = 119081, value = "No Discovery Group configuration named {0} found", format = Message.Format.MESSAGE_FORMAT)
-   HornetQException noDiscoveryGroupFound(DiscoveryGroupConfiguration dg);
+   ActiveMQException noDiscoveryGroupFound(DiscoveryGroupConfiguration dg);
 
    @Message(id = 119082, value = "Queue {0} already exists on another subscription", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentAddress(SimpleString queueName);
+   ActiveMQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentAddress(SimpleString queueName);
 
    @Message(id = 119083, value = "Queue {0} has a different filter than requested", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentFilter(SimpleString queueName);
+   ActiveMQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentFilter(SimpleString queueName);
 
    @Message(id = 119085, value = "Classpath lacks a protocol-manager for protocol {0}",
             format = Message.Format.MESSAGE_FORMAT)
-   HornetQException noProtocolManagerFound(String protocol);
+   ActiveMQException noProtocolManagerFound(String protocol);
 
    // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
    @Message(id = 119099, value = "Unable to authenticate cluster user: {0}",
             format = Message.Format.MESSAGE_FORMAT)
-   HornetQClusterSecurityException unableToValidateClusterUser(String user);
+   ActiveMQClusterSecurityException unableToValidateClusterUser(String user);
 
 
    @Message(id = 119100, value = "Trying to move a journal file that refers to a file instead of a directory: {0}",
@@ -346,26 +346,26 @@ public interface HornetQMessageBundle
    IllegalStateException couldNotMoveJournal(File dir);
 
    @Message(id = 119102, value = "Address \"{0}\" is full.", format = Message.Format.MESSAGE_FORMAT)
-   HornetQAddressFullException addressIsFull(String addressName);
+   ActiveMQAddressFullException addressIsFull(String addressName);
 
    @Message(id = 119103, value = "No Connectors or Discovery Groups configured for Scale Down", format = Message.Format.MESSAGE_FORMAT)
-   HornetQException noConfigurationFoundForScaleDown();
+   ActiveMQException noConfigurationFoundForScaleDown();
 
    @Message(id = 119104, value = "Server is stopping. Message grouping not allowed", format = Message.Format.MESSAGE_FORMAT)
-   HornetQException groupWhileStopping();
+   ActiveMQException groupWhileStopping();
 
    @Message(id = 119105, value = "Server will not accept create session request since scale down has not occurred", format = Message.Format.MESSAGE_FORMAT)
-   HornetQSessionCreationException sessionNotFailedOver();
+   ActiveMQSessionCreationException sessionNotFailedOver();
 
    @Message(id = 119106, value = "Invalid slow consumer policy type {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidSlowConsumerPolicyType(String val);
 
    @Message(id = 119107, value = "consumer connections for address {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException consumerConnectionsClosedByManagement(String address);
+   ActiveMQInternalErrorException consumerConnectionsClosedByManagement(String address);
 
    @Message(id = 119108, value = "connections for user {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
-   HornetQInternalErrorException connectionsForUserClosedByManagement(String userName);
+   ActiveMQInternalErrorException connectionsForUserClosedByManagement(String userName);
 
    @Message(id = 119109, value = "unsupported HA Policy Configuration {0}", format = Message.Format.MESSAGE_FORMAT)
-   HornetQIllegalStateException unsupportedHAPolicyConfiguration(Object o);
+   ActiveMQIllegalStateException unsupportedHAPolicyConfiguration(Object o);
 }

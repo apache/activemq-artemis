@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.HornetQClientLogger;
@@ -198,7 +198,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       channels.put(channelID, channel);
    }
 
-   public void fail(final HornetQException me, String scaleDownTargetNodeID)
+   public void fail(final ActiveMQException me, String scaleDownTargetNodeID)
    {
       synchronized (failLock)
       {
@@ -366,7 +366,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    // Buffer Handler implementation
    // ----------------------------------------------------
-   public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+   public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
    {
       try
       {

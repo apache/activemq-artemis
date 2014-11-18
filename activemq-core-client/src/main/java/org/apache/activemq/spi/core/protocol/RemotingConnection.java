@@ -14,8 +14,8 @@ package org.apache.activemq.spi.core.protocol;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
@@ -115,14 +115,14 @@ public interface RemotingConnection extends BufferHandler
     * @param size the size of buffer required
     * @return the buffer
     */
-   HornetQBuffer createBuffer(int size);
+   ActiveMQBuffer createBuffer(int size);
 
    /**
     * called when the underlying connection fails.
     *
     * @param me the exception that caused the failure
     */
-   void fail(HornetQException me);
+   void fail(ActiveMQException me);
 
    /**
     * called when the underlying connection fails.
@@ -130,7 +130,7 @@ public interface RemotingConnection extends BufferHandler
     * @param me the exception that caused the failure
     * @param scaleDownTargetNodeID the ID of the node where scale down is targeted
     */
-   void fail(HornetQException me, String scaleDownTargetNodeID);
+   void fail(ActiveMQException me, String scaleDownTargetNodeID);
 
    /**
     * destroys this connection.

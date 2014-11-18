@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.tests.unit.util;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.HornetQBufferInputStream;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class HornetQBufferInputStreamTest extends UnitTestCase
          bytes[i] = getSamplebyte(i);
       }
 
-      HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(bytes);
+      ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(bytes);
       HornetQBufferInputStream is = new HornetQBufferInputStream(buffer);
 
       // First read byte per byte

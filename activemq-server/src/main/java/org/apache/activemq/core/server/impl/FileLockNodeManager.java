@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
 
-import org.apache.activemq.api.core.HornetQIllegalStateException;
+import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.HornetQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
@@ -257,13 +257,13 @@ public class FileLockNodeManager extends NodeManager
    }
 
    @Override
-   public final SimpleString readNodeId() throws HornetQIllegalStateException, IOException
+   public final SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException
    {
       ByteBuffer id = ByteBuffer.allocateDirect(16);
       int read = channel.read(id, 3);
       if (read != 16)
       {
-         throw new HornetQIllegalStateException("live server did not write id to file");
+         throw new ActiveMQIllegalStateException("live server did not write id to file");
       }
       byte[] bytes = new byte[16];
       id.position(0);

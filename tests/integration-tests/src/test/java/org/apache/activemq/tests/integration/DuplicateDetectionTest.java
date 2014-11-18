@@ -16,8 +16,8 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.HornetQDuplicateIdException;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQDuplicateIdException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -752,11 +752,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       {
          session.commit();
       }
-      catch (HornetQDuplicateIdException die)
+      catch (ActiveMQDuplicateIdException die)
       {
          session.rollback();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1902,11 +1902,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       {
          session.commit();
       }
-      catch (HornetQDuplicateIdException die)
+      catch (ActiveMQDuplicateIdException die)
       {
          session.rollback();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -1922,11 +1922,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       {
          session.commit();
       }
-      catch (HornetQDuplicateIdException die)
+      catch (ActiveMQDuplicateIdException die)
       {
          session.rollback();
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }

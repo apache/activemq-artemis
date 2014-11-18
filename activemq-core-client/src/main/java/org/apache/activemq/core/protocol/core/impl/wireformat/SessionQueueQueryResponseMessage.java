@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.client.impl.QueueQueryImpl;
@@ -130,7 +130,7 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeBoolean(exists);
       buffer.writeBoolean(durable);
@@ -143,7 +143,7 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       exists = buffer.readBoolean();
       durable = buffer.readBoolean();

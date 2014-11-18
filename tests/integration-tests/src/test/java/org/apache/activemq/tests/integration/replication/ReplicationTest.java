@@ -27,11 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -185,11 +185,11 @@ public final class ReplicationTest extends ServiceTestBase
          manager.start();
          Assert.fail("Exception was expected");
       }
-      catch (HornetQNotConnectedException nce)
+      catch (ActiveMQNotConnectedException nce)
       {
          // ok
       }
-      catch (HornetQException expected)
+      catch (ActiveMQException expected)
       {
          fail("Invalid Exception type:" + expected.getType());
       }
@@ -261,7 +261,7 @@ public final class ReplicationTest extends ServiceTestBase
       serverMsg.setMessageID(500);
       serverMsg.setAddress(new SimpleString("tttt"));
 
-      HornetQBuffer buffer = HornetQBuffers.dynamicBuffer(100);
+      ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(100);
       serverMsg.encodeHeadersAndProperties(buffer);
 
       manager.largeMessageBegin(500);
@@ -336,7 +336,7 @@ public final class ReplicationTest extends ServiceTestBase
 
       String msg = "I'm an exception";
 
-      ctx.onError(HornetQExceptionType.UNBLOCKED.getCode(), msg);
+      ctx.onError(ActiveMQExceptionType.UNBLOCKED.getCode(), msg);
 
       final AtomicInteger lastError = new AtomicInteger(0);
 
@@ -527,11 +527,11 @@ public final class ReplicationTest extends ServiceTestBase
    class FakeData implements EncodingSupport
    {
 
-      public void decode(final HornetQBuffer buffer)
+      public void decode(final ActiveMQBuffer buffer)
       {
       }
 
-      public void encode(final HornetQBuffer buffer)
+      public void encode(final ActiveMQBuffer buffer)
       {
          buffer.writeBytes(new byte[5]);
       }
@@ -605,7 +605,7 @@ public final class ReplicationTest extends ServiceTestBase
    {
       static AtomicBoolean value = new AtomicBoolean(true);
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws HornetQException
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
       {
          return TestInterceptor.value.get();
       }

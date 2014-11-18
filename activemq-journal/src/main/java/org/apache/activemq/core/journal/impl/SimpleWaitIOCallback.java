@@ -15,8 +15,8 @@ package org.apache.activemq.core.journal.impl;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.journal.HornetQJournalLogger;
 
 /**
@@ -57,7 +57,7 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion
    }
 
    @Override
-   public void waitCompletion() throws InterruptedException, HornetQException
+   public void waitCompletion() throws InterruptedException, ActiveMQException
    {
       while (true)
       {
@@ -67,19 +67,19 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion
 
       if (errorMessage != null)
       {
-         throw HornetQExceptionType.createException(errorCode, errorMessage);
+         throw ActiveMQExceptionType.createException(errorCode, errorMessage);
       }
 
       return;
    }
 
-   public boolean waitCompletion(final long timeout) throws InterruptedException, HornetQException
+   public boolean waitCompletion(final long timeout) throws InterruptedException, ActiveMQException
    {
       boolean retValue = latch.await(timeout, TimeUnit.MILLISECONDS);
 
       if (errorMessage != null)
       {
-         throw HornetQExceptionType.createException(errorCode, errorMessage);
+         throw ActiveMQExceptionType.createException(errorCode, errorMessage);
       }
 
       return retValue;

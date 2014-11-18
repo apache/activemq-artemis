@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.spi.core.remoting;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.server.HornetQComponent;
 
 /**
@@ -50,7 +50,7 @@ public interface ConnectionLifeCycleListener
     * @param connectionID the id of the connection.
     * @param me the exception.
     */
-   void connectionException(Object connectionID, HornetQException me);
+   void connectionException(Object connectionID, ActiveMQException me);
 
    void connectionReadyForWrites(Object connectionID, boolean ready);
 }

@@ -20,8 +20,8 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -352,7 +352,7 @@ public class RandomReattachTest extends UnitTestCase
             {
                message.acknowledge();
             }
-            catch (HornetQException me)
+            catch (ActiveMQException me)
             {
                RandomReattachTest.log.error("Failed to process", me);
             }
@@ -601,7 +601,7 @@ public class RandomReattachTest extends UnitTestCase
             {
                message.acknowledge();
             }
-            catch (HornetQException e)
+            catch (ActiveMQException e)
             {
                e.printStackTrace();
                throw new RuntimeException(e.getMessage(), e);
@@ -1529,7 +1529,7 @@ public class RandomReattachTest extends UnitTestCase
       {
          RandomReattachTest.log.info("** Failing connection");
 
-         session.getConnection().fail(new HornetQNotConnectedException("oops"));
+         session.getConnection().fail(new ActiveMQNotConnectedException("oops"));
 
          RandomReattachTest.log.info("** Fail complete");
 

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.utils.BufferHelper;
@@ -33,7 +33,7 @@ import org.apache.activemq.utils.DataConstants;
  */
 public class TransportConfigurationEncodingSupport
 {
-   public static List<Pair<TransportConfiguration, TransportConfiguration>> decodeConfigs(HornetQBuffer buffer)
+   public static List<Pair<TransportConfiguration, TransportConfiguration>> decodeConfigs(ActiveMQBuffer buffer)
    {
       int size = buffer.readInt();
       List<Pair<TransportConfiguration, TransportConfiguration>> configs = new ArrayList<Pair<TransportConfiguration, TransportConfiguration>>(size);
@@ -53,7 +53,7 @@ public class TransportConfigurationEncodingSupport
       return configs;
    }
 
-   public static TransportConfiguration decode(HornetQBuffer buffer)
+   public static TransportConfiguration decode(ActiveMQBuffer buffer)
    {
       String name = BufferHelper.readNullableSimpleStringAsString(buffer);
       String factoryClassName = buffer.readSimpleString().toString();
@@ -69,7 +69,7 @@ public class TransportConfigurationEncodingSupport
       return config;
    }
 
-   public static void encodeConfigs(HornetQBuffer buffer,
+   public static void encodeConfigs(ActiveMQBuffer buffer,
                                     List<Pair<TransportConfiguration, TransportConfiguration>> configs)
    {
       buffer.writeInt(configs == null ? 0 : configs.size());
@@ -88,7 +88,7 @@ public class TransportConfigurationEncodingSupport
       }
    }
 
-   public static void encode(HornetQBuffer buffer, TransportConfiguration config)
+   public static void encode(ActiveMQBuffer buffer, TransportConfiguration config)
    {
       BufferHelper.writeAsNullableSimpleString(buffer, config.getName());
       BufferHelper.writeAsSimpleString(buffer, config.getFactoryClassName());

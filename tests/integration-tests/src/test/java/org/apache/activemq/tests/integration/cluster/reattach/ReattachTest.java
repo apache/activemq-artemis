@@ -17,10 +17,10 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
-import org.apache.activemq.api.core.HornetQNotConnectedException;
-import org.apache.activemq.api.core.HornetQObjectClosedException;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
+import org.apache.activemq.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -106,7 +106,7 @@ public class ReattachTest extends ServiceTestBase
 
          RemotingConnection conn = ((ClientSessionInternal) session).getConnection();
 
-         conn.fail(new HornetQNotConnectedException());
+         conn.fail(new ActiveMQNotConnectedException());
 
          session.start();
 
@@ -160,7 +160,7 @@ public class ReattachTest extends ServiceTestBase
       Interceptor intercept = new Interceptor()
       {
 
-         public boolean intercept(Packet packet, RemotingConnection connection) throws HornetQException
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
          {
             System.out.println("Intercept..." + packet.getClass().getName());
 
@@ -172,7 +172,7 @@ public class ReattachTest extends ServiceTestBase
                if (count.incrementAndGet() == 2)
                {
                   System.out.println("Failing");
-                  connection.fail(new HornetQException(HornetQExceptionType.UNSUPPORTED_PACKET, "bye"));
+                  connection.fail(new ActiveMQException(ActiveMQExceptionType.UNSUPPORTED_PACKET, "bye"));
                   return false;
                }
             }
@@ -273,7 +273,7 @@ public class ReattachTest extends ServiceTestBase
 
       t.start();
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       session.start();
 
@@ -328,18 +328,18 @@ public class ReattachTest extends ServiceTestBase
          volatile boolean failed;
 
          @Override
-         public void connectionFailed(final HornetQException me, boolean failedOver)
+         public void connectionFailed(final ActiveMQException me, boolean failedOver)
          {
             failed = true;
          }
 
          @Override
-         public void connectionFailed(final HornetQException me, boolean failedOver, String scaleDownTargetNodeID)
+         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
          {
             connectionFailed(me, failedOver);
          }
 
-         public void beforeReconnect(final HornetQException exception)
+         public void beforeReconnect(final ActiveMQException exception)
          {
          }
       }
@@ -388,13 +388,13 @@ public class ReattachTest extends ServiceTestBase
             {
             }
 
-            conn2.fail(new HornetQNotConnectedException("Did not receive pong from server"));
+            conn2.fail(new ActiveMQNotConnectedException("Did not receive pong from server"));
          }
       };
 
       t.start();
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       Assert.assertTrue(listener.failed);
 
@@ -488,7 +488,7 @@ public class ReattachTest extends ServiceTestBase
 
       t.start();
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       // Should throw exception since didn't reconnect
 
@@ -498,11 +498,11 @@ public class ReattachTest extends ServiceTestBase
 
          Assert.fail("Should throw exception");
       }
-      catch (HornetQObjectClosedException oce)
+      catch (ActiveMQObjectClosedException oce)
       {
          //ok
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
       }
@@ -589,7 +589,7 @@ public class ReattachTest extends ServiceTestBase
             {
                try
                {
-                  connFailure.fail(new HornetQNotConnectedException());
+                  connFailure.fail(new ActiveMQNotConnectedException());
                }
                catch (Exception e)
                {
@@ -754,7 +754,7 @@ public class ReattachTest extends ServiceTestBase
 
       InVMConnector.failOnCreateConnection = false;
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       Thread t = new Thread()
       {
@@ -792,9 +792,9 @@ public class ReattachTest extends ServiceTestBase
       //
       // fail("Should throw exception");
       // }
-      // catch (HornetQException e)
+      // catch (ActiveMQException e)
       // {
-      // assertEquals(HornetQException.OBJECT_CLOSED, e.getCode());
+      // assertEquals(ActiveMQException.OBJECT_CLOSED, e.getCode());
       // }
 
       session.close();
@@ -846,7 +846,7 @@ public class ReattachTest extends ServiceTestBase
 
       RemotingConnection conn = ((ClientSessionInternal) session).getConnection();
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       session.start();
 
@@ -933,7 +933,7 @@ public class ReattachTest extends ServiceTestBase
 
       t.start();
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       session.start();
 
@@ -1009,7 +1009,7 @@ public class ReattachTest extends ServiceTestBase
 
       long start = System.currentTimeMillis();
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       session.start();
 
@@ -1088,7 +1088,7 @@ public class ReattachTest extends ServiceTestBase
 
       long start = System.currentTimeMillis();
 
-      conn.fail(new HornetQNotConnectedException());
+      conn.fail(new ActiveMQNotConnectedException());
 
       session.start();
 

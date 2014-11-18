@@ -11,6 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.server;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.server.Queue;
 import org.junit.Before;
 import org.junit.After;
@@ -19,7 +20,6 @@ import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -621,7 +621,7 @@ public class LVQTest extends UnitTestCase
          {
             clientSession.close();
          }
-         catch (HornetQException e1)
+         catch (ActiveMQException e1)
          {
             //
          }
@@ -633,7 +633,7 @@ public class LVQTest extends UnitTestCase
          {
             clientSessionTxReceives.close();
          }
-         catch (HornetQException e1)
+         catch (ActiveMQException e1)
          {
             //
          }
@@ -645,7 +645,7 @@ public class LVQTest extends UnitTestCase
          {
             clientSessionTxSends.close();
          }
-         catch (HornetQException e1)
+         catch (ActiveMQException e1)
          {
             //
          }

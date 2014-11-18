@@ -17,8 +17,8 @@ import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQExceptionType;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQExceptionType;
 
 /**
  * A PasswordMarkingUtil
@@ -38,7 +38,7 @@ public class PasswordMaskingUtil
     *
     * Where only <full qualified class name> is required. key/value pairs are optional
     */
-   public static SensitiveDataCodec<String> getCodec(String codecDesc) throws HornetQException
+   public static SensitiveDataCodec<String> getCodec(String codecDesc) throws ActiveMQException
    {
       SensitiveDataCodec<String> codecInstance = null;
 
@@ -46,7 +46,7 @@ public class PasswordMaskingUtil
       String[] parts = codecDesc.split(";");
 
       if (parts.length < 1)
-         throw new HornetQException(HornetQExceptionType.ILLEGAL_STATE, "Invalid PasswordCodec value: " + codecDesc);
+         throw new ActiveMQException(ActiveMQExceptionType.ILLEGAL_STATE, "Invalid PasswordCodec value: " + codecDesc);
 
       final String codecClassName = parts[0];
 

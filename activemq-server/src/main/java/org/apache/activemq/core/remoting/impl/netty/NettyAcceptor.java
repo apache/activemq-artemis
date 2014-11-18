@@ -51,7 +51,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.CoreNotificationType;
@@ -729,7 +729,7 @@ public class NettyAcceptor implements Acceptor
          }
       }
 
-      public void connectionException(final Object connectionID, final HornetQException me)
+      public void connectionException(final Object connectionID, final ActiveMQException me)
       {
          // Execute on different thread to avoid deadlocks
          new Thread()

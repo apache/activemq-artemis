@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
@@ -42,14 +42,14 @@ public class SessionAddMetaDataMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final HornetQBuffer buffer)
+   public void encodeRest(final ActiveMQBuffer buffer)
    {
       buffer.writeString(key);
       buffer.writeString(data);
    }
 
    @Override
-   public void decodeRest(final HornetQBuffer buffer)
+   public void decodeRest(final ActiveMQBuffer buffer)
    {
       key = buffer.readString();
       data = buffer.readString();

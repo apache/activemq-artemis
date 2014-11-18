@@ -14,7 +14,7 @@ package org.apache.activemq.tests.integration.management;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -272,7 +272,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
             for (int i = 0; i < num; i++)
             {
                ClientMessage message = session1.createMessage(true);
-               HornetQBuffer buffer = message.getBodyBuffer();
+               ActiveMQBuffer buffer = message.getBodyBuffer();
                buffer.writeBytes(body);
                producer.send(message);
                try

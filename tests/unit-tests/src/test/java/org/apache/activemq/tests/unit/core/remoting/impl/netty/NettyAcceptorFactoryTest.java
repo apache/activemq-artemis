@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.server.HornetQComponent;
@@ -46,7 +46,7 @@ public class NettyAcceptorFactoryTest extends UnitTestCase
       BufferHandler handler = new BufferHandler()
       {
 
-         public void bufferReceived(final Object connectionID, final HornetQBuffer buffer)
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
          {
          }
       };
@@ -54,7 +54,7 @@ public class NettyAcceptorFactoryTest extends UnitTestCase
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
       {
 
-         public void connectionException(final Object connectionID, final HornetQException me)
+         public void connectionException(final Object connectionID, final ActiveMQException me)
          {
          }
 

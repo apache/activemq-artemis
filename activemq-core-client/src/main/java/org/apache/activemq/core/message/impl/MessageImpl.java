@@ -17,10 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
@@ -76,7 +76,7 @@ public abstract class MessageImpl implements MessageInternal
 
    protected byte priority;
 
-   protected HornetQBuffer buffer;
+   protected ActiveMQBuffer buffer;
 
    protected ResetLimitWrappedHornetQBuffer bodyBuffer;
 
@@ -205,7 +205,7 @@ public abstract class MessageImpl implements MessageInternal
    }
 
 
-   public void encodeHeadersAndProperties(final HornetQBuffer buffer)
+   public void encodeHeadersAndProperties(final ActiveMQBuffer buffer)
    {
       buffer.writeLong(messageID);
       buffer.writeNullableSimpleString(address);
@@ -226,7 +226,7 @@ public abstract class MessageImpl implements MessageInternal
       properties.encode(buffer);
    }
 
-   public void decodeHeadersAndProperties(final HornetQBuffer buffer)
+   public void decodeHeadersAndProperties(final ActiveMQBuffer buffer)
    {
       messageID = buffer.readLong();
       address = buffer.readNullableSimpleString();
@@ -261,7 +261,7 @@ public abstract class MessageImpl implements MessageInternal
       properties = msg.getTypedProperties();
    }
 
-   public HornetQBuffer getBodyBuffer()
+   public ActiveMQBuffer getBodyBuffer()
    {
       if (bodyBuffer == null)
       {
@@ -285,17 +285,17 @@ public abstract class MessageImpl implements MessageInternal
       return this;
    }
 
-   public void checkCompletion() throws HornetQException
+   public void checkCompletion() throws ActiveMQException
    {
       // no op on regular messages
    }
 
 
-   public synchronized HornetQBuffer getBodyBufferCopy()
+   public synchronized ActiveMQBuffer getBodyBufferCopy()
    {
       // Must copy buffer before sending it
 
-      HornetQBuffer newBuffer = buffer.copy(0, buffer.capacity());
+      ActiveMQBuffer newBuffer = buffer.copy(0, buffer.capacity());
 
       newBuffer.setIndex(0, getEndOfBodyPosition());
 
@@ -454,7 +454,7 @@ public abstract class MessageImpl implements MessageInternal
       return map;
    }
 
-   public void decodeFromBuffer(final HornetQBuffer buffer)
+   public void decodeFromBuffer(final ActiveMQBuffer buffer)
    {
       this.buffer = buffer;
 
@@ -502,7 +502,7 @@ public abstract class MessageImpl implements MessageInternal
    }
 
    // Encode to journal or paging
-   public void encode(final HornetQBuffer buff)
+   public void encode(final ActiveMQBuffer buff)
    {
       encodeToBuffer();
 
@@ -510,7 +510,7 @@ public abstract class MessageImpl implements MessageInternal
    }
 
    // Decode from journal or paging
-   public void decode(final HornetQBuffer buff)
+   public void decode(final ActiveMQBuffer buff)
    {
       int start = buff.readerIndex();
 
@@ -529,13 +529,13 @@ public abstract class MessageImpl implements MessageInternal
       buff.readerIndex(start + length);
    }
 
-   public synchronized HornetQBuffer getEncodedBuffer()
+   public synchronized ActiveMQBuffer getEncodedBuffer()
    {
-      HornetQBuffer buff = encodeToBuffer();
+      ActiveMQBuffer buff = encodeToBuffer();
 
       if (bufferUsed)
       {
-         HornetQBuffer copied = buff.copy(0, buff.capacity());
+         ActiveMQBuffer copied = buff.copy(0, buff.capacity());
 
          copied.setIndex(0, endOfMessagePosition);
 
@@ -656,7 +656,7 @@ public abstract class MessageImpl implements MessageInternal
       return this;
    }
 
-   public Message putObjectProperty(final SimpleString key, final Object value) throws HornetQPropertyConversionException
+   public Message putObjectProperty(final SimpleString key, final Object value) throws ActiveMQPropertyConversionException
    {
       TypedProperties.setObjectProperty(key, value, properties);
       bufferValid = false;
@@ -664,7 +664,7 @@ public abstract class MessageImpl implements MessageInternal
       return this;
    }
 
-   public Message putObjectProperty(final String key, final Object value) throws HornetQPropertyConversionException
+   public Message putObjectProperty(final String key, final Object value) throws ActiveMQPropertyConversionException
    {
       putObjectProperty(new SimpleString(key), value);
 
@@ -768,87 +768,87 @@ public abstract class MessageImpl implements MessageInternal
       return properties.getProperty(key);
    }
 
-   public Boolean getBooleanProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Boolean getBooleanProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getBooleanProperty(key);
    }
 
-   public Boolean getBooleanProperty(final String key) throws HornetQPropertyConversionException
+   public Boolean getBooleanProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getBooleanProperty(new SimpleString(key));
    }
 
-   public Byte getByteProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Byte getByteProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getByteProperty(key);
    }
 
-   public Byte getByteProperty(final String key) throws HornetQPropertyConversionException
+   public Byte getByteProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getByteProperty(new SimpleString(key));
    }
 
-   public byte[] getBytesProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public byte[] getBytesProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getBytesProperty(key);
    }
 
-   public byte[] getBytesProperty(final String key) throws HornetQPropertyConversionException
+   public byte[] getBytesProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return getBytesProperty(new SimpleString(key));
    }
 
-   public Double getDoubleProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Double getDoubleProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getDoubleProperty(key);
    }
 
-   public Double getDoubleProperty(final String key) throws HornetQPropertyConversionException
+   public Double getDoubleProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getDoubleProperty(new SimpleString(key));
    }
 
-   public Integer getIntProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Integer getIntProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getIntProperty(key);
    }
 
-   public Integer getIntProperty(final String key) throws HornetQPropertyConversionException
+   public Integer getIntProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getIntProperty(new SimpleString(key));
    }
 
-   public Long getLongProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Long getLongProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getLongProperty(key);
    }
 
-   public Long getLongProperty(final String key) throws HornetQPropertyConversionException
+   public Long getLongProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getLongProperty(new SimpleString(key));
    }
 
-   public Short getShortProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Short getShortProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getShortProperty(key);
    }
 
-   public Short getShortProperty(final String key) throws HornetQPropertyConversionException
+   public Short getShortProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getShortProperty(new SimpleString(key));
    }
 
-   public Float getFloatProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public Float getFloatProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getFloatProperty(key);
    }
 
-   public Float getFloatProperty(final String key) throws HornetQPropertyConversionException
+   public Float getFloatProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getFloatProperty(new SimpleString(key));
    }
 
-   public String getStringProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public String getStringProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       SimpleString str = getSimpleStringProperty(key);
 
@@ -862,17 +862,17 @@ public abstract class MessageImpl implements MessageInternal
       }
    }
 
-   public String getStringProperty(final String key) throws HornetQPropertyConversionException
+   public String getStringProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return getStringProperty(new SimpleString(key));
    }
 
-   public SimpleString getSimpleStringProperty(final SimpleString key) throws HornetQPropertyConversionException
+   public SimpleString getSimpleStringProperty(final SimpleString key) throws ActiveMQPropertyConversionException
    {
       return properties.getSimpleStringProperty(key);
    }
 
-   public SimpleString getSimpleStringProperty(final String key) throws HornetQPropertyConversionException
+   public SimpleString getSimpleStringProperty(final String key) throws ActiveMQPropertyConversionException
    {
       return properties.getSimpleStringProperty(new SimpleString(key));
    }
@@ -911,12 +911,12 @@ public abstract class MessageImpl implements MessageInternal
       return properties.getPropertyNames();
    }
 
-   public HornetQBuffer getWholeBuffer()
+   public ActiveMQBuffer getWholeBuffer()
    {
       return buffer;
    }
 
-   public BodyEncoder getBodyEncoder() throws HornetQException
+   public BodyEncoder getBodyEncoder() throws ActiveMQException
    {
       return new DecodingContext();
    }
@@ -1001,7 +1001,7 @@ public abstract class MessageImpl implements MessageInternal
    // This must be synchronized as it can be called concurrently id the message is being delivered
    // concurrently to
    // many queues - the first caller in this case will actually encode it
-   private synchronized HornetQBuffer encodeToBuffer()
+   private synchronized ActiveMQBuffer encodeToBuffer()
    {
       if (!bufferValid)
       {
@@ -1062,7 +1062,7 @@ public abstract class MessageImpl implements MessageInternal
 
    public void createBody(final int initialMessageBufferSize)
    {
-      buffer = HornetQBuffers.dynamicBuffer(initialMessageBufferSize);
+      buffer = ActiveMQBuffers.dynamicBuffer(initialMessageBufferSize);
 
       // There's a bug in netty which means a dynamic buffer won't resize until you write a byte
       buffer.writeByte((byte) 0);
@@ -1109,13 +1109,13 @@ public abstract class MessageImpl implements MessageInternal
          return buffer.writerIndex();
       }
 
-      public int encode(final ByteBuffer bufferRead) throws HornetQException
+      public int encode(final ByteBuffer bufferRead) throws ActiveMQException
       {
-         HornetQBuffer buffer = HornetQBuffers.wrappedBuffer(bufferRead);
+         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(bufferRead);
          return encode(buffer, bufferRead.capacity());
       }
 
-      public int encode(final HornetQBuffer bufferOut, final int size)
+      public int encode(final ActiveMQBuffer bufferOut, final int size)
       {
          bufferOut.writeBytes(getWholeBuffer(), lastPos, size);
          lastPos += size;

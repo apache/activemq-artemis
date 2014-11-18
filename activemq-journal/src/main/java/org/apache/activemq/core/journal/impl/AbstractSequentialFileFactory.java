@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQInterruptedException;
+import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.core.journal.IOCriticalErrorListener;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
@@ -104,7 +104,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
          }
          catch (InterruptedException e)
          {
-            throw new HornetQInterruptedException(e);
+            throw new ActiveMQInterruptedException(e);
          }
       }
    }

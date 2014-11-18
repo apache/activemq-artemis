@@ -28,9 +28,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQException;
-import org.apache.activemq.api.core.HornetQPropertyConversionException;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
@@ -461,19 +461,19 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
 
       }
 
       @Override
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
 
       }
 
       @Override
-      public void decodeFromBuffer(HornetQBuffer buffer)
+      public void decodeFromBuffer(ActiveMQBuffer buffer)
       {
 
       }
@@ -515,7 +515,7 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public HornetQBuffer getEncodedBuffer()
+      public ActiveMQBuffer getEncodedBuffer()
       {
          return null;
       }
@@ -527,25 +527,25 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public HornetQBuffer getWholeBuffer()
+      public ActiveMQBuffer getWholeBuffer()
       {
          return null;
       }
 
       @Override
-      public void encodeHeadersAndProperties(HornetQBuffer buffer)
+      public void encodeHeadersAndProperties(ActiveMQBuffer buffer)
       {
 
       }
 
       @Override
-      public void decodeHeadersAndProperties(HornetQBuffer buffer)
+      public void decodeHeadersAndProperties(ActiveMQBuffer buffer)
       {
 
       }
 
       @Override
-      public BodyEncoder getBodyEncoder() throws HornetQException
+      public BodyEncoder getBodyEncoder() throws ActiveMQException
       {
          return null;
       }
@@ -665,13 +665,13 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public HornetQBuffer getBodyBuffer()
+      public ActiveMQBuffer getBodyBuffer()
       {
          return null;
       }
 
       @Override
-      public HornetQBuffer getBodyBufferCopy()
+      public ActiveMQBuffer getBodyBufferCopy()
       {
          return null;
       }
@@ -797,13 +797,13 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public Message putObjectProperty(SimpleString key, Object value) throws HornetQPropertyConversionException
+      public Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Message putObjectProperty(String key, Object value) throws HornetQPropertyConversionException
+      public Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException
       {
          return null;
       }
@@ -833,61 +833,61 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public Boolean getBooleanProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Boolean getBooleanProperty(String key) throws HornetQPropertyConversionException
+      public Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Byte getByteProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Byte getByteProperty(String key) throws HornetQPropertyConversionException
+      public Byte getByteProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Double getDoubleProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Double getDoubleProperty(String key) throws HornetQPropertyConversionException
+      public Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Integer getIntProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Integer getIntProperty(String key) throws HornetQPropertyConversionException
+      public Integer getIntProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Long getLongProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Long getLongProperty(String key) throws HornetQPropertyConversionException
+      public Long getLongProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
@@ -905,61 +905,61 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public Short getShortProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Short getShortProperty(String key) throws HornetQPropertyConversionException
+      public Short getShortProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Float getFloatProperty(SimpleString key) throws HornetQPropertyConversionException
+      public Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public Float getFloatProperty(String key) throws HornetQPropertyConversionException
+      public Float getFloatProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public String getStringProperty(SimpleString key) throws HornetQPropertyConversionException
+      public String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public String getStringProperty(String key) throws HornetQPropertyConversionException
+      public String getStringProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public SimpleString getSimpleStringProperty(SimpleString key) throws HornetQPropertyConversionException
+      public SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public SimpleString getSimpleStringProperty(String key) throws HornetQPropertyConversionException
+      public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException
       {
          return null;
       }
 
       @Override
-      public byte[] getBytesProperty(SimpleString key) throws HornetQPropertyConversionException
+      public byte[] getBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException
       {
          return new byte[0];
       }
 
       @Override
-      public byte[] getBytesProperty(String key) throws HornetQPropertyConversionException
+      public byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException
       {
          return new byte[0];
       }

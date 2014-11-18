@@ -27,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.journal.IOCriticalErrorListener;
@@ -234,7 +234,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
             HornetQServerLogger.LOGGER.invalidPacketForReplication(packet);
          }
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          HornetQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
          response = new HornetQExceptionMessage(e);
@@ -259,9 +259,9 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
 
    /**
     * @param packet
-    * @throws HornetQException
+    * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   private void handleLiveStopping(ReplicationLiveIsStoppingMessage packet) throws HornetQException
+   private void handleLiveStopping(ReplicationLiveIsStoppingMessage packet) throws ActiveMQException
    {
       activation.remoteFailOver(packet.isFinalMessage());
    }
@@ -395,7 +395,7 @@ public final class ReplicationEndpoint implements ChannelHandler, HornetQCompone
       this.channel = channel;
    }
 
-   public void compareJournalInformation(final JournalLoadInformation[] journalInformation) throws HornetQException
+   public void compareJournalInformation(final JournalLoadInformation[] journalInformation) throws ActiveMQException
    {
       if (!activation.isRemoteBackupUpToDate())
       {

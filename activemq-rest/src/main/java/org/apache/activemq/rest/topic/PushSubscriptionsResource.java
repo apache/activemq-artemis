@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.rest.topic;
 
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
@@ -86,7 +86,7 @@ public class PushSubscriptionsResource
          }
          return session;
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
          throw new RuntimeException(e);
       }
@@ -131,7 +131,7 @@ public class PushSubscriptionsResource
          {
             createSession.close();
          }
-         catch (HornetQException e)
+         catch (ActiveMQException e)
          {
          }
       }
@@ -246,7 +246,7 @@ public class PushSubscriptionsResource
 
          session.deleteQueue(subscriptionName);
       }
-      catch (HornetQException e)
+      catch (ActiveMQException e)
       {
       }
       finally

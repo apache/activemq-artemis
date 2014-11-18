@@ -36,7 +36,7 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_SEND;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_SEND_LARGE;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SCALEDOWN_ANNOUNCEMENT;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
@@ -78,7 +78,7 @@ public class ServerPacketDecoder extends ClientPacketDecoder
    public static final ServerPacketDecoder INSTANCE = new ServerPacketDecoder();
 
    @Override
-   public Packet decode(final HornetQBuffer in)
+   public Packet decode(final ActiveMQBuffer in)
    {
       final byte packetType = in.readByte();
 

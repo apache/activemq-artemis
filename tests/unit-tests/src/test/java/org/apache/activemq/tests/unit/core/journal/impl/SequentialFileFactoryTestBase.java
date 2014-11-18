@@ -11,6 +11,8 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.unit.core.journal.impl;
+import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.junit.Before;
 import org.junit.After;
 
@@ -24,8 +26,6 @@ import java.util.UUID;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.HornetQBuffer;
-import org.apache.activemq.api.core.HornetQBuffers;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
@@ -225,15 +225,15 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
 
       String s1 = "aardvark";
       byte[] bytes1 = s1.getBytes(StandardCharsets.UTF_8);
-      HornetQBuffer bb1 = wrapBuffer(bytes1);
+      ActiveMQBuffer bb1 = wrapBuffer(bytes1);
 
       String s2 = "hippopotamus";
       byte[] bytes2 = s2.getBytes(StandardCharsets.UTF_8);
-      HornetQBuffer bb2 = wrapBuffer(bytes2);
+      ActiveMQBuffer bb2 = wrapBuffer(bytes2);
 
       String s3 = "echidna";
       byte[] bytes3 = s3.getBytes(StandardCharsets.UTF_8);
-      HornetQBuffer bb3 = wrapBuffer(bytes3);
+      ActiveMQBuffer bb3 = wrapBuffer(bytes3);
 
       long initialPos = sf.position();
       sf.write(bb1, true);
@@ -410,9 +410,9 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
 
    // Private ---------------------------------
 
-   private HornetQBuffer wrapBuffer(final byte[] bytes)
+   private ActiveMQBuffer wrapBuffer(final byte[] bytes)
    {
-      return HornetQBuffers.wrappedBuffer(bytes);
+      return ActiveMQBuffers.wrappedBuffer(bytes);
    }
 
    protected void checkFill(final SequentialFile file, final int pos, final int size, final byte fillChar) throws Exception

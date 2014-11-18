@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.HornetQBuffer;
+import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.IOCompletion;
 import org.apache.activemq.core.journal.Journal;
@@ -214,7 +214,7 @@ public class JournalPerfTuneTest extends UnitTestCase
          this.bytes = bytes;
       }
 
-      public void decode(HornetQBuffer buffer)
+      public void decode(ActiveMQBuffer buffer)
       {
          int length = buffer.readInt();
 
@@ -223,7 +223,7 @@ public class JournalPerfTuneTest extends UnitTestCase
          buffer.readBytes(bytes);
       }
 
-      public void encode(HornetQBuffer buffer)
+      public void encode(ActiveMQBuffer buffer)
       {
          buffer.writeInt(bytes.length);
 

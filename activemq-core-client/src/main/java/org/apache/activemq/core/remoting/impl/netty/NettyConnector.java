@@ -96,7 +96,7 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.activemq.api.config.HornetQDefaultConfiguration;
-import org.apache.activemq.api.core.HornetQException;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.client.HornetQClientLogger;
 import org.apache.activemq.core.client.HornetQClientMessageBundle;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
@@ -1110,7 +1110,7 @@ public class NettyConnector extends AbstractConnector
          }
       }
 
-      public void connectionException(final Object connectionID, final HornetQException me)
+      public void connectionException(final Object connectionID, final ActiveMQException me)
       {
          // Execute on different thread to avoid deadlocks
          closeExecutor.execute(new Runnable()
