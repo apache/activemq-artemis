@@ -23,12 +23,12 @@ import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.api.jms.management.TopicControl;
 import org.apache.activemq.core.messagecounter.MessageCounter;
 import org.apache.activemq.core.messagecounter.MessageCounterManager;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQQueue;
-import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQQueue;
+import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.management.impl.JMSConnectionFactoryControlImpl;
 import org.apache.activemq.jms.management.impl.JMSQueueControlImpl;
 import org.apache.activemq.jms.management.impl.JMSServerControlImpl;
@@ -54,7 +54,7 @@ public class JMSManagementServiceImpl implements JMSManagementService
 
    // Static --------------------------------------------------------
 
-   public JMSManagementServiceImpl(final ManagementService managementService, final HornetQServer server, final JMSServerManager jmsServerManager)
+   public JMSManagementServiceImpl(final ManagementService managementService, final ActiveMQServer server, final JMSServerManager jmsServerManager)
    {
       this.managementService = managementService;
       this.jmsServerManager = jmsServerManager;
@@ -80,7 +80,7 @@ public class JMSManagementServiceImpl implements JMSManagementService
       managementService.unregisterFromRegistry(ResourceNames.JMS_SERVER);
    }
 
-   public synchronized void registerQueue(final HornetQQueue queue, final Queue serverQueue) throws Exception
+   public synchronized void registerQueue(final ActiveMQQueue queue, final Queue serverQueue) throws Exception
    {
       QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queue.getAddress());
       MessageCounterManager messageCounterManager = managementService.getMessageCounterManager();
@@ -104,7 +104,7 @@ public class JMSManagementServiceImpl implements JMSManagementService
       managementService.unregisterFromRegistry(ResourceNames.JMS_QUEUE + name);
    }
 
-   public synchronized void registerTopic(final HornetQTopic topic) throws Exception
+   public synchronized void registerTopic(final ActiveMQTopic topic) throws Exception
    {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSTopicObjectName(topic.getTopicName());
       AddressControl addressControl = (AddressControl)managementService.getResource(ResourceNames.CORE_ADDRESS + topic.getAddress());
@@ -122,7 +122,7 @@ public class JMSManagementServiceImpl implements JMSManagementService
 
    public synchronized void registerConnectionFactory(final String name,
                                                       final ConnectionFactoryConfiguration cfConfig,
-                                                      final HornetQConnectionFactory connectionFactory) throws Exception
+                                                      final ActiveMQConnectionFactory connectionFactory) throws Exception
    {
       ObjectName objectName = managementService.getObjectNameBuilder().getConnectionFactoryObjectName(name);
       JMSConnectionFactoryControlImpl control = new JMSConnectionFactoryControlImpl(cfConfig, connectionFactory, jmsServerManager, name);

@@ -25,7 +25,7 @@ import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.core.paging.impl.Page;
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperation;
 import org.apache.activemq.core.transaction.TransactionOperationAbstract;
@@ -39,7 +39,7 @@ import org.apache.activemq.core.transaction.impl.TransactionImpl;
  */
 public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private static final int FLUSH_COUNTER = 1000;
 
@@ -364,7 +364,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Replacing page-counter record = "  + recordID + " by record = " + newRecordID + " on subscriptionID = " + this.subscriptionID + " for queue = " + this.subscription.getQueue().getName());
+            ActiveMQServerLogger.LOGGER.trace("Replacing page-counter record = "  + recordID + " by record = " + newRecordID + " on subscriptionID = " + this.subscriptionID + " for queue = " + this.subscription.getQueue().getName());
          }
 
          storage.commit(txCleanup);
@@ -373,7 +373,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       {
          newRecordID = recordID;
 
-         HornetQServerLogger.LOGGER.problemCleaningPagesubscriptionCounter(e);
+         ActiveMQServerLogger.LOGGER.problemCleaningPagesubscriptionCounter(e);
          try
          {
             storage.rollback(txCleanup);

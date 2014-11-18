@@ -22,7 +22,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 
 
 /**
@@ -189,7 +189,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
             {
                if (open)
                {
-                  HornetQClientLogger.LOGGER.warn(this + " getting exception when receiving broadcasting.", e);
+                  ActiveMQClientLogger.LOGGER.warn(this + " getting exception when receiving broadcasting.", e);
                }
             }
             break;
@@ -214,7 +214,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
          {
             if (localAddress != null)
             {
-               HornetQClientLogger.LOGGER.broadcastGroupBindError();
+               ActiveMQClientLogger.LOGGER.broadcastGroupBindError();
             }
             broadcastingSocket = new DatagramSocket();
          }
@@ -233,7 +233,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
             }
             catch (IOException e)
             {
-               HornetQClientLogger.LOGGER.ioDiscoveryError(groupAddress.getHostAddress(), groupAddress instanceof Inet4Address ? "IPv4" : "IPv6");
+               ActiveMQClientLogger.LOGGER.ioDiscoveryError(groupAddress.getHostAddress(), groupAddress instanceof Inet4Address ? "IPv4" : "IPv6");
 
                receivingSocket = new MulticastSocket(groupPort);
             }

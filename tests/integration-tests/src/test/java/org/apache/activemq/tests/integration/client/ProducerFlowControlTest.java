@@ -32,7 +32,7 @@ import org.apache.activemq.core.client.impl.ClientProducerCreditManagerImpl;
 import org.apache.activemq.core.client.impl.ClientProducerCredits;
 import org.apache.activemq.core.client.impl.ClientProducerInternal;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -59,7 +59,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
 
    private ClientSession session;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    protected boolean isNetty()
    {

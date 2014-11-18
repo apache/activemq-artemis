@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 
 /**
  * A ClusterConnectionConfiguration
@@ -66,7 +66,7 @@ public final class ClusterConnectionConfiguration implements Serializable
 
    private boolean allowDirectConnectionsOnly = false;
 
-   private int minLargeMessageSize = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+   private int minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
    private long clusterNotificationInterval = ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval();
 

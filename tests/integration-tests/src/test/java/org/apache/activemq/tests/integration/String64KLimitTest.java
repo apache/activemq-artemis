@@ -26,8 +26,8 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
@@ -51,7 +51,7 @@ public class String64KLimitTest extends UnitTestCase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession session;
    private ServerLocator locator;
@@ -209,7 +209,7 @@ public class String64KLimitTest extends UnitTestCase
 
       Configuration config = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      server = addServer(HornetQServers.newHornetQServer(config, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
       locator = createInVMNonHALocator();
       sf = createSessionFactory(locator);

@@ -18,7 +18,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 
@@ -41,13 +41,13 @@ public class TwitterConnectorExample
       {
          String testMessage = System.currentTimeMillis() + ": " + System.getProperty("twitter.example.alternativeMessage");
          if(testMessage == null || testMessage.trim().equals("")) {
-            testMessage = System.currentTimeMillis() + ": ### Hello, HornetQ fans!! We are now experiencing so fast, so reliable and so exciting messaging never seen before ;-) ###";
+            testMessage = System.currentTimeMillis() + ": ### Hello, ActiveMQ fans!! We are now experiencing so fast, so reliable and so exciting messaging never seen before ;-) ###";
          }
 
          // Step 1. Create a ClientSessionFactory
 
 
-         locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
+         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
          csf = locator.createSessionFactory();
 

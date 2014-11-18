@@ -27,7 +27,7 @@ import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.jms.tests.message.SimpleJMSMessage;
 import org.apache.activemq.jms.tests.message.SimpleJMSTextMessage;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
@@ -226,11 +226,11 @@ public class MessageProducerTest extends JMSTestCase
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session cs = cconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         final MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         final MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
 
-         MessageConsumer c = cs.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer c = cs.createConsumer(ActiveMQServerTestCase.topic1);
 
          cconn.start();
 
@@ -275,7 +275,7 @@ public class MessageProducerTest extends JMSTestCase
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session cs = cconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer c2 = cs.createConsumer(HornetQServerTestCase.topic2);
+         MessageConsumer c2 = cs.createConsumer(ActiveMQServerTestCase.topic2);
          final Message m1 = ps.createMessage();
 
          cconn.start();
@@ -288,7 +288,7 @@ public class MessageProducerTest extends JMSTestCase
             {
                try
                {
-                  anonProducer.send(HornetQServerTestCase.topic2, m1);
+                  anonProducer.send(ActiveMQServerTestCase.topic2, m1);
                }
                catch (Exception e)
                {
@@ -349,9 +349,9 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
          Destination dest = p.getDestination();
-         ProxyAssertSupport.assertEquals(dest, HornetQServerTestCase.topic1);
+         ProxyAssertSupport.assertEquals(dest, ActiveMQServerTestCase.topic1);
       }
       finally
       {
@@ -367,7 +367,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
          p.close();
 
          try
@@ -395,7 +395,7 @@ public class MessageProducerTest extends JMSTestCase
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          try
          {
-            ps.createProducer(HornetQJMSClient.createTopic("NoSuchTopic"));
+            ps.createProducer(ActiveMQJMSClient.createTopic("NoSuchTopic"));
             ProxyAssertSupport.fail("should throw exception");
          }
          catch (InvalidDestinationException e)
@@ -421,7 +421,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          ProxyAssertSupport.assertFalse(p.getDisableMessageID());
       }
@@ -439,7 +439,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
@@ -471,7 +471,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer tp = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
          MessageProducer qp = ps.createProducer(queue1);
          ProxyAssertSupport.assertFalse(tp.getDisableMessageTimestamp());
          ProxyAssertSupport.assertFalse(qp.getDisableMessageTimestamp());
@@ -536,7 +536,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
@@ -568,7 +568,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer tp = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
          MessageProducer qp = ps.createProducer(queue1);
 
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, tp.getDeliveryMode());
@@ -588,7 +588,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
          ProxyAssertSupport.assertEquals(DeliveryMode.NON_PERSISTENT, p.getDeliveryMode());
@@ -610,7 +610,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
@@ -642,7 +642,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer tp = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
          MessageProducer qp = ps.createProducer(queue1);
 
          ProxyAssertSupport.assertEquals(4, tp.getPriority());
@@ -662,7 +662,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.setPriority(9);
          ProxyAssertSupport.assertEquals(9, p.getPriority());
@@ -684,7 +684,7 @@ public class MessageProducerTest extends JMSTestCase
       try
       {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
@@ -713,7 +713,7 @@ public class MessageProducerTest extends JMSTestCase
    {
       Connection pconn = createConnection();
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer tp = ps.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
       MessageProducer qp = ps.createProducer(queue1);
 
       ProxyAssertSupport.assertEquals(0L, tp.getTimeToLive());
@@ -725,7 +725,7 @@ public class MessageProducerTest extends JMSTestCase
    {
       Connection pconn = createConnection();
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
       p.setTimeToLive(100L);
       ProxyAssertSupport.assertEquals(100L, p.getTimeToLive());
@@ -740,7 +740,7 @@ public class MessageProducerTest extends JMSTestCase
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
       p.close();
 
@@ -761,7 +761,7 @@ public class MessageProducerTest extends JMSTestCase
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
       CountDownLatch latch = new CountDownLatch(1);
       CloseCompletionListener listener = new CloseCompletionListener(p, latch);
@@ -783,7 +783,7 @@ public class MessageProducerTest extends JMSTestCase
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
       CountDownLatch latch = new CountDownLatch(1);
       ConnectionCloseCompletionListener listener = new ConnectionCloseCompletionListener(pconn, latch);
@@ -805,7 +805,7 @@ public class MessageProducerTest extends JMSTestCase
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer p = ps.createProducer(HornetQServerTestCase.topic1);
+      MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
       CountDownLatch latch = new CountDownLatch(1);
       SessionCloseCompletionListener listener = new SessionCloseCompletionListener(ps, latch);

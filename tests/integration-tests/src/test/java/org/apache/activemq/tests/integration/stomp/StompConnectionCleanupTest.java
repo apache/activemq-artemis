@@ -63,9 +63,9 @@ public class StompConnectionCleanupTest extends StompTestBase
 
       while (true)
       {
-         int connCount = server.getHornetQServer().getRemotingService().getConnections().size();
+         int connCount = server.getActiveMQServer().getRemotingService().getConnections().size();
 
-         int sessionCount = server.getHornetQServer().getSessions().size();
+         int sessionCount = server.getActiveMQServer().getSessions().size();
 
          // All connections and sessions should be timed out including STOMP + JMS connection
 
@@ -126,7 +126,7 @@ public class StompConnectionCleanupTest extends StompTestBase
    {
       JMSServerManager s = super.createServer();
 
-      s.getHornetQServer().getConfiguration().setConnectionTTLOverride(CONNECTION_TTL);
+      s.getActiveMQServer().getConfiguration().setConnectionTTLOverride(CONNECTION_TTL);
 
       return s;
    }

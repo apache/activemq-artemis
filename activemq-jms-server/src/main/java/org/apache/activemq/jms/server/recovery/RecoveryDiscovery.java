@@ -23,12 +23,12 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.SessionFailureListener;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
 
 /**
  * <p>This class will have a simple Connection Factory and will listen
  * for topology updates. </p>
- * <p>This Discovery is instantiated by {@link HornetQRecoveryRegistry}
+ * <p>This Discovery is instantiated by {@link ActiveMQRecoveryRegistry}
  *
  * @author clebertsuconic
  */
@@ -51,7 +51,7 @@ public class RecoveryDiscovery implements SessionFailureListener
    {
       if (!started)
       {
-         HornetQJMSServerLogger.LOGGER.debug("Starting RecoveryDiscovery on " + config);
+         ActiveMQJMSServerLogger.LOGGER.debug("Starting RecoveryDiscovery on " + config);
          started = true;
 
          locator = config.createServerLocator();
@@ -65,16 +65,16 @@ public class RecoveryDiscovery implements SessionFailureListener
             // in case of failure we will retry
             sessionFactory.addFailureListener(this);
 
-            HornetQJMSServerLogger.LOGGER.debug("RecoveryDiscovery started fine on " + config);
+            ActiveMQJMSServerLogger.LOGGER.debug("RecoveryDiscovery started fine on " + config);
          }
          catch (Exception startupError)
          {
             if (!retry)
             {
-               HornetQJMSServerLogger.LOGGER.xaRecoveryStartError(config);
+               ActiveMQJMSServerLogger.LOGGER.xaRecoveryStartError(config);
             }
             stop();
-            HornetQRecoveryRegistry.getInstance().failedDiscovery(this);
+            ActiveMQRecoveryRegistry.getInstance().failedDiscovery(this);
          }
 
       }
@@ -123,7 +123,7 @@ public class RecoveryDiscovery implements SessionFailureListener
          }
          catch (Exception ignored)
          {
-            HornetQJMSServerLogger.LOGGER.debug(ignored, ignored);
+            ActiveMQJMSServerLogger.LOGGER.debug(ignored, ignored);
          }
 
          try
@@ -132,7 +132,7 @@ public class RecoveryDiscovery implements SessionFailureListener
          }
          catch (Exception ignored)
          {
-            HornetQJMSServerLogger.LOGGER.debug(ignored, ignored);
+            ActiveMQJMSServerLogger.LOGGER.debug(ignored, ignored);
          }
 
          sessionFactory = null;
@@ -160,7 +160,7 @@ public class RecoveryDiscovery implements SessionFailureListener
             Pair<TransportConfiguration, TransportConfiguration> connector =
                new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(),
                                                                         topologyMember.getBackup());
-            HornetQRecoveryRegistry.getInstance().nodeUp(topologyMember.getNodeId(), connector,
+            ActiveMQRecoveryRegistry.getInstance().nodeUp(topologyMember.getNodeId(), connector,
                                                          config.getUsername(), config.getPassword());
          }
       }
@@ -180,15 +180,15 @@ public class RecoveryDiscovery implements SessionFailureListener
    {
       if (exception.getType() == ActiveMQExceptionType.DISCONNECTED)
       {
-         HornetQJMSServerLogger.LOGGER.warn("being disconnected for server shutdown", exception);
+         ActiveMQJMSServerLogger.LOGGER.warn("being disconnected for server shutdown", exception);
       }
       else
       {
-         HornetQJMSServerLogger.LOGGER.warn("Notified of connection failure in xa discovery, we will retry on the next recovery",
+         ActiveMQJMSServerLogger.LOGGER.warn("Notified of connection failure in xa discovery, we will retry on the next recovery",
                                             exception);
       }
       internalStop();
-      HornetQRecoveryRegistry.getInstance().failedDiscovery(this);
+      ActiveMQRecoveryRegistry.getInstance().failedDiscovery(this);
    }
 
    @Override

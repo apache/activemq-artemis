@@ -56,8 +56,8 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPageWri
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.ExecutorFactory;
 
@@ -70,7 +70,7 @@ import org.apache.activemq.utils.ExecutorFactory;
  * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  * @see ReplicationEndpoint
  */
-public final class ReplicationManager implements HornetQComponent
+public final class ReplicationManager implements ActiveMQComponent
 {
    public enum ADD_OPERATION_TYPE
    {
@@ -323,7 +323,7 @@ public final class ReplicationManager implements HornetQComponent
             }
             catch (Throwable e)
             {
-               HornetQServerLogger.LOGGER.errorCompletingCallbackOnReplicationManager(e);
+               ActiveMQServerLogger.LOGGER.errorCompletingCallbackOnReplicationManager(e);
             }
          }
       }
@@ -417,11 +417,11 @@ public final class ReplicationManager implements HornetQComponent
          if (me.getType() == ActiveMQExceptionType.DISCONNECTED)
          {
             // Backup has shut down - no need to log a stack trace
-            HornetQServerLogger.LOGGER.replicationStopOnBackupShutdown();
+            ActiveMQServerLogger.LOGGER.replicationStopOnBackupShutdown();
          }
          else
          {
-            HornetQServerLogger.LOGGER.replicationStopOnBackupFail(me);
+            ActiveMQServerLogger.LOGGER.replicationStopOnBackupFail(me);
          }
 
          try
@@ -430,7 +430,7 @@ public final class ReplicationManager implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorStoppingReplication(e);
+            ActiveMQServerLogger.LOGGER.errorStoppingReplication(e);
          }
       }
 
@@ -490,7 +490,7 @@ public final class ReplicationManager implements HornetQComponent
       SequentialFile file = jf.getFile().cloneFile();
       try
       {
-         HornetQServerLogger.LOGGER.journalSynch(jf, file.size(), file);
+         ActiveMQServerLogger.LOGGER.journalSynch(jf, file.size(), file);
          sendLargeFile(content, null, jf.getFileID(), file, Long.MAX_VALUE);
       }
       finally
@@ -543,7 +543,7 @@ public final class ReplicationManager implements HornetQComponent
             {
                // We can afford having a single buffer here for this entire loop
                // because sendReplicatePacket will encode the packet as a NettyBuffer
-               // through HornetQBuffer class leaving this buffer free to be reused on the next copy
+               // through ActiveMQBuffer class leaving this buffer free to be reused on the next copy
                final ByteBuffer buffer = ByteBuffer.allocate(1 << 17); // 1 << 17 == 131072 == 128 * 1024
                while (true)
                {
@@ -646,10 +646,10 @@ public final class ReplicationManager implements HornetQComponent
     */
    public OperationContext sendLiveIsStopping(final LiveStopping finalMessage)
    {
-      HornetQServerLogger.LOGGER.warn("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
+      ActiveMQServerLogger.LOGGER.warn("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
       if (enabled)
       {
-         HornetQServerLogger.LOGGER.warn("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
+         ActiveMQServerLogger.LOGGER.warn("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
          return sendReplicatePacket(new ReplicationLiveIsStoppingMessage(finalMessage));
       }
       return null;

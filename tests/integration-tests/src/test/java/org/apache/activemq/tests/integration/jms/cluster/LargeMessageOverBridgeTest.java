@@ -21,11 +21,11 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 
@@ -185,7 +185,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
       Queue queue = (Queue) context1.lookup("queue/Q1");
 
 
-      HornetQConnectionFactory cf1 = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, generateInVMParams(0)));
+      ActiveMQConnectionFactory cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, generateInVMParams(0)));
       cf1.setMinLargeMessageSize(200 * 1024);
 
       Connection conn1 = cf1.createConnection();

@@ -19,7 +19,7 @@ import java.util.Map;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.AcceptorControl;
 import org.apache.activemq.api.core.management.ResourceNames;
@@ -50,7 +50,7 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest
    @Override
    protected AcceptorControl createManagementControl(final String name) throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);

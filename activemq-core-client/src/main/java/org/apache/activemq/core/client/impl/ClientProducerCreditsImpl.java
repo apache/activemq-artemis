@@ -14,8 +14,8 @@ package org.apache.activemq.core.client.impl;
 
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 
 import java.util.concurrent.Semaphore;
@@ -99,7 +99,7 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
                {
                   // I'm using string concatenation here in case address is null
                   // better getting a "null" string than a NPE
-                  HornetQClientLogger.LOGGER.outOfCreditOnFlowControl("" + address);
+                  ActiveMQClientLogger.LOGGER.outOfCreditOnFlowControl("" + address);
                }
             }
             finally
@@ -127,7 +127,7 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
             pendingCredits = 0;
             arriving = 0;
 
-            throw HornetQClientMessageBundle.BUNDLE.addressIsFull(address.toString(), credits);
+            throw ActiveMQClientMessageBundle.BUNDLE.addressIsFull(address.toString(), credits);
          }
       }
    }

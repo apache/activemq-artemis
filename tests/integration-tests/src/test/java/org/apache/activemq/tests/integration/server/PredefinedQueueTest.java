@@ -24,13 +24,13 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -80,11 +80,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       conf.setQueueConfigurations(queueConfs);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
 
       server.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -168,7 +168,7 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       conf.setQueueConfigurations(queueConfs);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
 
       server.start();
 
@@ -178,7 +178,7 @@ public class PredefinedQueueTest extends ServiceTestBase
       Assert.assertEquals(2, bindings.getBindings()
          .size());
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -243,11 +243,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       final String queueName3 = "queue3";
 
-      HornetQServer server = addServer(HornetQServers.newHornetQServer(conf));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf));
 
       server.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -372,7 +372,7 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       conf.setQueueConfigurations(queueConfs);
 
-      HornetQServer server = addServer(HornetQServers.newHornetQServer(conf));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf));
 
       server.start();
 
@@ -466,11 +466,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       conf.setQueueConfigurations(queueConfs);
 
-      HornetQServer server = HornetQServers.newHornetQServer(conf, false);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
 
       server.start();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 

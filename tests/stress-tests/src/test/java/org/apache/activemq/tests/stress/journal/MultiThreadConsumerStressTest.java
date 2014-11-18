@@ -24,7 +24,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -50,7 +50,7 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
 
    final SimpleString QUEUE = new SimpleString("SomeQueue");
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSessionFactory sf;
 

@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates a queue with the same name deployed on two nodes of a cluster.
@@ -31,7 +31,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
-public class QueueMessageRedistributionExample extends HornetQExample
+public class QueueMessageRedistributionExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -137,7 +137,7 @@ public class QueueMessageRedistributionExample extends HornetQExample
 
          // Step 17. Since there is no more consumer on node 1, the messages on node 1 are now stranded (no local
          // consumers)
-         // so HornetQ will redistribute them to node 0 so they can be consumed.
+         // so ActiveMQ will redistribute them to node 0 so they can be consumed.
 
          for (int i = 0; i < numMessages; i += 2)
          {

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.cluster.ha;
 
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,12 +22,12 @@ import java.util.Map;
 * */
 public class StandaloneHAManager implements HAManager
 {
-   Map<String, HornetQServer> servers = new HashMap<>();
+   Map<String, ActiveMQServer> servers = new HashMap<>();
 
    boolean isStarted = false;
 
    @Override
-   public Map<String, HornetQServer> getBackupServers()
+   public Map<String, ActiveMQServer> getBackupServers()
    {
       return servers;
    }

@@ -24,7 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example which shows how to use a QueueBrowser to look at messages of a queue without removing them from the queue
@@ -33,7 +33,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  *
  */
-public class QueueBrowserExample extends HornetQExample
+public class QueueBrowserExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

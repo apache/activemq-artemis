@@ -13,6 +13,7 @@
 package org.apache.activemq.core.filter.impl;
 
 import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.selector.filter.BooleanExpression;
 import org.apache.activemq.selector.filter.FilterException;
 import org.apache.activemq.selector.filter.Filterable;
@@ -20,17 +21,16 @@ import org.apache.activemq.selector.SelectorParser;
 import org.apache.activemq.api.core.FilterConstants;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.ServerMessage;
 
 /**
-* This class implements a HornetQ filter
+* This class implements a ActiveMQ filter
 *
 * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
 * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
 *
-* HornetQ filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
+* ActiveMQ filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
 *
 * Valid identifiers that can be used are:
 *
@@ -93,8 +93,8 @@ public class FilterImpl implements Filter
       }
       catch (Throwable e)
       {
-         HornetQServerLogger.LOGGER.invalidFilter(e, filterStr);
-         throw HornetQMessageBundle.BUNDLE.invalidFilter(e, filterStr);
+         ActiveMQServerLogger.LOGGER.invalidFilter(e, filterStr);
+         throw ActiveMQMessageBundle.BUNDLE.invalidFilter(e, filterStr);
       }
       return new FilterImpl(filterStr, booleanExpression);
    }
@@ -123,7 +123,7 @@ public class FilterImpl implements Filter
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.invalidFilter(e, sfilterString);
+         ActiveMQServerLogger.LOGGER.invalidFilter(e, sfilterString);
          return false;
       }
    }
@@ -167,28 +167,28 @@ public class FilterImpl implements Filter
 
    private static Object getHeaderFieldValue(final ServerMessage msg, final SimpleString fieldName)
    {
-      if (FilterConstants.HORNETQ_USERID.equals(fieldName))
+      if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName))
       {
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
          return new SimpleString("ID:" + msg.getUserID());
       }
-      else if (FilterConstants.HORNETQ_PRIORITY.equals(fieldName))
+      else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName))
       {
          return Integer.valueOf(msg.getPriority());
       }
-      else if (FilterConstants.HORNETQ_TIMESTAMP.equals(fieldName))
+      else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName))
       {
          return msg.getTimestamp();
       }
-      else if (FilterConstants.HORNETQ_DURABLE.equals(fieldName))
+      else if (FilterConstants.ACTIVEMQ_DURABLE.equals(fieldName))
       {
          return msg.isDurable() ? FilterConstants.DURABLE : FilterConstants.NON_DURABLE;
       }
-      else if (FilterConstants.HORNETQ_EXPIRATION.equals(fieldName))
+      else if (FilterConstants.ACTIVEMQ_EXPIRATION.equals(fieldName))
       {
          return msg.getExpiration();
       }
-      else if (FilterConstants.HORNETQ_SIZE.equals(fieldName))
+      else if (FilterConstants.ACTIVEMQ_SIZE.equals(fieldName))
       {
          return msg.getEncodeSize();
       }
@@ -211,7 +211,7 @@ public class FilterImpl implements Filter
       public Object getProperty(String id)
       {
          Object result = null;
-         if (id.startsWith(FilterConstants.HORNETQ_PREFIX.toString()))
+         if (id.startsWith(FilterConstants.ACTIVEMQ_PREFIX.toString()))
          {
             result = getHeaderFieldValue(message, new SimpleString(id));
          }

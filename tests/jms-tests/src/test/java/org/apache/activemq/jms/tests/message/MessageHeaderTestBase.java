@@ -28,14 +28,14 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
-import org.apache.activemq.jms.client.HornetQMapMessage;
-import org.apache.activemq.jms.client.HornetQMessage;
-import org.apache.activemq.jms.client.HornetQObjectMessage;
-import org.apache.activemq.jms.client.HornetQStreamMessage;
-import org.apache.activemq.jms.client.HornetQTextMessage;
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.jms.client.ActiveMQMapMessage;
+import org.apache.activemq.jms.client.ActiveMQMessage;
+import org.apache.activemq.jms.client.ActiveMQObjectMessage;
+import org.apache.activemq.jms.client.ActiveMQStreamMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Before;
 
@@ -46,7 +46,7 @@ import org.junit.Before;
  * @version <tt>$Revision: 2883 $</tt>
  *
  */
-public abstract class MessageHeaderTestBase extends HornetQServerTestCase
+public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------
 
@@ -55,13 +55,13 @@ public abstract class MessageHeaderTestBase extends HornetQServerTestCase
    /**
     * Loads the message header fields with significant values.
     */
-   public static void configureMessage(final HornetQMessage m) throws JMSException
+   public static void configureMessage(final ActiveMQMessage m) throws JMSException
    {
       m.setJMSMessageID("ID:messageID777");
       m.setJMSTimestamp(123456789L);
       m.setJMSCorrelationID("correlationID777");
-      m.setJMSReplyTo(HornetQJMSClient.createQueue("ReplyToQueue"));
-      m.setJMSDestination(HornetQJMSClient.createQueue("DestinationQueue"));
+      m.setJMSReplyTo(ActiveMQJMSClient.createQueue("ReplyToQueue"));
+      m.setJMSDestination(ActiveMQJMSClient.createQueue("DestinationQueue"));
       m.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
       m.setJMSExpiration(987654321L);
       m.setJMSPriority(9);
@@ -80,7 +80,7 @@ public abstract class MessageHeaderTestBase extends HornetQServerTestCase
     * Makes sure two physically different message are equivalent: they have identical JMS fields and
     * body.
     */
-   public static void ensureEquivalent(final Message m1, final HornetQMessage m2) throws JMSException
+   public static void ensureEquivalent(final Message m1, final ActiveMQMessage m2) throws JMSException
    {
       ProxyAssertSupport.assertTrue(m1 != m2);
 
@@ -307,7 +307,7 @@ public abstract class MessageHeaderTestBase extends HornetQServerTestCase
       }
    }
 
-   public static void ensureEquivalent(final BytesMessage m1, final HornetQBytesMessage m2) throws JMSException
+   public static void ensureEquivalent(final BytesMessage m1, final ActiveMQBytesMessage m2) throws JMSException
    {
       MessageHeaderTestBase.ensureEquivalent((Message)m1, m2);
 
@@ -339,7 +339,7 @@ public abstract class MessageHeaderTestBase extends HornetQServerTestCase
    }
 
    @SuppressWarnings("unchecked")
-   public static void ensureEquivalent(final MapMessage m1, final HornetQMapMessage m2) throws JMSException
+   public static void ensureEquivalent(final MapMessage m1, final ActiveMQMapMessage m2) throws JMSException
    {
       MessageHeaderTestBase.ensureEquivalent((Message)m1, m2);
 
@@ -356,13 +356,13 @@ public abstract class MessageHeaderTestBase extends HornetQServerTestCase
       }
    }
 
-   public static void ensureEquivalent(final ObjectMessage m1, final HornetQObjectMessage m2) throws JMSException
+   public static void ensureEquivalent(final ObjectMessage m1, final ActiveMQObjectMessage m2) throws JMSException
    {
       MessageHeaderTestBase.ensureEquivalent((Message)m1, m2);
       ProxyAssertSupport.assertEquals(m1.getObject(), m2.getObject());
    }
 
-   public static void ensureEquivalent(final StreamMessage m1, final HornetQStreamMessage m2) throws JMSException
+   public static void ensureEquivalent(final StreamMessage m1, final ActiveMQStreamMessage m2) throws JMSException
    {
       MessageHeaderTestBase.ensureEquivalent((Message)m1, m2);
 
@@ -422,7 +422,7 @@ public abstract class MessageHeaderTestBase extends HornetQServerTestCase
       }
    }
 
-   public static void ensureEquivalent(final TextMessage m1, final HornetQTextMessage m2) throws JMSException
+   public static void ensureEquivalent(final TextMessage m1, final ActiveMQTextMessage m2) throws JMSException
    {
       MessageHeaderTestBase.ensureEquivalent((Message)m1, m2);
       ProxyAssertSupport.assertEquals(m1.getText(), m2.getText());
@@ -461,8 +461,8 @@ public abstract class MessageHeaderTestBase extends HornetQServerTestCase
       topicProducerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       topicConsumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      topicProducer = topicProducerSession.createProducer(HornetQServerTestCase.topic1);
-      topicConsumer = topicConsumerSession.createConsumer(HornetQServerTestCase.topic1);
+      topicProducer = topicProducerSession.createProducer(ActiveMQServerTestCase.topic1);
+      topicConsumer = topicConsumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
       consumerConnection.start();
    }

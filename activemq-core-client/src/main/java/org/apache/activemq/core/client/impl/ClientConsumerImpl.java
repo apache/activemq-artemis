@@ -30,8 +30,8 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 import org.apache.activemq.utils.FutureLatch;
@@ -53,7 +53,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    // Constants
    // ------------------------------------------------------------------------------------
 
-   private static final boolean isTrace = HornetQClientLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
 
    private static final long CLOSE_TIMEOUT_MILLISECONDS = 10000;
 
@@ -204,7 +204,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
       if (handler != null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.messageHandlerSet();
+         throw ActiveMQClientMessageBundle.BUNDLE.messageHandlerSet();
       }
 
       if (clientWindowSize == 0)
@@ -295,7 +295,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
             {
                if (isTrace)
                {
-                  HornetQClientLogger.LOGGER.trace("Forcing delivery");
+                  ActiveMQClientLogger.LOGGER.trace("Forcing delivery");
                }
                // JBPAPP-6030 - Calling forceDelivery outside of the lock to avoid distributed dead locks
                sessionContext.forceDelivery(this, forceDeliveryCount++);
@@ -321,7 +321,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
                      if (isTrace)
                      {
-                        HornetQClientLogger.LOGGER.trace("There was nothing on the queue, leaving it now:: returning null");
+                        ActiveMQClientLogger.LOGGER.trace("There was nothing on the queue, leaving it now:: returning null");
                      }
 
                      return null;
@@ -330,7 +330,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                   {
                      if (isTrace)
                      {
-                        HornetQClientLogger.LOGGER.trace("Ignored force delivery answer as it belonged to another call");
+                        ActiveMQClientLogger.LOGGER.trace("Ignored force delivery answer as it belonged to another call");
                      }
                      // Ignore the message
                      continue;
@@ -369,7 +369,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
                if (isTrace)
                {
-                  HornetQClientLogger.LOGGER.trace("Returning " + m);
+                  ActiveMQClientLogger.LOGGER.trace("Returning " + m);
                }
 
                return m;
@@ -378,7 +378,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
             {
                if (isTrace)
                {
-                  HornetQClientLogger.LOGGER.trace("Returning null");
+                  ActiveMQClientLogger.LOGGER.trace("Returning null");
                }
                resetIfSlowConsumer();
                return null;
@@ -428,7 +428,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
       if (receiverThread != null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.inReceive();
+         throw ActiveMQClientMessageBundle.BUNDLE.inReceive();
       }
 
       boolean noPreviousHandler = handler == null;
@@ -492,7 +492,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       }
       catch (ActiveMQException e)
       {
-         HornetQClientLogger.LOGGER.warn("problem cleaning up: " + this);
+         ActiveMQClientLogger.LOGGER.warn("problem cleaning up: " + this);
       }
    }
 
@@ -717,7 +717,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       {
          if (isTrace)
          {
-            HornetQClientLogger.LOGGER.trace("Sending back credits for largeController = null " + flowControlSize);
+            ActiveMQClientLogger.LOGGER.trace("Sending back credits for largeController = null " + flowControlSize);
          }
          flowControl(flowControlSize, false);
       }
@@ -751,7 +751,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
             }
             catch (Exception e)
             {
-               HornetQClientLogger.LOGGER.errorClearingMessages(e);
+               ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
             }
          }
 
@@ -764,7 +764,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
          catch (Throwable e)
          {
             // nothing that could be done here
-            HornetQClientLogger.LOGGER.errorClearingMessages(e);
+            ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
          }
       }
 
@@ -853,7 +853,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
             {
                if (isTrace)
                {
-                  HornetQClientLogger.LOGGER.trace("FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
+                  ActiveMQClientLogger.LOGGER.trace("FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
                }
 
                // sending the credits - 1 initially send to fire the slow consumer, or the slow consumer would be
@@ -869,9 +869,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
             }
             else
             {
-               if (HornetQClientLogger.LOGGER.isDebugEnabled())
+               if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
                {
-                  HornetQClientLogger.LOGGER.debug("Sending " + messageBytes + " from flow-control");
+                  ActiveMQClientLogger.LOGGER.debug("Sending " + messageBytes + " from flow-control");
                }
 
                final int credits = creditsToSend;
@@ -906,7 +906,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    {
       if (isTrace)
       {
-         HornetQClientLogger.LOGGER.trace("Sending 1 credit to start delivering of one message to slow consumer");
+         ActiveMQClientLogger.LOGGER.trace("Sending 1 credit to start delivering of one message to slow consumer");
       }
       sendCredits(1);
       try
@@ -962,7 +962,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    {
       if (isTrace)
       {
-         HornetQClientLogger.LOGGER.trace("Adding Runner on Executor for delivery");
+         ActiveMQClientLogger.LOGGER.trace("Adding Runner on Executor for delivery");
       }
 
       sessionExecutor.execute(runner);
@@ -1011,7 +1011,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
       if (!ok)
       {
-         HornetQClientLogger.LOGGER.timeOutWaitingForProcessing();
+         ActiveMQClientLogger.LOGGER.timeOutWaitingForProcessing();
       }
    }
 
@@ -1019,7 +1019,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    {
       if (closed)
       {
-         throw HornetQClientMessageBundle.BUNDLE.consumerClosed();
+         throw ActiveMQClientMessageBundle.BUNDLE.consumerClosed();
       }
    }
 
@@ -1073,7 +1073,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
             {
                if (isTrace)
                {
-                  HornetQClientLogger.LOGGER.trace("Calling handler.onMessage");
+                  ActiveMQClientLogger.LOGGER.trace("Calling handler.onMessage");
                }
                final ClassLoader originalLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
                {
@@ -1107,7 +1107,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                   }
                   catch (Exception e)
                   {
-                     HornetQClientLogger.LOGGER.warn(e.getMessage(), e);
+                     ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
                   }
 
                   onMessageThread = null;
@@ -1115,7 +1115,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
                if (isTrace)
                {
-                  HornetQClientLogger.LOGGER.trace("Handler.onMessage done");
+                  ActiveMQClientLogger.LOGGER.trace("Handler.onMessage done");
                }
 
                if (message.isLargeMessage())
@@ -1229,7 +1229,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
          }
          catch (Exception e)
          {
-            HornetQClientLogger.LOGGER.onMessageError(e);
+            ActiveMQClientLogger.LOGGER.onMessageError(e);
 
             lastException = e;
          }

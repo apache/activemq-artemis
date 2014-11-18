@@ -33,7 +33,7 @@ import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.config.Configuration;
@@ -45,12 +45,12 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQSession;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
@@ -93,11 +93,11 @@ public class JMSFailoverTest extends ServiceTestBase
 
    protected JMSServerManager liveJMSService;
 
-   protected HornetQServer liveService;
+   protected ActiveMQServer liveService;
 
    protected JMSServerManager backupJMSService;
 
-   protected HornetQServer backupService;
+   protected ActiveMQServer backupService;
 
    protected Map<String, Object> backupParams = new HashMap<String, Object>();
 
@@ -121,7 +121,7 @@ public class JMSFailoverTest extends ServiceTestBase
       liveJMSService.createQueue(true, "queue1", null, true, "/queue/queue1");
       assertNotNull(ctx1.lookup("/queue/queue1"));
 
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
 
       jbcf.setReconnectAttempts(-1);
 
@@ -133,7 +133,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         ClientSession coreSession = ((HornetQSession) sess).getCoreSession();
+         ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
          JMSUtil.crash(liveService, coreSession);
 
@@ -154,7 +154,7 @@ public class JMSFailoverTest extends ServiceTestBase
       liveJMSService.createTopic(true, "topic", "/topic/t1");
       assertNotNull(ctx1.lookup("//topic/t1"));
 
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
 
       jbcf.setReconnectAttempts(-1);
 
@@ -166,7 +166,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         ClientSession coreSession = ((HornetQSession) sess).getCoreSession();
+         ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
          JMSUtil.crash(liveService, coreSession);
 
@@ -184,7 +184,7 @@ public class JMSFailoverTest extends ServiceTestBase
    @Test
    public void testAutomaticFailover() throws Exception
    {
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
       jbcf.setReconnectAttempts(-1);
       jbcf.setBlockOnDurableSend(true);
       jbcf.setBlockOnNonDurableSend(true);
@@ -207,9 +207,9 @@ public class JMSFailoverTest extends ServiceTestBase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((HornetQSession) sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      SimpleString jmsQueueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
 
       coreSession.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -238,7 +238,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
       Thread.sleep(2000);
 
-      JMSUtil.crash(liveService, ((HornetQSession) sess).getCoreSession());
+      JMSUtil.crash(liveService, ((ActiveMQSession) sess).getCoreSession());
 
       for (int i = 0; i < numMessages; i++)
       {
@@ -262,17 +262,17 @@ public class JMSFailoverTest extends ServiceTestBase
    @Test
    public void testManualFailover() throws Exception
    {
-      HornetQConnectionFactory jbcfLive =
-         HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                           new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory jbcfLive =
+         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                            new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcfLive.setBlockOnNonDurableSend(true);
       jbcfLive.setBlockOnDurableSend(true);
 
-      HornetQConnectionFactory jbcfBackup =
-         HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                           new TransportConfiguration(INVM_CONNECTOR_FACTORY,
-                                                                                      backupParams));
+      ActiveMQConnectionFactory jbcfBackup =
+         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                            new TransportConfiguration(INVM_CONNECTOR_FACTORY,
+                                                                                       backupParams));
       jbcfBackup.setBlockOnNonDurableSend(true);
       jbcfBackup.setBlockOnDurableSend(true);
       jbcfBackup.setInitialConnectAttempts(-1);
@@ -286,11 +286,11 @@ public class JMSFailoverTest extends ServiceTestBase
 
       Session sessLive = connLive.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSessionLive = ((HornetQSession) sessLive).getCoreSession();
+      ClientSession coreSessionLive = ((ActiveMQSession) sessLive).getCoreSession();
 
       RemotingConnection coreConnLive = ((ClientSessionInternal) coreSessionLive).getConnection();
 
-      SimpleString jmsQueueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
 
       coreSessionLive.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -345,7 +345,7 @@ public class JMSFailoverTest extends ServiceTestBase
    {
       SimpleString QUEUE = new SimpleString("jms.queue.somequeue");
 
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc, backuptc);
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc, backuptc);
       jbcf.setReconnectAttempts(-1);
       jbcf.setBlockOnDurableSend(true);
       jbcf.setBlockOnNonDurableSend(true);
@@ -384,7 +384,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
       Connection conn = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-      final ClientSession coreSession = ((HornetQSession) sess).getCoreSession();
+      final ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
 
       // The thread that will fail the server
@@ -541,7 +541,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
       backupJMSService.setContext(ctx2);
 
-      backupJMSService.getHornetQServer().setIdentity("JMSBackup");
+      backupJMSService.getActiveMQServer().setIdentity("JMSBackup");
       log.info("Starting backup");
       backupJMSService.start();
 
@@ -567,7 +567,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
       liveJMSService.setContext(ctx1);
 
-      liveJMSService.getHornetQServer().setIdentity("JMSLive");
+      liveJMSService.getActiveMQServer().setIdentity("JMSLive");
       log.info("Starting life");
 
       liveJMSService.start();

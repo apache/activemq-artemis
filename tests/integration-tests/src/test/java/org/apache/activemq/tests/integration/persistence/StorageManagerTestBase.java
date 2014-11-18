@@ -119,7 +119,7 @@ public abstract class StorageManagerTestBase extends ServiceTestBase
    protected JournalStorageManager createJournalStorageManager(Configuration configuration)
    {
       JournalStorageManager jsm = new JournalStorageManager(configuration, execFactory, null);
-      addHornetQComponent(jsm);
+      addActiveMQComponent(jsm);
       return jsm;
    }
 

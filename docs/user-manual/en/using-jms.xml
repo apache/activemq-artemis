@@ -151,11 +151,7 @@
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-<<<<<<< HEAD
-   xsi:schemaLocation="urn:hornetq ../schemas/activemq-jms.xsd ">
-=======
    xsi:schemaLocation="urn:activemq ../schemas/activemq-jms.xsd ">
->>>>>>> 198a239... ACTIVEMQ6-9 Clean up docs
 
    &lt;connection-factory name="ConnectionFactory" signature="queue">
       &lt;xa>true&lt;/xa>

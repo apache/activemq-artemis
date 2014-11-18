@@ -25,7 +25,7 @@ import org.apache.activemq.core.server.ConnectorService;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.integration.twitter.TwitterConstants;
-import org.apache.activemq.twitter.HornetQTwitterLogger;
+import org.apache.activemq.twitter.ActiveMQTwitterLogger;
 import org.apache.activemq.utils.ConfigurationHelper;
 import twitter4j.GeoLocation;
 import twitter4j.Paging;
@@ -38,7 +38,7 @@ import twitter4j.http.AccessToken;
 
 /**
  * IncomingTweetsHandler consumes from twitter and forwards to the
- * configured HornetQ address.
+ * configured ActiveMQ address.
  */
 public class IncomingTweetsHandler implements ConnectorService
 {
@@ -118,7 +118,7 @@ public class IncomingTweetsHandler implements ConnectorService
       // If I used annotations here, it won't compile under JDK 1.7
       ResponseList res = this.twitter.getHomeTimeline(paging);
       this.paging.setSinceId(((Status) res.get(0)).getId());
-      HornetQTwitterLogger.LOGGER.debug(connectorName + " initialise(): got latest ID: " + this.paging.getSinceId());
+      ActiveMQTwitterLogger.LOGGER.debug(connectorName + " initialise(): got latest ID: " + this.paging.getSinceId());
 
       // TODO make page size configurable
       this.paging.setCount(TwitterConstants.DEFAULT_PAGE_SIZE);
@@ -170,11 +170,11 @@ public class IncomingTweetsHandler implements ConnectorService
          putTweetIntoMessage(status, msg);
 
          this.postOffice.route(msg, false);
-         HornetQTwitterLogger.LOGGER.debug(connectorName + ": routed: " + status.toString());
+         ActiveMQTwitterLogger.LOGGER.debug(connectorName + ": routed: " + status.toString());
       }
 
       this.paging.setSinceId(((Status) res.get(0)).getId());
-      HornetQTwitterLogger.LOGGER.debug(connectorName + ": update latest ID: " + this.paging.getSinceId());
+      ActiveMQTwitterLogger.LOGGER.debug(connectorName + ": update latest ID: " + this.paging.getSinceId());
    }
 
    private void putTweetIntoMessage(final Status status, final ServerMessage msg)
@@ -223,7 +223,7 @@ public class IncomingTweetsHandler implements ConnectorService
          }
          catch (Throwable t)
          {
-            HornetQTwitterLogger.LOGGER.errorPollingTwitter(t);
+            ActiveMQTwitterLogger.LOGGER.errorPollingTwitter(t);
          }
       }
    }

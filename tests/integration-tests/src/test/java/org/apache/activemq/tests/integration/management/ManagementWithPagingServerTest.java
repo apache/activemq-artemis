@@ -25,8 +25,8 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -45,7 +45,7 @@ import org.junit.Test;
  */
 public class ManagementWithPagingServerTest extends ManagementTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ClientSession session1;
    private ClientSession session2;
    private ServerLocator locator;
@@ -201,7 +201,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
 
-      server = addServer(HornetQServers.newHornetQServer(conf, mbeanServer, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(5120);

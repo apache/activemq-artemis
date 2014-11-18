@@ -26,7 +26,7 @@ import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.utils.DataConstants;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
@@ -58,7 +58,7 @@ public abstract class VersionedStompFrameHandler
       this.connection = connection;
    }
 
-   public StompFrame decode(ActiveMQBuffer buffer) throws HornetQStompException
+   public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException
    {
       return decoder.decode(buffer);
    }
@@ -157,7 +157,7 @@ public abstract class VersionedStompFrameHandler
 
    public StompFrame onUnknown(String command)
    {
-      HornetQStompException error = BUNDLE.unknownCommand(command);
+      ActiveMQStompException error = BUNDLE.unknownCommand(command);
       StompFrame response = error.getFrame();
       return response;
    }
@@ -177,7 +177,7 @@ public abstract class VersionedStompFrameHandler
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
       if (txID == null)
       {
-         HornetQStompException error = BUNDLE.needTxIDHeader();
+         ActiveMQStompException error = BUNDLE.needTxIDHeader();
          response = error.getFrame();
          return response;
       }
@@ -186,7 +186,7 @@ public abstract class VersionedStompFrameHandler
       {
          connection.commitTransaction(txID);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
@@ -223,20 +223,20 @@ public abstract class VersionedStompFrameHandler
 
          connection.sendServerMessage(message, txID);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
       catch (Exception e)
       {
-         HornetQStompException error = BUNDLE.errorHandleSend(e);
+         ActiveMQStompException error = BUNDLE.errorHandleSend(e);
          response = error.getFrame();
       }
 
       return response;
    }
 
-   private void checkDestination(String destination) throws HornetQStompException
+   private void checkDestination(String destination) throws ActiveMQStompException
    {
       connection.checkDestination(destination);
    }
@@ -247,7 +247,7 @@ public abstract class VersionedStompFrameHandler
       String txID = frame.getHeader(Stomp.Headers.TRANSACTION);
       if (txID == null)
       {
-         HornetQStompException error = BUNDLE.beginTxNoID();
+         ActiveMQStompException error = BUNDLE.beginTxNoID();
          response = error.getFrame();
       }
       else
@@ -256,7 +256,7 @@ public abstract class VersionedStompFrameHandler
          {
             connection.beginTransaction(txID);
          }
-         catch (HornetQStompException e)
+         catch (ActiveMQStompException e)
          {
             response = e.getFrame();
          }
@@ -271,7 +271,7 @@ public abstract class VersionedStompFrameHandler
 
       if (txID == null)
       {
-         HornetQStompException error = BUNDLE.abortTxNoID();
+         ActiveMQStompException error = BUNDLE.abortTxNoID();
          response = error.getFrame();
          return response;
       }
@@ -280,7 +280,7 @@ public abstract class VersionedStompFrameHandler
       {
          connection.abortTransaction(txID);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
@@ -308,7 +308,7 @@ public abstract class VersionedStompFrameHandler
       {
          connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
@@ -400,7 +400,7 @@ public abstract class VersionedStompFrameHandler
    }
 
    //sends an ERROR frame back to client if possible then close the connection
-   public void onError(HornetQStompException e)
+   public void onError(ActiveMQStompException e)
    {
       this.connection.sendFrame(e.getFrame());
       connection.destroy();

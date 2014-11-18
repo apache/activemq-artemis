@@ -25,7 +25,7 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonContextSender;
 import org.proton.plug.context.AbstractProtonSessionContext;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.util.FutureRunnable;
 
 /**
@@ -44,7 +44,7 @@ public class ProtonClientContext extends AbstractProtonContextSender implements 
 
 
    @Override
-   public void onMessage(Delivery delivery) throws HornetQAMQPException
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
    {
       if (delivery.getRemoteState() instanceof Accepted)
       {

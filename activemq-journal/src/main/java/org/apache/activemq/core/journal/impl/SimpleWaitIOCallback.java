@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A SimpleWaitIOCallback
@@ -51,7 +51,7 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion
 
       this.errorMessage = errorMessage1;
 
-      HornetQJournalLogger.LOGGER.errorOnIOCallback(errorMessage1);
+      ActiveMQJournalLogger.LOGGER.errorOnIOCallback(errorMessage1);
 
       latch.countDown();
    }

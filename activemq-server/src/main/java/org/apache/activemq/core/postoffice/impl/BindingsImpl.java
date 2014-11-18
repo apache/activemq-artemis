@@ -30,7 +30,7 @@ import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
@@ -51,7 +51,7 @@ public final class BindingsImpl implements Bindings
    // This is public as we use on test assertions
    public static final int MAX_GROUP_RETRY = 10;
 
-   private static boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final ConcurrentMap<SimpleString, List<Binding>> routingNameBindingMap = new ConcurrentHashMap<SimpleString, List<Binding>>();
 
@@ -98,7 +98,7 @@ public final class BindingsImpl implements Bindings
    {
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("addBinding(" + binding + ") being called");
+         ActiveMQServerLogger.LOGGER.trace("addBinding(" + binding + ") being called");
       }
       if (binding.isExclusive())
       {
@@ -129,7 +129,7 @@ public final class BindingsImpl implements Bindings
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
+         ActiveMQServerLogger.LOGGER.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
       }
 
    }
@@ -161,7 +161,7 @@ public final class BindingsImpl implements Bindings
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Removing binding " + binding + " into " + this + " bindingTable: " + debugBindings());
+         ActiveMQServerLogger.LOGGER.trace("Removing binding " + binding + " into " + this + " bindingTable: " + debugBindings());
       }
    }
 
@@ -174,7 +174,7 @@ public final class BindingsImpl implements Bindings
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Redistributing message " + message);
+         ActiveMQServerLogger.LOGGER.trace("Redistributing message " + message);
       }
 
       SimpleString routingName = originatingQueue.getName();
@@ -326,7 +326,7 @@ public final class BindingsImpl implements Bindings
          {
             if (isTrace)
             {
-               HornetQServerLogger.LOGGER.trace("Routing message " + message + " on binding=" + this);
+               ActiveMQServerLogger.LOGGER.trace("Routing message " + message + " on binding=" + this);
             }
             for (Map.Entry<SimpleString, List<Binding>> entry : routingNameBindingMap.entrySet())
             {
@@ -512,7 +512,7 @@ public final class BindingsImpl implements Bindings
 
             if (resp == null)
             {
-               HornetQServerLogger.LOGGER.debug("it got a timeout on propose, trying again, number of retries: " + tries);
+               ActiveMQServerLogger.LOGGER.debug("it got a timeout on propose, trying again, number of retries: " + tries);
                // it timed out, so we will check it through routeAndcheckNull
                theBinding = null;
             }
@@ -572,7 +572,7 @@ public final class BindingsImpl implements Bindings
          }
          else
          {
-            HornetQServerLogger.LOGGER.impossibleToRouteGrouped();
+            ActiveMQServerLogger.LOGGER.impossibleToRouteGrouped();
             route(message, context, false);
          }
       }
@@ -683,7 +683,7 @@ public final class BindingsImpl implements Bindings
          }
          else
          {
-            HornetQServerLogger.LOGGER.warn("Couldn't find binding with id=" + bindingID + " on routeFromCluster for message=" + message + " binding = " + this);
+            ActiveMQServerLogger.LOGGER.warn("Couldn't find binding with id=" + bindingID + " on routeFromCluster for message=" + message + " binding = " + this);
          }
       }
    }

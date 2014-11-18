@@ -32,8 +32,8 @@ import org.apache.activemq.core.filter.impl.FilterImpl;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.server.Consumer;
 import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
@@ -1613,7 +1613,7 @@ public class QueueImplTest extends UnitTestCase
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
-      HornetQServer server = HornetQServers.newHornetQServer(createDefaultConfig(false), true);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(createDefaultConfig(false), true);
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(10 * 1024);

@@ -22,12 +22,12 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -43,7 +43,7 @@ public class RemoteConnectionStressTest extends ServiceTestBase
 {
 
 
-   HornetQServer server;
+   ActiveMQServer server;
    MBeanServer mbeanServer;
    JMSServerManagerImpl jmsServer;
 
@@ -57,7 +57,7 @@ public class RemoteConnectionStressTest extends ServiceTestBase
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
-      server = HornetQServers.newHornetQServer(conf, mbeanServer, false);
+      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
 
       InVMNamingContext namingContext = new InVMNamingContext();
       jmsServer = new JMSServerManagerImpl(server);
@@ -84,7 +84,7 @@ public class RemoteConnectionStressTest extends ServiceTestBase
 
 
          TransportConfiguration config = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
-         HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, config);
+         ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, config);
          cf.setInitialConnectAttempts(10);
          cf.setRetryInterval(100);
 

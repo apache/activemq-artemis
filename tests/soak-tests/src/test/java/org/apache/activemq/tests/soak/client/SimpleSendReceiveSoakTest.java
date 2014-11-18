@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
@@ -57,7 +57,7 @@ public class SimpleSendReceiveSoakTest extends ServiceTestBase
 
    // Public --------------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Override
    @Before

@@ -22,16 +22,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.impl.FileConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
@@ -51,8 +51,8 @@ public class JMSServerStartStopTest extends UnitTestCase
 
    private Connection conn;
 
-   private HornetQConnectionFactory jbcf;
-   private final Set<HornetQConnectionFactory> connectionFactories = new HashSet<HornetQConnectionFactory>();
+   private ActiveMQConnectionFactory jbcf;
+   private final Set<ActiveMQConnectionFactory> connectionFactories = new HashSet<ActiveMQConnectionFactory>();
 
    @Test
    public void testStopStart1() throws Exception
@@ -65,7 +65,7 @@ public class JMSServerStartStopTest extends UnitTestCase
 
          start();
 
-         HornetQConnectionFactory jbcf = createConnectionFactory();
+         ActiveMQConnectionFactory jbcf = createConnectionFactory();
 
          jbcf.setBlockOnDurableSend(true);
          jbcf.setBlockOnNonDurableSend(true);
@@ -147,11 +147,11 @@ public class JMSServerStartStopTest extends UnitTestCase
    /**
     * @return
     */
-   private HornetQConnectionFactory createConnectionFactory()
+   private ActiveMQConnectionFactory createConnectionFactory()
    {
-      HornetQConnectionFactory cf =
-         HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                           new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf =
+         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                            new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
       connectionFactories.add(cf);
       return cf;
@@ -165,7 +165,7 @@ public class JMSServerStartStopTest extends UnitTestCase
          conn.close();
       if (jbcf != null)
          jbcf.close();
-      for (HornetQConnectionFactory cf : connectionFactories)
+      for (ActiveMQConnectionFactory cf : connectionFactories)
       {
          try
          {
@@ -200,12 +200,12 @@ public class JMSServerStartStopTest extends UnitTestCase
       fc.setBindingsDirectory(getBindingsDir());
       fc.setLargeMessagesDirectory(getLargeMessagesDir());
 
-      HornetQSecurityManager sm = new HornetQSecurityManagerImpl();
+      ActiveMQSecurityManager sm = new ActiveMQSecurityManagerImpl();
 
-      HornetQServer liveServer = addServer(new HornetQServerImpl(fc, sm));
+      ActiveMQServer liveServer = addServer(new ActiveMQServerImpl(fc, sm));
 
       liveJMSServer = new JMSServerManagerImpl(liveServer, "server-start-stop-jms-config1.xml");
-      addHornetQComponent(liveJMSServer);
+      addActiveMQComponent(liveJMSServer);
       liveJMSServer.setContext(null);
 
       liveJMSServer.start();

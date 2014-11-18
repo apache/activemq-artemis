@@ -17,8 +17,8 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
@@ -34,15 +34,15 @@ public final class SharedStoreBackupActivation extends Activation
    //this is how we act as a backup
    private SharedStoreSlavePolicy sharedStoreSlavePolicy;
 
-   private HornetQServerImpl hornetQServer;
+   private ActiveMQServerImpl activeMQServer;
 
    private final Object failbackCheckerGuard = new Object();
 
    private boolean cancelFailBackChecker;
 
-   public SharedStoreBackupActivation(HornetQServerImpl server, SharedStoreSlavePolicy sharedStoreSlavePolicy)
+   public SharedStoreBackupActivation(ActiveMQServerImpl server, SharedStoreSlavePolicy sharedStoreSlavePolicy)
    {
-      this.hornetQServer = server;
+      this.activeMQServer = server;
       this.sharedStoreSlavePolicy = sharedStoreSlavePolicy;
       synchronized (failbackCheckerGuard)
       {
@@ -54,38 +54,38 @@ public final class SharedStoreBackupActivation extends Activation
    {
       try
       {
-         hornetQServer.getNodeManager().startBackup();
+         activeMQServer.getNodeManager().startBackup();
 
          boolean scalingDown = sharedStoreSlavePolicy.getScaleDownPolicy() != null;
 
-         if (!hornetQServer.initialisePart1(scalingDown))
+         if (!activeMQServer.initialisePart1(scalingDown))
             return;
 
-         hornetQServer.getBackupManager().start();
+         activeMQServer.getBackupManager().start();
 
-         hornetQServer.setState(HornetQServerImpl.SERVER_STATE.STARTED);
+         activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
 
-         HornetQServerLogger.LOGGER.backupServerStarted(hornetQServer.getVersion().getFullVersion(), hornetQServer.getNodeManager().getNodeId());
+         ActiveMQServerLogger.LOGGER.backupServerStarted(activeMQServer.getVersion().getFullVersion(), activeMQServer.getNodeManager().getNodeId());
 
-         hornetQServer.getNodeManager().awaitLiveNode();
+         activeMQServer.getNodeManager().awaitLiveNode();
 
          sharedStoreSlavePolicy.getSharedStoreMasterPolicy().setSharedStoreSlavePolicy(sharedStoreSlavePolicy);
 
-         hornetQServer.setHAPolicy(sharedStoreSlavePolicy.getSharedStoreMasterPolicy());
+         activeMQServer.setHAPolicy(sharedStoreSlavePolicy.getSharedStoreMasterPolicy());
 
-         //hornetQServer.configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
+         //activeMQServer.configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
 
-         hornetQServer.getBackupManager().activated();
-         if (hornetQServer.getState() != HornetQServerImpl.SERVER_STATE.STARTED)
+         activeMQServer.getBackupManager().activated();
+         if (activeMQServer.getState() != ActiveMQServerImpl.SERVER_STATE.STARTED)
          {
             return;
          }
 
-         hornetQServer.initialisePart2(scalingDown);
+         activeMQServer.initialisePart2(scalingDown);
 
          if (scalingDown)
          {
-            HornetQServerLogger.LOGGER.backupServerScaledDown();
+            ActiveMQServerLogger.LOGGER.backupServerScaledDown();
             Thread t = new Thread(new Runnable()
             {
                @Override
@@ -93,16 +93,16 @@ public final class SharedStoreBackupActivation extends Activation
                {
                   try
                   {
-                     hornetQServer.stop();
+                     activeMQServer.stop();
                      //we are shared store but if we were started by a parent server then we shouldn't restart
                      if (sharedStoreSlavePolicy.isRestartBackup())
                      {
-                        hornetQServer.start();
+                        activeMQServer.start();
                      }
                   }
                   catch (Exception e)
                   {
-                     HornetQServerLogger.LOGGER.serverRestartWarning();
+                     ActiveMQServerLogger.LOGGER.serverRestartWarning();
                   }
                }
             });
@@ -111,9 +111,9 @@ public final class SharedStoreBackupActivation extends Activation
          }
          else
          {
-            HornetQServerLogger.LOGGER.backupServerIsLive();
+            ActiveMQServerLogger.LOGGER.backupServerIsLive();
 
-            hornetQServer.getNodeManager().releaseBackup();
+            activeMQServer.getNodeManager().releaseBackup();
          }
          if (sharedStoreSlavePolicy.isAllowAutoFailBack())
          {
@@ -132,12 +132,12 @@ public final class SharedStoreBackupActivation extends Activation
       {
          if (!(e.getCause() instanceof InterruptedException))
          {
-            HornetQServerLogger.LOGGER.initializationError(e);
+            ActiveMQServerLogger.LOGGER.initializationError(e);
          }
       }
       catch (Throwable e)
       {
-         HornetQServerLogger.LOGGER.initializationError(e);
+         ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
@@ -151,13 +151,13 @@ public final class SharedStoreBackupActivation extends Activation
          }
       }
       // To avoid a NPE cause by the stop
-      NodeManager nodeManagerInUse = hornetQServer.getNodeManager();
+      NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
       //we need to check as the servers policy may have changed
-      if (hornetQServer.getHAPolicy().isBackup())
+      if (activeMQServer.getHAPolicy().isBackup())
       {
 
-         hornetQServer.interrupBackupThread(nodeManagerInUse);
+         activeMQServer.interrupBackupThread(nodeManagerInUse);
 
 
          if (nodeManagerInUse != null)
@@ -186,7 +186,7 @@ public final class SharedStoreBackupActivation extends Activation
    }
 
    @Override
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, HornetQServer parentServer) throws ActiveMQException
+   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, ActiveMQServer parentServer) throws ActiveMQException
    {
       if (sharedStoreSlavePolicy.getScaleDownPolicy() != null)
       {
@@ -199,8 +199,8 @@ public final class SharedStoreBackupActivation extends Activation
                groupingHandler,
                configuration,
                parentServer,
-               ScaleDownPolicy.getScaleDownConnector(sharedStoreSlavePolicy.getScaleDownPolicy(), hornetQServer),
-               hornetQServer.getClusterManager().getClusterController());
+               ScaleDownPolicy.getScaleDownConnector(sharedStoreSlavePolicy.getScaleDownPolicy(), activeMQServer),
+               activeMQServer.getClusterManager().getClusterController());
       }
       else
       {
@@ -221,7 +221,7 @@ public final class SharedStoreBackupActivation extends Activation
     */
    private void startFailbackChecker()
    {
-      hornetQServer.getScheduledPool().scheduleAtFixedRate(new FailbackChecker(), 1000L, 1000L, TimeUnit.MILLISECONDS);
+      activeMQServer.getScheduledPool().scheduleAtFixedRate(new FailbackChecker(), 1000L, 1000L, TimeUnit.MILLISECONDS);
    }
    private class FailbackChecker implements Runnable
    {
@@ -231,9 +231,9 @@ public final class SharedStoreBackupActivation extends Activation
       {
          try
          {
-            if (!restarting && hornetQServer.getNodeManager().isAwaitingFailback())
+            if (!restarting && activeMQServer.getNodeManager().isAwaitingFailback())
             {
-               HornetQServerLogger.LOGGER.awaitFailBack();
+               ActiveMQServerLogger.LOGGER.awaitFailBack();
                restarting = true;
                Thread t = new Thread(new Runnable()
                {
@@ -241,9 +241,9 @@ public final class SharedStoreBackupActivation extends Activation
                   {
                      try
                      {
-                        HornetQServerLogger.LOGGER.debug(hornetQServer + "::Stopping live node in favor of failback");
+                        ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Stopping live node in favor of failback");
 
-                        hornetQServer.stop(true, false, true);
+                        activeMQServer.stop(true, false, true);
                         // We need to wait some time before we start the backup again
                         // otherwise we may eventually start before the live had a chance to get it
                         Thread.sleep(sharedStoreSlavePolicy.getFailbackDelay());
@@ -252,15 +252,15 @@ public final class SharedStoreBackupActivation extends Activation
                            if (cancelFailBackChecker || !sharedStoreSlavePolicy.isRestartBackup())
                               return;
 
-                           hornetQServer.setHAPolicy(sharedStoreSlavePolicy);
-                           HornetQServerLogger.LOGGER.debug(hornetQServer +
+                           activeMQServer.setHAPolicy(sharedStoreSlavePolicy);
+                           ActiveMQServerLogger.LOGGER.debug(activeMQServer +
                                  "::Starting backup node now after failback");
-                           hornetQServer.start();
+                           activeMQServer.start();
                         }
                      }
                      catch (Exception e)
                      {
-                        HornetQServerLogger.LOGGER.serverRestartWarning();
+                        ActiveMQServerLogger.LOGGER.serverRestartWarning();
                      }
                   }
                });
@@ -269,7 +269,7 @@ public final class SharedStoreBackupActivation extends Activation
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.serverRestartWarning(e);
+            ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
          }
       }
    }

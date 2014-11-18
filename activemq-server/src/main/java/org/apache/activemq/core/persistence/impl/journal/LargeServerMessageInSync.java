@@ -23,7 +23,7 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.persistence.StorageManager.LargeMessageExtension;
 import org.apache.activemq.core.replication.ReplicatedLargeMessage;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LargeServerMessage;
 
 public final class LargeServerMessageInSync implements ReplicatedLargeMessage
@@ -103,7 +103,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
+            ActiveMQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
          }
       }
    }

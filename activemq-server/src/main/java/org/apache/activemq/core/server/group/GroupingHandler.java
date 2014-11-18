@@ -13,7 +13,7 @@
 package org.apache.activemq.core.server.group;
 
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.group.impl.GroupBinding;
 import org.apache.activemq.core.server.group.impl.Proposal;
 import org.apache.activemq.core.server.group.impl.Response;
@@ -22,7 +22,7 @@ import org.apache.activemq.core.server.management.NotificationListener;
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
-public interface GroupingHandler extends NotificationListener, HornetQComponent
+public interface GroupingHandler extends NotificationListener, ActiveMQComponent
 {
    // this method should maintain a WeakHash list, no need to remove the elements
    void addListener(UnproposalListener listener);

@@ -26,8 +26,8 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.management.ManagementService;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.utils.ConcurrentHashSet;
@@ -141,7 +141,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract
 
       if (!started)
       {
-         throw HornetQMessageBundle.BUNDLE.groupWhileStopping();
+         throw ActiveMQMessageBundle.BUNDLE.groupWhileStopping();
       }
 
       Notification notification = null;
@@ -183,7 +183,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract
       }
       if (response == null)
       {
-         HornetQServerLogger.LOGGER.groupHandlerSendTimeout();
+         ActiveMQServerLogger.LOGGER.groupHandlerSendTimeout();
       }
       return response;
    }

@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ import org.junit.Test;
  */
 public class SessionClosedOnRemotingConnectionFailureTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSessionFactory sf;
 

@@ -11,10 +11,10 @@
  * permissions and limitations under the License.
  */
 /**
- * API to create HornetQ JMS resources.
+ * API to create ActiveMQ JMS resources.
  * <br>
  * This package contains classes to create
- * HornetQ JMS managed resources (ConnectionFactory, Queue and Topic).
+ * ActiveMQ JMS managed resources (ConnectionFactory, Queue and Topic).
  *
  */
 package org.apache.activemq.api.jms;

@@ -27,13 +27,13 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
@@ -43,7 +43,7 @@ public class CoreClientOverHttpTest extends UnitTestCase
 {
    private static final SimpleString QUEUE = new SimpleString("CoreClientOverHttpTestQueue");
    private Configuration conf;
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ServerLocator locator;
 
    @Override
@@ -58,10 +58,10 @@ public class CoreClientOverHttpTest extends UnitTestCase
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
 
-      server = addServer(HornetQServers.newHornetQServer(conf, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
 
       server.start();
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
       addServerLocator(locator);
    }
 
@@ -79,7 +79,7 @@ public class CoreClientOverHttpTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -138,7 +138,7 @@ public class CoreClientOverHttpTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),

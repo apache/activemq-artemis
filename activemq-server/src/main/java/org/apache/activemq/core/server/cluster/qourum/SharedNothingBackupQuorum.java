@@ -25,7 +25,7 @@ import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.core.remoting.FailureListener;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 
 /**
@@ -108,7 +108,7 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
             catch (ActiveMQException e)
             {
                if (e.getType() != ActiveMQExceptionType.NOT_CONNECTED)
-                  HornetQServerLogger.LOGGER.errorReConnecting(e);
+                  ActiveMQServerLogger.LOGGER.errorReConnecting(e);
             }
          }
          // live is assumed to be down, backup fails-over

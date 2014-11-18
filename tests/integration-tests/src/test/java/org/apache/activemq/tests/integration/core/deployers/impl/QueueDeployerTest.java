@@ -22,7 +22,7 @@ import org.apache.activemq.core.deployers.impl.QueueDeployer;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -42,12 +42,12 @@ public class QueueDeployerTest extends ServiceTestBase
 
    private QueueDeployer deployer;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Test
    public void testParseQueueConfiguration() throws Exception
    {
-      String xml = "<configuration xmlns='urn:hornetq'>"
+      String xml = "<configuration xmlns='urn:activemq'>"
                    + "   <queues>"
                    + "      <queue name='foo'>"
                    + "         <address>bar</address>"

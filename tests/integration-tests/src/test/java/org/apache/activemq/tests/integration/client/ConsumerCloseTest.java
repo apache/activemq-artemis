@@ -24,14 +24,14 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -47,7 +47,7 @@ public class ConsumerCloseTest extends ServiceTestBase
 {
 
    private ClientSessionFactory sf;
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession session;
 
@@ -71,7 +71,7 @@ public class ConsumerCloseTest extends ServiceTestBase
 
       Assert.assertTrue(consumer.isClosed());
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -79,7 +79,7 @@ public class ConsumerCloseTest extends ServiceTestBase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -87,7 +87,7 @@ public class ConsumerCloseTest extends ServiceTestBase
          }
       });
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.OBJECT_CLOSED, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -307,14 +307,14 @@ public class ConsumerCloseTest extends ServiceTestBase
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
          .setSecurityEnabled(false);
 
-      server = addServer(HornetQServers.newHornetQServer(config, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       address = RandomUtil.randomSimpleString();
       queue = RandomUtil.randomSimpleString();
 
       locator =
-         addServerLocator(HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+         addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
             ServiceTestBase.INVM_CONNECTOR_FACTORY)));
 
       sf = createSessionFactory(locator);

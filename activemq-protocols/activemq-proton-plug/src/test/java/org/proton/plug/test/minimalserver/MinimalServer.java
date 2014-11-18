@@ -114,9 +114,9 @@ public class MinimalServer
 //       childOption(ChannelOption.AUTO_READ, false).
          childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
-      channelGroup = new DefaultChannelGroup("hornetq-accepted-channels", GlobalEventExecutor.INSTANCE);
+      channelGroup = new DefaultChannelGroup("activemq-accepted-channels", GlobalEventExecutor.INSTANCE);
 
-      serverChannelGroup = new DefaultChannelGroup("hornetq-acceptor-channels", GlobalEventExecutor.INSTANCE);
+      serverChannelGroup = new DefaultChannelGroup("activemq-acceptor-channels", GlobalEventExecutor.INSTANCE);
 
 
       SocketAddress address;

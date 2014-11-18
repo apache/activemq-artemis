@@ -29,8 +29,8 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -210,7 +210,7 @@ public final class XMLUtil
             }
             catch (Exception e)
             {
-               HornetQClientLogger.LOGGER.errorOnXMLTransform(e, n);
+               ActiveMQClientLogger.LOGGER.errorOnXMLTransform(e, n);
                return null;
             }
          }
@@ -265,17 +265,17 @@ public final class XMLUtil
    {
       if (node == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.firstNodeNull();
+         throw ActiveMQClientMessageBundle.BUNDLE.firstNodeNull();
       }
 
       if (node2 == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.secondNodeNull();
+         throw ActiveMQClientMessageBundle.BUNDLE.secondNodeNull();
       }
 
       if (!node.getNodeName().equals(node2.getNodeName()))
       {
-         throw HornetQClientMessageBundle.BUNDLE.nodeHaveDifferentNames();
+         throw ActiveMQClientMessageBundle.BUNDLE.nodeHaveDifferentNames();
       }
 
       int attrCount = 0;
@@ -294,7 +294,7 @@ public final class XMLUtil
 
       if (attrCount != attrCount2)
       {
-         throw HornetQClientMessageBundle.BUNDLE.nodeHaveDifferentAttNumber();
+         throw ActiveMQClientMessageBundle.BUNDLE.nodeHaveDifferentAttNumber();
       }
 
    outer:
@@ -315,14 +315,14 @@ public final class XMLUtil
                continue outer;
             }
          }
-         throw HornetQClientMessageBundle.BUNDLE.attsDontMatch(name, value);
+         throw ActiveMQClientMessageBundle.BUNDLE.attsDontMatch(name, value);
       }
 
       boolean hasChildren = node.hasChildNodes();
 
       if (hasChildren != node2.hasChildNodes())
       {
-         throw HornetQClientMessageBundle.BUNDLE.oneNodeHasChildren();
+         throw ActiveMQClientMessageBundle.BUNDLE.oneNodeHasChildren();
       }
 
       if (hasChildren)
@@ -338,7 +338,7 @@ public final class XMLUtil
 
          if (length != nodes2.size())
          {
-            throw HornetQClientMessageBundle.BUNDLE.nodeHasDifferentChildNumber();
+            throw ActiveMQClientMessageBundle.BUNDLE.nodeHasDifferentChildNumber();
          }
 
          for (int i = 0; i < length; i++)
@@ -402,7 +402,7 @@ public final class XMLUtil
             val = parts[1].trim();
          }
          String sysProp = System.getProperty(prop, val);
-         HornetQClientLogger.LOGGER.debug("replacing " + subString + " with " + sysProp);
+         ActiveMQClientLogger.LOGGER.debug("replacing " + subString + " with " + sysProp);
          xml = xml.replace(subString, sysProp);
 
       }
@@ -419,7 +419,7 @@ public final class XMLUtil
       }
       catch (NumberFormatException e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.mustBeLong(elem, value);
+         throw ActiveMQClientMessageBundle.BUNDLE.mustBeLong(elem, value);
       }
    }
 
@@ -433,7 +433,7 @@ public final class XMLUtil
       }
       catch (NumberFormatException e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.mustBeInteger(elem, value);
+         throw ActiveMQClientMessageBundle.BUNDLE.mustBeInteger(elem, value);
       }
    }
 
@@ -447,7 +447,7 @@ public final class XMLUtil
       }
       catch (NumberFormatException e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.mustBeBoolean(elem, value);
+         throw ActiveMQClientMessageBundle.BUNDLE.mustBeBoolean(elem, value);
       }
    }
 
@@ -461,7 +461,7 @@ public final class XMLUtil
       }
       catch (NumberFormatException e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.mustBeDouble(elem, value);
+         throw ActiveMQClientMessageBundle.BUNDLE.mustBeDouble(elem, value);
       }
    }
 
@@ -479,7 +479,7 @@ public final class XMLUtil
       }
       catch (SAXException e)
       {
-         HornetQClientLogger.LOGGER.errorOnXMLTransformInvalidConf(e);
+         ActiveMQClientLogger.LOGGER.errorOnXMLTransformInvalidConf(e);
 
          throw new IllegalStateException("Invalid configuration", e);
       }

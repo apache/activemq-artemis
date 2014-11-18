@@ -14,7 +14,7 @@
 package org.proton.plug.context;
 
 import org.apache.qpid.proton.engine.Delivery;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
@@ -25,7 +25,7 @@ public interface ProtonDeliveryHandler
 {
    void onFlow(int currentCredits);
 
-   void onMessage(Delivery delivery) throws HornetQAMQPException;
+   void onMessage(Delivery delivery) throws ActiveMQAMQPException;
 
-   void close() throws HornetQAMQPException;
+   void close() throws ActiveMQAMQPException;
 }

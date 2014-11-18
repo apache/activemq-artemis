@@ -94,9 +94,9 @@ public class TransactedSessionTest extends JMSTestCase
 
          Session sessSend = conn.createSession(true, Session.SESSION_TRANSACTED);
          Session sess1 = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageConsumer consumer1 = sess1.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer1 = sess1.createConsumer(ActiveMQServerTestCase.topic1);
 
-         MessageProducer producer = sessSend.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = sessSend.createProducer(ActiveMQServerTestCase.topic1);
          Message mSent = sessSend.createTextMessage("igloo");
          producer.send(mSent);
          sessSend.commit();
@@ -139,9 +139,9 @@ public class TransactedSessionTest extends JMSTestCase
          conn = createConnection();
 
          Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer producer = sess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = sess.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer consumer = sess.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer = sess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
          Message mSent = sess.createTextMessage("igloo");
@@ -183,9 +183,9 @@ public class TransactedSessionTest extends JMSTestCase
          conn = createConnection();
 
          Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer producer = sess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = sess.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer consumer = sess.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer = sess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
          log.info("sending message first time");
@@ -242,10 +242,10 @@ public class TransactedSessionTest extends JMSTestCase
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer producer = producerSess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = producerSess.createProducer(ActiveMQServerTestCase.topic1);
 
          Session consumerSess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         MessageConsumer consumer = consumerSess.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer = consumerSess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
          final int NUM_MESSAGES = 10;
@@ -283,10 +283,10 @@ public class TransactedSessionTest extends JMSTestCase
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer producer = producerSess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = producerSess.createProducer(ActiveMQServerTestCase.topic1);
 
          Session consumerSess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         MessageConsumer consumer = consumerSess.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer = consumerSess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
          final int NUM_MESSAGES = 10;
@@ -339,10 +339,10 @@ public class TransactedSessionTest extends JMSTestCase
          conn = createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer producer = producerSess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = producerSess.createProducer(ActiveMQServerTestCase.topic1);
 
          Session consumerSess = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageConsumer consumer = consumerSess.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer = consumerSess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
          final int NUM_MESSAGES = 10;
@@ -409,10 +409,10 @@ public class TransactedSessionTest extends JMSTestCase
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.SESSION_TRANSACTED);
-         MessageProducer producer = producerSess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = producerSess.createProducer(ActiveMQServerTestCase.topic1);
 
          Session consumerSess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         MessageConsumer consumer = consumerSess.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer consumer = consumerSess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
          final int NUM_MESSAGES = 10;

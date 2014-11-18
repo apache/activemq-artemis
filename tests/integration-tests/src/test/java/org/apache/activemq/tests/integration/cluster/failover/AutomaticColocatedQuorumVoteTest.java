@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.Topology;
 import org.apache.activemq.core.client.impl.TopologyMemberImpl;
@@ -36,8 +36,8 @@ import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,14 +65,14 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
    @Test
    public void testSimpleDistributionBackupStrategyFull() throws Exception
    {
-      HornetQServer server0 = createServer(0, 1, false);
-      HornetQServer server1 = createServer(1, 0, false);
+      ActiveMQServer server0 = createServer(0, 1, false);
+      ActiveMQServer server1 = createServer(1, 0, false);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
 
       try
       (
-         ServerLocator serverLocator = HornetQClient.createServerLocatorWithoutHA(liveConnector0)
+         ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
       )
       {
          server0.start();
@@ -84,12 +84,12 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
          assertEquals(members.size(), 2);
-         Map<String,HornetQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers0.size(), 1);
-         Map<String,HornetQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers1.size(), 1);
-         HornetQServer backupServer0 = backupServers0.values().iterator().next();
-         HornetQServer backupServer1 = backupServers1.values().iterator().next();
+         ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
+         ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer0);
          waitForRemoteBackupSynchronization(backupServer1);
          assertEquals(server0.getNodeID(), backupServer1.getNodeID());
@@ -148,14 +148,14 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
    @Test
    public void testSimpleDistributionBackupStrategyScaleDown() throws Exception
    {
-      HornetQServer server0 = createServer(0, 1, true);
-      HornetQServer server1 = createServer(1, 0, true);
+      ActiveMQServer server0 = createServer(0, 1, true);
+      ActiveMQServer server1 = createServer(1, 0, true);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
 
       try
       (
-            ServerLocator serverLocator = HornetQClient.createServerLocatorWithoutHA(liveConnector0)
+            ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
       )
       {
          server0.start();
@@ -167,12 +167,12 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
          assertEquals(members.size(), 2);
-         Map<String,HornetQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers0.size(), 1);
-         Map<String,HornetQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers1.size(), 1);
-         HornetQServer backupServer0 = backupServers0.values().iterator().next();
-         HornetQServer backupServer1 = backupServers1.values().iterator().next();
+         ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
+         ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer0);
          waitForRemoteBackupSynchronization(backupServer1);
          assertEquals(server0.getNodeID(), backupServer1.getNodeID());
@@ -229,10 +229,10 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
    @Test
    public void testSimpleDistributionOfBackupsMaxBackupsExceeded() throws Exception
    {
-      HornetQServer server0 = createServer(0, 1, false);
-      HornetQServer server1 = createServer(1, 0, false);
-      HornetQServer server2 = createServer(2, 0, false);
-      HornetQServer server3 = createServer(3, 0, false);
+      ActiveMQServer server0 = createServer(0, 1, false);
+      ActiveMQServer server1 = createServer(1, 0, false);
+      ActiveMQServer server2 = createServer(2, 0, false);
+      ActiveMQServer server3 = createServer(3, 0, false);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
       TransportConfiguration liveConnector2 = getConnectorTransportConfiguration("liveConnector" + 2, 2);
@@ -241,7 +241,7 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
 
       try
       (
-         ServerLocator serverLocator = HornetQClient.createServerLocatorWithoutHA(liveConnector0)
+         ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
       )
       {
          server0.start();
@@ -253,12 +253,12 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
          assertEquals(members.size(), 2);
-         Map<String,HornetQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers0.size(), 1);
-         Map<String,HornetQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers1.size(), 1);
-         HornetQServer backupServer0 = backupServers0.values().iterator().next();
-         HornetQServer backupServer1 = backupServers1.values().iterator().next();
+         ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
+         ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer0);
          waitForRemoteBackupSynchronization(backupServer1);
          assertEquals(server0.getNodeID(), backupServer1.getNodeID());
@@ -271,12 +271,12 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          waitForRemoteBackup(sessionFactory2, 10);
          waitForRemoteBackup(sessionFactory3, 10);
          assertEquals(members.size(), 2);
-         Map<String,HornetQServer> backupServers2 = server2.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers2 = server2.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers2.size(), 1);
-         Map<String,HornetQServer> backupServers3 = server3.getClusterManager().getHAManager().getBackupServers();
+         Map<String,ActiveMQServer> backupServers3 = server3.getClusterManager().getHAManager().getBackupServers();
          assertEquals(backupServers3.size(), 1);
-         HornetQServer backupServer2 = backupServers2.values().iterator().next();
-         HornetQServer backupServer3 = backupServers3.values().iterator().next();
+         ActiveMQServer backupServer2 = backupServers2.values().iterator().next();
+         ActiveMQServer backupServer3 = backupServers3.values().iterator().next();
          waitForRemoteBackupSynchronization(backupServer2);
          waitForRemoteBackupSynchronization(backupServer3);
          assertEquals(server0.getNodeID(), backupServer1.getNodeID());
@@ -293,13 +293,13 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
       }
    }
 
-   private HornetQServer createServer(int node, int remoteNode, boolean scaleDown) throws Exception
+   private ActiveMQServer createServer(int node, int remoteNode, boolean scaleDown) throws Exception
    {
       TransportConfiguration liveConnector = getConnectorTransportConfiguration("liveConnector" + node, node);
       TransportConfiguration remoteConnector = getConnectorTransportConfiguration("remoteConnector" + node, remoteNode);
       TransportConfiguration liveAcceptor = getAcceptorTransportConfiguration(node);
       Configuration liveConfiguration = getConfiguration("server" + node, scaleDown, liveConnector, liveAcceptor, remoteConnector);
-      HornetQServer server = new HornetQServerImpl(liveConfiguration);
+      ActiveMQServer server = new ActiveMQServerImpl(liveConfiguration);
       server.setIdentity("server" + node);
       return server;
    }

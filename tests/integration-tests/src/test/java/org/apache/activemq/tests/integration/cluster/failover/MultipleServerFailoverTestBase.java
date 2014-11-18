@@ -20,7 +20,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.config.Configuration;
@@ -29,11 +29,11 @@ import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.TransportConfigurationUtils;
@@ -132,10 +132,10 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
 
          configuration.addClusterConfiguration(basicClusterConnectionConfig(livetc.getName(), connectors));
          liveConfigs.add(configuration);
-         HornetQServer server = createServer(true, configuration);
-         TestableServer hornetQServer = new SameProcessHornetQServer(server);
-         hornetQServer.setIdentity("Live-" + i);
-         liveServers.add(hornetQServer);
+         ActiveMQServer server = createServer(true, configuration);
+         TestableServer activeMQServer = new SameProcessActiveMQServer(server);
+         activeMQServer.setIdentity("Live-" + i);
+         liveServers.add(activeMQServer);
       }
       for (int i = 0; i < getBackupServerCount(); i++)
       {
@@ -193,8 +193,8 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
          }
          configuration.addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), connectors));
          backupConfigs.add(configuration);
-         HornetQServer server = createServer(true, configuration);
-         TestableServer testableServer = new SameProcessHornetQServer(server);
+         ActiveMQServer server = createServer(true, configuration);
+         TestableServer testableServer = new SameProcessActiveMQServer(server);
          testableServer.setIdentity("Backup-" + i);
          backupServers.add(testableServer);
       }
@@ -267,7 +267,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
 
    protected ServerLocatorInternal getServerLocator(int node) throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node));
       locator.setRetryInterval(50);
       locator.setReconnectAttempts(-1);
       locator.setInitialConnectAttempts(-1);
@@ -277,7 +277,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
 
    protected ServerLocatorInternal getBackupServerLocator(int node) throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node));
       locator.setRetryInterval(50);
       locator.setReconnectAttempts(-1);
       locator.setInitialConnectAttempts(-1);
@@ -311,9 +311,9 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
       return addClientSession(sf.createSession(xa, autoCommitSends, autoCommitAcks));
    }
 
-   protected void waitForDistribution(SimpleString address, HornetQServer server, int messageCount) throws Exception
+   protected void waitForDistribution(SimpleString address, ActiveMQServer server, int messageCount) throws Exception
    {
-      HornetQServerLogger.LOGGER.debug("waiting for distribution of messages on server " + server);
+      ActiveMQServerLogger.LOGGER.debug("waiting for distribution of messages on server " + server);
 
       long start = System.currentTimeMillis();
 

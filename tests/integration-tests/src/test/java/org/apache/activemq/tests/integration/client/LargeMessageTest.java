@@ -30,7 +30,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientConsumerInternal;
@@ -38,7 +38,7 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.core.persistence.impl.journal.LargeServerMessageImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -108,7 +108,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       final ClientSession session;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       AddressSettings settings = new AddressSettings();
       if (redeliveryDelay)
@@ -201,11 +201,11 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testCloseConsumer() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ClientSession session = null;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -250,9 +250,9 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testDeleteOnNoBinding() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -276,7 +276,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    {
       fillAddress();
 
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -304,7 +304,7 @@ public class LargeMessageTest extends LargeMessageTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      HornetQServer server = createServer(true,
+      ActiveMQServer server = createServer(true,
                                           config,
                                           PAGE_SIZE,
                                           PAGE_MAX,
@@ -384,7 +384,7 @@ public class LargeMessageTest extends LargeMessageTestBase
          .setJournalBufferSize_AIO(10 * 1024)
          .setJournalBufferSize_NIO(10 * 1024);
 
-      HornetQServer server = createServer(true, config);
+      ActiveMQServer server = createServer(true, config);
 
       server.start();
 
@@ -441,11 +441,11 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testDLALargeMessage() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ClientSession session = null;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -548,11 +548,11 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testDeliveryCount() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ClientSession session = null;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -612,11 +612,11 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testDLAOnExpiryNonDurableMessage() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ClientSession session = null;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -729,11 +729,11 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testDLAOnExpiry() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ClientSession session = null;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -844,13 +844,13 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testExpiryLargeMessage() throws Exception
    {
-      final int messageSize = 3 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+      final int messageSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
       ClientSession session = null;
 
       try
       {
-         HornetQServer server = createServer(true, isNetty());
+         ActiveMQServer server = createServer(true, isNetty());
 
          server.start();
 
@@ -955,13 +955,13 @@ public class LargeMessageTest extends LargeMessageTestBase
 
    private void internalTestSentWithDuplicateID(final boolean isSimulateBridge) throws Exception
    {
-      final int messageSize = 3 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+      final int messageSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
       ClientSession session = null;
 
       try
       {
-         HornetQServer server = createServer(true, isNetty());
+         ActiveMQServer server = createServer(true, isNetty());
 
          server.start();
 
@@ -1044,7 +1044,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       try
       {
-         HornetQServer server = createServer(true, isNetty());
+         ActiveMQServer server = createServer(true, isNetty());
 
          server.start();
 
@@ -1126,7 +1126,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       try
       {
-         HornetQServer server = createServer(true, isNetty());
+         ActiveMQServer server = createServer(true, isNetty());
 
          server.start();
 
@@ -2100,7 +2100,7 @@ public class LargeMessageTest extends LargeMessageTestBase
       // there are two bindings.. one is ACKed, the other is not, the server is restarted
       // The other binding is acked... The file must be deleted
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -2170,7 +2170,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    {
       // there are two bindings.. one is ACKed, the other is not, the server is restarted
       // The other binding is acked... The file must be deleted
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -2244,7 +2244,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    {
       ClientSession session = null;
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -2309,7 +2309,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    {
       // there are two bindings.. one is ACKed, the other is not, the server is restarted
       // The other binding is acked... The file must be deleted
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -2425,7 +2425,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    public void testBufferMultipleLargeMessages() throws Exception
    {
       ClientSession session = null;
-      HornetQServer server = null;
+      ActiveMQServer server = null;
 
       final int SIZE = 10 * 1024;
       final int NUMBER_OF_MESSAGES = 30;
@@ -2529,7 +2529,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    public void testReceiveMultipleMessages() throws Exception
    {
       ClientSession session = null;
-      HornetQServer server = null;
+      ActiveMQServer server = null;
 
       final int SIZE = 10 * 1024;
       final int NUMBER_OF_MESSAGES = 1000;
@@ -2644,7 +2644,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
-      HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, map);
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, map);
       server.start();
 
       final int numberOfBytes = 1024;
@@ -2783,7 +2783,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
-      HornetQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, map);
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, map);
       server.start();
 
       final int numberOfBytes = 1024;
@@ -2894,7 +2894,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    public void testSendStreamingSingleMessage() throws Exception
    {
       ClientSession session = null;
-      HornetQServer server = null;
+      ActiveMQServer server = null;
 
       final int SIZE = 10 * 1024 * 1024;
       try
@@ -2970,7 +2970,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    public void testIgnoreStreaming() throws Exception
    {
       ClientSession session = null;
-      HornetQServer server = null;
+      ActiveMQServer server = null;
 
       final int SIZE = 10 * 1024;
       final int NUMBER_OF_MESSAGES = 1;
@@ -3035,7 +3035,7 @@ public class LargeMessageTest extends LargeMessageTestBase
    @Test
    public void testSendServerMessage() throws Exception
    {
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
 
       server.start();
 
@@ -3112,7 +3112,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
-      HornetQServer server = createServer(realFiles, config, PAGE_SIZE, PAGE_MAX, map);
+      ActiveMQServer server = createServer(realFiles, config, PAGE_SIZE, PAGE_MAX, map);
       server.start();
 
       final int numberOfBytes = 1024;

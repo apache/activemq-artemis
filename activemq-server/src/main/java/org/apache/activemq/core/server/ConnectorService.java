@@ -16,7 +16,7 @@ package org.apache.activemq.core.server;
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  *         Created Jun 29, 2010
  */
-public interface ConnectorService extends HornetQComponent
+public interface ConnectorService extends ActiveMQComponent
 {
    String getName();
 }

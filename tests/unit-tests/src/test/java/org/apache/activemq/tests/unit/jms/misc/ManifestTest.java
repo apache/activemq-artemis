@@ -25,9 +25,9 @@ import javax.jms.ConnectionMetaData;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnectionMetaData;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnectionMetaData;
 import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
 
@@ -55,7 +55,7 @@ public class ManifestTest extends UnitTestCase
       UnitTestLogger.LOGGER.trace("userDir is " + userDir);
 
       // The jar must be there
-      File file = new File("build/jars", "hornetq-core.jar");
+      File file = new File("build/jars", "activemq-core.jar");
       Assert.assertTrue(file.exists());
 
       // Open the jar and load MANIFEST.MF
@@ -67,14 +67,14 @@ public class ManifestTest extends UnitTestCase
 
       try
       {
-         HornetQServer server = HornetQServers.newHornetQServer(createBasicConfig());
+         ActiveMQServer server = ActiveMQServers.newActiveMQServer(createBasicConfig());
 
-         ConnectionMetaData meta = new HornetQConnectionMetaData(server.getVersion());
+         ConnectionMetaData meta = new ActiveMQConnectionMetaData(server.getVersion());
 
          // Compare the value from ConnectionMetaData and MANIFEST.MF
          Attributes attrs = manifest.getMainAttributes();
 
-         Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("HornetQ-Version"));
+         Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("ActiveMQ-Version"));
          //TODO fix this
          Assert.assertEquals("https://svn.jboss.org/repos/hornetq/branches/Branch_2_2_EAP", attrs.getValue("HornetQ-SVN-URL"));
       }

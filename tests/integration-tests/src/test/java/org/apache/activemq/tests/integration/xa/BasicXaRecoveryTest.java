@@ -30,11 +30,11 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -55,7 +55,7 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession clientSession;
 
@@ -1296,7 +1296,7 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
    private ClientMessage createTextMessage(final String s, final boolean durable)
    {
-      ClientMessage message = clientSession.createMessage(HornetQTextMessage.TYPE,
+      ClientMessage message = clientSession.createMessage(ActiveMQTextMessage.TYPE,
                                                                 durable,
                                                                 0,
                                                                 System.currentTimeMillis(),
@@ -1307,7 +1307,7 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
    private ClientMessage createBytesMessage(final byte[] b, final boolean durable)
    {
-      ClientMessage message = clientSession.createMessage(HornetQBytesMessage.TYPE,
+      ClientMessage message = clientSession.createMessage(ActiveMQBytesMessage.TYPE,
                                                                 durable,
                                                                 0,
                                                                 System.currentTimeMillis(),

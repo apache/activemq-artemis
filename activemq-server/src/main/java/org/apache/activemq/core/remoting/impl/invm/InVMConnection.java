@@ -24,8 +24,8 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.security.HornetQPrincipal;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -40,7 +40,7 @@ import org.apache.activemq.utils.UUIDGenerator;
  */
 public class InVMConnection implements Connection
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final BufferHandler handler;
 
@@ -59,7 +59,7 @@ public class InVMConnection implements Connection
 
    private volatile boolean closing;
 
-   private final HornetQPrincipal defaultHornetQPrincipal;
+   private final ActiveMQPrincipal defaultActiveMQPrincipal;
 
    private RemotingConnection protocolConnection;
 
@@ -85,7 +85,7 @@ public class InVMConnection implements Connection
                          final BufferHandler handler,
                          final ConnectionLifeCycleListener listener,
                          final Executor executor,
-                         final HornetQPrincipal defaultHornetQPrincipal)
+                         final ActiveMQPrincipal defaultActiveMQPrincipal)
    {
       this.serverID = serverID;
 
@@ -97,7 +97,7 @@ public class InVMConnection implements Connection
 
       this.executor = executor;
 
-      this.defaultHornetQPrincipal = defaultHornetQPrincipal;
+      this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }
 
 
@@ -181,7 +181,7 @@ public class InVMConnection implements Connection
                      copied.readInt(); // read and discard
                      if (isTrace)
                      {
-                        HornetQServerLogger.LOGGER.trace(InVMConnection.this + "::Sending inVM packet");
+                        ActiveMQServerLogger.LOGGER.trace(InVMConnection.this + "::Sending inVM packet");
                      }
                      handler.bufferReceived(id, copied);
                      if (futureListener != null)
@@ -194,14 +194,14 @@ public class InVMConnection implements Connection
                catch (Exception e)
                {
                   final String msg = "Failed to write to handler on connector " + this;
-                  HornetQServerLogger.LOGGER.errorWritingToInvmConnector(e, this);
+                  ActiveMQServerLogger.LOGGER.errorWritingToInvmConnector(e, this);
                   throw new IllegalStateException(msg, e);
                }
                finally
                {
                   if (isTrace)
                   {
-                     HornetQServerLogger.LOGGER.trace(InVMConnection.this + "::packet sent done");
+                     ActiveMQServerLogger.LOGGER.trace(InVMConnection.this + "::packet sent done");
                   }
                }
             }
@@ -222,7 +222,7 @@ public class InVMConnection implements Connection
             {
                if (!latch.await(10, TimeUnit.SECONDS))
                {
-                  HornetQServerLogger.LOGGER.timedOutFlushingInvmChannel();
+                  ActiveMQServerLogger.LOGGER.timedOutFlushingInvmChannel();
                }
             }
             catch (InterruptedException e)
@@ -262,9 +262,9 @@ public class InVMConnection implements Connection
       return false;
    }
 
-   public HornetQPrincipal getDefaultHornetQPrincipal()
+   public ActiveMQPrincipal getDefaultActiveMQPrincipal()
    {
-      return defaultHornetQPrincipal;
+      return defaultActiveMQPrincipal;
    }
 
    public static void setFlushEnabled(boolean enable)

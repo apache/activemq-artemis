@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.ScaleDownConfiguration;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
@@ -383,12 +383,12 @@ public class ScaleDownTest extends ClusterTestBase
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);
 
-      for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
          fileMessage.addBytes(new byte[]{UnitTestCase.getSamplebyte(i)});
       }
 
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       fileMessage.releaseResources();
 
@@ -409,9 +409,9 @@ public class ScaleDownTest extends ClusterTestBase
 
       Assert.assertNotNull(msg);
 
-      Assert.assertEquals(2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+      Assert.assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
-      for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
       {
          Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }

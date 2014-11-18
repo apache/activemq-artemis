@@ -39,15 +39,15 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.core.remoting.impl.netty.PartialPooledByteBufAllocator;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -57,8 +57,8 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.UPGRADE;
 import static io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.MAGIC_NUMBER;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_ACCEPT;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_KEY;
+import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
+import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
 import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.createExpectedResponse;
 import static org.apache.activemq.tests.util.RandomUtil.randomString;
 
@@ -75,7 +75,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
    private static final int HTTP_PORT = 8080;
 
    private Configuration conf;
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ServerLocator locator;
    private String acceptorName;
 
@@ -99,13 +99,13 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
          .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpParams, acceptorName))
          .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, emptyParams, randomString()));
 
-      server = addServer(HornetQServers.newHornetQServer(conf, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
 
       server.start();
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, httpParams));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, httpParams));
       addServerLocator(locator);
 
-      // THe web server owns the HTTP port, not HornetQ.
+      // THe web server owns the HTTP port, not ActiveMQ.
       startWebServer(HTTP_PORT);
    }
 
@@ -130,7 +130,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -165,7 +165,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
       params.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
 
       long start = System.currentTimeMillis();
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
 
       Exception e = null;
 
@@ -207,7 +207,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
                p.addLast("encoder", new HttpResponseEncoder());
                p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<Object>()
                {
-                  // handle HTTP GET + Upgrade with a handshake specific to HornetQ remoting.
+                  // handle HTTP GET + Upgrade with a handshake specific to ActiveMQ remoting.
                   @Override
                   protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception
                   {
@@ -220,11 +220,11 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
                            System.out.println(entry);
                         }
                         String upgrade = request.headers().get(UPGRADE);
-                        String secretKey = request.headers().get(SEC_HORNETQ_REMOTING_KEY);
+                        String secretKey = request.headers().get(SEC_ACTIVEMQ_REMOTING_KEY);
 
                         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, SWITCHING_PROTOCOLS);
                         response.headers().set(UPGRADE, upgrade);
-                        response.headers().set(SEC_HORNETQ_REMOTING_ACCEPT, createExpectedResponse(MAGIC_NUMBER, secretKey));
+                        response.headers().set(SEC_ACTIVEMQ_REMOTING_ACCEPT, createExpectedResponse(MAGIC_NUMBER, secretKey));
                         ctx.writeAndFlush(response);
 
                         // when the handshake is successful, the HTTP handlers are removed

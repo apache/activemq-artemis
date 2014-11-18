@@ -16,15 +16,15 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LiveNodeLocator;
-import org.apache.activemq.core.server.cluster.HornetQServerSideProtocolManagerFactory;
+import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
 
@@ -38,15 +38,15 @@ public class LiveOnlyActivation extends Activation
    //this is how we act when we initially start as live
    private LiveOnlyPolicy liveOnlyPolicy;
 
-   private final HornetQServerImpl hornetQServer;
+   private final ActiveMQServerImpl activeMQServer;
 
    private ServerLocatorInternal scaleDownServerLocator;
 
    private ClientSessionFactoryInternal scaleDownClientSessionFactory;
 
-   public LiveOnlyActivation(HornetQServerImpl server, LiveOnlyPolicy liveOnlyPolicy)
+   public LiveOnlyActivation(ActiveMQServerImpl server, LiveOnlyPolicy liveOnlyPolicy)
    {
-      this.hornetQServer = server;
+      this.activeMQServer = server;
       this.liveOnlyPolicy = liveOnlyPolicy;
    }
 
@@ -54,22 +54,22 @@ public class LiveOnlyActivation extends Activation
    {
       try
       {
-         hornetQServer.initialisePart1(false);
+         activeMQServer.initialisePart1(false);
 
-         hornetQServer.initialisePart2(false);
+         activeMQServer.initialisePart2(false);
 
-         if (hornetQServer.getIdentity() != null)
+         if (activeMQServer.getIdentity() != null)
          {
-            HornetQServerLogger.LOGGER.serverIsLive(hornetQServer.getIdentity());
+            ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
          }
          else
          {
-            HornetQServerLogger.LOGGER.serverIsLive();
+            ActiveMQServerLogger.LOGGER.serverIsLive();
          }
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.initializationError(e);
+         ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
@@ -113,7 +113,7 @@ public class LiveOnlyActivation extends Activation
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.failedToScaleDown(e);
+            ActiveMQServerLogger.LOGGER.failedToScaleDown(e);
          }
          finally
          {
@@ -127,18 +127,18 @@ public class LiveOnlyActivation extends Activation
    {
       try
       {
-         scaleDownServerLocator = ScaleDownPolicy.getScaleDownConnector(scaleDownPolicy, hornetQServer);
+         scaleDownServerLocator = ScaleDownPolicy.getScaleDownConnector(scaleDownPolicy, activeMQServer);
          //use a Node Locator to connect to the cluster
-         scaleDownServerLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+         scaleDownServerLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          LiveNodeLocator nodeLocator = scaleDownPolicy.getGroupName() == null ?
-               new AnyLiveNodeLocatorForScaleDown(hornetQServer) :
-               new NamedLiveNodeLocatorForScaleDown(scaleDownPolicy.getGroupName(), hornetQServer);
+               new AnyLiveNodeLocatorForScaleDown(activeMQServer) :
+               new NamedLiveNodeLocatorForScaleDown(scaleDownPolicy.getGroupName(), activeMQServer);
          scaleDownServerLocator.addClusterTopologyListener(nodeLocator);
 
          nodeLocator.connectToCluster(scaleDownServerLocator);
          // a timeout is necessary here in case we use a NamedLiveNodeLocatorForScaleDown and there's no matching node in the cluster
          // should the timeout be configurable?
-         nodeLocator.locateNode(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT);
+         nodeLocator.locateNode(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT);
          ClientSessionFactoryInternal clientSessionFactory = null;
          while (clientSessionFactory == null)
          {
@@ -152,7 +152,7 @@ public class LiveOnlyActivation extends Activation
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.trace("Failed to connect to " + possibleLive.getA());
+               ActiveMQServerLogger.LOGGER.trace("Failed to connect to " + possibleLive.getA());
                nodeLocator.notifyRegistrationFailed(false);
                if (clientSessionFactory != null)
                {
@@ -173,25 +173,25 @@ public class LiveOnlyActivation extends Activation
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.failedToScaleDown(e);
+         ActiveMQServerLogger.LOGGER.failedToScaleDown(e);
       }
    }
 
 
    public long scaleDown() throws Exception
    {
-      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(hornetQServer.getPagingManager(),
-            hornetQServer.getPostOffice(),
-            hornetQServer.getNodeManager(),
-            hornetQServer.getClusterManager().getClusterController());
-      ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = ((PostOfficeImpl) hornetQServer.getPostOffice()).getDuplicateIDCaches();
+      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(activeMQServer.getPagingManager(),
+            activeMQServer.getPostOffice(),
+            activeMQServer.getNodeManager(),
+            activeMQServer.getClusterManager().getClusterController());
+      ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = ((PostOfficeImpl) activeMQServer.getPostOffice()).getDuplicateIDCaches();
       Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<>();
       for (SimpleString address : duplicateIDCaches.keySet())
       {
-         DuplicateIDCache duplicateIDCache = hornetQServer.getPostOffice().getDuplicateIDCache(address);
+         DuplicateIDCache duplicateIDCache = activeMQServer.getPostOffice().getDuplicateIDCache(address);
          duplicateIDMap.put(address, duplicateIDCache.getMap());
       }
-      return scaleDownHandler.scaleDown(scaleDownClientSessionFactory, hornetQServer.getResourceManager(), duplicateIDMap,
-            hornetQServer.getManagementService().getManagementAddress(), null);
+      return scaleDownHandler.scaleDown(scaleDownClientSessionFactory, activeMQServer.getResourceManager(), duplicateIDMap,
+            activeMQServer.getManagementService().getManagementAddress(), null);
    }
 }

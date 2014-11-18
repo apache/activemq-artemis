@@ -14,8 +14,8 @@ package org.apache.activemq.spi.core.remoting;
 
 import java.util.Map;
 
-import org.apache.activemq.core.security.HornetQPrincipal;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.management.NotificationService;
 
@@ -25,7 +25,7 @@ import org.apache.activemq.core.server.management.NotificationService;
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public interface Acceptor extends HornetQComponent
+public interface Acceptor extends ActiveMQComponent
 {
    /**
     * Pause the acceptor and stop it from receiving client requests.
@@ -49,11 +49,11 @@ public interface Acceptor extends HornetQComponent
    /**
    * Set the default security Principal to be used when no user/pass are defined, only for InVM
    */
-   void setDefaultHornetQPrincipal(HornetQPrincipal defaultHornetQPrincipal);
+   void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal);
 
    /**
     * Whether this acceptor allows insecure connections.
-    * @throws java.lang.IllegalStatException if false @setDefaultHornetQPrincipal
+    * @throws java.lang.IllegalStatException if false @setDefaultActiveMQPrincipal
     */
    boolean isUnsecurable();
 }

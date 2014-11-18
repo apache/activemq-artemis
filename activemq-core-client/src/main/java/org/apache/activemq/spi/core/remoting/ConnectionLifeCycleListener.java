@@ -13,7 +13,7 @@
 package org.apache.activemq.spi.core.remoting;
 
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 
 /**
  * A ConnectionLifeCycleListener is called by the remoting implementation to notify of connection events.
@@ -29,14 +29,14 @@ public interface ConnectionLifeCycleListener
     * <p>
     * Leaving this method here and adding a different one at
     * {@code ServerConnectionLifeCycleListener} is a compromise for a reasonable split between the
-    * hornetq-server and hornetq-client packages while avoiding to pull too much into hornetq-core.
+    * activemq-server and activemq-client packages while avoiding to pull too much into activemq-core.
     * The pivotal point keeping us from removing the method is {@link ConnectorFactory} and the
     * usage of it.
     * @param component This will probably be an {@code Acceptor} and only used on the server side.
     * @param connection the connection that has been created
     * @param protocol the messaging protocol type this connection uses
     */
-   void connectionCreated(HornetQComponent component, Connection connection, String protocol);
+   void connectionCreated(ActiveMQComponent component, Connection connection, String protocol);
 
    /**
     * Called when a connection is destroyed.

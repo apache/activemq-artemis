@@ -37,7 +37,7 @@ import org.junit.Test;
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  *
  */
-public class SessionTest extends HornetQServerTestCase
+public class SessionTest extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------
 
@@ -54,7 +54,7 @@ public class SessionTest extends HornetQServerTestCase
    {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      sess.createProducer(HornetQServerTestCase.topic1);
+      sess.createProducer(ActiveMQServerTestCase.topic1);
       conn.close();
    }
 
@@ -86,7 +86,7 @@ public class SessionTest extends HornetQServerTestCase
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      sess.createConsumer(HornetQServerTestCase.topic1);
+      sess.createConsumer(ActiveMQServerTestCase.topic1);
       conn.close();
    }
 

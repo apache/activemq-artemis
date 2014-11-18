@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.management;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.DivertControl;
 import org.apache.activemq.api.core.management.ResourceNames;
@@ -106,7 +106,7 @@ public class DivertControlUsingCoreTest extends DivertControlTest
    {
       super.setUp();
 
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
    }
 
    @Override

@@ -27,8 +27,8 @@ import org.apache.activemq.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.server.management.NotificationService;
 import org.apache.activemq.utils.TypedProperties;
@@ -46,9 +46,9 @@ import org.apache.activemq.utils.TypedProperties;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author Clebert Suconic
  */
-public final class DiscoveryGroup implements HornetQComponent
+public final class DiscoveryGroup implements ActiveMQComponent
 {
-   private static final boolean isTrace = HornetQClientLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
 
    private final List<DiscoveryListener> listeners = new ArrayList<DiscoveryListener>();
 
@@ -106,7 +106,7 @@ public final class DiscoveryGroup implements HornetQComponent
 
       started = true;
 
-      thread = new Thread(new DiscoveryRunnable(), "hornetq-discovery-group-thread-" + name);
+      thread = new Thread(new DiscoveryRunnable(), "activemq-discovery-group-thread-" + name);
 
       thread.setDaemon(true);
 
@@ -147,7 +147,7 @@ public final class DiscoveryGroup implements HornetQComponent
       }
       catch (Exception e1)
       {
-         HornetQClientLogger.LOGGER.errorStoppingDiscoveryBroadcastEndpoint(endpoint, e1);
+         ActiveMQClientLogger.LOGGER.errorStoppingDiscoveryBroadcastEndpoint(endpoint, e1);
       }
 
       try
@@ -156,7 +156,7 @@ public final class DiscoveryGroup implements HornetQComponent
          thread.join(10000);
          if (thread.isAlive())
          {
-            HornetQClientLogger.LOGGER.timedOutStoppingDiscovery();
+            ActiveMQClientLogger.LOGGER.timedOutStoppingDiscovery();
          }
       }
       catch (InterruptedException e)
@@ -177,7 +177,7 @@ public final class DiscoveryGroup implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQClientLogger.LOGGER.errorSendingNotifOnDiscoveryStop(e);
+            ActiveMQClientLogger.LOGGER.errorSendingNotifOnDiscoveryStop(e);
          }
       }
    }
@@ -252,7 +252,7 @@ public final class DiscoveryGroup implements HornetQComponent
       {
          if (!currentUniqueID.equals(uniqueID))
          {
-            HornetQClientLogger.LOGGER.multipleServersBroadcastingSameNode(originatingNodeID);
+            ActiveMQClientLogger.LOGGER.multipleServersBroadcastingSameNode(originatingNodeID);
             uniqueIDMap.put(originatingNodeID, uniqueID);
          }
       }
@@ -278,7 +278,7 @@ public final class DiscoveryGroup implements HornetQComponent
                      {
                         // This is totally unexpected, so I'm not even bothering on creating
                         // a log entry for that
-                        HornetQClientLogger.LOGGER.warn("Unexpected null data received from DiscoveryEndpoint");
+                        ActiveMQClientLogger.LOGGER.warn("Unexpected null data received from DiscoveryEndpoint");
                      }
                      break;
                   }
@@ -291,7 +291,7 @@ public final class DiscoveryGroup implements HornetQComponent
                   }
                   else
                   {
-                     HornetQClientLogger.LOGGER.errorReceivingPAcketInDiscovery(e);
+                     ActiveMQClientLogger.LOGGER.errorReceivingPAcketInDiscovery(e);
                   }
                }
 
@@ -346,10 +346,10 @@ public final class DiscoveryGroup implements HornetQComponent
                {
                   if (isTrace)
                   {
-                     HornetQClientLogger.LOGGER.trace("Connectors changed on Discovery:");
+                     ActiveMQClientLogger.LOGGER.trace("Connectors changed on Discovery:");
                      for (DiscoveryEntry connector : connectors.values())
                      {
-                        HornetQClientLogger.LOGGER.trace(connector);
+                        ActiveMQClientLogger.LOGGER.trace(connector);
                      }
                   }
                   callListeners();
@@ -365,7 +365,7 @@ public final class DiscoveryGroup implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQClientLogger.LOGGER.failedToReceiveDatagramInDiscovery(e);
+            ActiveMQClientLogger.LOGGER.failedToReceiveDatagramInDiscovery(e);
          }
       }
 
@@ -397,7 +397,7 @@ public final class DiscoveryGroup implements HornetQComponent
          catch (Throwable t)
          {
             // Catch it so exception doesn't prevent other listeners from running
-            HornetQClientLogger.LOGGER.failedToCallListenerInDiscovery(t);
+            ActiveMQClientLogger.LOGGER.failedToCallListenerInDiscovery(t);
          }
       }
    }
@@ -419,7 +419,7 @@ public final class DiscoveryGroup implements HornetQComponent
          {
             if (isTrace)
             {
-               HornetQClientLogger.LOGGER.trace("Timed out node on discovery:" + entry.getValue());
+               ActiveMQClientLogger.LOGGER.trace("Timed out node on discovery:" + entry.getValue());
             }
             iter.remove();
 

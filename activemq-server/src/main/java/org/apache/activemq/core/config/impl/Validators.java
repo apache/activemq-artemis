@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.config.impl;
 
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
@@ -44,7 +44,7 @@ public final class Validators
          String str = (String) value;
          if (str == null || str.length() == 0)
          {
-            throw HornetQMessageBundle.BUNDLE.emptyOrNull(name);
+            throw ActiveMQMessageBundle.BUNDLE.emptyOrNull(name);
          }
       }
    };
@@ -60,7 +60,7 @@ public final class Validators
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.greaterThanZero(name, val);
+            throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, val);
          }
       }
    };
@@ -72,7 +72,7 @@ public final class Validators
          Number val = (Number) value;
          if (val == null || (val.intValue() < 0 || val.intValue() > 100))
          {
-            throw HornetQMessageBundle.BUNDLE.notPercent(name, val);
+            throw ActiveMQMessageBundle.BUNDLE.notPercent(name, val);
          }
       }
    };
@@ -88,7 +88,7 @@ public final class Validators
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.greaterThanZero(name, val);
+            throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, val);
          }
       }
    };
@@ -104,7 +104,7 @@ public final class Validators
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.greaterThanMinusOne(name, val);
+            throw ActiveMQMessageBundle.BUNDLE.greaterThanMinusOne(name, val);
          }
       }
    };
@@ -120,7 +120,7 @@ public final class Validators
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.greaterThanZeroOrMinusOne(name, val);
+            throw ActiveMQMessageBundle.BUNDLE.greaterThanZeroOrMinusOne(name, val);
          }
       }
    };
@@ -136,7 +136,7 @@ public final class Validators
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.mustbeBetween(name, Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, value);
+            throw ActiveMQMessageBundle.BUNDLE.mustbeBetween(name, Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, value);
          }
       }
    };
@@ -148,7 +148,7 @@ public final class Validators
          String val = (String) value;
          if (val == null || !val.equals(JournalType.NIO.toString()) && !val.equals(JournalType.ASYNCIO.toString()))
          {
-            throw HornetQMessageBundle.BUNDLE.invalidJournalType(val);
+            throw ActiveMQMessageBundle.BUNDLE.invalidJournalType(val);
          }
       }
    };
@@ -163,7 +163,7 @@ public final class Validators
                !val.equals(AddressFullMessagePolicy.BLOCK.toString()) &&
                !val.equals(AddressFullMessagePolicy.FAIL.toString()))
          {
-            throw HornetQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
+            throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
          }
       }
    };
@@ -176,7 +176,7 @@ public final class Validators
          if (val == null || !val.equals(SlowConsumerPolicy.KILL.toString()) &&
             !val.equals(SlowConsumerPolicy.NOTIFY.toString()))
          {
-            throw HornetQMessageBundle.BUNDLE.invalidSlowConsumerPolicyType(val);
+            throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerPolicyType(val);
          }
       }
    };

@@ -33,7 +33,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
@@ -44,7 +44,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinu
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
@@ -73,8 +73,8 @@ import org.junit.runners.Parameterized;
 public class BridgeTest extends ServiceTestBase
 {
 
-   private HornetQServer server0;
-   private HornetQServer server1;
+   private ActiveMQServer server0;
+   private ActiveMQServer server1;
    private ServerLocator locator;
 
    private final boolean netty;
@@ -204,7 +204,7 @@ public class BridgeTest extends ServiceTestBase
 
       server1.start();
       server0.start();
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
       ClientSessionFactory sf0 = addSessionFactory(locator.createSessionFactory(server0tc));
 
       ClientSessionFactory sf1 = addSessionFactory(locator.createSessionFactory(server1tc));
@@ -382,7 +382,7 @@ public class BridgeTest extends ServiceTestBase
       server1.getRemotingService().addIncomingInterceptor(myInterceptor);
 
       server0.start();
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
       ClientSessionFactory sf0 = addSessionFactory(locator.createSessionFactory(server0tc));
 
       ClientSessionFactory sf1 = addSessionFactory(locator.createSessionFactory(server1tc));
@@ -561,7 +561,7 @@ public class BridgeTest extends ServiceTestBase
       server1.start();
       server0.start();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
       ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
       ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
@@ -708,7 +708,7 @@ public class BridgeTest extends ServiceTestBase
 
       server0.start();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
       ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
       ClientSession session0 = sf0.createSession(false, true, true);
@@ -831,7 +831,7 @@ public class BridgeTest extends ServiceTestBase
 
       server0.start();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
       ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
       ClientSession session0 = sf0.createSession(false, true, true);
@@ -1013,7 +1013,7 @@ public class BridgeTest extends ServiceTestBase
       server1.start();
       server0.start();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
       ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
       ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
@@ -1080,12 +1080,12 @@ public class BridgeTest extends ServiceTestBase
    public void testSawtoothLoad() throws Exception
    {
       Map<String, Object> server0Params = new HashMap<String, Object>();
-      HornetQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
+      ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
       server0.getConfiguration().setThreadPoolMaxSize(10);
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
       addTargetParameters(server1Params);
-      HornetQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+      ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
       server1.getConfiguration().setThreadPoolMaxSize(10);
 
       final String testAddress = "testAddress";
@@ -1152,7 +1152,7 @@ public class BridgeTest extends ServiceTestBase
             {
                try
                {
-                  ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server1tc));
+                  ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server1tc));
 
                   ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1203,7 +1203,7 @@ public class BridgeTest extends ServiceTestBase
             @Override
             public void run()
             {
-               ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc));
+               ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc));
 
                locator.setBlockOnDurableSend(false);
                locator.setBlockOnNonDurableSend(false);
@@ -1316,8 +1316,8 @@ public class BridgeTest extends ServiceTestBase
    @Test
    public void testBridgeWithPaging() throws Exception
    {
-      HornetQServer server0 = null;
-      HornetQServer server1 = null;
+      ActiveMQServer server0 = null;
+      ActiveMQServer server1 = null;
 
       final int PAGE_MAX = 100 * 1024;
 
@@ -1391,7 +1391,7 @@ public class BridgeTest extends ServiceTestBase
          server1.start();
          server0.start();
 
-         locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+         locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
          ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
@@ -1535,7 +1535,7 @@ public class BridgeTest extends ServiceTestBase
    // Stops a server after 100 messages received
    public static class StopInterceptor implements Interceptor
    {
-      static HornetQServer serverToStop;
+      static ActiveMQServer serverToStop;
 
       static Thread thread;
 
@@ -1601,8 +1601,8 @@ public class BridgeTest extends ServiceTestBase
    @Test
    public void testBridgeWithLargeMessage() throws Exception
    {
-      HornetQServer server0 = null;
-      HornetQServer server1 = null;
+      ActiveMQServer server0 = null;
+      ActiveMQServer server1 = null;
 
       final int PAGE_MAX = 1024 * 1024;
 
@@ -1665,7 +1665,7 @@ public class BridgeTest extends ServiceTestBase
          server1.start();
          server0.start();
 
-         locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+         locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
          ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
@@ -1815,7 +1815,7 @@ public class BridgeTest extends ServiceTestBase
       server1.start();
       server0.start();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
       ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
       ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);

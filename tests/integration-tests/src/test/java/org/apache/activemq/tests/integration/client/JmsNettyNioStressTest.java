@@ -26,14 +26,14 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,7 +51,7 @@ import org.junit.Test;
  * Each operation is done in a JMS transaction, sending/consuming one message
  * per transaction.
  * <p/>
- * The server is set up with netty, with only one NIO worker and 1 hornetq
+ * The server is set up with netty, with only one NIO worker and 1 activemq
  * server worker. This increases the chance for the deadlock to occur.
  * <p/>
  * If the deadlock occurs, all threads will block/die. A simple transaction
@@ -91,7 +91,7 @@ public class JmsNettyNioStressTest extends ServiceTestBase
       params.put(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, 1);
       params.put(TransportConstants.BATCH_DELAY, 50);
       Configuration config = createDefaultConfig(params, ServiceTestBase.NETTY_ACCEPTOR_FACTORY);
-      HornetQServer server = createServer(true, config);
+      ActiveMQServer server = createServer(true, config);
       server.getConfiguration().setThreadPoolMaxSize(2);
       server.start();
 
@@ -137,7 +137,7 @@ public class JmsNettyNioStressTest extends ServiceTestBase
       locator.close();
 
       // create and start JMS connections
-      HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transpConf);
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transpConf);
       connectionProducer = cf.createConnection();
       connectionProducer.start();
 
@@ -160,7 +160,7 @@ public class JmsNettyNioStressTest extends ServiceTestBase
                try
                {
                   session = connectionProducer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageProducer messageProducer = session.createProducer(HornetQDestination.createQueue("queue"));
+                  MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue"));
                   messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
                   for (int i = 0; i < numberOfMessages; i++)
@@ -210,8 +210,8 @@ public class JmsNettyNioStressTest extends ServiceTestBase
                try
                {
                   session = connectionConsumerProducer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageConsumer consumer = session.createConsumer(HornetQDestination.createQueue("queue"));
-                  MessageProducer messageProducer = session.createProducer(HornetQDestination.createQueue("queue2"));
+                  MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue"));
+                  MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue2"));
                   messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
                   for (int i = 0; i < numberOfMessages; i++)
                   {
@@ -264,7 +264,7 @@ public class JmsNettyNioStressTest extends ServiceTestBase
                try
                {
                   session = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
-                  MessageConsumer consumer = session.createConsumer(HornetQDestination.createQueue("queue2"));
+                  MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue2"));
                   for (int i = 0; i < numberOfMessages; i++)
                   {
                      BytesMessage message = (BytesMessage) consumer.receive(5000);

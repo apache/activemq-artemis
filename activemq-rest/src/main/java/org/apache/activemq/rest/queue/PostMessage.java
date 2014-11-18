@@ -34,7 +34,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.util.HttpMessageHelper;
 import org.apache.activemq.utils.UUID;
 import org.apache.activemq.utils.UUIDGenerator;
@@ -82,10 +82,10 @@ public class PostMessage
       try
       {
          ClientProducer producer = pooled.producer;
-         ClientMessage message = createHornetQMessage(headers, body, durable, ttl, expiration, priority, pooled.session);
+         ClientMessage message = createActiveMQMessage(headers, body, durable, ttl, expiration, priority, pooled.session);
          message.putStringProperty(ClientMessage.HDR_DUPLICATE_DETECTION_ID.toString(), dup);
          producer.send(message);
-         HornetQRestLogger.LOGGER.debug("Sent message: " + message);
+         ActiveMQRestLogger.LOGGER.debug("Sent message: " + message);
          pool.add(pooled);
       }
       catch (Exception ex)
@@ -110,7 +110,7 @@ public class PostMessage
                              @QueryParam("priority") Integer priority,
                              @Context HttpHeaders headers, @Context UriInfo uriInfo, byte[] body)
    {
-      HornetQRestLogger.LOGGER.debug("Handling PUT request for \"" + uriInfo.getRequestUri() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling PUT request for \"" + uriInfo.getRequestUri() + "\"");
 
       return internalPostWithId(dupId, durable, ttl, expiration, priority, headers, uriInfo, body);
    }
@@ -123,7 +123,7 @@ public class PostMessage
                               @QueryParam("priority") Integer priority,
                               @Context HttpHeaders headers, @Context UriInfo uriInfo, byte[] body)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getRequestUri() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getRequestUri() + "\"");
 
       return internalPostWithId(dupId, durable, ttl, expiration, priority, headers, uriInfo, body);
    }
@@ -261,12 +261,12 @@ public class PostMessage
    }
 
 
-   protected ClientMessage createHornetQMessage(HttpHeaders headers, byte[] body,
-                                                boolean durable,
-                                                Long ttl,
-                                                Long expiration,
-                                                Integer priority,
-                                                ClientSession session) throws Exception
+   protected ClientMessage createActiveMQMessage(HttpHeaders headers, byte[] body,
+                                                 boolean durable,
+                                                 Long ttl,
+                                                 Long expiration,
+                                                 Integer priority,
+                                                 ClientSession session) throws Exception
    {
       ClientMessage message = session.createMessage(Message.BYTES_TYPE, durable);
 

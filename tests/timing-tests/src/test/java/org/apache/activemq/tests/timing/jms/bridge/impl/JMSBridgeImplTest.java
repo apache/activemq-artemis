@@ -40,18 +40,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.jms.bridge.DestinationFactory;
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.unit.UnitTestLogger;
@@ -159,7 +159,7 @@ public class JMSBridgeImplTest extends UnitTestCase
    private static ConnectionFactory createConnectionFactory()
    {
 
-      HornetQJMSConnectionFactory cf = (HornetQJMSConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName()));
       // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
       cf.setReconnectAttempts(0);
       cf.setBlockOnNonDurableSend(true);
@@ -174,7 +174,7 @@ public class JMSBridgeImplTest extends UnitTestCase
    @Test
    public void testStartWithRepeatedFailure() throws Exception
    {
-      HornetQJMSConnectionFactory failingSourceCF = new HornetQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
+      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
       {
          private static final long serialVersionUID = 2834937512213001068L;
 
@@ -187,8 +187,8 @@ public class JMSBridgeImplTest extends UnitTestCase
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(failingSourceCF);
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
@@ -220,7 +220,7 @@ public class JMSBridgeImplTest extends UnitTestCase
    @Test
    public void testStartWithFailureThenSuccess() throws Exception
    {
-      HornetQJMSConnectionFactory failingSourceCF = new HornetQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
+      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
       {
          private static final long serialVersionUID = 4657153922210359725L;
          boolean firstTime = true;
@@ -246,8 +246,8 @@ public class JMSBridgeImplTest extends UnitTestCase
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(failingSourceCF);
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
@@ -287,8 +287,8 @@ public class JMSBridgeImplTest extends UnitTestCase
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
@@ -348,8 +348,8 @@ public class JMSBridgeImplTest extends UnitTestCase
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
@@ -436,8 +436,8 @@ public class JMSBridgeImplTest extends UnitTestCase
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
@@ -487,7 +487,7 @@ public class JMSBridgeImplTest extends UnitTestCase
    public void testExceptionOnSourceAndRetrySucceeds() throws Exception
    {
       final AtomicReference<Connection> sourceConn = new AtomicReference<Connection>();
-      HornetQJMSConnectionFactory failingSourceCF = new HornetQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
+      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
       {
          private static final long serialVersionUID = -8866390811966688830L;
 
@@ -505,8 +505,8 @@ public class JMSBridgeImplTest extends UnitTestCase
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(failingSourceCF);
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
@@ -540,8 +540,8 @@ public class JMSBridgeImplTest extends UnitTestCase
    public void testExceptionOnSourceAndRetryFails() throws Exception
    {
       final AtomicReference<Connection> sourceConn = new AtomicReference<Connection>();
-      HornetQJMSConnectionFactory failingSourceCF =
-         new HornetQJMSConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY))
+      ActiveMQJMSConnectionFactory failingSourceCF =
+         new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY))
          {
             private static final long serialVersionUID = 8216804886099984645L;
             boolean firstTime = true;
@@ -568,8 +568,8 @@ public class JMSBridgeImplTest extends UnitTestCase
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(failingSourceCF);
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
-      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
-      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(HornetQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
       TransactionManager tm = JMSBridgeImplTest.newTransactionManager();
 
       JMSBridgeImpl bridge = new JMSBridgeImpl();
@@ -611,7 +611,7 @@ public class JMSBridgeImplTest extends UnitTestCase
          .setFileDeploymentEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       InVMNamingContext context = new InVMNamingContext();
-      jmsServer = new JMSServerManagerImpl(HornetQServers.newHornetQServer(config, false));
+      jmsServer = new JMSServerManagerImpl(ActiveMQServers.newActiveMQServer(config, false));
       jmsServer.setContext(context);
       jmsServer.start();
 

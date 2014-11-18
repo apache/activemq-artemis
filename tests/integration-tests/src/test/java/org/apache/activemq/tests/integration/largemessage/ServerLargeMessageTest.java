@@ -18,11 +18,11 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.core.persistence.impl.journal.LargeServerMessageImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
@@ -50,7 +50,7 @@ public class ServerLargeMessageTest extends ServiceTestBase
    @Test
    public void testSendServerMessage() throws Exception
    {
-      HornetQServer server = createServer(true);
+      ActiveMQServer server = createServer(true);
 
       server.start();
 
@@ -66,12 +66,12 @@ public class ServerLargeMessageTest extends ServiceTestBase
 
          fileMessage.setMessageID(1005);
 
-         for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
             fileMessage.addBytes(new byte[]{UnitTestCase.getSamplebyte(i)});
          }
          // The server would be doing this
-         fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
 
          fileMessage.releaseResources();
@@ -94,9 +94,9 @@ public class ServerLargeMessageTest extends ServiceTestBase
 
          Assert.assertNotNull(msg);
 
-         Assert.assertEquals(msg.getBodySize(), 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         Assert.assertEquals(msg.getBodySize(), 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-         for (int i = 0; i < 2 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
             Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg.getBodyBuffer().readByte());
          }

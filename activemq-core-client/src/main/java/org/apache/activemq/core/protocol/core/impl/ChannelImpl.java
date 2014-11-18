@@ -25,14 +25,14 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.ChannelHandler;
 import org.apache.activemq.core.protocol.core.CommandConfirmationHandler;
 import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
@@ -83,7 +83,7 @@ public final class ChannelImpl implements Channel
       }
    }
 
-   private static final boolean isTrace = HornetQClientLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
 
    private volatile long id;
 
@@ -193,7 +193,7 @@ public final class ChannelImpl implements Channel
 
       try
       {
-         response = new HornetQExceptionMessage(HornetQClientMessageBundle.BUNDLE.unblockingACall(cause));
+         response = new ActiveMQExceptionMessage(ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause));
 
          sendCondition.signal();
       }
@@ -237,7 +237,7 @@ public final class ChannelImpl implements Channel
 
          if (isTrace)
          {
-            HornetQClientLogger.LOGGER.trace("Sending packet nonblocking " + packet + " on channeID=" + id);
+            ActiveMQClientLogger.LOGGER.trace("Sending packet nonblocking " + packet + " on channeID=" + id);
          }
 
          ActiveMQBuffer buffer = packet.encode(connection);
@@ -277,7 +277,7 @@ public final class ChannelImpl implements Channel
 
          if (isTrace)
          {
-            HornetQClientLogger.LOGGER.trace("Writing buffer for channelID=" + id);
+            ActiveMQClientLogger.LOGGER.trace("Writing buffer for channelID=" + id);
          }
 
 
@@ -301,12 +301,12 @@ public final class ChannelImpl implements Channel
       if (interceptionResult != null)
       {
          // if we don't throw an exception here the client might not unblock
-         throw HornetQClientMessageBundle.BUNDLE.interceptorRejectedPacket(interceptionResult);
+         throw ActiveMQClientMessageBundle.BUNDLE.interceptorRejectedPacket(interceptionResult);
       }
 
       if (closed)
       {
-         throw HornetQClientMessageBundle.BUNDLE.connectionDestroyed();
+         throw ActiveMQClientMessageBundle.BUNDLE.connectionDestroyed();
       }
 
       if (connection.getBlockingCallTimeout() == -1)
@@ -341,7 +341,7 @@ public final class ChannelImpl implements Channel
                   {
                      if (!failoverCondition.await(connection.getBlockingCallFailoverTimeout(), TimeUnit.MILLISECONDS))
                      {
-                        HornetQClientLogger.LOGGER.debug("timed-out waiting for failover condition");
+                        ActiveMQClientLogger.LOGGER.debug("timed-out waiting for failover condition");
                      }
                   }
                }
@@ -378,7 +378,7 @@ public final class ChannelImpl implements Channel
 
                if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket)
                {
-                  HornetQClientLogger.LOGGER.packetOutOfOrder(response, new Exception("trace"));
+                  ActiveMQClientLogger.LOGGER.packetOutOfOrder(response, new Exception("trace"));
                }
 
                if (closed)
@@ -395,12 +395,12 @@ public final class ChannelImpl implements Channel
 
             if (response == null)
             {
-               throw HornetQClientMessageBundle.BUNDLE.timedOutSendingPacket(packet.getType());
+               throw ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(packet.getType());
             }
 
             if (response.getType() == PacketImpl.EXCEPTION)
             {
-               final HornetQExceptionMessage mem = (HornetQExceptionMessage) response;
+               final ActiveMQExceptionMessage mem = (ActiveMQExceptionMessage) response;
 
                ActiveMQException e = mem.getException();
 
@@ -433,13 +433,13 @@ public final class ChannelImpl implements Channel
             {
                boolean callNext = interceptor.intercept(packet, connection);
 
-               if (HornetQClientLogger.LOGGER.isDebugEnabled())
+               if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
                {
                   // use a StringBuilder for speed since this may be executed a lot
                   StringBuilder msg = new StringBuilder();
                   msg.append("Invocation of interceptor ").append(interceptor.getClass().getName()).append(" on ").
                      append(packet).append(" returned ").append(callNext);
-                  HornetQClientLogger.LOGGER.debug(msg.toString());
+                  ActiveMQClientLogger.LOGGER.debug(msg.toString());
                }
 
                if (!callNext)
@@ -449,7 +449,7 @@ public final class ChannelImpl implements Channel
             }
             catch (final Throwable e)
             {
-               HornetQClientLogger.LOGGER.errorCallingInterceptor(e, interceptor);
+               ActiveMQClientLogger.LOGGER.errorCallingInterceptor(e, interceptor);
             }
          }
       }
@@ -488,7 +488,7 @@ public final class ChannelImpl implements Channel
 
       if (!connection.isDestroyed() && !connection.removeChannel(id))
       {
-         throw HornetQClientMessageBundle.BUNDLE.noChannelToClose(id);
+         throw ActiveMQClientMessageBundle.BUNDLE.noChannelToClose(id);
       }
 
       if (failingOver)
@@ -524,7 +524,7 @@ public final class ChannelImpl implements Channel
       {
          if (isTrace)
          {
-            HornetQClientLogger.LOGGER.trace("Replaying commands on channelID=" + id);
+            ActiveMQClientLogger.LOGGER.trace("Replaying commands on channelID=" + id);
          }
          clearUpTo(otherLastConfirmedCommandID);
 
@@ -664,7 +664,7 @@ public final class ChannelImpl implements Channel
 
       if (numberToClear == -1)
       {
-         throw HornetQClientMessageBundle.BUNDLE.invalidCommandID(lastReceivedCommandID);
+         throw ActiveMQClientMessageBundle.BUNDLE.invalidCommandID(lastReceivedCommandID);
       }
 
       int sizeToFree = 0;
@@ -677,7 +677,7 @@ public final class ChannelImpl implements Channel
          {
             if (lastReceivedCommandID > 0)
             {
-               HornetQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
+               ActiveMQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
             }
             firstStoredCommandID = lastReceivedCommandID + 1;
             return;

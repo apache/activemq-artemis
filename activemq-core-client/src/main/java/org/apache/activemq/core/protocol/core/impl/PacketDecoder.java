@@ -77,7 +77,7 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SUBSCRIBE_T
 import java.io.Serializable;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
@@ -91,7 +91,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSharedQueueM
 import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
-import org.apache.activemq.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.Ping;
@@ -174,7 +174,7 @@ public abstract class PacketDecoder implements Serializable
          }
          case EXCEPTION:
          {
-            packet = new HornetQExceptionMessage();
+            packet = new ActiveMQExceptionMessage();
             break;
          }
          case PACKETS_CONFIRMED:
@@ -464,7 +464,7 @@ public abstract class PacketDecoder implements Serializable
          }
          default:
          {
-            throw HornetQClientMessageBundle.BUNDLE.invalidType(packetType);
+            throw ActiveMQClientMessageBundle.BUNDLE.invalidType(packetType);
          }
       }
 

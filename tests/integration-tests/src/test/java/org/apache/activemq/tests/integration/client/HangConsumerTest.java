@@ -52,11 +52,11 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.ServerSessionFactory;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.QueueFactoryImpl;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.core.server.impl.ServerSessionImpl;
@@ -65,8 +65,8 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.protocol.SessionCallback;
 import org.apache.activemq.spi.core.remoting.ReadyListener;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
-import org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.utils.ExecutorFactory;
 import org.apache.activemq.utils.ReusableLatch;
@@ -79,7 +79,7 @@ import org.apache.activemq.utils.ReusableLatch;
 public class HangConsumerTest extends ServiceTestBase
 {
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
 
@@ -96,11 +96,11 @@ public class HangConsumerTest extends ServiceTestBase
       Configuration config = createDefaultConfig(false)
          .setMessageExpiryScanPeriod(10);
 
-      HornetQSecurityManager securityManager = new HornetQSecurityManagerImpl();
+      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
 
       config.setPersistenceEnabled(true);
 
-      server = new MyHornetQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager);
+      server = new MyActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager);
 
       server.start();
 
@@ -319,7 +319,7 @@ public class HangConsumerTest extends ServiceTestBase
 
       queueFactory.setPostOffice(server.getPostOffice());
 
-      ((HornetQServerImpl)server).replaceQueueFactory(queueFactory);
+      ((ActiveMQServerImpl)server).replaceQueueFactory(queueFactory);
 
       queue = server.createQueue(QUEUE, QUEUE, null, true, false);
 
@@ -476,7 +476,7 @@ public class HangConsumerTest extends ServiceTestBase
       {
          if (server.locateQueue(SimpleString.toSimpleString("jms.topic.tt")) == null)
          {
-            server.createQueue(SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString(HornetQServerImpl.GENERIC_IGNORED_FILTER), true, false);
+            server.createQueue(SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
          }
 
          server.stop();
@@ -488,7 +488,7 @@ public class HangConsumerTest extends ServiceTestBase
             0,
             0,
             messagesFF,
-            "hornetq-bindings",
+            "activemq-bindings",
             "bindings",
             1);
 
@@ -631,14 +631,14 @@ public class HangConsumerTest extends ServiceTestBase
 
    }
 
-   class MyHornetQServer extends HornetQServerImpl
+   class MyActiveMQServer extends ActiveMQServerImpl
    {
 
 
 
-      public MyHornetQServer(Configuration configuration,
-                             MBeanServer mbeanServer,
-                             HornetQSecurityManager securityManager)
+      public MyActiveMQServer(Configuration configuration,
+                              MBeanServer mbeanServer,
+                              ActiveMQSecurityManager securityManager)
       {
          super(configuration, mbeanServer, securityManager);
       }

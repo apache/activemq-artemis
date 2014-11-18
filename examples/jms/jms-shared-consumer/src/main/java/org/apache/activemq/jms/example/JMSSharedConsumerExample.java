@@ -22,7 +22,7 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class JMSSharedConsumerExample extends HornetQExample
+public class JMSSharedConsumerExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

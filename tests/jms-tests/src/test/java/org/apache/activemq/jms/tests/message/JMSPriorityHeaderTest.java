@@ -19,7 +19,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ import org.junit.Test;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
  */
-public class JMSPriorityHeaderTest extends HornetQServerTestCase
+public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
 {
    /*
     * Note - this test is testing our current implementation of message ordering since the spec

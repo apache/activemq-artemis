@@ -14,7 +14,7 @@ package org.apache.activemq.core.server.cluster.ha;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
 
 import java.util.Map;
@@ -125,9 +125,9 @@ public class ReplicaPolicy extends BackupPolicy
    }
 
    @Override
-   public Activation createActivation(HornetQServerImpl server, boolean wasLive,
+   public Activation createActivation(ActiveMQServerImpl server, boolean wasLive,
                                       Map<String, Object> activationParams,
-                                      HornetQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception
+                                      ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception
    {
       SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasLive, activationParams, shutdownOnCriticalIO, this);
       backupActivation.init();

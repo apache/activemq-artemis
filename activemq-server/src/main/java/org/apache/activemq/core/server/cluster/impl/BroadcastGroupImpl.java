@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.core.server.management.Notification;
@@ -137,7 +137,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
       }
       catch (Exception e1)
       {
-         HornetQServerLogger.LOGGER.broadcastGroupClosed(e1);
+         ActiveMQServerLogger.LOGGER.broadcastGroupClosed(e1);
       }
 
       started = false;
@@ -153,7 +153,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.broadcastGroupClosed(e);
+            ActiveMQServerLogger.LOGGER.broadcastGroupClosed(e);
          }
       }
 
@@ -232,12 +232,12 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
          // only log the exception at ERROR level once, even if it fails multiple times in a row - HORNETQ-919
          if (!loggedBroadcastException)
          {
-            HornetQServerLogger.LOGGER.errorBroadcastingConnectorConfigs(e);
+            ActiveMQServerLogger.LOGGER.errorBroadcastingConnectorConfigs(e);
             loggedBroadcastException = true;
          }
          else
          {
-            HornetQServerLogger.LOGGER.debug("Failed to broadcast connector configs...again", e);
+            ActiveMQServerLogger.LOGGER.debug("Failed to broadcast connector configs...again", e);
          }
       }
    }

@@ -569,7 +569,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       session = sf.createSession(false, true, true);
       session.start();
 
-      HornetQAction hornetQAction = new HornetQAction()
+      ActiveMQAction activeMQAction = new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -577,8 +577,8 @@ public class TemporaryQueueTest extends SingleServerTestBase
          }
       };
 
-      UnitTestCase.expectHornetQException("temp queue must not exist after the server detected the client crash",
-                                          ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, hornetQAction);
+      UnitTestCase.expectActiveMQException("temp queue must not exist after the server detected the client crash",
+                                           ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
 
       session.close();
 

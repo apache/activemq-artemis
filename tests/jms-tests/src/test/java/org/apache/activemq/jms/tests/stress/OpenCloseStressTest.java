@@ -25,7 +25,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.utils.UUIDGenerator;
 import org.junit.After;
@@ -45,7 +45,7 @@ import org.junit.Test;
  * E.g. http://jira.jboss.com/jira/browse/JBMESSAGING-982
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public class OpenCloseStressTest extends HornetQServerTestCase
+public class OpenCloseStressTest extends ActiveMQServerTestCase
 {
    @BeforeClass
    public static void stressTestsEnabled()

@@ -25,7 +25,7 @@ import org.proton.plug.AMQPClientSessionContext;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.util.FutureRunnable;
 
 /**
@@ -39,7 +39,7 @@ public class ProtonClientSessionContext extends AbstractProtonSessionContext imp
       super(sessionSPI, connection, session);
    }
 
-   public AMQPClientSenderContext createSender(String address, boolean preSettled) throws HornetQAMQPException
+   public AMQPClientSenderContext createSender(String address, boolean preSettled) throws ActiveMQAMQPException
    {
       FutureRunnable futureRunnable = new FutureRunnable(1);
 
@@ -63,7 +63,7 @@ public class ProtonClientSessionContext extends AbstractProtonSessionContext imp
       return amqpSender;
    }
 
-   public AMQPClientReceiverContext createReceiver(String address) throws HornetQAMQPException
+   public AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException
    {
       FutureRunnable futureRunnable = new FutureRunnable(1);
 

@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * A StompDecoder
@@ -188,7 +188,7 @@ public class StompDecoder
     * unsupported EOLs ("\r\n" valid for 1.2 only). The StompConnection will switch
     * to proper version decoders on catching such exceptions.
     */
-   public synchronized StompFrame decode(final ActiveMQBuffer buffer) throws HornetQStompException
+   public synchronized StompFrame decode(final ActiveMQBuffer buffer) throws ActiveMQStompException
    {
       int readable = buffer.readableBytes();
 
@@ -225,7 +225,7 @@ public class StompDecoder
       return ret;
    }
 
-   protected StompFrame parseBody() throws HornetQStompException
+   protected StompFrame parseBody() throws ActiveMQStompException
    {
       byte[] content = null;
 
@@ -293,7 +293,7 @@ public class StompDecoder
       }
    }
 
-   protected boolean parseHeaders() throws HornetQStompException
+   protected boolean parseHeaders() throws ActiveMQStompException
    {
       if (headerBytesCopyStart == -1)
       {
@@ -399,7 +399,7 @@ public class StompDecoder
       return true;
    }
 
-   protected boolean parseCommand() throws HornetQStompException
+   protected boolean parseCommand() throws ActiveMQStompException
    {
       int offset = 0;
       boolean nextChar = false;
@@ -621,8 +621,8 @@ public class StompDecoder
       if (workingBuffer[pos - 1] != NEW_LINE)
       {
          //give a signal to try other versions
-         HornetQStompException error = BUNDLE.notValidNewLine(workingBuffer[pos - 1]);
-         error.setCode(HornetQStompException.INVALID_EOL_V10);
+         ActiveMQStompException error = BUNDLE.notValidNewLine(workingBuffer[pos - 1]);
+         error.setCode(ActiveMQStompException.INVALID_EOL_V10);
          error.setBody(BUNDLE.unexpectedNewLine(workingBuffer[pos - 1]));
          throw error;
       }
@@ -630,10 +630,10 @@ public class StompDecoder
       return true;
    }
 
-   public void throwInvalid() throws HornetQStompException
+   public void throwInvalid() throws ActiveMQStompException
    {
-      HornetQStompException error = BUNDLE.invalidCommand(this.dumpByteArray(workingBuffer));
-      error.setCode(HornetQStompException.INVALID_COMMAND);
+      ActiveMQStompException error = BUNDLE.invalidCommand(this.dumpByteArray(workingBuffer));
+      error.setCode(ActiveMQStompException.INVALID_COMMAND);
       error.setBody(BUNDLE.invalidFrame(this.dumpByteArray(workingBuffer)));
       throw error;
    }

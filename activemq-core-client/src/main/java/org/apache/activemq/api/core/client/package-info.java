@@ -13,7 +13,7 @@
 /**
  * Core Client Messaging API.
  * <br>
- * This package defines the API used by HornetQ clients to produce and consume messages.
+ * This package defines the API used by ActiveMQ clients to produce and consume messages.
  */
 package org.apache.activemq.api.core.client;
 

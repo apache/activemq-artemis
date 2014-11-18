@@ -16,7 +16,7 @@ package org.apache.activemq.tests;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -33,7 +33,7 @@ public abstract class CoreUnitTestCase extends Assert
       }
    }
 
-   private static final HornetQClientLogger log = HornetQClientLogger.LOGGER;
+   private static final ActiveMQClientLogger log = ActiveMQClientLogger.LOGGER;
 
    @Rule
    public TestRule watcher = new TestWatcher()

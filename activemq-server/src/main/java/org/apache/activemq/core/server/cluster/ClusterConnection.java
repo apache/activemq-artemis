@@ -19,8 +19,8 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.core.client.impl.Topology;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
 
 /**
  * A ClusterConnection
@@ -31,13 +31,13 @@ import org.apache.activemq.core.server.HornetQServer;
  *
  *
  */
-public interface ClusterConnection extends HornetQComponent, ClusterTopologyListener
+public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyListener
 {
    SimpleString getName();
 
    String getNodeID();
 
-   HornetQServer getServer();
+   ActiveMQServer getServer();
 
    void nodeAnnounced(long eventUID, String nodeID, String backupGroupName, String scaleDownGroupName, Pair<TransportConfiguration, TransportConfiguration> connectorPair, boolean backup);
 

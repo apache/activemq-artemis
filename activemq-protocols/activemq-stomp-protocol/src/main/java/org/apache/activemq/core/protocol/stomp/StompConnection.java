@@ -23,13 +23,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
@@ -38,7 +38,7 @@ import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.utils.ConfigurationHelper;
 import org.apache.activemq.utils.VersionLoader;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * A StompConnection
@@ -48,8 +48,8 @@ import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessag
 public final class StompConnection implements RemotingConnection
 {
    protected static final String CONNECTION_ID_PROP = "__HQ_CID";
-   private static final String SERVER_NAME = "HornetQ/" + VersionLoader.getVersion().getFullVersion() +
-      " HornetQ Messaging Engine";
+   private static final String SERVER_NAME = "ActiveMQ/" + VersionLoader.getVersion().getFullVersion() +
+      " ActiveMQ Messaging Engine";
 
    private final StompProtocolManager manager;
 
@@ -93,24 +93,24 @@ public final class StompConnection implements RemotingConnection
 
    private int minLargeMessageSize;
 
-   public StompFrame decode(ActiveMQBuffer buffer) throws HornetQStompException
+   public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException
    {
       StompFrame frame = null;
       try
       {
          frame = frameHandler.decode(buffer);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          switch (e.getCode())
          {
-            case HornetQStompException.INVALID_EOL_V10:
+            case ActiveMQStompException.INVALID_EOL_V10:
                if (version != null) throw e;
                frameHandler = new StompFrameHandlerV12(this);
                buffer.resetReaderIndex();
                frame = decode(buffer);
                break;
-            case HornetQStompException.INVALID_COMMAND:
+            case ActiveMQStompException.INVALID_COMMAND:
                frameHandler.onError(e);
                break;
             default:
@@ -141,7 +141,7 @@ public final class StompConnection implements RemotingConnection
                                                                     false,
                                                                     acceptorUsed.getConfiguration());
       this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE,
-                                                                    HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                                    ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
                                                                     acceptorUsed.getConfiguration());
    }
 
@@ -239,7 +239,7 @@ public final class StompConnection implements RemotingConnection
       return res;
    }
 
-   public void checkDestination(String destination) throws HornetQStompException
+   public void checkDestination(String destination) throws ActiveMQStompException
    {
       if (!manager.destinationExists(destination))
       {
@@ -297,7 +297,7 @@ public final class StompConnection implements RemotingConnection
          destroyed = true;
       }
 
-      HornetQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
       // Then call the listeners
       callFailureListeners(me);
 
@@ -402,7 +402,7 @@ public final class StompConnection implements RemotingConnection
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQServerLogger.LOGGER.errorCallingFailureListener(t);
+            ActiveMQServerLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
    }
@@ -422,7 +422,7 @@ public final class StompConnection implements RemotingConnection
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQServerLogger.LOGGER.errorCallingFailureListener(t);
+            ActiveMQServerLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
    }
@@ -431,7 +431,7 @@ public final class StompConnection implements RemotingConnection
     * accept-version value takes form of "v1,v2,v3..."
     * we need to return the highest supported version
     */
-   public void negotiateVersion(StompFrame frame) throws HornetQStompException
+   public void negotiateVersion(StompFrame frame) throws ActiveMQStompException
    {
       String acceptVersion = frame.getHeader(Stomp.Headers.ACCEPT_VERSION);
 
@@ -463,7 +463,7 @@ public final class StompConnection implements RemotingConnection
          else
          {
             //not a supported version!
-            HornetQStompException error = BUNDLE.versionNotSupported(acceptVersion);
+            ActiveMQStompException error = BUNDLE.versionNotSupported(acceptVersion);
             error.addHeader("version", acceptVersion);
             error.addHeader("content-type", "text/plain");
             error.setBody("Supported protocol version are " + manager.getSupportedVersionsAsString());
@@ -483,11 +483,11 @@ public final class StompConnection implements RemotingConnection
    }
 
    //reject if the host doesn't match
-   public void setHost(String host) throws HornetQStompException
+   public void setHost(String host) throws ActiveMQStompException
    {
       if (host == null)
       {
-         HornetQStompException error = BUNDLE.nullHostHeader();
+         ActiveMQStompException error = BUNDLE.nullHostHeader();
          error.setBody(BUNDLE.hostCannotBeNull());
          throw error;
       }
@@ -495,7 +495,7 @@ public final class StompConnection implements RemotingConnection
       String localHost = manager.getVirtualHostName();
       if (!host.equals(localHost))
       {
-         HornetQStompException error = BUNDLE.hostNotMatch();
+         ActiveMQStompException error = BUNDLE.hostNotMatch();
          error.setBody(BUNDLE.hostNotMatchDetails(host));
          throw error;
       }
@@ -529,7 +529,7 @@ public final class StompConnection implements RemotingConnection
 
          reply = frameHandler.handleFrame(request);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          reply = e.getFrame();
       }
@@ -566,7 +566,7 @@ public final class StompConnection implements RemotingConnection
       return manager.createServerMessage();
    }
 
-   public StompSession getSession(String txID) throws HornetQStompException
+   public StompSession getSession(String txID) throws ActiveMQStompException
    {
       StompSession session = null;
       try
@@ -588,7 +588,7 @@ public final class StompConnection implements RemotingConnection
       return session;
    }
 
-   protected void validate() throws HornetQStompException
+   protected void validate() throws ActiveMQStompException
    {
       if (!this.valid)
       {
@@ -596,7 +596,7 @@ public final class StompConnection implements RemotingConnection
       }
    }
 
-   protected void sendServerMessage(ServerMessageImpl message, String txID) throws HornetQStompException
+   protected void sendServerMessage(ServerMessageImpl message, String txID) throws ActiveMQStompException
    {
       StompSession stompSession = getSession(txID);
 
@@ -638,13 +638,13 @@ public final class StompConnection implements RemotingConnection
       destroy();
    }
 
-   protected void beginTransaction(String txID) throws HornetQStompException
+   protected void beginTransaction(String txID) throws ActiveMQStompException
    {
       try
       {
          manager.beginTransaction(this, txID);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          throw e;
       }
@@ -654,7 +654,7 @@ public final class StompConnection implements RemotingConnection
       }
    }
 
-   public void commitTransaction(String txID) throws HornetQStompException
+   public void commitTransaction(String txID) throws ActiveMQStompException
    {
       try
       {
@@ -666,13 +666,13 @@ public final class StompConnection implements RemotingConnection
       }
    }
 
-   public void abortTransaction(String txID) throws HornetQStompException
+   public void abortTransaction(String txID) throws ActiveMQStompException
    {
       try
       {
          manager.abortTransaction(this, txID);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          throw e;
       }
@@ -683,7 +683,7 @@ public final class StompConnection implements RemotingConnection
    }
 
    void subscribe(String destination, String selector, String ack,
-                  String id, String durableSubscriptionName, boolean noLocal) throws HornetQStompException
+                  String id, String durableSubscriptionName, boolean noLocal) throws ActiveMQStompException
    {
       if (noLocal)
       {
@@ -721,7 +721,7 @@ public final class StompConnection implements RemotingConnection
       {
          manager.createSubscription(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          throw e;
       }
@@ -731,13 +731,13 @@ public final class StompConnection implements RemotingConnection
       }
    }
 
-   public void unsubscribe(String subscriptionID, String durableSubscriberName) throws HornetQStompException
+   public void unsubscribe(String subscriptionID, String durableSubscriberName) throws ActiveMQStompException
    {
       try
       {
          manager.unsubscribe(this, subscriptionID, durableSubscriberName);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          throw e;
       }
@@ -747,13 +747,13 @@ public final class StompConnection implements RemotingConnection
       }
    }
 
-   public void acknowledge(String messageID, String subscriptionID) throws HornetQStompException
+   public void acknowledge(String messageID, String subscriptionID) throws ActiveMQStompException
    {
       try
       {
          manager.acknowledge(this, messageID, subscriptionID);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          throw e;
       }
@@ -768,7 +768,7 @@ public final class StompConnection implements RemotingConnection
       return String.valueOf(version);
    }
 
-   public String getHornetQServerName()
+   public String getActiveMQServerName()
    {
       return SERVER_NAME;
    }
@@ -792,7 +792,7 @@ public final class StompConnection implements RemotingConnection
 
    public void physicalSend(StompFrame frame) throws Exception
    {
-      ActiveMQBuffer buffer = frame.toHornetQBuffer();
+      ActiveMQBuffer buffer = frame.toActiveMQBuffer();
       synchronized (sendLock)
       {
          getTransportConnection().write(buffer, false, false);

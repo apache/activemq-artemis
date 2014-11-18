@@ -13,8 +13,8 @@
 package org.apache.activemq.utils;
 
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class ConfigurationHelper
          }
          else if (prop instanceof Number == false)
          {
-            HornetQClientLogger.LOGGER.propertyNotInteger(propName, prop.getClass().getName());
+            ActiveMQClientLogger.LOGGER.propertyNotInteger(propName, prop.getClass().getName());
 
             return def;
          }
@@ -109,7 +109,7 @@ public class ConfigurationHelper
          }
          else if (prop instanceof Number == false)
          {
-            HornetQClientLogger.LOGGER.propertyNotLong(propName, prop.getClass().getName());
+            ActiveMQClientLogger.LOGGER.propertyNotLong(propName, prop.getClass().getName());
 
             return def;
          }
@@ -142,7 +142,7 @@ public class ConfigurationHelper
          }
          else if (prop instanceof Boolean == false)
          {
-            HornetQClientLogger.LOGGER.propertyNotBoolean(propName, prop.getClass().getName());
+            ActiveMQClientLogger.LOGGER.propertyNotBoolean(propName, prop.getClass().getName());
 
             return def;
          }
@@ -224,7 +224,7 @@ public class ConfigurationHelper
 
       if (classImpl == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.noCodec();
+         throw ActiveMQClientMessageBundle.BUNDLE.noCodec();
       }
 
       SensitiveDataCodec<String> codec = null;
@@ -234,7 +234,7 @@ public class ConfigurationHelper
       }
       catch (ActiveMQException e1)
       {
-         throw HornetQClientMessageBundle.BUNDLE.failedToGetDecoder(e1);
+         throw ActiveMQClientMessageBundle.BUNDLE.failedToGetDecoder(e1);
       }
 
       try
@@ -243,7 +243,7 @@ public class ConfigurationHelper
       }
       catch (Exception e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.errordecodingPassword(e);
+         throw ActiveMQClientMessageBundle.BUNDLE.errordecodingPassword(e);
       }
    }
 

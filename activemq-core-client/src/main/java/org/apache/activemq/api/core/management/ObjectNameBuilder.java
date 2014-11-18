@@ -18,7 +18,7 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
- * Helper class to build ObjectNames for HornetQ resources.
+ * Helper class to build ObjectNames for ActiveMQ resources.
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public final class ObjectNameBuilder
@@ -27,7 +27,7 @@ public final class ObjectNameBuilder
    // Constants -----------------------------------------------------
 
    /**
-    * Default JMX domain for HornetQ resources.
+    * Default JMX domain for ActiveMQ resources.
     */
    public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
 
@@ -63,9 +63,9 @@ public final class ObjectNameBuilder
    // Public --------------------------------------------------------
 
    /**
-    * Returns the ObjectName used by the single {@link HornetQServerControl}.
+    * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
     */
-   public ObjectName getHornetQServerObjectName() throws Exception
+   public ObjectName getActiveMQServerObjectName() throws Exception
    {
       return ObjectName.getInstance(domain + ":module=Core,type=Server");
    }

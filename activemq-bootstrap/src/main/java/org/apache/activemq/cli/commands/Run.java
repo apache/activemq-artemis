@@ -17,18 +17,18 @@ import io.airlift.command.Command;
 
 import org.apache.activemq.cli.ActiveMQ;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.dto.BrokerDTO;
 import org.apache.activemq.factory.BrokerFactory;
 import org.apache.activemq.factory.CoreFactory;
 import org.apache.activemq.factory.JmsFactory;
 import org.apache.activemq.factory.SecurityManagerFactory;
-import org.apache.activemq.integration.bootstrap.HornetQBootstrapLogger;
+import org.apache.activemq.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.jms.server.impl.StandaloneNamingServer;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
 import javax.management.MBeanServer;
 
@@ -67,11 +67,11 @@ public class Run implements Action
 
       JMSConfiguration jms = JmsFactory.create(broker.jms);
 
-      HornetQSecurityManager security = SecurityManagerFactory.create(broker.security);
+      ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
 
       MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
-      HornetQServerImpl server = new HornetQServerImpl(core, mBeanServer, security);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(core, mBeanServer, security);
 
       namingServer = new StandaloneNamingServer(server);
 
@@ -85,7 +85,7 @@ public class Run implements Action
 
       namingServer.start();
 
-      HornetQBootstrapLogger.LOGGER.startedNamingService(broker.naming.bindAddress, broker.naming.port, broker.naming.rmiBindAddress, broker.naming.rmiPort);
+      ActiveMQBootstrapLogger.LOGGER.startedNamingService(broker.naming.bindAddress, broker.naming.port, broker.naming.rmiBindAddress, broker.naming.rmiPort);
 
       if (jms != null)
       {
@@ -96,7 +96,7 @@ public class Run implements Action
          jmsServerManager = new JMSServerManagerImpl(server);
       }
 
-      HornetQBootstrapLogger.LOGGER.serverStarting();
+      ActiveMQBootstrapLogger.LOGGER.serverStarting();
 
       jmsServerManager.start();
 
@@ -114,7 +114,7 @@ public class Run implements Action
       {
          if (!file.delete())
          {
-            HornetQBootstrapLogger.LOGGER.errorDeletingFile(file.getAbsolutePath());
+            ActiveMQBootstrapLogger.LOGGER.errorDeletingFile(file.getAbsolutePath());
          }
       }
       final Timer timer = new Timer("ActiveMQ Server Shutdown Timer", true);

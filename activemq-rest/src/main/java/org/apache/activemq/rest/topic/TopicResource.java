@@ -24,7 +24,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.DestinationResource;
 import org.apache.activemq.rest.queue.PostMessage;
 
@@ -53,7 +53,7 @@ public class TopicResource extends DestinationResource
    @Produces("application/xml")
    public Response get(@Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       StringBuilder msg = new StringBuilder();
       msg.append("<topic>")
@@ -77,7 +77,7 @@ public class TopicResource extends DestinationResource
    @Produces("application/xml")
    public Response head(@Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       Response.ResponseBuilder builder = Response.ok();
       setSenderLink(builder, uriInfo);
@@ -176,7 +176,7 @@ public class TopicResource extends DestinationResource
    @DELETE
    public void deleteTopic(@Context UriInfo uriInfo) throws Exception
    {
-      HornetQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       topicDestinationsResource.getTopics().remove(destination);
 

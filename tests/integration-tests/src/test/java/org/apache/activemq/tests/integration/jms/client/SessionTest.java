@@ -18,7 +18,7 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
@@ -36,12 +36,12 @@ public class SessionTest extends JMSTestBase
       Connection defaultConn = null;
       QueueConnection qConn = null;
       Connection connClientID = null;
-      HornetQConnectionFactory hqCF = (HornetQConnectionFactory) cf;
+      ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
       try
       {
          String clientID = "somethingElse" + name.getMethodName();
          defaultConn = cf.createConnection();
-         qConn = hqCF.createQueueConnection();
+         qConn = activeMQConnectionFactory.createQueueConnection();
 
          connClientID = cf.createConnection();
          connClientID.setClientID(clientID);

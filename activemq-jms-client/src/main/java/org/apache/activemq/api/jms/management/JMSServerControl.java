@@ -18,7 +18,7 @@ import org.apache.activemq.api.core.management.Operation;
 import org.apache.activemq.api.core.management.Parameter;
 
 /**
- * A JMSSserverControl is used to manage HornetQ JMS server.
+ * A JMSSserverControl is used to manage ActiveMQ JMS server.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -270,8 +270,8 @@ public interface JMSServerControl
    /**
     * Closes all the connections on this server for consumers which are consuming from a queue associated with a particular address.
     */
-   @Operation(desc = "Closes all the consumer connections for the given HornetQ address", impact = MBeanOperationInfo.INFO)
-   boolean closeConsumerConnectionsForAddress(@Parameter(desc = "a HornetQ address", name = "address") String address) throws Exception;
+   @Operation(desc = "Closes all the consumer connections for the given ActiveMQ address", impact = MBeanOperationInfo.INFO)
+   boolean closeConsumerConnectionsForAddress(@Parameter(desc = "a ActiveMQ address", name = "address") String address) throws Exception;
 
    /**
     * Closes all the connections on this server for sessions using a particular user name.

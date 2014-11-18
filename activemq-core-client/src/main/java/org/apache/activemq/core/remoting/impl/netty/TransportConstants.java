@@ -172,7 +172,7 @@ public class TransportConstants
 
    public static final boolean DEFAULT_HTTP_UPGRADE_ENABLED = false;
 
-   public static final String DEFAULT_SERVLET_PATH = "/messaging/HornetQServlet";
+   public static final String DEFAULT_SERVLET_PATH = "/messaging/ActiveMQServlet";
 
    public static final long DEFAULT_BATCH_DELAY = 0;
 

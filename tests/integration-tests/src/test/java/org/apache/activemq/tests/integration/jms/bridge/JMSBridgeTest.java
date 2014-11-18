@@ -30,11 +30,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
@@ -1362,7 +1362,7 @@ public class JMSBridgeTest extends BridgeTestBase
             //Set some JMS headers too
 
             //And also set a core props
-            ((HornetQMessage) tm).getCoreMessage().putBytesProperty("bytes", new byte[]{1, 2, 3});
+            ((ActiveMQMessage) tm).getCoreMessage().putBytesProperty("bytes", new byte[]{1, 2, 3});
 
             // We add some JMSX ones too
 
@@ -1400,13 +1400,13 @@ public class JMSBridgeTest extends BridgeTestBase
             assertEquals(817217827L, tm.getLongProperty("blurg"));
             assertEquals((short) 26363, tm.getShortProperty("stst"));
 
-            assertEqualsByteArrays(new byte[]{1, 2, 3}, ((HornetQMessage) tm).getCoreMessage().getBytesProperty("bytes"));
+            assertEqualsByteArrays(new byte[]{1, 2, 3}, ((ActiveMQMessage) tm).getCoreMessage().getBytesProperty("bytes"));
 
             Assert.assertEquals("mygroup543", tm.getStringProperty("JMSXGroupID"));
 
             if (on)
             {
-               String header = tm.getStringProperty(HornetQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
+               String header = tm.getStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
                Assert.assertNotNull(header);
 
@@ -1452,11 +1452,11 @@ public class JMSBridgeTest extends BridgeTestBase
                assertEquals(817217827L, tm.getLongProperty("blurg"));
                assertEquals((short) 26363, tm.getShortProperty("stst"));
 
-               assertEqualsByteArrays(new byte[]{1, 2, 3}, ((HornetQMessage) tm).getCoreMessage().getBytesProperty("bytes"));
+               assertEqualsByteArrays(new byte[]{1, 2, 3}, ((ActiveMQMessage) tm).getCoreMessage().getBytesProperty("bytes"));
 
                Assert.assertEquals("mygroup543", tm.getStringProperty("JMSXGroupID"));
 
-               String header = tm.getStringProperty(HornetQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
+               String header = tm.getStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
                Assert.assertNotNull(header);
 
@@ -1758,7 +1758,7 @@ public class JMSBridgeTest extends BridgeTestBase
             Assert.assertTrue(tm.getBooleanProperty("cheese"));
             Assert.assertEquals(23, tm.getIntProperty("Sausages"));
 
-            String header = tm.getStringProperty(HornetQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
+            String header = tm.getStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
             Assert.assertNull(header);
          }

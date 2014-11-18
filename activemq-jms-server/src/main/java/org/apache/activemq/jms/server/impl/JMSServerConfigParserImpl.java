@@ -20,11 +20,11 @@ import java.util.List;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.impl.Validators;
-import org.apache.activemq.jms.server.HornetQJMSServerBundle;
-import org.apache.activemq.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.jms.server.ActiveMQJMSServerBundle;
+import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
 import org.apache.activemq.jms.server.JMSServerConfigParser;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
@@ -92,7 +92,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
             Node keyNode = node.getAttributes().getNamedItem(JMSServerConfigParserImpl.NAME_ATTR);
             if (keyNode == null)
             {
-               HornetQJMSServerLogger.LOGGER.jmsConfigMissingKey(node);
+               ActiveMQJMSServerLogger.LOGGER.jmsConfigMissingKey(node);
                continue;
             }
 
@@ -197,7 +197,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
       if (!node.getNodeName().equals(JMSServerDeployer.CONNECTION_FACTORY_NODE_NAME))
       {
          // sanity check, this shouldn't ever happen
-         throw HornetQJMSServerBundle.BUNDLE.invalidNodeParsingCF(node.getNodeName());
+         throw ActiveMQJMSServerBundle.BUNDLE.invalidNodeParsingCF(node.getNodeName());
       }
       Element e = (Element) node;
 
@@ -206,116 +206,116 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
       String fact = e.getAttribute("signature");
       boolean isXA = XMLConfigurationUtil.getBoolean(e,
                                                      "xa",
-                                                     HornetQClient.DEFAULT_XA);
+                                                     ActiveMQClient.DEFAULT_XA);
 
       JMSFactoryType factType = resolveFactoryType(fact, isXA);
 
       long clientFailureCheckPeriod = XMLConfigurationUtil.getLong(e,
                                                                    "client-failure-check-period",
-                                                                   HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
+                                                                   ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
                                                                    Validators.MINUS_ONE_OR_GT_ZERO);
       long connectionTTL = XMLConfigurationUtil.getLong(e,
                                                         "connection-ttl",
-                                                        HornetQClient.DEFAULT_CONNECTION_TTL,
+                                                        ActiveMQClient.DEFAULT_CONNECTION_TTL,
                                                         Validators.MINUS_ONE_OR_GE_ZERO);
       long callTimeout = XMLConfigurationUtil.getLong(e,
                                                       "call-timeout",
-                                                      HornetQClient.DEFAULT_CALL_TIMEOUT,
+                                                      ActiveMQClient.DEFAULT_CALL_TIMEOUT,
                                                       Validators.GE_ZERO);
       long callFailoverTimeout = XMLConfigurationUtil.getLong(e,
                                                               "call-failover-timeout",
-                                                              HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
+                                                              ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
                                                               Validators.MINUS_ONE_OR_GT_ZERO);
       String clientID = XMLConfigurationUtil.getString(e, "client-id", null, Validators.NO_CHECK);
       int dupsOKBatchSize = XMLConfigurationUtil.getInteger(e,
                                                             "dups-ok-batch-size",
-                                                            HornetQClient.DEFAULT_ACK_BATCH_SIZE,
+                                                            ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
                                                             Validators.GT_ZERO);
       int transactionBatchSize = XMLConfigurationUtil.getInteger(e,
                                                                  "transaction-batch-size",
-                                                                 HornetQClient.DEFAULT_ACK_BATCH_SIZE,
+                                                                 ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
                                                                  Validators.GT_ZERO);
       int consumerWindowSize = XMLConfigurationUtil.getInteger(e,
                                                                "consumer-window-size",
-                                                               HornetQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
+                                                               ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
                                                                Validators.MINUS_ONE_OR_GE_ZERO);
       int producerWindowSize = XMLConfigurationUtil.getInteger(e,
                                                                "producer-window-size",
-                                                               HornetQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
+                                                               ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
                                                                Validators.MINUS_ONE_OR_GT_ZERO);
       int consumerMaxRate = XMLConfigurationUtil.getInteger(e,
                                                             "consumer-max-rate",
-                                                            HornetQClient.DEFAULT_CONSUMER_MAX_RATE,
+                                                            ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
                                                             Validators.MINUS_ONE_OR_GT_ZERO);
       int confirmationWindowSize = XMLConfigurationUtil.getInteger(e,
                                                                    "confirmation-window-size",
-                                                                   HornetQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
+                                                                   ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
                                                                    Validators.MINUS_ONE_OR_GT_ZERO);
       int producerMaxRate = XMLConfigurationUtil.getInteger(e,
                                                             "producer-max-rate",
-                                                            HornetQClient.DEFAULT_PRODUCER_MAX_RATE,
+                                                            ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
                                                             Validators.MINUS_ONE_OR_GT_ZERO);
       boolean cacheLargeMessagesClient = XMLConfigurationUtil.getBoolean(e,
                                                                          "cache-large-message-client",
-                                                                         HornetQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT);
+                                                                         ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT);
       int minLargeMessageSize = XMLConfigurationUtil.getInteger(e,
                                                                 "min-large-message-size",
-                                                                HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                                ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
                                                                 Validators.GT_ZERO);
 
       boolean compressLargeMessages = XMLConfigurationUtil.getBoolean(e,
                                                                       "compress-large-messages",
-                                                                      HornetQClient.DEFAULT_COMPRESS_LARGE_MESSAGES);
+                                                                      ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES);
 
       boolean blockOnAcknowledge = XMLConfigurationUtil.getBoolean(e,
                                                                    "block-on-acknowledge",
-                                                                   HornetQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
+                                                                   ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE);
       boolean blockOnNonDurableSend = XMLConfigurationUtil.getBoolean(e,
                                                                       "block-on-non-durable-send",
-                                                                      HornetQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
+                                                                      ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND);
       boolean blockOnDurableSend = XMLConfigurationUtil.getBoolean(e,
                                                                    "block-on-durable-send",
-                                                                   HornetQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
-      boolean autoGroup = XMLConfigurationUtil.getBoolean(e, "auto-group", HornetQClient.DEFAULT_AUTO_GROUP);
+                                                                   ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND);
+      boolean autoGroup = XMLConfigurationUtil.getBoolean(e, "auto-group", ActiveMQClient.DEFAULT_AUTO_GROUP);
       boolean preAcknowledge = XMLConfigurationUtil.getBoolean(e,
                                                                "pre-acknowledge",
-                                                               HornetQClient.DEFAULT_PRE_ACKNOWLEDGE);
+                                                               ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE);
       long retryInterval = XMLConfigurationUtil.getLong(e,
                                                         "retry-interval",
-                                                        HornetQClient.DEFAULT_RETRY_INTERVAL,
+                                                        ActiveMQClient.DEFAULT_RETRY_INTERVAL,
                                                         Validators.GT_ZERO);
       double retryIntervalMultiplier = XMLConfigurationUtil.getDouble(e,
                                                                       "retry-interval-multiplier",
-                                                                      HornetQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
+                                                                      ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
                                                                       Validators.GT_ZERO);
       long maxRetryInterval = XMLConfigurationUtil.getLong(e,
                                                            "max-retry-interval",
-                                                           HornetQClient.DEFAULT_MAX_RETRY_INTERVAL,
+                                                           ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL,
                                                            Validators.GT_ZERO);
       int reconnectAttempts = XMLConfigurationUtil.getInteger(e,
                                                               "reconnect-attempts",
-                                                              HornetQClient.DEFAULT_RECONNECT_ATTEMPTS,
+                                                              ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS,
                                                               Validators.MINUS_ONE_OR_GE_ZERO);
       boolean failoverOnInitialConnection = XMLConfigurationUtil.getBoolean(e,
                                                                             "failover-on-initial-connection",
-                                                                            HornetQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION);
+                                                                            ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION);
 
       boolean useGlobalPools = XMLConfigurationUtil.getBoolean(e,
                                                                "use-global-pools",
-                                                               HornetQClient.DEFAULT_USE_GLOBAL_POOLS);
+                                                               ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS);
       int scheduledThreadPoolMaxSize = XMLConfigurationUtil.getInteger(e,
                                                                        "scheduled-thread-pool-max-size",
-                                                                       HornetQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                                                       ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
                                                                        Validators.MINUS_ONE_OR_GT_ZERO);
       int threadPoolMaxSize = XMLConfigurationUtil.getInteger(e,
                                                               "thread-pool-max-size",
-                                                              HornetQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
+                                                              ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
                                                               Validators.MINUS_ONE_OR_GT_ZERO);
       String connectionLoadBalancingPolicyClassName = XMLConfigurationUtil.getString(e,
                                                                                      "connection-load-balancing-policy-class-name",
-                                                                                     HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
+                                                                                     ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
                                                                                      Validators.NOT_NULL_OR_EMPTY);
-      boolean ha = XMLConfigurationUtil.getBoolean(e, "ha", HornetQClient.DEFAULT_HA);
+      boolean ha = XMLConfigurationUtil.getBoolean(e, "ha", ActiveMQClient.DEFAULT_HA);
 
       String groupid = XMLConfigurationUtil.getString(e, "group-id", null, Validators.NO_CHECK);
       List<String> jndiBindings = new ArrayList<String>();
@@ -458,7 +458,7 @@ public final class JMSServerConfigParserImpl implements JMSServerConfigParser
             return JMSFactoryType.TOPIC_CF;
          }
       }
-      throw HornetQJMSServerBundle.BUNDLE.invalidSignatureParsingCF(fact);
+      throw ActiveMQJMSServerBundle.BUNDLE.invalidSignatureParsingCF(fact);
    }
 
    /**

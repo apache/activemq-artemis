@@ -30,7 +30,7 @@ import static org.apache.activemq.reader.MapMessageUtil.readBodyMap;
 import static org.apache.activemq.reader.MapMessageUtil.writeBodyMap;
 
 /**
- * HornetQ implementation of a JMS MapMessage.
+ * ActiveMQ implementation of a JMS MapMessage.
  *
  * @author Norbert Lataille (Norbert.Lataille@m4x.org)
  * @author <a href="mailto:adrian@jboss.org">Adrian Brock</a>

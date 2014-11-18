@@ -23,9 +23,9 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class PageStressTest extends ServiceTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer messagingService;
+   private ActiveMQServer messagingService;
 
    private ServerLocator locator;
 
@@ -79,7 +79,7 @@ public class PageStressTest extends ServiceTestBase
 
          ClientProducer prod = session.createProducer(address);
 
-         ClientMessage message = createBytesMessage(session, HornetQBytesMessage.TYPE, new byte[700], true);
+         ClientMessage message = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[700], true);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
          {
@@ -188,7 +188,7 @@ public class PageStressTest extends ServiceTestBase
 
          ClientProducer prod = session.createProducer(address);
 
-         ClientMessage message = createBytesMessage(session, HornetQBytesMessage.TYPE, new byte[700], false);
+         ClientMessage message = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[700], false);
 
          int NUMBER_OF_MESSAGES = 60000;
 

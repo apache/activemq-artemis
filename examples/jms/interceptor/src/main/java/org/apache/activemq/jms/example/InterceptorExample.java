@@ -21,14 +21,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * A simple JMS example that shows how to implement and use interceptors with HornetQ.
+ * A simple JMS example that shows how to implement and use interceptors with ActiveMQ.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class InterceptorExample extends HornetQExample
+public class InterceptorExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

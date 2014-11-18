@@ -40,8 +40,8 @@ import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 
 /**
@@ -57,7 +57,7 @@ public class ManagementWithStompTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   protected HornetQServer server;
+   protected ActiveMQServer server;
 
    protected ClientSession session;
 
@@ -180,7 +180,7 @@ public class ManagementWithStompTest extends ManagementTestBase
          .addAcceptorConfiguration(stompTransport)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      server = HornetQServers.newHornetQServer(conf, mbeanServer, false, "brianm", "wombats");
+      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false, "brianm", "wombats");
 
       server.start();
 

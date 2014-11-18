@@ -26,14 +26,14 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example that shows how to receive management notifications using JMS messages.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class ManagementNotificationExample extends HornetQExample
+public class ManagementNotificationExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

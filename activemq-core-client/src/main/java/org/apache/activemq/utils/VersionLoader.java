@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.apache.activemq.core.version.Version;
 import org.apache.activemq.core.version.impl.VersionImpl;
 
@@ -38,9 +38,9 @@ import org.apache.activemq.core.version.impl.VersionImpl;
  */
 public final class VersionLoader
 {
-   public static final String VERSION_PROP_FILE_KEY = "hornetq.version.property.filename";
+   public static final String VERSION_PROP_FILE_KEY = "activemq.version.property.filename";
 
-   public static final String DEFAULT_PROP_FILE_NAME = "hornetq-version.properties";
+   public static final String DEFAULT_PROP_FILE_NAME = "activemq-version.properties";
 
    private static String PROP_FILE_NAME;
 
@@ -63,7 +63,7 @@ public final class VersionLoader
          }
          catch (Throwable e)
          {
-            HornetQClientLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
             PROP_FILE_NAME = null;
          }
 
@@ -77,7 +77,7 @@ public final class VersionLoader
       catch (Throwable e)
       {
          VersionLoader.versions = null;
-         HornetQClientLogger.LOGGER.error(e.getMessage(), e);
+         ActiveMQClientLogger.LOGGER.error(e.getMessage(), e);
       }
 
    }
@@ -123,19 +123,19 @@ public final class VersionLoader
       {
          if (in == null)
          {
-            HornetQClientLogger.LOGGER.noVersionOnClasspath(getClasspathString());
+            ActiveMQClientLogger.LOGGER.noVersionOnClasspath(getClasspathString());
             throw new RuntimeException(VersionLoader.PROP_FILE_NAME + " is not available");
          }
          try
          {
             versionProps.load(in);
-            String versionName = versionProps.getProperty("hornetq.version.versionName");
-            int majorVersion = Integer.valueOf(versionProps.getProperty("hornetq.version.majorVersion"));
-            int minorVersion = Integer.valueOf(versionProps.getProperty("hornetq.version.minorVersion"));
-            int microVersion = Integer.valueOf(versionProps.getProperty("hornetq.version.microVersion"));
-            int[] incrementingVersions = parseCompatibleVersionList(versionProps.getProperty("hornetq.version.incrementingVersion"));
-            String versionSuffix = versionProps.getProperty("hornetq.version.versionSuffix");
-            int[] compatibleVersionArray = parseCompatibleVersionList(versionProps.getProperty("hornetq.version.compatibleVersionList"));
+            String versionName = versionProps.getProperty("activemq.version.versionName");
+            int majorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.majorVersion"));
+            int minorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.minorVersion"));
+            int microVersion = Integer.valueOf(versionProps.getProperty("activemq.version.microVersion"));
+            int[] incrementingVersions = parseCompatibleVersionList(versionProps.getProperty("activemq.version.incrementingVersion"));
+            String versionSuffix = versionProps.getProperty("activemq.version.versionSuffix");
+            int[] compatibleVersionArray = parseCompatibleVersionList(versionProps.getProperty("activemq.version.compatibleVersionList"));
             List<Version> definedVersions = new ArrayList<Version>(incrementingVersions.length);
             for (int incrementingVersion : incrementingVersions)
             {

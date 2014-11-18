@@ -21,15 +21,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * This example demonstrates how HornetQ consumers can be configured to not buffer any messages from
+ * This example demonstrates how ActiveMQ consumers can be configured to not buffer any messages from
  * the server.
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public class NoConsumerBufferingExample extends HornetQExample
+public class NoConsumerBufferingExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

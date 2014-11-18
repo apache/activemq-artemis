@@ -23,12 +23,12 @@ import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -44,7 +44,7 @@ public class PingStressTest extends ServiceTestBase
 
    private static final long PING_INTERVAL = 500;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Override
    @Before
@@ -101,7 +101,7 @@ public class PingStressTest extends ServiceTestBase
       };
 
       server.getRemotingService().addIncomingInterceptor(noPongInterceptor);
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(transportConfig));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       locator.setClientFailureCheckPeriod(PingStressTest.PING_INTERVAL);
       locator.setConnectionTTL((long)(PingStressTest.PING_INTERVAL * 1.5));
       locator.setCallTimeout(PingStressTest.PING_INTERVAL * 10);
@@ -132,7 +132,7 @@ public class PingStressTest extends ServiceTestBase
             try
             {
 
-               ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(transportConfig));
+               ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
                locator.setClientFailureCheckPeriod(PingStressTest.PING_INTERVAL);
                locator.setConnectionTTL((long)(PingStressTest.PING_INTERVAL * 1.5));
                locator.setCallTimeout(PingStressTest.PING_INTERVAL * 10);

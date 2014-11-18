@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates clustering using jgroups.
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  * @author <a href="hgao@redhat.com>Howard Gao</a>
  */
-public class ClusteredJgroupsExample extends HornetQExample
+public class ClusteredJgroupsExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

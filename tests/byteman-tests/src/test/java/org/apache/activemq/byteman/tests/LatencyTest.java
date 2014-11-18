@@ -15,7 +15,7 @@ package org.apache.activemq.byteman.tests;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
@@ -54,7 +54,7 @@ public class LatencyTest extends ServiceTestBase
       )
    public void testLatency() throws Exception
    {
-      HornetQServer server = createServer(createDefaultConfig(true));
+      ActiveMQServer server = createServer(createDefaultConfig(true));
       server.start();
       ServerLocator locator = createNettyNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);

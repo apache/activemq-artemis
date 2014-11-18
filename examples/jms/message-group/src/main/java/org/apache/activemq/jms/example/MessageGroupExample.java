@@ -27,14 +27,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that sends and receives message groups.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class MessageGroupExample extends HornetQExample
+public class MessageGroupExample extends ActiveMQExample
 {
    private final Map<String, String> messageReceiverMap = new ConcurrentHashMap<String, String>();
 

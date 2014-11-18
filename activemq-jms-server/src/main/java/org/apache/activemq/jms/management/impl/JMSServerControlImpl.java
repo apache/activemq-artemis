@@ -41,8 +41,8 @@ import org.apache.activemq.core.management.impl.AbstractControl;
 import org.apache.activemq.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
@@ -101,29 +101,29 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    private static String[] determineJMSDestination(String coreAddress)
    {
       String[] result = new String[2]; // destination name & type
-      if (coreAddress.startsWith(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX))
+      if (coreAddress.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX))
       {
-         result[0] = coreAddress.substring(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX.length());
+         result[0] = coreAddress.substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length());
          result[1] = "queue";
       }
-      else if (coreAddress.startsWith(HornetQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX))
+      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX))
       {
-         result[0] = coreAddress.substring(HornetQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX.length());
+         result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX.length());
          result[1] = "tempqueue";
       }
-      else if (coreAddress.startsWith(HornetQDestination.JMS_TOPIC_ADDRESS_PREFIX))
+      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX))
       {
-         result[0] = coreAddress.substring(HornetQDestination.JMS_TOPIC_ADDRESS_PREFIX.length());
+         result[0] = coreAddress.substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length());
          result[1] = "topic";
       }
-      else if (coreAddress.startsWith(HornetQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX))
+      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX))
       {
-         result[0] = coreAddress.substring(HornetQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX.length());
+         result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX.length());
          result[1] = "temptopic";
       }
       else
       {
-         HornetQJMSServerLogger.LOGGER.debug("JMSServerControlImpl.determineJMSDestination()" + coreAddress);
+         ActiveMQJMSServerLogger.LOGGER.debug("JMSServerControlImpl.determineJMSDestination()" + coreAddress);
          // not related to JMS
          return null;
       }
@@ -147,10 +147,10 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public JMSServerControlImpl(final JMSServerManager server) throws Exception
    {
-      super(JMSServerControl.class, server.getHornetQServer().getStorageManager());
+      super(JMSServerControl.class, server.getActiveMQServer().getStorageManager());
       this.server = server;
       broadcaster = new NotificationBroadcasterSupport();
-      server.getHornetQServer().getManagementService().addNotificationListener(this);
+      server.getActiveMQServer().getManagementService().addNotificationListener(this);
    }
 
    // Public --------------------------------------------------------
@@ -536,7 +536,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         Object[] queueControls = server.getHornetQServer().getManagementService().getResources(JMSQueueControl.class);
+         Object[] queueControls = server.getActiveMQServer().getManagementService().getResources(JMSQueueControl.class);
          String[] names = new String[queueControls.length];
          for (int i = 0; i < queueControls.length; i++)
          {
@@ -559,7 +559,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         Object[] topicControls = server.getHornetQServer().getManagementService().getResources(TopicControl.class);
+         Object[] topicControls = server.getActiveMQServer().getManagementService().getResources(TopicControl.class);
          String[] names = new String[topicControls.length];
          for (int i = 0; i < topicControls.length; i++)
          {
@@ -582,7 +582,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         Object[] cfControls = server.getHornetQServer()
+         Object[] cfControls = server.getActiveMQServer()
             .getManagementService()
             .getResources(ConnectionFactoryControl.class);
          String[] names = new String[cfControls.length];
@@ -731,9 +731,9 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       {
          JSONArray array = new JSONArray();
 
-         Set<RemotingConnection> connections = server.getHornetQServer().getRemotingService().getConnections();
+         Set<RemotingConnection> connections = server.getActiveMQServer().getRemotingService().getConnections();
 
-         Set<ServerSession> sessions = server.getHornetQServer().getSessions();
+         Set<ServerSession> sessions = server.getActiveMQServer().getSessions();
 
          Map<Object, ServerSession> jmsSessions = new HashMap<Object, ServerSession>();
 
@@ -777,12 +777,12 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       {
          JSONArray array = new JSONArray();
 
-         Set<RemotingConnection> connections = server.getHornetQServer().getRemotingService().getConnections();
+         Set<RemotingConnection> connections = server.getActiveMQServer().getRemotingService().getConnections();
          for (RemotingConnection connection : connections)
          {
             if (connectionID.equals(connection.getID().toString()))
             {
-               List<ServerSession> sessions = server.getHornetQServer().getSessions(connectionID);
+               List<ServerSession> sessions = server.getActiveMQServer().getSessions(connectionID);
                for (ServerSession session : sessions)
                {
                   Set<ServerConsumer> consumers = session.getServerConsumers();
@@ -815,7 +815,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       {
          JSONArray array = new JSONArray();
 
-         Set<ServerSession> sessions = server.getHornetQServer().getSessions();
+         Set<ServerSession> sessions = server.getActiveMQServer().getSessions();
          for (ServerSession session : sessions)
          {
             Set<ServerConsumer> consumers = session.getServerConsumers();
@@ -902,7 +902,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    {
       if (!server.isStarted())
       {
-         throw new IllegalStateException("HornetQ JMS Server is not started. it can not be managed yet");
+         throw new IllegalStateException("ActiveMQ JMS Server is not started. it can not be managed yet");
       }
    }
 
@@ -910,17 +910,17 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public String[] listTargetDestinations(String sessionID) throws Exception
    {
-      String[] addresses = server.getHornetQServer().getHornetQServerControl().listTargetAddresses(sessionID);
+      String[] addresses = server.getActiveMQServer().getActiveMQServerControl().listTargetAddresses(sessionID);
       Map<String, DestinationControl> allDests = new HashMap<String, DestinationControl>();
 
-      Object[] queueControls = server.getHornetQServer().getManagementService().getResources(JMSQueueControl.class);
+      Object[] queueControls = server.getActiveMQServer().getManagementService().getResources(JMSQueueControl.class);
       for (Object queueControl2 : queueControls)
       {
          JMSQueueControl queueControl = (JMSQueueControl) queueControl2;
          allDests.put(queueControl.getAddress(), queueControl);
       }
 
-      Object[] topicControls = server.getHornetQServer().getManagementService().getResources(TopicControl.class);
+      Object[] topicControls = server.getActiveMQServer().getManagementService().getResources(TopicControl.class);
       for (Object topicControl2 : topicControls)
       {
          TopicControl topicControl = (TopicControl) topicControl2;
@@ -941,7 +941,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public String getLastSentMessageID(String sessionID, String address) throws Exception
    {
-      ServerSession session = server.getHornetQServer().getSessionByID(sessionID);
+      ServerSession session = server.getActiveMQServer().getSessionByID(sessionID);
       if (session != null)
       {
          return session.getLastSentMessageID(address);
@@ -951,7 +951,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public String getSessionCreationTime(String sessionID) throws Exception
    {
-      ServerSession session = server.getHornetQServer().getSessionByID(sessionID);
+      ServerSession session = server.getActiveMQServer().getSessionByID(sessionID);
       if (session != null)
       {
          return String.valueOf(session.getCreationTime());
@@ -968,7 +968,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       JSONArray array = new JSONArray();
       try
       {
-         List<ServerSession> sessions = server.getHornetQServer().getSessions(connectionID);
+         List<ServerSession> sessions = server.getActiveMQServer().getSessions(connectionID);
          for (ServerSession sess : sessions)
          {
             JSONObject obj = new JSONObject();
@@ -986,7 +986,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public String closeConnectionWithClientID(final String clientID) throws Exception
    {
-      return server.getHornetQServer().destroyConnectionWithSessionMetadata("jms-client-id", clientID);
+      return server.getActiveMQServer().destroyConnectionWithSessionMetadata("jms-client-id", clientID);
    }
 
    private JSONObject toJSONObject(ServerConsumer consumer) throws Exception
@@ -1015,7 +1015,9 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       {
          try
          {
-            HornetQDestination.decomposeQueueNameForDurableSubscription(consumer.getQueue().getName().toString());
+            ActiveMQDestination.decomposeQueueNameForDurableSubscription(consumer.getQueue()
+                                                                            .getName()
+                                                                            .toString());
             obj.put("durable", true);
          }
          catch (IllegalArgumentException e)

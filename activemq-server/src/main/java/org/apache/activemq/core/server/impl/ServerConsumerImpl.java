@@ -36,9 +36,9 @@ import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.QueueBinding;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
@@ -67,7 +67,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 {
    // Constants ------------------------------------------------------------------------------------
 
-   private static boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    // Static ---------------------------------------------------------------------------------------
 
@@ -288,9 +288,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
    {
       if (callback != null && !callback.hasCredits(this) || availableCredits != null && availableCredits.get() <= 0)
       {
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug(this + " is busy for the lack of credits. Current credits = " +
+            ActiveMQServerLogger.LOGGER.debug(this + " is busy for the lack of credits. Current credits = " +
                                                 availableCredits +
                                                 " Can't receive reference " +
                                                 ref);
@@ -319,9 +319,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
          // This has to be checked inside the lock as the set to null is done inside the lock
          if (largeMessageDeliverer != null)
          {
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug(this + " is busy delivering large message " +
+               ActiveMQServerLogger.LOGGER.debug(this + " is busy delivering large message " +
                                                    largeMessageDeliverer +
                                                    ", can't deliver reference " +
                                                    ref);
@@ -332,16 +332,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
          if (filter != null && !filter.match(message))
          {
-            if (HornetQServerLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
             {
-               HornetQServerLogger.LOGGER.trace("Reference " + ref + " is a noMatch on consumer " + this);
+               ActiveMQServerLogger.LOGGER.trace("Reference " + ref + " is a noMatch on consumer " + this);
             }
             return HandleStatus.NO_MATCH;
          }
 
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace("Handling reference " + ref);
+            ActiveMQServerLogger.LOGGER.trace("Handling reference " + ref);
          }
          if (!browseOnly)
          {
@@ -551,7 +551,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorSendingForcedDelivery(e);
+               ActiveMQServerLogger.LOGGER.errorSendingForcedDelivery(e);
             }
          }
       });
@@ -573,7 +573,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
       }
       catch (Throwable e)
       {
-         HornetQServerLogger.LOGGER.errorResttingLargeMessage(e, largeMessageDeliverer);
+         ActiveMQServerLogger.LOGGER.errorResttingLargeMessage(e, largeMessageDeliverer);
       }
       finally
       {
@@ -588,7 +588,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
          {
             if (isTrace)
             {
-               HornetQServerLogger.LOGGER.trace("Cancelling reference for messageID = " + ref.getMessage().getMessageID() + ", ref = " + ref);
+               ActiveMQServerLogger.LOGGER.trace("Cancelling reference for messageID = " + ref.getMessage().getMessageID() + ", ref = " + ref);
             }
             if (performACK)
             {
@@ -672,7 +672,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
          if (!ok)
          {
-            HornetQServerLogger.LOGGER.errorTransferringConsumer();
+            ActiveMQServerLogger.LOGGER.errorTransferringConsumer();
          }
       }
 
@@ -686,9 +686,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
    {
       if (credits == -1)
       {
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug(this + ":: FlowControl::Received disable flow control message");
+            ActiveMQServerLogger.LOGGER.debug(this + ":: FlowControl::Received disable flow control message");
          }
          // No flow control
          availableCredits = null;
@@ -699,16 +699,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
       else if (credits == 0)
       {
          // reset, used on slow consumers
-         HornetQServerLogger.LOGGER.debug(this + ":: FlowControl::Received reset flow control message");
+         ActiveMQServerLogger.LOGGER.debug(this + ":: FlowControl::Received reset flow control message");
          availableCredits.set(0);
       }
       else
       {
          int previous = availableCredits.getAndAdd(credits);
 
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug(this + "::FlowControl::Received " +
+            ActiveMQServerLogger.LOGGER.debug(this + "::FlowControl::Received " +
                                                 credits +
                                                 " credits, previous value = " +
                                                 previous +
@@ -718,9 +718,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
          if (previous <= 0 && previous + credits > 0)
          {
-            if (HornetQServerLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
             {
-               HornetQServerLogger.LOGGER.trace(this + "::calling promptDelivery from receiving credits");
+               ActiveMQServerLogger.LOGGER.trace(this + "::calling promptDelivery from receiving credits");
             }
             promptDelivery();
          }
@@ -761,14 +761,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
          {
             ref = deliveringRefs.poll();
 
-            if (HornetQServerLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
             {
-               HornetQServerLogger.LOGGER.trace("ACKing ref " + ref + " on tx= " + tx + ", consumer=" + this);
+               ActiveMQServerLogger.LOGGER.trace("ACKing ref " + ref + " on tx= " + tx + ", consumer=" + this);
             }
 
             if (ref == null)
             {
-               throw HornetQMessageBundle.BUNDLE.consumerNoReference(id, messageID, messageQueue.getName());
+               throw ActiveMQMessageBundle.BUNDLE.consumerNoReference(id, messageID, messageQueue.getName());
             }
 
             ref.getQueue().acknowledge(tx, ref);
@@ -795,17 +795,17 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
       }
       catch (Throwable e)
       {
-         HornetQServerLogger.LOGGER.errorAckingMessage((Exception) e);
-         ActiveMQException hqex = new ActiveMQIllegalStateException(e.getMessage());
+         ActiveMQServerLogger.LOGGER.errorAckingMessage((Exception) e);
+         ActiveMQException activeMQIllegalStateException = new ActiveMQIllegalStateException(e.getMessage());
          if (startedTransaction)
          {
             tx.rollback();
          }
          else
          {
-            tx.markAsRollbackOnly(hqex);
+            tx.markAsRollbackOnly(activeMQIllegalStateException);
          }
-         throw hqex;
+         throw activeMQIllegalStateException;
       }
    }
 
@@ -984,9 +984,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
       {
          availableCredits.addAndGet(-packetSize);
 
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace(this + "::FlowControl::delivery standard taking " +
+            ActiveMQServerLogger.LOGGER.trace(this + "::FlowControl::delivery standard taking " +
                                                 packetSize +
                                                 " from credits, available now is " +
                                                 availableCredits);
@@ -1012,7 +1012,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorRunningLargeMessageDeliverer(e);
+               ActiveMQServerLogger.LOGGER.errorRunningLargeMessageDeliverer(e);
             }
          }
       }
@@ -1060,9 +1060,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
             if (availableCredits != null && availableCredits.get() <= 0)
             {
-               if (HornetQServerLogger.LOGGER.isTraceEnabled())
+               if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
                {
-                  HornetQServerLogger.LOGGER.trace(this + "::FlowControl::delivery largeMessage interrupting as there are no more credits, available=" +
+                  ActiveMQServerLogger.LOGGER.trace(this + "::FlowControl::delivery largeMessage interrupting as there are no more credits, available=" +
                                                       availableCredits);
                }
 
@@ -1088,9 +1088,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
                {
                   availableCredits.addAndGet(-packetSize);
 
-                  if (HornetQServerLogger.LOGGER.isTraceEnabled())
+                  if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
                   {
-                     HornetQServerLogger.LOGGER.trace(this + "::FlowControl::" +
+                     ActiveMQServerLogger.LOGGER.trace(this + "::FlowControl::" +
                                                          " deliver initialpackage with " +
                                                          packetSize +
                                                          " delivered, available now = " +
@@ -1111,7 +1111,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
                {
                   if (ServerConsumerImpl.isTrace)
                   {
-                     HornetQServerLogger.LOGGER.trace(this + "::FlowControl::deliverLargeMessage Leaving loop of send LargeMessage because of credits, available=" +
+                     ActiveMQServerLogger.LOGGER.trace(this + "::FlowControl::deliverLargeMessage Leaving loop of send LargeMessage because of credits, available=" +
                                                          availableCredits);
                   }
 
@@ -1139,9 +1139,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
                {
                   availableCredits.addAndGet(-packetSize);
 
-                  if (HornetQServerLogger.LOGGER.isTraceEnabled())
+                  if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
                   {
-                     HornetQServerLogger.LOGGER.trace(this + "::FlowControl::largeMessage deliver continuation, packetSize=" +
+                     ActiveMQServerLogger.LOGGER.trace(this + "::FlowControl::largeMessage deliver continuation, packetSize=" +
                                                          packetSize +
                                                          " available now=" +
                                                          availableCredits);
@@ -1160,7 +1160,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
             if (ServerConsumerImpl.isTrace)
             {
-               HornetQServerLogger.LOGGER.trace("Finished deliverLargeMessage");
+               ActiveMQServerLogger.LOGGER.trace("Finished deliverLargeMessage");
             }
 
             finish();
@@ -1245,7 +1245,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorBrowserHandlingMessage(e, current);
+               ActiveMQServerLogger.LOGGER.errorBrowserHandlingMessage(e, current);
                return;
             }
          }
@@ -1284,7 +1284,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorBrowserHandlingMessage(e, ref);
+               ActiveMQServerLogger.LOGGER.errorBrowserHandlingMessage(e, ref);
                break;
             }
          }

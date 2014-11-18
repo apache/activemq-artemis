@@ -27,7 +27,7 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
@@ -44,9 +44,9 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.NodeAnnounceMessag
 import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.cluster.qourum.QuorumManager;
 import org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler;
 import org.apache.activemq.core.server.cluster.qourum.Vote;
@@ -56,13 +56,13 @@ import org.apache.activemq.spi.core.remoting.Acceptor;
 /**
  * used for creating and managing cluster control connections for each cluster connection and the replication connection
  */
-public class ClusterController implements HornetQComponent
+public class ClusterController implements ActiveMQComponent
 {
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final QuorumManager quorumManager;
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private Map<SimpleString, ServerLocatorInternal> locators = new HashMap<>();
 
@@ -79,7 +79,7 @@ public class ClusterController implements HornetQComponent
    private boolean started;
    private SimpleString replicatedClusterName;
 
-   public ClusterController(HornetQServer server, ScheduledExecutorService scheduledExecutor)
+   public ClusterController(ActiveMQServer server, ScheduledExecutorService scheduledExecutor)
    {
       this.server = server;
       executor = server.getExecutorFactory().getExecutor();
@@ -99,7 +99,7 @@ public class ClusterController implements HornetQComponent
          replicationLocator = locators.get(replicatedClusterName);
          if (replicationLocator == null)
          {
-            HornetQServerLogger.LOGGER.noClusterConnectionForReplicationCluster();
+            ActiveMQServerLogger.LOGGER.noClusterConnectionForReplicationCluster();
             replicationLocator = defaultLocator;
          }
       }
@@ -162,12 +162,12 @@ public class ClusterController implements HornetQComponent
     */
    public void addClusterConnection(SimpleString name, DiscoveryGroupConfiguration dg)
    {
-      ServerLocatorImpl serverLocator = (ServerLocatorImpl) HornetQClient.createServerLocatorWithHA(dg);
+      ServerLocatorImpl serverLocator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithHA(dg);
       //if the cluster isn't available we want to hang around until it is
       serverLocator.setReconnectAttempts(-1);
       serverLocator.setInitialConnectAttempts(-1);
       //this is used for replication so need to use the server packet decoder
-      serverLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
       locators.put(name, serverLocator);
    }
 
@@ -179,12 +179,12 @@ public class ClusterController implements HornetQComponent
     */
    public void addClusterConnection(SimpleString name, TransportConfiguration[] tcConfigs)
    {
-      ServerLocatorImpl serverLocator = (ServerLocatorImpl) HornetQClient.createServerLocatorWithHA(tcConfigs);
+      ServerLocatorImpl serverLocator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithHA(tcConfigs);
       //if the cluster isn't available we want to hang around until it is
       serverLocator.setReconnectAttempts(-1);
       serverLocator.setInitialConnectAttempts(-1);
       //this is used for replication so need to use the server packet decoder
-      serverLocator.setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
       locators.put(name, serverLocator);
    }
 
@@ -248,7 +248,7 @@ public class ClusterController implements HornetQComponent
     */
    public ClusterControl connectToNodeInCluster(ClientSessionFactoryInternal sf)
    {
-      sf.getServerLocator().setProtocolManagerFactory(HornetQServerSideProtocolManagerFactory.getInstance());
+      sf.getServerLocator().setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
       return new ClusterControl(sf, server);
    }
 
@@ -374,7 +374,7 @@ public class ClusterController implements HornetQComponent
                }
                if (isTrace)
                {
-                  HornetQServerLogger.LOGGER.trace("Server " + server + " receiving nodeUp from NodeID=" + msg.getNodeID() + ", pair=" + pair);
+                  ActiveMQServerLogger.LOGGER.trace("Server " + server + " receiving nodeUp from NodeID=" + msg.getNodeID() + ", pair=" + pair);
                }
 
                if (acceptorUsed != null)
@@ -387,12 +387,12 @@ public class ClusterController implements HornetQComponent
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.debug("Cluster connection is null on acceptor = " + acceptorUsed);
+                     ActiveMQServerLogger.LOGGER.debug("Cluster connection is null on acceptor = " + acceptorUsed);
                   }
                }
                else
                {
-                  HornetQServerLogger.LOGGER.debug("there is no acceptor used configured at the CoreProtocolManager " + this);
+                  ActiveMQServerLogger.LOGGER.debug("there is no acceptor used configured at the CoreProtocolManager " + this);
                }
             }
             else if (packet.getType() == PacketImpl.QUORUM_VOTE)

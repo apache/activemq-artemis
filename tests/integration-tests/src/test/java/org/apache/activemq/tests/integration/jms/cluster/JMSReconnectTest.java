@@ -36,16 +36,16 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQSession;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -61,7 +61,7 @@ import org.apache.activemq.tests.util.UnitTestCase;
 public class JMSReconnectTest extends UnitTestCase
 {
 
-   private HornetQServer liveService;
+   private ActiveMQServer liveService;
 
    //In this test we re-attach to the same node without restarting the server
    @Test
@@ -79,7 +79,7 @@ public class JMSReconnectTest extends UnitTestCase
 
    private void testReconnectOrReattachSameNode(boolean reattach) throws Exception
    {
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
 
       jbcf.setBlockOnDurableSend(true);
       jbcf.setBlockOnNonDurableSend(true);
@@ -109,11 +109,11 @@ public class JMSReconnectTest extends UnitTestCase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((HornetQSession)sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession)sess).getCoreSession();
 
       RemotingConnection coreConn = ((ClientSessionInternal)coreSession).getConnection();
 
-      SimpleString jmsQueueName = new SimpleString(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
+      SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
 
       coreSession.createQueue(jmsQueueName, jmsQueueName, null, true);
 
@@ -183,7 +183,7 @@ public class JMSReconnectTest extends UnitTestCase
    //Test that non durable JMS sub gets recreated in auto reconnect
    private void testReconnectSameNodeServerRestartedWithNonDurableSubOrTempQueue(final boolean nonDurableSub) throws Exception
    {
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
 
       jbcf.setReconnectAttempts(-1);
 
@@ -195,15 +195,15 @@ public class JMSReconnectTest extends UnitTestCase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((HornetQSession)sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession)sess).getCoreSession();
 
       Destination dest;
 
       if (nonDurableSub)
       {
-         coreSession.createQueue(HornetQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
+         coreSession.createQueue(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
 
-         dest = HornetQJMSClient.createTopic("mytopic");
+         dest = ActiveMQJMSClient.createTopic("mytopic");
       }
       else
       {
@@ -259,7 +259,7 @@ public class JMSReconnectTest extends UnitTestCase
    @Test
    public void testNoReconnectCloseAfterFailToReconnectWithTopicConsumer() throws Exception
    {
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
 
       jbcf.setReconnectAttempts(0);
 
@@ -267,11 +267,11 @@ public class JMSReconnectTest extends UnitTestCase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((HornetQSession)sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession)sess).getCoreSession();
 
-      coreSession.createQueue(HornetQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
+      coreSession.createQueue(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
 
-      Topic topic = HornetQJMSClient.createTopic("mytopic");
+      Topic topic = ActiveMQJMSClient.createTopic("mytopic");
 
       //Create a non durable subscriber
       sess.createConsumer(topic);
@@ -291,7 +291,7 @@ public class JMSReconnectTest extends UnitTestCase
    @Test
    public void testNoReconnectCloseAfterFailToReconnectWithTempQueue() throws Exception
    {
-      HornetQConnectionFactory jbcf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
 
       jbcf.setReconnectAttempts(0);
 
@@ -332,7 +332,7 @@ public class JMSReconnectTest extends UnitTestCase
          .setPagingDirectory(getPageDir())
          .setLargeMessagesDirectory(getLargeMessagesDir());
 
-      liveService = HornetQServers.newHornetQServer(liveConf, true);
+      liveService = ActiveMQServers.newActiveMQServer(liveConf, true);
       liveService.start();
    }
 

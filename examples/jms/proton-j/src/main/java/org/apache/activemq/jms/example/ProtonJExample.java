@@ -19,9 +19,9 @@ import org.apache.qpid.amqp_1_0.client.Receiver;
 import org.apache.qpid.amqp_1_0.client.Sender;
 import org.apache.qpid.amqp_1_0.client.Session;
 import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
-public class ProtonJExample extends HornetQExample
+public class ProtonJExample extends ActiveMQExample
 {
    public static void main(String[] args)
    {

@@ -16,7 +16,7 @@ import javax.jms.Destination;
 import javax.jms.Topic;
 import javax.jms.XASession;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -28,7 +28,7 @@ import org.junit.BeforeClass;
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  *
 */
-public abstract class JMSStressTestBase extends HornetQServerTestCase
+public abstract class JMSStressTestBase extends ActiveMQServerTestCase
 {
    public static final boolean STRESS_TESTS_ENABLED = false;
 

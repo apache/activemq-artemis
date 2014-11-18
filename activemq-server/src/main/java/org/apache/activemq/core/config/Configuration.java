@@ -27,7 +27,7 @@ import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
- * A Configuration is used to configure HornetQ servers.
+ * A Configuration is used to configure ActiveMQ servers.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
@@ -225,7 +225,7 @@ public interface Configuration extends Serializable
    /**
     * Sets the domain used by JMX MBeans (provided JMX management is enabled).
     * <p/>
-    * Changing this JMX domain is required if multiple HornetQ servers are run inside
+    * Changing this JMX domain is required if multiple ActiveMQ servers are run inside
     * the same JVM and all servers are using the same MBeanServer.
     */
    Configuration setJMXDomain(String domain);
@@ -234,7 +234,7 @@ public interface Configuration extends Serializable
     * Returns the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
     * the server from clients).  Invoking this method is the same as invoking <code>getIncomingInterceptorClassNames().</code>
     *
-    * @deprecated As of HornetQ 2.3.0.Final, replaced by
+    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
     * {@link #getIncomingInterceptorClassNames()} and
     * {@link #getOutgoingInterceptorClassNames()}
     */
@@ -261,7 +261,7 @@ public interface Configuration extends Serializable
     * <p/>
     * Deprecated but not immediately deleted, as embedded users may be using this file.
     *
-    * @deprecated As of HornetQ 2.3.0.Final, replaced by
+    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
     * {@link #setIncomingInterceptorClassNames(List)} and
     * {@link #setOutgoingInterceptorClassNames(List)}
     */
@@ -990,14 +990,14 @@ public interface Configuration extends Serializable
    String getReplicationClustername();
 
    /*
-   * Whether or not that HornetQ should use all protocols available on the classpath. If false only the core protocol will
-   * be set, any other protocols will need to be set directly on the HornetQServer
+   * Whether or not that ActiveMQ should use all protocols available on the classpath. If false only the core protocol will
+   * be set, any other protocols will need to be set directly on the ActiveMQServer
    * */
    Configuration setResolveProtocols(boolean resolveProtocols);
 
    /*
    * @see #setResolveProtocols()
-   * @return whether HornetQ should resolve and use any Protocols available on the classpath
+   * @return whether ActiveMQ should resolve and use any Protocols available on the classpath
    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_RESOLVE_PROTOCOLS}.
    * */
    boolean isResolveProtocols();

@@ -29,7 +29,7 @@ import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
@@ -246,7 +246,7 @@ public class FailoverListenerTest extends FailoverTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),

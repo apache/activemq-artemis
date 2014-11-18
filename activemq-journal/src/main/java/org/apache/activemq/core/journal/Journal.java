@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 
 /**
  * Most methods on the journal provide a blocking version where you select the sync mode and a non
@@ -28,7 +28,7 @@ import org.apache.activemq.core.server.HornetQComponent;
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  * @see org.apache.activemq.utils.IDGenerator
  */
-public interface Journal extends HornetQComponent
+public interface Journal extends ActiveMQComponent
 {
    enum JournalState
    {

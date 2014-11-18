@@ -16,7 +16,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 
 public class PushConsumerMessageHandler implements MessageHandler
 {
@@ -32,26 +32,26 @@ public class PushConsumerMessageHandler implements MessageHandler
    @Override
    public void onMessage(ClientMessage clientMessage)
    {
-      HornetQRestLogger.LOGGER.debug(this + ": receiving " + clientMessage);
+      ActiveMQRestLogger.LOGGER.debug(this + ": receiving " + clientMessage);
 
       try
       {
          clientMessage.acknowledge();
-         HornetQRestLogger.LOGGER.debug(this + ": acknowledged " + clientMessage);
+         ActiveMQRestLogger.LOGGER.debug(this + ": acknowledged " + clientMessage);
       }
       catch (ActiveMQException e)
       {
          throw new RuntimeException(e.getMessage(), e);
       }
 
-      HornetQRestLogger.LOGGER.debug(this + ": pushing " + clientMessage + " via " + pushConsumer.getStrategy());
+      ActiveMQRestLogger.LOGGER.debug(this + ": pushing " + clientMessage + " via " + pushConsumer.getStrategy());
       boolean acknowledge = pushConsumer.getStrategy().push(clientMessage);
 
       if (acknowledge)
       {
          try
          {
-            HornetQRestLogger.LOGGER.debug("Acknowledging: " + clientMessage.getMessageID());
+            ActiveMQRestLogger.LOGGER.debug("Acknowledging: " + clientMessage.getMessageID());
             session.commit();
             return;
          }
@@ -72,7 +72,7 @@ public class PushConsumerMessageHandler implements MessageHandler
          }
          if (pushConsumer.getRegistration().isDisableOnFailure())
          {
-            HornetQRestLogger.LOGGER.errorPushingMessage(pushConsumer.getRegistration().getTarget());
+            ActiveMQRestLogger.LOGGER.errorPushingMessage(pushConsumer.getRegistration().getTarget());
             pushConsumer.disableFromFailure();
             return;
          }

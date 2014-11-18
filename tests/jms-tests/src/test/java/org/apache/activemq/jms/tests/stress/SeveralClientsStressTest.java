@@ -27,7 +27,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.Context;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.JmsTestLogger;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Before;
@@ -49,7 +49,7 @@ clebert        hard    nofile          10240
 
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
-public class SeveralClientsStressTest extends HornetQServerTestCase
+public class SeveralClientsStressTest extends ActiveMQServerTestCase
 {
    @BeforeClass
    public static void stressTestsEnabled()

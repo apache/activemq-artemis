@@ -89,17 +89,17 @@ public class DataTool
 
       if (type.equals(JOURNAL_TYPE))
       {
-         journalName = "hornetq-data";
-         exension = "hq";
+         journalName = "activemq-data";
+         exension = "amq";
       }
       else if (type.equals(BINDING_TYPE))
       {
-         journalName = "hornetq-bindings";
+         journalName = "activemq-bindings";
          exension = "bindings";
       }
       else if (type.equals(JMS_TYPE))
       {
-         journalName = "hornetq-jms";
+         journalName = "activemq-jms";
          exension = "jms";
       }
       else

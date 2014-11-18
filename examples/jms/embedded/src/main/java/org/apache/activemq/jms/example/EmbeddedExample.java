@@ -24,7 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
@@ -38,13 +38,13 @@ import org.apache.activemq.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 
 /**
- * This example demonstrates how to run a HornetQ embedded with JMS
+ * This example demonstrates how to run a ActiveMQ embedded with JMS
  *
  * @author <a href="clebert.suconic@jboss.com">Clebert Suconic</a>
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @author <a href="mailto:bburke@redhat.com">Bill Burke</a>
  */
-public final class EmbeddedExample extends HornetQExample
+public final class EmbeddedExample extends ActiveMQExample
 {
 
    public static void main(final String[] args) throws Exception
@@ -58,7 +58,7 @@ public final class EmbeddedExample extends HornetQExample
             try
       {
 
-         // Step 1. Create HornetQ core configuration, and set the properties accordingly
+         // Step 1. Create ActiveMQ core configuration, and set the properties accordingly
          Configuration configuration = new ConfigurationImpl();
          configuration.setPersistenceEnabled(false);
          configuration.setJournalDirectory("target/data/journal");
@@ -84,7 +84,7 @@ public final class EmbeddedExample extends HornetQExample
          JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl("queue1", null, false, "/queue/queue1");
          jmsConfig.getQueueConfigurations().add(queueConfig);
 
-         // Step 5. Start the JMS Server using the HornetQ core server and the JMS configuration
+         // Step 5. Start the JMS Server using the ActiveMQ core server and the JMS configuration
          EmbeddedJMS jmsServer = new EmbeddedJMS();
          jmsServer.setConfiguration(configuration);
          jmsServer.setJmsConfiguration(jmsConfig);

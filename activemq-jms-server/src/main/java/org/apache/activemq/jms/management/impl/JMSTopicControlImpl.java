@@ -23,14 +23,14 @@ import javax.management.StandardMBean;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.management.TopicControl;
 import org.apache.activemq.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQMessage;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.jms.client.SelectorTranslator;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.utils.json.JSONArray;
@@ -43,7 +43,7 @@ import org.apache.activemq.utils.json.JSONObject;
  */
 public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 {
-   private final HornetQDestination managedTopic;
+   private final ActiveMQDestination managedTopic;
 
    private final AddressControl addressControl;
 
@@ -56,12 +56,12 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
    public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException
    {
       return selectorStr == null || selectorStr.trim().length() == 0 ? null
-                                                                    : SelectorTranslator.convertToHornetQFilterString(selectorStr);
+                                                                    : SelectorTranslator.convertToActiveMQFilterString(selectorStr);
    }
 
    // Constructors --------------------------------------------------
 
-   public JMSTopicControlImpl(final HornetQDestination topic,
+   public JMSTopicControlImpl(final ActiveMQDestination topic,
                               final JMSServerManager jmsServerManager,
                               final AddressControl addressControl,
                               final ManagementService managementService) throws Exception
@@ -199,7 +199,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
       for (Map<String, Object> coreMessage : coreMessages)
       {
-         jmsMessages[i++] = HornetQMessage.coreMaptoJMSMap(coreMessage);
+         jmsMessages[i++] = ActiveMQMessage.coreMaptoJMSMap(coreMessage);
       }
       return jmsMessages;
    }
@@ -211,7 +211,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
    public int countMessagesForSubscription(final String clientID, final String subscriptionName, final String filterStr) throws Exception
    {
-      String queueName = HornetQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName);
+      String queueName = ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName);
       QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
       if (coreQueueControl == null)
       {
@@ -240,19 +240,19 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
    public void dropDurableSubscription(final String clientID, final String subscriptionName) throws Exception
    {
-      String queueName = HornetQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName);
+      String queueName = ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName);
       QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
       if (coreQueueControl == null)
       {
          throw new IllegalArgumentException("No subscriptions with name " + queueName + " for clientID " + clientID);
       }
-      HornetQServerControl serverControl = (HornetQServerControl)managementService.getResource(ResourceNames.CORE_SERVER);
+      ActiveMQServerControl serverControl = (ActiveMQServerControl)managementService.getResource(ResourceNames.CORE_SERVER);
       serverControl.destroyQueue(queueName);
    }
 
    public void dropAllSubscriptions() throws Exception
    {
-      HornetQServerControl serverControl = (HornetQServerControl)managementService.getResource(ResourceNames.CORE_SERVER);
+      ActiveMQServerControl serverControl = (ActiveMQServerControl)managementService.getResource(ResourceNames.CORE_SERVER);
       String[] queues = addressControl.getQueueNames();
       for (String queue : queues)
       {
@@ -283,8 +283,8 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
          if (queue.isDurable())
          {
-            Pair<String, String> pair = HornetQDestination.decomposeQueueNameForDurableSubscription(queue.getName()
-                                                                                                         .toString());
+            Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName()
+                                                                                                        .toString());
             clientID = pair.getA();
             subName = pair.getB();
          }
@@ -317,8 +317,8 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
             if (queue.isDurable() && !queue.getName().startsWith(ResourceNames.JMS_TOPIC))
             {
-               Pair<String, String> pair = HornetQDestination.decomposeQueueNameForDurableSubscription(queue.getName()
-                                                                                                            .toString());
+               Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName()
+                                                                                                           .toString());
                clientID = pair.getA();
                subName = pair.getB();
             }
@@ -327,8 +327,8 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
                // in the case of heirarchical topics the queue name will not follow the <part>.<part> pattern of normal
                // durable subscribers so skip decomposing the name for the client ID and subscription name and just
                // hard-code it
-               clientID = "HornetQ";
-               subName = "HornetQ";
+               clientID = "ActiveMQ";
+               subName = "ActiveMQ";
             }
 
             String filter = queue.getFilter() != null ? queue.getFilter() : null;

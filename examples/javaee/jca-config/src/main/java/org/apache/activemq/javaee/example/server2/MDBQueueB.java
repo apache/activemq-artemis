@@ -33,7 +33,7 @@ import javax.jms.TextMessage;
                      @ActivationConfigProperty(propertyName = "destination", propertyValue = "B"),
                      @ActivationConfigProperty(propertyName = "useJNDI", propertyValue = "false")
                   })
-@ResourceAdapter("hornetq-ra-remote.rar")
+@ResourceAdapter("activemq-ra-remote.rar")
 public class MDBQueueB implements MessageListener
 {
    public void onMessage(Message message)

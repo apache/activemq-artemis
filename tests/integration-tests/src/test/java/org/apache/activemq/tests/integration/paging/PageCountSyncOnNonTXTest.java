@@ -20,7 +20,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -144,7 +144,7 @@ public class PageCountSyncOnNonTXTest extends ServiceTestBase
       assertEquals("Process didn't end as expected", 1, process.waitFor());
 
 
-      HornetQServer server = PageCountSyncServer.createServer(getTestDir());
+      ActiveMQServer server = PageCountSyncServer.createServer(getTestDir());
 
       try
       {

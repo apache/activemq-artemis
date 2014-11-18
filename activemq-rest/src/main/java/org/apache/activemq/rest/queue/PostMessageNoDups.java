@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.rest.queue;
 
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.core.Context;
@@ -31,7 +31,7 @@ public class PostMessageNoDups extends PostMessage
    @POST
    public Response redirectCreation(@Context UriInfo uriInfo)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       String id = generateDupId();
       Response.ResponseBuilder res = Response.status(Response.Status.TEMPORARY_REDIRECT.getStatusCode());

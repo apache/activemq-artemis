@@ -21,7 +21,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates a core bridge set-up between two nodes, consuming messages from a queue
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
-public class BridgeExample extends HornetQExample
+public class BridgeExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

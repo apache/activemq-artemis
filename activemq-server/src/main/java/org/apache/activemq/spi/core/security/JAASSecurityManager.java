@@ -26,8 +26,8 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 
 /**
  * This implementation delegates to the JAAS security interfaces.
@@ -39,13 +39,13 @@ import org.apache.activemq.core.server.HornetQServerLogger;
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class JAASSecurityManager implements HornetQSecurityManager, HornetQComponent
+public class JAASSecurityManager implements ActiveMQSecurityManager, ActiveMQComponent
 {
    // Static --------------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
-   private final boolean trace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private String configurationName;
 
@@ -55,7 +55,7 @@ public class JAASSecurityManager implements HornetQSecurityManager, HornetQCompo
 
    private Configuration config;
 
-   // HornetQSecurityManager implementation -----------------------------
+   // ActiveMQSecurityManager implementation -----------------------------
 
    public boolean validateUser(final String user, final String password)
    {
@@ -112,7 +112,7 @@ public class JAASSecurityManager implements HornetQSecurityManager, HornetQCompo
 
          if (trace)
          {
-            HornetQServerLogger.LOGGER.trace("user " + user + (authenticated ? " is " : " is NOT ") + "authorized");
+            ActiveMQServerLogger.LOGGER.trace("user " + user + (authenticated ? " is " : " is NOT ") + "authorized");
          }
       }
       return authenticated;
@@ -143,7 +143,7 @@ public class JAASSecurityManager implements HornetQSecurityManager, HornetQCompo
       // NO-OP
    }
 
-   // HornetQComponent implementation -----------------------------
+   // ActiveMQComponent implementation -----------------------------
 
    /**
     * lifecycle method, needs to be called

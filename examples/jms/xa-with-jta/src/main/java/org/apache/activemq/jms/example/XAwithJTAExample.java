@@ -28,14 +28,14 @@ import javax.transaction.xa.Xid;
 
 import com.arjuna.ats.jta.TransactionManager;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * A simple JMS example showing the HornetQ XA support with JTA.
+ * A simple JMS example showing the ActiveMQ XA support with JTA.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class XAwithJTAExample extends HornetQExample
+public class XAwithJTAExample extends ActiveMQExample
 {
    private volatile boolean result = true;
 

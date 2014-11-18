@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 package org.apache.activemq.tests.integration.cluster.distribution;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
 
    private void setupCluster(boolean forward)
    {
-      for (HornetQServer server : servers)
+      for (ActiveMQServer server : servers)
       {
          if (server != null)
          {

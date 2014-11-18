@@ -13,7 +13,7 @@
 package org.apache.activemq.rest.test;
 
 import org.apache.activemq.rest.queue.QueueDeployment;
-import org.apache.activemq.rest.queue.push.HornetQPushStrategy;
+import org.apache.activemq.rest.queue.push.ActiveMQPushStrategy;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.rest.util.Constants;
@@ -347,7 +347,7 @@ public class PushQueueConsumerTest extends MessageTestBase
       if (pushRegistrationType == PushRegistrationType.CLASS)
       {
          target.setHref(generateURL(Util.getUrlPath(queueToPushTo)));
-         target.setClassName(HornetQPushStrategy.class.getName());
+         target.setClassName(ActiveMQPushStrategy.class.getName());
       }
       else if (pushRegistrationType == PushRegistrationType.BRIDGE)
       {

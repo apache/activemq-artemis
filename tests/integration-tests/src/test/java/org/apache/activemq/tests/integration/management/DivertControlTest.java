@@ -26,8 +26,8 @@ import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.config.DivertConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 
 /**
@@ -45,7 +45,7 @@ public class DivertControlTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer service;
+   private ActiveMQServer service;
 
    private DivertConfiguration divertConfig;
 
@@ -110,7 +110,7 @@ public class DivertControlTest extends ManagementTestBase
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
          .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
 
-      service = HornetQServers.newHornetQServer(conf, mbeanServer, false);
+      service = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
       service.start();
    }
 

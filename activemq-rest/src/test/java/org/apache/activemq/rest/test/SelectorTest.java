@@ -23,8 +23,8 @@ import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.rest.HttpHeaderProperty;
 import org.apache.activemq.rest.queue.push.xml.XmlLink;
 import org.apache.activemq.rest.topic.PushTopicRegistration;
@@ -45,12 +45,12 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 public class SelectorTest extends MessageTestBase
 {
    public static ConnectionFactory connectionFactory;
-   public static String topicName = HornetQDestination.createQueueAddressFromName("testTopic").toString();
+   public static String topicName = ActiveMQDestination.createQueueAddressFromName("testTopic").toString();
 
    @BeforeClass
    public static void setup() throws Exception
    {
-      connectionFactory = new HornetQJMSConnectionFactory(manager.getQueueManager().getServerLocator());
+      connectionFactory = new ActiveMQJMSConnectionFactory(manager.getQueueManager().getServerLocator());
       System.out.println("Queue name: " + topicName);
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
@@ -131,7 +131,7 @@ public class SelectorTest extends MessageTestBase
 
    public static Destination createDestination(String dest)
    {
-      HornetQDestination destination = (HornetQDestination) HornetQDestination.fromAddress(dest);
+      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress(dest);
       System.out.println("SimpleAddress: " + destination.getSimpleAddress());
       return destination;
    }

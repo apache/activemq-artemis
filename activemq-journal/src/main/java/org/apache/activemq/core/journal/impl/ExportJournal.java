@@ -27,7 +27,7 @@ import org.apache.activemq.utils.Base64;
  *
  * If you use the main method, use it as  <JournalDirectory> <JournalPrefix> <FileExtension> <MinFiles> <FileSize> <FileOutput>
  *
- * Example: java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.ExportJournal /journalDir hornetq-data hq 2 10485760 /tmp/export.dat
+ * Example: java -cp activemq-core.jar org.apache.activemq.core.journal.impl.ExportJournal /journalDir activemq-data amq 2 10485760 /tmp/export.dat
  *
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  *
@@ -50,7 +50,7 @@ public class ExportJournal
    {
       if (arg.length != 5)
       {
-         System.err.println("Use: java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.ExportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
+         System.err.println("Use: java -cp activemq-core.jar org.apache.activemq.core.journal.impl.ExportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
          return;
       }
 

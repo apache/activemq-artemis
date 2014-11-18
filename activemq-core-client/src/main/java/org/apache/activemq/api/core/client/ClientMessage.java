@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.SimpleString;
 
 /**
  *
- * A ClientMessage represents a message sent and/or received by HornetQ.
+ * A ClientMessage represents a message sent and/or received by ActiveMQ.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
@@ -37,7 +37,7 @@ public interface ClientMessage extends Message
    /**
     * Sets the delivery count for this message.
     * <p>
-    * This method is not meant to be called by HornetQ clients.
+    * This method is not meant to be called by ActiveMQ clients.
     * @param deliveryCount message delivery count
     * @return this ClientMessage
     */

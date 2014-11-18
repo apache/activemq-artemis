@@ -33,9 +33,9 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.NodeAnnounceMessag
 import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler;
 import org.apache.activemq.core.server.cluster.qourum.Vote;
 
@@ -49,13 +49,13 @@ public class ClusterControl implements AutoCloseable
 
    private final ClientSessionFactoryInternal sessionFactory;
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final String clusterUser;
 
    private final String clusterPassword;
 
-   public ClusterControl(ClientSessionFactoryInternal sessionFactory, HornetQServer server)
+   public ClusterControl(ClientSessionFactoryInternal sessionFactory, ActiveMQServer server)
    {
       this.sessionFactory = sessionFactory;
       this.server = server;
@@ -80,7 +80,7 @@ public class ClusterControl implements AutoCloseable
 
       if (!packet.isAuthorized())
       {
-         throw HornetQMessageBundle.BUNDLE.unableToValidateClusterUser(clusterUser);
+         throw ActiveMQMessageBundle.BUNDLE.unableToValidateClusterUser(clusterUser);
       }
    }
 
@@ -98,7 +98,7 @@ public class ClusterControl implements AutoCloseable
       ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(server.getConfiguration(), replicationClusterName);
       if (config == null)
       {
-         HornetQServerLogger.LOGGER.announceBackupNoClusterConnections();
+         ActiveMQServerLogger.LOGGER.announceBackupNoClusterConnections();
          throw new ActiveMQException("lacking cluster connection");
 
       }
@@ -106,7 +106,7 @@ public class ClusterControl implements AutoCloseable
 
       if (connector == null)
       {
-         HornetQServerLogger.LOGGER.announceBackupNoConnector(config.getConnectorName());
+         ActiveMQServerLogger.LOGGER.announceBackupNoConnector(config.getConnectorName());
          throw new ActiveMQException("lacking cluster connection");
       }
 

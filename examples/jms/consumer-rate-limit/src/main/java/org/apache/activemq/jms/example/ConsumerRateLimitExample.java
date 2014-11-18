@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates how a message consumer can be limited to consumer messages at a maximum rate
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public class ConsumerRateLimitExample extends HornetQExample
+public class ConsumerRateLimitExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

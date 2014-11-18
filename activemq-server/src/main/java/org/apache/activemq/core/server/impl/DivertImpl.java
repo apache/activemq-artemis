@@ -16,8 +16,8 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.Divert;
-import org.apache.activemq.core.server.HornetQServerLogger;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.cluster.Transformer;
@@ -80,9 +80,9 @@ public class DivertImpl implements Divert
       // We must make a copy of the message, otherwise things like returning credits to the page won't work
       // properly on ack, since the original address will be overwritten
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("Diverting message " + message + " into " + this);
+         ActiveMQServerLogger.LOGGER.trace("Diverting message " + message + " into " + this);
       }
 
       long id = storageManager.generateID();

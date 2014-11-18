@@ -24,9 +24,9 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +40,7 @@ import org.junit.Test;
 public class MessageConsumerRollbackTest extends ServiceTestBase
 {
 
-   HornetQServer server;
+   ActiveMQServer server;
 
    ServerLocator locator;
 
@@ -176,7 +176,7 @@ public class MessageConsumerRollbackTest extends ServiceTestBase
 
       for (int i = 0; i < numberOfMessages; i++)
       {
-         HornetQTextMessage txt = new HornetQTextMessage(session);
+         ActiveMQTextMessage txt = new ActiveMQTextMessage(session);
          txt.setIntProperty("msg", i);
          txt.setText("Message Number (" + i + ")");
          txt.doBeforeSend();

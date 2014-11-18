@@ -32,8 +32,8 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.UTF8Util;
 
@@ -191,7 +191,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
             }
             catch (Exception e)
             {
-               HornetQClientLogger.LOGGER.errorAddingPacket(e);
+               ActiveMQClientLogger.LOGGER.errorAddingPacket(e);
                handledException = e;
             }
          }
@@ -205,7 +205,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
                }
                catch (Exception e)
                {
-                  HornetQClientLogger.LOGGER.errorAddingPacket(e);
+                  ActiveMQClientLogger.LOGGER.errorAddingPacket(e);
                   handledException = e;
                }
             }
@@ -223,7 +223,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
          }
          catch (Exception e)
          {
-            HornetQClientLogger.LOGGER.errorAddingPacket(e);
+            ActiveMQClientLogger.LOGGER.errorAddingPacket(e);
             handledException = e;
          }
       }
@@ -231,7 +231,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
 
    public void cancel()
    {
-      this.handledException = HornetQClientMessageBundle.BUNDLE.largeMessageInterrupted();
+      this.handledException = ActiveMQClientMessageBundle.BUNDLE.largeMessageInterrupted();
 
       synchronized (this)
       {
@@ -249,7 +249,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
          catch (Exception ignored)
          {
             // what else can we do here?
-            HornetQClientLogger.LOGGER.errorCallingCancel(ignored);
+            ActiveMQClientLogger.LOGGER.errorCallingCancel(ignored);
          }
 
          largeMessageData.offer(new LargeData());
@@ -308,7 +308,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
    {
       if (streamClosed)
       {
-         throw HornetQClientMessageBundle.BUNDLE.largeMessageLostSession();
+         throw ActiveMQClientMessageBundle.BUNDLE.largeMessageLostSession();
       }
       setOutputStream(output);
       waitCompletion(0);
@@ -354,11 +354,11 @@ public class LargeMessageControllerImpl implements LargeMessageController
          {
             if (timeWait != 0 && System.currentTimeMillis() > timeOut)
             {
-               throw HornetQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
+               throw ActiveMQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
             }
             else if (System.currentTimeMillis() > timeOut && !packetAdded)
             {
-               throw HornetQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
+               throw ActiveMQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
             }
          }
       }
@@ -613,7 +613,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
       }
       catch (Exception e)
       {
-         HornetQClientLogger.LOGGER.errorReadingIndex(e);
+         ActiveMQClientLogger.LOGGER.errorReadingIndex(e);
          throw new RuntimeException(e.getMessage(), e);
       }
       this.readerIndex = readerIndex;
@@ -642,7 +642,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
       }
       catch (Exception e)
       {
-         HornetQClientLogger.LOGGER.errorSettingIndex(e);
+         ActiveMQClientLogger.LOGGER.errorSettingIndex(e);
          throw new RuntimeException(e.getMessage(), e);
       }
       this.readerIndex = readerIndex;
@@ -694,7 +694,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
       }
       catch (Exception e)
       {
-         HornetQClientLogger.LOGGER.errorReSettingIndex(e);
+         ActiveMQClientLogger.LOGGER.errorReSettingIndex(e);
          throw new RuntimeException(e.getMessage(), e);
       }
    }
@@ -1199,7 +1199,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
       }
       catch (IOException e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.errorWritingLargeMessage(e);
+         throw ActiveMQClientMessageBundle.BUNDLE.errorWritingLargeMessage(e);
       }
    }
 
@@ -1327,7 +1327,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
          }
          catch (Exception e)
          {
-            HornetQClientLogger.LOGGER.errorReadingCache(e);
+            ActiveMQClientLogger.LOGGER.errorReadingCache(e);
             throw new RuntimeException(e.getMessage(), e);
          }
          finally
@@ -1377,7 +1377,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
             }
             catch (Exception e)
             {
-               HornetQClientLogger.LOGGER.errorClosingCache(e);
+               ActiveMQClientLogger.LOGGER.errorClosingCache(e);
             }
             cachedChannel = null;
          }
@@ -1390,7 +1390,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
             }
             catch (Exception e)
             {
-               HornetQClientLogger.LOGGER.errorClosingCache(e);
+               ActiveMQClientLogger.LOGGER.errorClosingCache(e);
             }
             cachedRAFile = null;
          }
@@ -1409,7 +1409,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
             }
             catch (Exception e)
             {
-               HornetQClientLogger.LOGGER.errorFinalisingCache(e);
+               ActiveMQClientLogger.LOGGER.errorFinalisingCache(e);
             }
          }
       }

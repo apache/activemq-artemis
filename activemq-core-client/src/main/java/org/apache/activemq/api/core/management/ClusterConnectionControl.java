@@ -20,7 +20,7 @@ import java.util.Map;
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  *
  */
-public interface ClusterConnectionControl extends HornetQComponentControl
+public interface ClusterConnectionControl extends ActiveMQComponentControl
 {
    /**
     * Returns the configuration name of this cluster connection.

@@ -23,7 +23,7 @@ import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.core.paging.cursor.impl.PageSubscriptionCounterImpl;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.Transaction;
@@ -44,7 +44,7 @@ public class PagingCounterTest extends ServiceTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ServerLocator sl;
 
@@ -128,7 +128,7 @@ public class PagingCounterTest extends ServiceTestBase
 
          server.stop();
 
-         server = newHornetQServer();
+         server = newActiveMQServer();
 
          server.start();
 
@@ -192,7 +192,7 @@ public class PagingCounterTest extends ServiceTestBase
 
          server.stop();
 
-         server = newHornetQServer();
+         server = newActiveMQServer();
 
          server.start();
 
@@ -237,7 +237,7 @@ public class PagingCounterTest extends ServiceTestBase
 
       server.stop();
 
-      server = newHornetQServer();
+      server = newActiveMQServer();
 
       server.start();
 
@@ -295,7 +295,7 @@ public class PagingCounterTest extends ServiceTestBase
 
       server.stop();
 
-      server = newHornetQServer();
+      server = newActiveMQServer();
 
       server.start();
 
@@ -329,17 +329,17 @@ public class PagingCounterTest extends ServiceTestBase
    {
       super.setUp();
 
-      server = newHornetQServer();
+      server = newActiveMQServer();
       server.start();
       sl = createInVMNonHALocator();
    }
 
-   private HornetQServer newHornetQServer() throws Exception
+   private ActiveMQServer newActiveMQServer() throws Exception
    {
 
       OperationContextImpl.clearContext();
 
-      HornetQServer server = super.createServer(true, false);
+      ActiveMQServer server = super.createServer(true, false);
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(10 * 1024);

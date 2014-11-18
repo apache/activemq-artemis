@@ -37,7 +37,7 @@ import org.apache.activemq.core.persistence.impl.PageCountPending;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.RouteContextList;
@@ -64,7 +64,7 @@ import org.apache.activemq.utils.IDGenerator;
  *
 
  */
-public interface StorageManager extends IDGenerator, HornetQComponent
+public interface StorageManager extends IDGenerator, ActiveMQComponent
 {
 
    /**
@@ -405,7 +405,7 @@ public interface StorageManager extends IDGenerator, HornetQComponent
     * Closes the {@link org.apache.activemq.utils.IDGenerator} persisting the current record ID.
     * <p/>
     * Effectively a "pre-stop" method. Necessary due to the "stop"-order at
-    * {@link org.apache.activemq.core.server.impl.HornetQServerImpl}
+    * {@link org.apache.activemq.core.server.impl.ActiveMQServerImpl}
     */
    void persistIdGenerator();
 }

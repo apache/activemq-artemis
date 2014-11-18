@@ -37,18 +37,18 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.Topology;
 import org.apache.activemq.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ClusterManager;
 import org.apache.activemq.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.jms.client.HornetQConnection;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnection;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.tests.util.RandomUtil;
 
@@ -70,8 +70,8 @@ public class JMSUtil
 
    public static Connection createConnection(final String connectorFactory) throws JMSException
    {
-      HornetQJMSConnectionFactory cf = (HornetQJMSConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                       new TransportConfiguration(connectorFactory));
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                                                        new TransportConfiguration(connectorFactory));
 
       cf.setBlockOnNonDurableSend(true);
       cf.setBlockOnDurableSend(true);
@@ -84,8 +84,8 @@ public class JMSUtil
                                                  final long connectionTTL,
                                                  final long clientFailureCheckPeriod) throws JMSException
    {
-      HornetQJMSConnectionFactory cf = (HornetQJMSConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                       new TransportConfiguration(connectorFactory));
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                                                        new TransportConfiguration(connectorFactory));
 
       cf.setBlockOnNonDurableSend(true);
       cf.setBlockOnDurableSend(true);
@@ -130,8 +130,8 @@ public class JMSUtil
 
    public static String[] sendMessages(final Destination destination, final int messagesToSend) throws Exception
    {
-      HornetQJMSConnectionFactory cf = (HornetQJMSConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                       new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                                                        new TransportConfiguration(InVMConnectorFactory.class.getName()));
       return JMSUtil.sendMessages(cf, destination, messagesToSend);
    }
 
@@ -198,7 +198,7 @@ public class JMSUtil
       }
    }
 
-   public static void waitForServer(HornetQServer server) throws InterruptedException
+   public static void waitForServer(ActiveMQServer server) throws InterruptedException
    {
       long timetowait = System.currentTimeMillis() + 5000;
       while (!server.isStarted())
@@ -215,7 +215,7 @@ public class JMSUtil
       }
    }
 
-   public static void crash(HornetQServer server, ClientSession... sessions) throws Exception
+   public static void crash(ActiveMQServer server, ClientSession... sessions) throws Exception
    {
       final CountDownLatch latch = new CountDownLatch(sessions.length);
 
@@ -265,18 +265,18 @@ public class JMSUtil
 
    // Inner classes -------------------------------------------------
 
-   public static HornetQConnection createConnectionAndWaitForTopology(HornetQConnectionFactory factory,
+   public static ActiveMQConnection createConnectionAndWaitForTopology(ActiveMQConnectionFactory factory,
                                                                       int topologyMembers,
                                                                       int timeout) throws Exception
    {
-      HornetQConnection conn;
+      ActiveMQConnection conn;
       CountDownLatch countDownLatch = new CountDownLatch(topologyMembers);
 
       ServerLocator locator = factory.getServerLocator();
 
       locator.addClusterTopologyListener(new FailoverTestBase.LatchClusterTopologyListener(countDownLatch));
 
-      conn = (HornetQConnection) factory.createConnection();
+      conn = (ActiveMQConnection) factory.createConnection();
 
       boolean ok = countDownLatch.await(timeout, TimeUnit.SECONDS);
       if (!ok)
@@ -286,7 +286,7 @@ public class JMSUtil
       return conn;
    }
 
-   public static void waitForFailoverTopology(final int timeToWait, final HornetQServer backupServer, final HornetQServer... liveServers) throws Exception
+   public static void waitForFailoverTopology(final int timeToWait, final ActiveMQServer backupServer, final ActiveMQServer... liveServers) throws Exception
    {
       long start = System.currentTimeMillis();
 
@@ -306,7 +306,7 @@ public class JMSUtil
 
       boolean exists = false;
 
-      for (HornetQServer liveServer : liveServers)
+      for (ActiveMQServer liveServer : liveServers)
       {
          ClusterConnectionImpl clusterConnection = (ClusterConnectionImpl) ccs.iterator().next();
          Topology topology = clusterConnection.getTopology();

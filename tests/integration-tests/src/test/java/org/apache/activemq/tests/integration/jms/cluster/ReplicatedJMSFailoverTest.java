@@ -16,7 +16,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 
 /**
@@ -47,7 +47,7 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
          .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
          .setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
 
-      backupService = HornetQServers.newHornetQServer(backupConf, true);
+      backupService = ActiveMQServers.newActiveMQServer(backupConf, true);
 
       backupJMSService = new JMSServerManagerImpl(backupService);
 
@@ -66,7 +66,7 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
          .setLargeMessagesDirectory(getLargeMessagesDir(0, false))
          .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
 
-      liveService = HornetQServers.newHornetQServer(liveConf, true);
+      liveService = ActiveMQServers.newActiveMQServer(liveConf, true);
 
       liveJMSService = new JMSServerManagerImpl(liveService);
 

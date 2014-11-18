@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.cluster.failover.remote;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
@@ -32,7 +32,7 @@ public class FailoverWithSharedStoreTest extends ClusterTestBase
    @Test
    public void testNoConnection() throws Exception
    {
-      ServerLocator locator = HornetQClient.createServerLocatorWithHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
       try
       {
          createSessionFactory(locator);

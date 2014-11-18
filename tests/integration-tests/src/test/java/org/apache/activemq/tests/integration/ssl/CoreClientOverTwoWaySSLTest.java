@@ -30,14 +30,14 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -77,14 +77,14 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
    /** These artifacts are required for testing 2-way SSL
     *
     * Commands to create the JKS artifacts:
-    * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
-    * keytool -export -keystore client-side-keystore.jks -file hornetq-jks.cer -storepass secureexample
-    * keytool -import -keystore server-side-truststore.jks -file hornetq-jks.cer -storepass secureexample -keypass secureexample -noprompt
+    * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ, OU=ActiveMQ, O=ActiveMQ, L=ActiveMQ, S=ActiveMQ, C=AMQ"
+    * keytool -export -keystore client-side-keystore.jks -file activemq-jks.cer -storepass secureexample
+    * keytool -import -keystore server-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
     * Commands to create the JCEKS artifacts:
-    * keytool -genkey -keystore client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=HornetQ, OU=HornetQ, O=HornetQ, L=HornetQ, S=HornetQ, C=HQ"
-    * keytool -export -keystore client-side-keystore.jceks -file hornetq-jceks.cer -storetype jceks -storepass secureexample
-    * keytool -import -keystore server-side-truststore.jceks -storetype JCEKS -file hornetq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
+    * keytool -genkey -keystore client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ, OU=ActiveMQ, O=ActiveMQ, L=ActiveMQ, S=ActiveMQ, C=AMQ"
+    * keytool -export -keystore client-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
+    * keytool -import -keystore server-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */
 
    private static String storeType;
@@ -94,7 +94,7 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
    private static String CLIENT_SIDE_KEYSTORE;
    private static final String PASSWORD = "secureexample";
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private TransportConfiguration tc;
 
@@ -140,7 +140,7 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
 
       server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       session.createQueue(CoreClientOverTwoWaySSLTest.QUEUE, CoreClientOverTwoWaySSLTest.QUEUE, false);
@@ -165,7 +165,7 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       try
       {
          createSessionFactory(locator);

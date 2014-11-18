@@ -16,8 +16,8 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.rest.MessageServiceManager;
 import org.apache.activemq.rest.queue.QueueDeployment;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
@@ -42,7 +42,7 @@ public class PersistentPushQueueConsumerTest
 {
    public static MessageServiceManager manager;
    protected static ResteasyDeployment deployment;
-   public static HornetQServer hornetqServer;
+   public static ActiveMQServer activeMQServer;
 
    public static void startup() throws Exception
    {
@@ -51,8 +51,8 @@ public class PersistentPushQueueConsumerTest
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      hornetqServer = HornetQServers.newHornetQServer(configuration);
-      hornetqServer.start();
+      activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
+      activeMQServer.start();
 
       deployment = EmbeddedContainer.start();
       manager = new MessageServiceManager();
@@ -67,8 +67,8 @@ public class PersistentPushQueueConsumerTest
       manager = null;
       EmbeddedContainer.stop();
       deployment = null;
-      hornetqServer.stop();
-      hornetqServer = null;
+      activeMQServer.stop();
+      activeMQServer = null;
    }
 
    @Test

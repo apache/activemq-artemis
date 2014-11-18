@@ -27,7 +27,7 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.FailoverEventListener;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.utils.ConcurrentHashSet;
@@ -55,11 +55,11 @@ public class DelegatingSession implements ClientSessionInternal
 
    public static void dumpSessionCreationStacks()
    {
-      HornetQClientLogger.LOGGER.dumpingSessionStacks();
+      ActiveMQClientLogger.LOGGER.dumpingSessionStacks();
 
       for (DelegatingSession session : DelegatingSession.sessions)
       {
-         HornetQClientLogger.LOGGER.dumpingSessionStack(session.creationStack);
+         ActiveMQClientLogger.LOGGER.dumpingSessionStack(session.creationStack);
       }
    }
 
@@ -76,7 +76,7 @@ public class DelegatingSession implements ClientSessionInternal
       //
       if (!closed && !session.isClosed())
       {
-         HornetQClientLogger.LOGGER.clientSessionNotClosed(creationStack, System.identityHashCode(this));
+         ActiveMQClientLogger.LOGGER.clientSessionNotClosed(creationStack, System.identityHashCode(this));
 
          close();
       }

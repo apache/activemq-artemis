@@ -12,14 +12,14 @@
  */
 package org.apache.activemq.core.deployers;
 
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 
 /**
  * This class manages any configuration files available. It will notify any deployers registered with it on changes.
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public interface DeploymentManager extends HornetQComponent
+public interface DeploymentManager extends ActiveMQComponent
 {
    /**
     * registers a deployable object which will handle the deployment of URL's

@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -41,7 +41,7 @@ public class OrderTest extends ServiceTestBase
 
    private boolean persistent;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ServerLocator locator;
 

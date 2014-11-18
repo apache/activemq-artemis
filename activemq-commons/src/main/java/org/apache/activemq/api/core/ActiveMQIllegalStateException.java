@@ -16,7 +16,7 @@ package org.apache.activemq.api.core;
 import static org.apache.activemq.api.core.ActiveMQExceptionType.ILLEGAL_STATE;
 
 /**
- * A HornetQ resource is not in a legal state (e.g. calling ClientConsumer.receive() if a
+ * A ActiveMQ resource is not in a legal state (e.g. calling ClientConsumer.receive() if a
  * MessageHandler is set).
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 5/2/12
  */

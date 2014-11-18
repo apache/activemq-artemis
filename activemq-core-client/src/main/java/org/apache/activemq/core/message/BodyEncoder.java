@@ -28,27 +28,27 @@ import org.apache.activemq.api.core.ActiveMQException;
 public interface BodyEncoder
 {
    /**
-    * This method must not be called directly by HornetQ clients.
+    * This method must not be called directly by ActiveMQ clients.
     */
    void open() throws ActiveMQException;
 
    /**
-    * This method must not be called directly by HornetQ clients.
+    * This method must not be called directly by ActiveMQ clients.
     */
    void close() throws ActiveMQException;
 
    /**
-    * This method must not be called directly by HornetQ clients.
+    * This method must not be called directly by ActiveMQ clients.
     */
    int encode(ByteBuffer bufferRead) throws ActiveMQException;
 
    /**
-    * This method must not be called directly by HornetQ clients.
+    * This method must not be called directly by ActiveMQ clients.
     */
    int encode(ActiveMQBuffer bufferOut, int size) throws ActiveMQException;
 
    /**
-    * This method must not be called directly by HornetQ clients.
+    * This method must not be called directly by ActiveMQ clients.
     */
    long getLargeBodySize();
 }

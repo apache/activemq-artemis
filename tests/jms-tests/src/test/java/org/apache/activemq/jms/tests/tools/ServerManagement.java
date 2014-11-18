@@ -75,7 +75,7 @@ public class ServerManagement
    public static void start(final int i,
                             final String config,
                             final boolean clearDatabase,
-                            final boolean startHornetQServer) throws Exception
+                            final boolean startActiveMQServer) throws Exception
    {
       throw new IllegalStateException("Method to start a server is not implemented");
    }

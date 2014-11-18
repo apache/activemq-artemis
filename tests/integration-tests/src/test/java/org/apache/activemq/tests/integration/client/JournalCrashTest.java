@@ -28,7 +28,7 @@ import org.apache.activemq.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.core.journal.RecordInfo;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
@@ -49,7 +49,7 @@ public class JournalCrashTest extends ServiceTestBase
 
    private static final int FOURTH_RUN = 400;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSessionFactory factory;
 
@@ -227,8 +227,8 @@ public class JournalCrashTest extends ServiceTestBase
                                             0,
                                             0,
                                             factory,
-                                            "hornetq-data",
-                                            "hq",
+                                            "activemq-data",
+                                            "amq",
                                             100);
 
       ArrayList<RecordInfo> records = new ArrayList<RecordInfo>();

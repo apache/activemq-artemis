@@ -24,14 +24,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how static message selectors work.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class StaticSelectorExample extends HornetQExample
+public class StaticSelectorExample extends ActiveMQExample
 {
    private volatile boolean result = true;
 

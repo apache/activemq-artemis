@@ -16,7 +16,7 @@ package org.apache.activemq.api.core;
 import static org.apache.activemq.api.core.ActiveMQExceptionType.NOT_CONNECTED;
 
 /**
- * A client is not able to connect to HornetQ server.
+ * A client is not able to connect to ActiveMQ server.
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQNotConnectedException extends ActiveMQException

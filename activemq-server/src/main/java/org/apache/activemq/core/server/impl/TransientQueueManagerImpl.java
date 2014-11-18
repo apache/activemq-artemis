@@ -14,8 +14,8 @@ package org.apache.activemq.core.server.impl;
 
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.TransientQueueManager;
 import org.apache.activemq.utils.ReferenceCounterUtil;
 
@@ -27,7 +27,7 @@ public class TransientQueueManagerImpl implements TransientQueueManager
 {
    private final SimpleString queueName;
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final Runnable runnable = new Runnable()
    {
@@ -35,9 +35,9 @@ public class TransientQueueManagerImpl implements TransientQueueManager
       {
          try
          {
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("deleting temporary queue " + queueName);
+               ActiveMQServerLogger.LOGGER.debug("deleting temporary queue " + queueName);
             }
 
             try
@@ -46,19 +46,19 @@ public class TransientQueueManagerImpl implements TransientQueueManager
             }
             catch (ActiveMQException e)
             {
-               HornetQServerLogger.LOGGER.warn("Error on deleting queue " + queueName + ", " + e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.warn("Error on deleting queue " + queueName + ", " + e.getMessage(), e);
             }
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorRemovingTempQueue(e, queueName);
+            ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, queueName);
          }
       }
    };
 
    private final ReferenceCounterUtil referenceCounterUtil = new ReferenceCounterUtil(runnable);
 
-   public TransientQueueManagerImpl(HornetQServer server, SimpleString queueName)
+   public TransientQueueManagerImpl(ActiveMQServer server, SimpleString queueName)
    {
       this.server = server;
 

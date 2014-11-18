@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -45,7 +45,7 @@ public class ConcurrentCreateDeleteProduceTest extends ServiceTestBase
 
 
    AtomicInteger sequence = new AtomicInteger(0);
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ServerLocator locator;
 
    private static final int PAGE_MAX = 100 * 1024;

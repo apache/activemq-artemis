@@ -19,12 +19,12 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionDetail;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
-import org.apache.activemq.jms.client.HornetQMapMessage;
-import org.apache.activemq.jms.client.HornetQMessage;
-import org.apache.activemq.jms.client.HornetQObjectMessage;
-import org.apache.activemq.jms.client.HornetQStreamMessage;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.jms.client.ActiveMQMapMessage;
+import org.apache.activemq.jms.client.ActiveMQMessage;
+import org.apache.activemq.jms.client.ActiveMQObjectMessage;
+import org.apache.activemq.jms.client.ActiveMQStreamMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 
 /**
  * A JMSTransactionDetail
@@ -46,17 +46,17 @@ public class JMSTransactionDetail extends TransactionDetail
       int type = msg.getType();
       switch (type)
       {
-         case HornetQMessage.TYPE: // 0
+         case ActiveMQMessage.TYPE: // 0
             return "Default";
-         case HornetQObjectMessage.TYPE: // 2
+         case ActiveMQObjectMessage.TYPE: // 2
             return "ObjectMessage";
-         case HornetQTextMessage.TYPE: // 3
+         case ActiveMQTextMessage.TYPE: // 3
             return "TextMessage";
-         case HornetQBytesMessage.TYPE: // 4
+         case ActiveMQBytesMessage.TYPE: // 4
             return "ByteMessage";
-         case HornetQMapMessage.TYPE: // 5
+         case ActiveMQMapMessage.TYPE: // 5
             return "MapMessage";
-         case HornetQStreamMessage.TYPE: // 6
+         case ActiveMQStreamMessage.TYPE: // 6
             return "StreamMessage";
          default:
             return "(Unknown Type)";
@@ -68,7 +68,7 @@ public class JMSTransactionDetail extends TransactionDetail
    {
       try
       {
-         return HornetQMessage.coreMaptoJMSMap(msg.toMap());
+         return ActiveMQMessage.coreMaptoJMSMap(msg.toMap());
       }
       catch (Throwable t)
       {

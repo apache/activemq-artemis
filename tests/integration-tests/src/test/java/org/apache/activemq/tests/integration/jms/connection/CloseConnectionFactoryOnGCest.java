@@ -17,10 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.jms.Connection;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
@@ -52,8 +52,8 @@ public class CloseConnectionFactoryOnGCest extends JMSTestBase
          // System.setOut(out);
          for (int i = 0; i < 100; i++)
          {
-            HornetQConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                            new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
+            ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                                              new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
             Connection conn = cf.createConnection();
             cf = null;
             conn.close();

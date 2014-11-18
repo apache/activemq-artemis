@@ -31,7 +31,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
@@ -39,12 +39,12 @@ import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionContinuationMessage;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.core.settings.HierarchicalRepository;
@@ -69,7 +69,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
    static final int RECEIVE_WAIT_TIME = 60000;
 
-   private final int LARGE_MESSAGE_SIZE = HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 3;
+   private final int LARGE_MESSAGE_SIZE = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 3;
 
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -96,7 +96,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.clearInterrupt();
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.getConfiguration()
          .getIncomingInterceptorClassNames()
@@ -142,7 +142,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    @Test
    public void testCloseConsumerDuringTransmission() throws Exception
    {
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
 
@@ -224,7 +224,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -286,7 +286,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
-      HornetQServer server =
+      ActiveMQServer server =
          createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
 
       // server.getConfiguration()
@@ -375,7 +375,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
 
-      HornetQServer server =
+      ActiveMQServer server =
          createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
 
       server.getConfiguration()
@@ -599,12 +599,12 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
       server.start();
 
       QueueFactory original = server.getQueueFactory();
 
-      ((HornetQServerImpl) server).replaceQueueFactory(new NoPostACKQueueFactory(server.getStorageManager(),
+      ((ActiveMQServerImpl) server).replaceQueueFactory(new NoPostACKQueueFactory(server.getStorageManager(),
                                                                                  server.getPostOffice(),
                                                                                  server.getScheduledPool(),
                                                                                  server.getAddressSettingsRepository(),
@@ -652,7 +652,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          session.commit();
       }
 
-      ((HornetQServerImpl) server).replaceQueueFactory(original);
+      ((ActiveMQServerImpl) server).replaceQueueFactory(original);
       server.stop(false);
       server.start();
 
@@ -668,7 +668,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       LargeMessageTestInterceptorIgnoreLastPacket.clearInterrupt();
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
       server.start();
 
       QueueFactory original = server.getQueueFactory();
@@ -721,7 +721,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          session.commit();
       }
 
-      ((HornetQServerImpl) server).replaceQueueFactory(original);
+      ((ActiveMQServerImpl) server).replaceQueueFactory(original);
       server.stop(false);
       server.start();
 

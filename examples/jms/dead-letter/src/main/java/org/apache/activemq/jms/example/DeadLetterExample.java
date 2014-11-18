@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example showing how messages are moved to dead letter destination when they are unsuccessfully delivered multiple times
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  *
  */
-public class DeadLetterExample extends HornetQExample
+public class DeadLetterExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -120,7 +120,7 @@ public class DeadLetterExample extends HornetQExample
          // The message received from the dead letter queue has the same content than the undelivered message but its
          // JMS headers
          // differ (from JMS point of view, it's not the same message).
-         // HornetQ defines additional properties for messages received from the dead letter queue
+         // ActiveMQ defines additional properties for messages received from the dead letter queue
 
          System.out.println();
          // Step 21. the messageReceived's destination is now the dead letter queue.

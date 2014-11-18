@@ -439,7 +439,7 @@ public class ReplicatedJournal implements Journal
 
    /**
     * @throws Exception
-    * @see org.apache.activemq.core.server.HornetQComponent#start()
+    * @see org.apache.activemq.core.server.ActiveMQComponent#start()
     */
    public void start() throws Exception
    {
@@ -448,7 +448,7 @@ public class ReplicatedJournal implements Journal
 
    /**
     * @throws Exception
-    * @see org.apache.activemq.core.server.HornetQComponent#stop()
+    * @see org.apache.activemq.core.server.ActiveMQComponent#stop()
     */
    public void stop() throws Exception
    {

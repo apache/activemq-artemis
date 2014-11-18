@@ -17,7 +17,7 @@ import java.io.Reader;
 import java.net.URL;
 
 import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -67,7 +67,7 @@ public final class FileConfiguration extends ConfigurationImpl
          url = new URL(configurationUrl);
       }
 
-      HornetQServerLogger.LOGGER.debug("Loading server configuration from " + url);
+      ActiveMQServerLogger.LOGGER.debug("Loading server configuration from " + url);
 
       Reader reader = new InputStreamReader(url.openStream());
       String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
@@ -78,7 +78,7 @@ public final class FileConfiguration extends ConfigurationImpl
 
       // https://jira.jboss.org/browse/HORNETQ-478 - We only want to validate AIO when
       //     starting the server
-      //     and we don't want to do it when deploying hornetq-queues.xml which uses the same parser and XML format
+      //     and we don't want to do it when deploying activemq-queues.xml which uses the same parser and XML format
       parser.setValidateAIO(true);
 
       parser.parseMainConfig(e, this);

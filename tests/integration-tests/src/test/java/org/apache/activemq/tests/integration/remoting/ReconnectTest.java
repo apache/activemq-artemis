@@ -27,7 +27,7 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.SessionFailureListener;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
@@ -56,7 +56,7 @@ public class ReconnectTest extends ServiceTestBase
    {
       final int pingPeriod = 1000;
 
-      HornetQServer server = createServer(false, isNetty);
+      ActiveMQServer server = createServer(false, isNetty);
 
       server.start();
 
@@ -158,7 +158,7 @@ public class ReconnectTest extends ServiceTestBase
    {
       final int pingPeriod = 1000;
 
-      HornetQServer server = createServer(false, isNetty);
+      ActiveMQServer server = createServer(false, isNetty);
 
       server.start();
 

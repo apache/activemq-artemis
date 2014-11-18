@@ -34,7 +34,7 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 
 /**
@@ -52,7 +52,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    protected ClientSession session;
 
@@ -118,7 +118,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
       assertEquals(1, bindingNames.length);
       assertEquals(queue.toString(), bindingNames[0]);
 
-      server.getHornetQServerControl().createDivert(divertName, randomString(), address.toString(), RandomUtil.randomString(), false, null, null);
+      server.getActiveMQServerControl().createDivert(divertName, randomString(), address.toString(), RandomUtil.randomString(), false, null, null);
 
       bindingNames = (Object[])proxy.retrieveAttributeValue("bindingNames");
       assertEquals(2, bindingNames.length);

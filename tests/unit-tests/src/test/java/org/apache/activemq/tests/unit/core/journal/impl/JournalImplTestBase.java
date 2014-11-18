@@ -62,9 +62,9 @@ public abstract class JournalImplTestBase extends UnitTestCase
 
    protected boolean sync;
 
-   protected String filePrefix = "hq";
+   protected String filePrefix = "amq";
 
-   protected String fileExtension = "hq";
+   protected String fileExtension = "amq";
 
    protected SequentialFileFactory fileFactory;
 
@@ -165,7 +165,7 @@ public abstract class JournalImplTestBase extends UnitTestCase
       };
 
       journal.setAutoReclaim(false);
-      addHornetQComponent(journal);
+      addActiveMQComponent(journal);
    }
 
    // It will start compacting, but it will let the thread in wait mode at onCompactDone, so we can validate command

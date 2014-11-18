@@ -41,7 +41,7 @@ import org.apache.activemq.spi.core.remoting.ReadyListener;
 import org.apache.activemq.utils.ConfigurationHelper;
 import org.apache.activemq.utils.UUIDGenerator;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * A StompSession

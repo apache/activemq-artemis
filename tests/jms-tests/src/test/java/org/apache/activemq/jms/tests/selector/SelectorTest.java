@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  */
-public class SelectorTest extends HornetQServerTestCase
+public class SelectorTest extends ActiveMQServerTestCase
 {
 
    /**
@@ -117,9 +117,9 @@ public class SelectorTest extends HornetQServerTestCase
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer cons1 = sess.createConsumer(HornetQServerTestCase.topic1, selector1);
+         MessageConsumer cons1 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector1);
 
-         MessageProducer prod = sess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = sess.createProducer(ActiveMQServerTestCase.topic1);
 
          for (int j = 0; j < 100; j++)
          {
@@ -361,9 +361,9 @@ public class SelectorTest extends HornetQServerTestCase
          {
             Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            MessageConsumer cons1 = sess.createConsumer(HornetQServerTestCase.topic1, selector1);
+            MessageConsumer cons1 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector1);
 
-            MessageProducer prod = sess.createProducer(HornetQServerTestCase.topic1);
+            MessageProducer prod = sess.createProducer(ActiveMQServerTestCase.topic1);
 
             for (int j = 0; j < 10; j++)
             {
@@ -480,11 +480,11 @@ public class SelectorTest extends HornetQServerTestCase
          conn = getConnectionFactory().createConnection();
          conn.start();
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer cons1 = sess.createConsumer(HornetQServerTestCase.topic1, selector1);
-         MessageConsumer cons2 = sess.createConsumer(HornetQServerTestCase.topic1, selector2);
-         MessageConsumer cons3 = sess.createConsumer(HornetQServerTestCase.topic1, selector3);
-         MessageConsumer cons4 = sess.createConsumer(HornetQServerTestCase.topic1, selector4);
-         MessageConsumer cons5 = sess.createConsumer(HornetQServerTestCase.topic1, selector5);
+         MessageConsumer cons1 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector1);
+         MessageConsumer cons2 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector2);
+         MessageConsumer cons3 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector3);
+         MessageConsumer cons4 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector4);
+         MessageConsumer cons5 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector5);
 
          Message m1 = sess.createMessage();
          m1.setStringProperty("beatle", "john");
@@ -501,7 +501,7 @@ public class SelectorTest extends HornetQServerTestCase
          Message m5 = sess.createMessage();
          m5.setStringProperty("beatle", "jesus");
 
-         MessageProducer prod = sess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = sess.createProducer(ActiveMQServerTestCase.topic1);
 
          prod.send(m1);
          prod.send(m2);
@@ -999,7 +999,7 @@ public class SelectorTest extends HornetQServerTestCase
       try
       {
          ConnectionFactory factory = getConnectionFactory();
-         HornetQConnectionFactory hcf = (HornetQConnectionFactory)factory;
+         ActiveMQConnectionFactory hcf = (ActiveMQConnectionFactory)factory;
 
          hcf.setConsumerWindowSize(0);
 

@@ -22,8 +22,8 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,7 +32,7 @@ import org.junit.Test;
 public class CreateQueueIdempotentTest extends ServiceTestBase
 {
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Override
    @Before
@@ -44,7 +44,7 @@ public class CreateQueueIdempotentTest extends ServiceTestBase
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
 
-      server = addServer(HornetQServers.newHornetQServer(conf, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, true));
       server.start();
    }
 

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
 
 /**
@@ -79,7 +79,7 @@ public interface Server extends Remote
    // /**
    // * Only for in-VM use
    // */
-   HornetQServer getServerPeer() throws Exception;
+   ActiveMQServer getServerPeer() throws Exception;
 
    void createQueue(String name, String jndiName) throws Exception;
 
@@ -168,7 +168,7 @@ public interface Server extends Remote
 
    void configureSecurityForDestination(String destName, boolean isQueue, Set<Role> roles) throws Exception;
 
-   HornetQServer getHornetQServer() throws Exception;
+   ActiveMQServer getActiveMQServer() throws Exception;
 
    InitialContext getInitialContext() throws Exception;
 

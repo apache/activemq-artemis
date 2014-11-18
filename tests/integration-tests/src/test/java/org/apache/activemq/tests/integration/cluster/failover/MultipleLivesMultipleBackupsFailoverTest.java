@@ -30,7 +30,7 @@ import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.junit.After;
 import org.junit.Test;
@@ -183,7 +183,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
       }
       config1.addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), clusterNodes));
 
-      servers.put(nodeid, new SameProcessHornetQServer(createInVMFailoverServer(true, config1, nodeManager, liveNode)));
+      servers.put(nodeid, new SameProcessActiveMQServer(createInVMFailoverServer(true, config1, nodeManager, liveNode)));
    }
 
    protected void createLiveConfig(NodeManager nodeManager, int liveNode, int... otherLiveNodes) throws Exception
@@ -210,7 +210,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
       }
       config0.addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), pairs));
 
-      servers.put(liveNode, new SameProcessHornetQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode)));
+      servers.put(liveNode, new SameProcessActiveMQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode)));
    }
 
    @Override

@@ -30,13 +30,13 @@ public class ProtonMessageConverter implements MessageConverter
 {
 
 
-   HornetQJMSVendor hornetQJMSVendor;
+   ActiveMQJMSVendor activeMQJMSVendor;
 
    public ProtonMessageConverter(IDGenerator idGenerator)
    {
-      hornetQJMSVendor = new HornetQJMSVendor(idGenerator);
-      inboundTransformer = new JMSMappingInboundTransformer(hornetQJMSVendor);
-      outboundTransformer = new JMSMappingOutboundTransformer(hornetQJMSVendor);
+      activeMQJMSVendor = new ActiveMQJMSVendor(idGenerator);
+      inboundTransformer = new JMSMappingInboundTransformer(activeMQJMSVendor);
+      outboundTransformer = new JMSMappingOutboundTransformer(activeMQJMSVendor);
    }
 
    private final InboundTransformer inboundTransformer;
@@ -70,7 +70,7 @@ public class ProtonMessageConverter implements MessageConverter
    @Override
    public Object outbound(ServerMessage messageOutbound, int deliveryCount) throws Exception
    {
-      ServerJMSMessage jmsMessage = hornetQJMSVendor.wrapMessage(messageOutbound.getType(), messageOutbound, deliveryCount);
+      ServerJMSMessage jmsMessage = activeMQJMSVendor.wrapMessage(messageOutbound.getType(), messageOutbound, deliveryCount);
       jmsMessage.decode();
 
       return outboundTransformer.convert(jmsMessage);

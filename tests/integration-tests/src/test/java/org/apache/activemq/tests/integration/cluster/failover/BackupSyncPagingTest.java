@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -36,7 +36,7 @@ public class BackupSyncPagingTest extends BackupSyncJournalTest
    }
 
    @Override
-   protected HornetQServer createInVMFailoverServer(final boolean realFiles, final Configuration configuration,
+   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles, final Configuration configuration,
             final NodeManager nodeManager, int id)
    {
       Map<String, AddressSettings> conf = new HashMap<String, AddressSettings>();

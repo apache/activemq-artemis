@@ -23,14 +23,14 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how to access messaging with security configured.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class SecurityExample extends HornetQExample
+public class SecurityExample extends ActiveMQExample
 {
    private boolean result = true;
 
@@ -76,7 +76,7 @@ public class SecurityExample extends HornetQExample
          billConnection = null;
          try
          {
-            billConnection = createConnection("bill", "hornetq1", cf);
+            billConnection = createConnection("bill", "activemq1", cf);
             result = false;
          }
          catch (JMSException e)
@@ -85,19 +85,19 @@ public class SecurityExample extends HornetQExample
          }
 
          // Step 6. bill makes a good connection.
-         billConnection = createConnection("bill", "hornetq", cf);
+         billConnection = createConnection("bill", "activemq", cf);
          billConnection.start();
 
          // Step 7. andrew makes a good connection.
-         andrewConnection = createConnection("andrew", "hornetq1", cf);
+         andrewConnection = createConnection("andrew", "activemq1", cf);
          andrewConnection.start();
 
          // Step 8. frank makes a good connection.
-         frankConnection = createConnection("frank", "hornetq2", cf);
+         frankConnection = createConnection("frank", "activemq2", cf);
          frankConnection.start();
 
          // Step 9. sam makes a good connection.
-         samConnection = createConnection("sam", "hornetq3", cf);
+         samConnection = createConnection("sam", "activemq3", cf);
          samConnection.start();
 
          // Step 10. Check every user can publish/subscribe genericTopics.

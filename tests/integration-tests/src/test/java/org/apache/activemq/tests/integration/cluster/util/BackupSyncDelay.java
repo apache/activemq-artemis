@@ -28,7 +28,7 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.core.replication.ReplicationEndpoint;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
@@ -59,8 +59,8 @@ public class BackupSyncDelay implements Interceptor
 {
 
    private final ReplicationChannelHandler handler;
-   private final HornetQServer backup;
-   private final HornetQServer live;
+   private final ActiveMQServer backup;
+   private final ActiveMQServer live;
 
    public void deliverUpToDateMsg()
    {
@@ -74,7 +74,7 @@ public class BackupSyncDelay implements Interceptor
     * @param live
     * @param packetCode which packet is going to be intercepted.
     */
-   public BackupSyncDelay(HornetQServer backup, HornetQServer live, byte packetCode)
+   public BackupSyncDelay(ActiveMQServer backup, ActiveMQServer live, byte packetCode)
    {
       this.backup = backup;
       this.live = live;

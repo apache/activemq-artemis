@@ -20,8 +20,8 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.tests.util.InVMNodeManagerServer;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -46,20 +46,20 @@ public abstract class BridgeTestBase extends UnitTestCase
       super.tearDown();
    }
 
-   protected HornetQServer createHornetQServer(final int id, final boolean netty, final Map<String, Object> params) throws Exception
+   protected ActiveMQServer createActiveMQServer(final int id, final boolean netty, final Map<String, Object> params) throws Exception
    {
-      return createHornetQServer(id, params, netty, null);
+      return createActiveMQServer(id, params, netty, null);
    }
 
-   protected HornetQServer createHornetQServer(final int id, final boolean netty, final Map<String, Object> params, NodeManager nodeManager) throws Exception
+   protected ActiveMQServer createActiveMQServer(final int id, final boolean netty, final Map<String, Object> params, NodeManager nodeManager) throws Exception
    {
-      return createHornetQServer(id, params, netty, nodeManager);
+      return createActiveMQServer(id, params, netty, nodeManager);
    }
 
-   protected HornetQServer createHornetQServer(final int id,
-                                               final Map<String, Object> params,
-                                               final boolean netty,
-                                               final NodeManager nodeManager) throws Exception
+   protected ActiveMQServer createActiveMQServer(final int id,
+                                                 final Map<String, Object> params,
+                                                 final boolean netty,
+                                                 final NodeManager nodeManager) throws Exception
    {
       TransportConfiguration tc = new TransportConfiguration();
 
@@ -87,10 +87,10 @@ public abstract class BridgeTestBase extends UnitTestCase
          .addAcceptorConfiguration(tc)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
 
-      HornetQServer service;
+      ActiveMQServer service;
       if (nodeManager == null)
       {
-         service = HornetQServers.newHornetQServer(serviceConf, true);
+         service = ActiveMQServers.newActiveMQServer(serviceConf, true);
       }
       else
       {
@@ -100,11 +100,11 @@ public abstract class BridgeTestBase extends UnitTestCase
       return addServer(service);
    }
 
-   protected HornetQServer createBackupHornetQServer(final int id,
-                                                     final Map<String, Object> params,
-                                                     final boolean netty,
-                                                     final int liveId,
-                                                     final NodeManager nodeManager) throws Exception
+   protected ActiveMQServer createBackupActiveMQServer(final int id,
+                                                       final Map<String, Object> params,
+                                                       final boolean netty,
+                                                       final int liveId,
+                                                       final NodeManager nodeManager) throws Exception
    {
       TransportConfiguration tc = new TransportConfiguration();
 
@@ -133,10 +133,10 @@ public abstract class BridgeTestBase extends UnitTestCase
          .addAcceptorConfiguration(tc)
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
 
-      HornetQServer service;
+      ActiveMQServer service;
       if (nodeManager == null)
       {
-         service = HornetQServers.newHornetQServer(serviceConf, true);
+         service = ActiveMQServers.newActiveMQServer(serviceConf, true);
       }
       else
       {
@@ -146,7 +146,7 @@ public abstract class BridgeTestBase extends UnitTestCase
    }
 
 
-   protected void waitForServerStart(HornetQServer server) throws Exception
+   protected void waitForServerStart(ActiveMQServer server) throws Exception
    {
       if (!server.waitForActivation(5000L, TimeUnit.MILLISECONDS))
          throw new IllegalStateException("Timed out waiting for server starting = " + server);

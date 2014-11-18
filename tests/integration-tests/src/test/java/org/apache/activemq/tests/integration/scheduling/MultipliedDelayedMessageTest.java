@@ -19,9 +19,9 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -38,7 +38,7 @@ public class MultipliedDelayedMessageTest extends ServiceTestBase
 
    private Configuration configuration;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private static final long DELAY = 1000;
 
@@ -130,7 +130,7 @@ public class MultipliedDelayedMessageTest extends ServiceTestBase
 
    private ClientMessage createDurableMessage(final ClientSession session, final String body)
    {
-      ClientMessage message = session.createMessage(HornetQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 1);
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(body);
       return message;
    }

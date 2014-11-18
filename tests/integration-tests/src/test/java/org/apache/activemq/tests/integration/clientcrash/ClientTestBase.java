@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Assert;
 
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
@@ -29,7 +29,7 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 public abstract class ClientTestBase extends ServiceTestBase
 {
 
-   protected HornetQServer server;
+   protected ActiveMQServer server;
 
    @Override
    @Before
@@ -51,11 +51,11 @@ public abstract class ClientTestBase extends ServiceTestBase
    protected void assertActiveConnections(final int expectedActiveConnections, long timeout) throws Exception
    {
       timeout += System.currentTimeMillis();
-      while (timeout > System.currentTimeMillis() && server.getHornetQServerControl().getConnectionCount() != expectedActiveConnections)
+      while (timeout > System.currentTimeMillis() && server.getActiveMQServerControl().getConnectionCount() != expectedActiveConnections)
       {
          Thread.sleep(100);
       }
-      Assert.assertEquals(expectedActiveConnections, server.getHornetQServerControl().getConnectionCount());
+      Assert.assertEquals(expectedActiveConnections, server.getActiveMQServerControl().getConnectionCount());
    }
 
    protected void assertActiveSession(final int expectedActiveSession) throws Exception

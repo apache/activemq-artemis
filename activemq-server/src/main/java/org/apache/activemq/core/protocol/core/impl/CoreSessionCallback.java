@@ -21,7 +21,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCre
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
@@ -121,7 +121,7 @@ public final class CoreSessionCallback implements SessionCallback
       }
       else
       {
-         HornetQServerLogger.LOGGER.warnDisconnectOldClient(queueName);
+         ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName);
       }
    }
 
@@ -130,7 +130,7 @@ public final class CoreSessionCallback implements SessionCallback
    public boolean hasCredits(ServerConsumer consumer)
    {
       // This one will always return has credits
-      // as the flow control is done by hornetq
+      // as the flow control is done by activemq
       return true;
    }
 }

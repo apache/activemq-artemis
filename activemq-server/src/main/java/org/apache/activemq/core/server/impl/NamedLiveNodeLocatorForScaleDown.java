@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LiveNodeLocator;
 
 /**
@@ -39,13 +39,13 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
    private final String scaleDownGroupName;
-   private final HornetQServerImpl server;
+   private final ActiveMQServerImpl server;
    Map<String, Pair<TransportConfiguration, TransportConfiguration>> connectors = new HashMap<>();
 
    private String nodeID;
    private String myNodeID;
 
-   public NamedLiveNodeLocatorForScaleDown(String scaleDownGroupName, HornetQServerImpl server)
+   public NamedLiveNodeLocatorForScaleDown(String scaleDownGroupName, ActiveMQServerImpl server)
    {
       super();
       this.server = server;
@@ -104,9 +104,9 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator
 
          if (topologyMember.getNodeId().equals(myNodeID))
          {
-            if (HornetQServerLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
             {
-               HornetQServerLogger.LOGGER.trace(this + "::informing node about itself, nodeUUID=" +
+               ActiveMQServerLogger.LOGGER.trace(this + "::informing node about itself, nodeUUID=" +
                                                    server.getNodeID() + ", connectorPair=" + topologyMember + ", this = " + this);
             }
             return;

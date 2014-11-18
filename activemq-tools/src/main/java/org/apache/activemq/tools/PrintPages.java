@@ -239,8 +239,8 @@ public class PrintPages // NO_UCD (unused code)
                                                     0,
                                                     0,
                                                     messagesFF,
-                                                    "hornetq-data",
-                                                    "hq",
+                                                    "activemq-data",
+                                                    "amq",
                                                     1);
 
       messagesJournal.start();

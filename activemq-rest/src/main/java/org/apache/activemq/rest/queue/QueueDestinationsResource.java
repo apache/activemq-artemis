@@ -28,11 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQQueue;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQQueue;
 import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.PushConsumerResource;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.rest.util.Constants;
@@ -54,17 +54,17 @@ public class QueueDestinationsResource
    }
 
    @POST
-   @Consumes("application/hornetq.jms.queue+xml")
+   @Consumes("application/activemq.jms.queue+xml")
    public Response createJmsQueue(@Context UriInfo uriInfo, Document document)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       try
       {
          JMSServerConfigParserImpl parser = new JMSServerConfigParserImpl();
          JMSQueueConfiguration queue = parser.parseQueueConfiguration(document.getDocumentElement());
-         HornetQQueue hqQueue = HornetQDestination.createQueue(queue.getName());
-         String queueName = hqQueue.getAddress();
+         ActiveMQQueue activeMQQueue = ActiveMQDestination.createQueue(queue.getName());
+         String queueName = activeMQQueue.getAddress();
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
          try
          {
@@ -101,7 +101,7 @@ public class QueueDestinationsResource
          {
             for (String binding : queue.getBindings())
             {
-               manager.getRegistry().bind(binding, hqQueue);
+               manager.getRegistry().bind(binding, activeMQQueue);
             }
          }
          URI uri = uriInfo.getRequestUriBuilder().path(queueName).build();

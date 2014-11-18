@@ -19,8 +19,8 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -51,7 +51,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
                @BMRule
                   (
                      name = "Server.start wait-init",
-                     targetClass = "org.apache.activemq.core.server.impl.HornetQServerImpl",
+                     targetClass = "org.apache.activemq.core.server.impl.ActiveMQServerImpl",
                      targetMethod = "initialisePart2",
                      targetLocation = "ENTRY",
                      condition = "incrementCounter(\"server-Init\") == 2",
@@ -81,7 +81,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
          .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
          .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      final HornetQServer serverLive = HornetQServers.newHornetQServer(confLive);
+      final ActiveMQServer serverLive = ActiveMQServers.newActiveMQServer(confLive);
       serverLive.start();
       addServer(serverLive);
 
@@ -92,7 +92,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
          .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      final HornetQServer server = HornetQServers.newHornetQServer(conf, true);
+      final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, true);
       addServer(server);
 
       final JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);

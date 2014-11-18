@@ -23,8 +23,8 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.api.core.client.FailoverEventListener;
 import org.apache.activemq.api.core.client.FailoverEventType;
-import org.apache.activemq.common.example.HornetQExample;
-import org.apache.activemq.jms.client.HornetQConnection;
+import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.jms.client.ActiveMQConnection;
 
 /**
  * This example demonstrates how you can listen on failover event on the client side
@@ -34,7 +34,7 @@ import org.apache.activemq.jms.client.HornetQConnection;
  *
  * @author <a href="flemming.harms@gmail.com>Flemming Harms</a>
  */
-public class ClientSideFailoverListerExample extends HornetQExample
+public class ClientSideFailoverListerExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -63,7 +63,7 @@ public class ClientSideFailoverListerExample extends HornetQExample
          // Wait a little while to make sure broadcasts from all nodes have reached the client
          Thread.sleep(5000);
          connectionA = connectionFactory.createConnection();
-         ((HornetQConnection)connectionA).setFailoverListener(new FailoverListenerImpl());
+         ((ActiveMQConnection)connectionA).setFailoverListener(new FailoverListenerImpl());
 
          // Step 5. We create JMS Sessions
          Session sessionA = connectionA.createSession(false, Session.AUTO_ACKNOWLEDGE);

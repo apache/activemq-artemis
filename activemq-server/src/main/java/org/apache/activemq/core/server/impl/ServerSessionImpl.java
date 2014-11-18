@@ -46,7 +46,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.core.exception.HornetQXAException;
+import org.apache.activemq.core.exception.ActiveMQXAException;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.filter.impl.FilterImpl;
 import org.apache.activemq.core.journal.IOAsyncTask;
@@ -63,10 +63,10 @@ import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.SecurityStore;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.BindingQueryResult;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
@@ -103,7 +103,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 {
    // Constants -----------------------------------------------------------------------------
 
-   private static final boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    // Static -------------------------------------------------------------------------------
 
@@ -147,7 +147,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
    protected final String name;
 
-   protected final HornetQServer server;
+   protected final ActiveMQServer server;
 
    private final SimpleString managementAddress;
 
@@ -222,7 +222,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                             final ResourceManager resourceManager,
                             final SecurityStore securityStore,
                             final ManagementService managementService,
-                            final HornetQServer server,
+                            final ActiveMQServer server,
                             final SimpleString managementAddress,
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
@@ -251,7 +251,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                             final ResourceManager resourceManager,
                             final SecurityStore securityStore,
                             final ManagementService managementService,
-                            final HornetQServer server,
+                            final ActiveMQServer server,
                             final SimpleString managementAddress,
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
@@ -377,7 +377,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
       }
@@ -394,14 +394,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          }
          catch (Throwable e)
          {
-            HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             try
             {
                consumer.removeItself();
             }
             catch (Throwable e2)
             {
-               HornetQServerLogger.LOGGER.warn(e2.getMessage(), e2);
+               ActiveMQServerLogger.LOGGER.warn(e2.getMessage(), e2);
             }
          }
       }
@@ -416,7 +416,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          }
          catch (Throwable error)
          {
-            HornetQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
+            ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
          }
       }
 
@@ -452,7 +452,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (binding == null || binding.getType() != BindingType.LOCAL_QUEUE)
       {
-         throw HornetQMessageBundle.BUNDLE.noSuchQueue(queueName);
+         throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
       }
 
       securityStore.check(binding.getAddress(), CheckType.CONSUME, this);
@@ -504,9 +504,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
          Notification notification = new Notification(null, CoreNotificationType.CONSUMER_CREATED, props);
 
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug("Session with user=" + username +
+            ActiveMQServerLogger.LOGGER.debug("Session with user=" + username +
                                                 ", connection=" + this.remotingConnection +
                                                 " created a consumer on queue " + queueName +
                                                 ", filter = " + filterString);
@@ -575,9 +575,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          tempQueueCleannerUppers.put(name, cleaner);
       }
 
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Queue " + name + " created on address " + name +
+         ActiveMQServerLogger.LOGGER.debug("Queue " + name + " created on address " + name +
                                              " with filter=" + filterString + " temporary = " +
                                              temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }
@@ -604,9 +604,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       private final SimpleString bindingName;
 
-      private final HornetQServer server;
+      private final ActiveMQServer server;
 
-      public TempQueueCleanerUpper(final HornetQServer server, final SimpleString bindingName)
+      public TempQueueCleanerUpper(final ActiveMQServer server, final SimpleString bindingName)
       {
          this.server = server;
 
@@ -617,9 +617,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          try
          {
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("deleting temporary queue " + bindingName);
+               ActiveMQServerLogger.LOGGER.debug("deleting temporary queue " + bindingName);
             }
             try
             {
@@ -628,12 +628,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             catch (ActiveMQException e)
             {
                // that's fine.. it can happen due to queue already been deleted
-               HornetQServerLogger.LOGGER.debug(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.debug(e.getMessage(), e);
             }
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorRemovingTempQueue(e, bindingName);
+            ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, bindingName);
          }
       }
 
@@ -686,7 +686,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       if (name == null)
       {
-         throw HornetQMessageBundle.BUNDLE.queueNameIsNull();
+         throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
       }
 
       QueueQueryResult response;
@@ -726,7 +726,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       if (address == null)
       {
-         throw HornetQMessageBundle.BUNDLE.addressIsNull();
+         throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
       List<SimpleString> names = new ArrayList<SimpleString>();
@@ -767,7 +767,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (consumer == null)
       {
-         throw HornetQMessageBundle.BUNDLE.consumerDoesntExist(consumerID);
+         throw ActiveMQMessageBundle.BUNDLE.consumerDoesntExist(consumerID);
       }
 
       if (tx != null && tx.getState() == State.ROLLEDBACK)
@@ -831,7 +831,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("Calling commit");
+         ActiveMQServerLogger.LOGGER.trace("Calling commit");
       }
       try
       {
@@ -908,7 +908,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          final String msg = "Cannot commit, session is currently doing work in transaction " + tx.getXid();
 
-         throw new HornetQXAException(XAException.XAER_PROTO, msg);
+         throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
       else
       {
@@ -917,7 +917,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid);
+            ActiveMQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid);
          }
 
          if (theTx == null)
@@ -925,23 +925,23 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             // checked heuristic committed transactions
             if (resourceManager.getHeuristicCommittedTransactions().contains(xid))
             {
-               throw new HornetQXAException(XAException.XA_HEURCOM,
+               throw new ActiveMQXAException(XAException.XA_HEURCOM,
                                             "transaction has been heuristically committed: " + xid);
             }
             // checked heuristic rolled back transactions
             else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid))
             {
-               throw new HornetQXAException(XAException.XA_HEURRB,
+               throw new ActiveMQXAException(XAException.XA_HEURRB,
                                             "transaction has been heuristically rolled back: " + xid);
             }
             else
             {
                if (isTrace)
                {
-                  HornetQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid + " cannot find it");
+                  ActiveMQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid + " cannot find it");
                }
 
-               throw new HornetQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
+               throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
             }
          }
          else
@@ -951,7 +951,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                // Put it back
                resourceManager.putTransaction(xid, theTx);
 
-               throw new HornetQXAException(XAException.XAER_PROTO, "Cannot commit transaction, it is suspended " + xid);
+               throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot commit transaction, it is suspended " + xid);
             }
             else
             {
@@ -969,7 +969,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          {
             final String msg = "Cannot end, transaction is suspended";
 
-            throw new HornetQXAException(XAException.XAER_PROTO, msg);
+            throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
          }
          else if (tx.getState() == Transaction.State.ROLLEDBACK)
          {
@@ -977,7 +977,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
             tx = null;
 
-            throw new HornetQXAException(XAException.XAER_PROTO, msg);
+            throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
          }
          else
          {
@@ -996,7 +996,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          {
             final String msg = "Cannot find suspended transaction to end " + xid;
 
-            throw new HornetQXAException(XAException.XAER_NOTA, msg);
+            throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
          }
          else
          {
@@ -1004,7 +1004,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             {
                final String msg = "Transaction is not suspended " + xid;
 
-               throw new HornetQXAException(XAException.XAER_PROTO, msg);
+               throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
             }
             else
             {
@@ -1028,12 +1028,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          {
             e.printStackTrace();
 
-            throw new HornetQXAException(XAException.XAER_RMERR);
+            throw new ActiveMQXAException(XAException.XAER_RMERR);
          }
       }
       else
       {
-         throw new HornetQXAException(XAException.XAER_NOTA);
+         throw new ActiveMQXAException(XAException.XAER_NOTA);
       }
    }
 
@@ -1045,13 +1045,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          final String msg = "Cannot find xid in resource manager: " + xid;
 
-         throw new HornetQXAException(XAException.XAER_NOTA, msg);
+         throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
       }
       else
       {
          if (theTx.getState() == Transaction.State.SUSPENDED)
          {
-            throw new HornetQXAException(XAException.XAER_PROTO, "Cannot join tx, it is suspended " + xid);
+            throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot join tx, it is suspended " + xid);
          }
          else
          {
@@ -1066,7 +1066,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          final String msg = "Cannot resume, session is currently doing work in a transaction " + tx.getXid();
 
-         throw new HornetQXAException(XAException.XAER_PROTO, msg);
+         throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
       else
       {
@@ -1076,13 +1076,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          {
             final String msg = "Cannot find xid in resource manager: " + xid;
 
-            throw new HornetQXAException(XAException.XAER_NOTA, msg);
+            throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
          }
          else
          {
             if (theTx.getState() != Transaction.State.SUSPENDED)
             {
-               throw new HornetQXAException(XAException.XAER_PROTO,
+               throw new ActiveMQXAException(XAException.XAER_PROTO,
                                             "Cannot resume transaction, it is not suspended " + xid);
             }
             else
@@ -1101,14 +1101,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          final String msg = "Cannot roll back, session is currently doing work in a transaction " + tx.getXid();
 
-         throw new HornetQXAException(XAException.XAER_PROTO, msg);
+         throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
       else
       {
          Transaction theTx = resourceManager.removeTransaction(xid);
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("xarollback into " + theTx);
+            ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx);
          }
 
          if (theTx == null)
@@ -1116,20 +1116,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             // checked heuristic committed transactions
             if (resourceManager.getHeuristicCommittedTransactions().contains(xid))
             {
-               throw new HornetQXAException(XAException.XA_HEURCOM,
+               throw new ActiveMQXAException(XAException.XA_HEURCOM,
                                             "transaction has ben heuristically committed: " + xid);
             }
             // checked heuristic rolled back transactions
             else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid))
             {
-               throw new HornetQXAException(XAException.XA_HEURRB,
+               throw new ActiveMQXAException(XAException.XA_HEURRB,
                                             "transaction has ben heuristically rolled back: " + xid);
             }
             else
             {
                if (isTrace)
                {
-                  HornetQServerLogger.LOGGER.trace("xarollback into " + theTx + ", xid=" + xid + " forcing a rollback regular");
+                  ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx + ", xid=" + xid + " forcing a rollback regular");
                }
 
                try
@@ -1141,10 +1141,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                }
 
-               throw new HornetQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
+               throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
             }
          }
          else
@@ -1153,14 +1153,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             {
                if (isTrace)
                {
-                  HornetQServerLogger.LOGGER.trace("xarollback into " + theTx + " sending tx back as it was suspended");
+                  ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx + " sending tx back as it was suspended");
                }
 
 
                // Put it back
                resourceManager.putTransaction(xid, tx);
 
-               throw new HornetQXAException(XAException.XAER_PROTO,
+               throw new ActiveMQXAException(XAException.XAER_PROTO,
                                             "Cannot rollback transaction, it is suspended " + xid);
             }
             else
@@ -1175,7 +1175,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       if (tx != null)
       {
-         HornetQServerLogger.LOGGER.xidReplacedOnXStart(tx.getXid().toString(), xid.toString());
+         ActiveMQServerLogger.LOGGER.xidReplacedOnXStart(tx.getXid().toString(), xid.toString());
 
          try
          {
@@ -1191,7 +1191,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.debug("An exception happened while we tried to debug the previous tx, we can ignore this exception", e);
+            ActiveMQServerLogger.LOGGER.debug("An exception happened while we tried to debug the previous tx, we can ignore this exception", e);
          }
       }
 
@@ -1199,7 +1199,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("xastart into tx= " + tx);
+         ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
       }
 
       boolean added = resourceManager.putTransaction(xid, tx);
@@ -1208,7 +1208,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          final String msg = "Cannot start, there is already a xid " + tx.getXid();
 
-         throw new HornetQXAException(XAException.XAER_DUPID, msg);
+         throw new ActiveMQXAException(XAException.XAER_DUPID, msg);
       }
    }
 
@@ -1218,7 +1218,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          final String msg = "Cannot start, session is already doing work in a transaction " + tx.getXid();
 
-         throw new HornetQXAException(XAException.XAER_PROTO, msg);
+         throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
       else
       {
@@ -1228,7 +1228,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("xastart into tx= " + tx);
+            ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
          }
 
          boolean added = resourceManager.putTransaction(xid, tx);
@@ -1237,7 +1237,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          {
             final String msg = "Cannot start, there is already a xid " + tx.getXid();
 
-            throw new HornetQXAException(XAException.XAER_DUPID, msg);
+            throw new ActiveMQXAException(XAException.XAER_DUPID, msg);
          }
       }
    }
@@ -1247,14 +1247,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("xasuspend on " + this.tx);
+         ActiveMQServerLogger.LOGGER.trace("xasuspend on " + this.tx);
       }
 
       if (tx == null)
       {
          final String msg = "Cannot suspend, session is not doing work in a transaction ";
 
-         throw new HornetQXAException(XAException.XAER_PROTO, msg);
+         throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
       else
       {
@@ -1262,7 +1262,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          {
             final String msg = "Cannot suspend, transaction is already suspended " + tx.getXid();
 
-            throw new HornetQXAException(XAException.XAER_PROTO, msg);
+            throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
          }
          else
          {
@@ -1279,7 +1279,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          final String msg = "Cannot commit, session is currently doing work in a transaction " + tx.getXid();
 
-         throw new HornetQXAException(XAException.XAER_PROTO, msg);
+         throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
       else
       {
@@ -1287,25 +1287,25 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
          if (isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("xaprepare into " + ", xid=" + xid + ", tx= " + tx);
+            ActiveMQServerLogger.LOGGER.trace("xaprepare into " + ", xid=" + xid + ", tx= " + tx);
          }
 
          if (theTx == null)
          {
             final String msg = "Cannot find xid in resource manager: " + xid;
 
-            throw new HornetQXAException(XAException.XAER_NOTA, msg);
+            throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
          }
          else
          {
             if (theTx.getState() == Transaction.State.SUSPENDED)
             {
-               throw new HornetQXAException(XAException.XAER_PROTO,
+               throw new ActiveMQXAException(XAException.XAER_PROTO,
                                             "Cannot prepare transaction, it is suspended " + xid);
             }
             else if (theTx.getState() == Transaction.State.PREPARED)
             {
-               HornetQServerLogger.LOGGER.info("ignoring prepare on xid as already called :" + xid);
+               ActiveMQServerLogger.LOGGER.info("ignoring prepare on xid as already called :" + xid);
             }
             else
             {
@@ -1356,12 +1356,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          if (!context.waitCompletion(10000))
          {
-            HornetQServerLogger.LOGGER.errorCompletingContext(new Exception("warning"));
+            ActiveMQServerLogger.LOGGER.errorCompletingContext(new Exception("warning"));
          }
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
       }
    }
 
@@ -1382,7 +1382,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorClosingSession(e);
+               ActiveMQServerLogger.LOGGER.errorClosingSession(e);
             }
          }
       });
@@ -1398,7 +1398,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
       else
       {
-         HornetQServerLogger.LOGGER.cannotFindConsumer(consumerID);
+         ActiveMQServerLogger.LOGGER.cannotFindConsumer(consumerID);
       }
    }
 
@@ -1408,7 +1408,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (consumer == null)
       {
-         HornetQServerLogger.LOGGER.debug("There is no consumer with id " + consumerID);
+         ActiveMQServerLogger.LOGGER.debug("There is no consumer with id " + consumerID);
 
          return;
       }
@@ -1433,14 +1433,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("sendLarge::" + largeMsg);
+         ActiveMQServerLogger.LOGGER.trace("sendLarge::" + largeMsg);
       }
 
       if (currentLargeMessage != null)
       {
-         HornetQServerLogger.LOGGER.replacingIncompleteLargeMessage(currentLargeMessage.getMessageID());
+         ActiveMQServerLogger.LOGGER.replacingIncompleteLargeMessage(currentLargeMessage.getMessageID());
       }
 
       currentLargeMessage = largeMsg;
@@ -1482,13 +1482,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (isTrace)
       {
-         HornetQServerLogger.LOGGER.trace("send(message=" + message + ", direct=" + direct + ") being called");
+         ActiveMQServerLogger.LOGGER.trace("send(message=" + message + ", direct=" + direct + ") being called");
       }
 
       if (message.getAddress() == null)
       {
          // This could happen with some tests that are ignoring messages
-         throw HornetQMessageBundle.BUNDLE.noAddress();
+         throw ActiveMQMessageBundle.BUNDLE.noAddress();
       }
 
       if (message.getAddress().equals(managementAddress))
@@ -1510,7 +1510,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       if (currentLargeMessage == null)
       {
-         throw HornetQMessageBundle.BUNDLE.largeMessageNotInitialised();
+         throw ActiveMQMessageBundle.BUNDLE.largeMessageNotInitialised();
       }
 
       // Immediately release the credits for the continuations- these don't contribute to the in-memory size
@@ -1686,15 +1686,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    {
       try
       {
-         HornetQServerLogger.LOGGER.clientConnectionFailed(name);
+         ActiveMQServerLogger.LOGGER.clientConnectionFailed(name);
 
          close(true);
 
-         HornetQServerLogger.LOGGER.clientConnectionFailedClearingSession(name);
+         ActiveMQServerLogger.LOGGER.clientConnectionFailedClearingSession(name);
       }
       catch (Throwable t)
       {
-         HornetQServerLogger.LOGGER.errorClosingConnection(this);
+         ActiveMQServerLogger.LOGGER.errorClosingConnection(this);
       }
    }
 

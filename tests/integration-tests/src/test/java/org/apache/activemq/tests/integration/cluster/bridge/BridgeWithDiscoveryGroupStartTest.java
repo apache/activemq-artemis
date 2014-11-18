@@ -29,14 +29,14 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.cluster.Bridge;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -83,7 +83,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
    public void testStartStop() throws Exception
    {
       Map<String, Object> server0Params = new HashMap<String, Object>();
-      HornetQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
+      ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
@@ -94,7 +94,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
       {
          server1Params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
-      HornetQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+      ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
       ServerLocator locator = null;
       try
       {
@@ -170,7 +170,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
          server1.start();
          server0.start();
 
-         locator = HornetQClient.createServerLocatorWithoutHA(server0tc, server1tc);
+         locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
 
          ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);

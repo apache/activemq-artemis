@@ -19,7 +19,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.command.MessageAck;
@@ -32,12 +31,12 @@ import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.core.protocol.openwire.OpenWireUtil;
 import org.apache.activemq.core.server.QueueQueryResult;
 import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 
 public class AMQConsumer implements BrowserListener
 {
    private AMQSession session;
-   private ActiveMQDestination actualDest;
+   private org.apache.activemq.command.ActiveMQDestination actualDest;
    private ConsumerInfo info;
    private long nativeId = -1;
    private SimpleString subQueueName = null;
@@ -46,7 +45,7 @@ public class AMQConsumer implements BrowserListener
    private AtomicInteger currentSize;
    private final java.util.Queue<MessageInfo> deliveringRefs = new ConcurrentLinkedQueue<MessageInfo>();
 
-   public AMQConsumer(AMQSession amqSession, ActiveMQDestination d, ConsumerInfo info)
+   public AMQConsumer(AMQSession amqSession, org.apache.activemq.command.ActiveMQDestination d, ConsumerInfo info)
    {
       this.session = amqSession;
       this.actualDest = d;
@@ -79,8 +78,8 @@ public class AMQConsumer implements BrowserListener
          if (info.isDurable())
          {
             subQueueName = new SimpleString(
-                  HornetQDestination.createQueueNameForDurableSubscription(
-                        true, info.getClientId(), info.getSubscriptionName()));
+                  ActiveMQDestination.createQueueNameForDurableSubscription(
+                     true, info.getClientId(), info.getSubscriptionName()));
 
             QueueQueryResult result = coreSession.executeQueueQuery(subQueueName);
             if (result.isExists())

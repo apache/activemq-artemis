@@ -17,7 +17,7 @@ import org.apache.activemq.core.persistence.OperationContext;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.core.server.management.ManagementService;
 import org.apache.activemq.core.transaction.ResourceManager;
@@ -34,7 +34,7 @@ public interface ServerSessionFactory
          RemotingConnection connection, StorageManager storageManager,
          PostOffice postOffice, ResourceManager resourceManager,
          SecurityStore securityStore, ManagementService managementService,
-         HornetQServerImpl hornetQServerImpl, SimpleString managementAddress,
+         ActiveMQServerImpl activeMQServerImpl, SimpleString managementAddress,
          SimpleString simpleString, SessionCallback callback,
          OperationContext context) throws Exception;
 

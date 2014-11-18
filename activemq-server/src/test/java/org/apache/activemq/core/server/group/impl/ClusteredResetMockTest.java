@@ -29,7 +29,7 @@ import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.management.impl.HornetQServerControlImpl;
+import org.apache.activemq.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -37,7 +37,7 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.remoting.server.RemotingService;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.Divert;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.ServerMessage;
@@ -238,7 +238,7 @@ public class ClusteredResetMockTest extends UnitTestCase
       }
 
       @Override
-      public HornetQServerControlImpl registerServer(PostOffice postOffice, StorageManager storageManager, Configuration configuration, HierarchicalRepository<AddressSettings> addressSettingsRepository, HierarchicalRepository<Set<Role>> securityRepository, ResourceManager resourceManager, RemotingService remotingService, HornetQServer messagingServer, QueueFactory queueFactory, ScheduledExecutorService scheduledThreadPool, PagingManager pagingManager, boolean backup) throws Exception
+      public ActiveMQServerControlImpl registerServer(PostOffice postOffice, StorageManager storageManager, Configuration configuration, HierarchicalRepository<AddressSettings> addressSettingsRepository, HierarchicalRepository<Set<Role>> securityRepository, ResourceManager resourceManager, RemotingService remotingService, ActiveMQServer messagingServer, QueueFactory queueFactory, ScheduledExecutorService scheduledThreadPool, PagingManager pagingManager, boolean backup) throws Exception
       {
          return null;
       }

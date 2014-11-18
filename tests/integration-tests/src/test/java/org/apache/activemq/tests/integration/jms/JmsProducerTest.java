@@ -28,8 +28,8 @@ import java.util.Random;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.core.client.impl.DelegatingSession;
-import org.apache.activemq.jms.client.HornetQJMSContext;
-import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.jms.client.ActiveMQJMSContext;
+import org.apache.activemq.jms.client.ActiveMQSession;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
@@ -115,7 +115,7 @@ public class JmsProducerTest extends JMSTestBase
          context.createProducer().send(q1, "Text" + i);
       }
 
-      HornetQSession sessionUsed = (HornetQSession) (((HornetQJMSContext) context).getUsedSession());
+      ActiveMQSession sessionUsed = (ActiveMQSession) (((ActiveMQJMSContext) context).getUsedSession());
 
       ClientSessionImpl coreSession = (ClientSessionImpl) ((DelegatingSession) sessionUsed.getCoreSession()).getInternalSession();
 

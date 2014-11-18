@@ -25,10 +25,10 @@ import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 public final class ActiveMQBuffers
 {
    /**
-    * Creates a <em>self-expanding</em> HornetQBuffer with the given initial size
+    * Creates a <em>self-expanding</em> ActiveMQBuffer with the given initial size
     *
-    * @param size the initial size of the created HornetQBuffer
-    * @return a self-expanding HornetQBuffer starting with the given size
+    * @param size the initial size of the created ActiveMQBuffer
+    * @return a self-expanding ActiveMQBuffer starting with the given size
     */
    public static ActiveMQBuffer dynamicBuffer(final int size)
    {
@@ -36,10 +36,10 @@ public final class ActiveMQBuffers
    }
 
    /**
-    * Creates a <em>self-expanding</em> HornetQBuffer filled with the given byte array
+    * Creates a <em>self-expanding</em> ActiveMQBuffer filled with the given byte array
     *
     * @param bytes the created buffer will be initially filled with this byte array
-    * @return a self-expanding HornetQBuffer filled with the given byte array
+    * @return a self-expanding ActiveMQBuffer filled with the given byte array
     */
    public static ActiveMQBuffer dynamicBuffer(final byte[] bytes)
    {
@@ -51,12 +51,12 @@ public final class ActiveMQBuffers
    }
 
    /**
-    * Creates a HornetQBuffer wrapping an underlying NIO ByteBuffer
+    * Creates a ActiveMQBuffer wrapping an underlying NIO ByteBuffer
     *
     * The position on this buffer won't affect the position on the inner buffer
     *
     * @param underlying the underlying NIO ByteBuffer
-    * @return a HornetQBuffer wrapping the underlying NIO ByteBuffer
+    * @return a ActiveMQBuffer wrapping the underlying NIO ByteBuffer
     */
    public static ActiveMQBuffer wrappedBuffer(final ByteBuffer underlying)
    {
@@ -68,10 +68,10 @@ public final class ActiveMQBuffers
    }
 
    /**
-    * Creates a HornetQBuffer wrapping an underlying byte array
+    * Creates a ActiveMQBuffer wrapping an underlying byte array
     *
     * @param underlying the underlying byte array
-    * @return a HornetQBuffer wrapping the underlying byte array
+    * @return a ActiveMQBuffer wrapping the underlying byte array
     */
    public static ActiveMQBuffer wrappedBuffer(final byte[] underlying)
    {
@@ -79,10 +79,10 @@ public final class ActiveMQBuffers
    }
 
    /**
-    * Creates a <em>fixed</em> HornetQBuffer of the given size
+    * Creates a <em>fixed</em> ActiveMQBuffer of the given size
     *
-    * @param size the size of the created HornetQBuffer
-    * @return a fixed HornetQBuffer with the given size
+    * @param size the size of the created ActiveMQBuffer
+    * @return a fixed ActiveMQBuffer with the given size
     */
    public static ActiveMQBuffer fixedBuffer(final int size)
    {

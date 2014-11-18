@@ -18,7 +18,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class CreateQueueTest extends JMSTestBase
 
       String tempQueueName = tempQueue.getQueueName();
 
-      assertFalse(tempQueueName.startsWith(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX));
+      assertFalse(tempQueueName.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX));
 
       Queue replyQueue = session.createQueue(tempQueueName);
 
@@ -80,7 +80,7 @@ public class CreateQueueTest extends JMSTestBase
 
       log.info("queue name is " + queueName);
 
-      assertFalse(queueName.startsWith(HornetQDestination.JMS_QUEUE_ADDRESS_PREFIX));
+      assertFalse(queueName.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX));
 
       Queue replyQueue = session.createQueue(queueName);
 
@@ -106,7 +106,7 @@ public class CreateQueueTest extends JMSTestBase
 
       String topicName = topic.getTopicName();
 
-      assertFalse(topicName.startsWith(HornetQDestination.JMS_TOPIC_ADDRESS_PREFIX));
+      assertFalse(topicName.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX));
 
       Topic replyTopic = session.createTopic(topicName);
 
@@ -131,7 +131,7 @@ public class CreateQueueTest extends JMSTestBase
 
       String tempTopicName = tempTopic.getTopicName();
 
-      assertFalse(tempTopicName.startsWith(HornetQDestination.JMS_TOPIC_ADDRESS_PREFIX));
+      assertFalse(tempTopicName.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX));
 
       Topic replyTopic = session.createTopic(tempTopicName);
 

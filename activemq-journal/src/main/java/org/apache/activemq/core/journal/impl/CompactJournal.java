@@ -29,7 +29,7 @@ public final class CompactJournal // NO_UCD
    {
       if (arg.length != 4)
       {
-         System.err.println("Use: java -cp hornetq-core.jar org.apache.activemq.core.journal.impl.CompactJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize>");
+         System.err.println("Use: java -cp activemq-core.jar org.apache.activemq.core.journal.impl.CompactJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize>");
          return;
       }
 

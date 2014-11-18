@@ -26,9 +26,9 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -65,9 +65,9 @@ public class LargeMessageCompressTest extends LargeMessageTest
    @Test
    public void testLargeMessageCompression() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -110,9 +110,9 @@ public class LargeMessageCompressTest extends LargeMessageTest
    @Test
    public void testLargeMessageCompression2() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -170,9 +170,9 @@ public class LargeMessageCompressTest extends LargeMessageTest
    @Test
    public void testLargeMessageCompression3() throws Exception
    {
-      final int messageSize = (int) (3.5 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -235,7 +235,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
 
       System.out.println("Message size = " + messageSize);
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 
@@ -328,7 +328,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
       final int messageSize = 1024 * 1024;
 
 
-      HornetQServer server = createServer(true, isNetty());
+      ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
 

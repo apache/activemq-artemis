@@ -31,7 +31,7 @@ import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.persistence.OperationContext;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.management.ManagementService;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.utils.ExecutorFactory;
@@ -200,7 +200,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
 
    public Response receive(final Proposal proposal, final int distance) throws Exception
    {
-      HornetQServerLogger.LOGGER.trace("received proposal " + proposal);
+      ActiveMQServerLogger.LOGGER.trace("received proposal " + proposal);
       return propose(proposal);
    }
 
@@ -251,7 +251,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
          catch (Exception e)
          {
             // nothing we can do being log
-            HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
    }
@@ -287,12 +287,12 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
 
             if (expectedBindings.size() > 0)
             {
-               HornetQServerLogger.LOGGER.debug("Waiting remote group bindings to arrive before starting the server. timeout=" + timeout + " milliseconds");
+               ActiveMQServerLogger.LOGGER.debug("Waiting remote group bindings to arrive before starting the server. timeout=" + timeout + " milliseconds");
                //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
                //if we arent signaled then bindingsAdded still has some groupids we need to remove.
                if (!awaitCondition.await(timeout, TimeUnit.MILLISECONDS))
                {
-                  HornetQServerLogger.LOGGER.remoteGroupCoordinatorsNotStarted();
+                  ActiveMQServerLogger.LOGGER.remoteGroupCoordinatorsNotStarted();
                }
 
             }
@@ -330,24 +330,24 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
                {
                   if (expectedBindings.remove(clusterName))
                   {
-                     HornetQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Removed clusterName=" + clusterName + " from lis succesffully");
+                     ActiveMQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Removed clusterName=" + clusterName + " from lis succesffully");
                   }
                   else
                   {
-                     HornetQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Couldn't remove clusterName=" + clusterName + " as it wasn't on the original list");
+                     ActiveMQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Couldn't remove clusterName=" + clusterName + " as it wasn't on the original list");
                   }
                }
                else
                {
                   expectedBindings.add(clusterName);
-                  HornetQServerLogger.LOGGER.debug("Notification for waitForbindings::Adding previously known item clusterName=" + clusterName);
+                  ActiveMQServerLogger.LOGGER.debug("Notification for waitForbindings::Adding previously known item clusterName=" + clusterName);
                }
 
-               if (HornetQServerLogger.LOGGER.isDebugEnabled())
+               if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
                {
                   for (SimpleString stillWaiting : expectedBindings)
                   {
-                     HornetQServerLogger.LOGGER.debug("Notification for waitForbindings::Still waiting for clusterName=" + stillWaiting);
+                     ActiveMQServerLogger.LOGGER.debug("Notification for waitForbindings::Still waiting for clusterName=" + stillWaiting);
                   }
                }
 
@@ -435,7 +435,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
                      }
                      catch (Exception e)
                      {
-                        HornetQServerLogger.LOGGER.unableToDeleteGroupBindings(e, val.getGroupId());
+                        ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, val.getGroupId());
                      }
                   }
                }
@@ -449,7 +449,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
                   }
                   catch (Exception e)
                   {
-                     HornetQServerLogger.LOGGER.unableToDeleteGroupBindings(e, SimpleString.toSimpleString("TX:" + txID));
+                     ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, SimpleString.toSimpleString("TX:" + txID));
                   }
                }
             }
@@ -512,7 +512,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
                   }
                   catch (Exception e)
                   {
-                     HornetQServerLogger.LOGGER.unableToDeleteGroupBindings(e, groupBinding.getGroupId());
+                     ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, groupBinding.getGroupId());
                   }
                }
             }
@@ -525,7 +525,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.unableToDeleteGroupBindings(e, SimpleString.toSimpleString("TX:" + txID));
+                  ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, SimpleString.toSimpleString("TX:" + txID));
                }
             }
          }

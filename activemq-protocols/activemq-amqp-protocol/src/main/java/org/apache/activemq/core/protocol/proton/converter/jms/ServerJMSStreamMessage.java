@@ -384,7 +384,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       getBuffer().resetReaderIndex();
    }
 
-   // HornetQRAMessage overrides ----------------------------------------
+   // ActiveMQRAMessage overrides ----------------------------------------
 
    @Override
    public void clearBody() throws JMSException

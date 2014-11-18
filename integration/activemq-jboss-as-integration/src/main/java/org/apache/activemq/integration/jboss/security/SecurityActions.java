@@ -18,7 +18,7 @@ import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
 
-import org.apache.activemq.integration.jboss.HornetQJBossLogger;
+import org.apache.activemq.integration.jboss.ActiveMQJBossLogger;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SecurityContextFactory;
@@ -47,7 +47,7 @@ class SecurityActions
 
                   try
                   {
-                     HornetQJBossLogger.LOGGER.settingSecuritySubject(subject);
+                     ActiveMQJBossLogger.LOGGER.settingSecuritySubject(subject);
                      // SecurityAssociation.pushSubjectContext(subject, principal, credential);
                      SecurityContext sc = SecurityContextAssociation.getSecurityContext();
                      if (sc == null)
@@ -73,7 +73,7 @@ class SecurityActions
                   }
                   catch (Throwable t)
                   {
-                     HornetQJBossLogger.LOGGER.errorSettingSecurityContext(t);
+                     ActiveMQJBossLogger.LOGGER.errorSettingSecurityContext(t);
                   }
 
                   return null;

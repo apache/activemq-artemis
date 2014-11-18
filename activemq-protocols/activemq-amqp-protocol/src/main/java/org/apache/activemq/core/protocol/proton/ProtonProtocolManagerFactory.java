@@ -14,7 +14,7 @@
 package org.apache.activemq.core.protocol.proton;
 
 import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
@@ -30,7 +30,7 @@ public class ProtonProtocolManagerFactory implements ProtocolManagerFactory
    private static String[] SUPPORTED_PROTOCOLS = {AMQP_PROTOCOL_NAME};
 
    @Override
-   public ProtocolManager createProtocolManager(HornetQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
+   public ProtocolManager createProtocolManager(ActiveMQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
       return new ProtonProtocolManager(server);
    }

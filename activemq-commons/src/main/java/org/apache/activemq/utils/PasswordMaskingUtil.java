@@ -63,7 +63,7 @@ public class PasswordMaskingUtil
             }
             catch (Exception e)
             {
-               throw HornetQUtilBundle.BUNDLE.errorCreatingCodec(e, codecClassName);
+               throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(e, codecClassName);
             }
          }
       });
@@ -76,7 +76,7 @@ public class PasswordMaskingUtil
          {
             String[] keyVal = parts[i].split("=");
             if (keyVal.length != 2)
-               throw HornetQUtilBundle.BUNDLE.invalidProperty(parts[i]);
+               throw ActiveMQUtilBundle.BUNDLE.invalidProperty(parts[i]);
             props.put(keyVal[0], keyVal[1]);
          }
          codecInstance.init(props);

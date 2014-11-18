@@ -27,15 +27,15 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.postoffice.BindingType;
 import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ServerSession;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.core.server.management.ManagementService;
@@ -47,12 +47,12 @@ import org.apache.activemq.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.TypedProperties;
 import org.apache.activemq.utils.UUIDGenerator;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * StompProtocolManager
@@ -65,7 +65,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
 
    // Attributes ----------------------------------------------------
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final Executor executor;
 
@@ -80,7 +80,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
 
    // Constructors --------------------------------------------------
 
-   public StompProtocolManager(final HornetQServer server, final List<Interceptor> interceptors)
+   public StompProtocolManager(final ActiveMQServer server, final List<Interceptor> interceptors)
    {
       this.server = server;
       this.executor = server.getExecutorFactory().getExecutor();
@@ -152,7 +152,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorDecodingPacket(e);
+            ActiveMQServerLogger.LOGGER.errorDecodingPacket(e);
             return;
          }
 
@@ -194,15 +194,15 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
 
    public boolean send(final StompConnection connection, final StompFrame frame)
    {
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("sent " + frame);
+         ActiveMQServerLogger.LOGGER.trace("sent " + frame);
       }
       synchronized (connection)
       {
          if (connection.isDestroyed())
          {
-            HornetQStompProtocolLogger.LOGGER.connectionClosed(connection);
+            ActiveMQStompProtocolLogger.LOGGER.connectionClosed(connection);
             return false;
          }
 
@@ -212,7 +212,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
          }
          catch (Exception e)
          {
-            HornetQStompProtocolLogger.LOGGER.errorSendingFrame(e, frame);
+            ActiveMQStompProtocolLogger.LOGGER.errorSendingFrame(e, frame);
             return false;
          }
          return true;
@@ -236,7 +236,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
          ServerSession session = server.createSession(name,
                                                       connection.getLogin(),
                                                       connection.getPasscode(),
-                                                      HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                      ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
                                                       connection,
                                                       true,
                                                       false,
@@ -261,7 +261,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
          ServerSession session = server.createSession(name,
                                                       connection.getLogin(),
                                                       connection.getPasscode(),
-                                                      HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
+                                                      ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
                                                       connection,
                                                       false,
                                                       false,
@@ -296,7 +296,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.errorCleaningStompConn(e);
+                  ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
                }
             }
 
@@ -315,7 +315,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
                   }
                   catch (Exception e)
                   {
-                     HornetQServerLogger.LOGGER.errorCleaningStompConn(e);
+                     ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
                   }
                   iterator.remove();
                }
@@ -330,9 +330,9 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       {
          public void onError(final int errorCode, final String errorMessage)
          {
-            HornetQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
+            ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
-            HornetQStompException e = new HornetQStompException("Error sending reply",
+            ActiveMQStompException e = new ActiveMQStompException("Error sending reply",
                                                                 ActiveMQExceptionType.createException(errorCode, errorMessage));
 
             StompFrame error = e.getFrame();
@@ -353,14 +353,14 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
 
    public String getVirtualHostName()
    {
-      return "hornetq";
+      return "activemq";
    }
 
    public boolean validateUser(String login, String passcode)
    {
       boolean validated = true;
 
-      HornetQSecurityManager sm = server.getSecurityManager();
+      ActiveMQSecurityManager sm = server.getSecurityManager();
 
       if (sm != null && server.getConfiguration().isSecurityEnabled())
       {
@@ -380,7 +380,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       StompSession session = getTransactedSession(connection, txID);
       if (session == null)
       {
-         throw new HornetQStompException("No transaction started: " + txID);
+         throw new ActiveMQStompException("No transaction started: " + txID);
       }
       transactedSessions.remove(txID);
       session.getSession().commit();
@@ -391,7 +391,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       StompSession session = getTransactedSession(connection, txID);
       if (session == null)
       {
-         throw new HornetQStompException("No transaction started: " + txID);
+         throw new ActiveMQStompException("No transaction started: " + txID);
       }
       transactedSessions.remove(txID);
       session.getSession().rollback(false);
@@ -406,7 +406,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       stompSession.setNoLocal(noLocal);
       if (stompSession.containsSubscription(subscriptionID))
       {
-         throw new HornetQStompException("There already is a subscription for: " + subscriptionID +
+         throw new ActiveMQStompException("There already is a subscription for: " + subscriptionID +
                                             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
@@ -427,7 +427,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       boolean unsubscribed = stompSession.unsubscribe(subscriptionID, durableSubscriberName);
       if (!unsubscribed)
       {
-         throw new HornetQStompException("Cannot unsubscribe as no subscription exists for id: " + subscriptionID);
+         throw new ActiveMQStompException("Cannot unsubscribe as no subscription exists for id: " + subscriptionID);
       }
    }
 
@@ -439,11 +439,11 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
 
    public void beginTransaction(StompConnection connection, String txID) throws Exception
    {
-      HornetQServerLogger.LOGGER.stompBeginTX(txID);
+      ActiveMQServerLogger.LOGGER.stompBeginTX(txID);
       if (transactedSessions.containsKey(txID))
       {
-         HornetQServerLogger.LOGGER.stompErrorTXExists(txID);
-         throw new HornetQStompException(connection, "Transaction already started: " + txID);
+         ActiveMQServerLogger.LOGGER.stompErrorTXExists(txID);
+         throw new ActiveMQStompException(connection, "Transaction already started: " + txID);
       }
       // create the transacted session
       getTransactedSession(connection, txID);
@@ -469,7 +469,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
          {
             if (!props.containsProperty(ManagementHelper.HDR_BINDING_TYPE))
             {
-               throw HornetQMessageBundle.BUNDLE.bindingTypeNotSpecified();
+               throw ActiveMQMessageBundle.BUNDLE.bindingTypeNotSpecified();
             }
 
             Integer bindingType = props.getIntProperty(ManagementHelper.HDR_BINDING_TYPE);

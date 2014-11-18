@@ -31,7 +31,7 @@ import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
@@ -43,11 +43,11 @@ import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.HornetQExceptionMessage;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.cluster.ha.HAManager;
@@ -73,7 +73,7 @@ import org.apache.activemq.utils.FutureLatch;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author Clebert Suconic
  */
-public final class ClusterManager implements HornetQComponent
+public final class ClusterManager implements ActiveMQComponent
 {
    private ClusterController clusterController;
 
@@ -85,7 +85,7 @@ public final class ClusterManager implements HornetQComponent
 
    private final ExecutorFactory executorFactory;
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private final PostOffice postOffice;
 
@@ -146,7 +146,7 @@ public final class ClusterManager implements HornetQComponent
    private final NodeManager nodeManager;
 
    public ClusterManager(final ExecutorFactory executorFactory,
-                         final HornetQServer server,
+                         final ActiveMQServer server,
                          final PostOffice postOffice,
                          final ScheduledExecutorService scheduledExecutor,
                          final ManagementService managementService,
@@ -288,7 +288,7 @@ public final class ClusterManager implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.unableToStartBroadcastGroup(e, group.getName());
+            ActiveMQServerLogger.LOGGER.unableToStartBroadcastGroup(e, group.getName());
          }
       }
 
@@ -300,7 +300,7 @@ public final class ClusterManager implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.unableToStartClusterConnection(e, conn.getName());
+            ActiveMQServerLogger.LOGGER.unableToStartClusterConnection(e, conn.getName());
          }
       }
 
@@ -314,7 +314,7 @@ public final class ClusterManager implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.unableToStartBridge(e, bridge.getName());
+            ActiveMQServerLogger.LOGGER.unableToStartBridge(e, bridge.getName());
          }
       }
 
@@ -376,7 +376,7 @@ public final class ClusterManager implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorClosingServerLocator(e, clusterLocator);
+            ActiveMQServerLogger.LOGGER.errorClosingServerLocator(e, clusterLocator);
          }
       }
       clusterLocators.clear();
@@ -433,26 +433,26 @@ public final class ClusterManager implements HornetQComponent
    {
       if (config.getName() == null)
       {
-         HornetQServerLogger.LOGGER.bridgeNotUnique();
+         ActiveMQServerLogger.LOGGER.bridgeNotUnique();
 
          return;
       }
 
       if (config.getQueueName() == null)
       {
-         HornetQServerLogger.LOGGER.bridgeNoQueue(config.getName());
+         ActiveMQServerLogger.LOGGER.bridgeNoQueue(config.getName());
 
          return;
       }
 
       if (config.getForwardingAddress() == null)
       {
-         HornetQServerLogger.LOGGER.bridgeNoForwardAddress(config.getName());
+         ActiveMQServerLogger.LOGGER.bridgeNoForwardAddress(config.getName());
       }
 
       if (bridges.containsKey(config.getName()))
       {
-         HornetQServerLogger.LOGGER.bridgeAlreadyDeployed(config.getName());
+         ActiveMQServerLogger.LOGGER.bridgeAlreadyDeployed(config.getName());
 
          return;
       }
@@ -463,7 +463,7 @@ public final class ClusterManager implements HornetQComponent
 
       if (binding == null)
       {
-         HornetQServerLogger.LOGGER.bridgeQueueNotFound(config.getQueueName(), config.getName());
+         ActiveMQServerLogger.LOGGER.bridgeQueueNotFound(config.getQueueName(), config.getName());
 
          return;
       }
@@ -478,18 +478,18 @@ public final class ClusterManager implements HornetQComponent
             .get(config.getDiscoveryGroupName());
          if (discoveryGroupConfiguration == null)
          {
-            HornetQServerLogger.LOGGER.bridgeNoDiscoveryGroup(config.getDiscoveryGroupName());
+            ActiveMQServerLogger.LOGGER.bridgeNoDiscoveryGroup(config.getDiscoveryGroupName());
 
             return;
          }
 
          if (config.isHA())
          {
-            serverLocator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithHA(discoveryGroupConfiguration);
+            serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(discoveryGroupConfiguration);
          }
          else
          {
-            serverLocator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithoutHA(discoveryGroupConfiguration);
+            serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(discoveryGroupConfiguration);
          }
 
       }
@@ -499,17 +499,17 @@ public final class ClusterManager implements HornetQComponent
 
          if (tcConfigs == null)
          {
-            HornetQServerLogger.LOGGER.bridgeCantFindConnectors(config.getName());
+            ActiveMQServerLogger.LOGGER.bridgeCantFindConnectors(config.getName());
             return;
          }
 
          if (config.isHA())
          {
-            serverLocator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithHA(tcConfigs);
+            serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(tcConfigs);
          }
          else
          {
-            serverLocator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithoutHA(tcConfigs);
+            serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(tcConfigs);
          }
 
       }
@@ -541,7 +541,7 @@ public final class ClusterManager implements HornetQComponent
 
       if (!config.isUseDuplicateDetection())
       {
-         HornetQServerLogger.LOGGER.debug("Bridge " + config.getName() +
+         ActiveMQServerLogger.LOGGER.debug("Bridge " + config.getName() +
                                              " is configured to not use duplicate detecion, it will send messages synchronously");
       }
 
@@ -595,11 +595,11 @@ public final class ClusterManager implements HornetQComponent
       {
          if (packet.getType() == PacketImpl.EXCEPTION)
          {
-            HornetQExceptionMessage msg = (HornetQExceptionMessage) packet;
+            ActiveMQExceptionMessage msg = (ActiveMQExceptionMessage) packet;
             final ActiveMQException exception = msg.getException();
             if (exception.getType() == ActiveMQExceptionType.CLUSTER_SECURITY_EXCEPTION)
             {
-               HornetQServerLogger.LOGGER.clusterManagerAuthenticationError(exception.getMessage());
+               ActiveMQServerLogger.LOGGER.clusterManagerAuthenticationError(exception.getMessage());
                executor.execute(new Runnable()
                {
                   @Override
@@ -652,7 +652,7 @@ public final class ClusterManager implements HornetQComponent
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
       bridges.clear();
@@ -696,7 +696,7 @@ public final class ClusterManager implements HornetQComponent
 
       if (clusterConnections.containsKey(config.getName()))
       {
-         HornetQServerLogger.LOGGER.clusterConnectionAlreadyExists(config.getConnectorName());
+         ActiveMQServerLogger.LOGGER.clusterConnectionAlreadyExists(config.getConnectorName());
          return;
       }
 
@@ -708,9 +708,9 @@ public final class ClusterManager implements HornetQComponent
 
          if (dg == null) return;
 
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug(this + " Starting a Discovery Group Cluster Connection, name=" +
+            ActiveMQServerLogger.LOGGER.debug(this + " Starting a Discovery Group Cluster Connection, name=" +
                                                 config.getDiscoveryGroupName() +
                                                 ", dg=" +
                                                 dg);
@@ -753,9 +753,9 @@ public final class ClusterManager implements HornetQComponent
       {
          TransportConfiguration[] tcConfigs = ClusterConfigurationUtil.getTransportConfigurations(config, configuration);
 
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug(this + " defining cluster connection towards " + Arrays.toString(tcConfigs));
+            ActiveMQServerLogger.LOGGER.debug(this + " defining cluster connection towards " + Arrays.toString(tcConfigs));
          }
 
          clusterConnection = new ClusterConnectionImpl(this,
@@ -804,9 +804,9 @@ public final class ClusterManager implements HornetQComponent
 
       clusterConnections.put(config.getName(), clusterConnection);
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("ClusterConnection.start at " + clusterConnection, new Exception("trace"));
+         ActiveMQServerLogger.LOGGER.trace("ClusterConnection.start at " + clusterConnection, new Exception("trace"));
       }
    }
 
@@ -824,7 +824,7 @@ public final class ClusterManager implements HornetQComponent
          }
          catch (Exception e)
          {
-            throw HornetQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, transformerClassName);
+            throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, transformerClassName);
          }
       }
       return transformer;
@@ -835,7 +835,7 @@ public final class ClusterManager implements HornetQComponent
    {
       if (broadcastGroups.containsKey(config.getName()))
       {
-         HornetQServerLogger.LOGGER.broadcastGroupAlreadyExists(config.getName());
+         ActiveMQServerLogger.LOGGER.broadcastGroupAlreadyExists(config.getName());
 
          return;
       }
@@ -882,7 +882,7 @@ public final class ClusterManager implements HornetQComponent
 
    private void logWarnNoConnector(final String connectorName, final String bgName)
    {
-      HornetQServerLogger.LOGGER.broadcastGroupNoConnector(connectorName, bgName);
+      ActiveMQServerLogger.LOGGER.broadcastGroupNoConnector(connectorName, bgName);
    }
 
    private synchronized Collection<ClusterConnection> cloneClusterConnections()

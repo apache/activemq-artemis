@@ -25,7 +25,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Assert;
@@ -100,7 +100,7 @@ public class BrowserTest extends JMSTestCase
 
       MessageProducer producer = session.createProducer(queue1);
 
-      HornetQConnectionFactory cf1 = (HornetQConnectionFactory)getConnectionFactory();
+      ActiveMQConnectionFactory cf1 = (ActiveMQConnectionFactory)getConnectionFactory();
 
       ClientSession coreSession = cf1.getServerLocator().createSessionFactory().createSession(true, true);
 

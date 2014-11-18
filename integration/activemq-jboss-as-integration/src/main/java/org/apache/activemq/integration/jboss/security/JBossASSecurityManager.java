@@ -23,9 +23,9 @@ import javax.security.auth.Subject;
 
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.integration.jboss.HornetQJBossLogger;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.integration.jboss.ActiveMQJBossLogger;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.jboss.security.AuthenticationManager;
 import org.jboss.security.RealmMapping;
 import org.jboss.security.SecurityContext;
@@ -34,18 +34,18 @@ import org.jboss.security.SimplePrincipal;
 
 /**
  * This implementation delegates to the JBoss AS security interfaces (which in turn use JAAS)
- * It can be used when running HornetQ in JBoss AS
+ * It can be used when running ActiveMQ in JBoss AS
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public class JBossASSecurityManager implements HornetQSecurityManager, HornetQComponent
+public class JBossASSecurityManager implements ActiveMQSecurityManager, ActiveMQComponent
 {
    // Static --------------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
-   private final boolean trace = HornetQJBossLogger.LOGGER.isTraceEnabled();
+   private final boolean trace = ActiveMQJBossLogger.LOGGER.isTraceEnabled();
 
    /**
     * the realmmapping
@@ -60,7 +60,7 @@ public class JBossASSecurityManager implements HornetQSecurityManager, HornetQCo
    /**
     * The JNDI name of the AuthenticationManager(and RealmMapping since they are the same object).
     */
-   private String securityDomainName = "java:/jaas/hornetq";
+   private String securityDomainName = "java:/jaas/activemq";
 
    private boolean started;
 
@@ -136,7 +136,7 @@ public class JBossASSecurityManager implements HornetQSecurityManager, HornetQCo
 
                if (trace)
                {
-                  HornetQJBossLogger.LOGGER.trace("user " + user +
+                  ActiveMQJBossLogger.LOGGER.trace("user " + user +
                                                    (authenticated ? " is " : " is NOT ") +
                                                    "authorized");
                }
@@ -170,7 +170,7 @@ public class JBossASSecurityManager implements HornetQSecurityManager, HornetQCo
 
                if (trace)
                {
-                  HornetQJBossLogger.LOGGER.trace("user " + principal.getName() +
+                  ActiveMQJBossLogger.LOGGER.trace("user " + principal.getName() +
                                                    (authenticated ? " is " : " is NOT ") +
                                                    "authorized");
                }

@@ -35,9 +35,9 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.RandomUtil;
 
@@ -64,7 +64,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    // Attributes ----------------------------------------------------
    protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
 
-   protected HornetQServer liveServer;
+   protected ActiveMQServer liveServer;
 
    // Static --------------------------------------------------------
 
@@ -1088,7 +1088,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
-      ClientMessage message = sess.createMessage(HornetQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
       producer.send(message);
 
       ClientMessage message2 = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
@@ -1124,7 +1124,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
-      ClientMessage message = sess.createMessage(HornetQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
       producer.send(message);
 
       ClientMessage message2 = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
@@ -1203,7 +1203,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
-      ClientMessage message = sess.createMessage(HornetQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
       producer.send(message);
 
       sess.start();
@@ -1334,7 +1334,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    {
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQBytesMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQBytesMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),

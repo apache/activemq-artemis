@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.utils;
 
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 
 import java.lang.ref.WeakReference;
 
@@ -105,7 +105,7 @@ public class MemorySize
          // throw new IllegalStateException("Warning: JVM allocated more data what would make results invalid " +
          // totalMemory1 + ":" + totalMemory2);
 
-         HornetQClientLogger.LOGGER.jvmAllocatedMoreMemory(totalMemory1, totalMemory2);
+         ActiveMQClientLogger.LOGGER.jvmAllocatedMoreMemory(totalMemory1, totalMemory2);
       }
 
       return size;

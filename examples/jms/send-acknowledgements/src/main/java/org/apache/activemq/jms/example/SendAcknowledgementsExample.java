@@ -23,12 +23,12 @@ import javax.naming.InitialContext;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.common.example.HornetQExample;
-import org.apache.activemq.jms.client.HornetQSession;
+import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.jms.client.ActiveMQSession;
 
 /**
  *
- * Asynchronous Send Acknowledgements are an advanced feature of HornetQ which allow you to
+ * Asynchronous Send Acknowledgements are an advanced feature of ActiveMQ which allow you to
  * receive acknowledgements that messages were successfully received at the server in a separate stream
  * to the stream of messages being sent to the server.
  * For more information please see the readme.html file
@@ -36,7 +36,7 @@ import org.apache.activemq.jms.client.HornetQSession;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
  */
-public class SendAcknowledgementsExample extends HornetQExample
+public class SendAcknowledgementsExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -78,7 +78,7 @@ public class SendAcknowledgementsExample extends HornetQExample
 
          // Step 7. Set the handler on the underlying core session
 
-         ClientSession coreSession = ((HornetQSession)session).getCoreSession();
+         ClientSession coreSession = ((ActiveMQSession)session).getCoreSession();
 
          coreSession.setSendAcknowledgementHandler(new MySendAcknowledgementsHandler());
 

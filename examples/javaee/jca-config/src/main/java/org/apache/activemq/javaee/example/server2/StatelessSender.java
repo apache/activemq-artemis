@@ -12,8 +12,8 @@
  */
 package org.apache.activemq.javaee.example.server2;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
-import org.apache.activemq.ra.HornetQRAConnectionFactoryImpl;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl;
 
 import javax.annotation.Resource;
 import javax.ejb.Remote;
@@ -35,8 +35,8 @@ public class StatelessSender implements StatelessSenderService
    public void sendHello(String message) throws Exception
    {
       // Step 4. Define the destinations that will receive the message (instead of using JNDI to the remote server)
-      Queue destQueueA = HornetQJMSClient.createQueue("A");
-      Queue destQueueB = HornetQJMSClient.createQueue("B");
+      Queue destQueueA = ActiveMQJMSClient.createQueue("A");
+      Queue destQueueB = ActiveMQJMSClient.createQueue("B");
       // Step 5. Create a connection to a remote server using a connection-factory (look at the deployed file jms-remote-ds.xml)
       Connection conn = connectionFactory.createConnection("guest", "password");
 

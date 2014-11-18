@@ -33,7 +33,7 @@ import org.apache.activemq.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.core.journal.RecordInfo;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -57,7 +57,7 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
 
    final SimpleString QUEUE = new SimpleString("SomeQueue");
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSessionFactory sf;
 
@@ -98,8 +98,8 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
                                                0,
                                                0,
                                                factory,
-                                               "hornetq-data",
-                                               "hq",
+                                               "activemq-data",
+                                               "amq",
                                                100);
 
          List<RecordInfo> committedRecords = new ArrayList<RecordInfo>();

@@ -22,9 +22,9 @@ import javax.jms.Connection;
 import javax.jms.Session;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
@@ -37,7 +37,7 @@ import org.apache.activemq.tests.util.JMSTestBase;
  */
 public class ConcurrentSessionCloseTest extends JMSTestBase
 {
-   private HornetQConnectionFactory cf;
+   private ActiveMQConnectionFactory cf;
 
    @Override
    @Before
@@ -46,8 +46,8 @@ public class ConcurrentSessionCloseTest extends JMSTestBase
       super.setUp();
 
       cf =
-               HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                 new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
    }
 

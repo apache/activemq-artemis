@@ -34,8 +34,8 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -52,7 +52,7 @@ import org.junit.Before;
 public class JMSTestBase extends ServiceTestBase
 {
 
-   protected HornetQServer server;
+   protected ActiveMQServer server;
 
    protected JMSServerManagerImpl jmsServer;
 
@@ -151,7 +151,7 @@ public class JMSTestBase extends ServiceTestBase
          .setSecurityEnabled(useSecurity())
          .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      server = HornetQServers.newHornetQServer(conf, mbeanServer, usePersistence());
+      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, usePersistence());
       addServer(server);
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();

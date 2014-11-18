@@ -12,12 +12,12 @@
  */
 package org.apache.activemq.core.protocol.core;
 
-import org.apache.activemq.core.security.HornetQPrincipal;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 
 /**
- * Extension of RemotingConnection for the HornetQ core protocol
+ * Extension of RemotingConnection for the ActiveMQ core protocol
  * @author Tim Fox
  */
 public interface CoreRemotingConnection extends RemotingConnection
@@ -100,5 +100,5 @@ public interface CoreRemotingConnection extends RemotingConnection
     * Returns the default security principal
     * @return the principal
     */
-   HornetQPrincipal getDefaultHornetQPrincipal();
+   ActiveMQPrincipal getDefaultActiveMQPrincipal();
 }

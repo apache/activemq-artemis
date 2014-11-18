@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
+import org.apache.activemq.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.utils.ByteUtil;
@@ -34,7 +34,7 @@ import org.apache.activemq.utils.UUID;
 /**
  * A concrete implementation of a message
  * <p>
- * All messages handled by HornetQ core are of this type
+ * All messages handled by ActiveMQ core are of this type
  *
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -78,7 +78,7 @@ public abstract class MessageImpl implements MessageInternal
 
    protected ActiveMQBuffer buffer;
 
-   protected ResetLimitWrappedHornetQBuffer bodyBuffer;
+   protected ResetLimitWrappedActiveMQBuffer bodyBuffer;
 
    protected volatile boolean bufferValid;
 
@@ -100,7 +100,7 @@ public abstract class MessageImpl implements MessageInternal
    }
 
    /**
-    * overridden by the client message, we need access to the connection so we can create the appropriate HornetQBuffer.
+    * overridden by the client message, we need access to the connection so we can create the appropriate ActiveMQBuffer.
     *
     * @param type
     * @param durable
@@ -265,7 +265,7 @@ public abstract class MessageImpl implements MessageInternal
    {
       if (bodyBuffer == null)
       {
-         bodyBuffer = new ResetLimitWrappedHornetQBuffer(BODY_OFFSET, buffer, this);
+         bodyBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer, this);
       }
 
       return bodyBuffer;
@@ -299,7 +299,7 @@ public abstract class MessageImpl implements MessageInternal
 
       newBuffer.setIndex(0, getEndOfBodyPosition());
 
-      return new ResetLimitWrappedHornetQBuffer(BODY_OFFSET, newBuffer, null);
+      return new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, newBuffer, null);
    }
 
    public long getMessageID()

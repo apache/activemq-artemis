@@ -14,7 +14,7 @@
  * Core Messaging API.
  * <br>
  * This package defines base classes and interfaces used
- * throughout HornetQ API
+ * throughout ActiveMQ API
  */
 package org.apache.activemq.api.core;
 

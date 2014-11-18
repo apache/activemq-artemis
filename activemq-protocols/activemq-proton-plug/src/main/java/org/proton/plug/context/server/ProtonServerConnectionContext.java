@@ -23,7 +23,7 @@ import org.proton.plug.AMQPServerConnectionContext;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * @author Clebert Suconic
@@ -36,7 +36,7 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
       super(connectionSP);
    }
 
-   protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws HornetQAMQPException
+   protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException
    {
       AMQPSessionCallback sessionSPI = connectionCallback.createSessionCallback(this);
       AbstractProtonSessionContext protonSession = new ProtonServerSessionContext(sessionSPI, this, realSession);

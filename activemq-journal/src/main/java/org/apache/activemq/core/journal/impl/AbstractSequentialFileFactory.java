@@ -28,8 +28,8 @@ import org.apache.activemq.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.core.journal.IOCriticalErrorListener;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.journal.HornetQJournalLogger;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 
 /**
  *
@@ -99,7 +99,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
          {
             if (!writeExecutor.awaitTermination(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT, TimeUnit.SECONDS))
             {
-               HornetQJournalLogger.LOGGER.timeoutOnWriterShutdown(new Exception("trace"));
+               ActiveMQJournalLogger.LOGGER.timeoutOnWriterShutdown(new Exception("trace"));
             }
          }
          catch (InterruptedException e)
@@ -123,7 +123,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
 
       if (isSupportsCallbacks())
       {
-         writeExecutor = Executors.newSingleThreadExecutor(new HornetQThreadFactory("HornetQ-Asynchronous-Persistent-Writes" + System.identityHashCode(this),
+         writeExecutor = Executors.newSingleThreadExecutor(new ActiveMQThreadFactory("ActiveMQ-Asynchronous-Persistent-Writes" + System.identityHashCode(this),
                                                                                     true,
                                                                                     AbstractSequentialFileFactory.getThisClassLoader()));
       }

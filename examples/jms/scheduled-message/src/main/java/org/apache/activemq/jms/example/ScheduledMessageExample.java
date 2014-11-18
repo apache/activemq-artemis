@@ -25,14 +25,14 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 import org.apache.activemq.api.core.Message;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS scheduled delivery example that delivers a message in 5 seconds.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class ScheduledMessageExample extends HornetQExample
+public class ScheduledMessageExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

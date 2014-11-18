@@ -15,17 +15,17 @@ package org.apache.activemq.core.protocol.stomp.v11;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.core.protocol.stomp.FrameEventListener;
-import org.apache.activemq.core.protocol.stomp.HornetQStompException;
 import org.apache.activemq.core.protocol.stomp.SimpleBytes;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.protocol.stomp.StompConnection;
 import org.apache.activemq.core.protocol.stomp.StompDecoder;
 import org.apache.activemq.core.protocol.stomp.StompFrame;
 import org.apache.activemq.core.protocol.stomp.VersionedStompFrameHandler;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
@@ -73,7 +73,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
             // server
             response.addHeader(Stomp.Headers.Connected.SERVER,
-                               connection.getHornetQServerName());
+                               connection.getActiveMQServerName());
 
             if (requestID != null)
             {
@@ -107,7 +107,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             response.setBody("The login account is not valid.");
          }
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
@@ -117,12 +117,12 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
    //ping parameters, hard-code for now
    //the server can support min 20 milliseconds and receive ping at 100 milliseconds (20,100)
-   private void handleHeartBeat(String heartBeatHeader) throws HornetQStompException
+   private void handleHeartBeat(String heartBeatHeader) throws ActiveMQStompException
    {
       String[] params = heartBeatHeader.split(",");
       if (params.length != 2)
       {
-         throw new HornetQStompException("Incorrect heartbeat header " + heartBeatHeader);
+         throw new ActiveMQStompException("Incorrect heartbeat header " + heartBeatHeader);
       }
 
       //client ping
@@ -148,7 +148,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          }
          catch (InterruptedException e)
          {
-            HornetQServerLogger.LOGGER.errorOnStompHeartBeat(e);
+            ActiveMQServerLogger.LOGGER.errorOnStompHeartBeat(e);
          }
       }
       return null;
@@ -177,7 +177,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       {
          connection.unsubscribe(subscriptionID, durableSubscriberName);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
@@ -195,7 +195,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       if (txID != null)
       {
-         HornetQServerLogger.LOGGER.stompTXAckNorSupported();
+         ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
       }
 
       if (subscriptionID == null)
@@ -208,7 +208,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       {
          connection.acknowledge(messageID, subscriptionID);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }
@@ -444,7 +444,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       }
 
       @Override
-      protected boolean parseCommand() throws HornetQStompException
+      protected boolean parseCommand() throws ActiveMQStompException
       {
          int offset = 0;
          boolean nextChar = false;
@@ -692,7 +692,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          return true;
       }
 
-      protected void checkEol() throws HornetQStompException
+      protected void checkEol() throws ActiveMQStompException
       {
          if (workingBuffer[pos - 1] != NEW_LINE)
          {
@@ -701,7 +701,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       }
 
       @Override
-      protected boolean parseHeaders() throws HornetQStompException
+      protected boolean parseHeaders() throws ActiveMQStompException
       {
 
 
@@ -822,7 +822,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          return true;
       }
 
-      protected StompFrame parseBody() throws HornetQStompException
+      protected StompFrame parseBody() throws ActiveMQStompException
       {
          byte[] content = null;
 

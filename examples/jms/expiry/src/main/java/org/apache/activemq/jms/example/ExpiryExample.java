@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example showing how messages are moved to an expiry queue when they expire.
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  *
  */
-public class ExpiryExample extends HornetQExample
+public class ExpiryExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -101,7 +101,7 @@ public class ExpiryExample extends HornetQExample
          // The message received from the expiry queue has the same content than the expired message but its JMS headers
          // differ
          // (from JMS point of view, it's not the same message).
-         // HornetQ defines additional properties to correlate the message received from the expiry queue with the
+         // ActiveMQ defines additional properties to correlate the message received from the expiry queue with the
          // message expired from the queue
 
          System.out.println();

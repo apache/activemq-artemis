@@ -33,8 +33,8 @@ import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.protocol.core.impl.RemotingConnectionImpl;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
@@ -54,7 +54,7 @@ public class OrderReattachTest extends ServiceTestBase
    // Attributes ----------------------------------------------------
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    // Static --------------------------------------------------------
 
@@ -210,7 +210,7 @@ public class OrderReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = sessSend.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
                                                         false,
                                                         0,
                                                         System.currentTimeMillis(),

@@ -30,7 +30,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.jms.client.SelectorTranslator;
-import org.apache.activemq.rest.HornetQRestLogger;
+import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.util.Constants;
 import org.apache.activemq.rest.util.LinkStrategy;
 
@@ -114,7 +114,7 @@ public class QueueConsumer
       try
       {
          consumer.close();
-         HornetQRestLogger.LOGGER.debug("Closed consumer: " + consumer);
+         ActiveMQRestLogger.LOGGER.debug("Closed consumer: " + consumer);
       }
       catch (Exception e)
       {
@@ -123,7 +123,7 @@ public class QueueConsumer
       try
       {
          session.close();
-         HornetQRestLogger.LOGGER.debug("Closed session: " + session);
+         ActiveMQRestLogger.LOGGER.debug("Closed session: " + session);
       }
       catch (Exception e)
       {
@@ -139,7 +139,7 @@ public class QueueConsumer
                                      @PathParam("index") long index,
                                      @Context UriInfo info)
    {
-      HornetQRestLogger.LOGGER.debug("Handling POST request for \"" + info.getRequestUri() + "\"");
+      ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + info.getRequestUri() + "\"");
 
       if (closed)
       {
@@ -213,16 +213,16 @@ public class QueueConsumer
    protected void createSession() throws ActiveMQException
    {
       session = factory.createSession(true, true, 0);
-      HornetQRestLogger.LOGGER.debug("Created session: " + session);
+      ActiveMQRestLogger.LOGGER.debug("Created session: " + session);
       if (selector == null)
       {
          consumer = session.createConsumer(destination);
       }
       else
       {
-         consumer = session.createConsumer(destination, SelectorTranslator.convertToHornetQFilterString(selector));
+         consumer = session.createConsumer(destination, SelectorTranslator.convertToActiveMQFilterString(selector));
       }
-      HornetQRestLogger.LOGGER.debug("Created consumer: " + consumer);
+      ActiveMQRestLogger.LOGGER.debug("Created consumer: " + consumer);
       session.start();
    }
 
@@ -238,7 +238,7 @@ public class QueueConsumer
          m = consumer.receive(timeoutSecs * 1000);
       }
 
-      HornetQRestLogger.LOGGER.debug("Returning message " + m + " from consumer: " + consumer);
+      ActiveMQRestLogger.LOGGER.debug("Returning message " + m + " from consumer: " + consumer);
 
       return m;
    }

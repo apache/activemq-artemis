@@ -28,8 +28,8 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
@@ -59,7 +59,7 @@ public class JMSConfigurationTest extends ServiceTestBase
       Context context = new InVMNamingContext();
 
       Configuration coreConfiguration = createDefaultConfig(false);
-      HornetQServer coreServer = new HornetQServerImpl(coreConfiguration);
+      ActiveMQServer coreServer = new ActiveMQServerImpl(coreConfiguration);
 
       JMSConfiguration jmsConfiguration = new JMSConfigurationImpl();
       jmsConfiguration.setContext(context);

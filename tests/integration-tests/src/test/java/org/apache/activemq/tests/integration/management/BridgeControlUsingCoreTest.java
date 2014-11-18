@@ -27,7 +27,7 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.api.core.management.ResourceNames;
@@ -37,8 +37,8 @@ import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 
 /**
@@ -56,11 +56,11 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server_0;
+   private ActiveMQServer server_0;
 
    private BridgeConfiguration bridgeConfig;
 
-   private HornetQServer server_1;
+   private ActiveMQServer server_1;
 
    private ClientSession session;
 
@@ -165,14 +165,14 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase
          .addQueueConfiguration(sourceQueueConfig)
          .addBridgeConfiguration(bridgeConfig);
 
-      server_1 = addServer(HornetQServers.newHornetQServer(conf_1, MBeanServerFactory.createMBeanServer(), false));
+      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, MBeanServerFactory.createMBeanServer(), false));
       server_1.start();
 
-      server_0 = addServer(HornetQServers.newHornetQServer(conf_0, mbeanServer, false));
+      server_0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
       server_0.start();
       ServerLocator locator =
-               addServerLocator(HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                                                                                                      INVM_CONNECTOR_FACTORY)));
+               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+                  INVM_CONNECTOR_FACTORY)));
       ClientSessionFactory sf = createSessionFactory(locator);
       session = addClientSession(sf.createSession(false, true, true));
       session.start();

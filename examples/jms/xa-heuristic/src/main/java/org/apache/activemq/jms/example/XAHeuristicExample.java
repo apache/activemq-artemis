@@ -38,7 +38,7 @@ import javax.transaction.xa.Xid;
 
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.common.example.DummyXid;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 import org.apache.activemq.utils.UUIDGenerator;
 
 /**
@@ -46,7 +46,7 @@ import org.apache.activemq.utils.UUIDGenerator;
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class XAHeuristicExample extends HornetQExample
+public class XAHeuristicExample extends ActiveMQExample
 {
    private volatile boolean result = true;
 
@@ -156,7 +156,7 @@ public class XAHeuristicExample extends HornetQExample
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
 
          // Step 27. List the prepared transactions
-         ObjectName serverObject = ObjectNameBuilder.DEFAULT.getHornetQServerObjectName();
+         ObjectName serverObject = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
          String[] infos = (String[])mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
 
          System.out.println("Prepared transactions: ");

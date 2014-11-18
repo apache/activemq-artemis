@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
@@ -62,7 +62,7 @@ public class ConnectionFactoryPropertiesTest extends UnitTestCase
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsChannelRefName");
       UNSUPPORTED_RA_PROPERTIES.add("entries");
 
-      // TODO: shouldn't this be also set on the HornetQConnectionFactory:
+      // TODO: shouldn't this be also set on the ActiveMQConnectionFactory:
       // https://community.jboss.org/thread/211815?tstart=0
       UNSUPPORTED_RA_PROPERTIES.add("connectionPoolName");
    }
@@ -70,13 +70,13 @@ public class ConnectionFactoryPropertiesTest extends UnitTestCase
    @Test
    public void testCompareConnectionFactoryAndResourceAdapterProperties() throws Exception
    {
-      SortedSet<String> connectionFactoryProperties = findAllPropertyNames(HornetQConnectionFactory.class);
+      SortedSet<String> connectionFactoryProperties = findAllPropertyNames(ActiveMQConnectionFactory.class);
       connectionFactoryProperties.removeAll(UNSUPPORTED_CF_PROPERTIES);
-      SortedSet<String> raProperties = findAllPropertyNames(HornetQResourceAdapter.class);
+      SortedSet<String> raProperties = findAllPropertyNames(ActiveMQResourceAdapter.class);
       raProperties.removeAll(UNSUPPORTED_RA_PROPERTIES);
 
-      compare("HornetQ Connection Factory", connectionFactoryProperties,
-              "HornetQ Resource Adapter", raProperties);
+      compare("ActiveMQ Connection Factory", connectionFactoryProperties,
+              "ActiveMQ Resource Adapter", raProperties);
    }
 
    private static void compare(String name1, SortedSet<String> set1,

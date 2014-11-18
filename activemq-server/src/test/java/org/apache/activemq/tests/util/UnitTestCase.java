@@ -60,7 +60,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
@@ -88,10 +88,10 @@ import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
@@ -130,7 +130,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
    public TemporaryFolder temporaryFolder = new TemporaryFolder();
    private String testDir;
 
-   private static final HornetQServerLogger log = HornetQServerLogger.LOGGER;
+   private static final ActiveMQServerLogger log = ActiveMQServerLogger.LOGGER;
 
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
 
@@ -156,13 +156,13 @@ public abstract class UnitTestCase extends CoreUnitTestCase
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<Thread>();
 
-   private final Collection<HornetQServer> servers = new ArrayList<HornetQServer>();
+   private final Collection<ActiveMQServer> servers = new ArrayList<ActiveMQServer>();
    private final Collection<ServerLocator> locators = new ArrayList<ServerLocator>();
    private final Collection<ClientSessionFactory> sessionFactories = new ArrayList<ClientSessionFactory>();
    private final Collection<ClientSession> clientSessions = new HashSet<ClientSession>();
    private final Collection<ClientConsumer> clientConsumers = new HashSet<ClientConsumer>();
    private final Collection<ClientProducer> clientProducers = new HashSet<ClientProducer>();
-   private final Collection<HornetQComponent> otherComponents = new HashSet<HornetQComponent>();
+   private final Collection<ActiveMQComponent> otherComponents = new HashSet<ActiveMQComponent>();
    private final Set<ExecutorService> executorSet = new HashSet<ExecutorService>();
 
    private boolean checkThread = true;
@@ -506,7 +506,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
     */
    public void logAndSystemOut(String message, Exception e)
    {
-      HornetQServerLogger log0 = HornetQServerLogger.LOGGER;
+      ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
       log0.info(message, e);
       System.out.println(message);
       e.printStackTrace(System.out);
@@ -517,7 +517,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
     */
    public void logAndSystemOut(String message)
    {
-      HornetQServerLogger log0 = HornetQServerLogger.LOGGER;
+      ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
       log0.info(message);
       System.out.println(this.getClass().getName() + "::" + message);
    }
@@ -653,7 +653,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
     * @param connectorConfigs
     * @return
     */
-   protected ArrayList<String> registerConnectors(final HornetQServer server,
+   protected ArrayList<String> registerConnectors(final ActiveMQServer server,
                                                   final List<TransportConfiguration> connectorConfigs)
    {
       // The connectors need to be pre-configured at main config object but this method is taking
@@ -883,7 +883,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       return testDir1 + "/temp";
    }
 
-   protected static void expectHornetQException(final String message, final ActiveMQExceptionType errorCode, final HornetQAction action)
+   protected static void expectActiveMQException(final String message, final ActiveMQExceptionType errorCode, final ActiveMQAction action)
    {
       try
       {
@@ -897,14 +897,14 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       }
    }
 
-   protected static void expectHornetQException(final ActiveMQExceptionType errorCode, final HornetQAction action)
+   protected static void expectActiveMQException(final ActiveMQExceptionType errorCode, final ActiveMQAction action)
    {
-      UnitTestCase.expectHornetQException("must throw a ActiveMQException with the expected errorCode: " + errorCode,
-                                          errorCode,
-                                          action);
+      UnitTestCase.expectActiveMQException("must throw a ActiveMQException with the expected errorCode: " + errorCode,
+                                           errorCode,
+                                           action);
    }
 
-   protected static void expectXAException(final int errorCode, final HornetQAction action)
+   protected static void expectXAException(final int errorCode, final ActiveMQAction action)
    {
       try
       {
@@ -1065,7 +1065,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       {
          synchronized (servers)
          {
-            for (HornetQServer server : servers)
+            for (ActiveMQServer server : servers)
             {
                if (server == null)
                   continue;
@@ -1251,7 +1251,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
    {
       synchronized (otherComponents)
       {
-         for (HornetQComponent c : otherComponents)
+         for (ActiveMQComponent c : otherComponents)
          {
             stopComponent(c);
          }
@@ -1448,7 +1448,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.autoConvertError(arg.getClass());
+            throw ActiveMQMessageBundle.BUNDLE.autoConvertError(arg.getClass());
          }
       }
 
@@ -1483,7 +1483,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
          }
          else
          {
-            throw HornetQMessageBundle.BUNDLE.autoConvertError(arg.getClass());
+            throw ActiveMQMessageBundle.BUNDLE.autoConvertError(arg.getClass());
          }
       }
 
@@ -1646,7 +1646,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       return new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }
 
-   protected int getMessageCount(final HornetQServer service, final String address) throws Exception
+   protected int getMessageCount(final ActiveMQServer service, final String address) throws Exception
    {
       return getMessageCount(service.getPostOffice(), address);
    }
@@ -1707,7 +1707,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
     * @return a Map containing the reference counts per queue
     * @throws Exception
     */
-   protected Map<Long, AtomicInteger> loadQueues(HornetQServer serverToInvestigate) throws Exception
+   protected Map<Long, AtomicInteger> loadQueues(ActiveMQServer serverToInvestigate) throws Exception
    {
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(serverToInvestigate.getConfiguration()
                                                                          .getJournalDirectory());
@@ -1717,8 +1717,8 @@ public abstract class UnitTestCase extends CoreUnitTestCase
                                                     0,
                                                     0,
                                                     messagesFF,
-                                                    "hornetq-data",
-                                                    "hq",
+                                                    "activemq-data",
+                                                    "amq",
                                                     1);
       List<RecordInfo> records = new LinkedList<RecordInfo>();
 
@@ -1780,11 +1780,11 @@ public abstract class UnitTestCase extends CoreUnitTestCase
    protected ServerLocator internalCreateNonHALocator(boolean isNetty)
    {
       return isNetty
-         ? HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
-         : HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         ? ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
+         : ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
-   protected static final void stopComponent(HornetQComponent component)
+   protected static final void stopComponent(ActiveMQComponent component)
    {
       if (component == null)
          return;
@@ -1798,7 +1798,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       }
    }
 
-   protected static final void stopComponentOutputExceptions(HornetQComponent component)
+   protected static final void stopComponentOutputExceptions(ActiveMQComponent component)
    {
       if (component == null)
          return;
@@ -1820,7 +1820,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       return sf;
    }
 
-   protected final HornetQServer addServer(final HornetQServer server)
+   protected final ActiveMQServer addServer(final ActiveMQServer server)
    {
       if (server != null)
       {
@@ -1880,7 +1880,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       return producer;
    }
 
-   protected final void addHornetQComponent(final HornetQComponent component)
+   protected final void addActiveMQComponent(final ActiveMQComponent component)
    {
       if (component != null)
       {
@@ -1984,7 +1984,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       }
    }
 
-   public static void crashAndWaitForFailure(HornetQServer server, ClientSession... sessions) throws Exception
+   public static void crashAndWaitForFailure(ActiveMQServer server, ClientSession... sessions) throws Exception
    {
       CountDownLatch latch = new CountDownLatch(sessions.length);
       for (ClientSession session : sessions)
@@ -2008,7 +2008,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
       }
    }
 
-   public static void crashAndWaitForFailure(HornetQServer server, ServerLocator locator) throws Exception
+   public static void crashAndWaitForFailure(ActiveMQServer server, ServerLocator locator) throws Exception
    {
       ClientSessionFactory sf = locator.createSessionFactory();
       ClientSession session = sf.createSession();
@@ -2099,7 +2099,7 @@ public abstract class UnitTestCase extends CoreUnitTestCase
 
    // Inner classes -------------------------------------------------
 
-   protected interface HornetQAction
+   protected interface ActiveMQAction
    {
       void run() throws Exception;
    }

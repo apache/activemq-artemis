@@ -22,7 +22,7 @@ import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
 /**
@@ -108,7 +108,7 @@ public class SecurityFailoverTest extends FailoverTest
          .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
-      HornetQSecurityManager securityManager = installSecurity(backupServer);
+      ActiveMQSecurityManager securityManager = installSecurity(backupServer);
       securityManager.setDefaultUser(null);
 
       liveConfig = super.createDefaultConfig()
@@ -133,9 +133,9 @@ public class SecurityFailoverTest extends FailoverTest
    /**
     * @return
     */
-   protected HornetQSecurityManager installSecurity(TestableServer server)
+   protected ActiveMQSecurityManager installSecurity(TestableServer server)
    {
-      HornetQSecurityManager securityManager = server.getServer().getSecurityManager();
+      ActiveMQSecurityManager securityManager = server.getServer().getSecurityManager();
       securityManager.addUser("a", "b");
       Role role = new Role("arole", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();

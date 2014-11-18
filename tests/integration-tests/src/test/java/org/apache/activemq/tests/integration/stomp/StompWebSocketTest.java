@@ -22,8 +22,8 @@ import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
@@ -77,10 +77,10 @@ public class StompWebSocketTest extends UnitTestCase
                                    .setName(getQueueName())
                                    .setDurable(false));
 
-      HornetQServer hornetQServer = addServer(HornetQServers.newHornetQServer(config));
+      ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
+      server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setContext(null);
       return server;
    }

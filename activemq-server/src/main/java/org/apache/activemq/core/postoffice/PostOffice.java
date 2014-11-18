@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
@@ -38,7 +38,7 @@ import org.apache.activemq.core.transaction.Transaction;
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
  */
-public interface PostOffice extends HornetQComponent
+public interface PostOffice extends ActiveMQComponent
 {
    void addBinding(Binding binding) throws Exception;
 

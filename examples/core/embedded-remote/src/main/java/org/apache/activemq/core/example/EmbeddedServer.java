@@ -20,8 +20,8 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 
 /**
  * An EmbeddedServer
@@ -57,7 +57,7 @@ public class EmbeddedServer
          configuration.setAcceptorConfigurations(setTransp);
 
          // Step 2. Create and start the server
-         HornetQServer server = HornetQServers.newHornetQServer(configuration);
+         ActiveMQServer server = ActiveMQServers.newActiveMQServer(configuration);
          server.start();
       }
       catch (Exception e)

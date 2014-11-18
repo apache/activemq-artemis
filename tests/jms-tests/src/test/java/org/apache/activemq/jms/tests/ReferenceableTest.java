@@ -23,11 +23,11 @@ import javax.naming.Reference;
 import javax.naming.Referenceable;
 import java.io.Serializable;
 
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
-import org.apache.activemq.jms.client.HornetQQueue;
-import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQQueue;
+import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
 import org.apache.activemq.jms.referenceable.DestinationObjectFactory;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
@@ -61,7 +61,7 @@ public class ReferenceableTest extends JMSTestCase
 
       ProxyAssertSupport.assertTrue(queue1 instanceof Serializable);
 
-      ProxyAssertSupport.assertTrue(HornetQServerTestCase.topic1 instanceof Serializable);
+      ProxyAssertSupport.assertTrue(ActiveMQServerTestCase.topic1 instanceof Serializable);
    }
 
    @SuppressWarnings("cast")
@@ -72,7 +72,7 @@ public class ReferenceableTest extends JMSTestCase
 
       ProxyAssertSupport.assertTrue(queue1 instanceof Referenceable);
 
-      ProxyAssertSupport.assertTrue(HornetQServerTestCase.topic1 instanceof Referenceable);
+      ProxyAssertSupport.assertTrue(ActiveMQServerTestCase.topic1 instanceof Referenceable);
    }
 
    @Test
@@ -88,9 +88,9 @@ public class ReferenceableTest extends JMSTestCase
 
       Object instance = factory.getObjectInstance(cfRef, null, null, null);
 
-      ProxyAssertSupport.assertTrue(instance instanceof HornetQConnectionFactory);
+      ProxyAssertSupport.assertTrue(instance instanceof ActiveMQConnectionFactory);
 
-      HornetQJMSConnectionFactory cf2 = (HornetQJMSConnectionFactory) instance;
+      ActiveMQJMSConnectionFactory cf2 = (ActiveMQJMSConnectionFactory) instance;
 
       simpleSendReceive(cf2, queue1);
    }
@@ -108,9 +108,9 @@ public class ReferenceableTest extends JMSTestCase
 
       Object instance = factory.getObjectInstance(queueRef, null, null, null);
 
-      ProxyAssertSupport.assertTrue(instance instanceof HornetQDestination);
+      ProxyAssertSupport.assertTrue(instance instanceof ActiveMQDestination);
 
-      HornetQQueue queue2 = (HornetQQueue) instance;
+      ActiveMQQueue queue2 = (ActiveMQQueue) instance;
 
       ProxyAssertSupport.assertEquals(queue1.getQueueName(), queue2.getQueueName());
 
@@ -120,7 +120,7 @@ public class ReferenceableTest extends JMSTestCase
    @Test
    public void testReferenceTopic() throws Exception
    {
-      Reference topicRef = ((Referenceable) HornetQServerTestCase.topic1).getReference();
+      Reference topicRef = ((Referenceable) ActiveMQServerTestCase.topic1).getReference();
 
       String factoryName = topicRef.getFactoryClassName();
 
@@ -130,11 +130,11 @@ public class ReferenceableTest extends JMSTestCase
 
       Object instance = factory.getObjectInstance(topicRef, null, null, null);
 
-      ProxyAssertSupport.assertTrue(instance instanceof HornetQDestination);
+      ProxyAssertSupport.assertTrue(instance instanceof ActiveMQDestination);
 
-      HornetQTopic topic2 = (HornetQTopic) instance;
+      ActiveMQTopic topic2 = (ActiveMQTopic) instance;
 
-      ProxyAssertSupport.assertEquals(HornetQServerTestCase.topic1.getTopicName(), topic2.getTopicName());
+      ProxyAssertSupport.assertEquals(ActiveMQServerTestCase.topic1.getTopicName(), topic2.getTopicName());
 
       simpleSendReceive(cf, topic2);
    }

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.jms.bridge;
 
-import org.apache.activemq.api.core.management.HornetQComponentControl;
+import org.apache.activemq.api.core.management.ActiveMQComponentControl;
 
 /**
  * A JMSBridgeControl
@@ -20,7 +20,7 @@ import org.apache.activemq.api.core.management.HornetQComponentControl;
  * @author <a href="jose@voxeo.com">Jose de Castro</a>
  *
  */
-public interface JMSBridgeControl extends HornetQComponentControl
+public interface JMSBridgeControl extends ActiveMQComponentControl
 {
    void pause() throws Exception;
 

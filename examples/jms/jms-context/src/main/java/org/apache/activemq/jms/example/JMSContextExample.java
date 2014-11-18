@@ -18,14 +18,14 @@ import javax.jms.JMSContext;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class JMSContextExample extends HornetQExample
+public class JMSContextExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

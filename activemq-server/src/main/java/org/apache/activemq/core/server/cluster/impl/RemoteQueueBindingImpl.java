@@ -25,7 +25,7 @@ import org.apache.activemq.core.filter.impl.FilterImpl;
 import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.core.postoffice.BindingType;
 import org.apache.activemq.core.server.Bindable;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
@@ -370,9 +370,9 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
 
       message.putBytesProperty(idsHeaderName, ids);
 
-      if (HornetQServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
       {
-         HornetQServerLogger.LOGGER.trace("Adding remoteQueue ID = " + remoteQueueID + " into message=" + message + " store-forward-queue=" + storeAndForwardQueue);
+         ActiveMQServerLogger.LOGGER.trace("Adding remoteQueue ID = " + remoteQueueID + " into message=" + message + " store-forward-queue=" + storeAndForwardQueue);
       }
    }
 

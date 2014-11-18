@@ -32,7 +32,7 @@ public interface DestinationControl
    String getName();
 
    /**
-    * Returns the HornetQ address corresponding to this destination.
+    * Returns the ActiveMQ address corresponding to this destination.
     */
    String getAddress();
 

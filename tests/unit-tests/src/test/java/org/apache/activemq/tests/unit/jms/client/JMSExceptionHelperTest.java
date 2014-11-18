@@ -116,7 +116,7 @@ public class JMSExceptionHelperTest extends UnitTestCase
                                    final Class<? extends Throwable> expectedException)
    {
       ActiveMQException me = new ActiveMQException(errorCode);
-      Exception e = JMSExceptionHelper.convertFromHornetQException(me);
+      Exception e = JMSExceptionHelper.convertFromActiveMQException(me);
       Assert.assertNotNull(e);
       Assert.assertTrue(e.getClass().isAssignableFrom(expectedException));
    }

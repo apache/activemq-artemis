@@ -38,22 +38,22 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.management.AddressControl;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.postoffice.QueueBinding;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnection;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQMessageConsumer;
-import org.apache.activemq.jms.client.HornetQQueueConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnection;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQMessageConsumer;
+import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
 import org.apache.activemq.jms.persistence.JMSStorageManager;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
@@ -84,7 +84,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
    protected InVMNamingContext context;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private JMSServerManagerImpl serverManager;
 
@@ -223,7 +223,7 @@ public class JMSServerControlTest extends ManagementTestBase
       Object o = UnitTestCase.checkBinding(context, bindings[0]);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
-      // assertEquals(((HornetQDestination)queue).get);
+      // assertEquals(((ActiveMQDestination)queue).get);
       Assert.assertEquals(queueName, queue.getQueueName());
       Assert.assertEquals(selector, server.getPostOffice()
          .getBinding(new SimpleString("jms.queue." + queueName))
@@ -321,14 +321,14 @@ public class JMSServerControlTest extends ManagementTestBase
       UnitTestCase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
-      HornetQConnectionFactory cf =
-         new HornetQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      HornetQConnection connection = (HornetQConnection) cf.createConnection();
+      ActiveMQConnectionFactory cf =
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       try
       {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
-         HornetQMessageConsumer cons = (HornetQMessageConsumer) session.createConsumer(HornetQJMSClient.createQueue(queueName));
+         ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createQueue(queueName));
 
          control.destroyQueue(queueName, true);
 
@@ -378,16 +378,16 @@ public class JMSServerControlTest extends ManagementTestBase
       UnitTestCase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
-      HornetQConnectionFactory cf = new HornetQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      HornetQConnection connection = (HornetQConnection) cf.createConnection();
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       connection.start();
       try
       {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer producer = session.createProducer(HornetQJMSClient.createQueue(queueName));
+         MessageProducer producer = session.createProducer(ActiveMQJMSClient.createQueue(queueName));
          producer.send(session.createTextMessage());
          // create a consumer will create a Core queue bound to the topic address
-         HornetQMessageConsumer cons = (HornetQMessageConsumer) session.createConsumer(HornetQJMSClient.createQueue(queueName));
+         ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createQueue(queueName));
 
          try
          {
@@ -396,7 +396,7 @@ public class JMSServerControlTest extends ManagementTestBase
          }
          catch (Exception e)
          {
-            assertTrue(e.getMessage().startsWith("HQ119025"));
+            assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
          UnitTestCase.checkBinding(context, queueJNDIBinding);
@@ -433,15 +433,15 @@ public class JMSServerControlTest extends ManagementTestBase
       UnitTestCase.checkBinding(context, topicJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
-      HornetQConnectionFactory cf = new HornetQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      HornetQConnection connection = (HornetQConnection) cf.createConnection();
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       connection.start();
       try
       {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
-         HornetQMessageConsumer cons = (HornetQMessageConsumer) session.createConsumer(HornetQJMSClient.createTopic(topicName));
-         MessageProducer producer = session.createProducer(HornetQJMSClient.createTopic(topicName));
+         ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createTopic(topicName));
+         MessageProducer producer = session.createProducer(ActiveMQJMSClient.createTopic(topicName));
          producer.send(session.createTextMessage());
 
          try
@@ -451,7 +451,7 @@ public class JMSServerControlTest extends ManagementTestBase
          }
          catch (Exception e)
          {
-            assertTrue(e.getMessage().startsWith("HQ119025"));
+            assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
          UnitTestCase.checkBinding(context, topicJNDIBinding);
@@ -485,14 +485,14 @@ public class JMSServerControlTest extends ManagementTestBase
       UnitTestCase.checkBinding(context, topicJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
-      HornetQConnectionFactory cf =
-         new HornetQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      HornetQConnection connection = (HornetQConnection) cf.createConnection();
+      ActiveMQConnectionFactory cf =
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       try
       {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
-         HornetQMessageConsumer cons = (HornetQMessageConsumer) session.createConsumer(HornetQJMSClient.createTopic(topicName));
+         ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createTopic(topicName));
 
          control.destroyTopic(topicName, true);
 
@@ -540,15 +540,15 @@ public class JMSServerControlTest extends ManagementTestBase
       UnitTestCase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
-      HornetQConnectionFactory cf =
-         new HornetQConnectionFactory(false, new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf =
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
       cf.setReconnectAttempts(-1);
-      HornetQConnection connection = (HornetQConnection) cf.createConnection();
+      ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       try
       {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
-         MessageConsumer cons = session.createConsumer(HornetQJMSClient.createQueue(queueName));
+         MessageConsumer cons = session.createConsumer(ActiveMQJMSClient.createQueue(queueName));
 
          control.destroyQueue(queueName, true);
 
@@ -649,14 +649,14 @@ public class JMSServerControlTest extends ManagementTestBase
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
       Topic topic = (Topic) context.lookup(topicJNDIBinding);
       assertNotNull(topic);
-      HornetQConnectionFactory cf = new HornetQConnectionFactory(false,
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false,
                                                                  new TransportConfiguration(InVMConnectorFactory.class.getName()));
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       // create a consumer will create a Core queue bound to the topic address
       session.createConsumer(topic);
 
-      String topicAddress = HornetQDestination.createTopicAddressFromName(topicName).toString();
+      String topicAddress = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
       AddressControl addressControl = (AddressControl) server.getManagementService()
          .getResource(ResourceNames.CORE_ADDRESS + topicAddress);
       assertNotNull(addressControl);
@@ -688,8 +688,8 @@ public class JMSServerControlTest extends ManagementTestBase
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
       Topic topic = (Topic) context.lookup(topicJNDIBinding);
       assertNotNull(topic);
-      HornetQConnectionFactory cf =
-         new HornetQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf =
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       // create a consumer will create a Core queue bound to the topic address
@@ -705,7 +705,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       assertEquals(getNumberOfConsumers(), jsonArray.length());
 
-      String topicAddress = HornetQDestination.createTopicAddressFromName(topicName).toString();
+      String topicAddress = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
       AddressControl addressControl = (AddressControl) server.getManagementService()
          .getResource(ResourceNames.CORE_ADDRESS + topicAddress);
       assertNotNull(addressControl);
@@ -789,7 +789,7 @@ public class JMSServerControlTest extends ManagementTestBase
                                       true, // blockOnNonDurableSend
                                       true, // autoGroup
                                       true, // preACK
-                                      HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, // loadBalancingClassName
+                                      ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, // loadBalancingClassName
                                       1, // transactionBatchSize
                                       1, // dupsOKBatchSize
                                       true, // useGlobalPools
@@ -803,7 +803,7 @@ public class JMSServerControlTest extends ManagementTestBase
                                       "tst"); // groupID
 
 
-      HornetQQueueConnectionFactory cf = (HornetQQueueConnectionFactory) context.lookup("tst");
+      ActiveMQQueueConnectionFactory cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
 
       assertEquals(true, cf.isHA());
       assertEquals("tst", cf.getClientID());
@@ -822,7 +822,7 @@ public class JMSServerControlTest extends ManagementTestBase
       assertEquals(true, cf.isBlockOnNonDurableSend());
       assertEquals(true, cf.isAutoGroup());
       assertEquals(true, cf.isPreAcknowledge());
-      assertEquals(HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
       assertEquals(1, cf.getTransactionBatchSize());
       assertEquals(1, cf.getDupsOKBatchSize());
       assertEquals(true, cf.isUseGlobalPools());
@@ -841,7 +841,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       control = createManagementControl();
 
-      cf = (HornetQQueueConnectionFactory) context.lookup("tst");
+      cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
 
       assertEquals(true, cf.isHA());
       assertEquals("tst", cf.getClientID());
@@ -859,7 +859,7 @@ public class JMSServerControlTest extends ManagementTestBase
       assertEquals(true, cf.isBlockOnNonDurableSend());
       assertEquals(true, cf.isAutoGroup());
       assertEquals(true, cf.isPreAcknowledge());
-      assertEquals(HornetQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
+      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
       assertEquals(1, cf.getTransactionBatchSize());
       assertEquals(1, cf.getDupsOKBatchSize());
       assertEquals(true, cf.isUseGlobalPools());
@@ -886,7 +886,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       try
       {
-         cf = (HornetQQueueConnectionFactory) context.lookup("tst");
+         cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
          fail("Failure expected");
       }
       catch (NamingException e)
@@ -1000,7 +1000,7 @@ public class JMSServerControlTest extends ManagementTestBase
    {
       JMSServerControl control = createManagementControl();
 
-      HornetQConnectionFactory cf = new HornetQConnectionFactory(false,
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false,
                                                                  new TransportConfiguration(InVMConnectorFactory.class.getName()));
       Connection connection = cf.createConnection();
 
@@ -1065,7 +1065,7 @@ public class JMSServerControlTest extends ManagementTestBase
          .addConnectorConfiguration("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
          .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      server = addServer(HornetQServers.newHornetQServer(conf, mbeanServer, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
 
       serverManager = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();

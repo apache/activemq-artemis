@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -27,8 +27,8 @@ public class JmsSend
 {
    public static void main(String[] args) throws Exception
    {
-      ConnectionFactory factory = JmsHelper.createConnectionFactory("hornetq-client.xml");
-      Destination destination = (HornetQDestination) HornetQDestination.fromAddress("jms.queue.orders");
+      ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
+      Destination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress("jms.queue.orders");
 
       Connection conn = factory.createConnection();
       try

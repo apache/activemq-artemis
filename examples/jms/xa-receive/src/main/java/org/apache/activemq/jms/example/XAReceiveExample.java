@@ -27,7 +27,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.apache.activemq.common.example.DummyXid;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 import org.apache.activemq.utils.UUIDGenerator;
 
 /**
@@ -35,7 +35,7 @@ import org.apache.activemq.utils.UUIDGenerator;
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class XAReceiveExample extends HornetQExample
+public class XAReceiveExample extends ActiveMQExample
 {
    private volatile boolean result = true;
 

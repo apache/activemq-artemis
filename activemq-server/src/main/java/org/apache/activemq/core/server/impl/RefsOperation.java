@@ -13,7 +13,7 @@
 package org.apache.activemq.core.server.impl;
 
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
@@ -81,9 +81,9 @@ public class RefsOperation extends TransactionOperationAbstract
       {
          ref.setConsumerId(null);
 
-         if (HornetQServerLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
          {
-            HornetQServerLogger.LOGGER.trace("rolling back " + ref);
+            ActiveMQServerLogger.LOGGER.trace("rolling back " + ref);
          }
          try
          {
@@ -108,7 +108,7 @@ public class RefsOperation extends TransactionOperationAbstract
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.errorCheckingDLQ(e);
+            ActiveMQServerLogger.LOGGER.errorCheckingDLQ(e);
          }
       }
 
@@ -181,7 +181,7 @@ public class RefsOperation extends TransactionOperationAbstract
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
       }

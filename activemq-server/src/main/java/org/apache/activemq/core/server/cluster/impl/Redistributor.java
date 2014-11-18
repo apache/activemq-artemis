@@ -24,7 +24,7 @@ import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.server.Consumer;
 import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
@@ -112,7 +112,7 @@ public class Redistributor implements Consumer
 
       if (!ok)
       {
-         HornetQServerLogger.LOGGER.errorStoppingRedistributor();
+         ActiveMQServerLogger.LOGGER.errorStoppingRedistributor();
       }
    }
 
@@ -137,7 +137,7 @@ public class Redistributor implements Consumer
       }
       catch (InterruptedException e)
       {
-         HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          return false;
       }
    }
@@ -206,7 +206,7 @@ public class Redistributor implements Consumer
                      // Nothing much we can do now
 
                      // TODO log
-                     HornetQServerLogger.LOGGER.warn(e2.getMessage(), e2);
+                     ActiveMQServerLogger.LOGGER.warn(e2.getMessage(), e2);
                   }
                }
             }
@@ -255,7 +255,7 @@ public class Redistributor implements Consumer
 
          public void onError(final int errorCode, final String errorMessage)
          {
-            HornetQServerLogger.LOGGER.ioErrorRedistributing(errorCode, errorMessage);
+            ActiveMQServerLogger.LOGGER.ioErrorRedistributing(errorCode, errorMessage);
          }
 
          public void done()

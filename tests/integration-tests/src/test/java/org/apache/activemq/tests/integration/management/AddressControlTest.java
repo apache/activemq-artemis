@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.AddressControl;
 import org.apache.activemq.api.core.management.RoleInfo;
@@ -30,7 +30,7 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -49,7 +49,7 @@ import static org.apache.activemq.tests.util.RandomUtil.randomString;
 public class AddressControlTest extends ManagementTestBase
 {
 
-   private HornetQServer server;
+   private ActiveMQServer server;
    protected ClientSession session;
    private ServerLocator locator;
    private ClientSessionFactory sf;
@@ -110,7 +110,7 @@ public class AddressControlTest extends ManagementTestBase
       assertEquals(1, bindingNames.length);
       assertEquals(queue.toString(), bindingNames[0]);
 
-      server.getHornetQServerControl().createDivert(divertName, randomString(), address.toString(), RandomUtil.randomString(), false, null, null);
+      server.getActiveMQServerControl().createDivert(divertName, randomString(), address.toString(), RandomUtil.randomString(), false, null, null);
 
       bindingNames = addressControl.getBindingNames();
       Assert.assertEquals(2, bindingNames.length);
@@ -221,7 +221,7 @@ public class AddressControlTest extends ManagementTestBase
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       server.start();
       ServerLocator locator2 =
-         HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+         ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
             UnitTestCase.INVM_CONNECTOR_FACTORY));
       addServerLocator(locator2);
       ClientSessionFactory sf2 = createSessionFactory(locator2);
@@ -289,7 +289,7 @@ public class AddressControlTest extends ManagementTestBase
 
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       server.start();
-      ServerLocator locator2 = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+      ServerLocator locator2 = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
          UnitTestCase.INVM_CONNECTOR_FACTORY));
       addServerLocator(locator2);
       ClientSessionFactory sf2 = createSessionFactory(locator2);

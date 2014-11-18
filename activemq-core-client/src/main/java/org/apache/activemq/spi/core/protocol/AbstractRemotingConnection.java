@@ -21,8 +21,8 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -65,14 +65,14 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
          catch (ActiveMQInterruptedException interrupted)
          {
             // this is an expected behaviour.. no warn or error here
-            HornetQClientLogger.LOGGER.debug("thread interrupted", interrupted);
+            ActiveMQClientLogger.LOGGER.debug("thread interrupted", interrupted);
          }
          catch (final Throwable t)
          {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQClientLogger.LOGGER.errorCallingFailureListener(t);
+            ActiveMQClientLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
    }
@@ -93,7 +93,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQClientLogger.LOGGER.errorCallingFailureListener(t);
+            ActiveMQClientLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
    }
@@ -119,7 +119,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
    {
       if (listener == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
+         throw ActiveMQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
       }
       failureListeners.add(listener);
    }
@@ -128,7 +128,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
    {
       if (listener == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
+         throw ActiveMQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
       }
 
       return failureListeners.remove(listener);
@@ -138,7 +138,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
    {
       if (listener == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
+         throw ActiveMQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
       }
 
       closeListeners.add(listener);
@@ -148,7 +148,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
    {
       if (listener == null)
       {
-         throw HornetQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
+         throw ActiveMQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
       }
 
       return closeListeners.remove(listener);

@@ -28,7 +28,7 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.SessionFailureListener;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.CountDownSessionFailureListener;
@@ -48,7 +48,7 @@ public class SessionTest extends ServiceTestBase
    private final String queueName = "ClientSessionTestQ";
 
    private ServerLocator locator;
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ClientSessionFactory cf;
 
    @Override

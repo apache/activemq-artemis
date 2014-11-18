@@ -19,7 +19,7 @@ import java.nio.channels.FileLock;
 import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
 
 /**
- * This is using the HornetQ Libaio Native to perform calls to flock on a Linux system. At the
+ * This is using the ActiveMQ Libaio Native to perform calls to flock on a Linux system. At the
  * current version of RHEL there's a bug on GFS2 and because of that fctl is not functional what
  * will cause issues on Failover over Shared Storage.
  * <p/>

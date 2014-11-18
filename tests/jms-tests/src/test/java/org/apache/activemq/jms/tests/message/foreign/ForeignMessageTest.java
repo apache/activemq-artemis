@@ -15,7 +15,7 @@ package org.apache.activemq.jms.tests.message.foreign;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.jms.HornetQJMSConstants;
+import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.jms.tests.message.MessageTestBase;
 import org.apache.activemq.jms.tests.message.SimpleJMSMessage;
 import org.apache.activemq.jms.tests.message.SimpleJMSTextMessage;
@@ -76,7 +76,7 @@ public class ForeignMessageTest extends MessageTestBase
    @Test
    public void testForeignMessageCorrelationIDBytesDisabled() throws Exception
    {
-      System.setProperty(HornetQJMSConstants.JMS_HORNETQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME, "false");
+      System.setProperty(ActiveMQJMSConstants.JMS_ACTIVEMQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME, "false");
 
       SimpleJMSMessage msg = new SimpleJMSMessage();
 
@@ -97,7 +97,7 @@ public class ForeignMessageTest extends MessageTestBase
    @Test
    public void testForeignMessageCorrelationID() throws Exception
    {
-      System.setProperty(HornetQJMSConstants.JMS_HORNETQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME, "true");
+      System.setProperty(ActiveMQJMSConstants.JMS_ACTIVEMQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME, "true");
 
       SimpleJMSMessage msg = new SimpleJMSMessage();
 

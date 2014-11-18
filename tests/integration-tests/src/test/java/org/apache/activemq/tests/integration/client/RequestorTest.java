@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -45,7 +45,7 @@ import org.junit.Test;
 public class RequestorTest extends ServiceTestBase
 {
 
-   private HornetQServer service;
+   private ActiveMQServer service;
    private ClientSessionFactory sf;
    private ServerLocator locator;
 
@@ -207,7 +207,7 @@ public class RequestorTest extends ServiceTestBase
 
       session.close();
 
-      HornetQAction hornetQAction = new HornetQAction()
+      ActiveMQAction activeMQAction = new ActiveMQAction()
       {
          public void run() throws Exception
          {
@@ -215,9 +215,9 @@ public class RequestorTest extends ServiceTestBase
          }
       };
 
-      UnitTestCase.expectHornetQException("ClientRequestor's session must not be closed",
-                                          ActiveMQExceptionType.OBJECT_CLOSED,
-                                          hornetQAction);
+      UnitTestCase.expectActiveMQException("ClientRequestor's session must not be closed",
+                                           ActiveMQExceptionType.OBJECT_CLOSED,
+                                           activeMQAction);
    }
 
    @Test
@@ -251,7 +251,7 @@ public class RequestorTest extends ServiceTestBase
 
       requestor.close();
 
-      HornetQAction hornetQAction = new HornetQAction()
+      ActiveMQAction activeMQAction = new ActiveMQAction()
       {
          public void run() throws Exception
          {
@@ -259,8 +259,8 @@ public class RequestorTest extends ServiceTestBase
          }
       };
 
-      UnitTestCase.expectHornetQException("can not send a request on a closed ClientRequestor",
-                                          ActiveMQExceptionType.OBJECT_CLOSED, hornetQAction);
+      UnitTestCase.expectActiveMQException("can not send a request on a closed ClientRequestor",
+                                           ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
    }
 
    @Override

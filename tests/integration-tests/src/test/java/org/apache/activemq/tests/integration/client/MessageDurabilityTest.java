@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -41,7 +41,7 @@ public class MessageDurabilityTest extends ServiceTestBase
 
    // Attributes ----------------------------------------------------
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession session;
 
@@ -151,7 +151,7 @@ public class MessageDurabilityTest extends ServiceTestBase
 
       session.start();
 
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -179,7 +179,7 @@ public class MessageDurabilityTest extends ServiceTestBase
       restart();
 
       session.start();
-      UnitTestCase.expectHornetQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new HornetQAction()
+      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {

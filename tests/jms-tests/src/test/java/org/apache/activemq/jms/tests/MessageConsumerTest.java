@@ -1445,9 +1445,9 @@ public class MessageConsumerTest extends JMSTestCase
          Session sess2 = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session sess3 = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer cons1 = sess1.createConsumer(HornetQServerTestCase.topic1);
-         MessageConsumer cons2 = sess2.createConsumer(HornetQServerTestCase.topic1);
-         MessageConsumer cons3 = sess3.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer cons1 = sess1.createConsumer(ActiveMQServerTestCase.topic1);
+         MessageConsumer cons2 = sess2.createConsumer(ActiveMQServerTestCase.topic1);
+         MessageConsumer cons3 = sess3.createConsumer(ActiveMQServerTestCase.topic1);
 
          final int NUM_MESSAGES = 10;
 
@@ -1508,7 +1508,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          producerConnection.start();
          Session prodSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = prodSession.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = prodSession.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
          for (int i = 0; i < NUM_MESSAGES; i++)
@@ -1557,7 +1557,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          String selector = "JMSType = 'something'";
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1, selector);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1, selector);
 
          ProxyAssertSupport.assertEquals(selector, topicConsumer.getMessageSelector());
       }
@@ -1581,7 +1581,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          topicConsumer.close();
 
@@ -1616,7 +1616,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          TopicSession consumerSession = tc.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         TopicSubscriber topicConsumer = consumerSession.createSubscriber(HornetQServerTestCase.topic1);
+         TopicSubscriber topicConsumer = consumerSession.createSubscriber(ActiveMQServerTestCase.topic1);
 
          topicConsumer.close();
 
@@ -1650,11 +1650,11 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          Topic t = ((TopicSubscriber) topicConsumer).getTopic();
 
-         ProxyAssertSupport.assertEquals(HornetQServerTestCase.topic1, t);
+         ProxyAssertSupport.assertEquals(ActiveMQServerTestCase.topic1, t);
       }
       finally
       {
@@ -1676,7 +1676,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          topicConsumer.close();
 
@@ -1770,7 +1770,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          Message m = topicConsumer.receive(1000);
 
@@ -1802,9 +1802,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         final MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         final MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          final Message m = producerSession.createMessage();
          new Thread(new Runnable()
@@ -1856,9 +1856,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         final MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         final MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          consumerConnection.start();
 
@@ -1913,9 +1913,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         final MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         final MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          consumerConnection.start();
 
@@ -1971,9 +1971,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         final MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         final MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          consumerConnection.start();
 
@@ -2092,9 +2092,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         final MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         final MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          final int count = 1000;
 
@@ -2128,7 +2128,7 @@ public class MessageConsumerTest extends JMSTestCase
             ProxyAssertSupport.assertNotNull(m);
          }
 
-         checkEmpty(HornetQServerTestCase.topic1);
+         checkEmpty(ActiveMQServerTestCase.topic1);
       }
       finally
       {
@@ -2154,7 +2154,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         final MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         final MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          consumerConnection.start();
          final CountDownLatch latch = new CountDownLatch(1);
@@ -2294,11 +2294,11 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          // This is a really weird test - the received object is always going to be null since no message is sent!!
 
-         HornetQServerTestCase.forceGC(); // / If A GC need to be executed, it' s better to be executed now
+         ActiveMQServerTestCase.forceGC(); // / If A GC need to be executed, it' s better to be executed now
          if (log.isTraceEnabled())
          {
             log.trace("testTimeoutReceiveOnClose");
@@ -2356,9 +2356,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          MessageListenerImpl l = new MessageListenerImpl();
          topicConsumer.setMessageListener(l);
@@ -2404,9 +2404,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          log.debug("testMessageListenerOnTopicMultipleMessages");
 
@@ -2526,9 +2526,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer topicProducer = producerSession.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer topicProducer = producerSession.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          MessageListenerImpl listener1 = new MessageListenerImpl();
 
@@ -2575,7 +2575,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         final MessageConsumer topicConsumer = consumerSession.createConsumer(HornetQServerTestCase.topic1);
+         final MessageConsumer topicConsumer = consumerSession.createConsumer(ActiveMQServerTestCase.topic1);
 
          consumerConnection.start();
          Thread worker1 = new Thread(new Runnable()
@@ -2923,21 +2923,21 @@ public class MessageConsumerTest extends JMSTestCase
          conn1 = createConnection();
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer producer1 = sess1.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer1 = sess1.createProducer(ActiveMQServerTestCase.topic1);
          producer1.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-         MessageConsumer consumer1 = sess1.createConsumer(HornetQServerTestCase.topic1, null, true);
+         MessageConsumer consumer1 = sess1.createConsumer(ActiveMQServerTestCase.topic1, null, true);
 
          conn2 = createConnection();
 
          Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          ProxyAssertSupport.assertEquals(Session.AUTO_ACKNOWLEDGE, sess2.getAcknowledgeMode());
-         MessageConsumer consumer2 = sess2.createConsumer(HornetQServerTestCase.topic1, null, true);
+         MessageConsumer consumer2 = sess2.createConsumer(ActiveMQServerTestCase.topic1, null, true);
 
          // we need different session because we cannot access the same session from different
          // threads
          Session sess3 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          ProxyAssertSupport.assertEquals(Session.AUTO_ACKNOWLEDGE, sess3.getAcknowledgeMode());
-         MessageConsumer consumer3 = sess3.createConsumer(HornetQServerTestCase.topic1, null, true);
+         MessageConsumer consumer3 = sess3.createConsumer(ActiveMQServerTestCase.topic1, null, true);
 
          // ClientConsumer 1 should not get the message but consumers 2 and 3 should
 
@@ -3021,9 +3021,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         MessageProducer prod = sess.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = sess.createProducer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer cons = sess.createConsumer(HornetQServerTestCase.topic1, null, true);
+         MessageConsumer cons = sess.createConsumer(ActiveMQServerTestCase.topic1, null, true);
 
          final int numMessages = 100;
 
@@ -3038,7 +3038,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          ProxyAssertSupport.assertNull(msg);
 
-         checkEmpty(HornetQServerTestCase.topic1);
+         checkEmpty(ActiveMQServerTestCase.topic1);
       }
       finally
       {
@@ -3068,14 +3068,14 @@ public class MessageConsumerTest extends JMSTestCase
          Session sess1 = conn1.createSession(false, Session.CLIENT_ACKNOWLEDGE);
          Session sess2 = conn1.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-         MessageConsumer cons1 = sess1.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer cons1 = sess1.createConsumer(ActiveMQServerTestCase.topic1);
 
-         MessageConsumer cons2 = sess2.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer cons2 = sess2.createConsumer(ActiveMQServerTestCase.topic1);
 
          conn1.start();
 
          Session sess3 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = sess3.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = sess3.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
          TextMessage tm = sess3.createTextMessage("nurse!");
@@ -3138,12 +3138,12 @@ public class MessageConsumerTest extends JMSTestCase
 
          final int NUM_MESSAGES = 1;
 
-         MessageConsumer cons = sess1.createConsumer(HornetQServerTestCase.topic1);
+         MessageConsumer cons = sess1.createConsumer(ActiveMQServerTestCase.topic1);
 
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             TextMessage tm = sess1.createTextMessage("helloxyz");
-            prod.send(HornetQServerTestCase.topic1, tm);
+            prod.send(ActiveMQServerTestCase.topic1, tm);
          }
 
          // receive but don't ack
@@ -3165,7 +3165,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          conn1 = null;
 
-         checkEmpty(HornetQServerTestCase.topic1);
+         checkEmpty(ActiveMQServerTestCase.topic1);
       }
       finally
       {
@@ -3284,7 +3284,7 @@ public class MessageConsumerTest extends JMSTestCase
          MessageProducer prod = sess1.createProducer(null);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         MessageConsumer durable = sess1.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         MessageConsumer durable = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
          conn1.start();
 
@@ -3293,7 +3293,7 @@ public class MessageConsumerTest extends JMSTestCase
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             TextMessage tm = sess1.createTextMessage("hello");
-            prod.send(HornetQServerTestCase.topic1, tm);
+            prod.send(ActiveMQServerTestCase.topic1, tm);
          }
 
          int count = 0;
@@ -3339,9 +3339,9 @@ public class MessageConsumerTest extends JMSTestCase
 
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         sess1.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription1");
+         sess1.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription1");
 
-         sess1.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription2");
+         sess1.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription2");
 
          conn1.close();
 
@@ -3349,7 +3349,7 @@ public class MessageConsumerTest extends JMSTestCase
          conn2.setClientID(CLIENT_ID1);
 
          Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer producer = sess2.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer producer = sess2.createProducer(ActiveMQServerTestCase.topic1);
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          final int NUM_MESSAGES = 50;
@@ -3368,7 +3368,7 @@ public class MessageConsumerTest extends JMSTestCase
          conn3.setClientID(CLIENT_ID1);
          conn3.start();
          Session sess3 = conn3.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer durable3 = sess3.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription2");
+         MessageConsumer durable3 = sess3.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription2");
 
          int count = 0;
          while (true)
@@ -3386,7 +3386,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          log.debug("received " + NUM_MESSAGES + " messages");
 
-         MessageConsumer durable4 = sess3.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription1");
+         MessageConsumer durable4 = sess3.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription1");
 
          Message m = durable4.receive(1000);
          ProxyAssertSupport.assertNull(m);
@@ -3439,7 +3439,7 @@ public class MessageConsumerTest extends JMSTestCase
          conn1 = createConnection();
          conn1.setClientID(CLIENT_ID1);
          sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer durable = sess1.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         MessageConsumer durable = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
          conn1.close();
 
          // Send some messages on another connection and close it
@@ -3452,7 +3452,7 @@ public class MessageConsumerTest extends JMSTestCase
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             TextMessage tm = sess2.createTextMessage("hello");
-            prod2.send(HornetQServerTestCase.topic1, tm);
+            prod2.send(ActiveMQServerTestCase.topic1, tm);
          }
          conn2.close();
 
@@ -3461,7 +3461,7 @@ public class MessageConsumerTest extends JMSTestCase
          conn3.setClientID(CLIENT_ID1);
          conn3.start();
          sess3 = conn3.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         durable = sess3.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         durable = sess3.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
          int count = 0;
          while (true)
          {
@@ -3481,7 +3481,7 @@ public class MessageConsumerTest extends JMSTestCase
          conn4.setClientID(CLIENT_ID1);
          conn4.start();
          sess4 = conn4.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         durable = sess4.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         durable = sess4.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
          TextMessage tm = (TextMessage) durable.receive(1000);
          ProxyAssertSupport.assertNull(tm);
@@ -3499,7 +3499,7 @@ public class MessageConsumerTest extends JMSTestCase
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             TextMessage tm2 = sess5.createTextMessage("hello");
-            prod5.send(HornetQServerTestCase.topic1, tm2);
+            prod5.send(ActiveMQServerTestCase.topic1, tm2);
          }
 
          log.debug("unsubscribing mySubscription");
@@ -3514,7 +3514,7 @@ public class MessageConsumerTest extends JMSTestCase
          conn6.setClientID(CLIENT_ID1);
          conn6.start();
          sess6 = conn6.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         durable = sess6.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         durable = sess6.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
          TextMessage tm3 = (TextMessage) durable.receive(1000);
          ProxyAssertSupport.assertNull(tm3);
@@ -3571,7 +3571,7 @@ public class MessageConsumerTest extends JMSTestCase
          MessageProducer prod = sess1.createProducer(null);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         MessageConsumer durable = sess1.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         MessageConsumer durable = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
          conn1.start();
 
@@ -3580,7 +3580,7 @@ public class MessageConsumerTest extends JMSTestCase
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             TextMessage tm = sess1.createTextMessage("hello");
-            prod.send(HornetQServerTestCase.topic1, tm);
+            prod.send(ActiveMQServerTestCase.topic1, tm);
          }
 
          final int NUM_TO_RECEIVE = NUM_MESSAGES - 1;
@@ -3603,7 +3603,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          // Re-subscribe to the subscription
 
-         MessageConsumer durable2 = sess2.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         MessageConsumer durable2 = sess2.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
          conn2.start();
 
@@ -3656,7 +3656,7 @@ public class MessageConsumerTest extends JMSTestCase
          MessageProducer prod = sess1.createProducer(null);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         MessageConsumer durable = sess1.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         MessageConsumer durable = sess1.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
          conn1.start();
 
@@ -3665,7 +3665,7 @@ public class MessageConsumerTest extends JMSTestCase
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             TextMessage tm = sess1.createTextMessage("hello");
-            prod.send(HornetQServerTestCase.topic1, tm);
+            prod.send(ActiveMQServerTestCase.topic1, tm);
          }
 
          final int NUM_TO_RECEIVE1 = 22;
@@ -3690,7 +3690,7 @@ public class MessageConsumerTest extends JMSTestCase
          Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Re-subscribe to the subscription
-         MessageConsumer durable2 = sess2.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+         MessageConsumer durable2 = sess2.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
 
          conn2.start();
 
@@ -3777,7 +3777,7 @@ public class MessageConsumerTest extends JMSTestCase
 
          try
          {
-            sess1.createDurableSubscriber(HornetQServerTestCase.topic1, "mySubscription");
+            sess1.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription");
             ProxyAssertSupport.fail();
          }
          catch (JMSException e)

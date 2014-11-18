@@ -93,7 +93,7 @@ import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionStat
 import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionStateRegister;
 import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -142,7 +142,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
 
    private Throwable stopError = null;
 
-   // should come from hornetq server
+   // should come from activemq server
    private final TaskRunnerFactory stopTaskRunnerFactory = null;
 
    private boolean starting;
@@ -204,7 +204,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       catch (Throwable t)
       {
-         HornetQServerLogger.LOGGER.error("decoding error", t);
+         ActiveMQServerLogger.LOGGER.error("decoding error", t);
          return;
       }
 
@@ -314,11 +314,11 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
          }
          catch (IOException e)
          {
-            HornetQServerLogger.LOGGER.error("error decoding", e);
+            ActiveMQServerLogger.LOGGER.error("error decoding", e);
          }
          catch (Throwable t)
          {
-            HornetQServerLogger.LOGGER.error("error decoding", t);
+            ActiveMQServerLogger.LOGGER.error("error decoding", t);
          }
       }
    }
@@ -444,7 +444,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    @Override
    public void fail(ActiveMQException me)
    {
-      HornetQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(),
+      ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(),
             me.getType());
       // Then call the listeners
       callFailureListeners(me);
@@ -543,7 +543,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQServerLogger.LOGGER.errorCallingFailureListener(t);
+            ActiveMQServerLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
    }
@@ -564,7 +564,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQServerLogger.LOGGER.errorCallingFailureListener(t);
+            ActiveMQServerLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
    }
@@ -586,7 +586,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       try
       {
          ByteSequence bytes = wireFormat.marshal(command);
-         ActiveMQBuffer buffer = OpenWireUtil.toHornetQBuffer(bytes);
+         ActiveMQBuffer buffer = OpenWireUtil.toActiveMQBuffer(bytes);
          synchronized (sendLock)
          {
             getTransportConnection().write(buffer, false, false);
@@ -598,7 +598,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       catch (Throwable t)
       {
-         HornetQServerLogger.LOGGER.error("error sending", t);
+         ActiveMQServerLogger.LOGGER.error("error sending", t);
       }
 
    }
@@ -652,7 +652,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       context.setConnection(this);
       context.setConnectionId(info.getConnectionId());
       // for now we pass the manager as the connector and see what happens
-      // it should be related to hornetq's Acceptor
+      // it should be related to activemq's Acceptor
       context.setConnector(this.acceptorUsed);
       context.setMessageAuthorizationPolicy(getMessageAuthorizationPolicy());
       context.setNetworkConnection(networkConnection);

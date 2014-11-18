@@ -30,7 +30,7 @@ import org.apache.activemq.core.journal.RecordInfo;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class RedeliveryConsumerTest extends ServiceTestBase
 
    // Attributes ----------------------------------------------------
 
-   HornetQServer server;
+   ActiveMQServer server;
 
    final SimpleString ADDRESS = new SimpleString("address");
 
@@ -301,8 +301,8 @@ public class RedeliveryConsumerTest extends ServiceTestBase
                                             0,
                                             0,
                                             new NIOSequentialFileFactory(server.getConfiguration().getJournalDirectory()),
-                                            "hornetq-data",
-                                            "hq",
+                                            "activemq-data",
+                                            "amq",
                                             1);
 
 

@@ -27,14 +27,14 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.cluster.Bridge;
@@ -63,9 +63,9 @@ public class BridgeReconnectTest extends BridgeTestBase
    Map<String, Object> server1Params;
    Map<String, Object> server2Params;
 
-   HornetQServer server0;
-   HornetQServer server1;
-   HornetQServer server2;
+   ActiveMQServer server0;
+   ActiveMQServer server1;
+   ActiveMQServer server2;
    ServerLocator locator;
 
    ClientSession session0;
@@ -96,7 +96,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       server2Params = new HashMap<String, Object>();
       connectors = new HashMap<String, TransportConfiguration>();
 
-      server1 = createHornetQServer(1, isNetty(), server1Params);
+      server1 = createActiveMQServer(1, isNetty(), server1Params);
       server1tc = new TransportConfiguration(getConnector(), server1Params, "server1tc");
       connectors.put(server1tc.getName(), server1tc);
       staticConnectors = new ArrayList<String>();
@@ -137,8 +137,8 @@ public class BridgeReconnectTest extends BridgeTestBase
    public void testFailoverDeploysBridge() throws Exception
    {
       NodeManager nodeManager = new InVMNodeManager(false);
-      server0 = createHornetQServer(0, server0Params, isNetty(), nodeManager);
-      server2 = createBackupHornetQServer(2, server2Params, isNetty(), 0, nodeManager);
+      server0 = createActiveMQServer(0, server0Params, isNetty(), nodeManager);
+      server2 = createBackupActiveMQServer(2, server2Params, isNetty(), 0, nodeManager);
 
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
       TransportConfiguration server2tc = new TransportConfiguration(getConnector(), server2Params, "server2tc");
@@ -179,7 +179,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
       waitForServerStart(server2);
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server2tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server2tc));
 
       ClientSessionFactory csf0 = addSessionFactory(locator.createSessionFactory(server2tc));
 
@@ -193,8 +193,8 @@ public class BridgeReconnectTest extends BridgeTestBase
    public void testFailoverAndReconnectImmediately() throws Exception
    {
       NodeManager nodeManager = new InVMNodeManager(false);
-      server0 = createHornetQServer(0, server0Params, isNetty(), nodeManager);
-      server2 = createBackupHornetQServer(2, server2Params, isNetty(), 0, nodeManager);
+      server0 = createActiveMQServer(0, server0Params, isNetty(), nodeManager);
+      server2 = createBackupActiveMQServer(2, server2Params, isNetty(), 0, nodeManager);
 
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
       TransportConfiguration server2tc = new TransportConfiguration(getConnector(), server2Params, "server2tc");
@@ -235,7 +235,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
       waitForServerStart(server2);
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithoutHA(server0tc, server2tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server2tc));
 
       ClientSessionFactory csf0 = addSessionFactory(locator.createSessionFactory(server2tc));
 
@@ -296,8 +296,8 @@ public class BridgeReconnectTest extends BridgeTestBase
    {
       NodeManager nodeManager = new InVMNodeManager(false);
 
-      server0 = createHornetQServer(0, server0Params, isNetty(), nodeManager);
-      server2 = createBackupHornetQServer(2, server2Params, isNetty(), 0, nodeManager);
+      server0 = createActiveMQServer(0, server0Params, isNetty(), nodeManager);
+      server2 = createBackupActiveMQServer(2, server2Params, isNetty(), 0, nodeManager);
 
       TransportConfiguration server2tc = new TransportConfiguration(getConnector(), server2Params, "server2tc");
 
@@ -331,7 +331,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       // Now we will simulate a failure of the bridge connection between server0 and server1
       server0.stop(true);
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithHA(server2tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server2tc));
       locator.setReconnectAttempts(100);
       ClientSessionFactory csf0 = addSessionFactory(locator.createSessionFactory(server2tc));
       session0 = csf0.createSession(false, true, true);
@@ -372,7 +372,7 @@ public class BridgeReconnectTest extends BridgeTestBase
    @Test
    public void testReconnectSameNode() throws Exception
    {
-      server0 = createHornetQServer(0, isNetty(), server0Params);
+      server0 = createActiveMQServer(0, isNetty(), server0Params);
 
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
 
@@ -401,7 +401,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
       startServers();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server0tc, server1tc));
       ClientSessionFactory csf0 = locator.createSessionFactory(server0tc);
       session0 = csf0.createSession(false, true, true);
 
@@ -468,7 +468,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
    private void testShutdownServerCleanlyAndReconnectSameNode(final boolean sleep) throws Exception
    {
-      server0 = createHornetQServer(0, isNetty(), server0Params);
+      server0 = createActiveMQServer(0, isNetty(), server0Params);
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
@@ -511,7 +511,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       waitForServerStart(server0);
       waitForServerStart(server1);
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server0tc, server1tc));
       ClientSessionFactory csf0 = locator.createSessionFactory(server0tc);
       session0 = csf0.createSession(false, true, true);
 
@@ -597,7 +597,7 @@ public class BridgeReconnectTest extends BridgeTestBase
    @Test
    public void testFailoverThenFailAgainAndReconnect() throws Exception
    {
-      server0 = createHornetQServer(0, isNetty(), server0Params);
+      server0 = createActiveMQServer(0, isNetty(), server0Params);
 
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
 
@@ -625,7 +625,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
       startServers();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server0tc, server1tc));
       ClientSessionFactory csf0 = locator.createSessionFactory(server0tc);
       session0 = csf0.createSession(false, true, true);
 
@@ -714,7 +714,7 @@ public class BridgeReconnectTest extends BridgeTestBase
    @Test
    public void testDeliveringCountOnBridgeConnectionFailure() throws Exception
    {
-      server0 = createHornetQServer(0, isNetty(), server0Params);
+      server0 = createActiveMQServer(0, isNetty(), server0Params);
 
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params, "server0tc");
 
@@ -742,7 +742,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
       startServers();
 
-      locator = addServerLocator(HornetQClient.createServerLocatorWithHA(server0tc, server1tc));
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server0tc, server1tc));
       ClientSessionFactory csf0 = locator.createSessionFactory(server0tc);
       session0 = csf0.createSession(false, true, true);
 
@@ -757,7 +757,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       RemotingConnection forwardingConnection = getForwardingConnection(bridge);
       InVMConnector.failOnCreateConnection = true;
       InVMConnector.numberOfFailures = reconnectAttempts - 1;
-      //forwardingConnection.fail(new HornetQNotConnectedException());
+      //forwardingConnection.fail(new ActiveMQNotConnectedException());
 
       final int numMessages = NUM_MESSAGES;
 

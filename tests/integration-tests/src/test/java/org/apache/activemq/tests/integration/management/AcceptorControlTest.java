@@ -27,7 +27,7 @@ import org.apache.activemq.api.core.management.AcceptorControl;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.tests.integration.SimpleNotificationService;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -58,7 +58,7 @@ public class AcceptorControlTest extends ManagementTestBase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      HornetQServer service = createServer(false, conf, mbeanServer);
+      ActiveMQServer service = createServer(false, conf, mbeanServer);
       service.start();
 
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());
@@ -75,7 +75,7 @@ public class AcceptorControlTest extends ManagementTestBase
                                                                          RandomUtil.randomString());
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      HornetQServer service = createServer(false, conf, mbeanServer);
+      ActiveMQServer service = createServer(false, conf, mbeanServer);
       service.start();
 
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());
@@ -134,7 +134,7 @@ public class AcceptorControlTest extends ManagementTestBase
                                                                          RandomUtil.randomString());
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      HornetQServer service = createServer(false, conf, mbeanServer);
+      ActiveMQServer service = createServer(false, conf, mbeanServer);
       service.start();
 
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());

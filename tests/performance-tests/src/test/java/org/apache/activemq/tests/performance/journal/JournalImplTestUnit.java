@@ -202,7 +202,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    @Test
    public void testSpeedTransactional() throws Exception
    {
-      Journal journal = new JournalImpl(10 * 1024 * 1024, 10, 0, 0, getFileFactory(), "hornetq-data", "hq", 5000);
+      Journal journal = new JournalImpl(10 * 1024 * 1024, 10, 0, 0, getFileFactory(), "activemq-data", "amq", 5000);
 
       journal.start();
 
@@ -265,7 +265,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       JournalImplTestUnit.log.debug("num Files=" + numFiles);
 
-      Journal journal = new JournalImpl(10 * 1024 * 1024, numFiles, 0, 0, getFileFactory(), "hornetq-data", "hq", 5000);
+      Journal journal = new JournalImpl(10 * 1024 * 1024, numFiles, 0, 0, getFileFactory(), "activemq-data", "amq", 5000);
 
       journal.start();
 
@@ -289,7 +289,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       journal.stop();
 
-      journal = new JournalImpl(10 * 1024 * 1024, numFiles, 0, 0, getFileFactory(), "hornetq-data", "hq", 5000);
+      journal = new JournalImpl(10 * 1024 * 1024, numFiles, 0, 0, getFileFactory(), "activemq-data", "amq", 5000);
 
       journal.start();
       journal.load(new ArrayList<RecordInfo>(), null, null);

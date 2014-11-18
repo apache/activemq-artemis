@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.server.impl;
 
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.cluster.ha.SharedStoreMasterPolicy;
 
@@ -24,11 +24,11 @@ public final class SharedStoreLiveActivation extends LiveActivation
    //this is how we act when we initially start as live
    private SharedStoreMasterPolicy sharedStoreMasterPolicy;
 
-   private HornetQServerImpl hornetQServer;
+   private ActiveMQServerImpl activeMQServer;
 
-   public SharedStoreLiveActivation(HornetQServerImpl server, SharedStoreMasterPolicy sharedStoreMasterPolicy)
+   public SharedStoreLiveActivation(ActiveMQServerImpl server, SharedStoreMasterPolicy sharedStoreMasterPolicy)
    {
-      this.hornetQServer = server;
+      this.activeMQServer = server;
       this.sharedStoreMasterPolicy = sharedStoreMasterPolicy;
    }
 
@@ -36,54 +36,54 @@ public final class SharedStoreLiveActivation extends LiveActivation
    {
       try
       {
-         HornetQServerLogger.LOGGER.awaitingLiveLock();
+         ActiveMQServerLogger.LOGGER.awaitingLiveLock();
 
-         hornetQServer.checkJournalDirectory();
+         activeMQServer.checkJournalDirectory();
 
-         if (HornetQServerLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
          {
-            HornetQServerLogger.LOGGER.debug("First part initialization on " + this);
+            ActiveMQServerLogger.LOGGER.debug("First part initialization on " + this);
          }
 
-         if (!hornetQServer.initialisePart1(false))
+         if (!activeMQServer.initialisePart1(false))
             return;
 
-         if (hornetQServer.getNodeManager().isBackupLive())
+         if (activeMQServer.getNodeManager().isBackupLive())
          {
             /*
              * looks like we've failed over at some point need to inform that we are the backup
              * so when the current live goes down they failover to us
              */
-            if (HornetQServerLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
             {
-               HornetQServerLogger.LOGGER.debug("announcing backup to the former live" + this);
+               ActiveMQServerLogger.LOGGER.debug("announcing backup to the former live" + this);
             }
-            hornetQServer.getBackupManager().start();
-            hornetQServer.getBackupManager().announceBackup();
+            activeMQServer.getBackupManager().start();
+            activeMQServer.getBackupManager().announceBackup();
             Thread.sleep(sharedStoreMasterPolicy.getFailbackDelay());
          }
 
-         hornetQServer.getNodeManager().startLiveNode();
+         activeMQServer.getNodeManager().startLiveNode();
 
-         if (hornetQServer.getState() == HornetQServerImpl.SERVER_STATE.STOPPED || hornetQServer.getState() == HornetQServerImpl.SERVER_STATE.STOPPING)
+         if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPED || activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPING)
          {
             return;
          }
 
-         hornetQServer.initialisePart2(false);
+         activeMQServer.initialisePart2(false);
 
-         HornetQServerLogger.LOGGER.serverIsLive();
+         ActiveMQServerLogger.LOGGER.serverIsLive();
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.initializationError(e);
+         ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
    public void close(boolean permanently, boolean restarting) throws Exception
    {
       // TO avoid a NPE from stop
-      NodeManager nodeManagerInUse = hornetQServer.getNodeManager();
+      NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
       if (nodeManagerInUse != null)
       {

@@ -21,15 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
@@ -207,7 +207,7 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer();
 
-         int msgSize = 3 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+         int msgSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
          char[] contents = new char[msgSize];
          for (int i = 0; i < msgSize; i++)
          {
@@ -349,7 +349,7 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer();
 
-         int msgSize = 3 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
+         int msgSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
          char[] contents = new char[msgSize];
          for (int i = 0; i < msgSize; i++)
          {
@@ -414,8 +414,8 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
-         LargeMessageTestBase.adjustLargeCompression(true, input, HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         LargeMessageTestBase.adjustLargeCompression(true, input, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
          char[] contents = input.toArray();
          String msg = new String(contents);
@@ -486,8 +486,8 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
-         LargeMessageTestBase.adjustLargeCompression(true, input, HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         LargeMessageTestBase.adjustLargeCompression(true, input, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
          char[] contents = input.toArray();
          String msg = new String(contents);
@@ -549,9 +549,9 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
-         input.setSize(10 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
-         LargeMessageTestBase.adjustLargeCompression(false, input, 10 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         input.setSize(10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         LargeMessageTestBase.adjustLargeCompression(false, input, 10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
          char[] contents = input.toArray();
          String msg = new String(contents);
@@ -613,9 +613,9 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
-         input.setSize(10 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
-         LargeMessageTestBase.adjustLargeCompression(false, input, 10 * HornetQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         input.setSize(10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         LargeMessageTestBase.adjustLargeCompression(false, input, 10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
          char[] contents = input.toArray();
          String msg = new String(contents);
@@ -689,7 +689,7 @@ public class ExtraStompTest extends StompTestBase
          .addAcceptorConfiguration(stompTransport)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      HornetQServer hornetQServer = HornetQServers.newHornetQServer(config, defUser, defPass);
+      ActiveMQServer activeMQServer = ActiveMQServers.newActiveMQServer(config, defUser, defPass);
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
       jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
@@ -698,7 +698,7 @@ public class ExtraStompTest extends StompTestBase
       jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
-      server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
+      server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setContext(new InVMNamingContext());
       return server;
    }
@@ -736,7 +736,7 @@ public class ExtraStompTest extends StompTestBase
          while (enu.hasMoreElements())
          {
             Message msg = (Message) enu.nextElement();
-            String msgId = msg.getStringProperty("hqMessageId");
+            String msgId = msg.getStringProperty("amqMessageId");
             if (enable != null && enable.booleanValue())
             {
                assertNotNull(msgId);
@@ -795,7 +795,7 @@ public class ExtraStompTest extends StompTestBase
          .addAcceptorConfiguration(stompTransport)
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
 
-      HornetQServer hornetQServer = addServer(HornetQServers.newHornetQServer(config, defUser, defPass));
+      ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
       jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
@@ -805,7 +805,7 @@ public class ExtraStompTest extends StompTestBase
       jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
-      server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
+      server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setContext(new InVMNamingContext());
       return server;
    }

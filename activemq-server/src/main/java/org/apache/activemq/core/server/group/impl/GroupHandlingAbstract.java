@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.group.GroupingHandler;
 import org.apache.activemq.core.server.group.UnproposalListener;
 import org.apache.activemq.core.server.management.ManagementService;
@@ -117,7 +117,7 @@ public abstract class GroupHandlingAbstract implements GroupingHandler
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.errorHandlingMessage(e);
+         ActiveMQServerLogger.LOGGER.errorHandlingMessage(e);
       }
    }
 

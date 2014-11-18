@@ -13,7 +13,7 @@
 package org.apache.activemq.factory;
 
 import org.apache.activemq.dto.SecurityDTO;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.utils.FactoryFinder;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -21,12 +21,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class SecurityManagerFactory
 {
 
-   public static HornetQSecurityManager create(SecurityDTO config) throws Exception
+   public static ActiveMQSecurityManager create(SecurityDTO config) throws Exception
    {
       if (config != null)
       {
          FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/security/");
-         HornetQSecurityManager manager = (HornetQSecurityManager)finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
+         ActiveMQSecurityManager manager = (ActiveMQSecurityManager)finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
          return manager;
       }
       else

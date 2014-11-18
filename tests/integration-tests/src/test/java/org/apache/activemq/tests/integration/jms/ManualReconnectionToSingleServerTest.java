@@ -39,7 +39,7 @@ import org.junit.Assert;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
@@ -89,7 +89,7 @@ public class ManualReconnectionToSingleServerTest extends ServiceTestBase
 
    private Listener listener;
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Test
    public void testExceptionListener() throws Exception

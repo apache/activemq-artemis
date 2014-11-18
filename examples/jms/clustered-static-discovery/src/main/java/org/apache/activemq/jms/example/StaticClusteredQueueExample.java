@@ -21,7 +21,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -29,7 +29,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class StaticClusteredQueueExample extends HornetQExample
+public class StaticClusteredQueueExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
@@ -56,7 +56,7 @@ public class NettyFailoverTest extends FailoverTest
       params.put(TransportConstants.HOST_PROP_NAME, "127.0.0.1");
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
-      ServerLocator locator = addServerLocator(HornetQClient.createServerLocatorWithHA(tc));
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
 
       locator.setBlockOnNonDurableSend(true);
       locator.setBlockOnDurableSend(true);

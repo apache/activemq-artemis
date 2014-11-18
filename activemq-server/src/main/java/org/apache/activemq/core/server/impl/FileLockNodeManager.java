@@ -18,7 +18,7 @@ import java.nio.channels.FileLock;
 
 import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.utils.UUID;
 
@@ -130,7 +130,7 @@ public class FileLockNodeManager extends NodeManager
          byte state = getState();
          while (state == FileLockNodeManager.NOT_STARTED || state == FIRST_TIME_START)
          {
-            HornetQServerLogger.LOGGER.debug("awaiting live node startup state='" + state + "'");
+            ActiveMQServerLogger.LOGGER.debug("awaiting live node startup state='" + state + "'");
             Thread.sleep(2000);
             state = getState();
          }
@@ -145,18 +145,18 @@ public class FileLockNodeManager extends NodeManager
          if (state == FileLockNodeManager.PAUSED)
          {
             liveLock.release();
-            HornetQServerLogger.LOGGER.debug("awaiting live node restarting");
+            ActiveMQServerLogger.LOGGER.debug("awaiting live node restarting");
             Thread.sleep(2000);
          }
          else if (state == FileLockNodeManager.FAILINGBACK)
          {
             liveLock.release();
-            HornetQServerLogger.LOGGER.debug("awaiting live node failing back");
+            ActiveMQServerLogger.LOGGER.debug("awaiting live node failing back");
             Thread.sleep(2000);
          }
          else if (state == FileLockNodeManager.LIVE)
          {
-            HornetQServerLogger.LOGGER.debug("acquired live node lock state = " + (char) state);
+            ActiveMQServerLogger.LOGGER.debug("acquired live node lock state = " + (char) state);
             break;
          }
       }
@@ -167,10 +167,10 @@ public class FileLockNodeManager extends NodeManager
    public void startBackup() throws Exception
    {
       assert !replicatedBackup; // should not be called if this is a replicating backup
-      HornetQServerLogger.LOGGER.waitingToBecomeBackup();
+      ActiveMQServerLogger.LOGGER.waitingToBecomeBackup();
 
       backupLock = lock(FileLockNodeManager.BACKUP_LOCK_POS);
-      HornetQServerLogger.LOGGER.gotBackupLock();
+      ActiveMQServerLogger.LOGGER.gotBackupLock();
       if (getUUID() == null)
          readNodeId();
    }
@@ -182,11 +182,11 @@ public class FileLockNodeManager extends NodeManager
 
       String timeoutMessage = lockAcquisitionTimeout == -1 ? "indefinitely" : lockAcquisitionTimeout + " milliseconds";
 
-      HornetQServerLogger.LOGGER.waitingToObtainLiveLock(timeoutMessage);
+      ActiveMQServerLogger.LOGGER.waitingToObtainLiveLock(timeoutMessage);
 
       liveLock = lock(FileLockNodeManager.LIVE_LOCK_POS);
 
-      HornetQServerLogger.LOGGER.obtainedLiveLock();
+      ActiveMQServerLogger.LOGGER.obtainedLiveLock();
 
       setLive();
    }

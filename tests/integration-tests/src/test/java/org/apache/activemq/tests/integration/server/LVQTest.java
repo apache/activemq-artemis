@@ -28,11 +28,11 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.UnitTestCase;
 
@@ -41,7 +41,7 @@ import org.apache.activemq.tests.util.UnitTestCase;
  */
 public class LVQTest extends UnitTestCase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession clientSession;
 
@@ -675,7 +675,7 @@ public class LVQTest extends UnitTestCase
 
       ConfigurationImpl configuration = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
-      server = HornetQServers.newHornetQServer(configuration, false);
+      server = ActiveMQServers.newActiveMQServer(configuration, false);
       // start the server
       server.start();
 
@@ -683,7 +683,7 @@ public class LVQTest extends UnitTestCase
       qs.setLastValueQueue(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), qs);
       // then we create a client as normalServer
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       locator.setBlockOnAcknowledge(true);
       locator.setAckBatchSize(0);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);

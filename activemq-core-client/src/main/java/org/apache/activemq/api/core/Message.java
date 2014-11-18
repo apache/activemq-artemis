@@ -158,7 +158,7 @@ public interface Message
     * Returns the message timestamp.
     * <br>
     * The timestamp corresponds to the time this message
-    * was handled by a HornetQ server.
+    * was handled by a ActiveMQ server.
     */
    long getTimestamp();
 
@@ -196,22 +196,22 @@ public interface Message
    boolean isLargeMessage();
 
    /**
-    * Returns the message body as a HornetQBuffer
+    * Returns the message body as a ActiveMQBuffer
     */
    ActiveMQBuffer getBodyBuffer();
 
    /**
-    * Writes the input byte array to the message body HornetQBuffer
+    * Writes the input byte array to the message body ActiveMQBuffer
     */
    Message writeBodyBufferBytes(byte[] bytes);
 
    /**
-    * Writes the input String to the message body HornetQBuffer
+    * Writes the input String to the message body ActiveMQBuffer
     */
    Message writeBodyBufferString(String string);
 
    /**
-    * Returns a <em>copy</em> of the message body as a HornetQBuffer. Any modification
+    * Returns a <em>copy</em> of the message body as a ActiveMQBuffer. Any modification
     * of this buffer should not impact the underlying buffer.
     */
    ActiveMQBuffer getBodyBufferCopy();

@@ -23,7 +23,7 @@ import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
@@ -95,7 +95,7 @@ public class LastValueQueue extends QueueImpl
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorAckingOldReference(e);
+               ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
             }
 
             hr.setReference(ref);
@@ -137,7 +137,7 @@ public class LastValueQueue extends QueueImpl
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.errorAckingOldReference(e);
+               ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
             }
          }
          else

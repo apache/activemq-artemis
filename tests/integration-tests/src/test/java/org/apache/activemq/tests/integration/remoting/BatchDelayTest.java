@@ -24,11 +24,11 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
@@ -44,7 +44,7 @@ public class BatchDelayTest extends ServiceTestBase
 
    private static final int N = 1000;
    private static final long DELAY = 500;
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Override
    @Before
@@ -68,7 +68,7 @@ public class BatchDelayTest extends ServiceTestBase
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.BATCH_DELAY, DELAY);
       ServerLocator locator =
-               HornetQClient.createServerLocatorWithoutHA(createTransportConfiguration(true, false, params));
+               ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(true, false, params));
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       return addSessionFactory(sf);

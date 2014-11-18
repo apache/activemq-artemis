@@ -15,7 +15,7 @@ package org.apache.activemq.tests.integration.cluster.failover;
 
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessHornetQServer;
+import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
 /**
@@ -29,7 +29,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverTest
    @Override
    protected TestableServer createTestableServer(Configuration config)
    {
-      return new SameProcessHornetQServer(createServer(true, config));
+      return new SameProcessActiveMQServer(createServer(true, config));
    }
 
    @Override

@@ -10,7 +10,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;

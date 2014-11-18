@@ -25,7 +25,7 @@ import org.apache.qpid.proton.engine.Transport;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.SASLResult;
-import org.proton.plug.exceptions.HornetQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.handler.ProtonHandler;
 import org.proton.plug.handler.impl.DefaultEventHandler;
 import org.proton.plug.util.ByteUtil;
@@ -111,7 +111,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       handler.close();
    }
 
-   protected AbstractProtonSessionContext getSessionExtension(Session realSession) throws HornetQAMQPException
+   protected AbstractProtonSessionContext getSessionExtension(Session realSession) throws ActiveMQAMQPException
    {
       AbstractProtonSessionContext sessionExtension = sessions.get(realSession);
       if (sessionExtension == null)
@@ -127,7 +127,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
    protected abstract void remoteLinkOpened(Link link) throws Exception;
 
 
-   protected abstract AbstractProtonSessionContext newSessionExtension(Session realSession) throws HornetQAMQPException;
+   protected abstract AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException;
 
    @Override
    public boolean checkDataReceived()

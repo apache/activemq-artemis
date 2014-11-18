@@ -28,20 +28,20 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.DayCounterInfo;
-import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.api.core.management.MessageCounterInfo;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.core.messagecounter.impl.MessageCounterManagerImpl;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.integration.jms.server.management.JMSUtil;
@@ -60,7 +60,7 @@ import org.junit.Test;
 public class QueueControlTest extends ManagementTestBase
 {
 
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ClientSession session;
    private ServerLocator locator;
 
@@ -376,7 +376,7 @@ public class QueueControlTest extends ManagementTestBase
    @Test
    public void testListDeliveringMessagesWithRASession() throws Exception
    {
-      ServerLocator locator1 = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ServerLocator locator1 = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       locator1.setBlockOnNonDurableSend(true);
       locator1.setConsumerWindowSize(10240);
       locator1.setAckBatchSize(0);
@@ -1563,7 +1563,7 @@ public class QueueControlTest extends ManagementTestBase
       session.createQueue(address, queue, null, false);
       QueueControl queueControl = createManagementControl(address, queue);
 
-      HornetQServerControl serverControl = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       serverControl.enableMessageCounters();
       serverControl.setMessageCounterSamplePeriod(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD);
 
@@ -1616,7 +1616,7 @@ public class QueueControlTest extends ManagementTestBase
       session.createQueue(address, queue, null, false);
       QueueControl queueControl = createManagementControl(address, queue);
 
-      HornetQServerControl serverControl = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       serverControl.enableMessageCounters();
       serverControl.setMessageCounterSamplePeriod(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD);
 
@@ -1685,7 +1685,7 @@ public class QueueControlTest extends ManagementTestBase
       session.createQueue(address, queue, null, false);
       QueueControl queueControl = createManagementControl(address, queue);
 
-      HornetQServerControl serverControl = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       serverControl.enableMessageCounters();
       serverControl.setMessageCounterSamplePeriod(counterPeriod);
 
@@ -1706,7 +1706,7 @@ public class QueueControlTest extends ManagementTestBase
       session.createQueue(address, queue, null, false);
       QueueControl queueControl = createManagementControl(address, queue);
 
-      HornetQServerControl serverControl = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       serverControl.enableMessageCounters();
       serverControl.setMessageCounterSamplePeriod(counterPeriod);
 
@@ -1883,7 +1883,7 @@ public class QueueControlTest extends ManagementTestBase
          session.createQueue(address, queue, null, false);
          QueueControl queueControl = createManagementControl(address, queue);
 
-         HornetQServerControl serverControl = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+         ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
          serverControl.enableMessageCounters();
          serverControl.setMessageCounterSamplePeriod(counterPeriod);
          Assert.assertFalse(queueControl.isPaused());
@@ -1959,7 +1959,7 @@ public class QueueControlTest extends ManagementTestBase
    public void testCreateQueueNotification() throws Exception
    {
       JMSUtil.JMXListener listener = new JMSUtil.JMXListener();
-      this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getHornetQServerObjectName(), listener, null, null);
+      this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName(), listener, null, null);
 
       SimpleString testQueueName = new SimpleString("newQueue");
       String testQueueName2 = "newQueue2";
@@ -1976,7 +1976,7 @@ public class QueueControlTest extends ManagementTestBase
       System.out.println("got notif: " + notif);
       assertEquals(CoreNotificationType.BINDING_REMOVED.toString(), notif.getType());
 
-      HornetQServerControl control = ManagementControlHelper.createHornetQServerControl(mbeanServer);
+      ActiveMQServerControl control = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
 
       control.createQueue(testQueueName2, testQueueName2);
 
@@ -2003,7 +2003,7 @@ public class QueueControlTest extends ManagementTestBase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      server = addServer(HornetQServers.newHornetQServer(conf, mbeanServer, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
       server.start();
 
       locator = createInVMNonHALocator();

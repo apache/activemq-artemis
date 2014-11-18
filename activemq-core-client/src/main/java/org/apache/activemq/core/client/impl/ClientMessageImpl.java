@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.core.message.impl.MessageImpl;
 import org.apache.activemq.reader.MessageUtil;
@@ -173,7 +173,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
       }
       catch (IOException e)
       {
-         throw HornetQClientMessageBundle.BUNDLE.errorSavingBody(e);
+         throw ActiveMQClientMessageBundle.BUNDLE.errorSavingBody(e);
       }
    }
 

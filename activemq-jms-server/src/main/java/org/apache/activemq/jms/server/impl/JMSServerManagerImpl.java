@@ -37,7 +37,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.AddressControl;
 import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.deployers.DeploymentManager;
@@ -50,18 +50,18 @@ import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActivateCallback;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.ResourceManager;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionDetail;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQDestination;
-import org.apache.activemq.jms.client.HornetQQueue;
-import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.jms.client.ActiveMQQueue;
+import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.client.SelectorTranslator;
 import org.apache.activemq.jms.persistence.JMSStorageManager;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
@@ -70,8 +70,8 @@ import org.apache.activemq.jms.persistence.config.PersistedJNDI;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 import org.apache.activemq.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
 import org.apache.activemq.jms.persistence.impl.nullpm.NullJMSStorageManagerImpl;
-import org.apache.activemq.jms.server.HornetQJMSServerBundle;
-import org.apache.activemq.jms.server.HornetQJMSServerLogger;
+import org.apache.activemq.jms.server.ActiveMQJMSServerBundle;
+import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
@@ -106,15 +106,15 @@ import org.apache.activemq.utils.json.JSONObject;
  */
 public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 {
-   private static final String REJECT_FILTER = HornetQServerImpl.GENERIC_IGNORED_FILTER;
+   private static final String REJECT_FILTER = ActiveMQServerImpl.GENERIC_IGNORED_FILTER;
 
    private BindingRegistry registry;
 
-   private final Map<String, HornetQQueue> queues = new HashMap<String, HornetQQueue>();
+   private final Map<String, ActiveMQQueue> queues = new HashMap<String, ActiveMQQueue>();
 
-   private final Map<String, HornetQTopic> topics = new HashMap<String, HornetQTopic>();
+   private final Map<String, ActiveMQTopic> topics = new HashMap<String, ActiveMQTopic>();
 
-   private final Map<String, HornetQConnectionFactory> connectionFactories = new HashMap<String, HornetQConnectionFactory>();
+   private final Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<String, ActiveMQConnectionFactory>();
 
    private final Map<String, List<String>> queueJNDI = new HashMap<String, List<String>>();
 
@@ -125,7 +125,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    // We keep things cached if objects are created while the JMS is not active
    private final List<Runnable> cachedCommands = new ArrayList<Runnable>();
 
-   private final HornetQServer server;
+   private final ActiveMQServer server;
 
    private JMSManagementService jmsManagementService;
 
@@ -149,7 +149,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    private final Map<String, List<String>> unRecoveredJndi = new HashMap<String, List<String>>();
 
-   public JMSServerManagerImpl(final HornetQServer server) throws Exception
+   public JMSServerManagerImpl(final ActiveMQServer server) throws Exception
    {
       this.server = server;
 
@@ -165,7 +165,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
     * @param registry
     * @throws Exception
     */
-   public JMSServerManagerImpl(final HornetQServer server, final BindingRegistry registry) throws Exception
+   public JMSServerManagerImpl(final ActiveMQServer server, final BindingRegistry registry) throws Exception
    {
       this.server = server;
 
@@ -176,7 +176,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       this.registry = registry;
    }
 
-   public JMSServerManagerImpl(final HornetQServer server, final String configFileName) throws Exception
+   public JMSServerManagerImpl(final ActiveMQServer server, final String configFileName) throws Exception
    {
       this.server = server;
 
@@ -185,7 +185,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       this.configFileName = configFileName;
    }
 
-   public JMSServerManagerImpl(final HornetQServer server, final JMSConfiguration configuration) throws Exception
+   public JMSServerManagerImpl(final ActiveMQServer server, final JMSConfiguration configuration) throws Exception
    {
       this.server = server;
 
@@ -200,7 +200,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
     * Unused
     */
    @Deprecated
-   public JMSServerManagerImpl(HornetQServer server, String configFilename, JMSStorageManager storageManager)
+   public JMSServerManagerImpl(ActiveMQServer server, String configFilename, JMSStorageManager storageManager)
    {
       this.server = server;
 
@@ -259,7 +259,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          for (Runnable run : cachedCommands)
          {
-            HornetQJMSServerLogger.LOGGER.serverRunningCachedCommand(run);
+            ActiveMQJMSServerLogger.LOGGER.serverRunningCachedCommand(run);
             run.run();
          }
 
@@ -270,7 +270,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       catch (Exception e)
       {
          active = false;
-         HornetQJMSServerLogger.LOGGER.jmsDeployerStartError(e);
+         ActiveMQJMSServerLogger.LOGGER.jmsDeployerStartError(e);
       }
    }
 
@@ -450,7 +450,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    }
 
-   // HornetQComponent implementation -----------------------------------
+   // ActiveMQComponent implementation -----------------------------------
 
    /**
     * Notice that this component has a {@link #startCalled} boolean to control its internal
@@ -460,8 +460,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
     * This method and {@code server.start()} are interdependent in the following way:
     * <ol>
     * <li>{@link JMSServerManagerImpl#start()} is called, it sets {@code start_called=true}, and
-    * calls {@link HornetQServerImpl#start()}
-    * <li>{@link HornetQServerImpl#start()} will call {@link JMSServerManagerImpl#activated()}
+    * calls {@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#start()}
+    * <li>{@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#start()} will call {@link JMSServerManagerImpl#activated()}
     * <li>{@link JMSServerManagerImpl#activated()} checks the value of {@link #startCalled}, which
     * must already be true.
     * </ol>
@@ -535,7 +535,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       this.registry = registry;
    }
 
-   public HornetQServer getHornetQServer()
+   public ActiveMQServer getActiveMQServer()
    {
       return server;
    }
@@ -606,7 +606,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             if (internalCreateQueue(queueName, selectorString, durable))
             {
 
-               HornetQDestination destination = queues.get(queueName);
+               ActiveMQDestination destination = queues.get(queueName);
                if (destination == null)
                {
                   // sanity check. internalCreateQueue should already have done this check
@@ -664,7 +664,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
             if (internalCreateTopic(topicName))
             {
-               HornetQDestination destination = topics.get(topicName);
+               ActiveMQDestination destination = topics.get(topicName);
 
                if (destination == null)
                {
@@ -705,7 +705,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
       checkJNDI(jndiBinding);
 
-      HornetQTopic destination = topics.get(topicName);
+      ActiveMQTopic destination = topics.get(topicName);
       if (destination == null)
       {
          throw new IllegalArgumentException("Topic does not exist");
@@ -745,7 +745,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
       checkJNDI(jndiBinding);
 
-      HornetQQueue destination = queues.get(queueName);
+      ActiveMQQueue destination = queues.get(queueName);
       if (destination == null)
       {
          throw new IllegalArgumentException("Queue does not exist");
@@ -769,14 +769,14 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
       checkJNDI(jndiBinding);
 
-      HornetQConnectionFactory factory = connectionFactories.get(name);
+      ActiveMQConnectionFactory factory = connectionFactories.get(name);
       if (factory == null)
       {
          throw new IllegalArgumentException("Factory does not exist");
       }
       if (registry.lookup(jndiBinding) != null)
       {
-         throw HornetQJMSServerBundle.BUNDLE.cfJndiExists(name);
+         throw ActiveMQJMSServerBundle.BUNDLE.cfJndiExists(name);
       }
       boolean added = bindToJndi(jndiBinding, factory);
       if (added)
@@ -913,11 +913,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    {
       checkInitialised();
 
-      server.destroyQueue(HornetQDestination.createQueueAddressFromName(name), null, !removeConsumers, removeConsumers);
+      server.destroyQueue(ActiveMQDestination.createQueueAddressFromName(name), null, !removeConsumers, removeConsumers);
 
       // if the queue has consumers and 'removeConsumers' is false then the queue won't actually be removed
       // therefore only remove the queue from JNDI, etc. if the queue is actually removed
-      if (this.server.getPostOffice().getBinding(HornetQDestination.createQueueAddressFromName(name)) == null)
+      if (this.server.getPostOffice().getBinding(ActiveMQDestination.createQueueAddressFromName(name)) == null)
       {
          removeFromJNDI(queues, queueJNDI, name);
 
@@ -946,7 +946,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    {
       checkInitialised();
       AddressControl addressControl = (AddressControl) server.getManagementService()
-         .getResource(ResourceNames.CORE_ADDRESS + HornetQDestination.createTopicAddressFromName(name));
+         .getResource(ResourceNames.CORE_ADDRESS + ActiveMQDestination.createTopicAddressFromName(name));
       if (addressControl != null)
       {
          for (String queueName : addressControl.getQueueNames())
@@ -954,7 +954,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             Binding binding = server.getPostOffice().getBinding(new SimpleString(queueName));
             if (binding == null)
             {
-               HornetQJMSServerLogger.LOGGER.noQueueOnTopic(queueName, name);
+               ActiveMQJMSServerLogger.LOGGER.noQueueOnTopic(queueName, name);
                continue;
             }
 
@@ -997,7 +997,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     String... jndiBindings) throws Exception
    {
       checkInitialised();
-      HornetQConnectionFactory cf = connectionFactories.get(name);
+      ActiveMQConnectionFactory cf = connectionFactories.get(name);
       if (cf == null)
       {
          ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
@@ -1047,7 +1047,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     String... jndiBindings) throws Exception
    {
       checkInitialised();
-      HornetQConnectionFactory cf = connectionFactories.get(name);
+      ActiveMQConnectionFactory cf = connectionFactories.get(name);
       if (cf == null)
       {
          ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
@@ -1126,7 +1126,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     final String... jndiBindings) throws Exception
    {
       checkInitialised();
-      HornetQConnectionFactory cf = connectionFactories.get(name);
+      ActiveMQConnectionFactory cf = connectionFactories.get(name);
       if (cf == null)
       {
          ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
@@ -1175,7 +1175,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     final String... jndiBindings) throws Exception
    {
       checkInitialised();
-      HornetQConnectionFactory cf = connectionFactories.get(name);
+      ActiveMQConnectionFactory cf = connectionFactories.get(name);
       if (cf == null)
       {
          ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
@@ -1187,18 +1187,18 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
    }
 
-   public synchronized HornetQConnectionFactory recreateCF(String name, ConnectionFactoryConfiguration cf) throws Exception
+   public synchronized ActiveMQConnectionFactory recreateCF(String name, ConnectionFactoryConfiguration cf) throws Exception
    {
       List<String> jndi = connectionFactoryJNDI.get(name);
 
       if (jndi == null)
       {
-         throw HornetQJMSServerBundle.BUNDLE.cfDoesntExist(name);
+         throw ActiveMQJMSServerBundle.BUNDLE.cfDoesntExist(name);
       }
 
       String[] usedJNDI = jndi.toArray(new String[jndi.size()]);
 
-      HornetQConnectionFactory realCF = internalCreateCFPOJO(cf);
+      ActiveMQConnectionFactory realCF = internalCreateCFPOJO(cf);
 
       if (cf.isPersisted())
       {
@@ -1232,7 +1232,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          {
             checkJNDI(jndi);
 
-            HornetQConnectionFactory cf = internalCreateCF(storeConfig, cfConfig);
+            ActiveMQConnectionFactory cf = internalCreateCF(storeConfig, cfConfig);
 
             ArrayList<String> bindings = new ArrayList<String>();
 
@@ -1270,7 +1270,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       catch (Exception e)
       {
-         HornetQJMSServerLogger.LOGGER.warn("Failed to send notification : " + notif);
+         ActiveMQJMSServerLogger.LOGGER.warn("Failed to send notification : " + notif);
       }
    }
 
@@ -1308,27 +1308,27 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       else
       {
-         HornetQQueue hqQueue = HornetQDestination.createQueue(queueName);
+         ActiveMQQueue activeMQQueue = ActiveMQDestination.createQueue(queueName);
 
          // Convert from JMS selector to core filter
          String coreFilterString = null;
 
          if (selectorString != null)
          {
-            coreFilterString = SelectorTranslator.convertToHornetQFilterString(selectorString);
+            coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
          }
 
-         Queue queue = server.deployQueue(SimpleString.toSimpleString(hqQueue.getAddress()),
-                                          SimpleString.toSimpleString(hqQueue.getAddress()),
+         Queue queue = server.deployQueue(SimpleString.toSimpleString(activeMQQueue.getAddress()),
+                                          SimpleString.toSimpleString(activeMQQueue.getAddress()),
                                           SimpleString.toSimpleString(coreFilterString),
                                           durable,
                                           false);
 
-         queues.put(queueName, hqQueue);
+         queues.put(queueName, activeMQQueue);
 
          this.recoverJndiBindings(queueName, PersistedType.Queue);
 
-         jmsManagementService.registerQueue(hqQueue, queue);
+         jmsManagementService.registerQueue(activeMQQueue, queue);
 
          return true;
       }
@@ -1351,22 +1351,22 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       else
       {
-         HornetQTopic hqTopic = HornetQDestination.createTopic(topicName);
+         ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(topicName);
          // We create a dummy subscription on the topic, that never receives messages - this is so we can perform JMS
          // checks when routing messages to a topic that
          // does not exist - otherwise we would not be able to distinguish from a non existent topic and one with no
          // subscriptions - core has no notion of a topic
-         server.deployQueue(SimpleString.toSimpleString(hqTopic.getAddress()),
-                            SimpleString.toSimpleString(hqTopic.getAddress()),
+         server.deployQueue(SimpleString.toSimpleString(activeMQTopic.getAddress()),
+                            SimpleString.toSimpleString(activeMQTopic.getAddress()),
                             SimpleString.toSimpleString(JMSServerManagerImpl.REJECT_FILTER),
                             true,
                             false);
 
-         topics.put(topicName, hqTopic);
+         topics.put(topicName, activeMQTopic);
 
          this.recoverJndiBindings(topicName, PersistedType.Topic);
 
-         jmsManagementService.registerTopic(hqTopic);
+         jmsManagementService.registerTopic(activeMQTopic);
 
          return true;
       }
@@ -1376,12 +1376,12 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
     * @param cfConfig
     * @throws Exception
     */
-   private HornetQConnectionFactory internalCreateCF(final boolean persisted,
+   private ActiveMQConnectionFactory internalCreateCF(final boolean persisted,
                                                      final ConnectionFactoryConfiguration cfConfig) throws Exception
    {
       checkInitialised();
 
-      HornetQConnectionFactory cf = connectionFactories.get(cfConfig.getName());
+      ActiveMQConnectionFactory cf = connectionFactories.get(cfConfig.getName());
 
       if (cf == null)
       {
@@ -1400,9 +1400,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
     * @return
     * @throws org.apache.activemq.api.core.ActiveMQException
     */
-   protected HornetQConnectionFactory internalCreateCFPOJO(final ConnectionFactoryConfiguration cfConfig) throws ActiveMQException
+   protected ActiveMQConnectionFactory internalCreateCFPOJO(final ConnectionFactoryConfiguration cfConfig) throws ActiveMQException
    {
-      HornetQConnectionFactory cf;
+      ActiveMQConnectionFactory cf;
       if (cfConfig.getDiscoveryGroupName() != null)
       {
          DiscoveryGroupConfiguration groupConfig = server.getConfiguration()
@@ -1411,23 +1411,23 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          if (groupConfig == null)
          {
-            throw HornetQJMSServerBundle.BUNDLE.discoveryGroupDoesntExist(cfConfig.getDiscoveryGroupName());
+            throw ActiveMQJMSServerBundle.BUNDLE.discoveryGroupDoesntExist(cfConfig.getDiscoveryGroupName());
          }
 
          if (cfConfig.isHA())
          {
-            cf = HornetQJMSClient.createConnectionFactoryWithHA(groupConfig, cfConfig.getFactoryType());
+            cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfig, cfConfig.getFactoryType());
          }
          else
          {
-            cf = HornetQJMSClient.createConnectionFactoryWithoutHA(groupConfig, cfConfig.getFactoryType());
+            cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfig, cfConfig.getFactoryType());
          }
       }
       else
       {
          if (cfConfig.getConnectorNames() == null || cfConfig.getConnectorNames().size() == 0)
          {
-            throw HornetQJMSServerBundle.BUNDLE.noConnectorNameOnCF();
+            throw ActiveMQJMSServerBundle.BUNDLE.noConnectorNameOnCF();
          }
 
          TransportConfiguration[] configs = new TransportConfiguration[cfConfig.getConnectorNames().size()];
@@ -1438,7 +1438,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             TransportConfiguration connector = server.getConfiguration().getConnectorConfigurations().get(name);
             if (connector == null)
             {
-               throw HornetQJMSServerBundle.BUNDLE.noConnectorNameConfiguredOnCF(name);
+               throw ActiveMQJMSServerBundle.BUNDLE.noConnectorNameConfiguredOnCF(name);
             }
             correctInvalidNettyConnectorHost(connector);
             configs[count++] = connector;
@@ -1446,11 +1446,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          if (cfConfig.isHA())
          {
-            cf = HornetQJMSClient.createConnectionFactoryWithHA(cfConfig.getFactoryType(), configs);
+            cf = ActiveMQJMSClient.createConnectionFactoryWithHA(cfConfig.getFactoryType(), configs);
          }
          else
          {
-            cf = HornetQJMSClient.createConnectionFactoryWithoutHA(cfConfig.getFactoryType(), configs);
+            cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(cfConfig.getFactoryType(), configs);
          }
       }
 
@@ -1547,42 +1547,42 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    public String[] listRemoteAddresses() throws Exception
    {
       checkInitialised();
-      return server.getHornetQServerControl().listRemoteAddresses();
+      return server.getActiveMQServerControl().listRemoteAddresses();
    }
 
    public String[] listRemoteAddresses(final String ipAddress) throws Exception
    {
       checkInitialised();
-      return server.getHornetQServerControl().listRemoteAddresses(ipAddress);
+      return server.getActiveMQServerControl().listRemoteAddresses(ipAddress);
    }
 
    public boolean closeConnectionsForAddress(final String ipAddress) throws Exception
    {
       checkInitialised();
-      return server.getHornetQServerControl().closeConnectionsForAddress(ipAddress);
+      return server.getActiveMQServerControl().closeConnectionsForAddress(ipAddress);
    }
 
    public boolean closeConsumerConnectionsForAddress(final String address) throws Exception
    {
       checkInitialised();
-      return server.getHornetQServerControl().closeConsumerConnectionsForAddress(address);
+      return server.getActiveMQServerControl().closeConsumerConnectionsForAddress(address);
    }
 
    public boolean closeConnectionsForUser(final String userName) throws Exception
    {
       checkInitialised();
-      return server.getHornetQServerControl().closeConnectionsForUser(userName);
+      return server.getActiveMQServerControl().closeConnectionsForUser(userName);
    }
 
    public String[] listConnectionIDs() throws Exception
    {
-      return server.getHornetQServerControl().listConnectionIDs();
+      return server.getActiveMQServerControl().listConnectionIDs();
    }
 
    public String[] listSessions(final String connectionID) throws Exception
    {
       checkInitialised();
-      return server.getHornetQServerControl().listSessions(connectionID);
+      return server.getActiveMQServerControl().listSessions(connectionID);
    }
 
    public String listPreparedTransactionDetailsAsJSON() throws Exception
@@ -1797,7 +1797,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                }
                catch (Exception e)
                {
-                  HornetQJMSServerLogger.LOGGER.jndiUnbindError(e, key);
+                  ActiveMQJMSServerLogger.LOGGER.jndiUnbindError(e, key);
                }
             }
          }
@@ -1924,7 +1924,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       else
       {
-         HornetQJMSServerLogger.LOGGER.serverCachingCommand(runnable);
+         ActiveMQJMSServerLogger.LOGGER.serverCachingCommand(runnable);
          cachedCommands.add(runnable);
          return false;
       }
@@ -1940,7 +1940,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          }
          catch (Exception e)
          {
-            HornetQJMSServerLogger.LOGGER.jmsServerError(e);
+            ActiveMQJMSServerLogger.LOGGER.jmsServerError(e);
          }
       }
 
@@ -1958,12 +1958,12 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          try
          {
             String newHost = InetAddress.getLocalHost().getHostName();
-            HornetQJMSServerLogger.LOGGER.invalidHostForConnector(transportConfiguration.getName(), newHost);
+            ActiveMQJMSServerLogger.LOGGER.invalidHostForConnector(transportConfiguration.getName(), newHost);
             params.put(TransportConstants.HOST_PROP_NAME, newHost);
          }
          catch (UnknownHostException e)
          {
-            HornetQJMSServerLogger.LOGGER.failedToCorrectHost(e, transportConfiguration.getName());
+            ActiveMQJMSServerLogger.LOGGER.failedToCorrectHost(e, transportConfiguration.getName());
          }
       }
    }

@@ -11,9 +11,9 @@
  * permissions and limitations under the License.
  */
 /**
- * The JAXB POJOs for the XML configuration of HornetQ broker
+ * The JAXB POJOs for the XML configuration of ActiveMQ broker
  */
 @javax.xml.bind.annotation.XmlSchema(
-        namespace = "http://hornetq.org/schema",
+        namespace = "http://activemq.org/schema",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.apache.activemq.dto;

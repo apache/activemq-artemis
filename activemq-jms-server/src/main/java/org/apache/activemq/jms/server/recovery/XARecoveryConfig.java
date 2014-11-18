@@ -16,9 +16,9 @@ import java.util.Arrays;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 
 /**
  *
@@ -40,7 +40,7 @@ public class XARecoveryConfig
    private final String username;
    private final String password;
 
-   public static XARecoveryConfig newConfig(HornetQConnectionFactory factory,
+   public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory,
                                             String userName,
                                             String password)
    {
@@ -107,11 +107,11 @@ public class XARecoveryConfig
    {
       if (getDiscoveryConfiguration() != null)
       {
-         return HornetQClient.createServerLocator(isHA(), getDiscoveryConfiguration());
+         return ActiveMQClient.createServerLocator(isHA(), getDiscoveryConfiguration());
       }
       else
       {
-         return HornetQClient.createServerLocator(isHA(), getTransportConfig());
+         return ActiveMQClient.createServerLocator(isHA(), getTransportConfig());
       }
 
    }

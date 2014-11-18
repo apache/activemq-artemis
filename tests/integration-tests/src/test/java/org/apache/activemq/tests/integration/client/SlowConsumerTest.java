@@ -32,7 +32,7 @@ import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -66,7 +66,7 @@ public class SlowConsumerTest extends ServiceTestBase
       this.isNetty = isNetty;
    }
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
 

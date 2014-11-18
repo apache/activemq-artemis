@@ -27,7 +27,7 @@ public class AMQProducer
 
    public void init()
    {
-      //hornetq doesn't have producer at server.
+      //activemq doesn't have producer at server.
    }
 
 }

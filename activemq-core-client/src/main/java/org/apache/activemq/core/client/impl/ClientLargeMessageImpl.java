@@ -18,7 +18,7 @@ import java.io.OutputStream;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Message;
-import org.apache.activemq.core.buffers.impl.ResetLimitWrappedHornetQBuffer;
+import org.apache.activemq.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.utils.DataConstants;
 
 /**
@@ -183,19 +183,19 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
          }
          createBody((int)bodySize);
 
-         bodyBuffer = new ResetLimitWrappedHornetQBuffer(BODY_OFFSET, buffer, this);
+         bodyBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer, this);
 
-         largeMessageController.saveBuffer(new HornetQOutputStream(bodyBuffer));
+         largeMessageController.saveBuffer(new ActiveMQOutputStream(bodyBuffer));
       }
    }
 
    // Inner classes -------------------------------------------------
 
-   private static class HornetQOutputStream extends OutputStream
+   private static class ActiveMQOutputStream extends OutputStream
    {
       private final ActiveMQBuffer bufferOut;
 
-      HornetQOutputStream(ActiveMQBuffer out)
+      ActiveMQOutputStream(ActiveMQBuffer out)
       {
          this.bufferOut = out;
       }

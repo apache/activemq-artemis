@@ -102,7 +102,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns the period used to check if a client has failed to receive pings from the server.
     * <p>
     * Period is in milliseconds, default value is
-    * {@link HornetQClient#DEFAULT_CLIENT_FAILURE_CHECK_PERIOD}.
+    * {@link ActiveMQClient#DEFAULT_CLIENT_FAILURE_CHECK_PERIOD}.
     *
     * @return the period used to check if a client has failed to receive pings from the server
     */
@@ -125,7 +125,7 @@ public interface ServerLocator extends AutoCloseable
     * <p>
     * There is 1 temporary file created for each large message.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_CACHE_LARGE_MESSAGE_CLIENT}.
+    * Default value is {@link ActiveMQClient#DEFAULT_CACHE_LARGE_MESSAGE_CLIENT}.
     *
     * @return <code>true</code> if consumers created through this factory will cache large messages
     * in temporary files, <code>false</code> else
@@ -145,7 +145,7 @@ public interface ServerLocator extends AutoCloseable
     * <p>
     * This TTL determines how long the server will keep a connection alive in the absence of any
     * data arriving from the client. Value is in milliseconds, default value is
-    * {@link HornetQClient#DEFAULT_CONNECTION_TTL}.
+    * {@link ActiveMQClient#DEFAULT_CONNECTION_TTL}.
     *
     * @return the connection time-to-live in milliseconds
     */
@@ -166,7 +166,7 @@ public interface ServerLocator extends AutoCloseable
     * <p>
     * If client's blocking calls to the server take more than this timeout, the call will throw a
     * {@link org.apache.activemq.api.core.ActiveMQException} with the code {@link org.apache.activemq.api.core.ActiveMQExceptionType#CONNECTION_TIMEDOUT}. Value
-    * is in milliseconds, default value is {@link HornetQClient#DEFAULT_CALL_TIMEOUT}.
+    * is in milliseconds, default value is {@link ActiveMQClient#DEFAULT_CALL_TIMEOUT}.
     *
     * @return the blocking calls timeout
     */
@@ -210,7 +210,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns the large message size threshold.
     * <p>
     * Messages whose size is if greater than this value will be handled as <em>large messages</em>.
-    * Value is in bytes, default value is {@link HornetQClient#DEFAULT_MIN_LARGE_MESSAGE_SIZE}.
+    * Value is in bytes, default value is {@link ActiveMQClient#DEFAULT_MIN_LARGE_MESSAGE_SIZE}.
     *
     * @return the message size threshold to treat messages as large messages.
     */
@@ -229,7 +229,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the window size for flow control of the consumers created through this factory.
     * <p>
-    * Value is in bytes, default value is {@link HornetQClient#DEFAULT_CONSUMER_WINDOW_SIZE}.
+    * Value is in bytes, default value is {@link ActiveMQClient#DEFAULT_CONSUMER_WINDOW_SIZE}.
     *
     * @return the window size used for consumer flow control
     */
@@ -252,7 +252,7 @@ public interface ServerLocator extends AutoCloseable
     * This value controls the rate at which a consumer can consume messages. A consumer will never consume messages at a rate faster than the rate specified.
     * <p>
     * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate specified in units of messages per second.
-    * Default value is {@link HornetQClient#DEFAULT_CONSUMER_MAX_RATE}.
+    * Default value is {@link ActiveMQClient#DEFAULT_CONSUMER_MAX_RATE}.
     *
     * @return the consumer max rate
     */
@@ -272,7 +272,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns the size for the confirmation window of clients using this factory.
     * <p>
     * Value is in bytes or -1 (to disable the window). Default value is
-    * {@link HornetQClient#DEFAULT_CONFIRMATION_WINDOW_SIZE}.
+    * {@link ActiveMQClient#DEFAULT_CONFIRMATION_WINDOW_SIZE}.
     *
     * @return the size for the confirmation window of clients using this factory
     */
@@ -292,7 +292,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns the window size for flow control of the producers created through this factory.
     * <p>
     * Value must be -1 (to disable flow control) or greater than 0 to determine the maximum amount of bytes at any give time (to prevent overloading the connection).
-    * Default value is {@link HornetQClient#DEFAULT_PRODUCER_WINDOW_SIZE}.
+    * Default value is {@link ActiveMQClient#DEFAULT_PRODUCER_WINDOW_SIZE}.
     *
     * @return the window size for flow control of the producers created through this factory.
     */
@@ -314,7 +314,7 @@ public interface ServerLocator extends AutoCloseable
     * This value controls the rate at which a producer can produce messages. A producer will never produce messages at a rate faster than the rate specified.
     * <p>
     * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message production rate specified in units of messages per second.
-    * Default value is {@link HornetQClient#DEFAULT_PRODUCER_MAX_RATE}.
+    * Default value is {@link ActiveMQClient#DEFAULT_PRODUCER_MAX_RATE}.
     *
     * @return maximum rate of message production (in messages per seconds)
     */
@@ -334,7 +334,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns whether consumers created through this factory will block while
     * sending message acknowledgments or do it asynchronously.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_BLOCK_ON_ACKNOWLEDGE}.
+    * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_ACKNOWLEDGE}.
     *
     * @return whether consumers will block while sending message
     * acknowledgments or do it asynchronously
@@ -358,7 +358,7 @@ public interface ServerLocator extends AutoCloseable
     * If the session is configured to send durable message asynchronously, the client can set a SendAcknowledgementHandler on the ClientSession
     * to be notified once the message has been handled by the server.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_BLOCK_ON_DURABLE_SEND}.
+    * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_DURABLE_SEND}.
     *
     * @return whether producers will block while sending persistent messages or do it asynchronously
     */
@@ -378,7 +378,7 @@ public interface ServerLocator extends AutoCloseable
     * If the session is configured to send non-durable message asynchronously, the client can set a SendAcknowledgementHandler on the ClientSession
     * to be notified once the message has been handled by the server.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_BLOCK_ON_NON_DURABLE_SEND}.
+    * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_NON_DURABLE_SEND}.
     *
     * @return whether producers will block while sending non-durable messages or do it asynchronously
     */
@@ -398,7 +398,7 @@ public interface ServerLocator extends AutoCloseable
     * <p>
     * if <code>true</code>, a random unique group ID is created and set on each message for the property
     * {@link org.apache.activemq.api.core.Message#HDR_GROUP_ID}.
-    * Default value is {@link HornetQClient#DEFAULT_AUTO_GROUP}.
+    * Default value is {@link ActiveMQClient#DEFAULT_AUTO_GROUP}.
     *
     * @return whether producers will automatically assign a group ID to their messages
     */
@@ -433,7 +433,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns whether messages will pre-acknowledged on the server before they are sent to the consumers or not.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_PRE_ACKNOWLEDGE}
+    * Default value is {@link ActiveMQClient#DEFAULT_PRE_ACKNOWLEDGE}
     */
    boolean isPreAcknowledge();
 
@@ -451,7 +451,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the acknowledgments batch size.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_ACK_BATCH_SIZE}.
+    * Default value is {@link ActiveMQClient#DEFAULT_ACK_BATCH_SIZE}.
     *
     * @return the acknowledgments batch size
     */
@@ -484,7 +484,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns whether this factory will use global thread pools (shared among all the factories in the same JVM)
     * or its own pools.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_USE_GLOBAL_POOLS}.
+    * Default value is {@link ActiveMQClient#DEFAULT_USE_GLOBAL_POOLS}.
     *
     * @return <code>true</code> if this factory uses global thread pools, <code>false</code> else
     */
@@ -502,7 +502,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the maximum size of the scheduled thread pool.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
+    * Default value is {@link ActiveMQClient#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
     *
     * @return the maximum size of the scheduled thread pool.
     */
@@ -522,7 +522,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the maximum size of the thread pool.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_THREAD_POOL_MAX_SIZE}.
+    * Default value is {@link ActiveMQClient#DEFAULT_THREAD_POOL_MAX_SIZE}.
     *
     * @return the maximum size of the thread pool.
     */
@@ -542,7 +542,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the time to retry connections created by this factory after failure.
     * <p>
-    * Value is in milliseconds, default is {@link HornetQClient#DEFAULT_RETRY_INTERVAL}.
+    * Value is in milliseconds, default is {@link ActiveMQClient#DEFAULT_RETRY_INTERVAL}.
     *
     * @return the time to retry connections created by this factory after failure
     */
@@ -561,7 +561,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the multiplier to apply to successive retry intervals.
     * <p>
-    * Default value is  {@link HornetQClient#DEFAULT_RETRY_INTERVAL_MULTIPLIER}.
+    * Default value is  {@link ActiveMQClient#DEFAULT_RETRY_INTERVAL_MULTIPLIER}.
     *
     * @return the multiplier to apply to successive retry intervals
     */
@@ -580,7 +580,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the maximum retry interval (in the case a retry interval multiplier has been specified).
     * <p>
-    * Value is in milliseconds, default value is  {@link HornetQClient#DEFAULT_MAX_RETRY_INTERVAL}.
+    * Value is in milliseconds, default value is  {@link ActiveMQClient#DEFAULT_MAX_RETRY_INTERVAL}.
     *
     * @return the maximum retry interval
     */
@@ -600,7 +600,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the maximum number of attempts to retry connection in case of failure.
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_RECONNECT_ATTEMPTS}.
+    * Default value is {@link ActiveMQClient#DEFAULT_RECONNECT_ATTEMPTS}.
     *
     * @return the maximum number of attempts to retry connection in case of failure.
     */
@@ -635,7 +635,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns true if the client will automatically attempt to connect to the backup server if the initial
     * connection to the live server fails
     * <p>
-    * Default value is {@link HornetQClient#DEFAULT_FAILOVER_ON_INITIAL_CONNECTION}.
+    * Default value is {@link ActiveMQClient#DEFAULT_FAILOVER_ON_INITIAL_CONNECTION}.
     */
    boolean isFailoverOnInitialConnection();
 
@@ -669,7 +669,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the initial size of messages created through this factory.
     * <p>
-    * Value is in bytes, default value is  {@link HornetQClient#DEFAULT_INITIAL_MESSAGE_PACKET_SIZE}.
+    * Value is in bytes, default value is  {@link ActiveMQClient#DEFAULT_INITIAL_MESSAGE_PACKET_SIZE}.
     *
     * @return the initial size of messages created through this factory
     */
@@ -690,7 +690,7 @@ public interface ServerLocator extends AutoCloseable
     * method is the same as invoking <code>addIncomingInterceptor(Interceptor).</code>
     *
     * @param interceptor an Interceptor
-    * @deprecated As of HornetQ 2.3.0.Final, replaced by
+    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
     * {@link #addIncomingInterceptor(Interceptor)} and
     * {@link #addOutgoingInterceptor(Interceptor)}
     */
@@ -719,7 +719,7 @@ public interface ServerLocator extends AutoCloseable
     *
     * @param interceptor interceptor to remove
     * @return <code>true</code> if the interceptor is removed from this factory, <code>false</code> else
-    * @deprecated As of HornetQ 2.3.0.Final, replaced by
+    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
     * {@link #removeIncomingInterceptor(Interceptor)} and
     * {@link #removeOutgoingInterceptor(Interceptor)}
     */

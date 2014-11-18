@@ -32,7 +32,7 @@ import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.paging.PagingStoreFactory;
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.utils.ExecutorFactory;
@@ -164,7 +164,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
             if (!addressFile.exists())
             {
-               HornetQServerLogger.LOGGER.pageStoreFactoryNoIdFile(file.toString(), PagingStoreFactoryNIO.ADDRESS_FILE);
+               ActiveMQServerLogger.LOGGER.pageStoreFactoryNoIdFile(file.toString(), PagingStoreFactoryNIO.ADDRESS_FILE);
                continue;
             }
 

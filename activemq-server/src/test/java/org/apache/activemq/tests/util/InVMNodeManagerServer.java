@@ -19,10 +19,10 @@ import javax.management.MBeanServer;
 
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
-import org.apache.activemq.spi.core.security.HornetQSecurityManager;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
-public final class InVMNodeManagerServer extends HornetQServerImpl
+public final class InVMNodeManagerServer extends ActiveMQServerImpl
 {
    final NodeManager nodeManager;
 
@@ -47,7 +47,7 @@ public final class InVMNodeManagerServer extends HornetQServerImpl
    }
 
    public InVMNodeManagerServer(final Configuration configuration,
-                                final HornetQSecurityManager securityManager,
+                                final ActiveMQSecurityManager securityManager,
                                 final NodeManager nodeManager)
    {
       super(configuration, securityManager);
@@ -56,7 +56,7 @@ public final class InVMNodeManagerServer extends HornetQServerImpl
 
    public InVMNodeManagerServer(final Configuration configuration,
                                 final MBeanServer mbeanServer,
-                                final HornetQSecurityManager securityManager,
+                                final ActiveMQSecurityManager securityManager,
                                 final NodeManager nodeManager)
    {
       super(configuration, mbeanServer, securityManager);

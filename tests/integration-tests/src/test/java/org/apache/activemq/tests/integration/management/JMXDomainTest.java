@@ -21,8 +21,8 @@ import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.junit.After;
 import org.junit.Test;
 
@@ -33,11 +33,11 @@ import org.junit.Test;
  */
 public class JMXDomainTest extends ManagementTestBase
 {
-   HornetQServer server_0 = null;
-   HornetQServer server_1 = null;
+   ActiveMQServer server_0 = null;
+   ActiveMQServer server_1 = null;
 
    @Test
-   public void test2HornetQServersManagedFrom1MBeanServer() throws Exception
+   public void test2ActiveMQServersManagedFrom1MBeanServer() throws Exception
    {
       Configuration config_0 = createDefaultConfig()
          .setJMXManagementEnabled(true);
@@ -50,34 +50,34 @@ public class JMXDomainTest extends ManagementTestBase
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params))
          .setJMXDomain(jmxDomain_1);
 
-      server_0 = HornetQServers.newHornetQServer(config_0, mbeanServer, false);
-      server_1 = HornetQServers.newHornetQServer(config_1, mbeanServer, false);
+      server_0 = ActiveMQServers.newActiveMQServer(config_0, mbeanServer, false);
+      server_1 = ActiveMQServers.newActiveMQServer(config_1, mbeanServer, false);
 
       ObjectNameBuilder builder_0 = ObjectNameBuilder.DEFAULT;
       ObjectNameBuilder builder_1 = ObjectNameBuilder.create(jmxDomain_1);
 
-      checkNoResource(builder_0.getHornetQServerObjectName());
-      checkNoResource(builder_1.getHornetQServerObjectName());
+      checkNoResource(builder_0.getActiveMQServerObjectName());
+      checkNoResource(builder_1.getActiveMQServerObjectName());
 
       server_0.start();
 
-      checkResource(builder_0.getHornetQServerObjectName());
-      checkNoResource(builder_1.getHornetQServerObjectName());
+      checkResource(builder_0.getActiveMQServerObjectName());
+      checkNoResource(builder_1.getActiveMQServerObjectName());
 
       server_1.start();
 
-      checkResource(builder_0.getHornetQServerObjectName());
-      checkResource(builder_1.getHornetQServerObjectName());
+      checkResource(builder_0.getActiveMQServerObjectName());
+      checkResource(builder_1.getActiveMQServerObjectName());
 
       server_0.stop();
 
-      checkNoResource(builder_0.getHornetQServerObjectName());
-      checkResource(builder_1.getHornetQServerObjectName());
+      checkNoResource(builder_0.getActiveMQServerObjectName());
+      checkResource(builder_1.getActiveMQServerObjectName());
 
       server_1.stop();
 
-      checkNoResource(builder_0.getHornetQServerObjectName());
-      checkNoResource(builder_1.getHornetQServerObjectName());
+      checkNoResource(builder_0.getActiveMQServerObjectName());
+      checkNoResource(builder_1.getActiveMQServerObjectName());
    }
 
    @Override

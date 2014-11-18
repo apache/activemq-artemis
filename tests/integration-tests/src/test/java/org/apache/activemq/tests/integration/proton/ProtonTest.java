@@ -43,11 +43,11 @@ import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
 import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.utils.ByteUtil;
 import org.junit.After;
@@ -73,8 +73,8 @@ public class ProtonTest extends ServiceTestBase
       // these 3 are for comparison
       return Arrays.asList(new Object[][]{
          {"AMQP", 0},
-         {"HornetQ (InVM)", 1},
-         {"HornetQ (Netty)", 2},
+         {"ActiveMQ (InVM)", 1},
+         {"ActiveMQ (Netty)", 2},
          {"AMQP_ANONYMOUS", 3}
       });
    }
@@ -97,7 +97,7 @@ public class ProtonTest extends ServiceTestBase
       }
    }
 
-   private HornetQServer server;
+   private ActiveMQServer server;
    private final String coreAddress;
    private final String address;
    private Connection connection;
@@ -220,7 +220,7 @@ public class ProtonTest extends ServiceTestBase
       {
          // As this test was hunging, we added a protection here to fail it instead.
          // it seems something on the qpid client, so this failure belongs to them and we can ignore it on
-         // our side (HornetQ)
+         // our side (ActiveMQ)
          success = runWithTimeout(new RunnerWithEX()
          {
             @Override
@@ -890,7 +890,7 @@ public class ProtonTest extends ServiceTestBase
       }
       else
       {
-         return HornetQJMSClient.createQueue(address);
+         return ActiveMQJMSClient.createQueue(address);
       }
    }
 
@@ -940,7 +940,7 @@ public class ProtonTest extends ServiceTestBase
             transport = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
          }
 
-         factory = new HornetQConnectionFactory(false, transport);
+         factory = new ActiveMQConnectionFactory(false, transport);
          connection = factory.createConnection("guest", "guest");
          connection.setExceptionListener(new ExceptionListener()
          {

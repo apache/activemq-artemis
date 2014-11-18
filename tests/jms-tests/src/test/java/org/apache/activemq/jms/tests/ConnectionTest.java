@@ -298,7 +298,7 @@ public class ConnectionTest extends JMSTestCase
 
       try
       {
-         queueConnection.createDurableConnectionConsumer(HornetQServerTestCase.topic1,
+         queueConnection.createDurableConnectionConsumer(ActiveMQServerTestCase.topic1,
                                                          "subscriptionName",
                                                          "",
                                                          (ServerSessionPool)null,

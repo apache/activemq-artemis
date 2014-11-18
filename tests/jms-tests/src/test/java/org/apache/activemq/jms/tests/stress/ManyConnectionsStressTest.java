@@ -26,7 +26,7 @@ import javax.naming.InitialContext;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +38,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public class ManyConnectionsStressTest extends HornetQServerTestCase
+public class ManyConnectionsStressTest extends ActiveMQServerTestCase
 {
    @BeforeClass
    public static void stressTestsEnabled()

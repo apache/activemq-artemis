@@ -24,7 +24,7 @@ import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.utils.ExecutorFactory;
 
 /**
@@ -241,7 +241,7 @@ public class OperationContextImpl implements OperationContext
       }
       catch (Throwable e)
       {
-         HornetQServerLogger.LOGGER.errorExecutingIOAsyncTask(e);
+         ActiveMQServerLogger.LOGGER.errorExecutingIOAsyncTask(e);
          executorsPending.decrementAndGet();
          task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(),
                       "It wasn't possible to complete IO operation - " + e.getMessage());

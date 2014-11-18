@@ -29,7 +29,7 @@ import javax.transaction.xa.Xid;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ import org.junit.Test;
  *
  *
  */
-public class JMSXDeliveryCountTest extends HornetQServerTestCase
+public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 {
    // Constants ------------------------------------------------------------------------------------
 
@@ -256,9 +256,9 @@ public class JMSXDeliveryCountTest extends HornetQServerTestCase
          Session sess2 = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
          Session sess3 = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-         MessageConsumer cons1 = sess1.createConsumer(HornetQServerTestCase.topic1);
-         MessageConsumer cons2 = sess2.createConsumer(HornetQServerTestCase.topic1);
-         MessageConsumer cons3 = sess3.createDurableSubscriber(HornetQServerTestCase.topic1, "subxyz");
+         MessageConsumer cons1 = sess1.createConsumer(ActiveMQServerTestCase.topic1);
+         MessageConsumer cons2 = sess2.createConsumer(ActiveMQServerTestCase.topic1);
+         MessageConsumer cons3 = sess3.createDurableSubscriber(ActiveMQServerTestCase.topic1, "subxyz");
 
          conn.start();
 
@@ -278,7 +278,7 @@ public class JMSXDeliveryCountTest extends HornetQServerTestCase
          t3.start();
 
          Session sessSend = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = sessSend.createProducer(HornetQServerTestCase.topic1);
+         MessageProducer prod = sessSend.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
          for (int i = 0; i < NUM_MESSAGES; i++)

@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.core.client.HornetQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.apache.activemq.spi.core.remoting.Connector;
 
 /**
@@ -64,9 +64,9 @@ public final class Topology implements Serializable
    public Topology(final Object owner)
    {
       this.owner = owner;
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE",
+         ActiveMQClientLogger.LOGGER.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE",
                             new Exception("trace"));
       }
    }
@@ -86,9 +86,9 @@ public final class Topology implements Serializable
 
    public void addClusterTopologyListener(final ClusterTopologyListener listener)
    {
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace(this + "::Adding topology listener " + listener, new Exception("Trace"));
+         ActiveMQClientLogger.LOGGER.trace(this + "::Adding topology listener " + listener, new Exception("Trace"));
       }
       synchronized (topologyListeners)
       {
@@ -99,9 +99,9 @@ public final class Topology implements Serializable
 
    public void removeClusterTopologyListener(final ClusterTopologyListener listener)
    {
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace(this + "::Removing topology listener " + listener, new Exception("Trace"));
+         ActiveMQClientLogger.LOGGER.trace(this + "::Removing topology listener " + listener, new Exception("Trace"));
       }
       synchronized (topologyListeners)
       {
@@ -114,9 +114,9 @@ public final class Topology implements Serializable
    {
       synchronized (this)
       {
-         if (HornetQClientLogger.LOGGER.isDebugEnabled())
+         if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
          {
-            HornetQClientLogger.LOGGER.debug(this + "::node " + nodeId + "=" + memberInput);
+            ActiveMQClientLogger.LOGGER.debug(this + "::node " + nodeId + "=" + memberInput);
          }
          memberInput.setUniqueEventID(System.currentTimeMillis());
          topology.remove(nodeId);
@@ -146,9 +146,9 @@ public final class Topology implements Serializable
    public TopologyMemberImpl updateBackup(final TopologyMemberImpl memberInput)
    {
       final String nodeId = memberInput.getNodeId();
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace(this + "::updateBackup::" + nodeId + ", memberInput=" + memberInput);
+         ActiveMQClientLogger.LOGGER.trace(this + "::updateBackup::" + nodeId + ", memberInput=" + memberInput);
       }
 
       synchronized (this)
@@ -156,9 +156,9 @@ public final class Topology implements Serializable
          TopologyMemberImpl currentMember = getMember(nodeId);
          if (currentMember == null)
          {
-            if (HornetQClientLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
             {
-               HornetQClientLogger.LOGGER.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput,
+               ActiveMQClientLogger.LOGGER.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput,
                                                 new Exception("trace"));
             }
 
@@ -191,7 +191,7 @@ public final class Topology implements Serializable
       Long deleteTme = getMapDelete().get(nodeId);
       if (deleteTme != null && uniqueEventID != 0 && uniqueEventID < deleteTme)
       {
-         HornetQClientLogger.LOGGER.debug("Update uniqueEvent=" + uniqueEventID +
+         ActiveMQClientLogger.LOGGER.debug("Update uniqueEvent=" + uniqueEventID +
                    ", nodeId=" +
                    nodeId +
                    ", memberInput=" +
@@ -206,9 +206,9 @@ public final class Topology implements Serializable
 
          if (currentMember == null)
          {
-            if (HornetQClientLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
             {
-               HornetQClientLogger.LOGGER.trace(this + "::NewMemberAdd nodeId=" + nodeId + " member = " + memberInput,
+               ActiveMQClientLogger.LOGGER.trace(this + "::NewMemberAdd nodeId=" + nodeId + " member = " + memberInput,
                                           new Exception("trace"));
             }
             memberInput.setUniqueEventID(uniqueEventID);
@@ -232,9 +232,9 @@ public final class Topology implements Serializable
                newMember.setBackup(currentMember.getBackup());
             }
 
-            if (HornetQClientLogger.LOGGER.isTraceEnabled())
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
             {
-               HornetQClientLogger.LOGGER.trace(this + "::updated currentMember=nodeID=" + nodeId + ", currentMember=" +
+               ActiveMQClientLogger.LOGGER.trace(this + "::updated currentMember=nodeID=" + nodeId + ", currentMember=" +
                                                    currentMember + ", memberInput=" + memberInput + "newMember=" +
                                                    newMember,
                                           new Exception("trace"));
@@ -267,9 +267,9 @@ public final class Topology implements Serializable
    {
       final ArrayList<ClusterTopologyListener> copy = copyListeners();
 
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace(this + "::prepare to send " + nodeId + " to " + copy.size() + " elements");
+         ActiveMQClientLogger.LOGGER.trace(this + "::prepare to send " + nodeId + " to " + copy.size() + " elements");
       }
 
       if (copy.size() > 0)
@@ -280,9 +280,9 @@ public final class Topology implements Serializable
             {
                for (ClusterTopologyListener listener : copy)
                {
-                  if (HornetQClientLogger.LOGGER.isTraceEnabled())
+                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
                   {
-                     HornetQClientLogger.LOGGER.trace(Topology.this + " informing " +
+                     ActiveMQClientLogger.LOGGER.trace(Topology.this + " informing " +
                                         listener +
                                         " about node up = " +
                                         nodeId +
@@ -296,7 +296,7 @@ public final class Topology implements Serializable
                   }
                   catch (Throwable e)
                   {
-                     HornetQClientLogger.LOGGER.errorSendingTopology(e);
+                     ActiveMQClientLogger.LOGGER.errorSendingTopology(e);
                   }
                }
             }
@@ -328,7 +328,7 @@ public final class Topology implements Serializable
          {
             if (member.getUniqueEventID() > uniqueEventID)
             {
-               HornetQClientLogger.LOGGER.debug("The removeMember was issued before the node " + nodeId + " was started, ignoring call");
+               ActiveMQClientLogger.LOGGER.debug("The removeMember was issued before the node " + nodeId + " was started, ignoring call");
                member = null;
             }
             else
@@ -339,9 +339,9 @@ public final class Topology implements Serializable
          }
       }
 
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("removeMember " + this +
+         ActiveMQClientLogger.LOGGER.trace("removeMember " + this +
                             " removing nodeID=" +
                             nodeId +
                             ", result=" +
@@ -360,9 +360,9 @@ public final class Topology implements Serializable
             {
                for (ClusterTopologyListener listener : copy)
                {
-                  if (HornetQClientLogger.LOGGER.isTraceEnabled())
+                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
                   {
-                     HornetQClientLogger.LOGGER.trace(this + " informing " + listener + " about node down = " + nodeId);
+                     ActiveMQClientLogger.LOGGER.trace(this + " informing " + listener + " about node down = " + nodeId);
                   }
                   try
                   {
@@ -370,7 +370,7 @@ public final class Topology implements Serializable
                   }
                   catch (Exception e)
                   {
-                     HornetQClientLogger.LOGGER.errorSendingTopologyNodedown(e);
+                     ActiveMQClientLogger.LOGGER.errorSendingTopologyNodedown(e);
                   }
                }
             }
@@ -394,9 +394,9 @@ public final class Topology implements Serializable
 
    public synchronized void sendTopology(final ClusterTopologyListener listener)
    {
-      if (HornetQClientLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
       {
-         HornetQClientLogger.LOGGER.debug(this + " is sending topology to " + listener);
+         ActiveMQClientLogger.LOGGER.debug(this + " is sending topology to " + listener);
       }
 
       execute(new Runnable()
@@ -414,9 +414,9 @@ public final class Topology implements Serializable
 
             for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet())
             {
-               if (HornetQClientLogger.LOGGER.isDebugEnabled())
+               if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
                {
-                  HornetQClientLogger.LOGGER.debug(Topology.this + " sending " +
+                  ActiveMQClientLogger.LOGGER.debug(Topology.this + " sending " +
                             entry.getKey() +
                             " / " +
                             entry.getValue().getConnector() +

@@ -14,8 +14,8 @@
 package org.apache.activemq.tests.integration.embedded;
 
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class ValidateAIOTest extends ServiceTestBase
       Configuration config = createDefaultConfig(false)
          // This will force AsyncIO
          .setJournalType(JournalType.ASYNCIO);
-      HornetQServer server = HornetQServers.newHornetQServer(config, true);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, true);
       try
       {
          server.start();

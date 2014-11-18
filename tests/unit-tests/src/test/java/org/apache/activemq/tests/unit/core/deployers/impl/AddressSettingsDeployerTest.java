@@ -89,7 +89,7 @@ public class AddressSettingsDeployerTest extends UnitTestCase
    @Test
    public void testDeployFromConfigurationFile() throws Exception
    {
-      String xml = "<configuration xmlns='urn:hornetq'> " + "<address-settings>" +
+      String xml = "<configuration xmlns='urn:activemq'> " + "<address-settings>" +
                    conf +
                    "</address-settings>" +
                    "</configuration>";

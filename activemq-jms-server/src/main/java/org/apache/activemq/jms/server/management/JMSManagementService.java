@@ -14,9 +14,9 @@ package org.apache.activemq.jms.server.management;
 
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQQueue;
-import org.apache.activemq.jms.client.HornetQTopic;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQQueue;
+import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 
@@ -31,15 +31,15 @@ public interface JMSManagementService
 
    void unregisterJMSServer() throws Exception;
 
-   void registerQueue(HornetQQueue queue, Queue serverQueue) throws Exception;
+   void registerQueue(ActiveMQQueue queue, Queue serverQueue) throws Exception;
 
    void unregisterQueue(String name) throws Exception;
 
-   void registerTopic(HornetQTopic topic) throws Exception;
+   void registerTopic(ActiveMQTopic topic) throws Exception;
 
    void unregisterTopic(String name) throws Exception;
 
-   void registerConnectionFactory(String name, ConnectionFactoryConfiguration config, HornetQConnectionFactory connectionFactory) throws Exception;
+   void registerConnectionFactory(String name, ConnectionFactoryConfiguration config, ActiveMQConnectionFactory connectionFactory) throws Exception;
 
    void unregisterConnectionFactory(String name) throws Exception;
 

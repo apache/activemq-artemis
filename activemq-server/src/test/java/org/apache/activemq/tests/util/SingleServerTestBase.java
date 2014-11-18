@@ -15,10 +15,10 @@ package org.apache.activemq.tests.util;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.junit.Before;
 
 /**
@@ -30,7 +30,7 @@ import org.junit.Before;
 public abstract class SingleServerTestBase extends ServiceTestBase
 {
 
-   protected HornetQServer server;
+   protected ActiveMQServer server;
 
    protected ClientSession session;
 
@@ -57,7 +57,7 @@ public abstract class SingleServerTestBase extends ServiceTestBase
 
    protected ServerLocator createLocator()
    {
-      ServerLocator retlocator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator retlocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       addServerLocator(retlocator);
       return retlocator;
    }

@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.javaee.example.server;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.jboss.ejb3.annotation.ResourceAdapter;
 
 import javax.annotation.Resource;
@@ -31,7 +31,7 @@ import javax.jms.*;
                         @ActivationConfigProperty(propertyName = "hA", propertyValue = "true"),
                         @ActivationConfigProperty(propertyName = "useJNDI", propertyValue = "false")
                      })
-@ResourceAdapter("hornetq-remote-ra.rar")
+@ResourceAdapter("activemq-remote-ra.rar")
 public class MDBRemoteFailoverStaticExample implements MessageListener
 {
    @Resource(mappedName = "java:/RemoteJmsXA")
@@ -43,7 +43,7 @@ public class MDBRemoteFailoverStaticExample implements MessageListener
       Connection conn = null;
       try
       {
-         replyQueue = HornetQJMSClient.createQueue("outQueue");
+         replyQueue = ActiveMQJMSClient.createQueue("outQueue");
          //Step 9. We know the client is sending a text message so we cast
          TextMessage textMessage = (TextMessage)message;
 

@@ -15,8 +15,8 @@ package org.apache.activemq.core.protocol.core.impl;
 import java.util.List;
 
 import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.client.HornetQClient;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
@@ -29,9 +29,9 @@ import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
  */
 public class CoreProtocolManagerFactory implements ProtocolManagerFactory
 {
-   private static String[] SUPPORTED_PROTOCOLS = {HornetQClient.DEFAULT_CORE_PROTOCOL};
+   private static String[] SUPPORTED_PROTOCOLS = {ActiveMQClient.DEFAULT_CORE_PROTOCOL};
 
-   public ProtocolManager createProtocolManager(final HornetQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
+   public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
       return new CoreProtocolManager(server, incomingInterceptors, outgoingInterceptors);
    }

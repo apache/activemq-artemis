@@ -28,13 +28,13 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory;
 import org.apache.activemq.integration.aerogear.AeroGearConstants;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -53,7 +53,7 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 public class AeroGearBasicServerTest extends ServiceTestBase
 {
 
-   private HornetQServer server;
+   private ActiveMQServer server;
    private ServerLocator locator;
    private Server jetty;
 
@@ -125,12 +125,12 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       AeroGearHandler aeroGearHandler = new AeroGearHandler(latch);
       jetty.addHandler(aeroGearHandler);
       TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
-      locator = HornetQClient.createServerLocatorWithoutHA(tpconf);
+      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");
       ClientMessage m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from ActiveMQ!");
       m.putStringProperty("AEROGEAR_PROP1", "prop1");
       m.putBooleanProperty("AEROGEAR_PROP2", true);
 
@@ -148,7 +148,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       assertEquals(prop1, "true");
       String alert = body.getString("alert");
       assertNotNull(alert);
-      assertEquals(alert, "hello from HornetQ!");
+      assertEquals(alert, "hello from ActiveMQ!");
       String sound = body.getString("sound");
       assertNotNull(sound);
       assertEquals(sound, "sound1");
@@ -176,7 +176,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
 
       //now override the properties
       m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from ActiveMQ!");
       m.putStringProperty(AeroGearConstants.AEROGEAR_BADGE.toString(), "111");
       m.putStringProperty(AeroGearConstants.AEROGEAR_SOUND.toString(), "s1");
       m.putIntProperty(AeroGearConstants.AEROGEAR_TTL.toString(), 10000);
@@ -191,7 +191,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       assertNotNull(body);
       alert = body.getString("alert");
       assertNotNull(alert);
-      assertEquals(alert, "another hello from HornetQ!");
+      assertEquals(alert, "another hello from ActiveMQ!");
       sound = body.getString("sound");
       assertNotNull(sound);
       assertEquals(sound, "s1");
@@ -274,13 +274,13 @@ public class AeroGearBasicServerTest extends ServiceTestBase
 
       });
       TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
-      locator = HornetQClient.createServerLocatorWithoutHA(tpconf);
+      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");
       final CountDownLatch latch = new CountDownLatch(2);
       ClientMessage m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from ActiveMQ!");
 
       producer.send(m, new SendAcknowledgementHandler()
       {
@@ -291,7 +291,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          }
       });
       m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from ActiveMQ!");
 
       producer.send(m, new SendAcknowledgementHandler()
       {
@@ -328,16 +328,16 @@ public class AeroGearBasicServerTest extends ServiceTestBase
 
       });
       TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
-      locator = HornetQClient.createServerLocatorWithoutHA(tpconf);
+      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");
       ClientMessage m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from ActiveMQ!");
 
       producer.send(m);
       m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from ActiveMQ!");
 
       producer.send(m);
       assertTrue(latch.await(5, TimeUnit.SECONDS));
@@ -366,16 +366,16 @@ public class AeroGearBasicServerTest extends ServiceTestBase
 
       });
       TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
-      locator = HornetQClient.createServerLocatorWithoutHA(tpconf);
+      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");
       ClientMessage m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from ActiveMQ!");
 
       producer.send(m);
       m = session.createMessage(true);
-      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from HornetQ!");
+      m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from ActiveMQ!");
 
       producer.send(m);
       session.start();

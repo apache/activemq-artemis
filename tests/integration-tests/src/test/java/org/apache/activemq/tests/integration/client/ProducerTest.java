@@ -26,7 +26,7 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
@@ -40,7 +40,7 @@ import org.junit.Test;
  */
 public class ProducerTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
 

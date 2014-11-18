@@ -20,21 +20,21 @@ import java.util.Set;
 
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.ra.HornetQRAConnectionFactory;
-import org.apache.activemq.ra.HornetQRAConnectionFactoryImpl;
-import org.apache.activemq.ra.HornetQRAConnectionManager;
-import org.apache.activemq.ra.HornetQRAManagedConnectionFactory;
-import org.apache.activemq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.ActiveMQRAConnectionFactory;
+import org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl;
+import org.apache.activemq.ra.ActiveMQRAConnectionManager;
+import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
+import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JMSContextTest extends HornetQRATestBase
+public class JMSContextTest extends ActiveMQRATestBase
 {
-   private HornetQResourceAdapter resourceAdapter;
+   private ActiveMQResourceAdapter resourceAdapter;
 
-   HornetQRAConnectionManager qraConnectionManager = new HornetQRAConnectionManager();
-   private HornetQRAConnectionFactory qraConnectionFactory;
+   ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
+   private ActiveMQRAConnectionFactory qraConnectionFactory;
 
    public TransactionManager getTm()
    {
@@ -55,16 +55,16 @@ public class JMSContextTest extends HornetQRATestBase
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
-      resourceAdapter = new HornetQResourceAdapter();
+      resourceAdapter = new ActiveMQResourceAdapter();
       resourceAdapter.setTransactionManagerLocatorClass(JMSContextTest.class.getName());
       resourceAdapter.setTransactionManagerLocatorMethod("getTm");
 
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
-      HornetQRAManagedConnectionFactory mcf = new HornetQRAManagedConnectionFactory();
+      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
-      qraConnectionFactory = new HornetQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+      qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
    }
 
    @Override

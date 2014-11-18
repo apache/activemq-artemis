@@ -21,7 +21,7 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperationAbstract;
@@ -213,7 +213,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
                }
                catch (Exception e)
                {
-                  HornetQServerLogger.LOGGER.errorDeletingDuplicateCache(e);
+                  ActiveMQServerLogger.LOGGER.errorDeletingDuplicateCache(e);
                }
             }
          }

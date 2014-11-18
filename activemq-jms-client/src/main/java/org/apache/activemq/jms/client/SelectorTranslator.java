@@ -17,12 +17,12 @@ import java.util.List;
 
 /**
  *
- * This class converts a JMS selector expression into a HornetQ core filter expression.
+ * This class converts a JMS selector expression into a ActiveMQ core filter expression.
  *
- * JMS selector and HornetQ filters use the same syntax but have different identifiers.
+ * JMS selector and ActiveMQ filters use the same syntax but have different identifiers.
  *
  * We basically just need to replace the JMS header and property Identifier names
- * with the corresponding HornetQ field and header Identifier names.
+ * with the corresponding ActiveMQ field and header Identifier names.
  *
  * We must be careful not to substitute any literals, or identifiers whose name contains the name
  * of one we want to substitute.
@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class SelectorTranslator
 {
-   public static String convertToHornetQFilterString(final String selectorString)
+   public static String convertToActiveMQFilterString(final String selectorString)
    {
       if (selectorString == null)
       {

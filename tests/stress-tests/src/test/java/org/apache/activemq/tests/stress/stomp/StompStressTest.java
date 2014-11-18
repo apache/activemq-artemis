@@ -35,8 +35,8 @@ import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.UnitTestCase;
 
 public class StompStressTest extends UnitTestCase
@@ -51,7 +51,7 @@ public class StompStressTest extends UnitTestCase
 
    private final String destination = "stomp.stress.queue";
 
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    @Test
    public void testSendAndReceiveMessage() throws Exception
@@ -101,7 +101,7 @@ public class StompStressTest extends UnitTestCase
       inputBuffer = new ByteArrayOutputStream();
    }
 
-   private HornetQServer createServer() throws Exception
+   private ActiveMQServer createServer() throws Exception
    {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
@@ -117,7 +117,7 @@ public class StompStressTest extends UnitTestCase
                                    .setName(destination)
                                    .setDurable(false));
 
-      return addServer(HornetQServers.newHornetQServer(config));
+      return addServer(ActiveMQServers.newActiveMQServer(config));
    }
 
    @Override

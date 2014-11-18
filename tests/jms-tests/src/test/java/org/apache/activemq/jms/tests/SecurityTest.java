@@ -112,7 +112,7 @@ public class SecurityTest extends JMSTestCase
       Connection conn = null;
       try
       {
-         HornetQServerTestCase.deployConnectionFactory("dilbert-id", "preConfcf", "preConfcf");
+         ActiveMQServerTestCase.deployConnectionFactory("dilbert-id", "preConfcf", "preConfcf");
          ConnectionFactory cf = (ConnectionFactory) getInitialContext().lookup("preConfcf");
          conn = cf.createConnection("guest", "guest");
          String clientID = conn.getClientID();
@@ -124,7 +124,7 @@ public class SecurityTest extends JMSTestCase
          {
             conn.close();
          }
-         HornetQServerTestCase.undeployConnectionFactory("preConfcf");
+         ActiveMQServerTestCase.undeployConnectionFactory("preConfcf");
       }
    }
 
@@ -149,7 +149,7 @@ public class SecurityTest extends JMSTestCase
       Connection conn = null;
       try
       {
-         HornetQServerTestCase.deployConnectionFactory("dilbert-id", "preConfcf", "preConfcf");
+         ActiveMQServerTestCase.deployConnectionFactory("dilbert-id", "preConfcf", "preConfcf");
          ConnectionFactory cf = (ConnectionFactory) getInitialContext().lookup("preConfcf");
          conn = cf.createConnection("guest", "guest");
          conn.setClientID("myID");
@@ -165,7 +165,7 @@ public class SecurityTest extends JMSTestCase
          {
             conn.close();
          }
-         HornetQServerTestCase.undeployConnectionFactory("preConfcf");
+         ActiveMQServerTestCase.undeployConnectionFactory("preConfcf");
       }
    }
 

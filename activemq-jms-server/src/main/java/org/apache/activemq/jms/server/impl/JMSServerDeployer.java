@@ -96,8 +96,8 @@ public class JMSServerDeployer extends XmlDeployer
    }
 
    /**
-    * Creates the object to bind, this will either be a JBossConnectionFActory, HornetQQueue or
-    * HornetQTopic.
+    * Creates the object to bind, this will either be a JBossConnectionFActory, ActiveMQQueue or
+    * ActiveMQTopic.
     *
     * @param node the config
     * @throws Exception
@@ -147,7 +147,7 @@ public class JMSServerDeployer extends XmlDeployer
    @Override
    public String[] getDefaultConfigFileNames()
    {
-      return new String[]{"hornetq-jms.xml"};
+      return new String[]{"activemq-jms.xml"};
    }
 
 

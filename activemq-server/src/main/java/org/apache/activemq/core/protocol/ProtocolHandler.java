@@ -31,7 +31,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.core.protocol.stomp.WebSocketServerHandler;
 import org.apache.activemq.core.remoting.impl.netty.ConnectionCreator;
@@ -112,7 +112,7 @@ public class ProtocolHandler
                ctx.fireChannelRead(msg);
             }
             // HORNETQ-1391
-            else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.HORNETQ_REMOTING))
+            else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING))
             {
                // Send the response and close the connection if necessary.
                ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN)).addListener(ChannelFutureListener.CLOSE);
@@ -168,7 +168,7 @@ public class ProtocolHandler
          //if we get here we assume we use the core protocol as we match nothing else
          if (protocolToUse == null)
          {
-            protocolToUse = HornetQClient.DEFAULT_CORE_PROTOCOL;
+            protocolToUse = ActiveMQClient.DEFAULT_CORE_PROTOCOL;
          }
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();

@@ -47,12 +47,12 @@ import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.api.core.client.SessionFailureListener;
 import org.apache.activemq.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.core.remoting.FailureListener;
-import org.apache.activemq.jms.client.HornetQBytesMessage;
-import org.apache.activemq.jms.client.HornetQMapMessage;
-import org.apache.activemq.jms.client.HornetQMessage;
-import org.apache.activemq.jms.client.HornetQObjectMessage;
-import org.apache.activemq.jms.client.HornetQStreamMessage;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.jms.client.ActiveMQMapMessage;
+import org.apache.activemq.jms.client.ActiveMQMessage;
+import org.apache.activemq.jms.client.ActiveMQObjectMessage;
+import org.apache.activemq.jms.client.ActiveMQStreamMessage;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -793,19 +793,19 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    @Test
    public void testCopyOnJBossMessage() throws JMSException
    {
-      ClientMessage clientMessage = new ClientMessageImpl(HornetQTextMessage.TYPE,
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
                                                           (byte) 4,
                                                           1000);
       ClientSession session = new FakeSession(clientMessage);
-      HornetQMessage jbossMessage = HornetQMessage.createMessage(clientMessage, session);
+      ActiveMQMessage jbossMessage = ActiveMQMessage.createMessage(clientMessage, session);
       jbossMessage.clearProperties();
 
       MessageHeaderTestBase.configureMessage(jbossMessage);
 
-      HornetQMessage copy = new HornetQMessage(jbossMessage, session);
+      ActiveMQMessage copy = new ActiveMQMessage(jbossMessage, session);
 
       MessageHeaderTestBase.ensureEquivalent(jbossMessage, copy);
    }
@@ -813,7 +813,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    @Test
    public void testCopyOnForeignMessage() throws JMSException
    {
-      ClientMessage clientMessage = new ClientMessageImpl(HornetQTextMessage.TYPE,
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -823,7 +823,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
       Message foreignMessage = new SimpleJMSMessage();
 
-      HornetQMessage copy = new HornetQMessage(foreignMessage, session);
+      ActiveMQMessage copy = new ActiveMQMessage(foreignMessage, session);
 
       MessageHeaderTestBase.ensureEquivalent(foreignMessage, copy);
 
@@ -832,7 +832,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    @Test
    public void testCopyOnForeignBytesMessage() throws JMSException
    {
-      ClientMessage clientMessage = new ClientMessageImpl(HornetQTextMessage.TYPE,
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -846,7 +846,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
          foreignBytesMessage.writeByte((byte) i);
       }
 
-      HornetQBytesMessage copy = new HornetQBytesMessage(foreignBytesMessage, session);
+      ActiveMQBytesMessage copy = new ActiveMQBytesMessage(foreignBytesMessage, session);
 
       foreignBytesMessage.reset();
       copy.reset();
@@ -857,7 +857,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    @Test
    public void testCopyOnForeignMapMessage() throws JMSException
    {
-      ClientMessage clientMessage = new ClientMessageImpl(HornetQTextMessage.TYPE,
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -868,7 +868,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       foreignMapMessage.setInt("int", 1);
       foreignMapMessage.setString("string", "test");
 
-      HornetQMapMessage copy = new HornetQMapMessage(foreignMapMessage, session);
+      ActiveMQMapMessage copy = new ActiveMQMapMessage(foreignMapMessage, session);
 
       MessageHeaderTestBase.ensureEquivalent(foreignMapMessage, copy);
    }
@@ -876,7 +876,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    @Test
    public void testCopyOnForeignObjectMessage() throws JMSException
    {
-      ClientMessage clientMessage = new ClientMessageImpl(HornetQTextMessage.TYPE,
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -886,7 +886,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
       ObjectMessage foreignObjectMessage = new SimpleJMSObjectMessage();
 
-      HornetQObjectMessage copy = new HornetQObjectMessage(foreignObjectMessage, session);
+      ActiveMQObjectMessage copy = new ActiveMQObjectMessage(foreignObjectMessage, session);
 
       MessageHeaderTestBase.ensureEquivalent(foreignObjectMessage, copy);
    }
@@ -894,7 +894,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    @Test
    public void testCopyOnForeignStreamMessage() throws JMSException
    {
-      ClientMessage clientMessage = new ClientMessageImpl(HornetQTextMessage.TYPE,
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -907,7 +907,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       foreignStreamMessage.writeByte((byte) 2);
       foreignStreamMessage.writeByte((byte) 3);
 
-      HornetQStreamMessage copy = new HornetQStreamMessage(foreignStreamMessage, session);
+      ActiveMQStreamMessage copy = new ActiveMQStreamMessage(foreignStreamMessage, session);
 
       MessageHeaderTestBase.ensureEquivalent(foreignStreamMessage, copy);
    }
@@ -915,7 +915,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    @Test
    public void testCopyOnForeignTextMessage() throws JMSException
    {
-      ClientMessage clientMessage = new ClientMessageImpl(HornetQTextMessage.TYPE,
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
                                                           true,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -924,7 +924,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       ClientSession session = new FakeSession(clientMessage);
       TextMessage foreignTextMessage = new SimpleJMSTextMessage();
 
-      HornetQTextMessage copy = new HornetQTextMessage(foreignTextMessage, session);
+      ActiveMQTextMessage copy = new ActiveMQTextMessage(foreignTextMessage, session);
 
       MessageHeaderTestBase.ensureEquivalent(foreignTextMessage, copy);
    }
@@ -946,7 +946,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
       Message receivedMessage = queueConsumer.receive(2000);
 
-      MessageHeaderTestBase.ensureEquivalent(receivedMessage, (HornetQMessage) message);
+      MessageHeaderTestBase.ensureEquivalent(receivedMessage, (ActiveMQMessage) message);
    }
 
    // Package protected ---------------------------------------------

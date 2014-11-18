@@ -41,7 +41,7 @@ import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.core.cluster.DiscoveryEntry;
 import org.apache.activemq.core.cluster.DiscoveryGroup;
 import org.apache.activemq.core.cluster.DiscoveryListener;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.core.server.cluster.impl.BroadcastGroupImpl;
@@ -98,8 +98,8 @@ public class DiscoveryTest extends UnitTestCase
    public void tearDown() throws Exception
    {
       /** This file path is defined at {@link #TEST_JGROUPS_CONF_FILE} */
-      deleteDirectory(new File("/tmp/hqtest.ping.dir"));
-      for (HornetQComponent component : new HornetQComponent[]{bg, bg1, bg2, bg3, dg, dg1, dg2, dg3})
+      deleteDirectory(new File("/tmp/amqtest.ping.dir"));
+      for (ActiveMQComponent component : new ActiveMQComponent[]{bg, bg1, bg2, bg3, dg, dg1, dg2, dg3})
       {
          stopComponent(component);
       }

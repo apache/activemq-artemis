@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.message.BodyEncoder;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.ServerMessage;
@@ -38,7 +38,7 @@ import org.apache.activemq.utils.TypedProperties;
 public final class LargeServerMessageImpl extends ServerMessageImpl implements LargeServerMessage
 {
    // Constants -----------------------------------------------------
-   private static boolean isTrace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    // Attributes ----------------------------------------------------
 
@@ -171,7 +171,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.errorIncrementDelayDeletionCount(e);
+         ActiveMQServerLogger.LOGGER.errorIncrementDelayDeletionCount(e);
       }
    }
 
@@ -200,7 +200,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       {
          if (LargeServerMessageImpl.isTrace)
          {
-            HornetQServerLogger.LOGGER.trace("Deleting file " + file + " as the usage was complete");
+            ActiveMQServerLogger.LOGGER.trace("Deleting file " + file + " as the usage was complete");
          }
 
          try
@@ -209,7 +209,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.error(e.getMessage(), e);
+            ActiveMQServerLogger.LOGGER.error(e.getMessage(), e);
          }
       }
    }
@@ -273,7 +273,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
          catch (Exception e)
          {
-            HornetQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
+            ActiveMQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
          }
       }
    }
@@ -356,7 +356,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.lareMessageErrorCopying(e, this);
+         ActiveMQServerLogger.LOGGER.lareMessageErrorCopying(e, this);
          return null;
       }
    }
@@ -522,7 +522,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
             }
             catch (Exception e)
             {
-               HornetQServerLogger.LOGGER.warn(e.getMessage(), e);
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
          return bodySize;

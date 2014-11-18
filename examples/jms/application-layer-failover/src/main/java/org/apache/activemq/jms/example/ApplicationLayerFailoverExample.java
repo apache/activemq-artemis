@@ -26,7 +26,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates application-layer failover of the JMS connection from one node to another
@@ -34,7 +34,7 @@ import org.apache.activemq.common.example.HornetQExample;
  *
  * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
-public class ApplicationLayerFailoverExample extends HornetQExample
+public class ApplicationLayerFailoverExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

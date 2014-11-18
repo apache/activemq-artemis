@@ -33,7 +33,7 @@ import javax.naming.InitialContext;
 import org.apache.activemq.api.core.management.MessageCounterInfo;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example showing how to use message counters to have information on a queue.
@@ -41,7 +41,7 @@ import org.apache.activemq.common.example.HornetQExample;
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  *
  */
-public class MessageCounterExample extends HornetQExample
+public class MessageCounterExample extends ActiveMQExample
 {
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3001/jmxrmi";
 

@@ -20,7 +20,7 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
@@ -38,8 +38,8 @@ import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.remoting.server.RemotingService;
 import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.HornetQMessageBundle;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
@@ -55,16 +55,16 @@ public class SharedNothingLiveActivation extends LiveActivation
    //this is how we act when we initially start as a live
    private ReplicatedPolicy replicatedPolicy;
 
-   private HornetQServerImpl hornetQServer;
+   private ActiveMQServerImpl activeMQServer;
 
    private ReplicationManager replicationManager;
 
    private final Object replicationLock = new Object();
 
-   public SharedNothingLiveActivation(HornetQServerImpl hornetQServer,
+   public SharedNothingLiveActivation(ActiveMQServerImpl activeMQServer,
                                       ReplicatedPolicy replicatedPolicy)
    {
-      this.hornetQServer = hornetQServer;
+      this.activeMQServer = activeMQServer;
       this.replicatedPolicy = replicatedPolicy;
    }
 
@@ -91,26 +91,26 @@ public class SharedNothingLiveActivation extends LiveActivation
          {
             //set for when we failback
             replicatedPolicy.getReplicaPolicy().setReplicatedPolicy(replicatedPolicy);
-            hornetQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
+            activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
             return;
          }
 
-         hornetQServer.initialisePart1(false);
+         activeMQServer.initialisePart1(false);
 
-         hornetQServer.initialisePart2(false);
+         activeMQServer.initialisePart2(false);
 
-         if (hornetQServer.getIdentity() != null)
+         if (activeMQServer.getIdentity() != null)
          {
-            HornetQServerLogger.LOGGER.serverIsLive(hornetQServer.getIdentity());
+            ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
          }
          else
          {
-            HornetQServerLogger.LOGGER.serverIsLive();
+            ActiveMQServerLogger.LOGGER.serverIsLive();
          }
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.initializationError(e);
+         ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
@@ -152,7 +152,7 @@ public class SharedNothingLiveActivation extends LiveActivation
          throw new ActiveMQAlreadyReplicatingException();
       }
 
-      if (!hornetQServer.isStarted())
+      if (!activeMQServer.isStarted())
       {
          throw new ActiveMQIllegalStateException();
       }
@@ -167,7 +167,7 @@ public class SharedNothingLiveActivation extends LiveActivation
          ReplicationFailureListener listener = new ReplicationFailureListener();
          rc.addCloseListener(listener);
          rc.addFailureListener(listener);
-         replicationManager = new ReplicationManager(rc, hornetQServer.getExecutorFactory());
+         replicationManager = new ReplicationManager(rc, activeMQServer.getExecutorFactory());
          replicationManager.start();
          Thread t = new Thread(new Runnable()
          {
@@ -175,17 +175,17 @@ public class SharedNothingLiveActivation extends LiveActivation
             {
                try
                {
-                  hornetQServer.getStorageManager().startReplication(replicationManager, hornetQServer.getPagingManager(), hornetQServer.getNodeID().toString(),
+                  activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(),
                         isFailBackRequest && replicatedPolicy.isAllowAutoFailBack());
 
-                  clusterConnection.nodeAnnounced(System.currentTimeMillis(), hornetQServer.getNodeID().toString(), replicatedPolicy.getGroupName(), replicatedPolicy.getScaleDownGroupName(), pair, true);
+                  clusterConnection.nodeAnnounced(System.currentTimeMillis(), activeMQServer.getNodeID().toString(), replicatedPolicy.getGroupName(), replicatedPolicy.getScaleDownGroupName(), pair, true);
 
                   //todo, check why this was set here
                   //backupUpToDate = false;
 
                   if (isFailBackRequest && replicatedPolicy.isAllowAutoFailBack())
                   {
-                     BackupTopologyListener listener1 = new BackupTopologyListener(hornetQServer.getNodeID().toString());
+                     BackupTopologyListener listener1 = new BackupTopologyListener(activeMQServer.getNodeID().toString());
                      clusterConnection.addClusterTopologyListener(listener1);
                      if (listener1.waitForBackup())
                      {
@@ -198,28 +198,28 @@ public class SharedNothingLiveActivation extends LiveActivation
                            //
                         }
                         //if we have to many backups kept or arent configured to restart just stop, otherwise restart as a backup
-                        if (!replicatedPolicy.getReplicaPolicy().isRestartBackup() && hornetQServer.countNumberOfCopiedJournals() >= replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() && replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() >= 0)
+                        if (!replicatedPolicy.getReplicaPolicy().isRestartBackup() && activeMQServer.countNumberOfCopiedJournals() >= replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() && replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() >= 0)
                         {
-                           hornetQServer.stop(true);
-                           HornetQServerLogger.LOGGER.stopReplicatedBackupAfterFailback();
+                           activeMQServer.stop(true);
+                           ActiveMQServerLogger.LOGGER.stopReplicatedBackupAfterFailback();
                         }
                         else
                         {
-                           hornetQServer.stop(true);
-                           HornetQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
-                           hornetQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
-                           hornetQServer.start();
+                           activeMQServer.stop(true);
+                           ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
+                           activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
+                           activeMQServer.start();
                         }
                      }
                      else
                      {
-                        HornetQServerLogger.LOGGER.failbackMissedBackupAnnouncement();
+                        ActiveMQServerLogger.LOGGER.failbackMissedBackupAnnouncement();
                      }
                   }
                }
                catch (Exception e)
                {
-                  if (hornetQServer.getState() == HornetQServerImpl.SERVER_STATE.STARTED)
+                  if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED)
                   {
                   /*
                    * The reasoning here is that the exception was either caused by (1) the
@@ -227,15 +227,15 @@ public class SharedNothingLiveActivation extends LiveActivation
                    * can swallow the exception and ignore the replication request. If (2) the live
                    * will crash shortly.
                    */
-                     HornetQServerLogger.LOGGER.errorStartingReplication(e);
+                     ActiveMQServerLogger.LOGGER.errorStartingReplication(e);
                   }
                   try
                   {
-                     HornetQServerImpl.stopComponent(replicationManager);
+                     ActiveMQServerImpl.stopComponent(replicationManager);
                   }
-                  catch (Exception hqe)
+                  catch (Exception amqe)
                   {
-                     HornetQServerLogger.LOGGER.errorStoppingReplication(hqe);
+                     ActiveMQServerLogger.LOGGER.errorStoppingReplication(amqe);
                   }
                   finally
                   {
@@ -270,7 +270,7 @@ public class SharedNothingLiveActivation extends LiveActivation
       @Override
       public void connectionClosed()
       {
-         hornetQServer.getThreadPool().execute(new Runnable()
+         activeMQServer.getThreadPool().execute(new Runnable()
          {
             public void run()
             {
@@ -278,7 +278,7 @@ public class SharedNothingLiveActivation extends LiveActivation
                {
                   if (replicationManager != null)
                   {
-                     hornetQServer.getStorageManager().stopReplication();
+                     activeMQServer.getStorageManager().stopReplication();
                      replicationManager = null;
                   }
                }
@@ -306,12 +306,12 @@ public class SharedNothingLiveActivation extends LiveActivation
     */
    private boolean isNodeIdUsed() throws Exception
    {
-      if (hornetQServer.getConfiguration().getClusterConfigurations().isEmpty())
+      if (activeMQServer.getConfiguration().getClusterConfigurations().isEmpty())
          return false;
       SimpleString nodeId0;
       try
       {
-         nodeId0 = hornetQServer.getNodeManager().readNodeId();
+         nodeId0 = activeMQServer.getNodeManager().readNodeId();
       }
       catch (ActiveMQIllegalStateException e)
       {
@@ -320,7 +320,7 @@ public class SharedNothingLiveActivation extends LiveActivation
 
       ServerLocatorInternal locator;
 
-      ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(hornetQServer.getConfiguration(), replicatedPolicy.getClusterName());
+      ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(activeMQServer.getConfiguration(), replicatedPolicy.getClusterName());
 
       locator = getLocator(config);
 
@@ -360,7 +360,7 @@ public class SharedNothingLiveActivation extends LiveActivation
 
       replicationManager = null;
       // To avoid a NPE cause by the stop
-      NodeManager nodeManagerInUse = hornetQServer.getNodeManager();
+      NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
       if (nodeManagerInUse != null)
       {
@@ -386,7 +386,7 @@ public class SharedNothingLiveActivation extends LiveActivation
          localReplicationManager.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.STOP_CALLED);
          // Schedule for 10 seconds
          // this pool gets a 'hard' shutdown, no need to manage the Future of this Runnable.
-         hornetQServer.getScheduledPool().schedule(new Runnable()
+         activeMQServer.getScheduledPool().schedule(new Runnable()
          {
             @Override
             public void run()
@@ -410,20 +410,20 @@ public class SharedNothingLiveActivation extends LiveActivation
       ServerLocatorInternal locator;
       if (config.getDiscoveryGroupName() != null)
       {
-         DiscoveryGroupConfiguration dg = hornetQServer.getConfiguration().getDiscoveryGroupConfigurations().get(config.getDiscoveryGroupName());
+         DiscoveryGroupConfiguration dg = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(config.getDiscoveryGroupName());
 
          if (dg == null)
          {
-            throw HornetQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
+            throw ActiveMQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
          }
-         locator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithHA(dg);
+         locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(dg);
       }
       else
       {
          TransportConfiguration[] tcConfigs = config.getStaticConnectors() != null ? connectorNameListToArray(config.getStaticConnectors())
                : null;
 
-         locator = (ServerLocatorInternal) HornetQClient.createServerLocatorWithHA(tcConfigs);
+         locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(tcConfigs);
       }
       return locator;
    }
@@ -469,11 +469,11 @@ public class SharedNothingLiveActivation extends LiveActivation
       int count = 0;
       for (String connectorName : connectorNames)
       {
-         TransportConfiguration connector = hornetQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
+         TransportConfiguration connector = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
 
          if (connector == null)
          {
-            HornetQServerLogger.LOGGER.bridgeNoConnector(connectorName);
+            ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
 
             return null;
          }

@@ -31,15 +31,15 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAStartMessage;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperationAbstract;
@@ -60,7 +60,7 @@ public class XaTimeoutTest extends UnitTestCase
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
 
-   private HornetQServer messagingService;
+   private ActiveMQServer messagingService;
 
    private ClientSession clientSession;
 
@@ -86,12 +86,12 @@ public class XaTimeoutTest extends UnitTestCase
       configuration = createBasicConfig()
          .setTransactionTimeoutScanPeriod(500)
          .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
-      messagingService = addServer(HornetQServers.newHornetQServer(configuration, false));
+      messagingService = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       messagingService.start();
       // then we create a client as normal
       locator =
-         addServerLocator(HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+         addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
             InVMConnectorFactory.class.getName())));
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(true, false, false);
@@ -733,7 +733,7 @@ public class XaTimeoutTest extends UnitTestCase
       }
       messagingService.getRemotingService().addIncomingInterceptor(new SomeInterceptor());
 
-      ServerLocator locatorTimeout = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ServerLocator locatorTimeout = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
       locatorTimeout.setCallTimeout(300);
       ClientSessionFactory factoryTimeout = locatorTimeout.createSessionFactory();
 

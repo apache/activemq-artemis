@@ -23,7 +23,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
@@ -31,7 +31,7 @@ import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.SpawnedVMSupport;
 
 /**
- * A test that makes sure that a HornetQ client gracefully exists after the last session is
+ * A test that makes sure that a ActiveMQ client gracefully exists after the last session is
  * closed. Test for http://jira.jboss.org/jira/browse/JBMESSAGING-417.
  *
  * This is not technically a crash test, but it uses the same type of topology as the crash tests
@@ -108,7 +108,7 @@ public class ClientExitTest extends ClientTestBase
    {
       super.setUp();
 
-      ServerLocator locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);

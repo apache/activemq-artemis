@@ -21,7 +21,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 
-import org.apache.activemq.api.jms.HornetQJMSClient;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
@@ -326,23 +326,23 @@ public class MessageTest extends JMSTestBase
          conn.start();
 
          Session session1 = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         session1.createConsumer(HornetQJMSClient.createTopic("Topic1"));
+         session1.createConsumer(ActiveMQJMSClient.createTopic("Topic1"));
          Session session2 = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         session2.createConsumer(HornetQJMSClient.createTopic("*"));
+         session2.createConsumer(ActiveMQJMSClient.createTopic("*"));
 
          session1.close();
          session2.close();
 
          Session session3 = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         MessageConsumer cons = session3.createConsumer(HornetQJMSClient.createTopic("Topic1"));
-         MessageProducer prod = session3.createProducer(HornetQJMSClient.createTopic("Topic1"));
-         MessageConsumer consGeral = session3.createConsumer(HornetQJMSClient.createTopic("*"));
+         MessageConsumer cons = session3.createConsumer(ActiveMQJMSClient.createTopic("Topic1"));
+         MessageProducer prod = session3.createProducer(ActiveMQJMSClient.createTopic("Topic1"));
+         MessageConsumer consGeral = session3.createConsumer(ActiveMQJMSClient.createTopic("*"));
          prod.send(session3.createTextMessage("hello"));
          assertNotNull(cons.receive(5000));
          assertNotNull(consGeral.receive(5000));
          createTopic(true, "Topic2");
 
-         MessageProducer prod2 = session3.createProducer(HornetQJMSClient.createTopic("Topic2"));
+         MessageProducer prod2 = session3.createProducer(ActiveMQJMSClient.createTopic("Topic2"));
 
          prod2.send(session3.createTextMessage("test"));
 

@@ -21,14 +21,14 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how to use a durable subscription.
  *
  * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
-public class DurableSubscriptionExample extends HornetQExample
+public class DurableSubscriptionExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

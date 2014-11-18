@@ -22,14 +22,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how to use queues requestors.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class QueueRequestorExample extends HornetQExample
+public class QueueRequestorExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

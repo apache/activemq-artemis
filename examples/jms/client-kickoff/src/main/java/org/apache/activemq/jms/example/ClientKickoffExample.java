@@ -27,16 +27,16 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.core.management.HornetQServerControl;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- * An example that shows how to kick off a client connected to HornetQ by using JMX.
+ * An example that shows how to kick off a client connected to ActiveMQ by using JMX.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class ClientKickoffExample extends HornetQExample
+public class ClientKickoffExample extends ActiveMQExample
 {
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3000/jmxrmi";
 
@@ -75,13 +75,13 @@ public class ClientKickoffExample extends HornetQExample
          // Step 5. We start the connection
          connection.start();
 
-         // Step 6. Create a HornetQServerControlMBean proxy to manage the server
-         ObjectName on = ObjectNameBuilder.DEFAULT.getHornetQServerObjectName();
+         // Step 6. Create a ActiveMQServerControlMBean proxy to manage the server
+         ObjectName on = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, String>());
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
-         HornetQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
+         ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
                                                                                             on,
-                                                                                            HornetQServerControl.class,
+                                                                                            ActiveMQServerControl.class,
                                                                                             false);
 
          // Step 7. List the remote address connected to the server

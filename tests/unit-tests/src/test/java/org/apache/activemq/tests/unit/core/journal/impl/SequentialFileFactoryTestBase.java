@@ -79,7 +79,7 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
 
       for (int i = 0; i < numFiles; i++)
       {
-         String fileName = UUID.randomUUID().toString() + ".hq";
+         String fileName = UUID.randomUUID().toString() + ".amq";
 
          expectedFiles.add(fileName);
 
@@ -101,7 +101,7 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
       SequentialFile sf2 = factory.createSequentialFile("different.cheese", 1);
       sf2.open();
 
-      List<String> fileNames = factory.listFiles("hq");
+      List<String> fileNames = factory.listFiles("amq");
 
       Assert.assertEquals(expectedFiles.size(), fileNames.size());
 
@@ -129,7 +129,7 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
    @Test
    public void testFill() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("fill.hq", 1);
+      SequentialFile sf = factory.createSequentialFile("fill.amq", 1);
 
       sf.open();
 
@@ -155,29 +155,29 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
    @Test
    public void testDelete() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("delete-me.hq", 1);
+      SequentialFile sf = factory.createSequentialFile("delete-me.amq", 1);
 
       sf.open();
 
-      SequentialFile sf2 = factory.createSequentialFile("delete-me2.hq", 1);
+      SequentialFile sf2 = factory.createSequentialFile("delete-me2.amq", 1);
 
       sf2.open();
 
-      List<String> fileNames = factory.listFiles("hq");
+      List<String> fileNames = factory.listFiles("amq");
 
       Assert.assertEquals(2, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("delete-me.hq"));
+      Assert.assertTrue(fileNames.contains("delete-me.amq"));
 
-      Assert.assertTrue(fileNames.contains("delete-me2.hq"));
+      Assert.assertTrue(fileNames.contains("delete-me2.amq"));
 
       sf.delete();
 
-      fileNames = factory.listFiles("hq");
+      fileNames = factory.listFiles("amq");
 
       Assert.assertEquals(1, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("delete-me2.hq"));
+      Assert.assertTrue(fileNames.contains("delete-me2.amq"));
 
       sf2.close();
 
@@ -186,15 +186,15 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
    @Test
    public void testRename() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("test1.hq", 1);
+      SequentialFile sf = factory.createSequentialFile("test1.amq", 1);
 
       sf.open();
 
-      List<String> fileNames = factory.listFiles("hq");
+      List<String> fileNames = factory.listFiles("amq");
 
       Assert.assertEquals(1, fileNames.size());
 
-      Assert.assertTrue(fileNames.contains("test1.hq"));
+      Assert.assertTrue(fileNames.contains("test1.amq"));
 
       sf.renameTo("test1.cmp");
 
@@ -206,7 +206,7 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
 
       sf.delete();
 
-      fileNames = factory.listFiles("hq");
+      fileNames = factory.listFiles("amq");
 
       Assert.assertEquals(0, fileNames.size());
 
@@ -219,7 +219,7 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
    @Test
    public void testWriteandRead() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("write.hq", 1);
+      SequentialFile sf = factory.createSequentialFile("write.amq", 1);
 
       sf.open();
 
@@ -288,7 +288,7 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
    @Test
    public void testPosition() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("position.hq", 1);
+      SequentialFile sf = factory.createSequentialFile("position.amq", 1);
 
       sf.open();
 
@@ -373,7 +373,7 @@ public abstract class SequentialFileFactoryTestBase extends UnitTestCase
    @Test
    public void testOpenClose() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("openclose.hq", 1);
+      SequentialFile sf = factory.createSequentialFile("openclose.amq", 1);
 
       sf.open();
 

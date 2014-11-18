@@ -25,7 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ScheduledDeliveryHandler;
@@ -41,7 +41,7 @@ import org.apache.activemq.core.server.ScheduledDeliveryHandler;
  */
 public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
 {
-   private static final boolean trace = HornetQServerLogger.LOGGER.isTraceEnabled();
+   private static final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final ScheduledExecutorService scheduledExecutor;
 
@@ -65,7 +65,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
       {
          if (ScheduledDeliveryHandlerImpl.trace)
          {
-            HornetQServerLogger.LOGGER.trace("Scheduling delivery for " + ref + " to occur at " + deliveryTime);
+            ActiveMQServerLogger.LOGGER.trace("Scheduling delivery for " + ref + " to occur at " + deliveryTime);
          }
 
          addInPlace(deliveryTime, ref, tail);
@@ -158,7 +158,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
       {
          if (ScheduledDeliveryHandlerImpl.trace)
          {
-            HornetQServerLogger.LOGGER.trace("calling another scheduler now as deliverTime " + deliveryTime + " < now=" + now);
+            ActiveMQServerLogger.LOGGER.trace("calling another scheduler now as deliverTime " + deliveryTime + " < now=" + now);
          }
          // if delay == 0 we will avoid races between adding the scheduler and finishing it
          ScheduledDeliveryRunnable runnable = new ScheduledDeliveryRunnable(deliveryTime);
@@ -170,7 +170,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
 
          if (ScheduledDeliveryHandlerImpl.trace)
          {
-            HornetQServerLogger.LOGGER.trace("Setting up scheduler for " + deliveryTime + " with a delay of " + delay + " as now=" + now);
+            ActiveMQServerLogger.LOGGER.trace("Setting up scheduler for " + deliveryTime + " with a delay of " + delay + " as now=" + now);
          }
 
          runnables.put(deliveryTime, runnable);
@@ -180,7 +180,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
       {
          if (ScheduledDeliveryHandlerImpl.trace)
          {
-            HornetQServerLogger.LOGGER.trace("Couldn't make another scheduler as " + deliveryTime + " is already set, now is " + now);
+            ActiveMQServerLogger.LOGGER.trace("Couldn't make another scheduler as " + deliveryTime + " is already set, now is " + now);
          }
       }
    }
@@ -212,7 +212,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
             // this is basically a hack to work around an OS or JDK bug!
             if (trace)
             {
-               HornetQServerLogger.LOGGER.trace("Scheduler is working around OS imprecisions on " +
+               ActiveMQServerLogger.LOGGER.trace("Scheduler is working around OS imprecisions on " +
                                                  "timing and re-scheduling an executor. now=" + now +
                                                  " and deliveryTime=" + deliveryTime);
             }
@@ -221,7 +221,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
 
          if (ScheduledDeliveryHandlerImpl.trace)
          {
-            HornetQServerLogger.LOGGER.trace("Is it " + System.currentTimeMillis() + " now and we are running deliveryTime = " + deliveryTime);
+            ActiveMQServerLogger.LOGGER.trace("Is it " + System.currentTimeMillis() + " now and we are running deliveryTime = " + deliveryTime);
          }
 
          synchronized (scheduledReferences)
@@ -251,14 +251,14 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
 
                if (ScheduledDeliveryHandlerImpl.trace)
                {
-                  HornetQServerLogger.LOGGER.trace("sending message " + reference + " to delivery, deliveryTime =  " + deliveryTime);
+                  ActiveMQServerLogger.LOGGER.trace("sending message " + reference + " to delivery, deliveryTime =  " + deliveryTime);
                }
 
                references.addFirst(reference);
             }
             if (ScheduledDeliveryHandlerImpl.trace)
             {
-               HornetQServerLogger.LOGGER.trace("Finished loop on deliveryTime = " + deliveryTime);
+               ActiveMQServerLogger.LOGGER.trace("Finished loop on deliveryTime = " + deliveryTime);
             }
          }
 
@@ -269,7 +269,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler
             LinkedList<MessageReference> list = entry.getValue();
             if (trace)
             {
-               HornetQServerLogger.LOGGER.trace("Delivering " + list.size() + " elements on list to queue " + queue);
+               ActiveMQServerLogger.LOGGER.trace("Delivering " + list.size() + " elements on list to queue " + queue);
             }
             queue.addHead(list);
          }

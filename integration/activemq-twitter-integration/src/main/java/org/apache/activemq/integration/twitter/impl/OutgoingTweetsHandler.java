@@ -23,12 +23,12 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.server.ConnectorService;
 import org.apache.activemq.core.server.Consumer;
 import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.integration.twitter.TwitterConstants;
-import org.apache.activemq.twitter.HornetQTwitterLogger;
+import org.apache.activemq.twitter.ActiveMQTwitterLogger;
 import org.apache.activemq.utils.ConfigurationHelper;
 import twitter4j.GeoLocation;
 import twitter4j.StatusUpdate;
@@ -38,7 +38,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.http.AccessToken;
 
 /**
- * OutgoingTweetsHandler consumes from configured HornetQ address
+ * OutgoingTweetsHandler consumes from configured ActiveMQ address
  * and forwards to the twitter.
  */
 public class OutgoingTweetsHandler implements Consumer, ConnectorService
@@ -128,7 +128,7 @@ public class OutgoingTweetsHandler implements Consumer, ConnectorService
 
       this.queue.deliverAsync();
       this.isStarted = true;
-      HornetQTwitterLogger.LOGGER.debug(connectorName + ": started");
+      ActiveMQTwitterLogger.LOGGER.debug(connectorName + ": started");
    }
 
    public boolean isStarted()
@@ -143,12 +143,12 @@ public class OutgoingTweetsHandler implements Consumer, ConnectorService
          return;
       }
 
-      HornetQTwitterLogger.LOGGER.debug(connectorName + ": receive shutdown request");
+      ActiveMQTwitterLogger.LOGGER.debug(connectorName + ": receive shutdown request");
 
       this.queue.removeConsumer(this);
 
       this.isStarted = false;
-      HornetQTwitterLogger.LOGGER.debug(connectorName + ": shutdown");
+      ActiveMQTwitterLogger.LOGGER.debug(connectorName + ": shutdown");
    }
 
    public String getName()
@@ -219,7 +219,7 @@ public class OutgoingTweetsHandler implements Consumer, ConnectorService
             if (e.getStatusCode() == 403)
             {
                // duplicated message
-               HornetQTwitterLogger.LOGGER.error403(connectorName);
+               ActiveMQTwitterLogger.LOGGER.error403(connectorName);
                queue.acknowledge(ref);
 
                return HandleStatus.HANDLED;
@@ -231,7 +231,7 @@ public class OutgoingTweetsHandler implements Consumer, ConnectorService
          }
 
          queue.acknowledge(ref);
-         HornetQTwitterLogger.LOGGER.debug(connectorName + ": forwarded to twitter: " + message.getMessageID());
+         ActiveMQTwitterLogger.LOGGER.debug(connectorName + ": forwarded to twitter: " + message.getMessageID());
          return HandleStatus.HANDLED;
       }
    }
@@ -256,7 +256,7 @@ public class OutgoingTweetsHandler implements Consumer, ConnectorService
       }
       catch (Exception e)
       {
-         HornetQServerLogger.LOGGER.errorStoppingConnectorService(e, getName());
+         ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(e, getName());
       }
    }
 }

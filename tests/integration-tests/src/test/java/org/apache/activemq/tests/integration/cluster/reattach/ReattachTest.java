@@ -35,8 +35,8 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.jms.client.HornetQTextMessage;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -57,7 +57,7 @@ public class ReattachTest extends ServiceTestBase
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
-   private HornetQServer service;
+   private ActiveMQServer service;
    private ServerLocator locator;
 
    /*
@@ -92,7 +92,7 @@ public class ReattachTest extends ServiceTestBase
 
          for (int i = 0; i < numMessages; i++)
          {
-            ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+            ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                           false,
                                                           0,
                                                           System.currentTimeMillis(),
@@ -194,7 +194,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -238,7 +238,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -356,7 +356,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -451,7 +451,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -829,7 +829,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -897,7 +897,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -990,7 +990,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),
@@ -1069,7 +1069,7 @@ public class ReattachTest extends ServiceTestBase
 
       for (int i = 0; i < numMessages; i++)
       {
-         ClientMessage message = session.createMessage(HornetQTextMessage.TYPE,
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
                                                        false,
                                                        0,
                                                        System.currentTimeMillis(),

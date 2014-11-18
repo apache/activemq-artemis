@@ -20,7 +20,7 @@ import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.core.server.group.impl.Response;
 import org.apache.activemq.core.server.management.Notification;
@@ -384,10 +384,10 @@ public class ClusteredGroupingTest extends ClusterTestBase
       assertHandlersAreSame(getServer(0), getServer(1), getServer(2), getServer(3));
    }
 
-   private void assertHandlersAreSame(HornetQServer server, HornetQServer... qServers)
+   private void assertHandlersAreSame(ActiveMQServer server, ActiveMQServer... qServers)
    {
       SimpleString id = server.getGroupingHandler().getProposal(new SimpleString("id1.queue0"), false).getClusterName();
-      for (HornetQServer qServer : qServers)
+      for (ActiveMQServer qServer : qServers)
       {
          Response proposal = qServer.getGroupingHandler().getProposal(new SimpleString("id1.queue0"), false);
          if (proposal != null)

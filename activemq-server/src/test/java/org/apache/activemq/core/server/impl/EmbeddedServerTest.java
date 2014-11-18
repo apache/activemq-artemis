@@ -16,8 +16,8 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class EmbeddedServerTest
    private static final String SERVER_LOCK_NAME = "server.lock";
    private static final String SERVER_JOURNAL_DIR = "target/data/journal";
 
-   private HornetQServer server;
+   private ActiveMQServer server;
    private Configuration configuration;
 
    @Before
@@ -44,7 +44,7 @@ public class EmbeddedServerTest
          .setSecurityEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      server = HornetQServers.newHornetQServer(configuration);
+      server = ActiveMQServers.newActiveMQServer(configuration);
       try
       {
          server.start();

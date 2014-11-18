@@ -24,7 +24,7 @@ import org.apache.activemq.core.filter.impl.FilterImpl;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
@@ -78,7 +78,7 @@ public class TopicCleanupTest extends JMSTestBase
          {
             long txid = storage.generateID();
 
-            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("jms.topic.topic"), SimpleString.toSimpleString("jms.topic.topic"), FilterImpl.createFilter(HornetQServerImpl.GENERIC_IGNORED_FILTER), true, false, server.getScheduledPool(), server.getPostOffice(),
+            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("jms.topic.topic"), SimpleString.toSimpleString("jms.topic.topic"), FilterImpl.createFilter(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false, server.getScheduledPool(), server.getPostOffice(),
                                               storage, server.getAddressSettingsRepository(), server.getExecutorFactory().getExecutor());
 
             LocalQueueBinding binding = new LocalQueueBinding(queue.getAddress(), queue, server.getNodeID());

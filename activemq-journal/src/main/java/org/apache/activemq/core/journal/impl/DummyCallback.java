@@ -12,7 +12,7 @@
  */
 package org.apache.activemq.core.journal.impl;
 
-import org.apache.activemq.journal.HornetQJournalLogger;
+import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A DummyCallback
@@ -36,7 +36,7 @@ class DummyCallback extends SyncIOCompletion
 
    public void onError(final int errorCode, final String errorMessage)
    {
-      HornetQJournalLogger.LOGGER.errorWritingData(new Exception(errorMessage), errorMessage, errorCode);
+      ActiveMQJournalLogger.LOGGER.errorWritingData(new Exception(errorMessage), errorMessage, errorCode);
    }
 
    @Override

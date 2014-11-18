@@ -22,7 +22,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -88,7 +88,7 @@ public class GroupingTest extends JMSTestBase
       Connection connection2 = null;
       try
       {
-         HornetQConnectionFactory fact = (HornetQConnectionFactory) getCF();
+         ActiveMQConnectionFactory fact = (ActiveMQConnectionFactory) getCF();
          fact.setReconnectAttempts(0);
          //fact.setConsumerWindowSize(1000);
          //fact.setTransactionBatchSize(0);

@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.HornetQMessageBundle;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
 /**
  * A QueueInfo
@@ -56,15 +56,15 @@ public class QueueInfo implements Serializable
    {
       if (routingName == null)
       {
-         throw HornetQMessageBundle.BUNDLE.routeNameIsNull();
+         throw ActiveMQMessageBundle.BUNDLE.routeNameIsNull();
       }
       if (clusterName == null)
       {
-         throw HornetQMessageBundle.BUNDLE.clusterNameIsNull();
+         throw ActiveMQMessageBundle.BUNDLE.clusterNameIsNull();
       }
       if (address == null)
       {
-         throw HornetQMessageBundle.BUNDLE.addressIsNull();
+         throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
       this.routingName = routingName;

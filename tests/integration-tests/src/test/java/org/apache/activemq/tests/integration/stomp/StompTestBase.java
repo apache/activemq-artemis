@@ -52,10 +52,10 @@ import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
-import org.apache.activemq.core.server.HornetQServers;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
-import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServers;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
@@ -170,9 +170,9 @@ public abstract class StompTestBase extends UnitTestCase
    protected void setUpAfterServer(boolean jmsCompressLarge) throws Exception
    {
       connectionFactory = createConnectionFactory();
-      HornetQConnectionFactory hqFact = (HornetQConnectionFactory) connectionFactory;
+      ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) connectionFactory;
 
-      hqFact.setCompressLargeMessage(jmsCompressLarge);
+      activeMQConnectionFactory.setCompressLargeMessage(jmsCompressLarge);
       createBootstrap();
 
       connection = connectionFactory.createConnection();
@@ -200,7 +200,7 @@ public abstract class StompTestBase extends UnitTestCase
          .addAcceptorConfiguration(stompTransport)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      HornetQServer hornetQServer = HornetQServers.newHornetQServer(config, defUser, defPass);
+      ActiveMQServer activeMQServer = ActiveMQServers.newActiveMQServer(config, defUser, defPass);
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
       jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
@@ -210,7 +210,7 @@ public abstract class StompTestBase extends UnitTestCase
       jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
-      server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
+      server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setContext(new InVMNamingContext());
       return server;
    }
@@ -261,7 +261,7 @@ public abstract class StompTestBase extends UnitTestCase
 
    protected ConnectionFactory createConnectionFactory()
    {
-      return new HornetQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      return new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()));
    }
 
    protected Socket createSocket() throws IOException

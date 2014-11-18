@@ -16,14 +16,14 @@ import javax.naming.Context;
 
 import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.registry.MapBindingRegistry;
-import org.apache.activemq.core.server.embedded.EmbeddedHornetQ;
+import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 /**
- * Simple bootstrap class that parses hornetq config files (server and jms and security) and starts
- * a HornetQServer instance and populates it with configured JMS endpoints.
+ * Simple bootstrap class that parses activemq config files (server and jms and security) and starts
+ * a ActiveMQServer instance and populates it with configured JMS endpoints.
  * <p>
  * JMS Endpoints are registered with a simple MapBindingRegistry.  If you want to use a different registry
  * you must set the registry property of this class or call the setRegistry() method if you want to use JNDI
@@ -31,7 +31,7 @@ import org.apache.activemq.spi.core.naming.BindingRegistry;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class EmbeddedJMS extends EmbeddedHornetQ
+public class EmbeddedJMS extends EmbeddedActiveMQ
 {
    protected JMSServerManagerImpl serverManager;
    protected BindingRegistry registry;
@@ -40,7 +40,7 @@ public class EmbeddedJMS extends EmbeddedHornetQ
    protected Context context;
 
    /**
-    * Classpath resource where JMS config file is.  Defaults to 'hornetq-jms.xml'
+    * Classpath resource where JMS config file is.  Defaults to 'activemq-jms.xml'
     *
     * @param jmsConfigResourcePath
     */
@@ -101,10 +101,10 @@ public class EmbeddedJMS extends EmbeddedHornetQ
       super.initStart();
       if (jmsConfiguration != null)
       {
-         serverManager = new JMSServerManagerImpl(hornetQServer, jmsConfiguration);
+         serverManager = new JMSServerManagerImpl(activeMQServer, jmsConfiguration);
       }
-      else if (jmsConfigResourcePath == null) serverManager = new JMSServerManagerImpl(hornetQServer);
-      else serverManager = new JMSServerManagerImpl(hornetQServer, jmsConfigResourcePath);
+      else if (jmsConfigResourcePath == null) serverManager = new JMSServerManagerImpl(activeMQServer);
+      else serverManager = new JMSServerManagerImpl(activeMQServer, jmsConfigResourcePath);
 
       if (registry == null)
       {

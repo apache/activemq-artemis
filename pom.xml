@@ -35,17 +35,17 @@
 
    <properties>
       <netty.version>4.0.20.Final</netty.version>
-      <hornetq.version.versionName>Wild Hornet</hornetq.version.versionName>
-      <hornetq.version.majorVersion>2</hornetq.version.majorVersion>
-      <hornetq.version.minorVersion>5</hornetq.version.minorVersion>
-      <hornetq.version.microVersion>0</hornetq.version.microVersion>
-      <hornetq.version.incrementingVersion>125,124,123,122</hornetq.version.incrementingVersion>
-      <hornetq.version.versionSuffix>SNAPSHOT</hornetq.version.versionSuffix>
-      <hornetq.version.versionTag>SNAPSHOT</hornetq.version.versionTag>
-      <HornetQ-Version>
-         ${hornetq.version.majorVersion}.${hornetq.version.minorVersion}.${hornetq.version.microVersion}.${hornetq.version.versionSuffix}
-         (${hornetq.version.versionName}, ${hornetq.version.incrementingVersion})
-      </HornetQ-Version>
+      <activemq.version.versionName>Active Hornet</activemq.version.versionName>
+      <activemq.version.majorVersion>2</activemq.version.majorVersion>
+      <activemq.version.minorVersion>5</activemq.version.minorVersion>
+      <activemq.version.microVersion>0</activemq.version.microVersion>
+      <activemq.version.incrementingVersion>125,124,123,122</activemq.version.incrementingVersion>
+      <activemq.version.versionSuffix>SNAPSHOT</activemq.version.versionSuffix>
+      <activemq.version.versionTag>SNAPSHOT</activemq.version.versionTag>
+      <ActiveMQ-Version>
+         ${activemq.version.majorVersion}.${activemq.version.minorVersion}.${activemq.version.microVersion}.${activemq.version.versionSuffix}
+         (${activemq.version.versionName}, ${activemq.version.incrementingVersion})
+      </ActiveMQ-Version>
       <resteasy.version>3.0.9.Final</resteasy.version>
       <jackson-databind.version>2.3.1</jackson-databind.version>
       <skipUnitTests>true</skipUnitTests>

@@ -13,7 +13,7 @@
 
 package org.apache.activemq.tests.integration.paging;
 
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.SpawnedVMSupport;
 
 /**
@@ -35,7 +35,7 @@ public class PageCountSyncServer extends SpawnedServerSupport
 
       try
       {
-         HornetQServer server = createServer(folder);
+         ActiveMQServer server = createServer(folder);
 
          server.start();
 

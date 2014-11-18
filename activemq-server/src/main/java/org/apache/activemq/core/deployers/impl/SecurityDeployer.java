@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
  */
 public class SecurityDeployer extends XmlDeployer
 {
-   private static final String QUEUES_XML = "hornetq-queues.xml";
+   private static final String QUEUES_XML = "activemq-queues.xml";
 
    private static final String MATCH = "match";
 

@@ -601,7 +601,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.SequentialFile#write(org.apache.activemq.spi.core.remoting.HornetQBuffer, boolean, org.apache.activemq.core.journal.IOCallback)
+       * @see org.apache.activemq.core.journal.SequentialFile#write(org.apache.activemq.spi.core.remoting.ActiveMQBuffer, boolean, org.apache.activemq.core.journal.IOCallback)
        */
       public void write(final ActiveMQBuffer bytes, final boolean sync, final IOAsyncTask callback) throws Exception
       {
@@ -612,7 +612,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.SequentialFile#write(org.apache.activemq.spi.core.remoting.HornetQBuffer, boolean)
+       * @see org.apache.activemq.core.journal.SequentialFile#write(org.apache.activemq.spi.core.remoting.ActiveMQBuffer, boolean)
        */
       public void write(final ActiveMQBuffer bytes, final boolean sync) throws Exception
       {

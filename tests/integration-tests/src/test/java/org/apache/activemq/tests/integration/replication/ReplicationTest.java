@@ -68,8 +68,8 @@ import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.replication.ReplicatedJournal;
 import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.core.settings.HierarchicalRepository;
@@ -79,7 +79,7 @@ import org.apache.activemq.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.utils.ExecutorFactory;
-import org.apache.activemq.utils.HornetQThreadFactory;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.OrderedExecutorFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -99,11 +99,11 @@ public final class ReplicationTest extends ServiceTestBase
    private ExecutorFactory factory;
    private ScheduledExecutorService scheduledExecutor;
 
-   private HornetQServer backupServer;
+   private ActiveMQServer backupServer;
    /**
     * This field is not always used.
     */
-   private HornetQServer liveServer;
+   private ActiveMQServer liveServer;
 
    private ServerLocator locator;
 
@@ -161,7 +161,7 @@ public final class ReplicationTest extends ServiceTestBase
       }
    }
 
-   private static void waitForComponent(HornetQComponent component) throws Exception
+   private static void waitForComponent(ActiveMQComponent component) throws Exception
    {
       waitForComponent(component, 3);
    }
@@ -181,7 +181,7 @@ public final class ReplicationTest extends ServiceTestBase
       {
          ClientSessionFactory sf = createSessionFactory(locator);
          manager = new ReplicationManager((CoreRemotingConnection) sf.getConnection(), factory);
-         addHornetQComponent(manager);
+         addActiveMQComponent(manager);
          manager.start();
          Assert.fail("Exception was expected");
       }
@@ -549,7 +549,7 @@ public final class ReplicationTest extends ServiceTestBase
    {
       super.setUp();
 
-      tFactory = new HornetQThreadFactory("HornetQ-ReplicationTest", false, this.getClass().getClassLoader());
+      tFactory = new ActiveMQThreadFactory("ActiveMQ-ReplicationTest", false, this.getClass().getClassLoader());
 
       executor = Executors.newCachedThreadPool(tFactory);
 

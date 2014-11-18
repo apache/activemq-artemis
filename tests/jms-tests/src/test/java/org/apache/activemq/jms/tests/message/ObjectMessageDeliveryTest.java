@@ -23,7 +23,7 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 
-import org.apache.activemq.jms.tests.HornetQServerTestCase;
+import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 
 /**
@@ -34,7 +34,7 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
  *
  *
  */
-public class ObjectMessageDeliveryTest extends HornetQServerTestCase
+public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------
 
@@ -64,8 +64,8 @@ public class ObjectMessageDeliveryTest extends HornetQServerTestCase
       try
       {
          TopicSession s = conn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-         TopicPublisher publisher = s.createPublisher(HornetQServerTestCase.topic1);
-         TopicSubscriber sub = s.createSubscriber(HornetQServerTestCase.topic1);
+         TopicPublisher publisher = s.createPublisher(ActiveMQServerTestCase.topic1);
+         TopicSubscriber sub = s.createSubscriber(ActiveMQServerTestCase.topic1);
          conn.start();
 
          // Create 3 object messages with different bodies
@@ -95,11 +95,11 @@ public class ObjectMessageDeliveryTest extends HornetQServerTestCase
 
          publisher.send(om3);
 
-         ObjectMessage rm1 = (ObjectMessage)sub.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         ObjectMessage rm1 = (ObjectMessage)sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
-         ObjectMessage rm2 = (ObjectMessage)sub.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         ObjectMessage rm2 = (ObjectMessage)sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
-         ObjectMessage rm3 = (ObjectMessage)sub.receive(HornetQServerTestCase.MAX_TIMEOUT);
+         ObjectMessage rm3 = (ObjectMessage)sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(rm1);
 

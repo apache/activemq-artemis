@@ -38,14 +38,14 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.FailoverEventListener;
 import org.apache.activemq.api.core.client.FailoverEventType;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.core.client.HornetQClientLogger;
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.core.remoting.FailureListener;
-import org.apache.activemq.core.server.HornetQComponent;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
@@ -74,9 +74,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    // Constants
    // ------------------------------------------------------------------------------------
 
-   private static final boolean isTrace = HornetQClientLogger.LOGGER.isTraceEnabled();
+   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
 
-   private static final boolean isDebug = HornetQClientLogger.LOGGER.isDebugEnabled();
+   private static final boolean isDebug = ActiveMQClientLogger.LOGGER.isDebugEnabled();
 
    // Attributes
    // -----------------------------------------------------------------------------------
@@ -189,11 +189,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       // HORNETQ-1314 - if this in an in-vm connection then disable connection monitoring
       if (connectorFactory.isReliable() &&
-         clientFailureCheckPeriod == HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD &&
-         connectionTTL == HornetQClient.DEFAULT_CONNECTION_TTL)
+         clientFailureCheckPeriod == ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD &&
+         connectionTTL == ActiveMQClient.DEFAULT_CONNECTION_TTL)
       {
-         this.clientFailureCheckPeriod = HornetQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD_INVM;
-         this.connectionTTL = HornetQClient.DEFAULT_CONNECTION_TTL_INVM;
+         this.clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD_INVM;
+         this.connectionTTL = ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM;
       }
       else
       {
@@ -282,7 +282,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       {
          if (ClientSessionFactoryImpl.isDebug)
          {
-            HornetQClientLogger.LOGGER.debug("Setting up backup config = " + backUp + " for live = " + live);
+            ActiveMQClientLogger.LOGGER.debug("Setting up backup config = " + backUp + " for live = " + live);
          }
          backupConfig = backUp;
       }
@@ -290,7 +290,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       {
          if (ClientSessionFactoryImpl.isDebug)
          {
-            HornetQClientLogger.LOGGER.debug("ClientSessionFactoryImpl received backup update for live/backup pair = " + live +
+            ActiveMQClientLogger.LOGGER.debug("ClientSessionFactoryImpl received backup update for live/backup pair = " + live +
                                                 " / " +
                                                 backUp +
                                                 " but it didn't belong to " +
@@ -405,7 +405,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    // ConnectionLifeCycleListener implementation --------------------------------------------------
 
-   public void connectionCreated(final HornetQComponent component, final Connection connection, final String protocol)
+   public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
    {
    }
 
@@ -413,7 +413,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    {
       // The exception has to be created in the same thread where it's being called
       // as to avoid a different stack trace cause
-      final ActiveMQException ex = HornetQClientMessageBundle.BUNDLE.channelDisconnected();
+      final ActiveMQException ex = ActiveMQClientMessageBundle.BUNDLE.channelDisconnected();
 
       // It has to use the same executor as the disconnect message is being sent through
 
@@ -516,7 +516,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          }
          catch (Exception e1)
          {
-            HornetQClientLogger.LOGGER.unableToCloseSession(e1);
+            ActiveMQClientLogger.LOGGER.unableToCloseSession(e1);
          }
       }
       checkCloseConnection();
@@ -573,12 +573,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       catch (ActiveMQInterruptedException e1)
       {
          // this is just a debug, since an interrupt is an expected event (in case of a shutdown)
-         HornetQClientLogger.LOGGER.debug(e1.getMessage(), e1);
+         ActiveMQClientLogger.LOGGER.debug(e1.getMessage(), e1);
       }
    }
 
    /**
-    * TODO: Maybe this belongs to HornetQClientProtocolManager
+    * TODO: Maybe this belongs to ActiveMQClientProtocolManager
     * @param connectionID
     * @param me
     */
@@ -602,7 +602,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
          if (ClientSessionFactoryImpl.isTrace)
          {
-            HornetQClientLogger.LOGGER.trace("Client Connection failed, calling failure listeners and trying to reconnect, reconnectAttempts=" + reconnectAttempts);
+            ActiveMQClientLogger.LOGGER.trace("Client Connection failed, calling failure listeners and trying to reconnect, reconnectAttempts=" + reconnectAttempts);
          }
 
          callFailoverListeners(FailoverEventType.FAILURE_DETECTED);
@@ -728,7 +728,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             }
             catch (Exception cause)
             {
-               HornetQClientLogger.LOGGER.failedToCleanupSession(cause);
+               ActiveMQClientLogger.LOGGER.failedToCleanupSession(cause);
             }
          }
       }
@@ -824,7 +824,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQClientLogger.LOGGER.failedToExecuteListener(t);
+            ActiveMQClientLogger.LOGGER.failedToExecuteListener(t);
          }
       }
    }
@@ -844,7 +844,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
-            HornetQClientLogger.LOGGER.failedToExecuteListener(t);
+            ActiveMQClientLogger.LOGGER.failedToExecuteListener(t);
          }
       }
    }
@@ -870,7 +870,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       if (connection == null)
       {
          if (!clientProtocolManager.isAlive())
-            HornetQClientLogger.LOGGER.failedToConnectToServer();
+            ActiveMQClientLogger.LOGGER.failedToConnectToServer();
 
          return;
       }
@@ -907,9 +907,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    {
       if (!clientProtocolManager.isAlive())
          return;
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("getConnectionWithRetry::" + reconnectAttempts +
+         ActiveMQClientLogger.LOGGER.trace("getConnectionWithRetry::" + reconnectAttempts +
                                              " with retryInterval = " +
                                              retryInterval +
                                              " multiplier = " +
@@ -924,14 +924,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       {
          if (ClientSessionFactoryImpl.isDebug)
          {
-            HornetQClientLogger.LOGGER.debug("Trying reconnection attempt " + count + "/" + reconnectAttempts);
+            ActiveMQClientLogger.LOGGER.debug("Trying reconnection attempt " + count + "/" + reconnectAttempts);
          }
 
          if (getConnection() != null)
          {
-            if (HornetQClientLogger.LOGGER.isDebugEnabled())
+            if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
             {
-               HornetQClientLogger.LOGGER.debug("Reconnection successful");
+               ActiveMQClientLogger.LOGGER.debug("Reconnection successful");
             }
             return;
          }
@@ -947,7 +947,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                {
                   if (reconnectAttempts != 1)
                   {
-                     HornetQClientLogger.LOGGER.failedToConnectToServer(reconnectAttempts);
+                     ActiveMQClientLogger.LOGGER.failedToConnectToServer(reconnectAttempts);
                   }
 
                   return;
@@ -955,7 +955,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                if (ClientSessionFactoryImpl.isTrace)
                {
-                  HornetQClientLogger.LOGGER.waitingForRetry(interval, retryInterval, retryIntervalMultiplier);
+                  ActiveMQClientLogger.LOGGER.waitingForRetry(interval, retryInterval, retryIntervalMultiplier);
                }
 
                try
@@ -982,7 +982,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             }
             else
             {
-               HornetQClientLogger.LOGGER.debug("Could not connect to any server. Didn't have reconnection configured on the ClientSessionFactory");
+               ActiveMQClientLogger.LOGGER.debug("Could not connect to any server. Didn't have reconnection configured on the ClientSessionFactory");
                return;
             }
          }
@@ -1086,14 +1086,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                {
                   if (ClientSessionFactoryImpl.isTrace)
                   {
-                     HornetQClientLogger.LOGGER.trace(this + "::Subscribing Topology");
+                     ActiveMQClientLogger.LOGGER.trace(this + "::Subscribing Topology");
                   }
                   clientProtocolManager.sendSubscribeTopology(serverLocator.isClusterConnection());
                }
             }
             else
             {
-               HornetQClientLogger.LOGGER.debug("serverLocator@" + System.identityHashCode(serverLocator + " had no topology"));
+               ActiveMQClientLogger.LOGGER.debug("serverLocator@" + System.identityHashCode(serverLocator + " had no topology"));
             }
 
             return connection;
@@ -1133,7 +1133,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    {
       if (!closed && finalizeCheck)
       {
-         HornetQClientLogger.LOGGER.factoryLeftOpen(createTrace, System.identityHashCode(this));
+         ActiveMQClientLogger.LOGGER.factoryLeftOpen(createTrace, System.identityHashCode(this));
 
          close();
       }
@@ -1184,11 +1184,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             CLOSE_RUNNABLES.add(this);
             if (scaleDownTargetNodeID == null)
             {
-               conn.fail(HornetQClientMessageBundle.BUNDLE.disconnected());
+               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected());
             }
             else
             {
-               conn.fail(HornetQClientMessageBundle.BUNDLE.disconnected(), scaleDownTargetNodeID);
+               conn.fail(ActiveMQClientMessageBundle.BUNDLE.disconnected(), scaleDownTargetNodeID);
             }
          }
          finally
@@ -1234,7 +1234,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       {
          if (ClientSessionFactoryImpl.isDebug)
          {
-            HornetQClientLogger.LOGGER.debug("Connector towards " + connector + " failed");
+            ActiveMQClientLogger.LOGGER.debug("Connector towards " + connector + " failed");
          }
 
          try
@@ -1291,7 +1291,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       {
          if (ClientSessionFactoryImpl.isDebug)
          {
-            HornetQClientLogger.LOGGER.debug("Trying to connect with connector = " + connectorFactory +
+            ActiveMQClientLogger.LOGGER.debug("Trying to connect with connector = " + connectorFactory +
                                                 ", parameters = " +
                                                 connectorConfig.getParams() +
                                                 " connector = " +
@@ -1310,7 +1310,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          {
             if (ClientSessionFactoryImpl.isDebug)
             {
-               HornetQClientLogger.LOGGER.debug("Trying backup config = " + backupConfig);
+               ActiveMQClientLogger.LOGGER.debug("Trying backup config = " + backupConfig);
             }
 
             ConnectorFactory backupConnectorFactory = instantiateConnectorFactory(backupConfig.getFactoryClassName());
@@ -1325,7 +1325,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                if (ClientSessionFactoryImpl.isDebug)
                {
-                  HornetQClientLogger.LOGGER.debug("Connected to the backup at " + backupConfig);
+                  ActiveMQClientLogger.LOGGER.debug("Connected to the backup at " + backupConfig);
                }
 
                // Switching backup as live
@@ -1338,7 +1338,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             {
                if (ClientSessionFactoryImpl.isDebug)
                {
-                  HornetQClientLogger.LOGGER.debug("Backup is not active yet");
+                  ActiveMQClientLogger.LOGGER.debug("Backup is not active yet");
                }
             }
 
@@ -1348,7 +1348,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       {
          // Sanity catch for badly behaved remoting plugins
 
-         HornetQClientLogger.LOGGER.createConnectorException(cause);
+         ActiveMQClientLogger.LOGGER.createConnectorException(cause);
 
          if (transportConnection != null)
          {
@@ -1392,7 +1392,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          }
          else
          {
-            HornetQClientLogger.LOGGER.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
+            ActiveMQClientLogger.LOGGER.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
          }
       }
    }
@@ -1473,7 +1473,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                // We use a different thread to send the fail
                // but the exception has to be created here to preserve the stack trace
-               final ActiveMQException me = HornetQClientMessageBundle.BUNDLE.connectionTimedOut(connection.getTransportConnection());
+               final ActiveMQException me = ActiveMQClientMessageBundle.BUNDLE.connectionTimedOut(connection.getTransportConnection());
 
                cancelled = true;
 
@@ -1521,7 +1521,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       {
          if (ClientSessionFactoryImpl.isTrace)
          {
-            HornetQClientLogger.LOGGER.trace("Neither backup or live were active, will just give up now");
+            ActiveMQClientLogger.LOGGER.trace("Neither backup or live were active, will just give up now");
          }
          return null;
       }
@@ -1535,9 +1535,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       schedulePing();
 
-      if (HornetQClientLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
-         HornetQClientLogger.LOGGER.trace("returning " + connection);
+         ActiveMQClientLogger.LOGGER.trace("returning " + connection);
       }
 
       return newConnection;
@@ -1573,9 +1573,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       public void nodeDisconnected(RemotingConnection conn, String nodeID, String scaleDownTargetNodeID)
       {
 
-         if (HornetQClientLogger.LOGGER.isTraceEnabled())
+         if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
          {
-            HornetQClientLogger.LOGGER.trace("Disconnect being called on client:" +
+            ActiveMQClientLogger.LOGGER.trace("Disconnect being called on client:" +
                                                 " server locator = " +
                                                 serverLocator +
                                                 " notifying node " +

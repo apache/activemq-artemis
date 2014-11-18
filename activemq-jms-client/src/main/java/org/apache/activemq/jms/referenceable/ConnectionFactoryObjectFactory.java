@@ -23,7 +23,7 @@ import javax.naming.spi.ObjectFactory;
  *
  * A ConnectionFactoryObjectFactory.
  *
- * Given a reference - reconstructs a HornetQRAConnectionFactory
+ * Given a reference - reconstructs a ActiveMQRAConnectionFactory
  *
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  * @version $Revision$
@@ -35,7 +35,7 @@ public class ConnectionFactoryObjectFactory implements ObjectFactory
    {
       Reference r = (Reference)ref;
 
-      byte[] bytes = (byte[])r.get("HornetQ-CF").getContent();
+      byte[] bytes = (byte[])r.get("ActiveMQ-CF").getContent();
 
       // Deserialize
       return SerializableObjectRefAddr.deserialize(bytes);

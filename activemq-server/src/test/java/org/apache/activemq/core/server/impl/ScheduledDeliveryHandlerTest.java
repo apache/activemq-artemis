@@ -38,7 +38,7 @@ import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
@@ -1068,7 +1068,7 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setConsumersRefCount(HornetQServer server)
+      public void setConsumersRefCount(ActiveMQServer server)
       {
 
       }

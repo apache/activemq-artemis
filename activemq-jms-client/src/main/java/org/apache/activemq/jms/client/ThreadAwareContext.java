@@ -90,7 +90,7 @@ public class ThreadAwareContext
    {
       if (completionListenerThread == Thread.currentThread())
       {
-         throw HornetQJMSClientBundle.BUNDLE.callingMethodFromCompletionListenerRuntime();
+         throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromCompletionListenerRuntime();
       }
    }
 
@@ -109,7 +109,7 @@ public class ThreadAwareContext
    {
       if (completionListenerThread == Thread.currentThread())
       {
-         throw HornetQJMSClientBundle.BUNDLE.callingMethodFromCompletionListener();
+         throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromCompletionListener();
       }
    }
 
@@ -126,7 +126,7 @@ public class ThreadAwareContext
    {
       if (messageListenerThreads.contains(Thread.currentThread().getId()))
       {
-         throw HornetQJMSClientBundle.BUNDLE.callingMethodFromListenerRuntime();
+         throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromListenerRuntime();
       }
    }
 
@@ -145,7 +145,7 @@ public class ThreadAwareContext
    {
       if (messageListenerThreads.contains(Thread.currentThread().getId()))
       {
-         throw HornetQJMSClientBundle.BUNDLE.callingMethodFromListener();
+         throw ActiveMQJMSClientBundle.BUNDLE.callingMethodFromListener();
       }
    }
 

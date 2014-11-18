@@ -25,7 +25,7 @@ import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.management.impl.HornetQServerControlImpl;
+import org.apache.activemq.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -33,8 +33,8 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.remoting.server.RemotingService;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.Divert;
-import org.apache.activemq.core.server.HornetQComponent;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.ServerMessage;
@@ -51,7 +51,7 @@ import org.apache.activemq.spi.core.remoting.Acceptor;
  *
  *
  */
-public interface ManagementService extends NotificationService, HornetQComponent
+public interface ManagementService extends NotificationService, ActiveMQComponent
 {
    // Configuration
 
@@ -67,14 +67,14 @@ public interface ManagementService extends NotificationService, HornetQComponent
 
    void setStorageManager(StorageManager storageManager);
 
-   HornetQServerControlImpl registerServer(final PostOffice postOffice,
+   ActiveMQServerControlImpl registerServer(final PostOffice postOffice,
                                            final StorageManager storageManager,
                                            final Configuration configuration,
                                            final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                                            final HierarchicalRepository<Set<Role>> securityRepository,
                                            final ResourceManager resourceManager,
                                            final RemotingService remotingService,
-                                           final HornetQServer messagingServer,
+                                           final ActiveMQServer messagingServer,
                                            final QueueFactory queueFactory,
                                            final ScheduledExecutorService scheduledThreadPool,
                                            final PagingManager pagingManager,

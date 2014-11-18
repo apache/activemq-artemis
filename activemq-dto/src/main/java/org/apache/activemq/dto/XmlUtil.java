@@ -86,7 +86,7 @@ public class XmlUtil
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
       sf.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
-      InputStream xsdStream = XmlUtil.class.getClassLoader().getResourceAsStream("org.apache.activemq/dto/hornetq.xsd");
+      InputStream xsdStream = XmlUtil.class.getClassLoader().getResourceAsStream("org.apache.activemq/dto/activemq.xsd");
       StreamSource xsdSource = new StreamSource(xsdStream);
       Schema schema = sf.newSchema(xsdSource);
       unmarshaller.setSchema(schema);

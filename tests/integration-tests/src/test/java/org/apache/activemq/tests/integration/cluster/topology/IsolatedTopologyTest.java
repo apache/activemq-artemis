@@ -23,7 +23,7 @@ import org.apache.activemq.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
@@ -41,9 +41,9 @@ public class IsolatedTopologyTest extends ServiceTestBase
    public void testIsolatedClusters() throws Exception
    {
 
-      HornetQServer server1 = createServer1();
+      ActiveMQServer server1 = createServer1();
 
-      HornetQServer server2 = createServer2();
+      ActiveMQServer server2 = createServer2();
 
       server1.start();
       server2.start();
@@ -89,7 +89,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       Thread.sleep(500);
    }
 
-   private void checkTopology(final HornetQServer serverParameter,
+   private void checkTopology(final ActiveMQServer serverParameter,
                               final String clusterName,
                               final String nodeId1,
                               final String nodeId2,
@@ -104,7 +104,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       Assert.assertEquals(member2.getLive().getParams().toString(), cfg2.getParams().toString());
    }
 
-   private HornetQServer createServer1() throws Exception
+   private ActiveMQServer createServer1() throws Exception
    {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
@@ -160,7 +160,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       return createServer(false, config1);
    }
 
-   private HornetQServer createServer2() throws Exception
+   private ActiveMQServer createServer2() throws Exception
    {
 
       Map<String, Object> params = new HashMap<String, Object>();

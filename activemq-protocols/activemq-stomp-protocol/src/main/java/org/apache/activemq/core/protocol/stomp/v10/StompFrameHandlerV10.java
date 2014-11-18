@@ -15,15 +15,15 @@ package org.apache.activemq.core.protocol.stomp.v10;
 import java.util.Map;
 
 import org.apache.activemq.core.protocol.stomp.FrameEventListener;
-import org.apache.activemq.core.protocol.stomp.HornetQStompException;
+import org.apache.activemq.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.protocol.stomp.StompConnection;
 import org.apache.activemq.core.protocol.stomp.StompDecoder;
 import org.apache.activemq.core.protocol.stomp.StompFrame;
 import org.apache.activemq.core.protocol.stomp.VersionedStompFrameHandler;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 
-import static org.apache.activemq.core.protocol.stomp.HornetQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
 *
@@ -101,7 +101,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       {
          if (destination == null)
          {
-            HornetQStompException error = BUNDLE.needIDorDestination();
+            ActiveMQStompException error = BUNDLE.needIDorDestination();
             response = error.getFrame();
             return response;
          }
@@ -112,7 +112,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       {
          connection.unsubscribe(subscriptionID, durableSubscriberName);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          return e.getFrame();
       }
@@ -129,14 +129,14 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
 
       if (txID != null)
       {
-         HornetQServerLogger.LOGGER.stompTXAckNorSupported();
+         ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
       }
 
       try
       {
          connection.acknowledge(messageID, null);
       }
-      catch (HornetQStompException e)
+      catch (ActiveMQStompException e)
       {
          response = e.getFrame();
       }

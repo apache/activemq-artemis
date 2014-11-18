@@ -21,15 +21,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
- * The HornetQ server is configured to use JAAS.
+ * The ActiveMQ server is configured to use JAAS.
  *
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class JAASExample extends HornetQExample
+public class JAASExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {

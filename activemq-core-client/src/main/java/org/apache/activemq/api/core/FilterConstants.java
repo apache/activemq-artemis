@@ -13,26 +13,26 @@
 package org.apache.activemq.api.core;
 
 /**
- * Constants representing pre-defined message attributes that can be referenced in HornetQ core
+ * Constants representing pre-defined message attributes that can be referenced in ActiveMQ core
  * filter expressions.
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class FilterConstants
 {
    /**
-    * Name of the HornetQ UserID header.
+    * Name of the ActiveMQ UserID header.
     */
-   public static final SimpleString HORNETQ_USERID = new SimpleString("HQUserID");
+   public static final SimpleString ACTIVEMQ_USERID = new SimpleString("HQUserID");
 
    /**
-    * Name of the HornetQ Message expiration header.
+    * Name of the ActiveMQ Message expiration header.
     */
-   public static final SimpleString HORNETQ_EXPIRATION = new SimpleString("HQExpiration");
+   public static final SimpleString ACTIVEMQ_EXPIRATION = new SimpleString("HQExpiration");
 
    /**
-    * Name of the HornetQ Message durable header.
+    * Name of the ActiveMQ Message durable header.
     */
-   public static final SimpleString HORNETQ_DURABLE = new SimpleString("HQDurable");
+   public static final SimpleString ACTIVEMQ_DURABLE = new SimpleString("HQDurable");
 
    /**
     * Value for the Durable header when the message is non-durable.
@@ -45,24 +45,24 @@ public final class FilterConstants
    public static final SimpleString DURABLE = new SimpleString("DURABLE");
 
    /**
-    * Name of the HornetQ Message timestamp header.
+    * Name of the ActiveMQ Message timestamp header.
     */
-   public static final SimpleString HORNETQ_TIMESTAMP = new SimpleString("HQTimestamp");
+   public static final SimpleString ACTIVEMQ_TIMESTAMP = new SimpleString("HQTimestamp");
 
    /**
-    * Name of the HornetQ Message priority header.
+    * Name of the ActiveMQ Message priority header.
     */
-   public static final SimpleString HORNETQ_PRIORITY = new SimpleString("HQPriority");
+   public static final SimpleString ACTIVEMQ_PRIORITY = new SimpleString("HQPriority");
 
    /**
-    * Name of the HornetQ Message size header.
+    * Name of the ActiveMQ Message size header.
     */
-   public static final SimpleString HORNETQ_SIZE = new SimpleString("HQSize");
+   public static final SimpleString ACTIVEMQ_SIZE = new SimpleString("HQSize");
 
    /**
-    * All HornetQ headers are prepended by this prefix.
+    * All ActiveMQ headers are prepended by this prefix.
     */
-   public static final SimpleString HORNETQ_PREFIX = new SimpleString("HQ");
+   public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("HQ");
 
    private FilterConstants()
    {

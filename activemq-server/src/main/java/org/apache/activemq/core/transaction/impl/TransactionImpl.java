@@ -34,7 +34,7 @@ import java.util.List;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.HornetQServerLogger;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.RefsOperation;
 import org.apache.activemq.core.transaction.Transaction;
@@ -214,7 +214,7 @@ public class TransactionImpl implements Transaction
 
                public void onError(final int errorCode, final String errorMessage)
                {
-                  HornetQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+                  ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
                }
 
                public void done()
@@ -283,7 +283,7 @@ public class TransactionImpl implements Transaction
 
             public void onError(final int errorCode, final String errorMessage)
             {
-               HornetQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+               ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
             }
 
             public void done()
@@ -340,7 +340,7 @@ public class TransactionImpl implements Transaction
 
             public void onError(final int errorCode, final String errorMessage)
             {
-               HornetQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+               ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
             }
 
             public void done()
@@ -387,9 +387,9 @@ public class TransactionImpl implements Transaction
 
    public void markAsRollbackOnly(final ActiveMQException exception1)
    {
-      if (HornetQServerLogger.LOGGER.isDebugEnabled())
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         HornetQServerLogger.LOGGER.debug("Marking Transaction " + this.id + " as rollback only");
+         ActiveMQServerLogger.LOGGER.debug("Marking Transaction " + this.id + " as rollback only");
       }
       state = State.ROLLBACK_ONLY;
 

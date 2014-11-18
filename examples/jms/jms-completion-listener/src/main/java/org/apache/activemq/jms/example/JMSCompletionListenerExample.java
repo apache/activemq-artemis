@@ -20,7 +20,7 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.HornetQExample;
+import org.apache.activemq.common.example.ActiveMQExample;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class JMSCompletionListenerExample extends HornetQExample
+public class JMSCompletionListenerExample extends ActiveMQExample
 {
    public static void main(final String[] args)
    {
@@ -67,7 +67,7 @@ public class JMSCompletionListenerExample extends HornetQExample
             @Override
             public void onCompletion(Message message)
             {
-               System.out.println("message acknowledged by HornetQ");
+               System.out.println("message acknowledged by ActiveMQ");
                latch.countDown();
             }
 

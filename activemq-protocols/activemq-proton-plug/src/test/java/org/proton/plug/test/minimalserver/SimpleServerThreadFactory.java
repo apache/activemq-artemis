@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A HornetQThreadFactory
+ * A ActiveMQThreadFactory
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */

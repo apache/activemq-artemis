@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
    // Static --------------------------------------------------------
 
    // Attributes ----------------------------------------------------
-   protected static HornetQConnectionFactory cf;
+   protected static ActiveMQConnectionFactory cf;
 
    // Constructors --------------------------------------------------
    @Override
@@ -71,7 +71,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
             .setDiscoveryInitialWaitTimeout(5000)
             .setBroadcastEndpointFactoryConfiguration(config);
 
-         jmsServer.getHornetQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
+         jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
 
          jmsServer.createConnectionFactory("MyConnectionFactory",
                                            false,
@@ -91,12 +91,12 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
    @Test
    public void testNullLocalBindAddress() throws Exception
    {
-      cf = (HornetQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
+      cf = (ActiveMQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
 
       // apparently looking up the connection factory with the org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory
       // is not enough to actually serialize it so we serialize it manually
       byte[] x = serialize(cf);
-      HornetQConnectionFactory y = deserialize(x, HornetQConnectionFactory.class);
+      ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       Assert.assertEquals(null, ((UDPBroadcastGroupConfiguration) y.getDiscoveryGroupConfiguration().getBroadcastEndpointFactoryConfiguration()).getLocalBindAddress());
    }
 

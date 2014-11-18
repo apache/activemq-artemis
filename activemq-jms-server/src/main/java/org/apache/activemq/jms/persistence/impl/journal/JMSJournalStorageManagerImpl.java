@@ -101,7 +101,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
                                          config.getJournalCompactMinFiles(),
                                          config.getJournalCompactPercentage(),
                                          bindingsJMS,
-                                         "hornetq-jms",
+                                         "activemq-jms",
                                          "jms",
                                          1);
 

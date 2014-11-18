@@ -24,10 +24,10 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -42,7 +42,7 @@ import org.junit.Test;
  */
 public class LVQRecoveryTest extends ServiceTestBase
 {
-   private HornetQServer server;
+   private ActiveMQServer server;
 
    private ClientSession clientSession;
 
@@ -230,7 +230,7 @@ public class LVQRecoveryTest extends ServiceTestBase
       qs.setLastValueQueue(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), qs);
       // then we create a client as normal
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       locator.setBlockOnAcknowledge(true);
       locator.setAckBatchSize(0);
@@ -254,7 +254,7 @@ public class LVQRecoveryTest extends ServiceTestBase
       server.getAddressSettingsRepository().addMatch(address.toString(), qs1);
       // then we create a client as normal
       locator.close();
-      locator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       locator.setBlockOnAcknowledge(true);
       locator.setAckBatchSize(0);

@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.core.client.HornetQClientMessageBundle;
+import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.utils.UUIDGenerator;
@@ -290,7 +290,7 @@ public class TransportConfiguration implements Serializable
    /**
     * Encodes this TransportConfiguration into a buffer.
     * <p>
-    * Note that this is only used internally HornetQ.
+    * Note that this is only used internally ActiveMQ.
     *
     * @param buffer the buffer to encode into
     */
@@ -331,7 +331,7 @@ public class TransportConfiguration implements Serializable
             }
             else
             {
-               throw HornetQClientMessageBundle.BUNDLE.invalidEncodeType(val);
+               throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
             }
          }
       }
@@ -340,7 +340,7 @@ public class TransportConfiguration implements Serializable
    /**
     * Decodes this TransportConfiguration from a buffer.
     * <p>
-    * Note this is only used internally by HornetQ
+    * Note this is only used internally by ActiveMQ
     *
     * @param buffer the buffer to decode from
     */
@@ -399,7 +399,7 @@ public class TransportConfiguration implements Serializable
             }
             default:
             {
-               throw HornetQClientMessageBundle.BUNDLE.invalidType(type);
+               throw ActiveMQClientMessageBundle.BUNDLE.invalidType(type);
             }
          }
 
