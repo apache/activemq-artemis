@@ -1,0 +1,1 @@
+activemq.cmd run %*

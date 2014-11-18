@@ -1,10 +1,10 @@
-<configuration xmlns="urn:hornetq"
+<configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:hornetq ../../../../hornetq-server/src/main/resources/schema/hornetq-configuration.xsd">
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>    
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="tcp-no-delay" value="false"/>
          <param key="tcp-send-buffer-size" value="1048576"/>
          <param key="tcp-receive-buffer-size" value="1048576"/>
@@ -15,7 +15,7 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>    
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="tcp-no-delay" value="false"/>
          <param key="tcp-send-buffer-size" value="1048576"/>
          <param key="tcp-receive-buffer-size" value="1048576"/>

@@ -10,13 +10,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.api.core.client.ClientSessionFactory;
-import org.hornetq.api.core.client.HornetQClient;
-import org.hornetq.core.config.impl.FileConfiguration;
-import org.hornetq.jms.client.HornetQConnectionFactory;
-import org.hornetq.jms.client.HornetQDestination;
-import org.hornetq.jms.client.HornetQJMSConnectionFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.api.core.client.HornetQClient;
+import org.apache.activemq.core.config.impl.FileConfiguration;
+import org.apache.activemq.jms.client.HornetQConnectionFactory;
+import org.apache.activemq.jms.client.HornetQDestination;
+import org.apache.activemq.jms.client.HornetQJMSConnectionFactory;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;

@@ -31,7 +31,7 @@
         <title>服务器端的配置</title>
         <para>大消息在服务器端是直接保存在磁盘目录中。这一目录可以在HornetQ的配置文件中定义。</para>
         <para>这个参数的名字是<literal>large-messages-directory</literal>：</para>
-        <programlisting>&lt;configuration xmlns="urn:hornetq"
+        <programlisting>&lt;configuration xmlns="urn:activemq"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 
@@ -99,7 +99,7 @@ factory.setMinLargeMessageSize(25 * 1024);</programlisting>
             <para>下表列出了<literal>ClientMessage</literal>上可以使用的方法。
                   通过相应的对象属性也可以在JMS中应用。</para>
             <table frame="topbot" id="large-messages.ClientMessageAPI">
-                <title>org.hornetq.api.core.client.ClientMessage API</title>
+                <title>org.apache.activemq.api.core.client.ClientMessage API</title>
                 <tgroup cols="3">
                     <colspec colname="Name" colnum="1"/>
                     <colspec colname="Descr" colnum="2"/>

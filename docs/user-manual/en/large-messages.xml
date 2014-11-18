@@ -45,7 +45,7 @@
         <para>The configuration property <literal>large-messages-directory</literal> specifies where
             large messages are stored.</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq"
+&lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 ...
@@ -160,7 +160,7 @@ ClientSessionFactory factory = HornetQClient.createClientSessionFactory();</prog
                     >ClientMessage</literal> which are also available through JMS by the use of
                 object properties.</para>
             <table frame="topbot" id="large-messages.ClientMessageAPI">
-                <title>org.hornetq.api.core.client.ClientMessage API</title>
+                <title>org.apache.activemq.api.core.client.ClientMessage API</title>
                 <tgroup cols="3">
                     <colspec colname="Name" colnum="1"/>
                     <colspec colname="Descr" colnum="2"/>

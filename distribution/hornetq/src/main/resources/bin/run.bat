@@ -1,1 +1,0 @@
-hornetq.cmd run %*

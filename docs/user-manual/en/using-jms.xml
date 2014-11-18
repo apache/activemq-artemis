@@ -63,7 +63,7 @@
             Connection Factory instances you can deploy from the file. Here's our
             configuration:</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
     
@@ -149,7 +149,7 @@
             </table>
             <para>As an example, the following configures an XAQueueConnectionFactory:</para>
         <programlisting>
-&lt;configuration xmlns="urn:hornetq" 
+&lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:hornetq ../schemas/hornetq-jms.xsd ">
 
@@ -187,7 +187,7 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting
                 <literal>hornetq-beans.xml</literal> by setting properties on the <literal
                 >JNDIServer</literal> bean:</para>
         <programlisting>
-&lt;bean name="StandaloneServer" class="org.hornetq.jms.server.impl.StandaloneNamingServer">
+&lt;bean name="StandaloneServer" class="org.apache.activemq.jms.server.impl.StandaloneNamingServer">
    &lt;constructor>
       &lt;parameter>
          &lt;inject bean="HornetQServer"/>

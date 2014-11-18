@@ -15,14 +15,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
-      <groupId>org.hornetq.tests</groupId>
-      <artifactId>hornetq-tests-pom</artifactId>
-      <version>2.5.0-SNAPSHOT</version>
+      <groupId>org.apache.activemq.tests</groupId>
+      <artifactId>activemq-tests-pom</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>stress-tests</artifactId>
    <packaging>jar</packaging>
-   <name>HornetQ stress Tests</name>
+   <name>ActiveMQ6 stress Tests</name>
 
    <properties>
       <hornetq.basedir>${project.basedir}/../..</hornetq.basedir>
@@ -30,53 +30,53 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-core-client</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-core-client</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-server</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-server</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq.tests</groupId>
+         <groupId>org.apache.activemq.tests</groupId>
          <artifactId>unit-tests</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq.tests</groupId>
+         <groupId>org.apache.activemq.tests</groupId>
          <artifactId>integration-tests</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq.tests</groupId>
+         <groupId>org.apache.activemq.tests</groupId>
          <artifactId>jms-tests</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-jms-client</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-jms-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-ra</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-ra</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.hornetq</groupId>
-         <artifactId>hornetq-bootstrap</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-bootstrap</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -136,7 +136,7 @@
                <includes>
                   <include>**/*Test.java</include>
                </includes>
-               <argLine>${hornetq-surefire-argline}</argLine>
+               <argLine>${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
       </plugins>

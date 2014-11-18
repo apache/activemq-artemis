@@ -11,7 +11,7 @@
   ~  permissions and limitations under the License.
   -->
 
-<configuration xmlns="urn:hornetq"
+<configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:hornetq /schema/hornetq-jms.xsd">
    <!--the connection factory used by the example-->

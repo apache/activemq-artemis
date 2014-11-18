@@ -1,4 +1,4 @@
-<configuration xmlns="urn:hornetq"
+<configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 
@@ -15,7 +15,7 @@
    <!-- Connectors -->
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5450"/>
       </connector>
    </connectors>
@@ -23,7 +23,7 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="5450"/>
       </acceptor>
    </acceptors>

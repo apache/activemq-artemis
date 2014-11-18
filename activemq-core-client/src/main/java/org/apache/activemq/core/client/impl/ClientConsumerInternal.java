@@ -1,0 +1,72 @@
+/*
+ * Copyright 2005-2014 Red Hat, Inc.
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+package org.apache.activemq.core.client.impl;
+
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.utils.FutureLatch;
+
+/**
+ * A ClientConsumerInternal
+ *
+ * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ */
+public interface ClientConsumerInternal extends ClientConsumer
+{
+   SimpleString getQueueName();
+
+   SimpleString getFilterString();
+
+   boolean isBrowseOnly();
+
+   void handleMessage(ClientMessageInternal message) throws Exception;
+
+   void handleLargeMessage(ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception;
+
+   void handleLargeMessageContinuation(byte[] chunk, int flowControlSize, boolean isContinues) throws Exception;
+
+   void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException;
+
+   void clear(boolean waitForOnMessage) throws ActiveMQException;
+
+   /**
+    * To be called by things like MDBs during shutdown of the server
+    *
+    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @param future
+    */
+   Thread prepareForClose(FutureLatch future) throws ActiveMQException;
+
+   void clearAtFailover();
+
+   int getClientWindowSize();
+
+   int getBufferSize();
+
+   void cleanUp() throws ActiveMQException;
+
+   void acknowledge(ClientMessage message) throws ActiveMQException;
+
+   void individualAcknowledge(ClientMessage message) throws ActiveMQException;
+
+   void flushAcks() throws ActiveMQException;
+
+   void stop(boolean waitForOnMessage) throws ActiveMQException;
+
+   void start();
+
+   ClientSession.QueueQuery getQueueInfo();
+}

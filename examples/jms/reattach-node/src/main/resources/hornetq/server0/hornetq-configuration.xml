@@ -1,4 +1,4 @@
-<configuration xmlns="urn:hornetq"
+<configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
 
@@ -14,14 +14,14 @@
 
    <connectors>
       <connector name="netty-connector">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5445"/>
       </connector>
       
       <!-- We just use this connector so we can send management operations while the other acceptor
       is stopped -->
      <connector name="netty-connector2">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
          <param key="port" value="5446"/>
       </connector>
    </connectors>
@@ -29,14 +29,14 @@
    <!-- Acceptors -->
    <acceptors>
       <acceptor name="netty-acceptor">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="5445"/>
       </acceptor>
 
       <!-- We just use this acceptor so we can send management operations while the other acceptor
       is stopped -->
       <acceptor name="netty-acceptor2">
-         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
          <param key="port" value="5446"/>
       </acceptor>
    </acceptors>
