@@ -184,6 +184,7 @@
             <artifactId>javacc</artifactId>
             <version>4.0</version>
          </dependency>
+
          <!-- needed to compile JMS-->
          <dependency>
             <groupId>org.jboss.spec.javax.jms</groupId>
@@ -205,15 +206,16 @@
 
          <!-- needed to compile JavaEE examples-->
          <dependency>
-            <groupId>org.jboss.javaee</groupId>
-            <artifactId>jboss-ejb-api</artifactId>
-            <version>3.0.0.GA</version>
-         </dependency>
+             <groupId>org.apache.geronimo.specs</groupId>
+             <artifactId>geronimo-ejb_3.0_spec</artifactId>
+             <version>1.0.1</version>
+	      </dependency>
          <dependency>
-            <groupId>org.jboss.spec.javax.transaction</groupId>
-            <artifactId>jboss-transaction-api_1.2_spec</artifactId>
-            <version>1.0.0.Final</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+            <version>1.1.1</version>
          </dependency>
+
          <!--this specifically for the JMS Bridge-->
          <dependency>
             <groupId>org.jboss</groupId>
@@ -226,6 +228,7 @@
                </exclusion>
             </exclusions>
          </dependency>
+
          <!--this for xa recovery-->
          <dependency>
             <groupId>org.jboss.jbossts.jts</groupId>
@@ -253,7 +256,7 @@
          <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
-            <version>3.3.4.Final</version>
+            <version>3.6.0.Final</version>
          </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
@@ -361,12 +364,14 @@
             <!-- There are newer versions of the JUnit but they break our tests -->
             <version>4.11</version>
          </dependency>
+
          <!--needed to compile the jms tests -->
          <dependency>
-            <groupId>org.jboss.javaee</groupId>
-            <artifactId>jboss-jaspi-api</artifactId>
-            <version>1.0.0.GA</version>
+	         <groupId>org.apache.geronimo.components</groupId>
+	         <artifactId>geronimo-jaspi</artifactId>
+	         <version>2.0.0</version>
          </dependency>
+
          <!--needed to run the jms tests -->
          <dependency>
             <groupId>org.jboss.naming</groupId>
@@ -378,11 +383,6 @@
                   <artifactId>jboss-logging-spi</artifactId>
                </exclusion>
             </exclusions>
-         </dependency>
-         <dependency>
-            <groupId>jboss.jbossts</groupId>
-            <artifactId>jbossts-common</artifactId>
-            <version>4.6.1.GA</version>
          </dependency>
          <dependency>
             <groupId>apache-logging</groupId>
@@ -398,17 +398,10 @@
          </dependency>
 
          <dependency>
-            <groupId>org.jboss.javaee</groupId>
-            <artifactId>jboss-jca-api</artifactId>
-            <version>1.5.0.GA</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>org.jboss.logging</groupId>
-                  <artifactId>jboss-logging-spi</artifactId>
-               </exclusion>
-            </exclusions>
+         <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+            <version>2.0.0</version>
          </dependency>
-
          <!-- needed for javadoc graphics-->
          <dependency>
             <groupId>org.jboss.apiviz</groupId>
@@ -490,7 +483,7 @@
             <module>activemq-rest</module>
             <module>activemq-service-sar</module>
             <module>activemq-tools</module>
-            <module>integration/activemq-jboss-as-integration</module>
+            <!-- <module>integration/activemq-jboss-as-integration</module> -->
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-twitter-integration</module>
             <module>integration/activemq-aerogear-integration</module>
