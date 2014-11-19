@@ -53,7 +53,7 @@
     <section>
         <title>将ActiveMQ嵌入到你的应用程序中</title>
         <para>如果你的应用程序内部需要消息服务，但同时你又不想将消息服务暴露为单独的ActiveMQ服务器，你可以在应用中直接将ActiveMQ实例化。</para>
-        <para>有关嵌入式ActiveMQ的详细信息请参阅 <xref linkend="embedding-hornetq"
+        <para>有关嵌入式ActiveMQ的详细信息请参阅 <xref linkend="embedding-activemq"
             />。</para>
     </section>
     <section>
@@ -78,7 +78,7 @@
         <title>ActiveMQ作为独立的服务（standalone）</title>
         <para>ActiveMQ可以部署成为独立的服务器。它可运行于任何JEE应用服务器之外，作为一个独立的服务运行。
               作为独立服务器运行时，ActiveMQ消息服务器包括一个核心服务器，一个JMS服务以及一个JNDI服务。</para>
-        <para>JMS服务用来部署服务器端<literal>hornetq-jms.xml</literal>配置文件中的JMS Queue，Topic和ConnectionFactory实例。
+        <para>JMS服务用来部署服务器端<literal>activemq-jms.xml</literal>配置文件中的JMS Queue，Topic和ConnectionFactory实例。
               此外它还提供一组简单的管理接口，通过这些接口可以创建、消毁（destroy）Queue，Topic和ConnectionFactory实例。
               用于可以通过JMX或连接使用这些接口。JMS服务是单独的服务，它不是ActiveMQ核心服务。ActiveMQ的核心不包含JMS相关的服务。
               如果你不需要通过服务器端的xml配置文件部署任何JMS对象，也不需要JMS的管理接口，你可以选择不启动该服务。</para>

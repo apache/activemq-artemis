@@ -9,10 +9,10 @@
       </connector>
    </connectors>
 
-   <paging-directory>/tmp/hornetq-unit-test/live2/paging</paging-directory>
-   <bindings-directory>/tmp/hornetq-unit-test/live2/binding</bindings-directory>
-   <journal-directory>/tmp/hornetq-unit-test/live2/journal</journal-directory>
-   <large-messages-directory>/tmp/hornetq-unit-test/live2/largemessages</large-messages-directory>
+   <paging-directory>/tmp/activemq-unit-test/live2/paging</paging-directory>
+   <bindings-directory>/tmp/activemq-unit-test/live2/binding</bindings-directory>
+   <journal-directory>/tmp/activemq-unit-test/live2/journal</journal-directory>
+   <large-messages-directory>/tmp/activemq-unit-test/live2/largemessages</large-messages-directory>
    
    <acceptors>
       <acceptor name="netty-acceptor">
@@ -51,10 +51,10 @@
    <backup-servers>
       <backup-server name="myBackup" port-offset="100" inherit-configuration="true" backup-strategy="FULL">
           <configuration>
-              <paging-directory>/tmp/hornetq-unit-test/live1/paging</paging-directory>
-              <bindings-directory>/tmp/hornetq-unit-test/live1/binding</bindings-directory>
-              <journal-directory>/tmp/hornetq-unit-test/live1/journal</journal-directory>
-              <large-messages-directory>/tmp/hornetq-unit-test/live1/largemessages</large-messages-directory>
+              <paging-directory>/tmp/activemq-unit-test/live1/paging</paging-directory>
+              <bindings-directory>/tmp/activemq-unit-test/live1/binding</bindings-directory>
+              <journal-directory>/tmp/activemq-unit-test/live1/journal</journal-directory>
+              <large-messages-directory>/tmp/activemq-unit-test/live1/largemessages</large-messages-directory>
           </configuration>
       </backup-server>
    </backup-servers>

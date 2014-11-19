@@ -31,7 +31,7 @@
         <!ENTITY core-bridges            SYSTEM "core-bridges.xml">
         <!ENTITY diverts                 SYSTEM "diverts.xml">
         <!ENTITY duplicate-detection     SYSTEM "duplicate-detection.xml">
-        <!ENTITY embedding-hornetq       SYSTEM "embedding-hornetq.xml">
+        <!ENTITY embedding-activemq       SYSTEM "embedding-activemq.xml">
         <!ENTITY examples                SYSTEM "examples.xml">
         <!ENTITY filter-expressions      SYSTEM "filter-expressions.xml">
         <!ENTITY flow-control            SYSTEM "flow-control.xml">       
@@ -118,7 +118,7 @@
    &libaio;
    &thread-pooling;
    &logging;
-   &embedding-hornetq;
+   &embedding-activemq;
    &intercepting-operations;
    &interoperability;
    &perf-tuning;

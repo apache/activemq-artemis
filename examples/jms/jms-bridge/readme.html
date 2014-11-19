@@ -27,7 +27,7 @@
      <h3>JMS Bridge Configuration</h3>
      <p>The JMS Bridge is a <abbr title="Plain Old Java Object">POJO</abbr> that we configure with both source and target
         JNDI configurations. In the actual example we are programatically creating the Bridge, however the following section
-        describes how you would do this if you wanted to deploy with an actual ActiveMQ server via the hornetq-beans.xml.
+        describes how you would do this if you wanted to deploy with an actual ActiveMQ server via the activemq-beans.xml.
 
      <h4>Configuring the Bridge with the JBoss Microcontainer</h4>
      <p>
@@ -35,7 +35,7 @@
         so that it looks up its source and target JMS resources.
         The JMS Bridge is defined a bean and setup by JBoss Microntainer in the same VM than Server #1, the target server.</p>
 
-      </p>The JMS Bridge sample configuration can be found in <code>resources/hornetq-beans.xml</code>, firstly we define the
+      </p>The JMS Bridge sample configuration can be found in <code>resources/activemq-beans.xml</code>, firstly we define the
      Bridge itself:</p>
       <pre class="prettyprint">
          &lt;!-- The JMS Bridge -->

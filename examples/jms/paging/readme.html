@@ -9,7 +9,7 @@
      <h1>Paging Example</h1>
 
      <p>This example shows how ActiveMQ would avoid running out of memory resources by paging messages.</p>
-     <p>A maxSize can be specified per Destination via the destinations settings configuration file (hornetq-configuration.xml).</p>
+     <p>A maxSize can be specified per Destination via the destinations settings configuration file (activemq-configuration.xml).</p>
      <p>When messages routed to an address exceed the specified maxSize the server will begin to write messages to the file
      system, this is called paging. This will continue to occur until messages have been delivered to consumers and subsequently
      acknowledged freeing up memory. Messages will then be read from the file system , i.e. depaged, and routed as normal. </p>
@@ -69,7 +69,7 @@
          </pre></code>
          
 
-         <li>Send only 20 messages to the Queue. This will be already enough for pagingQueue. Look at ./paging/config/hornetq-queues.xml for the config.</li>
+         <li>Send only 20 messages to the Queue. This will be already enough for pagingQueue. Look at ./paging/config/activemq-queues.xml for the config.</li>
          <pre class="prettyprint"><code>
          for (int i = 0; i < 20; i++)
          {

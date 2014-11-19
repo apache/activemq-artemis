@@ -26,10 +26,10 @@
    <section id="running.standalone">
       <title>Standalone ActiveMQ</title>
       <para>To run a stand-alone server, open up a shell or command prompt and navigate into the
-            <literal>bin</literal> directory. Then execute <literal>./hornetq run</literal> (or <literal
-            >./hornetq.cmd run</literal> on Windows) and you should see the following output </para>
+            <literal>bin</literal> directory. Then execute <literal>./activemq run</literal> (or <literal
+            >./activemq.cmd run</literal> on Windows) and you should see the following output </para>
       <programlisting>
-         bin$ ./hornetq run
+         bin$ ./activemq run
 
          11:05:06,589 INFO  [org.apache.activemq.integration.bootstrap] HQ101000: Starting ActiveMQ Server
          ...
@@ -38,9 +38,9 @@
       <para>ActiveMQ is now running.</para>
       <para>Both the run and the stop scripts use the config under <literal
             >config/non-clustered</literal> by default. The configuration can be changed
-         by running <literal>./hornetq run xml:../config/non-clustered/bootstrap.xml</literal> or another config of
+         by running <literal>./activemq run xml:../config/non-clustered/bootstrap.xml</literal> or another config of
          your choosing.</para>
-      <para>The server can be stopped by running <literal>./hornetq stop</literal></para>
+      <para>The server can be stopped by running <literal>./activemq stop</literal></para>
    </section>
    <section id="running.jboss.Wildfly">
       <title>ActiveMQ In Wildfly</title>
@@ -102,7 +102,7 @@
           14:47:43,777 INFO  [org.jboss.as.connector.subsystems.datasources] (MSC service thread 1-8) JBAS010400: Bound data source [java:jboss/datasources/ExampleDS]
           14:47:43,781 INFO  [org.jboss.as.jacorb] (MSC service thread 1-1) JBAS016330: CORBA ORB Service started
           14:47:44,115 INFO  [org.jboss.as.jacorb] (MSC service thread 1-13) JBAS016328: CORBA Naming Service started
-          14:47:44,345 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) JBAS018210: Register web context: /hornetq-server
+          14:47:44,345 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) JBAS018210: Register web context: /activemq-server
           14:47:44,361 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 127.0.0.1:5455 for CORE protocol
           14:47:44,362 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 127.0.0.1:5445 for CORE protocol
           14:47:44,364 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 org.apache.activemq.default.servlet:5445 for CORE protocol

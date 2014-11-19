@@ -9,11 +9,11 @@
      <h1>JMS Message Consumer Rate Limiting</h1>
 
      <p>With ActiveMQ you can specify a maximum consume rate at which a JMS MessageConsumer will consume messages.
-     This can be specified when creating or deploying the connection factory. See <code>hornetq-jms.xml</code></p>
+     This can be specified when creating or deploying the connection factory. See <code>activemq-jms.xml</code></p>
      <p>If this value is specified then ActiveMQ will ensure that messages are never consumed at a rate higher than
      the specified rate. This is a form of consumer <i>throttling</i>.</p>     
      <h2>Example step-by-step</h2>
-     <p>In this example we specify a <code>consumer-max-rate</code> of <code>10</code> messages per second in the <code>hornetq-jms.xml</code>
+     <p>In this example we specify a <code>consumer-max-rate</code> of <code>10</code> messages per second in the <code>activemq-jms.xml</code>
      file when deploying the connection factory:</p>
      <pre class="prettyprint">
      <code>

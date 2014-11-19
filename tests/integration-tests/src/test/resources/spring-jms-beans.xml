@@ -5,8 +5,8 @@
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
    <bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start">
-       <property name="configResourcePath" value="spring-hornetq-config.xml"/>
-       <property name="jmsConfigResourcePath" value="spring-hornetq-jms.xml"/>
+       <property name="configResourcePath" value="spring-activemq-config.xml"/>
+       <property name="jmsConfigResourcePath" value="spring-activemq-jms.xml"/>
    </bean>
 
     <bean id="listener" class="org.apache.activemq.tests.integration.spring.ExampleListener"/>

@@ -64,7 +64,7 @@ factory.setMinLargeMessageSize(25 * 1024);</programlisting>
         </section>
         <section>
             <title>使用JMS</title>
-            <para>如果连接工厂是通过JNDI方式获得的，则需要在<literal>hornetq-jms.xml</literal>文件中定义：</para>
+            <para>如果连接工厂是通过JNDI方式获得的，则需要在<literal>activemq-jms.xml</literal>文件中定义：</para>
             <programlisting>...
 &lt;connection-factory name="ConnectionFactory">
 &lt;connectors>

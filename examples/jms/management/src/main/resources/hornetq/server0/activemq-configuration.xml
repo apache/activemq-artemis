@@ -11,7 +11,7 @@
    <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
 
-   <management-address>jms.queue.hornetq.management</management-address>
+   <management-address>jms.queue.activemq.management</management-address>
 
    <connectors>
       <connector name="netty">
@@ -39,7 +39,7 @@
       </security-setting>
 
       <!--security for management queue-->
-      <security-setting match="jms.queue.hornetq.management">
+      <security-setting match="jms.queue.activemq.management">
          <permission type="manage" roles="guest" />
       </security-setting>
 

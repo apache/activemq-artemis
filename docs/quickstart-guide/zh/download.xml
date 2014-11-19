@@ -18,13 +18,13 @@
 <!-- ============================================================================= -->
 <chapter id="download">
    <title>下载</title>
-   <para>ActiveMQ项目的官方地址是 <ulink url="http://hornetq.org/"
-         >http://hornetq.org/</ulink>。</para>
+   <para>ActiveMQ项目的官方地址是 <ulink url="http://activemq.org/"
+         >http://activemq.org/</ulink>。</para>
    <section id="download.software">
       <title>软件下载</title>
       <para>ActiveMQ的下载地址是<ulink
-            url="http://hornetq.org/downloads.html/"
-         >http://hornetq.org/downloads.html</ulink></para>
+            url="http://activemq.org/downloads.html/"
+         >http://activemq.org/downloads.html</ulink></para>
    </section>
    <section id="download.git">
       <title>项目信息</title>
@@ -45,24 +45,24 @@
                      >开发论坛</ulink></para>
             </listitem>
             <listitem>
-               <para>请加入我们的<ulink url="irc://irc.freenode.net:6667/hornetq"
+               <para>请加入我们的<ulink url="irc://irc.freenode.net:6667/activemq"
                      >IRC频道</ulink>与我们的核心开发工程师交流。</para>
             </listitem>
             <listitem>
-               <para>我们项目有自己的 <ulink url="http://hornetq.blogspot.com/">博客</ulink></para>
+               <para>我们项目有自己的 <ulink url="http://activemq.blogspot.com/">博客</ulink></para>
             </listitem>
             <listitem>
-               <para>还可以跟踪我们的<ulink url="http://twitter.com/hornetq">twitter</ulink></para>
+               <para>还可以跟踪我们的<ulink url="http://twitter.com/activemq">twitter</ulink></para>
             </listitem>
             <listitem>
                <para>ActiveMQ的Git代码库地址 <ulink
-                     url="https://github.com/hornetq/hornetq"
-                     >https://github.com/hornetq/hornetq</ulink></para>
+                     url="https://github.com/activemq/activemq"
+                     >https://github.com/activemq/activemq</ulink></para>
             </listitem>
             <listitem>
                <para>每次发布的版本标签都在<ulink
-                     url="https://github.com/hornetq/hornetq/tags"
-                     >https://github.com/hornetq/hornetq/tags</ulink>下能找到。</para>
+                     url="https://github.com/activemq/activemq/tags"
+                     >https://github.com/activemq/activemq/tags</ulink>下能找到。</para>
             </listitem>
          </itemizedlist>
       </para>

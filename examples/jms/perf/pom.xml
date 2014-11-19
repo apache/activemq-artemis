@@ -68,7 +68,7 @@
                         </goals>
                         <configuration>
                            <waitOnStart>true</waitOnStart>
-                           <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server0</hornetqConfigurationDir>
+                           <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
                            <systemProperties>
                               <property>
                                  <name>build.directory</name>
@@ -80,7 +80,7 @@
                   </executions>
                   <configuration>
                      <waitOnStart>false</waitOnStart>
-                     <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server0</hornetqConfigurationDir>
+                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
                   </configuration>
                   <dependencies>
                      <dependency>

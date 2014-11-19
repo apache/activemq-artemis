@@ -36,7 +36,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server0</hornetqConfigurationDir>
+                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
                      <systemProperties>
                         <property>
                            <name>build.directory</name>
@@ -57,7 +57,7 @@
                   <configuration>
                      <jndiPort>1199</jndiPort>
                      <jndiRmiPort>1198</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server1</hornetqConfigurationDir>
+                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
                      <systemProperties>
                         <property>
                            <name>build.directory</name>
@@ -85,7 +85,7 @@
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
-                           <value>${basedir}/target/classes/hornetq</value>
+                           <value>${basedir}/target/classes/activemq</value>
                         </property>
                      </systemProperties>
                   </configuration>
@@ -96,7 +96,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server0</hornetqConfigurationDir>
+                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -105,7 +105,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server1</hornetqConfigurationDir>
+                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
                   </configuration>
                </execution>
             </executions>

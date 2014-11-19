@@ -110,18 +110,18 @@
       <para>这将会在<literal>$JBOSS_HOME/server</literal>创建两个服务器配置：</para>
       <itemizedlist>
          <listitem>
-            <para><literal>default-with-hornetq</literal> -- 这个相当于AS 5的<literal
+            <para><literal>default-with-activemq</literal> -- 这个相当于AS 5的<literal
                   >default</literal>配置但其JMS提供者替换成为ActiveMQ。在这个配置中的ActiveMQ
                是<emphasis>非集群</emphasis>的。</para>
          </listitem>
          <listitem>
-            <para><literal>all-with-hornetq</literal> -- 这个相当于AS 5的<literal
+            <para><literal>all-with-activemq</literal> -- 这个相当于AS 5的<literal
                   >all</literal>配置但其JMS提供者替换成为ActiveMQ。这个配置中的ActiveMQ
                是<emphasis>集群</emphasis>的。</para>
          </listitem>
       </itemizedlist>
       <para>这时，你就可以启动上面其中任何一个配置的JBoss AS 5服务器了，例如：</para>
-      <programlisting>$JBOSS_HOME/bin/run.sh -c default-with-hornetq</programlisting>
+      <programlisting>$JBOSS_HOME/bin/run.sh -c default-with-activemq</programlisting>
    </section>
    <section id="installation.jboss.as4">
       <title>ActiveMQ运行于JBoss应用服务器4.x</title>
@@ -142,17 +142,17 @@
       <para>这将会在<literal>$JBOSS_HOME/server</literal>创建两个服务器配置：</para>
       <itemizedlist>
          <listitem>
-            <para><literal>default-with-hornetq</literal> -- 这个相当于AS 4的<literal
+            <para><literal>default-with-activemq</literal> -- 这个相当于AS 4的<literal
                   >default</literal>配置但其JMS提供者替换成为ActiveMQ。在这个配置中的ActiveMQ
                是<emphasis>非集群</emphasis>的。</para>
          </listitem>
          <listitem>
-            <para><literal>all-with-hornetq</literal> -- 这个相当于AS 4的<literal
+            <para><literal>all-with-activemq</literal> -- 这个相当于AS 4的<literal
                   >all</literal>配置但其JMS提供者替换成为ActiveMQ。这个配置中的ActiveMQ
                是<emphasis>集群</emphasis>的。</para>
          </listitem>
       </itemizedlist>
       <para>这时，你就可以启动上面其中任何一个配置的JBoss AS 4服务器了，例如：</para>
-      <programlisting>$JBOSS_HOME/bin/run.sh -c default-with-hornetq</programlisting>
+      <programlisting>$JBOSS_HOME/bin/run.sh -c default-with-activemq</programlisting>
    </section>
 </chapter>

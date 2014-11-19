@@ -12,7 +12,7 @@
  permissions and limitations under the License.
 -->
 
-<broker xmlns="http://hornetq.org/schema">
+<broker xmlns="http://activemq.org/schema">
 
    <core configuration="file:${activemq.home}/config/shared-store/activemq-configuration.xml"></core>
    <jms configuration="file:${activemq.home}/config/shared-store/activemq-jms.xml"></jms>

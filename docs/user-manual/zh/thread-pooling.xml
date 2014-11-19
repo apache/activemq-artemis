@@ -91,7 +91,7 @@ myFactory.setThreadPoolMaxSize(-1);   </programlisting>
                 >ConnectionFactory</literal>的实例。如：</para>
         <programlisting>ConnectionFactory myConnectionFactory = ActiveMQJMSClient.createConnectionFactory(myFactory);     </programlisting>
         <para>如果你使用JNDI来创建<literal>ActiveMQConnectionFactory</literal>
-            实例，你还可以在<literal>hornetq-jms.xml</literal>文件中进行配置。如：</para>
+            实例，你还可以在<literal>activemq-jms.xml</literal>文件中进行配置。如：</para>
         <programlisting>&lt;connection-factory name="ConnectionFactory"&gt;
     &lt;connectors>
        &lt;connector-ref connector-name="netty"/&gt;

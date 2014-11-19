@@ -23,10 +23,10 @@
          <li>via a pooled-connection-factory in the "messaging" subsystem</li>
          <li>via the activation configuration properties on the MDB set either via annotations or ejb-jar.xml</li>
      </ol>
-     <p>In this example the MDB is annotated with <code>@ResourceAdapter("hornetq-ra-remote.rar")</code> which refers to
+     <p>In this example the MDB is annotated with <code>@ResourceAdapter("activemq-ra-remote.rar")</code> which refers to
       this pooled-connection-factory:</p>
         <pre class="prettyprint">
-                    &lt;pooled-connection-factory name="hornetq-ra-remote">
+                    &lt;pooled-connection-factory name="activemq-ra-remote">
                         &lt;transaction mode="xa"/>
                         &lt;user>guest&lt;/user>
                         &lt;password>password&lt;/password>
@@ -44,7 +44,7 @@
 
      <p>The same pooled-connection-factory used for JCA inflow also configures an outgoing JCA connection factory which Java EE components can use to send messages to the same remote ActiveMQ Server.</p>
      <pre class="prettyprint">
-                    &lt;pooled-connection-factory name="hornetq-ra-remote">
+                    &lt;pooled-connection-factory name="activemq-ra-remote">
                         &lt;transaction mode="xa"/>
                         &lt;user>guest&lt;/user>
                         &lt;password>password&lt;/password>

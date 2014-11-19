@@ -19,7 +19,7 @@
          <param key="host" value="localhost"/>
          <param key="port" value="5500"/>
          <param key="ssl-enabled" value="true"/>
-         <param key="trust-store-path" value="hornetq/server0/hornetq.example.truststore"/>
+         <param key="trust-store-path" value="activemq/server0/activemq.example.truststore"/>
          <param key="trust-store-password" value="hornetqexample"/>
       </connector>
    </connectors>
@@ -31,7 +31,7 @@
          <param key="host" value="localhost"/>
          <param key="port" value="5500"/>
          <param key="ssl-enabled" value="true"/>
-         <param key="key-store-path" value="hornetq/server0/hornetq.example.keystore"/>
+         <param key="key-store-path" value="activemq/server0/activemq.example.keystore"/>
          <param key="key-store-password" value="hornetqexample"/>
       </acceptor>
    </acceptors>

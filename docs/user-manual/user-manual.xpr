@@ -25,7 +25,7 @@
             <file name="en/core-bridges.xml"/>
             <file name="en/diverts.xml"/>
             <file name="en/duplicate-detection.xml"/>
-            <file name="en/embedding-hornetq.xml"/>
+            <file name="en/embedding-activemq.xml"/>
             <file name="en/examples.xml"/>
             <file name="en/filter-expressions.xml"/>
             <file name="en/flow-control.xml"/>

@@ -5,7 +5,7 @@
    
    <backup-connector-ref connector-name="backup-connector"/>
    
-   <journal-directory>/tmp/hornetq-unit-test/start-stop-data-live</journal-directory>
+   <journal-directory>/tmp/activemq-unit-test/start-stop-data-live</journal-directory>
    
    <!-- Connectors -->
 

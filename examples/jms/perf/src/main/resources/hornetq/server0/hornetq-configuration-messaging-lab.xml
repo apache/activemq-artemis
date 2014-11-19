@@ -18,10 +18,10 @@
    
    <persistence-enabled>true</persistence-enabled>
 
-   <large-messages-directory>/hornetq-data/large-messages</large-messages-directory>
-   <bindings-directory>/hornetq-data/bindings</bindings-directory>
-   <journal-directory>/hornetq-data/journal</journal-directory>
-   <paging-directory>/hornetq-data/paging</paging-directory> 
+   <large-messages-directory>/activemq-data/large-messages</large-messages-directory>
+   <bindings-directory>/activemq-data/bindings</bindings-directory>
+   <journal-directory>/activemq-data/journal</journal-directory>
+   <paging-directory>/activemq-data/paging</paging-directory>
    
    <queues>
 	   <queue name="perfQueue">

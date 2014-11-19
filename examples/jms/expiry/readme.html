@@ -19,7 +19,7 @@
          We will instead consume it from an <em>expiry queue</em> where it was moved when it expired.
      </p>
      <h2>Example setup</h2>
-     <p>Expiry destinations are defined in the configuration file <a href="server0/hornetq-configuration.xml">hornetq-configuration.xml</a>:</p>
+     <p>Expiry destinations are defined in the configuration file <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a>:</p>
      <pre class="prettyprint">
          <code>&lt;address-setting match="jms.queue.exampleQueue"&gt;
             &lt;expiry-address&gt;jms.queue.expiryQueue&lt;/expiry-address&gt;
@@ -31,7 +31,7 @@
          or a <code>Topic</code> by prefixing with <code>jms.topic.</code>.<br />
          In this example, we will use a <code>Queue</code> to hold the expired messages.</p>
      <p>Since we want to consume messages from this expiryQueue, we also need to add a JNDI binding to perform a lookup.
-         This is configured in <a href="server0/hornetq-jms.xml">hornetq-jms.xml</a></p>
+         This is configured in <a href="server0/activemq-jms.xml">activemq-jms.xml</a></p>
      <pre class="prettyprint">
          <code>&lt;queue name="expiryQueue"&gt;
             &lt;entry name="/queue/expiryQueue"/&gt;

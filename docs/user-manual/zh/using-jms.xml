@@ -37,7 +37,7 @@
     </section>
     <section id="using-jms.server.configuration">
         <title>JMS服务的配置</title>
-        <para><literal>hornetq-jms.xml</literal>文件包含了需要创建与部署的JMS Queue，Topic和ConnectionFactory
+        <para><literal>activemq-jms.xml</literal>文件包含了需要创建与部署的JMS Queue，Topic和ConnectionFactory
             的实例。该文件必须要指定在classpath中。从这个文件中部署好的对象都可以用JNDI来找到。</para>
         <para>JMS客户端可以利用JMS ConnectionFactory对象来创建与服务器的连接。ConnectionFactory中有关于服务器地址的
               信息以及各种参数。通常使用这些参数的默认值即可。</para>
@@ -158,7 +158,7 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces
         </programlisting>
         <para>其中的 <literal>myhost</literal> 是 JNDI server的主机名或IP地址。 1099是端口号，根据不同的配置，
             端口号也可能不同。</para>
-        <para>在默认的单独方式（standalone）配置中，JNDI服务端口等参数定义在<literal>hornetq-beans.xml</literal>
+        <para>在默认的单独方式（standalone）配置中，JNDI服务端口等参数定义在<literal>activemq-beans.xml</literal>
               文件中的 <literal>JNDIServer</literal> bean下，如：</para>
         <programlisting>
 &lt;bean name="JNDIServer" class="org.jnp.server.Main"&gt;

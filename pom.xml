@@ -11,7 +11,7 @@
    </modules>
 
    <name>ActiveMQ6 Parent</name>
-   <url>http://hornetq.org</url>
+   <url>http://apache.org/activemq</url>
    <description>
       Putting the buzz in messaging
    </description>
@@ -73,19 +73,19 @@
      -->
  
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
-         -Dlogging.configuration=file:${hornetq.basedir}/tests/config/logging.properties
-         -Djava.library.path=${hornetq.basedir}/activemq-native/bin/ -Djgroups.bind_addr=localhost
+         -Dlogging.configuration=file:${activemq.basedir}/tests/config/logging.properties
+         -Djava.library.path=${activemq.basedir}/activemq-native/bin/ -Djgroups.bind_addr=localhost
          -Djava.net.preferIPv4Stack=true
       </activemq-surefire-argline>
-      <hornetq.basedir>${project.basedir}</hornetq.basedir>
+      <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>false</skipLicenseCheck>
       <skipStyleCheck>false</skipStyleCheck>
    </properties>
 
    <scm>
-      <connection>scm:git:git://github.com/hornetq/hornetq.git</connection>
-      <developerConnection>scm:git://github.com/hornetq/hornetq.git</developerConnection>
-      <url>https://github.com/hornetq/hornetq</url>
+      <connection>scm:git:git://github.com/activemq/activemq.git</connection>
+      <developerConnection>scm:git://github.com/activemq/activemq.git</developerConnection>
+      <url>https://github.com/activemq/activemq</url>
    </scm>
 
    <distributionManagement>
@@ -110,8 +110,8 @@
       <developer>
          <id>clebertsuconic</id>
          <name>Clebert Suconic</name>
-         <email>csuconic@redhat.com</email>
-         <url>http://hornetq.com</url>
+         <email>clebertsuconic@apache.org</email>
+         <url>http://twitter.com/clebertsuconic</url>
          <roles>
             <role>project-owner</role>
          </roles>
@@ -838,6 +838,7 @@
                <!-- This was initially done to enforce name on Parameter annotation
                     I've developed a customized check and I needed this jar to deploy the specialized checkstyle -->
                <dependency>
+                  <!-- TODO Find a better home -->
                   <groupId>org.hornetq</groupId>
                   <artifactId>hornetq-checkstyle-checks</artifactId>
                   <version>0.2</version>
@@ -845,7 +846,7 @@
             </dependencies>
             <configuration>
                <skip>${skipStyleCheck}</skip>
-               <configLocation>${hornetq.basedir}/etc/checkstyle.xml</configLocation>
+               <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
                <failsOnError>false</failsOnError>
                <failOnViolation>true</failOnViolation>
                <consoleOutput>true</consoleOutput>
@@ -879,7 +880,7 @@
             <version>2.5</version>
             <configuration>
                <skip>${skipLicenseCheck}</skip>
-               <basedir>${hornetq.basedir}</basedir>
+               <basedir>${activemq.basedir}</basedir>
                <header>etc/license-header.txt</header>
                <properties>
                   <copyrightYear>2005-2014</copyrightYear>
@@ -933,7 +934,7 @@
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>2.12</version>
             <configuration>
-               <configLocation>${hornetq.basedir}/etc/checkstyle.xml</configLocation>
+               <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
                <failsOnError>false</failsOnError>
             </configuration>
          </plugin>

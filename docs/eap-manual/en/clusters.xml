@@ -133,7 +133,7 @@
                </para>
                <para>We also need to configure the connection factories used by the client to be HA. This is done by
                   adding
-                  certain attributes to the connection factories in<literal>hornetq-jms.xml</literal>. Let's look at an
+                  certain attributes to the connection factories in<literal>activemq-jms.xml</literal>. Let's look at an
                   example:
                </para>
                <programlisting>
@@ -201,15 +201,15 @@
                   for a live server running on a different eap instance.
                </para>
                <para>
-                  The first thing to mention is that the backup only needs a <literal>hornetq-jboss-beans.xml</literal>
+                  The first thing to mention is that the backup only needs a <literal>activemq-jboss-beans.xml</literal>
                   and a <literal>activemq-configuration.xml</literal> configuration file. This is because any JMS components
                   are created from the Journal when the backup server becomes live.
                </para>
                <para>
                   Firstly we need to define a new ActiveMQ Server that EAP will deploy. We do this by creating a new
-                  <literal>hornetq-jboss-beans.xml</literal>
+                  <literal>activemq-jboss-beans.xml</literal>
                   configuration. We will place this under a new directory
-                  <literal>hornetq-backup1</literal>
+                  <literal>activemq-backup1</literal>
                   which will need creating
                   in the
                   <literal>deploy</literal>
@@ -223,7 +223,7 @@
       &lt;!-- The core configuration -->
       &lt;bean name="BackupConfiguration" class="org.apache.activemq.core.config.impl.FileConfiguration">
          &lt;property
-            name="configurationUrl">${jboss.server.home.url}/deploy/hornetq-backup1/activemq-configuration.xml&lt;/property>
+            name="configurationUrl">${jboss.server.home.url}/deploy/activemq-backup1/activemq-configuration.xml&lt;/property>
       &lt;/bean>
 
 
@@ -280,7 +280,7 @@
                   Now let's add the server configuration in
                   <literal>activemq-configuration.xml</literal>
                   and add it to the same directory
-                  <literal>deploy/hornetq-backup1</literal>
+                  <literal>deploy/activemq-backup1</literal>
                   and configure it like so:
                </para>
                <programlisting>
@@ -298,26 +298,26 @@
 
       &lt;allow-failback>true&lt;/allow-failback>
 
-      &lt;bindings-directory>/media/shared/data/hornetq-backup/bindings&lt;/bindings-directory>
+      &lt;bindings-directory>/media/shared/data/activemq-backup/bindings&lt;/bindings-directory>
 
-      &lt;journal-directory>/media/shared/data/hornetq-backup/journal&lt;/journal-directory>
+      &lt;journal-directory>/media/shared/data/activemq-backup/journal&lt;/journal-directory>
 
       &lt;journal-min-files>10&lt;/journal-min-files>
 
-      &lt;large-messages-directory>/media/shared/data/hornetq-backup/largemessages&lt;/large-messages-directory>
+      &lt;large-messages-directory>/media/shared/data/activemq-backup/largemessages&lt;/large-messages-directory>
 
-      &lt;paging-directory>/media/shared/data/hornetq-backup/paging&lt;/paging-directory>
+      &lt;paging-directory>/media/shared/data/activemq-backup/paging&lt;/paging-directory>
 
       &lt;connectors>
          &lt;connector name="netty-connector">
             &lt;factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class>
             &lt;param key="host" value="${jboss.bind.address:localhost}"/>
-            &lt;param key="port" value="${hornetq.remoting.backup.netty.port:5446}"/>
+            &lt;param key="port" value="${activemq.remoting.backup.netty.port:5446}"/>
          &lt;/connector>
 
          &lt;connector name="in-vm">
             &lt;factory-class>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory&lt;/factory-class>
-            &lt;param key="server-id" value="${hornetq.server-id:0}"/>
+            &lt;param key="server-id" value="${activemq.server-id:0}"/>
          &lt;/connector>
 
       &lt;/connectors>
@@ -326,7 +326,7 @@
          &lt;acceptor name="netty">
             &lt;factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
             &lt;param key="host" value="${jboss.bind.address:localhost}"/>
-            &lt;param key="port" value="${hornetq.remoting.backup.netty.port:5446}"/>
+            &lt;param key="port" value="${activemq.remoting.backup.netty.port:5446}"/>
          &lt;/acceptor>
       &lt;/acceptors>
 
@@ -452,7 +452,7 @@
                <itemizedlist>
                   <listitem>
                      <para>
-                        Make sure that you give all the beans in the <literal>hornetq-jboss-beans.xml</literal> configuration
+                        Make sure that you give all the beans in the <literal>activemq-jboss-beans.xml</literal> configuration
                         file a unique name, i.e.
                      </para>
                   </listitem>
@@ -461,7 +461,7 @@
             <section>
                <title>Running the shipped example</title>
                <para>
-                  EAP ships with an example configuration for this topology. Look under <literal>extras/hornetq/resources/examples/symmetric-cluster-with-backups-colocated</literal>
+                  EAP ships with an example configuration for this topology. Look under <literal>extras/activemq/resources/examples/symmetric-cluster-with-backups-colocated</literal>
                   and follow the read me
                </para>
             </section>
@@ -491,9 +491,9 @@
             <graphic fileref="images/simple-dedicated-jca.jpg" align="center" format="jpg" scale="30"/>
          </para>
          <para>
-            Because there is no live hornetq server running by default in the eap instance running the backup server it
+            Because there is no live activemq server running by default in the eap instance running the backup server it
             makes no sense to host any applications in it. However you can host applications on the server running the live
-            hornetq server. If failure occurs to an live hornetq server then remote jms clients will failover as previously
+            activemq server. If failure occurs to an live activemq server then remote jms clients will failover as previously
             explained however what happens to any messages meant for or sent from JEE components. Well when the backup comes
             live, messages will be distributed to and from the backup server over ActiveMQ cluster connections and handled
             appropriately.
@@ -516,16 +516,16 @@
             </para>
             <para>
                For the backup server the <literal>activemq-configuration.xml</literal> is unchanged, however since there is
-               no live server we need to make sure that the <literal>hornetq-jboss-beans.xml</literal> instantiates all
+               no live server we need to make sure that the <literal>activemq-jboss-beans.xml</literal> instantiates all
                the beans needed. For this simply use the same configuration as in the live server changing only the
                location of the <literal>activemq-configuration.xml</literal> parameter for the <literal>Configuration</literal>
                bean.
             </para>
             <para>
-               As before there will be no <literal>hornetq-jms.xml</literal> or <literal>jms-ds.xml</literal> configuration.
+               As before there will be no <literal>activemq-jms.xml</literal> or <literal>jms-ds.xml</literal> configuration.
             </para>
             <para>
-               If you want both hornetq servers to be in there own dedicated server where they are remote to applications,
+               If you want both activemq servers to be in there own dedicated server where they are remote to applications,
                as in the last diagram. Then simply edit the <literal>jms-ds.xml</literal> and change the following lines to
             </para>
             <programlisting>
@@ -560,7 +560,7 @@
             <title>Running the shipped example</title>
             <para>
                EAP ships with an example configuration for this topology. Look under
-               <literal>extras/hornetq/resources/examples/cluster-with-dedicated-backup</literal>
+               <literal>extras/activemq/resources/examples/cluster-with-dedicated-backup</literal>
                and follow the read me
             </para>
          </section>

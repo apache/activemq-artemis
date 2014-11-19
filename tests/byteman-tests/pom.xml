@@ -14,7 +14,7 @@
    <properties>
       <tools.jar>${java.home}/../lib/tools.jar</tools.jar>
       <byteman.version>2.2.0</byteman.version>
-      <hornetq.basedir>${project.basedir}/../..</hornetq.basedir>
+      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
    </properties>
 
    <dependencies>

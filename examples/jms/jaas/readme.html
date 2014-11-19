@@ -12,8 +12,8 @@
      <p>ActiveMQ can leverage JAAS to delegate user authentication and authorization to existing security infrastructure.</p>
      
      <p>
-         The example will show how to configure ActiveMQ with JAAS in <a href="server0/hornetq-beans.xml">hornetq-beans.xml</a>
-         (You would use <literal>hornetq-jboss-beans.xml</literal> if you are running inside JBoss Application
+         The example will show how to configure ActiveMQ with JAAS in <a href="server0/activemq-beans.xml">activemq-beans.xml</a>
+         (You would use <literal>activemq-jboss-beans.xml</literal> if you are running inside JBoss Application
          Server).
          It will use a simple <code>LoginModule</code> without any user interaction.
          The example will create a connection and authenticate the user with this JAAS LoginModule, send a message
@@ -21,10 +21,10 @@
          of the application code)
      </p>
      <p>Note than the example actually sets the security manager via the maven pom.xml, however for we will discuss as if
-     the hornetq-beans.xml is being configured, the example beans file can be found under the <code>src/main/resources</code>
+     the activemq-beans.xml is being configured, the example beans file can be found under the <code>src/main/resources</code>
      directory</p>
      <h2>Example setup</h2>
-     <p>ActiveMQ can use a JAAS security manager by specifying it in <a href="server0/hornetq-beans.xml">hornetq-beans.xml</a>:</p>
+     <p>ActiveMQ can use a JAAS security manager by specifying it in <a href="server0/activemq-beans.xml">activemq-beans.xml</a>:</p>
      <pre class="prettyprint">
              &lt;!-- The security manager using JAAS --&gt;
              &lt;bean name=&quot;ActiveMQSecurityManager&quot; class=&quot;org.apache.activemq.integration.jboss.security.JAASSecurityManager&quot;&gt;

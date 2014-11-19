@@ -70,7 +70,7 @@
                 <para>这个队列在桥的启动之前必须已经存在。</para>
                 <note>
                     <para>如果使用JMS，JMS的配置文件<literal
-                            >hornetq-jms.xml</literal>在核心配置文件<literal>
+                            >activemq-jms.xml</literal>在核心配置文件<literal>
                          activemq-configuration.xml</literal>之后装载。所以如果你的桥要从JMS
                          队列接收消息，就需要保证JMS队列同时要作为核心队列部署。具体方法可以参见
                          bridge例子。</para>

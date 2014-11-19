@@ -20,7 +20,7 @@ Assuming current version is ``X.Y.Z-SNAPSHOT``
 1. Prepare a single commit changing all version tags in all pom's.
 2. tag this commit locally by 'git tag -a ActiveMQ_X_Y_Z_Final -m "release for x.y.z.Final' or what ever the version is
 3. remember to update the version in the main pom, think of a cool name if you can
-4. update the hornetq-maven-plugin plugin in the main pom to one that is released, if needed release a new version of the plugin.
+4. update the activemq-maven-plugin plugin in the main pom to one that is released, if needed release a new version of the plugin.
 5. Either use ``git revert`` to create a new commit reverting the commit with the version changes. Or change again all versions to ``R.S.T-SNAPSHOT``.
 6. push both commits with version changes together, including them in the same _pull-request_.
 7. push the committed tag upstream 'git push upstream ActiveMQ_X_Y_Z_Final'
@@ -40,7 +40,7 @@ testing the standalone release (this should be done on windows as well as linux 
 
 testing the release for AS7
 
-1. update the hornetq version in you local AS7 clone (there may be integration work you may have to include that is in the hornetq AS7 clone)
+1. update the activemq version in you local AS7 clone (there may be integration work you may have to include that is in the activemq AS7 clone)
 2. commit this and push to your repo
 3. go to http://lightning.mw.lab.eng.bos.redhat.com/jenkins/job/as7-param-all-tests/ and run against your repo (using the staged repo).
 4. go to http://lightning.mw.lab.eng.bos.redhat.com/jenkins/job/tck6-as7-jms/ and run against your repo (using the staged repo). (note this takes 5 hours)

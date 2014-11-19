@@ -44,7 +44,7 @@
    </note>
    <section id="pre-acknowledge.configure">
       <title>使用PRE_ACKNOWLEDGE</title>
-      <para>这个模式在<literal>hornetq-jms.xml</literal>文件中
+      <para>这个模式在<literal>activemq-jms.xml</literal>文件中
       的<literal>connection factory</literal>下配置：</para>
       <programlisting>&lt;connection-factory name="ConnectionFactory">
       &lt;connectors>

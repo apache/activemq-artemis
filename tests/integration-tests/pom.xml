@@ -12,7 +12,7 @@
    <name>ActiveMQ6 Integration Tests</name>
 
    <properties>
-      <hornetq.basedir>${project.basedir}/../..</hornetq.basedir>
+      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <vertx.version>2.1.2</vertx.version>
       <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
    </properties>

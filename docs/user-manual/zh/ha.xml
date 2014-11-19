@@ -125,7 +125,7 @@
                     <para>另外，需要将主服务器和备份服务器的日志文件位置指向<emphasis>同一个共享位置</emphasis>。
                         （参见<xref linkend="configuring.message.journal"/>）</para>
                     <para>如果客户端使用JMS自动失效备援，主服务器除了要配置一个连接器以连接到备份服务器外，还要在
-                        配置文件<literal>hornetq-jms.xml</literal>中指向这个连接器，如
+                        配置文件<literal>activemq-jms.xml</literal>中指向这个连接器，如
                         <xref linkend="ha.automatic.failover"/>中所解释的那样。</para>
                 </section>
                 <section>
@@ -170,7 +170,7 @@
             <para>有时你需要在主服务器正常关机的情况下仍然进行失效备援。如果使用JMS，你需要将<literal
                     >ActiveMQConnectionFactory</literal>的<literal
                     >FailoverOnServerShutdown</literal>属性设为true，或者是在<literal
-                    >hornetq-jms.xml</literal>（参数为failover-on-server-shutdown）文件中进行相应的配置。如果使用的是核心接口，可以在创建
+                    >activemq-jms.xml</literal>（参数为failover-on-server-shutdown）文件中进行相应的配置。如果使用的是核心接口，可以在创建
                     <literal>ClientSessionFactoryImpl</literal>实例时将上述同名属性设置为true。
                 这个属性的默认值是false。这表示如果主服务器是正常关机，<emphasis>客户端将不会进行失效备援</emphasis>。</para>
             <para>

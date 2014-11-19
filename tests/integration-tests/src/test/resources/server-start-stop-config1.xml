@@ -8,7 +8,7 @@
       </connector>
    </connectors>
    
-   <journal-directory>/tmp/hornetq-unit-test/start-stop-data</journal-directory>
+   <journal-directory>/tmp/activemq-unit-test/start-stop-data</journal-directory>
    
    <acceptors>
       <acceptor name="netty-acceptor">

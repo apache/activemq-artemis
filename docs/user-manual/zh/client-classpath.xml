@@ -27,13 +27,13 @@
     <section>
         <title>使用ActiveMQ内核的客户端</title>
         <para>如果客户端只使用ActiveMQ内核（非JMS客户端），需要将 <literal
-                >hornetq-core-client.jar</literal>和
+                >activemq-core-client.jar</literal>和
                 <literal>netty.jar</literal> 放到classpath中。</para>
     </section>
     <section>
         <title>JMS客户端</title>
         <para>如果客户端使用JMS，需要在classpath上增加两个jar文件： <literal
-                >hornetq-jms-client.jar</literal> 和 <literal>jboss-jms-api.jar</literal>。</para>
+                >activemq-jms-client.jar</literal> 和 <literal>jboss-jms-api.jar</literal>。</para>
         <note>
             <para><literal>jboss-jms-api.jar</literal>中包含的只是 <literal>javax.jms.*</literal> 包中的接口类。
                 如果这些类已经在你的classpath中，则你就不需要这个jar文件。</para>

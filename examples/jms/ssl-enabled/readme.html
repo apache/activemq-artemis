@@ -20,30 +20,30 @@
 
       &lt;connector name=&quot;netty-ssl-connector&quot;&gt;
          &lt;factory-class&gt;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.host&quot; value=&quot;localhost&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;	                     
-         &lt;param key=&quot;hornetq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.trust-store-path&quot; value=&quot;server0/hornetq.example.truststore&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.trust-store-password&quot; value=&quot;hornetqexample&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.host&quot; value=&quot;localhost&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.trust-store-path&quot; value=&quot;server0/activemq.example.truststore&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.trust-store-password&quot; value=&quot;hornetqexample&quot; type=&quot;String&quot;/&gt;
       &lt;/connector&gt;
 
       &lt;!-- Acceptor --&gt;
 
       &lt;acceptor name=&quot;netty-ssl-acceptor&quot;&gt;
          &lt;factory-class&gt;org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.host&quot; value=&quot;localhost&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;	                     
-         &lt;param key=&quot;hornetq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.key-store-path&quot; value=&quot;hornetq.example.keystore&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;hornetq.remoting.netty.key-store-password&quot; value=&quot;hornetqexample&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.host&quot; value=&quot;localhost&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.key-store-path&quot; value=&quot;activemq.example.keystore&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.key-store-password&quot; value=&quot;hornetqexample&quot; type=&quot;String&quot;/&gt;
       &lt;/acceptor&gt;
 
            </code>
         </pre>
      </p>
      
-     <p>In the configuration, the hornetq.example.keystore is the key store file holding the server's certificate. The hornetq.example.truststore
-     is the file holding the certificates which the client trusts (i.e. the server's certificate exported from hornetq.example.keystore). They are pre-generated for illustration purpose<a id="fnr1" href="readme.html#fn1"><sup>1</sup></a>.</p>
+     <p>In the configuration, the activemq.example.keystore is the key store file holding the server's certificate. The activemq.example.truststore
+     is the file holding the certificates which the client trusts (i.e. the server's certificate exported from activemq.example.keystore). They are pre-generated for illustration purpose<a id="fnr1" href="readme.html#fn1"><sup>1</sup></a>.</p>
      
 
      <h2>Example step-by-step</h2>
@@ -127,9 +127,9 @@
      <ol>
          <li><a id="fn1"/>The stores were generating using the following commands&nbsp;<a href="readme.html#fnr1">&#8617;</a>:
              <ul>
-                 <li>create the keystore: <code>keytool -genkey -keystore hornetq.example.keystore -storepass hornetqexample</code></li>
-                 <li>export the certificate: <code>keytool -export -keystore hornetq.example.keystore -file hornetq.cer</code></li>
-                 <li>create the truststore: <code>keytool -import -file hornetq.cer -keystore hornetq.example.truststore -storepass hornetqexample</code></li>
+                 <li>create the keystore: <code>keytool -genkey -keystore activemq.example.keystore -storepass hornetqexample</code></li>
+                 <li>export the certificate: <code>keytool -export -keystore activemq.example.keystore -file activemq.cer</code></li>
+                 <li>create the truststore: <code>keytool -import -file activemq.cer -keystore activemq.example.truststore -storepass hornetqexample</code></li>
             </ul>
          </li>
     </ol>
