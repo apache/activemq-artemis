@@ -1,6 +1,6 @@
 #idea files
-hornetq-pom.ipr
-hornetq-pom.iws
+activemq-pom.ipr
+activemq-pom.iws
 .idea
 *.iml
 */*.iml
@@ -33,7 +33,7 @@ org.maven.ide.eclipse.prefs
 .classpath
 tests/*-tests/hs_err_pid*.log
 tests/**/server.lock
-hornetq-core/*.log
+activemq-core/*.log
 .checkstyle
 
 # /
@@ -48,15 +48,15 @@ hornetq-core/*.log
 /target
 /.metadata
 
-integration/hornetq-*-integration/.project
+integration/activemq-*-integration/.project
 
 # /distribution/
 /distribution/target
 /distribution/.project
 /distribution/jboss-mc/.project
 
-# /distribution/hornetq/
-/distribution/hornetq/.project
+# /distribution/activemq/
+/distribution/activemq/.project
 
 # /distribution/jnp-client/
 /distribution/jnp-client/target
@@ -711,26 +711,26 @@ examples/pom-template.xml
 # /examples/soak/tx-restarts/
 /examples/soak/tx-restarts/build
 
-# /hornetq-protocols/
-/hornetq-protocols/hornetq-amqp-protocol/.project
-/hornetq-protocols/hornetq-stomp-protocol/.project
+# /activemq-protocols/
+/activemq-protocols/activemq-amqp-protocol/.project
+/activemq-protocols/activemq-stomp-protocol/.project
 
-# /hornetq-ra/hornetq-ra-jar/
-/hornetq-ra/hornetq-ra-jar/target
-/hornetq-ra/hornetq-ra-jar/.project
+# /activemq-ra/activemq-ra-jar/
+/activemq-ra/activemq-ra-jar/target
+/activemq-ra/activemq-ra-jar/.project
 
-# /hornetq-ra/hornetq-ra-rar/
-/hornetq-ra/hornetq-ra-rar/target
-/hornetq-ra/hornetq-ra-rar/.project
+# /activemq-ra/activemq-ra-rar/
+/activemq-ra/activemq-ra-rar/target
+/activemq-ra/activemq-ra-rar/.project
 
-# /hornetq-rest/hornetq-rest/
-/hornetq-rest/target
-/hornetq-rest/.project
-/hornetq-rest/data/
+# /activemq-rest/activemq-rest/
+/activemq-rest/target
+/activemq-rest/.project
+/activemq-rest/data/
 
-# /hornetq-rest/
-/hornetq-*/.project
-/hornetq-*/target
+# /activemq-rest/
+/activemq-*/.project
+/activemq-*/target
 
 /tests/.project
 /tests/*-tests/.project
@@ -748,7 +748,7 @@ native/src/.deps
 */*/*.iml
 */*/*/*.iml
 
-hornetq.log
-*/hornetq.log
-*/*/hornetq.log
-*/*/*/hornetq.log
+activemq.log
+*/activemq.log
+*/*/activemq.log
+*/*/*/activemq.log
