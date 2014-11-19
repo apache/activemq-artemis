@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Security Example</title>
+    <title>ActiveMQ JMS Security Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,16 +8,16 @@
   <body onload="prettyPrint()">
      <h1>JMS Security Example</h1>
 
-     <p>This example shows how to configure and use security using HornetQ.</p>
+     <p>This example shows how to configure and use security using ActiveMQ.</p>
      
-     <p>With security properly configured, HornetQ can restrict client access to its resources, including 
+     <p>With security properly configured, ActiveMQ can restrict client access to its resources, including 
      connection creation, message sending/receiving, etc. This is done by configuring users and roles as well as permissions in 
      the configuration files. </p>
 
-     <p>HornetQ supports wild-card security configuration. This feature makes security configuration very
+     <p>ActiveMQ supports wild-card security configuration. This feature makes security configuration very
      flexible and enables fine-grained control over permissions in an efficient way.</p>
      
-     <p>For a full description of how to configure security with HornetQ, please consult the user
+     <p>For a full description of how to configure security with ActiveMQ, please consult the user
      manual.</p>
      
      <p>This example demonstrates how to configure users/roles, how to configure topics with proper permissions using wild-card
@@ -56,8 +56,8 @@
      belongs to role 'europe-user', user 'frank' also belongs to 'us-user' and 'news-user' and user 'sam' also belongs to 'news-user'.
      </p>
      <p>
-     User name and password consists of a valid account that can be used to establish connections to a HornetQ server, while 
-     roles are used in controlling the access privileges against HornetQ topics and queues. You can achieve this control by
+     User name and password consists of a valid account that can be used to establish connections to a ActiveMQ server, while 
+     roles are used in controlling the access privileges against ActiveMQ topics and queues. You can achieve this control by
      configuring proper permissions in <code>hornetq-configuration.xml</code>, like the following
      </p>
      <pre class="prettyprint"><code>
@@ -107,8 +107,8 @@
      <p>To illustrate the effect of permissions, three topics are deployed. Topic 'genericTopic' matches 'jms.topic.#' wild-card, topic 'news.europe.europeTopic' matches 
      jms.topic.news.europe.#' wild-cards, and topic 'news.us.usTopic' matches 'jms.topic.news.us.#'.</p>
      
-     <p>With HornetQ, the security manager is also configurable. You can use JAASSecurityManager or JBossASSecurityManager based on you need. Please
-     check out the hornetq-beans.xml for how to do. In this example we just use the basic HornetQSecurityManagerImpl which reads users/roles/passwords from the xml
+     <p>With ActiveMQ, the security manager is also configurable. You can use JAASSecurityManager or JBossASSecurityManager based on you need. Please
+     check out the hornetq-beans.xml for how to do. In this example we just use the basic ActiveMQSecurityManagerImpl which reads users/roles/passwords from the xml
      file <code>hornetq-users.xml</code>.
 
 

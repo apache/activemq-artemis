@@ -3,14 +3,14 @@ You will need JDK 1.6 and Maven to run this example.  This example has been test
 with earlier or later versions of Maven.
 
 
-This is an example of having the HornetQ REST interface forward a posted message to a registered URL.
+This is an example of having the ActiveMQ REST interface forward a posted message to a registered URL.
 
 To run the example you will need 3 shell-script windows (or you'll need to run 2 processes in background)
 
 Step 1:
 $ mvn jetty:run
 
-This will bring up HornetQ and the HornetQ REST Interface.  Two queues will be created.  An "order" queue and a "shipping"
+This will bring up ActiveMQ and the ActiveMQ REST Interface.  Two queues will be created.  An "order" queue and a "shipping"
 queue.  The server will forward posted messages to the "shipping" queue through a registered push subscription.
 
 Step 2:

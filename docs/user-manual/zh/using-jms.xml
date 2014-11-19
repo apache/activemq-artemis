@@ -18,14 +18,14 @@
 <!-- ============================================================================= -->
 <chapter id="using-jms">
     <title>使用JMS</title>
-    <para>很多用户喜欢使JMS，因此HornetQ提供了JMS服务。</para>
+    <para>很多用户喜欢使JMS，因此ActiveMQ提供了JMS服务。</para>
     <para>JMS是一个普遍使用API标准，绝大多数的消息系统都提供JMS接口。如果你对JMS还不熟悉，建议你先参考一下
           Sun的<ulink url="http://java.sun.com/products/jms/tutorial/1_3_1-fcs/doc/jms_tutorialTOC.html">
             JMS 教程</ulink>。</para>
-    <para>HornetQ还提供了许多的JMS的示例程序（examples）。比如简单的JMS Queue和Topic的示例，就很适合初学者做为了
-          解HornetQ JMS的起点。<xref linkend="examples"/>对这些示例作了详细的说明。</para>
-    <para>下面我们将带领读者一步步地配置HornetQ的JMS服务，并创建一个简单的JMS程序。我们还将展示如何在没有JNDI的情况下
-          来使用HornetQ中的JMS。</para>
+    <para>ActiveMQ还提供了许多的JMS的示例程序（examples）。比如简单的JMS Queue和Topic的示例，就很适合初学者做为了
+          解ActiveMQ JMS的起点。<xref linkend="examples"/>对这些示例作了详细的说明。</para>
+    <para>下面我们将带领读者一步步地配置ActiveMQ的JMS服务，并创建一个简单的JMS程序。我们还将展示如何在没有JNDI的情况下
+          来使用ActiveMQ中的JMS。</para>
     <section>
         <title>一个简单的订购系统</title>
         <para>本章我们将用一个简单的订购系统做为一个例子。尽管它十分简单，但是它能够很好地向大家展示JMS的设置和使用。</para>
@@ -68,13 +68,13 @@
               中即可。</para>
         <note>
             <para>在JMS ConnectionFactory的配置中引用了一个名为 <literal>netty</literal>的<literal>connector</literal>。
-                它实际上指向的是HornetQ核心中部署的一个连接器（connector）。它的配置在HornetQ的核心配置文件
+                它实际上指向的是ActiveMQ核心中部署的一个连接器（connector）。它的配置在ActiveMQ的核心配置文件
                  <literal>activemq-configuration.xml</literal> 中。它定义了采用何种传输与服务器连接。</para>
         </note>
     </section>
     <section id="using-jms.configure.factory.types">
         <title>连接工厂的类型</title>
-        <para>在JMS API文档中有几种不同类型的连接工厂供用户使用。HornetQ为用户提供了配置连接工厂类型的参数。用户可以通过
+        <para>在JMS API文档中有几种不同类型的连接工厂供用户使用。ActiveMQ为用户提供了配置连接工厂类型的参数。用户可以通过
               配置连接工厂的”signature"属性和"xa"参数来得到想要的类型。“singature"属性是字符串类型，它有三个可选值：
               <emphasis>generic</emphasis>、<emphasis>queue</emphasis>和<emphasis>topic</emphasis>; 
               <literal>xa</literal>是一个布尔型参数。下表给出了不同类型连接工厂对应的配置值：</para>
@@ -176,8 +176,8 @@ java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces
                   千万不能用<literal>localhost</literal>！</para>
         </note>
         <note>
-            <para><emphasis>只有当HornetQ作为独立服务器运行时</emphasis>
-                  才可以配置JNDIServer bean。当HornetQ运行于JBoss应用服务器中时，由于JBOSS服务器已经提供了
+            <para><emphasis>只有当ActiveMQ作为独立服务器运行时</emphasis>
+                  才可以配置JNDIServer bean。当ActiveMQ运行于JBoss应用服务器中时，由于JBOSS服务器已经提供了
                   JNDI服务，所以就不需要再进行配置了。</para>
         </note>
     </section>
@@ -207,7 +207,7 @@ producer.send(message);</programlisting>
         <programlisting>TextMessage receivedMessage = (TextMessage)consumer.receive();
 System.out.println("Got order: " + receivedMessage.getText());
         </programlisting>
-        <para>看起来就是这么简单。 在HornetQ有发布包中有很多各种各样的JMS例子供用户参考。</para>
+        <para>看起来就是这么简单。 在ActiveMQ有发布包中有很多各种各样的JMS例子供用户参考。</para>
         <warning>
             <para>请注意，JMS的连接（connection）、会话（session）、生产者（producer）和消费者（consumer）
                   对象是可以<emphasis>重用</emphasis>的。</para>
@@ -220,19 +220,19 @@ System.out.println("Got order: " + receivedMessage.getText());
         <para>尽管采用JNDI对 JMS 的各种<emphasis>管理对象（Administered
                 Objects）</emphasis> (即JMS Queue, Topic and ConnectionFactory)是很常用的方法，但在有些
             情况时JNDI不可用，或者你不需要用JNDI时，如何还能正常使用JMS呢？</para>
-        <para>HornetQ允许你不通过JNDI也能使用JMS。HornetQ支持直接创建JMS的各种对象而无需JNDI的存在。</para>
+        <para>ActiveMQ允许你不通过JNDI也能使用JMS。ActiveMQ支持直接创建JMS的各种对象而无需JNDI的存在。</para>
         <para>在<xref linkend="examples"/>中包括有这样的例子供读者参考。</para>
         <para>下面我们就将上述那个简单的例子重写，以抛开对JNDI的依赖：</para>
-        <para>我们通过HornetQJMSClient类来方便地创建JMS的ConnectionFactory。注意这里要提供各种连接参数和定义
+        <para>我们通过ActiveMQJMSClient类来方便地创建JMS的ConnectionFactory。注意这里要提供各种连接参数和定义
               所用的传输方式。有关连接器（connector）的信息参见<xref linkend="configuring-transports"
             />。</para>
         <programlisting>              
 TransportConfiguration transportConfiguration = 
                      new TransportConfiguration(NettyConnectorFactory.class.getName());                
-ConnectionFactory cf = HornetQJMSClient.createConnectionFactory(transportConfiguration);
+ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(transportConfiguration);
         </programlisting>
-        <para>同样利用HornetQJMSClient类创建JMS Queue对象：</para>
-        <programlisting>Queue orderQueue = HornetQJMSClient.createQueue("OrderQueue");</programlisting>
+        <para>同样利用ActiveMQJMSClient类创建JMS Queue对象：</para>
+        <programlisting>Queue orderQueue = ActiveMQJMSClient.createQueue("OrderQueue");</programlisting>
         <para>然后用连接工厂创建 JMS 连接：</para>
         <programlisting>Connection connection = cf.createConnection();</programlisting>
         <para>还有非事务的\AUTO_ACKNOWLEDGE方式的 JMS 会话（session）：</para>

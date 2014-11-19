@@ -25,8 +25,8 @@
 
   <properties>
     <translation>en</translation>
-    <docname>HornetQ_Design_Guide</docname>
-    <bookname>HornetQ Design Guide</bookname>
+    <docname>ActiveMQ_Design_Guide</docname>
+    <bookname>ActiveMQ Design Guide</bookname>
   </properties> 
 
   <repositories>

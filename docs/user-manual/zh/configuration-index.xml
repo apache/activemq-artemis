@@ -18,12 +18,12 @@
 <!-- ============================================================================= -->
 <chapter id="configuration-index">
     <title>配置参数索引</title>
-    <para>本章给出了HornetQ配置参数的索引，以便查阅。点击任意一个配置参数可以转到其所属的章节。</para>
+    <para>本章给出了ActiveMQ配置参数的索引，以便查阅。点击任意一个配置参数可以转到其所属的章节。</para>
     <section id="server.configuration">
         <title>服务器配置</title>
         <section>
             <title>activemq-configuration.xml</title>
-            <para>HornetQ主要核心服务器配置文件</para>
+            <para>ActiveMQ主要核心服务器配置文件</para>
             <table frame="topbot" border="2">
                 <title>服务器配置</title>
                 <tgroup cols="4">
@@ -194,7 +194,7 @@
                             <entry><link linkend="management.jmx.configuration"
                                 >jmx-domain</link></entry>
                             <entry>String</entry>
-                            <entry>用于HornetQ MBean注册到MBeanServer的JMX域名</entry>
+                            <entry>用于ActiveMQ MBean注册到MBeanServer的JMX域名</entry>
                             <entry>org.apache.activemq</entry>
                         </row>
                         <row>

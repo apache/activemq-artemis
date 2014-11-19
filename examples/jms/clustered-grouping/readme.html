@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Clustered Grouping Example</title>
+    <title>ActiveMQ JMS Clustered Grouping Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css">
   </head>
   <body>
@@ -56,7 +56,7 @@
      </code>
      </pre>
      
-     <p>For more information on HornetQ clustering and grouping see the clustering and grouping
+     <p>For more information on ActiveMQ clustering and grouping see the clustering and grouping
      section of the user manual.</p>      
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
@@ -163,7 +163,7 @@
          {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
-            message.setStringProperty(HornetQMessage.JMSXGROUPID, "Group-0");
+            message.setStringProperty(ActiveMQMessage.JMSXGROUPID, "Group-0");
 
             producer0.send(message);
 
@@ -174,7 +174,7 @@
          {
             TextMessage message = session1.createTextMessage("This is text message " + (i + 10));
 
-            message.setStringProperty(HornetQMessage.JMSXGROUPID, "Group-0");
+            message.setStringProperty(ActiveMQMessage.JMSXGROUPID, "Group-0");
 
             producer1.send(message);
 
@@ -186,7 +186,7 @@
          {
             TextMessage message = session2.createTextMessage("This is text message " + (i + 20));
 
-            message.setStringProperty(HornetQMessage.JMSXGROUPID, "Group-0");
+            message.setStringProperty(ActiveMQMessage.JMSXGROUPID, "Group-0");
 
             producer2.send(message);
 

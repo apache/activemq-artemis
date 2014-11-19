@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Instantiate Connection Factory Example</title>
+    <title>ActiveMQ JMS Instantiate Connection Factory Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -11,7 +11,7 @@
      <p>Usually, JMS Objects such as ConnectionFactories, Queue and Topic instances are looked up from JNDI
      before being used by the client code. This objects are called "administered objects" in JMS specification
      terminology.</p>
-     <p>However, in some cases a JNDI server may not be available or desired. To come to the rescue HornetQ
+     <p>However, in some cases a JNDI server may not be available or desired. To come to the rescue ActiveMQ
      also supports the direct instantiation of these administered objects on the client side.</p>
      <p>This allows the full set of JMS functionality to be available without requiring a JNDI server!</p>
      <p>This example is very simple and based on the simple Queue example, however in this example we
@@ -34,7 +34,7 @@
         the server.</li>
         <pre class="prettyprint">
            <code>
-     Queue queue = new HornetQQueue("exampleQueue");</code>
+     Queue queue = new ActiveMQQueue("exampleQueue");</code>
         </pre>
 
         <li>Instantiate the TransportConfiguration object. The TransportConfiguration instance encapsulates
@@ -55,7 +55,7 @@
         <li>Directly instantiate the JMS ConnectionFactory object using that TransportConfiguration.</li>
         <pre class="prettyprint">
            <code>
-     ConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithoutHA(transportConfiguration);
+     ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(transportConfiguration);
            </code>
         </pre>
 

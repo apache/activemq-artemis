@@ -17,21 +17,21 @@
 <!-- permitted by applicable law.                                                  -->
 <!-- ============================================================================= -->
 <chapter id="using-server">
-    <title>使用HornetQ服务</title>
-    <para>本章将介绍如何使用HornetQ服务。</para>
-    <para>其中的内容包括服务器的位置，如何启动和停止HornetQ服务器。本章还将解释HornetQ的目录结构，其中的文件及其用途。</para>
-    <para>本章中所提到的HornetQ服务器是指HornetQ默认配置的独立服务器，包含JMS服务和JNDI服务。</para>
-    <para>对于运行于JBoss应用服务器中的HornetQ，其基本结构是一样的，只是有一些小的差别。</para>
+    <title>使用ActiveMQ服务</title>
+    <para>本章将介绍如何使用ActiveMQ服务。</para>
+    <para>其中的内容包括服务器的位置，如何启动和停止ActiveMQ服务器。本章还将解释ActiveMQ的目录结构，其中的文件及其用途。</para>
+    <para>本章中所提到的ActiveMQ服务器是指ActiveMQ默认配置的独立服务器，包含JMS服务和JNDI服务。</para>
+    <para>对于运行于JBoss应用服务器中的ActiveMQ，其基本结构是一样的，只是有一些小的差别。</para>
     <section>
         <title>服务的启动和停止</title>
-        <para>在HornetQ的安装目录下<literal>bin</literal>子目录中包含有一个unit/linux脚本run.sh和对应的Windows批处理文件run.bat。</para>
+        <para>在ActiveMQ的安装目录下<literal>bin</literal>子目录中包含有一个unit/linux脚本run.sh和对应的Windows批处理文件run.bat。</para>
         <para>如果你是在Unix/Linux环境，在bin目录下运行<literal>./run.sh</literal>。</para>
         <para>如果是在Windows环境，则在bin目录下运行 <literal>run.bat</literal>。</para>
         <para>这个脚本文件会设置classpath以及各种JVM参数，并启动JBoss Microcontainer。JBoss Microcontainer是一个轻量级的容器。
-              它被用来部署HornetQ的POJO对象。</para>
+              它被用来部署ActiveMQ的POJO对象。</para>
         <para>要停止服务，运行其中的相应脚本：在Unix/Linux环境下，运行 <literal>stop.sh</literal>。
               在Windows环境，运行 <literal>run.bat</literal>。</para>
-        <para>注意HornetQ需要在Java 6及以上版本才能正常运行。</para>
+        <para>注意ActiveMQ需要在Java 6及以上版本才能正常运行。</para>
         <para>启动和停止脚本在默认条件下读取<literal>config/stand-alone/non-clustered</literal>目录下的配置文件。
               如果要指向其他目录，可以在命令行实现，例如： <literal>./run.sh ../config/stand-alone/clustered</literal>。
               这一方法同样适用于Windows批处理文件。</para>
@@ -41,14 +41,14 @@
         <para>在启动脚本<literal>run.sh</literal>和<literal>run.bat</literal>中设置了一些JVM参数，
               这些参数主要是调整Java 6的运行环境及拉圾回收的策略。我们建议采用并行拉圾回收的方法。
               这种方法可以将拉圾回收所造成的延时进行平均分配，有效减少由于拉圾回收引起的长时间暂停的情况。</para>
-        <para>默认条件下HornetQ需要最大1GB的内存空间。通过<literal>-Xms</literal>和<literal>-Xmx</literal>可以调整Java程序内存的使用。</para>
+        <para>默认条件下ActiveMQ需要最大1GB的内存空间。通过<literal>-Xms</literal>和<literal>-Xmx</literal>可以调整Java程序内存的使用。</para>
         <para>你可以向启动脚本中添加其它的参数或修改已有的参数，已满足你的需要。</para>
     </section>
     <section>
         <title>服务器端的classpath</title>
-        <para>HornetQ在其classpath中寻找配置文件。</para>
-        <para>classpath被定义在<literal>run.sh</literal>和<literal>run.bat</literal>脚本中。在HornetQ的发布中，启动脚本将非集群的配置文件目录加进了classpath中。该目录包括了一组配置文件，可以让HornetQ以基本的非集群方式运行。它的具体位置是在HornetQ发布根目录下 config/stand-along/non-clustered/ 子目录。</para>
-        <para>在HornetQ的发布包中包括了一组标准的配置目录，它们是：</para>
+        <para>ActiveMQ在其classpath中寻找配置文件。</para>
+        <para>classpath被定义在<literal>run.sh</literal>和<literal>run.bat</literal>脚本中。在ActiveMQ的发布中，启动脚本将非集群的配置文件目录加进了classpath中。该目录包括了一组配置文件，可以让ActiveMQ以基本的非集群方式运行。它的具体位置是在ActiveMQ发布根目录下 config/stand-along/non-clustered/ 子目录。</para>
+        <para>在ActiveMQ的发布包中包括了一组标准的配置目录，它们是：</para>
         <itemizedlist>
             <listitem>
                 <para>非集群方式的独立服务器配置</para>
@@ -63,7 +63,7 @@
                 <para>集群方式运行于JBoss应用服务器</para>
             </listitem>
         </itemizedlist>
-        <para>当然你可以创建自己定义的配置文件目录。要注意的是将你的目录加到classpath中以便HornetQ能正确找到并加载。</para>
+        <para>当然你可以创建自己定义的配置文件目录。要注意的是将你的目录加到classpath中以便ActiveMQ能正确找到并加载。</para>
     </section>
     <section id="using-server.library.path">
         <title>Library Path</title>
@@ -73,7 +73,7 @@
     </section>
     <section>
         <title>系统变量</title>
-        <para>HornetQ命令行可以接受系统变量来配置日志（logging）。有关logging配置的具体信息参见<xref linkend="logging"/>。</para>
+        <para>ActiveMQ命令行可以接受系统变量来配置日志（logging）。有关logging配置的具体信息参见<xref linkend="logging"/>。</para>
     </section>
     <section id="using-server.configuration">
         <title>配置文件</title>
@@ -81,27 +81,27 @@
         <itemizedlist>
             <listitem>
                 <para><literal>hornetq-beans.xml</literal> （如果是运行在JBoss应用服务器内，则为 <literal
-                        >hornetq-jboss-beans.xml</literal>）。这是JBoss Microcontainer的bean配置文件。其中定义了HornetQ的
-                    各种bean，以及它们之间的依赖关系。HornetQ的bean都是一些POJO。是JBoss Microcontainer保证了这些bean的正确装载和运行。</para>
+                        >hornetq-jboss-beans.xml</literal>）。这是JBoss Microcontainer的bean配置文件。其中定义了ActiveMQ的
+                    各种bean，以及它们之间的依赖关系。ActiveMQ的bean都是一些POJO。是JBoss Microcontainer保证了这些bean的正确装载和运行。</para>
             </listitem>
             <listitem>
-                <para><literal>activemq-configuration.xml</literal>。这个是HornetQ的主要的配置文件。
+                <para><literal>activemq-configuration.xml</literal>。这个是ActiveMQ的主要的配置文件。
                     其中的所有参数在<xref linkend="configuration-index"/>中给出了解释. 在 <xref
                         linkend="usingserver.mainconfig"/> 也有更多的相关信息。</para>
             </listitem>
             <listitem>
                 <para><literal>activemq-queues.xml</literal>。这个文件里包含了预定义的queue以及它们的配置，包括安全设置。
                     这是一个可选的文件，里面所有的内容都可以放在 <literal>activemq-configuration.xml</literal>文件中。
-                    在默认的配置文件目录下并没有这个文件。HornetQ之所以提供这个文件是为了用户便于管理他们的queue。在classpath中
+                    在默认的配置文件目录下并没有这个文件。ActiveMQ之所以提供这个文件是为了用户便于管理他们的queue。在classpath中
                     允许包含多个 <literal>activemq-queues.xml</literal> 文件。所有的这些文件都会被加载。</para>
             </listitem>
             <listitem>
-                <para><literal>activemq-users.xml</literal>。用户信息文件。HornetQ本身实现了一个基本的
+                <para><literal>activemq-users.xml</literal>。用户信息文件。ActiveMQ本身实现了一个基本的
                     安全管理器（security manager），它从这个文件内读取用户的安全信息，如用户名，密码和角色。
                     想了解更多关于安全的信息，参见 <xref linkend="security"/>。</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-jms.xml</literal>。这个文件包含有JMS对象。HornetQ的默认配置中包含有JMS服务，
+                <para><literal>hornetq-jms.xml</literal>。这个文件包含有JMS对象。ActiveMQ的默认配置中包含有JMS服务，
                     它从这个文件中读取JMS Queue，Topic和ConnectionFactory并将它们部署到JNDI服务中。如果你不使用JMS，
                     或者你不需要部署这些JMS对象，那么你就不需要这个文件。有关JMS的使用详见<xref linkend="using-jms"
                     />。</para>
@@ -116,7 +116,7 @@
         </itemizedlist>
         <note>
             <para>如果在<literal>activemq-configuration.xml</literal>文件中将<literal>file-deployment-enabled</literal> 参数
-                  定义为false，则HornetQ将不会加载其它的配置文件。这个参数的默认值是true。</para>
+                  定义为false，则ActiveMQ将不会加载其它的配置文件。这个参数的默认值是true。</para>
         </note>
         <para>所有配置文件中的参数都可以用系统变量来定义其值。以下用一个connector的配置来说明：</para>
         <programlisting>&lt;connector name="netty">
@@ -133,13 +133,13 @@
     </section>
     <section id="server.microcontainer.configuration">
         <title>JBoss Microcontainer Beans 文件</title>
-        <para>HornetQ的POJO对象是由<ulink url="http://www.jboss.org/jbossmc/"> JBoss Microcontainer
+        <para>ActiveMQ的POJO对象是由<ulink url="http://www.jboss.org/jbossmc/"> JBoss Microcontainer
             </ulink>进行加载和运行的。JBoss Microcontainer是一个轻量级的加载工具。</para>
         <note>
-            <para>如果是在JBoss应用服务器内运行，HornetQ同样需要一个bean的配置文件来将其部署到JBoss中。但是这与单独运行时的配置文件略有不同。
-                这是因为应用服务器内已经部署了一些服务，如安全服务等。所以在HornetQ中这些服务就不需要再部署了。</para>
+            <para>如果是在JBoss应用服务器内运行，ActiveMQ同样需要一个bean的配置文件来将其部署到JBoss中。但是这与单独运行时的配置文件略有不同。
+                这是因为应用服务器内已经部署了一些服务，如安全服务等。所以在ActiveMQ中这些服务就不需要再部署了。</para>
         </note>
-        <para>让我们看一个HornetQ作为单独服务器时的一个配置文件例子：</para>
+        <para>让我们看一个ActiveMQ作为单独服务器时的一个配置文件例子：</para>
         <para>
             <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 
@@ -169,14 +169,14 @@
 &lt;/bean&gt;
 
 &lt;!-- The security manager --&gt;
-&lt;bean name="HornetQSecurityManager" 
-      class="org.apache.activemq.spi.core.security.HornetQSecurityManagerImpl"&gt;
+&lt;bean name="ActiveMQSecurityManager" 
+      class="org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl"&gt;
    &lt;start ignored="true"/&gt;
    &lt;stop ignored="true"/&gt;
 &lt;/bean&gt;
 
 &lt;!-- The core server --&gt;
-&lt;bean name="HornetQServer" class="org.apache.activemq.core.server.impl.HornetQServerImpl"&gt;
+&lt;bean name="ActiveMQServer" class="org.apache.activemq.core.server.impl.ActiveMQServerImpl"&gt;
    &lt;start ignored="true"/&gt;
    &lt;stop ignored="true"/&gt;  
    &lt;constructor&gt;
@@ -187,7 +187,7 @@
          &lt;inject bean="MBeanServer"/&gt;
       &lt;/parameter&gt;
       &lt;parameter&gt;
-         &lt;inject bean="HornetQSecurityManager"/&gt;
+         &lt;inject bean="ActiveMQSecurityManager"/&gt;
       &lt;/parameter&gt;        
    &lt;/constructor&gt;         
 &lt;/bean&gt;
@@ -197,14 +197,14 @@
       class="org.apache.activemq.jms.server.impl.JMSServerManagerImpl"&gt;
    &lt;constructor&gt;         
       &lt;parameter&gt;
-         &lt;inject bean="HornetQServer"/&gt;
+         &lt;inject bean="ActiveMQServer"/&gt;
       &lt;/parameter&gt;         
    &lt;/constructor&gt;
 &lt;/bean&gt;
 
 &lt;/deployment&gt;</programlisting>
         </para>
-        <para>我们从上可以看出HornetQ的单独服务器（以及核心服务器）包括了一些POJO对象：</para>
+        <para>我们从上可以看出ActiveMQ的单独服务器（以及核心服务器）包括了一些POJO对象：</para>
         <itemizedlist>
             <listitem>
                 <para>JNDIServer</para>
@@ -218,17 +218,17 @@
             </listitem>
             <listitem>
                 <para>Configuration</para>
-                <para>这是HornetQ的Configuration对象。默认时它是一个FileConfiguration对象。它可以从文件系统中读取
-                    配置信息。有些情况下（如嵌入式HornetQ）你可以将它定义为其它对象，以便用其它方法获得配置信息。</para>
+                <para>这是ActiveMQ的Configuration对象。默认时它是一个FileConfiguration对象。它可以从文件系统中读取
+                    配置信息。有些情况下（如嵌入式ActiveMQ）你可以将它定义为其它对象，以便用其它方法获得配置信息。</para>
             </listitem>
             <listitem>
                 <para>Security Manager. 可配置的安全管理器。默认的安全管理器使用 <literal>activemq-users.xml</literal> 文件中的配置信息。
-                    它也可以配置为一个JAAS的安全管理器。当HornetQ运行于JBoss应用服务器中时，它还可以配置为JBoss的安全管理器，以达到更紧密的集成。
+                    它也可以配置为一个JAAS的安全管理器。当ActiveMQ运行于JBoss应用服务器中时，它还可以配置为JBoss的安全管理器，以达到更紧密的集成。
                     如果不需要安全管理，你也可以将它删除。</para>
             </listitem>
             <listitem>
-                <para>HornetQServer</para>
-                <para>这是HornetQ的核心服务对象，几乎所有的核心功能都在这里。</para>
+                <para>ActiveMQServer</para>
+                <para>这是ActiveMQ的核心服务对象，几乎所有的核心功能都在这里。</para>
             </listitem>
             <listitem id="bean-jmsservermanager">
                 <para>JMSServerManager</para>
@@ -241,45 +241,45 @@
     <section id="server.microkernel.configuration">
         <title>JBoss AS4 MBean 服务</title>
         <note>
-            <para>本节只讨论在JBoss AS 4上配置HornetQ。其与JBoss Microcontainer的配置很相似。</para>
+            <para>本节只讨论在JBoss AS 4上配置ActiveMQ。其与JBoss Microcontainer的配置很相似。</para>
         </note>
         <para>
             <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;server&gt;
 
-   &lt;mbean code="org.apache.activemq.service.HornetQFileConfigurationService"
-      name="org.apache.activemq:service=HornetQFileConfigurationService"&gt;
+   &lt;mbean code="org.apache.activemq.service.ActiveMQFileConfigurationService"
+      name="org.apache.activemq:service=ActiveMQFileConfigurationService"&gt;
    &lt;/mbean&gt;
 
    &lt;mbean code="org.apache.activemq.service.JBossASSecurityManagerService"
       name="org.apache.activemq:service=JBossASSecurityManagerService"&gt;
    &lt;/mbean&gt;
 
-   &lt;mbean code="org.apache.activemq.service.HornetQStarterService"
-      name="org.apache.activemq:service=HornetQStarterService"&gt;
+   &lt;mbean code="org.apache.activemq.service.ActiveMQStarterService"
+      name="org.apache.activemq:service=ActiveMQStarterService"&gt;
       &lt;!--let's let the JMS Server start us--&gt;
          &lt;attribute name="Start"&gt;false&lt;/attribute&gt;
 
       &lt;depends optional-attribute-name="SecurityManagerService"
          proxy-type="attribute"&gt;org.apache.activemq:service=JBossASSecurityManagerService&lt;/depends&gt;
       &lt;depends optional-attribute-name="ConfigurationService"
-         proxy-type="attribute"&gt;org.apache.activemq:service=HornetQFileConfigurationService&lt;/depends&gt;
+         proxy-type="attribute"&gt;org.apache.activemq:service=ActiveMQFileConfigurationService&lt;/depends&gt;
    &lt;/mbean&gt;
 
-   &lt;mbean code="org.apache.activemq.service.HornetQJMSStarterService"
-      name="org.apache.activemq:service=HornetQJMSStarterService"&gt;
-      &lt;depends optional-attribute-name="HornetQServer"
-         proxy-type="attribute"&gt;org.apache.activemq:service=HornetQStarterService&lt;/depends&gt;
+   &lt;mbean code="org.apache.activemq.service.ActiveMQJMSStarterService"
+      name="org.apache.activemq:service=ActiveMQJMSStarterService"&gt;
+      &lt;depends optional-attribute-name="ActiveMQServer"
+         proxy-type="attribute"&gt;org.apache.activemq:service=ActiveMQStarterService&lt;/depends&gt;
    &lt;/mbean&gt;
    
 &lt;/server&gt;
             </programlisting>
         </para>
-        <para>这个jboss-service.xml包含在hornetq-service.sar文件中，它用来配置AS4中嵌入运行的HornetQ。
+        <para>这个jboss-service.xml包含在hornetq-service.sar文件中，它用来配置AS4中嵌入运行的ActiveMQ。
               在这个配置文件中我们启动了以下几个服务：</para>
         <itemizedlist>
             <listitem>
-                <para>HornetQFileConfigurationService</para>
+                <para>ActiveMQFileConfigurationService</para>
                 <para>这个MBean服务的任务是管理 <literal>FileConfiguration POJO</literal>的生命周期。</para>
             </listitem>
             <listitem>
@@ -287,12 +287,12 @@
                 <para>这个MBean服务管理着 <literal>JBossASSecurityManager</literal> POJO的生命周期。</para>
             </listitem>
             <listitem>
-                <para>HornetQStarterService</para>
-                <para>这个MBean服务管理着<literal>HornetQServer</literal> POJO。它依赖于 JBossASSecurityManagerService 和
-                      HornetQFileConfigurationService 这两个MBean。</para>
+                <para>ActiveMQStarterService</para>
+                <para>这个MBean服务管理着<literal>ActiveMQServer</literal> POJO。它依赖于 JBossASSecurityManagerService 和
+                      ActiveMQFileConfigurationService 这两个MBean。</para>
             </listitem>
             <listitem>
-                <para>HornetQJMSStarterService</para>
+                <para>ActiveMQJMSStarterService</para>
                 <para>这个MBean服务管理着 <literal>JMSServerManagerImpl</literal> POJO对象。如果不需要JMS，可以去掉这个服务。</para>
             </listitem>
             <listitem>
@@ -303,9 +303,9 @@
     </section>
     <section id="usingserver.mainconfig">
         <title>主配置文件</title>
-        <para>HornetQ 核心服务的配置保存在 <literal>activemq-configuration.xml</literal>文件中。
+        <para>ActiveMQ 核心服务的配置保存在 <literal>activemq-configuration.xml</literal>文件中。
 　　　　　　　　 FileConfiguration bean 读取这个文件来对消息服务器进行配置。</para>
-        <para>HornetQ有很多的配置参数。采用默认的配置在绝大多数情况下可以很好的运行。事实上每一个参数都有默认的处理，因此一个只包含有一个空
+        <para>ActiveMQ有很多的配置参数。采用默认的配置在绝大多数情况下可以很好的运行。事实上每一个参数都有默认的处理，因此一个只包含有一个空
               的<literal>configuration</literal>的配置文件是一个有效的文件。对各个参数的解释贯穿于本手册。你还可参参照
                <link linkend="configuration-index">这里</link>来查找你想看的参数。</para>
     </section>

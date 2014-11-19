@@ -1,13 +1,13 @@
 <html>
   <head>
-    <title>HornetQ Java EE JCA Remote Server Configuration Example</title>
+    <title>ActiveMQ Java EE JCA Remote Server Configuration Example</title>
     <link rel="stylesheet" type="text/css" href="../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../common/prettify.css" />
     <script type="text/javascript" src="../../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
      <h1>Java EE JCA Resource Adapter Remote Server Configuration Example</h1>
-     <p>This example demonstrates how to configure the Resource adapter to connect to a remote HornetQ server</p>
+     <p>This example demonstrates how to configure the Resource adapter to connect to a remote ActiveMQ server</p>
      <p>This example is composed of a message driven bean and a client<p>
      <p>MDBRemoteServerClientExample will send a message to the MDB via a queue and wait for the MDB to send a response via
      a reply queue</p>
@@ -42,7 +42,7 @@
 
      <h2>Configuring the outgoing JCA resource adapter</h2>
 
-     <p>The same pooled-connection-factory used for JCA inflow also configures an outgoing JCA connection factory which Java EE components can use to send messages to the same remote HornetQ Server.</p>
+     <p>The same pooled-connection-factory used for JCA inflow also configures an outgoing JCA connection factory which Java EE components can use to send messages to the same remote ActiveMQ Server.</p>
      <pre class="prettyprint">
                     &lt;pooled-connection-factory name="hornetq-ra-remote">
                         &lt;transaction mode="xa"/>
@@ -106,7 +106,7 @@
          </pre>
          <li>The MDB looks up the reply queue</li>
          <pre class="prettyprint">
-            Queue destQueue = HornetQJMSClient.createQueue("mdbReplyQueue");
+            Queue destQueue = ActiveMQJMSClient.createQueue("mdbReplyQueue");
          </pre>
          <li>The MDB creates a connection</li>
          <pre class="prettyprint">

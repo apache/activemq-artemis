@@ -19,10 +19,10 @@
 <!-- ============================================================================= -->
 
 <chapter id="wildcard-syntax">
-    <title>了解 HornetQ 通配符的语法</title>
-    <para>HornetQ使用了一种专门的通配符语法来配置安全、地址及接收者（consumer）的创建。</para>
+    <title>了解 ActiveMQ 通配符的语法</title>
+    <para>ActiveMQ使用了一种专门的通配符语法来配置安全、地址及接收者（consumer）的创建。</para>
     <para>这种语法与 <ulink url="http://www.amqp.org">AMQP</ulink>所用的语法相似。</para>
-    <para>一个HornetQ的通配符表达式是由一些由“<literal
+    <para>一个ActiveMQ的通配符表达式是由一些由“<literal
             >.</literal>”分隔的单词组成。</para>
     <para>特殊字符“<literal>#</literal>”和“<literal>*</literal>”在表达式中可作为一个单词，它们代表
         特殊的意义。</para>

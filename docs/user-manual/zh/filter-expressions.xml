@@ -20,12 +20,12 @@
 
 <chapter id="filter-expressions">
     <title>过滤器表达式</title>
-    <para>HornetQ提供了一套强大的过滤器（filter）语言。它的语法是基于SQL 92表达式的部分语法。</para>
+    <para>ActiveMQ提供了一套强大的过滤器（filter）语言。它的语法是基于SQL 92表达式的部分语法。</para>
     <para>实际上它与JMS选择器（selector）的语法是相同的。只是其中有一些预定义的标识符有所不同。有关
             JMS选择器的相关知识参见 <ulink
             url="http://java.sun.com/javaee/5/docs/api/javax/jms/Message.html"
             >javax.jms.Message</ulink>。</para>
-    <para>HornetQ在以下以个地方使用了过滤器表达式：</para>
+    <para>ActiveMQ在以下以个地方使用了过滤器表达式：</para>
     <itemizedlist>
         <listitem>
             <para>预定义的队列。当在<literal
@@ -45,7 +45,7 @@
                <xref linkend="management"/>中有所描述。</para>
         </listitem>
     </itemizedlist>
-    <para>HornetQ的内核过滤器表达式与JMS选择器表达式是有所不同的。JMS选择器应用于JMS消息，而HornetQ的内核过滤
+    <para>ActiveMQ的内核过滤器表达式与JMS选择器表达式是有所不同的。JMS选择器应用于JMS消息，而ActiveMQ的内核过滤
         器表达式则用于内核消息。</para>
     <para>以下标识符可以用在内核消息的过滤器表达式中，用来引用内核消息的属性：</para>
     <itemizedlist>

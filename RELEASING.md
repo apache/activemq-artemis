@@ -18,12 +18,12 @@ Assuming current version is ``X.Y.Z-SNAPSHOT``
 
 0. Update the release notes.
 1. Prepare a single commit changing all version tags in all pom's.
-2. tag this commit locally by 'git tag -a HornetQ_X_Y_Z_Final -m "release for x.y.z.Final' or what ever the version is
+2. tag this commit locally by 'git tag -a ActiveMQ_X_Y_Z_Final -m "release for x.y.z.Final' or what ever the version is
 3. remember to update the version in the main pom, think of a cool name if you can
 4. update the hornetq-maven-plugin plugin in the main pom to one that is released, if needed release a new version of the plugin.
 5. Either use ``git revert`` to create a new commit reverting the commit with the version changes. Or change again all versions to ``R.S.T-SNAPSHOT``.
 6. push both commits with version changes together, including them in the same _pull-request_.
-7. push the committed tag upstream 'git push upstream HornetQ_X_Y_Z_Final'
+7. push the committed tag upstream 'git push upstream ActiveMQ_X_Y_Z_Final'
 8. download and unpack the tag from github
 9. firstly upload the maven artifacts to the staged repository 'mvn -Pmaven-release deploy' (you will need the repository details in your settings.xml'
 10. go to nexus (https://repository.jboss.org/nexus/index.html), log in, select staging repositories, select the staging profile that you uploaded and close it.
@@ -55,7 +55,7 @@ If everything is ok then release by:
 
 if there is a problem
 
-1. delete the tag locally 'git tag -d HornetQ_X_Y_Z_Final"
-2. delete the tag remotely 'git push origin :refs/tags/HornetQ_X_Y_Z_Final"
+1. delete the tag locally 'git tag -d ActiveMQ_X_Y_Z_Final"
+2. delete the tag remotely 'git push origin :refs/tags/ActiveMQ_X_Y_Z_Final"
 3. go to nexus and drop the profile
 4. fix what's broken and start again

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Message Redistribution Example</title>
+    <title>ActiveMQ Message Redistribution Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -11,10 +11,10 @@
      <p>This example demonstrates message redistribution between queues with the same name deployed in different
      nodes of a cluster.</p>
      <p>As demontrated in the clustered queue example, if queues with the same name are deployed on different nodes of
-     a cluster, HornetQ can be configured to load balance messages between the nodes on the server side.</p>
+     a cluster, ActiveMQ can be configured to load balance messages between the nodes on the server side.</p>
      <p>However, if the consumer(s) on a particular node are closed, then messages in the queue at that node can
      appear to be stranded, since they have no local consumers.</p>
-     <p>If this is undesirable, HornetQ can be configured to <b>redistribute</b> messages from the node
+     <p>If this is undesirable, ActiveMQ can be configured to <b>redistribute</b> messages from the node
      with no consumers, to nodes where there are consumers. If the consumers have JMS selectors set on them, then they
      will only be redistributed to nodes with consumers whose selectors match.</p>
      <p>By default, message redistribution is disabled, but can be enabled by specifying some AddressSettings configuration
@@ -33,7 +33,7 @@
    &lt;/address-setting&gt;
    </code>
      </pre>    
-     <p>For more information on HornetQ load balancing, and clustering in general, please see the clustering
+     <p>For more information on ActiveMQ load balancing, and clustering in general, please see the clustering
      section of the user manual.</p>      
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
@@ -136,8 +136,8 @@
         
         <li>We now consume those messages on *both* server 0 and server 1.
          We note the messages have been distributed between servers in a round robin fashion.
-         HornetQ has <b>load balanced</b> the messages between the available consumers on the different nodes.
-         HornetQ can be configured to always load balance messages to all nodes, or to only balance messages
+         ActiveMQ has <b>load balanced</b> the messages between the available consumers on the different nodes.
+         ActiveMQ can be configured to always load balance messages to all nodes, or to only balance messages
          to nodes which have consumers with no or matching selectors. See the user manual for more details.</li>
          JMS Queues implement point-to-point message where each message is only ever consumed by a
          maximum of one consumer.
@@ -172,7 +172,7 @@
         </pre>
         
         <li>Since there is no more consumer on node 1, the messages on node 1 are now stranded (no local consumers)
-        so HornetQ will redistribute them to node 0 so they can be consumed. We consume them from
+        so ActiveMQ will redistribute them to node 0 so they can be consumed. We consume them from
         node 0.</li>
         <pre class="prettyprint">
            <code>

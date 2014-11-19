@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Topic Hierarchy Example</title>
+    <title>ActiveMQ Topic Hierarchy Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,9 +8,9 @@
   <body onload="prettyPrint()">
      <h1>Topic Hierarchy Example</h1>
 
-     <p>HornetQ supports topic hierarchies. With a topic hierarchy you can register a subscriber with a wild-card
+     <p>ActiveMQ supports topic hierarchies. With a topic hierarchy you can register a subscriber with a wild-card
      and that subscriber will receive any messages routed to an address that match the wildcard.</p>
-     <p>HornetQ wild-cards can use the character '#' which means "match any number of words", and
+     <p>ActiveMQ wild-cards can use the character '#' which means "match any number of words", and
      the character '*' which means "match a single word". Words are delimited by the character "."</p>
      <p>For example if I subscribe using the wild-card "news.europe.#", then that would match messages sent to the addresses
      "news.europe", "news.europe.sport" and "news.europe.entertainment", but it does not match messages sent to the
@@ -75,7 +75,7 @@
 
         <li>Instantiate a topic representing the wildcard we're going to subscribe to.</li>
         <pre class="prettyprint">
-           <code>Topic topicSubscribe = HornetQJMSClient.createHornetQTopic("news.europe.#");</code>
+           <code>Topic topicSubscribe = ActiveMQJMSClient.createActiveMQTopic("news.europe.#");</code>
         </pre>
 
         <li>Create a consumer (topic subscriber) that will consume using that wildcard.
@@ -93,11 +93,11 @@
          we're going to send messages to. You could look these up from JNDI if you wanted to.</li>
         <pre class="prettyprint">
            <code>
-         Topic topicNewsUsaWrestling = HornetQJMSClient.createHornetQTopic("news.usa.wrestling");
+         Topic topicNewsUsaWrestling = ActiveMQJMSClient.createActiveMQTopic("news.usa.wrestling");
          
-         Topic topicNewsEuropeSport = HornetQJMSClient.createHornetQTopic("news.europe.sport");
+         Topic topicNewsEuropeSport = ActiveMQJMSClient.createActiveMQTopic("news.europe.sport");
          
-         Topic topicNewsEuropeEntertainment = HornetQJMSClient.createHornetQTopic("news.europe.entertainment");</code>
+         Topic topicNewsEuropeEntertainment = ActiveMQJMSClient.createActiveMQTopic("news.europe.entertainment");</code>
         </pre>
 
         <li>Send a message destined for the usa wrestling topic.</li>

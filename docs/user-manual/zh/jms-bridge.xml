@@ -18,16 +18,16 @@
 <!-- ============================================================================= -->
 <chapter id="jms-bridge">
         <title>JMS桥（Bridge）</title>
-        <para>HornetQ提供了JMS消息桥服务。</para>
+        <para>ActiveMQ提供了JMS消息桥服务。</para>
         <para>桥的作用是从一个消息源队列或话题（topic）接收消息，然后将它们发送到一个目标队列或话题。通常源和
             目的不在同一台服务器上。</para>
         <para>作为消息源的服务器与目的服务器不必在同一个集群内。通过桥的作用，两台服务器可以通过非可靠的网络连接
             起来，比如WAN。</para>
-        <para>桥可以作为单独的服务部署，或者部署于HornetQ单独服务器内，或者部署在JBoss应用服务器中。源或目的可以
+        <para>桥可以作为单独的服务部署，或者部署于ActiveMQ单独服务器内，或者部署在JBoss应用服务器中。源或目的可以
             在同一个VM中，也可以在其它的VM中。</para>
-        <para>桥还可以在HornetQ服务器与其它JMS 1.1 兼容的服务器之间进行消息的传递。
+        <para>桥还可以在ActiveMQ服务器与其它JMS 1.1 兼容的服务器之间进行消息的传递。
         <note><para>还要将JMS桥与核心桥混淆。JMB桥可以连接两个JMS 1.1兼容的服务器，它使用的是JMS接口。
-                    而核心桥（在<xref linkend="core-bridges"/>中描述）使用核心API将两个HornetQ实例连接
+                    而核心桥（在<xref linkend="core-bridges"/>中描述）使用核心API将两个ActiveMQ实例连接
                     起来。核心桥的性能通常要比JMS桥的性能高，所以尽可能使用核心桥。另外核心桥可以不用XA
                     就可以实现<emphasis>一次并只有一次</emphasis>的消息传递保证。</para></note></para>
         <para>桥可以适当处理连接故障。当源的连接或目的的连接发生故障时，例如网络故障，桥将不断重试连接直到连接
@@ -42,8 +42,8 @@
 &lt;deployment xmlns="urn:jboss:bean-deployer:2.0">
 
        &lt;bean name="JMSBridge" class="org.apache.activemq.api.jms.bridge.impl.JMSBridgeImpl">
-           &lt;!-- HornetQ must be started before the bridge -->
-           &lt;depends>HornetQServer&lt;/depends>
+           &lt;!-- ActiveMQ must be started before the bridge -->
+           &lt;depends>ActiveMQServer&lt;/depends>
            &lt;constructor>
                &lt;!-- Source ConnectionFactory Factory -->
                &lt;parameter>
@@ -311,14 +311,14 @@
         <section>
             <title>源和目的的连接工厂</title>
             <para>源工目的的连接工厂分别用于创建到源和到目的的连接。</para>
-            <para>上面的配置例子中使用的是HornetQ提供的默认实现。它使用JNDI查找连接工厂。对于其它的应用服务器
+            <para>上面的配置例子中使用的是ActiveMQ提供的默认实现。它使用JNDI查找连接工厂。对于其它的应用服务器
                 或JMS提供者，需要实现相应的实现，即实现<literal
                     >org.apache.activemq.jms.bridge.ConnectionFactoryFactory</literal>接口。</para>
         </section>
         <section>
             <title>源和目的的目标工厂</title>
             <para>它们用来创建或查找相应的目标。</para>
-            <para>上面例子中，我们使用了HornetQ的默认实现，从JNDI中查找相应的对象。</para>
+            <para>上面例子中，我们使用了ActiveMQ的默认实现，从JNDI中查找相应的对象。</para>
             <para>要提供新的实现，只要实现接口<literal
                     >org.apache.activemq.jms.bridge.DestinationFactory</literal>即可。</para>
         </section>
@@ -342,7 +342,7 @@
             <section>
                 <title>ONCE_AND_ONLY_ONCE</title>
                 <para>这个模式保证消息从源发送到目的一次，并且只有一次。（有时这个模式又称为“只一次”）。若源与目的处于
-                    同一个HornetQ服务器中，这个模式通过本地事务来保证消息的发送和通知。如果是在不同的服务器上，
+                    同一个ActiveMQ服务器中，这个模式通过本地事务来保证消息的发送和通知。如果是在不同的服务器上，
                     则会使用一个JTA的事务将发送和接收包括其中。这里使用的JTA事务是JBoss的实现，它包含有一个
                     完整的事务恢复管理器，所以能提供高度可靠的持久性。如果使用JTA则桥的所有连接工厂必须是
                     XAConnectionFactory。这种模式的效率通常是最低的，因为它需要额外记录事务的日志。</para>
@@ -360,7 +360,7 @@
               <title>JMS bridge中的超时问题</title>
               <para>有时候目标服务器或源服务器会连接不上，这里桥就会尝试重新连接。重新连接的次数由<literal>Max Retries</literal>
               参数决定，两次重新连接的时间间隔由<literal>Failure Retry Interval</literal>定义。</para>
-              <para>在重新尝试时会进行JNDI的查找。HornetQ的JNDI使用的是JBoss的实现，如果在JNDI查找过程中网络出现故障，
+              <para>在重新尝试时会进行JNDI的查找。ActiveMQ的JNDI使用的是JBoss的实现，如果在JNDI查找过程中网络出现故障，
               查找的操作可能挂起。为了避免这种情况的发生，我们可以为JNDI设置适当的超时。这是通过定义初始上下文的
               <literal>jnp.timeout</literal>参数和<literal>jnp.sotimeout</literal>参数来
               实现的。第一个参数定义了初始连接的超时，第二个参数定义的是套接字的读取超时。</para>
@@ -376,7 +376,7 @@
                 <title>例子</title>
                 <para>参见<xref linkend="examples.javaee.jms-bridge"/>。这个例子展示了如何在JBoss应用服务器中配置并使用
                     JMS桥从一处目标将消息转发到另一个目标。</para>
-                <para>关于如何在两个单独HornetQ服务器间使用桥的例子，请参见<xref linkend="examples.jms.jms-bridge"/>。</para>
+                <para>关于如何在两个单独ActiveMQ服务器间使用桥的例子，请参见<xref linkend="examples.jms.jms-bridge"/>。</para>
             </section>
         </section>
 </chapter>

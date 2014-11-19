@@ -11,7 +11,7 @@
    <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
 
-    <!-- true to expose HornetQ resources through JMX -->
+    <!-- true to expose ActiveMQ resources through JMX -->
     <jmx-management-enabled>true</jmx-management-enabled>
 
    <!-- Connectors -->

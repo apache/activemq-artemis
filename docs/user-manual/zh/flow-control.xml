@@ -26,10 +26,10 @@
          客户端不断积累，最終引起内存溢出的错误。</para>
       <section id="flow-control.consumer.window">
          <title>基于窗口的流控制</title>
-         <para>默认情况下HornetQ的接收者一端会将消息进行缓存以提高性能。如果不这样做，那每次接收者收到一个消息，
+         <para>默认情况下ActiveMQ的接收者一端会将消息进行缓存以提高性能。如果不这样做，那每次接收者收到一个消息，
             都得通知服务器传递下一个消息，然后服务器再将下一个消息传递过来。这就增加了通信的次数。</para>
          <para>对于每一次消息传递都有一个网络的往返通信，这样降低了性能。</para>
-         <para>为了避免这样，HornetQ将每个接收者的消息提前接收到一处缓存中。每个缓存的最大值由
+         <para>为了避免这样，ActiveMQ将每个接收者的消息提前接收到一处缓存中。每个缓存的最大值由
             <literal>consumer-window-size</literal>参数决定（单位字节）。</para>
          <para><literal>consumer-window-size</literal>的默认值是 1 MiB （1024 * 1024
             字节）。</para>
@@ -97,9 +97,9 @@
    &lt;consumer-window-size&gt;0&lt;/consumer-window-size&gt;
 &lt;/connection-factory&gt;
             </programlisting>
-            <para>如果直接实例化连接工厂，则使用<literal>HornetQConnectionFactory.setConsumerWindowSize()</literal>
+            <para>如果直接实例化连接工厂，则使用<literal>ActiveMQConnectionFactory.setConsumerWindowSize()</literal>
                方法来设定窗口大小。</para>
-            <para>参见例子<xref linkend="examples.no-consumer-buffering"/>来了解如何配置HornetQ来
+            <para>参见例子<xref linkend="examples.no-consumer-buffering"/>来了解如何配置ActiveMQ来
                关闭接收者的缓存。</para>
          </section>
       </section>
@@ -112,7 +112,7 @@
          <para>参见有关速率流控制的例子<xref linkend="examples.consumer-rate-limit"/>以进一步了解它的工作原理。</para>
          <section id="flow-control.rate.core.api">
             <title>使用核心接口（Core API）</title>
-            <para>HornetQ的核心接口的<literal
+            <para>ActiveMQ的核心接口的<literal
                   >ClientSessionFactory.setConsumerMaxRate(int consumerMaxRate)</literal>方法或
                某些<literal>ClientSession.createConsumer()</literal>方法可以实现对流的速率控制。</para>
          </section>
@@ -131,7 +131,7 @@
       of 10 messages per sec -->
       &lt;consumer-max-rate>10&lt;/consumer-max-rate>
  &lt;/connection-factory></programlisting>
-            <para>如果是直接实例化连接工厂，则通过<literal>HornetQConnectionFactory.setConsumerMaxRate(int
+            <para>如果是直接实例化连接工厂，则通过<literal>ActiveMQConnectionFactory.setConsumerMaxRate(int
                   consumerMaxRate)</literal>方法来设定最大流速率。</para>
             <note>
                <para>速率流控制可以与窗口流控制结合使用。速率控制只规定了客户端每秒接收多少消息。因此如果你设定
@@ -143,7 +143,7 @@
    </section>
    <section>
       <title>发送者（producer）的流控制</title>
-      <para>HornetQ还可以控制客户端向服务器发送消息的速度，以避免服务器因大量数据过载。</para>
+      <para>ActiveMQ还可以控制客户端向服务器发送消息的速度，以避免服务器因大量数据过载。</para>
       <section>
          <title>基于窗口的流控制</title>
          <para>与接收者的相应的控制相似。在默认条件下，发送者要有足够的份额（credits）才可以向服务器的地址发送消息。
@@ -172,12 +172,12 @@
                   &lt;/entries>
                   &lt;producer-window-size>10&lt;/producer-window-size>
                &lt;/connection-factory></programlisting>
-            <para>如果是直接实例化连接工厂，则使用<literal>HornetQConnectionFactory.setProducerWindowSize(int
+            <para>如果是直接实例化连接工厂，则使用<literal>ActiveMQConnectionFactory.setProducerWindowSize(int
                   producerWindowSize)</literal>方法来设定窗口大小。</para>
          </section>
          <section>
             <title>限定发送者窗口流控制</title>
-            <para>通常情况下客户端请求多少份额，HornetQ服务器就给予多少份额。然而我们还可以针对每个地址来设定一个最大
+            <para>通常情况下客户端请求多少份额，ActiveMQ服务器就给予多少份额。然而我们还可以针对每个地址来设定一个最大
                的份额值，以使服务器给出的份额都不大于该值。这样可以防止一个地址的内存溢出。</para>
             <para>例如，如果有一个队列称为“myqueue”。将它的最大内存值设为10MiB，则服务器就会控制给出的份额以保证向该队列的地
                址发送消息时不会占大于10MiB的内存空间。</para>
@@ -211,7 +211,7 @@
       </section>
       <section>
          <title>速率流控制</title>
-         <para>HornetQ也可以控制发送者发送消息的速率。单位是每秒消息数。通过设定速率可保证发送者的发送速率不超过某个值。</para>
+         <para>ActiveMQ也可以控制发送者发送消息的速率。单位是每秒消息数。通过设定速率可保证发送者的发送速率不超过某个值。</para>
          <para>速率必须是一个正整数。如果设为 <literal>-1</literal> 则关闭速率流控制。默认值是<literal>-1</literal>。</para>
          <para>请参见例子<xref linkend="producer-rate-limiting-example"/>进一步了解速率流控制的使用方法。</para>
          <section id="flow-control.producer.rate.core.api">
@@ -235,7 +235,7 @@
       of 10 messages per sec -->
       &lt;producer-max-rate>10&lt;/producer-max-rate>
  &lt;/connection-factory></programlisting>
-            <para>如果直接实例化连接工厂，则使用<literal>HornetQConnectionFactory.setProducerMaxRate(int
+            <para>如果直接实例化连接工厂，则使用<literal>ActiveMQConnectionFactory.setProducerMaxRate(int
                   consumerMaxRate)</literal>方法来设置。</para>
          </section>
       </section>

@@ -20,7 +20,7 @@
 
 <chapter id="wildcard-routing">
     <title>使用通配符实现消息路由</title>
-    <para>HornetQ支持使用带通配符的地址对消息路由。</para>
+    <para>ActiveMQ支持使用带通配符的地址对消息路由。</para>
     <para>例如，当创建一个队列时使用了地址<literal>queue.news.#</literal>，那么它就能接收
           所有和这个地址通配符相配的每一个地址的消息。这样的地址如 <literal
             >queue.news.europe</literal> 或 <literal>queue.news.usa</literal> 或 <literal

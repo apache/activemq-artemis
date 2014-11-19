@@ -20,7 +20,7 @@
     <title>发送与提交的保证</title>
     <section>
         <title>事务保证</title>
-        <para>在提交或回滚事务时，HornetQ将提交或回滚的请求发送到服务器，客户端阻塞等待服务器的响应。</para>
+        <para>在提交或回滚事务时，ActiveMQ将提交或回滚的请求发送到服务器，客户端阻塞等待服务器的响应。</para>
         <para>当服务器端收到提交或回滚的请求时，它将事务信息记录到日志（journal）中。然后向客户端发回
               响应。参数<literal>journal-sync-transactional</literal>控制着如何向客户端发回响应。
             如果它的值是<literal>false</literal>，服务器向客户端发回响应时事务的处理結果不一定已经被
@@ -32,7 +32,7 @@
     </section>
     <section id="non-transactional-sends">
         <title>非事务性消息发送的保证</title>
-        <para>使用非事务性会话发送消息时，经过适当配置HornetQ，客户端在发送后以阻塞的方式等待，直到确认发出
+        <para>使用非事务性会话发送消息时，经过适当配置ActiveMQ，客户端在发送后以阻塞的方式等待，直到确认发出
             的消息已经到达服务器后再返回。可以对持久化或非持久化的消息分别配置，具体参数如下：</para>
         <itemizedlist>
             <listitem>
@@ -49,13 +49,13 @@
         </itemizedlist>
         <para>将发送设置为阻塞方式会降低程序的效率。因为每次发送都需要一次网络往返的过程，然后才可以进行下次发送。
             这样发送消息的速度将受网络往返时间（RTT）的限制。这样你的网络带宽就可能没有被充分利用。为了提高效率，我们
-            建议采用事务来批量发送消息。因为在事务中，只有在提交或回滚时阻塞。另外你还可以利用HornetQ高级的
+            建议采用事务来批量发送消息。因为在事务中，只有在提交或回滚时阻塞。另外你还可以利用ActiveMQ高级的
             <emphasis>异步发送通知功能</emphasis>。这一功能在<xref linkend="asynchronous-send-acknowledgements"/>
             进行了描述。</para>
         <para>使用JMS时，如果JMS的连接工厂是在服务器端被注册到JNDI服务，你需要配置
                 <literal>hornetq-jms.xml</literal>文件中的<literal>block-on-durable-send</literal>
                 和<literal>block-on-non-durable-send</literal>。如果不使用JNDI，可以调用
-                <literal>HornetQConnectionFactory</literal>相应的设置方法进行配置。</para>
+                <literal>ActiveMQConnectionFactory</literal>相应的设置方法进行配置。</para>
         <para>如果你使用的是内核服务，你可以直接在<literal
                 >ClientSessionFactory</literal>上用相关的方法设置相应的参数。</para>
         <para>当服务器从一个非事务性的会话收到一个消息时，如果这个消息是持久的并且此消息被路由到至少一个持久的队列中，
@@ -65,14 +65,14 @@
     </section>
     <section id="send-guarantees.nontrans.acks">
         <title>非事务性通知的保证</title>
-        <para>当客户端使用非事务性会话向服务器通知消息收到时，可以配置HornetQ使得客户端的通知阻塞直到服务器收到
+        <para>当客户端使用非事务性会话向服务器通知消息收到时，可以配置ActiveMQ使得客户端的通知阻塞直到服务器收到
             了通知并返回为止。其相应的配置参数是<literal>BlockOnAcknowledge</literal>。如果该参数设为
             <literal>true</literal>则所有的通过非事务会话的消息通知都是阻塞式的。如果你想要的消息传递策略是
             <emphasis>最多一次</emphasis>的话，那么你需要将此参数设为。默认值是<literal>false</literal>。</para>
     </section>
     <section id="asynchronous-send-acknowledgements">
         <title>异步发送通知</title>
-        <para>如果你使用的是非事务会话来发送消息，并且希望保证每个发送出去的消息都到达服务器的话，你可以将HornetQ配置
+        <para>如果你使用的是非事务会话来发送消息，并且希望保证每个发送出去的消息都到达服务器的话，你可以将ActiveMQ配置
             成阻塞的方式，如<xref linkend="non-transactional-sends"/>讨论的那样。这样做的一个缺点是性能的降低。
             因为这样每发送一个消息就需要一次网络的往返通信。如果网络时延越长，消息发送的效率就越低。同时网络的带宽对消息
             的发送没有影响。</para>
@@ -82,7 +82,7 @@
         <para>如果每个消息的大小&lt; 1500字节，而且网络的最大传输单元（MTU）是1500字节。那么理论上1GiB的网络
             最大的传输速率是 (1024 * 1024 * 1024 / 8) / 1500 = 89478 消息每秒！尽管这不是一个精确的工程计算但
             你可以看出阻塞式的发送对性能的影响会有多大。</para>
-        <para>为了解决这个问题，HornetQ提供了一种新的功能，称为<emphasis>异步发送通知</emphasis>。
+        <para>为了解决这个问题，ActiveMQ提供了一种新的功能，称为<emphasis>异步发送通知</emphasis>。
             它允许消息以非阻塞的方式发送，同时从另一个连接流中异步地接收服务器的通知。这样就使得消息的发送与通知分开来，
             避免了阻塞方式带来的缺点。在保证消息可行发送到服务器的同时提高了呑吐量。</para>
         <para>参数用来定义消息发送通知的窗口大小。它属于连接工厂或客户会话工厂。参见<xref linkend="client-reconnection"/>

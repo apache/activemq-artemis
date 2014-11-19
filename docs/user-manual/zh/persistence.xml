@@ -18,23 +18,23 @@
 <!-- ============================================================================= -->
 <chapter id="persistence">
     <title>持久化</title>
-    <para>本章我们将描述HornetQ的持久化技术，包括持久化的工作原理和配置方法。</para>
-    <para>HornetQ拥有一个高性能的日志（journal）模块来处理持久化。因此它并不依赖一个外部的数据库或第三方持久化产品。这个
+    <para>本章我们将描述ActiveMQ的持久化技术，包括持久化的工作原理和配置方法。</para>
+    <para>ActiveMQ拥有一个高性能的日志（journal）模块来处理持久化。因此它并不依赖一个外部的数据库或第三方持久化产品。这个
         日志模块针对消息的处理进行了高度的优化。</para>
-    <para>所谓HornetQ日志是一个<emphasis>只添加</emphasis>系统。它由一组磁盘文件构成。每个文件都是预先创建好的并且
-        大小是固定的。文件在创建时都进行了格式化。随着HornetQ不断地处理消息，如消息的增加、更新、删除等，一个个记录被添加
+    <para>所谓ActiveMQ日志是一个<emphasis>只添加</emphasis>系统。它由一组磁盘文件构成。每个文件都是预先创建好的并且
+        大小是固定的。文件在创建时都进行了格式化。随着ActiveMQ不断地处理消息，如消息的增加、更新、删除等，一个个记录被添加
         到日志中。当一个日志文件写满时，新记录就会写到下一个文件。</para>
     <para>由于对日志的写入只是对文件的添加，这样有效减少了随机寻道的操作。而随机寻道的操作是磁盘操作中最耗时的操作。
         所以这种设计可以使磁头的运动降到最低，效率最高。</para>
     <para>而文件的大小是可以配置的。这使我们可以将文件大小配置为刚好占满一个磁盘柱面。不过现代的磁盘技术是复杂多样的，
         我们并不能控制文件与磁盘柱面的对应关系。尽管如此，我们通过最大限度地降低文件对磁盘柱面的占用，来降低磁头的运动。
         这是因为在同一个柱面的存取只需要盘面的转动而不需要磁头的运动。</para>
-    <para>当被删除的记录越来越多时，有的文件最終会变成一个没有有效记录的文件。这样的文件就可以回收再利用。HornetQ有
+    <para>当被删除的记录越来越多时，有的文件最終会变成一个没有有效记录的文件。这样的文件就可以回收再利用。ActiveMQ有
         一套复杂的文件回收算法来判断一个日志文件是否可以被回收。</para>
-    <para>HornetQ还有一套文件整理的算法，它用来将日志文件中不用的空隙移除以达到更高的存贮效率。</para>
+    <para>ActiveMQ还有一套文件整理的算法，它用来将日志文件中不用的空隙移除以达到更高的存贮效率。</para>
     <para>这个日志系统全面支持事务功能。根据需要它可以支持本地事务或XA型事务。</para>
-    <para>日志系统的大部分是用Java实现的，但是HornetQ在其中实现了一层抽象的文件系统，这样就使得其它的语言实现能
-        方便地“插入”到日志模块中。实际上HornetQ自带有两种实现：</para>
+    <para>日志系统的大部分是用Java实现的，但是ActiveMQ在其中实现了一层抽象的文件系统，这样就使得其它的语言实现能
+        方便地“插入”到日志模块中。实际上ActiveMQ自带有两种实现：</para>
     <itemizedlist>
         <listitem>
             <para>Java <ulink url="http://en.wikipedia.org/wiki/New_I/O">NIO</ulink>。</para>
@@ -44,7 +44,7 @@
         <listitem id="aio-journal">
             <para>Linux 异步IO （Asynchronous IO）</para>
             <para>第二种是采用的Linux系统中的异步IO技术（AIO）。它包括了少量的平台相关的代码（native code)来
-　　　　　　　　　　调用AIO的接口。当数据被保存到磁盘上后，AIO会回调HornetQ进行通知。这样，HornetQ就避免了磁盘写
+　　　　　　　　　　调用AIO的接口。当数据被保存到磁盘上后，AIO会回调ActiveMQ进行通知。这样，ActiveMQ就避免了磁盘写
                 的同步操作。</para>
             <para>使用AIO通常可以有比NIO更高的性能。</para>
             <para>采用AIO的日志只能在运行 Linux kernel 2.6 或以上版本的内核的系统中才有。另外你需要安装libaio。
@@ -55,11 +55,11 @@
             <para>libaio是Linux内核项目的一部分。</para>
         </listitem>
     </itemizedlist>
-    <para>标准的HornetQ核心服务器使用了两种日志：</para>
+    <para>标准的ActiveMQ核心服务器使用了两种日志：</para>
     <itemizedlist id="persistence.journallist">
         <listitem>
             <para>绑定日志</para>
-            <para>这个日志用来保存与绑定有关的数据。其中包括在HornetQ上部署的队列及其属性，还有ID序列计数器。 </para>
+            <para>这个日志用来保存与绑定有关的数据。其中包括在ActiveMQ上部署的队列及其属性，还有ID序列计数器。 </para>
             <para>绑定日志是一个NIO型日志。与消息日志相比它的呑吐量是比较低的。</para>
             <para>这种日志文件的名字采用<literal>hornetq-bindings</literal>作为前缀。每个文件都有
                    <literal>bindings</literal>这样的扩展。文件大小是<literal
@@ -77,7 +77,7 @@
         <listitem>
             <para>消息日志</para>
             <para>这个日志用来存贮所有消息相关的数据，包括消息本身和重复ID缓存。</para>
-            <para>默认情况下HornetQ总是优先使用AIO型日志。如果AIO型日志不可用（比如在非Linux平台上运行，或系统内核版本不同）
+            <para>默认情况下ActiveMQ总是优先使用AIO型日志。如果AIO型日志不可用（比如在非Linux平台上运行，或系统内核版本不同）
                 它将自动使用NIO型日志。</para>
             <para>这种日志文件的名字采用<literal>hornetq-data</literal>。作为前缀。每个文件都有
                 　<literal>hq</literal>作为扩展名。默认的文件大小是 <literal
@@ -85,8 +85,8 @@
         </listitem>
     </itemizedlist>
     <para>对于超大消息，Hornet将它们保存在消息日志之外的地方。详见<xref linkend="large-messages"/>.</para>
-    <para>HornetQ还可以在内存不够用时将消息暂存到磁盘上。相关的配置和说明参见<xref linkend="paging"/>。</para>
-    <para>如果不需要持久功能，HornetQ还可以配置成非持久的消息系统。参见<xref linkend="persistence.enabled"/>。</para>
+    <para>ActiveMQ还可以在内存不够用时将消息暂存到磁盘上。相关的配置和说明参见<xref linkend="paging"/>。</para>
+    <para>如果不需要持久功能，ActiveMQ还可以配置成非持久的消息系统。参见<xref linkend="persistence.enabled"/>。</para>
     <section id="configuring.bindings.journal">
         <title>配置绑定日志</title>
         <para>绑定日志的配置参数在 <literal
@@ -130,16 +130,16 @@
                 <para>有效值是<literal>NIO</literal> 或者 <literal>ASYNCIO</literal>。</para>
                 <para>Choosing <literal>NIO</literal> chooses the Java NIO journal. Choosing
                         <literal>AIO</literal> 选择作用异步IO型日志。如果你的平台不是Linux或者你没有安装
-                    libaio，HornetQ会自动检测到并使用<literal>NIO</literal>。</para>
+                    libaio，ActiveMQ会自动检测到并使用<literal>NIO</literal>。</para>
             </listitem>
             <listitem id="configuring.message.journal.journal-sync-transactional">
                 <para><literal>journal-sync-transactional</literal></para>
-                <para>如果设为true，HornetQ会保证在事务的边界操作时（commit, prepare和rollback）将事务数据
+                <para>如果设为true，ActiveMQ会保证在事务的边界操作时（commit, prepare和rollback）将事务数据
                     写到磁盘上。默认的值是 <literal>true</literal>。</para>
             </listitem>
             <listitem id="configuring.message.journal.journal-sync-non-transactional">
                 <para><literal>journal-sync-non-transactional</literal></para>
-                <para>如果设为true HornetQ将保证每次都将非事务性消息数据（发送和通知）保存到磁盘上。默认值是 <literal>true</literal>。</para>
+                <para>如果设为true ActiveMQ将保证每次都将非事务性消息数据（发送和通知）保存到磁盘上。默认值是 <literal>true</literal>。</para>
             </listitem>
             <listitem id="configuring.message.journal.journal-file-size">
                 <para><literal>journal-file-size</literal></para>
@@ -148,9 +148,9 @@
             </listitem>
             <listitem id="configuring.message.journal.journal-min-files">
                 <para><literal>journal-min-files</literal></para>
-                <para>最少日志文件数。当HornetQ启动时会创建这一数量的文件。</para>
+                <para>最少日志文件数。当ActiveMQ启动时会创建这一数量的文件。</para>
                 <para>创建并初始化日志文件是一项费时的操作，通常不希望这些操作在服务运行时执行。预先创建并初始化这些
-                    日志文件将会使HornetQ在工作时避免浪费不必要的时间。</para>
+                    日志文件将会使ActiveMQ在工作时避免浪费不必要的时间。</para>
                 <para>根据你的应用中队列中消息量的实际要求可以适当调节这一参数。</para>
             </listitem>
             <listitem id="configuring.message.journal.journal-max-io">
@@ -212,7 +212,7 @@
     </section>
     <section id="installing-aio">
         <title>安装AIO</title>
-        <para>Java NIO日志的性能是很好的。但是如果你是在Linux 内核2.6版本以上的系统中运行HornetQ，我们强烈建议
+        <para>Java NIO日志的性能是很好的。但是如果你是在Linux 内核2.6版本以上的系统中运行ActiveMQ，我们强烈建议
             你使用 <literal>AIO</literal>日志，以获得更佳的性能。</para>
         <para>在早期的Linux版本中或其它操作系统中不可以使用 AIO日志。</para>
         <para>如果你的Linux内核是2.6版本或以上但没有安装 <literal
@@ -223,8 +223,8 @@
             <programlisting>apt-get install libaio</programlisting></para>
     </section>
     <section id="persistence.enabled">
-        <title>配置HornetQ不使用持久化</title>
-        <para>在一些情况下消息系统并不需要持久化。这时可以配置HornetQ不使用持久层。只要将<literal
+        <title>配置ActiveMQ不使用持久化</title>
+        <para>在一些情况下消息系统并不需要持久化。这时可以配置ActiveMQ不使用持久层。只要将<literal
                 >activemq-configuration.xml</literal>文件中的<literal>persistence-enabled</literal>
               参数设为<literal>false</literal>即可。 </para>
         <para>注意如果你将该参数设为 false来关闭持久化，就意味着所有的绑定数据、消息数据、超大消息数据、重复ID缓冲以及转移（paging）数据都将不会被持久。</para>

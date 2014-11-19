@@ -20,7 +20,7 @@
 
 <chapter id="intercepting-operations">
    <title>拦截操作</title>
-   <para>HornetQ支持<emphasis>拦截器</emphasis>。拦截器可以拦截进入服务器的数据包。每进入服务器
+   <para>ActiveMQ支持<emphasis>拦截器</emphasis>。拦截器可以拦截进入服务器的数据包。每进入服务器
        一个数据包，拦截器就被调用一次，允许一些特殊和处理，例如对包的审计、过滤等。拦截器可以对数据包
        进行改动。</para>
    <section>

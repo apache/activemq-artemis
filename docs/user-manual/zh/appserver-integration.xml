@@ -18,15 +18,15 @@
 <!-- ============================================================================= -->
 <chapter id="appserver-integration">
     <title>Java EE和应用服务器的集成</title>
-    <para>HornetQ可以容易地安装到JBoss 4应用服务器及其以上版本。有关安装的详细说明请参阅快速指南。</para>
-    <para>HornetQ提供了一个JCA适配器，使得它还可以与其它JEE兼容的应用服务器集成。请参阅其它应用服务器的
+    <para>ActiveMQ可以容易地安装到JBoss 4应用服务器及其以上版本。有关安装的详细说明请参阅快速指南。</para>
+    <para>ActiveMQ提供了一个JCA适配器，使得它还可以与其它JEE兼容的应用服务器集成。请参阅其它应用服务器的
           有关JCA适配器集成的说明来操作。</para>
     <para>JCA适配器的作用是控制消息流入到消息Bean（MDB），并控制消息从各种JEE模块中发出（如EJB和Servlet）。</para>
-    <para>本章讲述这些JEE模块配置HornetQ的基本信息。</para>
+    <para>本章讲述这些JEE模块配置ActiveMQ的基本信息。</para>
     <section>
         <title>配置消息Bean</title>
-        <para>使用HornetQ向MDB传递消息，需要在文件<literal>ra.xml</literal>中配置JCA适配器。该文件在
-            <literal>jms-ra.rar</literal>文件中。默认配置下HornetQ服务使用InVm连接器接收消息。在本章
+        <para>使用ActiveMQ向MDB传递消息，需要在文件<literal>ra.xml</literal>中配置JCA适配器。该文件在
+            <literal>jms-ra.rar</literal>文件中。默认配置下ActiveMQ服务使用InVm连接器接收消息。在本章
             后面列出了可配置的选项。</para>
         <para>所有MDB都需要有目标类型和目标的相关配置。下面就是一个使用annotation配置MDB的例子：</para>
         <programlisting>@MessageDriven(name = "MDBExample",
@@ -41,7 +41,7 @@ public class MDBExample implements MessageListener
    public void onMessage(Message message)...
 }</programlisting>
         <para>上例中配置了MDB从一个队列中接收消息，它的JNDI绑定名为<literal>queue/testQueue</literal>。
-            这个队列必须事先在HornetQ服务器配置文件中配置并部署好的。</para>
+            这个队列必须事先在ActiveMQ服务器配置文件中配置并部署好的。</para>
         <para><literal>ResourceAdapter</literal> annotation用来指出使用哪个适配器。要使用它必须要引入
             <literal>org.jboss.ejb3.annotation.ResourceAdapter</literal> （JBoss AS 5.x或以上）。
             这个类在
@@ -55,10 +55,10 @@ public class MDBExample implements MessageListener
 </programlisting>你还可以将hornetq-ra.rar改名为jms-ra.rar而不需要任何annotation或额外的部署描述信息。但是你需要
             编辑<literal>jms-ds.xml</literal>文件，将其中的<literal>rar-name</literal>项改成相应的值。</para>
         <note>
-           <para>HornetQ是JBoss AS 6默认的JMS提供者。从这个版本开始HornetQ的资源适配器名字是
+           <para>ActiveMQ是JBoss AS 6默认的JMS提供者。从这个版本开始ActiveMQ的资源适配器名字是
                <literal>jms-ra.rar</literal>，并且你不需要在MDB的annotation中指定它。</para>
         </note>
-        <para>HornetQ发布包中的所有例子都使用annotation方法。</para>
+        <para>ActiveMQ发布包中的所有例子都使用annotation方法。</para>
         <section>
             <title>使用容器管理事务（CMT）</title>
             <para>当MDB使用容器管理事务时，消息的传递被包含在一个JTA事务中。事务的提交与回滚是由容器来控制的。如果事务
@@ -270,12 +270,12 @@ public class MyMDB implements MessageListener
    </section>
     <section>
         <title>配置JCA适配器</title>
-        <para>通过JCA适配器可以将HornetQ集成到JEE兼容的模块中，如MDB和EJB。它的配置决定了这些模块如何接收和发送消息。</para>
-        <para>HornetQ的JCA适配器是通过<literal>jms-ra.rar</literal>部署的。它的配置文件中其中的
+        <para>通过JCA适配器可以将ActiveMQ集成到JEE兼容的模块中，如MDB和EJB。它的配置决定了这些模块如何接收和发送消息。</para>
+        <para>ActiveMQ的JCA适配器是通过<literal>jms-ra.rar</literal>部署的。它的配置文件中其中的
               <literal>META-INF/ra.xml</literal>。</para>
         <para>下面是它的具体配置内容：</para>
         <programlisting>&lt;resourceadapter>
-      &lt;resourceadapter-class>org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class>
+      &lt;resourceadapter-class>org.apache.activemq.ra.ActiveMQResourceAdapter&lt;/resourceadapter-class>
       &lt;config-property>
          &lt;description>The transport type&lt;/description>
          &lt;config-property-name>ConnectorClassName&lt;/config-property-name>
@@ -292,7 +292,7 @@ public class MyMDB implements MessageListener
 
       &lt;outbound-resourceadapter>
          &lt;connection-definition>
-            &lt;managedconnectionfactory-class>org.apache.activemq.ra.HornetQRAManagedConnection
+            &lt;managedconnectionfactory-class>org.apache.activemq.ra.ActiveMQRAManagedConnection
             Factory&lt;/managedconnectionfactory-class>
 
             &lt;config-property>
@@ -309,12 +309,12 @@ public class MyMDB implements MessageListener
                &lt;config-property-value>0&lt;/config-property-value>
             &lt;/config-property>
 
-            &lt;connectionfactory-interface>org.apache.activemq.ra.HornetQRAConnectionFactory
+            &lt;connectionfactory-interface>org.apache.activemq.ra.ActiveMQRAConnectionFactory
             &lt;/connectionfactory-interface>
-            &lt;connectionfactororg.apache.activemq.ra.HornetQConnectionFactoryImplonFactoryImpl
+            &lt;connectionfactororg.apache.activemq.ra.ActiveMQConnectionFactoryImplonFactoryImpl
             &lt;/connectionfactory-impl-class>
             &lt;connection-interface>javax.jms.Session&lt;/connection-interface>
-            &lt;connection-impl-class>org.apache.activemq.ra.HornetQRASession
+            &lt;connection-impl-class>org.apache.activemq.ra.ActiveMQRASession
             &lt;/connection-impl-class>
          &lt;/connection-definition>
          &lt;transaction-support>XATransaction&lt;/transaction-support>
@@ -332,7 +332,7 @@ public class MyMDB implements MessageListener
             &lt;messagelistener>
                &lt;messagelistener-type>javax.jms.MessageListener&lt;/messagelistener-type>
                &lt;activationspec>
-                  &lt;activationspec-class>org.apache.activemq.ra.inflow.HornetQActivationSpec
+                  &lt;activationspec-class>org.apache.activemq.ra.inflow.ActiveMQActivationSpec
                   &lt;/activationspec-class>
                   &lt;required-config-property>
                       &lt;config-property-name>destination&lt;/config-property-name>
@@ -357,11 +357,11 @@ public class MyMDB implements MessageListener
         </orderedlist>
         <section>
             <title>适配器的全局参数</title>
-            <para>首先看到的第一个参数是<literal>resourceadapter-class</literal>。这是HornetQ
+            <para>首先看到的第一个参数是<literal>resourceadapter-class</literal>。这是ActiveMQ
                 的适配器类。此参数不可更改。</para>
             <para>在此之后是可配置的参数。前两个配置适配器所使用的传输。其余的用来配置连接工厂。</para>
             <note><para>所有连接工厂的参数在没有定义时使用默认值。参数<literal>reconnectAttempts</literal>
-                        的默认值取-1，表示如果连接失败，HornetQ会不停地尝试重新连接。这个参数只适用于创建远程
+                        的默认值取-1，表示如果连接失败，ActiveMQ会不停地尝试重新连接。这个参数只适用于创建远程
                         连接的情况。如果是InVm连接器，则永远不可能发生连接故障。</para></note>
             <para>下面给出了每个参数的说明：</para>
             <table frame="topbot" border="2">
@@ -650,14 +650,14 @@ public class MyMDB implements MessageListener
                 在这个文件中的连接工厂的配置从主要的配置文件<literal>ra.xml</literal>中继承，
                 但是可以在这里重新定义。下面的例子中给出了重新定义的方法。</para>
             <note>
-            <para>请注意这里的配置只适用于在JBoss应用服务器中安装的HornetQ。如果要在其它JEE应用服务器中
-                使用并配置HornetQ，请参照相应的应用服务器手册。</para>
+            <para>请注意这里的配置只适用于在JBoss应用服务器中安装的ActiveMQ。如果要在其它JEE应用服务器中
+                使用并配置ActiveMQ，请参照相应的应用服务器手册。</para>
             </note>
             <programlisting>&lt;tx-connection-factory>
       &lt;jndi-name>RemoteJmsXA&lt;/jndi-name>
       &lt;xa-transaction/>
       &lt;rar-name>jms-ra.rar&lt;/rar-name>
-      &lt;connection-definition>org.apache.activemq.ra.HornetQRAConnectionFactory
+      &lt;connection-definition>org.apache.activemq.ra.ActiveMQRAConnectionFactory
 &lt;/connection-definition>
       &lt;config-property name="SessionDefaultType" type="String">javax.jms.Topic
       &lt;/config-property>
@@ -777,8 +777,8 @@ private ConnectionFactory connectionFactory;</programlisting>
                    </table>
         </section>
        <section>
-          <title>配置适配器访问单独的HornetQ服务器</title>
-          <para>在有的情况下，消息服务器与应用服务器运行在不同的机器上。这时客户端只需要安装HornetQ的客户端的库文件。本节给出了具体的配置和所需要的jar文件。</para>
+          <title>配置适配器访问单独的ActiveMQ服务器</title>
+          <para>在有的情况下，消息服务器与应用服务器运行在不同的机器上。这时客户端只需要安装ActiveMQ的客户端的库文件。本节给出了具体的配置和所需要的jar文件。</para>
           <section>
           <para>你需要配置两个配置文件。一个是MDB所用的内部适配器，另一个是可以创建外部连接的外部适配器。</para>
           <section>
@@ -797,16 +797,16 @@ private ConnectionFactory connectionFactory;</programlisting>
                    下创建名为
                    <literal>META-INF</literal>
                    的文件夹，然后在些文件夹内创建一个
-                   <literal>ra.xml</literal>配置文件。在HornetQ发布包中
+                   <literal>ra.xml</literal>配置文件。在ActiveMQ发布包中
                    有一个<literal>ra.xml</literal>模板文件供你使用。
                 </para>
-                <para>要配置MDB接收远程HornetQ服务器的消息，你需要修改<literal>deploy/hornet-ra.rar/META-INF</literal>下面的
+                <para>要配置MDB接收远程ActiveMQ服务器的消息，你需要修改<literal>deploy/hornet-ra.rar/META-INF</literal>下面的
                    <literal>ra.xml</literal>文件，将传输层改为netty连接器（不要使用invm连接器）及其相应的参数。下面
                    是一个配置的例子：
                 </para>
 
           <programlisting>
-            &lt;resourceadapter-class&gt;org.apache.activemq.ra.HornetQResourceAdapter&lt;/resourceadapter-class&gt;
+            &lt;resourceadapter-class&gt;org.apache.activemq.ra.ActiveMQResourceAdapter&lt;/resourceadapter-class&gt;
               &lt;config-property&gt;
                  &lt;description&gt;The transport type&lt;/description&gt;
                  &lt;config-property-name&gt;ConnectorClassName&lt;/config-property-name&gt;
@@ -827,7 +827,7 @@ private ConnectionFactory connectionFactory;</programlisting>
              <title>配置外部适配器</title>
                 <para>你还需要创建一个<literal>hornetq-ds.xml</literal>文件来配置外部连接。该文件需要放置在<literal>deploy</literal>
                    下的任意一个文件夹中。在一相标准的安装中这个文件夹是<literal>horneq</literal> 或者 <literal>hornetq.sar</literal>。
-                   当然你可以选择其它文件夹。该文件的名字只要是以<literal>-ds.xml</literal>即可。在HornetQ的发布包中包含有一个模板文件，
+                   当然你可以选择其它文件夹。该文件的名字只要是以<literal>-ds.xml</literal>即可。在ActiveMQ的发布包中包含有一个模板文件，
                    它的名字是<literal>jms-ds.xml</literal>，位置就在config文件夹下。
                 </para>
           <para>下面是一个配置的例子。</para>
@@ -836,19 +836,19 @@ private ConnectionFactory connectionFactory;</programlisting>
               &lt;jndi-name&gt;RemoteJmsXA&lt;/jndi-name&gt;
               &lt;xa-transaction/&gt;
               &lt;rar-name&gt;hornetq-ra.rar&lt;/rar-name&gt;
-              &lt;connection-definition&gt;org.apache.activemq.ra.HornetQRAConnectionFactory&lt;/connection-definition&gt;
+              &lt;connection-definition&gt;org.apache.activemq.ra.ActiveMQRAConnectionFactory&lt;/connection-definition&gt;
               &lt;config-property name="SessionDefaultType" type="java.lang.String"&gt;javax.jms.Topic&lt;/config-property&gt;
               &lt;config-property name="ConnectorClassName" type="java.lang.String"&gt;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property&gt;
               &lt;config-property name="ConnectionParameters" type="java.lang.String"&gt;host=127.0.0.1;port=5446&lt;/config-property&gt;
               &lt;max-pool-size&gt;20&lt;/max-pool-size&gt;
            &lt;/tx-connection-factory&gt;
           </programlisting>
-          <para>这个配置同样是连接到运行在本机上的端口为5446的HornetQ服务器。JEE模块可以通过JNDI查找
+          <para>这个配置同样是连接到运行在本机上的端口为5446的ActiveMQ服务器。JEE模块可以通过JNDI查找
                 <literal>java:/RemoteJmsXA</literal>（由<literal>jndi-name</literal>参数定义）。如上节所述，
                 资源适配器根据文件夹下的配置来创建外部连接。</para>
              <section>
                 <title>依赖的jar文件</title>
-                <para>下面列出了HornetQ所需要的第三方jar文件</para>
+                <para>下面列出了ActiveMQ所需要的第三方jar文件</para>
                 <table frame="topbot" border="2">
                     <title>Jar文件</title>
                     <tgroup cols="3">
@@ -865,17 +865,17 @@ private ConnectionFactory connectionFactory;</programlisting>
                         <tbody>
                             <row>
                                 <entry>hornetq-ra.jar</entry>
-                                <entry>HornetQ资源适配器文件</entry>
+                                <entry>ActiveMQ资源适配器文件</entry>
                                 <entry>deploy/hornetq-ra.rar或相应的位置</entry>
                             </row>
                             <row>
                                 <entry>hornetq-core-client.jar</entry>
-                                <entry>HornetQ核心客户类库</entry>
+                                <entry>ActiveMQ核心客户类库</entry>
                                 <entry>在JBoss的default/lib下或者是$JBOSS_HOME/common/lib下。 </entry>
                             </row>
                             <row>
                                 <entry>hornetq-jms-client.jar</entry>
-                                <entry>HornetQ的JMS类</entry>
+                                <entry>ActiveMQ的JMS类</entry>
                                 <entry>同上</entry>
                             </row>
                             <row>
@@ -914,27 +914,27 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
             或网络崩溃等情况下，事务内所有资源的状态的一致性。有关XA恢复的更多信息请见 <ulink
                 url="http://www.jboss.org/community/wiki/JBossTransactions">JBoss
                 事务</ulink>。</para>
-        <para>当HornetQ与JBoss应用服务器集成时，它可以利用JBoss的事务处理来对消息资源进行恢复。如果消息处理包括
+        <para>当ActiveMQ与JBoss应用服务器集成时，它可以利用JBoss的事务处理来对消息资源进行恢复。如果消息处理包括
             在一个XA事务中，如果服务器出现故障并重启时，恢复管理器将负责恢复事务，这样其中的消息要么被提交，要么被回滚（取
             决于事务的处理决定）。</para>
         <section>
             <title>XA恢复的配置</title>
-            <para>要想HornetQ具有XA恢复功能，则必须配置恢复管理器连接到HornetQ并恢复其资源。下面的参数必须要加到
+            <para>要想ActiveMQ具有XA恢复功能，则必须配置恢复管理器连接到ActiveMQ并恢复其资源。下面的参数必须要加到
                 <literal>conf/jbossts-properties.xml</literal>文件中的<literal>jta</literal>部分:</para>
             <programlisting>
 &lt;properties depends="arjuna" name="jta"&gt;
    ...
                      
-   &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HornetQ1"
-                value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;[连接配置]"/&gt;
+   &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ActiveMQ1"
+                value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;[连接配置]"/&gt;
 &lt;/properties&gt;
             </programlisting>
-            <para>其中<literal>[连接配置]</literal>包括连接HornetQ节点所必需的信息。
+            <para>其中<literal>[连接配置]</literal>包括连接ActiveMQ节点所必需的信息。
                 它的格式是<literal>[连接工厂类名],[用户名], [密码], [连接参数]</literal>。 </para>
             <itemizedlist>
                 <listitem>
                     <para><literal>[连接工厂类名]</literal>指的是<literal>ConnectorFactory</literal>
-                        的类名，用来连接HornetQ服务器。其值可以是<literal
+                        的类名，用来连接ActiveMQ服务器。其值可以是<literal
                             >org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</literal> 或
                             <literal
                             >org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</literal></para>
@@ -951,11 +951,11 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                 </listitem>
             </itemizedlist>
             <note>
-                <para>HornetQ必须有一个与<literal>conf/jbossts-properties.xml</literal>中定义的连接器相对应的接受器（acceptor）。</para>
+                <para>ActiveMQ必须有一个与<literal>conf/jbossts-properties.xml</literal>中定义的连接器相对应的接受器（acceptor）。</para>
             </note>
             <section>
                 <title>配置参数</title>
-                <para>如果HornetQ配置了一个默认的in-vm接受器：</para>
+                <para>如果ActiveMQ配置了一个默认的in-vm接受器：</para>
                 <programlisting>
 &lt;acceptor name="in-vm">
     &lt;factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory&lt;/factory-class>
@@ -965,7 +965,7 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                         >conf/jbossts-properties.xml</literal>文件中：</para>
                 <programlisting>
 &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-   value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"/>
+   value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"/>
                 </programlisting>
                 <para>如果配置了一个netty接受器，并且端口不是默认的：</para>
                 <programlisting>
@@ -978,7 +978,7 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                         >conf/jbossts-properties.xml</literal>文件中：</para>
                 <programlisting>
 &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-       value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, , , port=8888"/>
+       value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, , , port=8888"/>
                 </programlisting>
                 <note>
                     <para>注意在没有用户名和密码时，逗号是不能省略的。</para>
@@ -987,9 +987,9 @@ initialContext = new InitialContext(jndiParameters);</programlisting>
                     应为如下所示：</para>
                 <programlisting>
                     &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ1"
-                           value="org.apache.activemq.jms.server.recovery.HornetQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, admin, adminpass, port=8888"/>
+                           value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory, admin, adminpass, port=8888"/>
                 </programlisting>
-                <para>推荐在XA恢复中，将HornetQ配置一个invm接受器，并配置恢复管理器使用invm连接器。</para>
+                <para>推荐在XA恢复中，将ActiveMQ配置一个invm接受器，并配置恢复管理器使用invm连接器。</para>
             </section>
         </section>
         <section>

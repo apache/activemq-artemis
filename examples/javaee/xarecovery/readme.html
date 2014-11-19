@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ XA Recovery Example</title>
+    <title>ActiveMQ XA Recovery Example</title>
     <link rel="stylesheet" type="text/css" href="../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../common/prettify.css" />
     <script type="text/javascript" src="../../common/prettify.js"></script>
@@ -8,7 +8,7 @@
   <body onload="prettyPrint()">
      <h1>Java EE XA Recovery Example</h1>
      
-     <p>This example will demonstrate XA recovery in WildFly with a HornetQ XA resource and a "buggy" XA resource.</p>
+     <p>This example will demonstrate XA recovery in WildFly with a ActiveMQ XA resource and a "buggy" XA resource.</p>
 
      <p>The example application will invoke an EJB which will send a JMS message in a transaction.
         The server will crash while the transaction has not been committed (it is in the prepared state).<br />
@@ -195,7 +195,7 @@
          <p>When the transaction is committed, it will prepare both XAResources and then commit them.<br />
          <p>The failing resources will crash the server leaving the JMS XA Resource <em>prepared</em> but not <em>committed</em></p>
          
-         <p>When WildFly is restarted, it will automatically trigger a recovery phase. During that phase, HornetQ resources will be
+         <p>When WildFly is restarted, it will automatically trigger a recovery phase. During that phase, ActiveMQ resources will be
          scanned and the <em>prepared</em> transaction will be recovered and committed. It is then possible to consume this message</p>
   </body>
 </html>

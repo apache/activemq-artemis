@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Pre-Acknowledge Example</title>
+    <title>ActiveMQ JMS Pre-Acknowledge Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -23,9 +23,9 @@
      <p>An example of a use-case where it might be a good idea to use pre-acknowledge, is for stock price update
      messages. With these messages it might be ok to lose a message in event of crash, since the next price
      update message will arrive soon, overriding the previous price.</p>
-     <p>In order to use pre-acknowledge functionality with HornetQ the session has to be created with
-     a special, HornetQ specific acknowledgement mode, given by the value of
-     <code>HornetQJMSConstants.PRE_ACKNOWLEDGE</code>.     
+     <p>In order to use pre-acknowledge functionality with ActiveMQ the session has to be created with
+     a special, ActiveMQ specific acknowledgement mode, given by the value of
+     <code>ActiveMQJMSConstants.PRE_ACKNOWLEDGE</code>.     
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
 
@@ -51,7 +51,7 @@
            <code>
      connection = cf.createConnection();
 
-     Session session = connection.createSession(false, HornetQSession.PRE_ACKNOWLEDGE);
+     Session session = connection.createSession(false, ActiveMQSession.PRE_ACKNOWLEDGE);
 
      MessageProducer producer = session.createProducer(queue);
          

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Twitter Connector Service Example</title>
+    <title>ActiveMQ Twitter Connector Service Example</title>
     <link rel="stylesheet" type="text/css" href="../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../common/prettify.css" />
     <script type="text/javascript" src="../../common/prettify.js"></script>
@@ -8,9 +8,9 @@
   <body onload="prettyPrint()">
      <h1>Twitter Connector Service Example</h1>
 
-     <p>This example shows you how to configure HornetQ to use the Twitter Connector Service.</p>
+     <p>This example shows you how to configure ActiveMQ to use the Twitter Connector Service.</p>
      
-     <p>HornetQ supports 2 types of Twitter connector, incoming and outgoing.
+     <p>ActiveMQ supports 2 types of Twitter connector, incoming and outgoing.
      Incoming connector consumes from twitter and forwards to a configurable address.
      Outgoing connector consumes from a configurable address and forwards to twitter.
      </p>
@@ -28,7 +28,7 @@
      <ol>
         <li>First we need to create a ClientSessionFactory with Netty transport configuration</li>
         <pre class="prettyprint">
-           <code>csf = HornetQClient.createClientSessionFactory(new TransportConfiguration(NettyConnectorFactory.class.getName()));</code>
+           <code>csf = ActiveMQClient.createClientSessionFactory(new TransportConfiguration(NettyConnectorFactory.class.getName()));</code>
         </pre>
 
         <li>We create a core session with auto-commit mode</li>

@@ -18,26 +18,26 @@
 <!-- ============================================================================= -->
 <chapter id="libaio">
     <title>Libaio平台专有库</title>
-    <para>HornetQ发布包中包括一个平台专有的库，它可以使HornetQ使用Linux操作系统的libaio。</para>
+    <para>ActiveMQ发布包中包括一个平台专有的库，它可以使ActiveMQ使用Linux操作系统的libaio。</para>
     <para><literal>libaio</literal>是Linux项目的一个库。它将用户提交的写操作用异步的方式执行。通过
         回调用户的代码来通知写操作的完成。</para>
-    <para>通过配置，HornetQ可以使用这个库来访问高性能的日志，具体请参见 <xref
+    <para>通过配置，ActiveMQ可以使用这个库来访问高性能的日志，具体请参见 <xref
             linkend="persistence"/>。</para>
-    <para>下面列出了HornetQ所带的平台专有库文件：</para>
+    <para>下面列出了ActiveMQ所带的平台专有库文件：</para>
     <itemizedlist>
         <listitem>
-            <para>libHornetQAIO32.so - x86 32 位平台</para>
+            <para>libActiveMQAIO32.so - x86 32 位平台</para>
         </listitem>
         <listitem>
-            <para>libHornetQAIO64.so - x86 64 位平台</para>
+            <para>libActiveMQAIO64.so - x86 64 位平台</para>
         </listitem>
     </itemizedlist>
-    <para>当使用libaio时，HornetQ会在<link linkend="using-server.library.path">库路径</link>中寻找并装
+    <para>当使用libaio时，ActiveMQ会在<link linkend="using-server.library.path">库路径</link>中寻找并装
            载这些文件。</para>
     <section>
         <title>库文件的编译</title>
         <para>如果你的Linux平台不是x86_32或x86_64（比如Itanium 64或IBM Power），你需要自己编译相应的库文件，
-            因为HornetQ不提供这些平台的库文件。</para>
+            因为ActiveMQ不提供这些平台的库文件。</para>
         <section>
             <title>安装要求</title>
             <note>
@@ -85,7 +85,7 @@
         </section>
         <section>
             <title>开始编译</title>
-            <para>在HornetQ发布包的<literal>native-src</literal>目录下，执行shell脚本
+            <para>在ActiveMQ发布包的<literal>native-src</literal>目录下，执行shell脚本
                 <literal>bootstrap</literal>。这个脚本会调用 <literal
                     >automake</literal>以及<literal>make</literal>来创建所有的make文件和专有库。</para>
             <programlisting>someUser@someBox:/messaging-distribution/native-src$ ./bootstrap 
@@ -105,10 +105,10 @@ config.status: executing libtool commands
 
 ...</programlisting>
             <para>编译好的库文件在<literal
-                    >./native-src/src/.libs/libHornetQAIO.so</literal>。将该文件移到发布包的
+                    >./native-src/src/.libs/libActiveMQAIO.so</literal>。将该文件移到发布包的
                     <literal>bin</literal>目录下，或者你的<link linkend="using-server.library.path">库目录</link>
                     所指向的目录即可。</para>
-            <para>如果你修改了HornetQ的libaio代码，只需要在<literal>native-src</literal>目录下直挂运行make即可完成编译。</para>
+            <para>如果你修改了ActiveMQ的libaio代码，只需要在<literal>native-src</literal>目录下直挂运行make即可完成编译。</para>
         </section>
     </section>
 </chapter>

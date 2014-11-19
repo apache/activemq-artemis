@@ -18,11 +18,11 @@
 <!-- ============================================================================= -->
 <chapter id="download">
    <title>下载</title>
-   <para>HornetQ项目的官方地址是 <ulink url="http://hornetq.org/"
+   <para>ActiveMQ项目的官方地址是 <ulink url="http://hornetq.org/"
          >http://hornetq.org/</ulink>。</para>
    <section id="download.software">
       <title>软件下载</title>
-      <para>HornetQ的下载地址是<ulink
+      <para>ActiveMQ的下载地址是<ulink
             url="http://hornetq.org/downloads.html/"
          >http://hornetq.org/downloads.html</ulink></para>
    </section>
@@ -31,11 +31,11 @@
       <para>
          <itemizedlist>
             <listitem>
-               <para>HornetQ的 <ulink
-                     url="http://www.jboss.org/community/wiki/HornetQ">wiki</ulink></para>
+               <para>ActiveMQ的 <ulink
+                     url="http://www.jboss.org/community/wiki/ActiveMQ">wiki</ulink></para>
             </listitem>
             <listitem>
-               <para>如果在使用HornetQ中发生任何问题，可以去我们的 <ulink
+               <para>如果在使用ActiveMQ中发生任何问题，可以去我们的 <ulink
                      url="http://www.jboss.org/index.html?module=bb&amp;op=viewforum&amp;f=312">用户论坛
                      </ulink></para>
             </listitem>
@@ -55,7 +55,7 @@
                <para>还可以跟踪我们的<ulink url="http://twitter.com/hornetq">twitter</ulink></para>
             </listitem>
             <listitem>
-               <para>HornetQ的Git代码库地址 <ulink
+               <para>ActiveMQ的Git代码库地址 <ulink
                      url="https://github.com/hornetq/hornetq"
                      >https://github.com/hornetq/hornetq</ulink></para>
             </listitem>

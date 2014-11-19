@@ -98,7 +98,7 @@
         <para><literal>max-delivery-attempts</literal>定义了最大重传递的次数。一个消息如果反复传递超过
             了这个值将会被发往死信地址<literal>dead-letter-address</literal>。相关的完整的解释在
             <link linkend="undelivered-messages.configuring">这里</link>。</para>
-        <para><literal>redelivery-delay</literal>定义了重新传递的延迟。它控制HornetQ在重新
+        <para><literal>redelivery-delay</literal>定义了重新传递的延迟。它控制ActiveMQ在重新
             传递一个被取消的消息时要等待的时间。参见<link linkend="undelivered-messages.delay"
                 >这里</link>。</para>
         <para><literal>expiry-address</literal>定义了过期消息的发送地址。参见<link linkend="message-expiry.configuring">这里</link>。</para>

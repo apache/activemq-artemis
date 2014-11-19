@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 <chapter id="connection-ttl">
     <title>失效连接的检测</title>
-    <para>本章将讨论连接的生存时间（TTL）以及HornetQ如何处理出现故障的客户端或者异常退出的客户端（即客户端在
+    <para>本章将讨论连接的生存时间（TTL）以及ActiveMQ如何处理出现故障的客户端或者异常退出的客户端（即客户端在
         退出时没有合理的关闭相关资源）。</para>
     <section id="dead.connections">
         <title>服务器端对失效连接的清除</title>
@@ -31,7 +31,7 @@ ClientSession session = null;
 
 try
 {
-   sf = HornetQClient.createClientSessionFactory(...);
+   sf = ActiveMQClient.createClientSessionFactory(...);
 
    session = sf.createSession(...);
    
@@ -56,7 +56,7 @@ Connection jmsConnection = null;
 
 try
 {
-   ConnectionFactory jmsConnectionFactory = HornetQJMSClient.createConnectionFactory(...);
+   ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactory(...);
 
    jmsConnection = jmsConnectionFactory.createConnection();
 
@@ -74,15 +74,15 @@ finally
             程序突然中断，相关资源也没有来得及关闭！</para>
         <para>如果上述情况发生了，那么这些资源就会留在服务器端而不会被清理。这就会造成资源泄漏现象并最終导致服务器内存
             溢出或其它资源的溢出错误。</para>
-        <para>因此在服务器端要有某种机制来避免资源的泄漏。也就是对无效资源进行回收。在判断什么是无效资源时，HornetQ
+        <para>因此在服务器端要有某种机制来避免资源的泄漏。也就是对无效资源进行回收。在判断什么是无效资源时，ActiveMQ
             考虑到了客户端重新连接的情况。就是当一个连接由于网络临时中断后又恢复正常时，客户端有可能通过不断重试
             成功地连接到服务器端。如果服务器端过早清除了相关的连接资源，则客户端就可能重试失败。</para>
-        <para>HornetQ的资源回收是完全可配置的。每个 <literal
+        <para>ActiveMQ的资源回收是完全可配置的。每个 <literal
                 >ClientSessionFactory</literal> 有一个<emphasis>连接 TTL</emphasis>的参数。
             这个参数的意义是当客户端的一个连接没有任何数到达服务器时，服务器充许这个连接有效的最长时间。客户端通过定
             时向服务器端发送“ping“数据包来维持连接的有效，以免被服务器关掉。如果服务器在TTL指定的时间内没有收到任何
             数据包，则认为该连接无效，继而关闭与该连接相关的所有的会话（session）。</para>
-        <para>如果使用JMS，<literal>HornetQConnectionFactory</literal>的<literal>ConnectionTTL</literal>
+        <para>如果使用JMS，<literal>ActiveMQConnectionFactory</literal>的<literal>ConnectionTTL</literal>
             属性是用来定义连接的存活时间的。如果你将JMS连接工厂部署到JNDI中，则应使用配置文件中的<literal
                 >connection-ttl</literal>参数来定义连接的TTL。</para>
         <para>默认的连接TTL值是<literal>60000</literal>毫秒，即一分钟。 <literal>ConnectionTTL</literal>
@@ -93,7 +93,7 @@ finally
         <section>
             <title>关闭没有被成功关闭的核心会话或JMS连接</title>
             <para>如前所述，在使用完毕后在<literal>finally</literal>中将所有的核心会话或JMS连接关闭是十分重要的。</para>
-            <para>如果你没有这样做，HornetQ会在拉圾回收时进行检测并会在日志中打印类似以下的警告（如果是JMS则在警告中
+            <para>如果你没有这样做，ActiveMQ会在拉圾回收时进行检测并会在日志中打印类似以下的警告（如果是JMS则在警告中
                   是相应的JMS连接）：</para>
             <programlisting>
                 
@@ -107,7 +107,7 @@ at org.apache.activemq.core.client.impl.DelegatingSession.&lt;init&gt;(Delegatin
 at org.acme.yourproject.YourClass (YourClass.java:666)    
                 
             </programlisting>
-            <para>HornetQ然后将未关闭的连接／会话关闭。</para>
+            <para>ActiveMQ然后将未关闭的连接／会话关闭。</para>
             <para>注意在日志的警告中还给出了创建JMS连接／客户端会话的具体行号，以便准确地确定出错的地方。</para>
         </section>
     </section>
@@ -119,7 +119,7 @@ at org.acme.yourproject.YourClass (YourClass.java:666)
         <para>如果在属性<literal>client-failure-check-period</literal>所定义的时间内（单位毫秒）客户端没有
             收到任何数据，客户端就认为这们连接发生了故障。根据不同的配置，客户端在这种情况下要么进行failover，要么
             调用<literal>FailureListener</literal>的接口（或者是JMS的<literal>ExceptionListener</literal>）。</para>
-        <para>如果使用JMS，这个参数是<literal>HornetQConnectionFactory</literal>的<literal>ClientFailureCheckPeriod</literal>。
+        <para>如果使用JMS，这个参数是<literal>ActiveMQConnectionFactory</literal>的<literal>ClientFailureCheckPeriod</literal>。
             如果你向JNDI部署JMS连接工厂，那么相应的参数在<literal>hornetq-jms.xml</literal>配置文件中，参数名
             为<literal>client-failure-check-period</literal>。</para>
         <para>这个参数的默认值是<literal>30000</literal>毫秒，即半分钟。<literal>-1</literal>表示客户端不检查

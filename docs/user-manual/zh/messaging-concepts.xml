@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 <chapter id="messaging-concepts">
     <title>消息的相关概念</title>
-    <para>HornetQ是一个异步的 <ulink
+    <para>ActiveMQ是一个异步的 <ulink
             url="http://en.wikipedia.org/wiki/Message_oriented_middleware">
             面向消息的中间件</ulink>。在本文档中我们简称为消息系统。</para>
     <para>首先我们简要介绍消息系统是做什么的，在哪些领域得到应用，以及与消息相关的一些概念。</para>
@@ -81,7 +81,7 @@
     </section>
     <section>
         <title>交易（Transactions)</title>
-        <para>消息系统通常支持在一次本地交易中发送并通知多个消息。HornetQ还支持分布式交易。它可以通过Java的XA和JTA接口，
+        <para>消息系统通常支持在一次本地交易中发送并通知多个消息。ActiveMQ还支持分布式交易。它可以通过Java的XA和JTA接口，
               将消息的发送与通知做为一个分布式交易的一部分来完成。</para>
     </section>
     <section>
@@ -102,13 +102,13 @@
             </para>
             <para>JMS是一个广泛使用的API，绝大多数的消息系统都支持它。JMS只有Java的客户端才可以使用。</para>
             <para>JMS并没有定义传输的格式（wire format）。因此不同的JMS消息服务器的和客户端相互之间通常不能交互，这是因为每个消息系统都自己的传输格式。</para>
-            <para>HornetQ全面支持JMS 1.1 API。</para>
+            <para>ActiveMQ全面支持JMS 1.1 API。</para>
         </section>
         <section>
             <title>专有的API</title>
             <para>很多系统提供自己的一套API来与其消息系统进行通迅，其优势是它可以允许客户端使用其全部的功能。
                   像JMS那样的标准API往往不能提供许多消息系统所支持的额外的功能。</para>
-            <para>HornetQ提供了一套自有的核心API，客户端程序可以通过它充分利用HornetQ的强大功能。
+            <para>ActiveMQ提供了一套自有的核心API，客户端程序可以通过它充分利用ActiveMQ的强大功能。
                   这对于一些JMS API满足不了的需求是非常有用的。</para>
         </section>
         <section>
@@ -118,7 +118,7 @@
             <para>由于云计算技术的API标准目前倾向于采用REST的方式，所以采用REST方式的消息系统很有望成为云计算中消息传送的标准。</para>
             <para>REST方式中的各种消息资源以URI的方式来定义。用户通过一套很简单的操作与这些资源相交互，如PUT、POST、GET等。HTTP通常用来作为REST方式的通信协议。</para>
             <para>采用HTTP的好处是它很简单实用，并且internet经过多年的发展已经能很好的支持HTTP协议。</para>
-            <para>HornetQ将会很快地支持REST方式的API。</para>
+            <para>ActiveMQ将会很快地支持REST方式的API。</para>
         </section>
         <section>
             <title>STOMP</title>
@@ -126,28 +126,28 @@
                     url="http://stomp.codehaus.org/"
                     >Stomp</ulink> 是为消息系统定义的一套简单的文本传输协议。它定义了一种线上传输的格式，
                      因此采用Stomp编写的客户端可以与所有支持Stomp的消息系统交互。Stomp的客户端可以用多种编程语言来实现。</para>
-            <para>有关在HornetQ中如何使用Stomp的详细内容请参见<xref linkend="stomp"/>。</para>
+            <para>有关在ActiveMQ中如何使用Stomp的详细内容请参见<xref linkend="stomp"/>。</para>
         </section>
         <section>
             <title>AMQP</title>
             <para><ulink url="http://en.wikipedia.org/wiki/AMQP">AMQP</ulink> 是一套可支持互操作的消息规范。
             它定义了自己的传输格式，因些任何AMQP的客户端都可以和支持AMQP的系统进行交互。AMQP的客户端可以用多种编程语言来实现。</para>
-            <para>HornetQ将会很快地支持AMQP。</para>
+            <para>ActiveMQ将会很快地支持AMQP。</para>
         </section>
     </section>
     <section>
         <title>高可获得性（Availability）</title>
         <para>高可获得性是指在系统中有一个或多个服务器发生故障时仍然能够维持运转的特性。不同的消息系统对高可获得性的支持程度是不同的。</para>
-        <para>HornetQ支持自动失效备援（failover），也就是当主服务器出现故障时，当前的会话会自动连接到备用的服务器上。</para>
-        <para><xref linkend="ha"/>给出了HornetQ的HA特性的详细信息。</para>
+        <para>ActiveMQ支持自动失效备援（failover），也就是当主服务器出现故障时，当前的会话会自动连接到备用的服务器上。</para>
+        <para><xref linkend="ha"/>给出了ActiveMQ的HA特性的详细信息。</para>
     </section>
     <section>
         <title>集群</title>
         <para>许多消息系统支持由多个消息服务器组成的集群。集群可以使发送和接收的负荷分散到不同的服务器中。
               通过增加集群服务器，可以有效的增加整个集群处理消息的能力。</para>
         <para>然而不同的消息系统有着不同的集群架构。有的集群架构十分简单，有的集群中成员间的联系很少。</para>
-        <para>HornetQ提供了非常先进的可配置的集群模型。根据每个节点接收者（consumer）的多少以及是否具有接收状态，消息在集群中可以进行智能化负载均衡。</para>
-        <para>HornetQ还能够在集群中的节点间进行消息的再分发，以避免在某个节点出现消息匮乏（starvation）现象。</para>
+        <para>ActiveMQ提供了非常先进的可配置的集群模型。根据每个节点接收者（consumer）的多少以及是否具有接收状态，消息在集群中可以进行智能化负载均衡。</para>
+        <para>ActiveMQ还能够在集群中的节点间进行消息的再分发，以避免在某个节点出现消息匮乏（starvation）现象。</para>
         <para>有关集群的详细内容参见<xref linkend="clusters"/>。</para>
     </section>
     <section>
@@ -155,8 +155,8 @@
         <para>有些消息系统可以将一些分散在不可靠的网络（如广域网或internet）上孤立的集群或节点桥接在一起。</para>
         <para>通常一个桥的作用是从一台服务器的队列上接收消息然后将消息再转发到另一台服务器的队列中。桥连接可以解决不可靠网络连接的问题。
               桥有自动重新连接的功能。一旦网络连接中断，桥可以自动进行重试直到重新连接上为止。</para>
-        <para>HornetQ的桥接功能可以配置过滤表达式，以实现有条件的转发。另外，它还可以实现消息转换的功能（transformation）。</para>
-        <para>HornetQ还允许配置消息在队列之间进行路由。利用它可以完成复杂的路由网络以便在不同队列间进行消息转发与复制，形成一个互连的消息代理（broker）网络。</para>
+        <para>ActiveMQ的桥接功能可以配置过滤表达式，以实现有条件的转发。另外，它还可以实现消息转换的功能（transformation）。</para>
+        <para>ActiveMQ还允许配置消息在队列之间进行路由。利用它可以完成复杂的路由网络以便在不同队列间进行消息转发与复制，形成一个互连的消息代理（broker）网络。</para>
         <para>有关的详细内容将在<xref linkend="core-bridges"/>和<xref
                 linkend="diverts"/>给出。</para>
     </section>

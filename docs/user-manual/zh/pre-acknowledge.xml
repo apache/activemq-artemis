@@ -32,7 +32,7 @@
    </itemizedlist>
    <para>还有一种情况JMS不支持：应用程序在出现故障时可以容忍消息丢失，这样可以在消息在传递给客户
       端<emphasis>之前</emphasis>就通知服务器。</para>
-   <para>HornetQ支持这种模式，称为<emphasis>pre-acknowledge</emphasis>。</para>
+   <para>ActiveMQ支持这种模式，称为<emphasis>pre-acknowledge</emphasis>。</para>
    <para>这种模式的缺点是消息在通知后，如果系统出现故障时，消息可能丢失。并且在系统重启后该消息
       不能恢复。</para>
    <para>使用<literal>pre-acknowledgement</literal>模式可以节省网络传输和CPU处理资源。</para>
@@ -56,12 +56,12 @@
       &lt;pre-acknowledge>true&lt;/pre-acknowledge>
 &lt;/connection-factory></programlisting>
       <para>另一个选择是使用JMS接口来设置pre-acknowledgement模式。只需要在创建JMS会话（session）
-         时使用<literal>HornetQSession.PRE_ACKNOWLEDGE</literal>常数即可。</para>
+         时使用<literal>ActiveMQSession.PRE_ACKNOWLEDGE</literal>常数即可。</para>
       <programlisting>
 // messages will be acknowledge on the server *before* being delivered to the client
-Session session = connection.createSession(false, HornetQSession.PRE_ACKNOWLEDGE);
+Session session = connection.createSession(false, ActiveMQSession.PRE_ACKNOWLEDGE);
       </programlisting>
-      <para>你还可以直接在<literal>HornetQConnectionFactory</literal>实例上设置该模式。</para>
+      <para>你还可以直接在<literal>ActiveMQConnectionFactory</literal>实例上设置该模式。</para>
       <para>另外，如果使用核心接口，则在<literal>ClientSessionFactory</literal>实例上直接
             设置该模式。</para>
    </section>

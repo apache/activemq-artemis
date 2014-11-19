@@ -18,11 +18,11 @@
 <!-- ============================================================================= -->
 <chapter id="examples">
     <title>例子</title>
-    <para>在HornetQ的发布包中有超过70个不同的例子。这些例子直接可以运行。它们分别展示了HornetQ所具有的各种功能。</para>
-    <para>所有的例子都在HornetQ发布包的 <literal>examples</literal>目录下。所有的例子被分成了两大类：
+    <para>在ActiveMQ的发布包中有超过70个不同的例子。这些例子直接可以运行。它们分别展示了ActiveMQ所具有的各种功能。</para>
+    <para>所有的例子都在ActiveMQ发布包的 <literal>examples</literal>目录下。所有的例子被分成了两大类：
         JMS例子和内核例子。JMS例子展现的是JMS的各种功能，内核的例子则展示的是内核API的功能。
 </para>
-    <para>此外HornetQ还提供了一些Java EE的例子，这些例子需要JBoss应用服务器才能运行。</para>
+    <para>此外ActiveMQ还提供了一些Java EE的例子，这些例子需要JBoss应用服务器才能运行。</para>
     <section>
         <title>JMS 例子</title>
         <para>要运行一个JMS例子，只要进入到相应例子的子目录，运行 <literal>./build.sh</literal> （或者
@@ -30,10 +30,10 @@
         <para>下面列出的这些JMS例子并配有简要的说明。</para>
         <section id="application-level-failover">
             <title>应用层的失效备援（Failover）</title>
-            <para>HornetQ支持应用层的失效备援。这在服务器端没有复制（replication）配置的情况下是很有用的。</para>
-            <para>应用程序可以注册一个JMS <literal>ExceptionListener</literal>。当HornetQ检测到连接故障时，它会
+            <para>ActiveMQ支持应用层的失效备援。这在服务器端没有复制（replication）配置的情况下是很有用的。</para>
+            <para>应用程序可以注册一个JMS <literal>ExceptionListener</literal>。当ActiveMQ检测到连接故障时，它会
                 通知这个注册的Listener。</para>
-            <para>这个<literal>ExceptionListener</literal>在接到HornetQ的通知后可以与其它的节点创建
+            <para>这个<literal>ExceptionListener</literal>在接到ActiveMQ的通知后可以与其它的节点创建
                 新的连接、会话等对象，以使应用程序能继续运行。</para>
             <para>应用层的失效备援是实现高可获得性（HA）的一种方法。它与自动失效备援不同之处在于它需要编写额外的代码。
                 同时由于发生故障时旧的会话结束，这会造成那些还没来得及提交的工作丢失，还会造成任何没有通知的消息被重发。</para>
@@ -42,12 +42,12 @@
             <title>内核桥（Bridge）例子</title>
             <para><literal>bridge</literal>例子展示的是将一个内核桥部署到一个服务器上，从本地的queue接收消息并将其转发到
                 另一服务器的地址上。</para>
-            <para>内核的bridge可用来在两个互相分开的HornetQ的服务器间建立一个消息流。它可以处理临时性的连接故障，特别适用于
+            <para>内核的bridge可用来在两个互相分开的ActiveMQ的服务器间建立一个消息流。它可以处理临时性的连接故障，特别适用于
                 不可靠的网络的情况。广域网就是一个例子。</para>
         </section>
         <section id="examples.browsers">
             <title>浏览器（Browser）</title>
-            <para><literal>browser</literal>例子展示的是在HornetQ中如何使用JMS <literal
+            <para><literal>browser</literal>例子展示的是在ActiveMQ中如何使用JMS <literal
                     >QueueBrowser</literal>。</para>
             <para>有关JMS queue的概念在JMS 1.1 specification有明确的定义，这里就不再叙述。</para>
             <para> 一个<literal>QueueBrowser</literal>可以用来观察queue中的消息而影响它们。它可以观察queue中的全部
@@ -60,7 +60,7 @@
         <section>
             <title>客户端的负载均衡</title>
             <para><literal>client-side-load-balancing</literal>例子展示的是通过一个JMS连接可以在集群的不同节点上创建
-                会话。也就是说HornetQ可以对客户端的会话创建进行集群内的负载均衡。</para>
+                会话。也就是说ActiveMQ可以对客户端的会话创建进行集群内的负载均衡。</para>
         </section>
         <section id="examples.clustered.grouping">
             <title>集群分组</title>
@@ -87,8 +87,8 @@
         </section>
         <section id="examples.consumer-rate-limit">
             <title>限制接收速率</title>
-            <para>HornetQ可以控制一个JMS消息接收者接收消息的速度。这是在创建或部署连接工厂时通过其配置参数来完成的。</para>
-            <para>如果设置了这个速度的限制，HornetQ会保证其向接收者传递消息的速度永远不会超过这个限制。</para>
+            <para>ActiveMQ可以控制一个JMS消息接收者接收消息的速度。这是在创建或部署连接工厂时通过其配置参数来完成的。</para>
+            <para>如果设置了这个速度的限制，ActiveMQ会保证其向接收者传递消息的速度永远不会超过这个限制。</para>
         </section>
         <section id="examples.dead-letter">
             <title>死消息（Dead Letter）</title>
@@ -102,57 +102,57 @@
         </section>
         <section id="examples.delayed-redelivery">
             <title>延迟再发送</title>
-            <para><literal>delayed-redelivery</literal>是一个展示如何配置HornetQ延迟再发送消息的例子。</para>
+            <para><literal>delayed-redelivery</literal>是一个展示如何配置ActiveMQ延迟再发送消息的例子。</para>
             <para>当客户端经常发生故障或发生事务回滚时，消息会不停地重复发送，这样会造成CPU和网络资源被不间断的
                 重复发送所占用，影响其它工作的进行。延迟再发送可以有效地减轻这种情况。</para>
         </section>
         <section id="divert-example">
             <title>转移（Divert）</title>
-            <para>HornetQ通过配置可以将消息从一个地址自动地转移到另一地址。这个例子就是向用户展示转移的配置和使用。</para>
+            <para>ActiveMQ通过配置可以将消息从一个地址自动地转移到另一地址。这个例子就是向用户展示转移的配置和使用。</para>
         </section>
         <section>
             <title>持久订阅（Durable Subscription）</title>
-            <para><literal>durable-subscription</literal>是一个在HornetQ中如何使用持久订阅（durable
+            <para><literal>durable-subscription</literal>是一个在ActiveMQ中如何使用持久订阅（durable
                 subscription）的例子。持久订阅是标准JMS的一部分，在JMS 1.1规范中有它的详细定义。</para>
             <para>对于一个持久订阅来说，它的消息可以在订阅没有处于接收状态时被保留。另外，如果发到它的消息是持久
                 消息的话，这些消息可以在服务器故障或重启时不丢失。 </para>
         </section>
         <section>
             <title>嵌入方式（Embedded）</title>
-            <para><literal>embedded</literal>是一个如何将HornetQ服务嵌入到你的应用中的例子。</para>
+            <para><literal>embedded</literal>是一个如何将ActiveMQ服务嵌入到你的应用中的例子。</para>
         </section>
         <section>
             <title>HTTP 传输协议的支持</title>
-            <para><literal>http-transport</literal>展示了HornetQ如何支持在传输层使用HTTP协议来发送和接收消息。</para>
+            <para><literal>http-transport</literal>展示了ActiveMQ如何支持在传输层使用HTTP协议来发送和接收消息。</para>
         </section>
         <section>
             <title>直接实例化JMS对象</title>
             <para>JMS 对象是指 <literal>连接工厂（ConnectionFactory）</literal>、<literal
                     >队列（Queue）</literal>和<literal>话题（Topic）</literal> 的实例。通常情况下它们通过JNDI服务
                 来获取。它们在JMS术语中被称为“被管理的对象（administered objects）”。</para>
-            <para>有的时候客户端没有JNDI服务可用，或者不适合使用JNDI。那么在没有JNDI的情况下HornetQ允许直接在客户端
+            <para>有的时候客户端没有JNDI服务可用，或者不适合使用JNDI。那么在没有JNDI的情况下ActiveMQ允许直接在客户端
                 将这些JMS对象实例化。</para>
         </section>
         <section id="examples.interceptor">
             <title>拦截器（Interceptor）</title>
-            <para>HornetQ可以配置拦截器以便用户可以自己处理各种各样的消息事件。这个例子就是给用户展示如何使用
+            <para>ActiveMQ可以配置拦截器以便用户可以自己处理各种各样的消息事件。这个例子就是给用户展示如何使用
                   拦截器。</para>
         </section>
         <section id="examples.jaas">
             <title>JAAS</title>
-            <para><literal>jaas</literal>是一个如何配置JAAS安全模式的例子。HornetQ可以使用JAAS来进行用户的验证与权限控制。</para>
+            <para><literal>jaas</literal>是一个如何配置JAAS安全模式的例子。ActiveMQ可以使用JAAS来进行用户的验证与权限控制。</para>
         </section>
         <section id="examples.jms.jms-bridge">
             <title>JMS桥（Bridge）</title>
-            <para><literal>jms-brige</literal>是一个在两个单独HornetQ服务器之间设置桥的例子。</para>
+            <para><literal>jms-brige</literal>是一个在两个单独ActiveMQ服务器之间设置桥的例子。</para>
         </section>
         <section id="examples.jmx">
             <title>JMX管理</title>
-            <para><literal>jmx</literal>例子展示了如何使用JMX来管理HornetQ。</para>
+            <para><literal>jmx</literal>例子展示了如何使用JMX来管理ActiveMQ。</para>
         </section>
         <section id="examples.large-message">
             <title>大消息</title>
-            <para><literal>large-message</literal>例子给用户展示了使用HornetQ来发送和接收大消息的功能。HornetQ
+            <para><literal>large-message</literal>例子给用户展示了使用ActiveMQ来发送和接收大消息的功能。ActiveMQ
                 支持超大消息的发送与接收。这些消息可以大到内存无法装下。它的大小只受服务器的硬盘空间的限制。</para>
             <para>在服务器端大消息是被持久化的，所以它可以承受服务器的崩溃或重启而不丢失或损坏。</para>
         </section>
@@ -166,20 +166,20 @@
         </section>
         <section>
             <title>分布式队列的负载均衡</title>
-            <para>在<literal>clustered-queue</literal>例子中配置了一个2节点的HornetQ服务集群。在集群上部署了
+            <para>在<literal>clustered-queue</literal>例子中配置了一个2节点的ActiveMQ服务集群。在集群上部署了
                 一个分布式JMS队列。</para>
             <para>然后在一个节点上创建了一个发送者（producer），在两个节点上分别创建一个接收者（consumer）。通过
                 发送者向队列发送一些消息然后被两的接收者以轮流（round-robin）的方式接收。</para>
-            <para>本例说明了HornetQ可以将消息向集群中的每个接收者分布式地传递消息。</para>
+            <para>本例说明了ActiveMQ可以将消息向集群中的每个接收者分布式地传递消息。</para>
         </section>
         <section id="examples.management">
             <title>管理</title>
-            <para><literal>management</literal>例子展示的是如何使用JMS消息来实现对HornetQ的管理。</para>
+            <para><literal>management</literal>例子展示的是如何使用JMS消息来实现对ActiveMQ的管理。</para>
         </section>
         <section id="examples.management-notifications">
             <title>管理通知</title>
-            <para><literal>management-notification</literal>展示了HornetQ如何以JMS消息的形式向用户发送
-                管理通知。当某些事件发生时（如接收都创建，关闭；地址创建与删除；安全验证失败等等），HornetQ会向客户
+            <para><literal>management-notification</literal>展示了ActiveMQ如何以JMS消息的形式向用户发送
+                管理通知。当某些事件发生时（如接收都创建，关闭；地址创建与删除；安全验证失败等等），ActiveMQ会向客户
                 发出JMS消息以通知客户这些事件的相关信息。客户接收到这些信息后可以作出相应的处理。</para>
         </section>
         <section id="examples.message-counters">
@@ -190,12 +190,12 @@
             <title>消息失效</title>
             <para><literal>expiry</literal>例子中包括了如何定义和使用消息失效期。消息如果在消息服务器中存留超过一定
                 的时间，就可以被删除。根据JMS规范，接收者就不应该接收到已经过了失效期的消息。（但是并不保证一定接收不到）。</para>
-            <para>HornetQ可以给一个队列配上一个失效地址，当队列中的消息失效时，它们就会从队列中删除并转移到该失效地址。
+            <para>ActiveMQ可以给一个队列配上一个失效地址，当队列中的消息失效时，它们就会从队列中删除并转移到该失效地址。
                 这些“失效"的消息可以从失效地址中接收并进行分析。</para>
         </section>
         <section id="examples.message-group">
             <title>消息组</title>
-            <para><literal>message-group</literal>展示的是如何在HornetQ中配置消息组。消息组可以让你的消息
+            <para><literal>message-group</literal>展示的是如何在ActiveMQ中配置消息组。消息组可以让你的消息
                 只被一个接收者接收。属于一个消息组中的消息有如下特性：</para>
             <para>
                 <itemizedlist>
@@ -223,10 +223,10 @@
         </section>
         <section id="examples.no-consumer-buffering">
             <title>零接收缓冲</title>
-            <para>默认时HornetQ的接收者客户端有一个消息缓冲，它用来保存从服务器上预先接收的消息。这样做是为了提高
-                性能。因为如果没有这个缓冲，每次调用receive()或onMessage()后，HornetQ就会访问一次服务器请求下
+            <para>默认时ActiveMQ的接收者客户端有一个消息缓冲，它用来保存从服务器上预先接收的消息。这样做是为了提高
+                性能。因为如果没有这个缓冲，每次调用receive()或onMessage()后，ActiveMQ就会访问一次服务器请求下
                 一个消息。</para>
-            <para>这样每接收一个消息就会增加一次网络往返的传输。因此，HornetQ在默认情况下使用客户端的接收缓冲来
+            <para>这样每接收一个消息就会增加一次网络往返的传输。因此，ActiveMQ在默认情况下使用客户端的接收缓冲来
                 预先接收消息，以提高效率。</para>
             <para>然而在某些情况下这样的缓冲不符合应用需要。那么可以将缓冲关闭。本例就是展示如何关闭接收缓冲。</para>
         </section>
@@ -234,13 +234,13 @@
             <title>带有服务器数据复制的非事务失效备援</title>
             <para><literal>non-transaction-failover</literal>例子展示了由两个服务器组成的高可获得性主／从关系。
                 客户端使用一个非交易的JMS会话（session）可以在主节点崩溃的情况下从主节点失效备援到备份节点。</para>
-            <para>HornetQ的这一功能是通过主、备节点间的状态复制来实现的。当主节点发生故障崩溃时，客户端的连接可以自动
+            <para>ActiveMQ的这一功能是通过主、备节点间的状态复制来实现的。当主节点发生故障崩溃时，客户端的连接可以自动
                 转向备份节点以继续的发送或接收消息。当使用非事务性的会话时，有可能发生消息丢失或重复传递的情况。</para>
         </section>
         <section id="examples.paging">
             <title>分页（paging）</title>
-            <para><literal>paging</literal>例子展示了HornetQ在内存有限时如何支持超大容量的队列。当内存不够时，
-                HornetQ会将消息保存到磁盘上；需要时再将它们从磁盘读入内存。这一过程对用户是透明的。</para>
+            <para><literal>paging</literal>例子展示了ActiveMQ在内存有限时如何支持超大容量的队列。当内存不够时，
+                ActiveMQ会将消息保存到磁盘上；需要时再将它们从磁盘读入内存。这一过程对用户是透明的。</para>
         </section>
         <section id="examples.pre-acknowledge">
             <title>预先通知</title>
@@ -248,11 +248,11 @@
                     AUTO_ACKNOWLEDGE</literal>（自动通知）、<literal>CLIENT_ACKNOWLEDGE</literal>客户通知以及 <literal
                     >DUPS_OK_ACKNOWLEDGE</literal>可重复通知。请参阅JMS规范和教程来进一步了解这几种通知方式。</para>
             <para>所有方式都需要从客户端发通知到服务器端。有时当发生故障时你并不在乎丢失一些消息，这样可以采用在服务器端在消息
-                传递前进行通知就显得比较合理。本例就是展示如何使用这一HornetQ独有的通知方式。</para>
+                传递前进行通知就显得比较合理。本例就是展示如何使用这一ActiveMQ独有的通知方式。</para>
         </section>
         <section id="producer-rate-limiting-example">
             <title>消息发送速度限制</title>
-            <para><literal>producer-rte-limit</literal>例子展示了如何设置HornetQ的最大消息发送速率。它控制消息的
+            <para><literal>producer-rte-limit</literal>例子展示了如何设置ActiveMQ的最大消息发送速率。它控制消息的
                 发送者（JMS producer）发送消息的最大速度。</para>
         </section>
         <section>
@@ -283,16 +283,16 @@
         </section>
         <section id="examples.scheduled-message">
             <title>定时消息</title>
-            <para><literal>scheduled-message</literal>例子展示了如何向HornetQ发送定时消息（scheduled message）。
+            <para><literal>scheduled-message</literal>例子展示了如何向ActiveMQ发送定时消息（scheduled message）。
                 所谓定时消息就是在规定的将来的某一时间传递的消息。</para>
         </section>
         <section>
             <title>安全</title>
-            <para><literal>security</literal>例子展示了如何配置HornetQ的安全参数。</para>
+            <para><literal>security</literal>例子展示了如何配置ActiveMQ的安全参数。</para>
         </section>
         <section id="asynchronous-send-acknowledgements-example">
             <title>发送通知</title>
-            <para><literal>send-acknowledgements</literal>例子展示了如何使用HornetQ提供的高级异步发送通知功能
+            <para><literal>send-acknowledgements</literal>例子展示了如何使用ActiveMQ提供的高级异步发送通知功能
                 （<emphasis>asynchronous send acknowledgements</emphasis>）。这是服务器向客户端通知消息已经
                 被接收。</para>
         </section>
@@ -302,25 +302,25 @@
         </section>
         <section>
             <title>静态消息选择器</title>
-            <para><literal>static-selector</literal>例子展示了如何配置HornetQ核心队列的静态消息选择器（又称过滤器）。</para>
+            <para><literal>static-selector</literal>例子展示了如何配置ActiveMQ核心队列的静态消息选择器（又称过滤器）。</para>
         </section>
         <section>
             <title>使用JMS方法来配置静态消息选择器</title>
-            <para><literal>static-selector-jms</literal>例子采用JMS方法来配置HornetQ的队列的静态选择器（过滤器）。</para>
+            <para><literal>static-selector-jms</literal>例子采用JMS方法来配置ActiveMQ的队列的静态选择器（过滤器）。</para>
         </section>
         <section>
             <title>Stomp</title>
-            <para><literal>stomp</literal>例子展示了如何配置HornetQ来发送与接收Stomp消息。</para>
+            <para><literal>stomp</literal>例子展示了如何配置ActiveMQ来发送与接收Stomp消息。</para>
         </section>
         <section>
             <title>Stomp与Web Sockets</title>
-            <para><literal>stomp-websockets</literal>例子给出了如何配置一个HornetQ服务器直接从Web浏览器
+            <para><literal>stomp-websockets</literal>例子给出了如何配置一个ActiveMQ服务器直接从Web浏览器
                 中（需要支持Web Socket）发送和接收Stomp消息。</para>
         </section>
         <section>
             <title>对称型集群</title>
-            <para><literal>symmetric-cluster</literal>例子展示如何设置一个HornetQ的对称型集群。</para>
-            <para>HornetQ的集群配置是非常灵活的。你可以根据需要设置不同的集群结构。最常用的就是对称型的集群了。这是在应用
+            <para><literal>symmetric-cluster</literal>例子展示如何设置一个ActiveMQ的对称型集群。</para>
+            <para>ActiveMQ的集群配置是非常灵活的。你可以根据需要设置不同的集群结构。最常用的就是对称型的集群了。这是在应用
                   服务器中常见的集群类型。</para>
             <para>对称型的集群具有同一性，即每个节点与其他节点处于同等地位，并且每一个节点都与其他任一节点相连接。</para>
         </section>
@@ -334,7 +334,7 @@
         </section>
         <section id="topic-hierarchy-example">
             <title>话题体系（Topic Hierarchy）</title>
-            <para>HornetQ支持话题体系。所谓话题体系就是允许你使用通配符来注册一个订阅（subscriber)，这样所有发送到
+            <para>ActiveMQ支持话题体系。所谓话题体系就是允许你使用通配符来注册一个订阅（subscriber)，这样所有发送到
                 与该通配符相匹配的地址的消息都可以被该订阅收到。</para>
         </section>
         <section>
@@ -349,29 +349,29 @@
             <title>带有数据复制的事务性失效备援</title>
             <para><literal>transaction-failover</literal>例子展示了由两个服务器组成的高可获得性主／备关系。
                 客户端使用一个交易的JMS会话（session）可以在主节点崩溃的情况下从主节点失效备援到备份节点。</para>
-            <para>HornetQ的这一功能是通过主、备节点间的状态复制来实现的。当主节点发生故障崩溃时，客户端的连接可以自动
+            <para>ActiveMQ的这一功能是通过主、备节点间的状态复制来实现的。当主节点发生故障崩溃时，客户端的连接可以自动
                 转向备份节点以继续的发送或接收消息。当使用事务性的会话时，能够保证消息被传递并且只被传递一次。</para>
         </section>
         <section>
             <title>事务性会话</title>
-            <para><literal>transactional</literal>例子展示了如何在HornetQ中使用事务性会话。</para>
+            <para><literal>transactional</literal>例子展示了如何在ActiveMQ中使用事务性会话。</para>
         </section>
         <section>
             <title>XA Heuristic</title>
-            <para><literal>xa-heuristic</literal>例子给出了如何通过HornetQ的管理接口来做出一个XA的heuristic决定。
+            <para><literal>xa-heuristic</literal>例子给出了如何通过ActiveMQ的管理接口来做出一个XA的heuristic决定。
                 一个XA的heuristic决定是一个单方面的对一个已经准备的（prepared）XA事务分支提交或回滚的决定。</para>
         </section>
         <section>
             <title>XA 接收</title>
-            <para><literal>xa-receive</literal>例子展示的是如何使用HornetQ在一个XA事务内接收消息。</para>
+            <para><literal>xa-receive</literal>例子展示的是如何使用ActiveMQ在一个XA事务内接收消息。</para>
         </section>
         <section>
             <title>XA 发送</title>
-            <para><literal>xa-send</literal>例子展示的是如何使用HornetQ在一个XA事务内发送消息。</para>
+            <para><literal>xa-send</literal>例子展示的是如何使用ActiveMQ在一个XA事务内发送消息。</para>
         </section>
         <section>
             <title>XA与事务管理器（transaction manager）</title>
-            <para><literal>xa-with-jta</literal>展示了如何在HornetQ中使用JTA接口来控制事务。</para>
+            <para><literal>xa-with-jta</literal>展示了如何在ActiveMQ中使用JTA接口来控制事务。</para>
         </section>
     </section>
     <section>
@@ -379,7 +379,7 @@
         <para>运行核心API的例子很简单，只要进到相应的例子目录下运行“<literal>ant</literal>"即可。 </para>
         <section id="examples.embedded">
             <title>嵌入式</title>
-            <para>本例展示了如何将HornetQ服务器嵌入到你的代码中。</para>
+            <para>本例展示了如何将ActiveMQ服务器嵌入到你的代码中。</para>
         </section>
     </section>
     <section>
@@ -397,15 +397,15 @@
         </section>
         <section>
             <title>资源适配器的配置（JCA）</title>
-            <para>本例展示了如何配置HornetQ的JCA适配器的各种参数。</para>
+            <para>本例展示了如何配置ActiveMQ的JCA适配器的各种参数。</para>
         </section>
         <section>
             <title>资源适配器运程服务器的配置</title>
-            <para>本例展示了如何配置HornetQ的JCA适配器来与远程的HornetQ服务器通迅。</para>
+            <para>本例展示了如何配置ActiveMQ的JCA适配器来与远程的ActiveMQ服务器通迅。</para>
         </section>
         <section id="examples.javaee.jms-bridge">
             <title>JMS 桥（Bridge）</title>
-            <para>本例展示了如何使用HornetQ的JMS bridge。</para>
+            <para>本例展示了如何使用ActiveMQ的JMS bridge。</para>
         </section>
         <section>
             <title>MDB (消息驱动Bean)</title>
@@ -413,15 +413,15 @@
         </section>
         <section>
             <title>Servlet传输</title>
-            <para>一个展示在HornetQ中使用servlet作为传输层的例子。</para>
+            <para>一个展示在ActiveMQ中使用servlet作为传输层的例子。</para>
         </section>
         <section>
             <title>Servlet SSL 传输</title>
-            <para>一个展示在HornetQ中使用基于SSL之上的servlet传输的例子。</para>
+            <para>一个展示在ActiveMQ中使用基于SSL之上的servlet传输的例子。</para>
         </section>
         <section id="xa-recovery-example">
             <title>XA 恢复（recovery）</title>
-            <para>这是一个展示HornetQ在JBoss应用服务器中的XA recovery是如何工作的例子。</para>
+            <para>这是一个展示ActiveMQ在JBoss应用服务器中的XA recovery是如何工作的例子。</para>
         </section>
     </section>
 </chapter>

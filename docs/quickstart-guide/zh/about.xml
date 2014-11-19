@@ -19,25 +19,25 @@
 <!-- ============================================================================= -->
 
 <chapter id="about">
-   <title>关于HornetQ</title>
-    <para>什么是HornetQ?</para>
+   <title>关于ActiveMQ</title>
+    <para>什么是ActiveMQ?</para>
     <itemizedlist>
         <listitem>
-            <para>HornetQ是一个开源项目。它的目标是一个多协议、可嵌入、高性能、可集群的异步的消息系统。</para>
+            <para>ActiveMQ是一个开源项目。它的目标是一个多协议、可嵌入、高性能、可集群的异步的消息系统。</para>
         </listitem>
         <listitem>
-            <para>有关HornetQ是什么及不是什么的更多的问题，请访问
-                <ulink url="http://www.jboss.org/community/wiki/HornetQGeneralFAQs">FAQs wiki
+            <para>有关ActiveMQ是什么及不是什么的更多的问题，请访问
+                <ulink url="http://www.jboss.org/community/wiki/ActiveMQGeneralFAQs">FAQs wiki
                     页</ulink>。</para>
         </listitem>
     </itemizedlist>
-    <para>为什么要使用HornetQ？ 以下给出了几个理由：</para>
+    <para>为什么要使用ActiveMQ？ 以下给出了几个理由：</para>
     <itemizedlist>
         <listitem>
-            <para>HornetQ是100%的开源软件。 HornetQ 采用 Apache v 2.0开源协议，对用户的限制最小。</para>
+            <para>ActiveMQ是100%的开源软件。 ActiveMQ 采用 Apache v 2.0开源协议，对用户的限制最小。</para>
         </listitem>
         <listitem>
-            <para>HornetQ的设计强调可用性。</para>
+            <para>ActiveMQ的设计强调可用性。</para>
         </listitem>
         <listitem>
             <para>采用Java语言编写。可以在任何Java 6+ 的平台上运行。这几乎包括了从Windows到IBM mainframes的每个平台。</para>
@@ -49,11 +49,11 @@
             <para>功能全面。不仅拥有其它成熟消息产品所具有的全部功能，而且还有很多独特的功能。</para>
         </listitem>
         <listitem>
-            <para>HornetQ的设计遵从了简约的原则。对第三方软件的依赖极少。根据不同的需要，
-                  HornetQ可以单独运行，也可以运行于JEE应用服务器中。它还可以嵌入到你自己的应用程序中。</para>
+            <para>ActiveMQ的设计遵从了简约的原则。对第三方软件的依赖极少。根据不同的需要，
+                  ActiveMQ可以单独运行，也可以运行于JEE应用服务器中。它还可以嵌入到你自己的应用程序中。</para>
         </listitem>
         <listitem>
-            <para>完美的可获得性。HornetQ提供自动客户端失效备援（automatic client failover）功能，能保证在服务器故障时没有消息丢失或消息重复。</para>
+            <para>完美的可获得性。ActiveMQ提供自动客户端失效备援（automatic client failover）功能，能保证在服务器故障时没有消息丢失或消息重复。</para>
         </listitem>
         <listitem>
             <para>超级灵活的集群方案。可以控制集群进行消息负载均衡的方式。分布在不同地理位置的各个集群间可以通过非可靠的网络连接形成一个全球网络。
@@ -61,7 +61,7 @@
         </listitem>
         <listitem>
             <para>请访问 <ulink
-                url="http://www.jboss.org/community/wiki/HornetQFeatures">wiki</ulink>来全面了解HornetQ的所有功能介绍。</para>
+                url="http://www.jboss.org/community/wiki/ActiveMQFeatures">wiki</ulink>来全面了解ActiveMQ的所有功能介绍。</para>
         </listitem>
     </itemizedlist>
 </chapter>

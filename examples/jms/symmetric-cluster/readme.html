@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Symmetric Cluster Example</title>
+    <title>ActiveMQ JMS Symmetric Cluster Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,8 +8,8 @@
   <body onload="prettyPrint()">
      <h1>JMS Symmetric Cluster Example</h1>
 
-     <p>This examples demonstrates a <b>symmetric cluster</b> set-up with HornetQ.</p>
-     <p>HornetQ has extremely flexible clustering which allows you to set-up servers in
+     <p>This examples demonstrates a <b>symmetric cluster</b> set-up with ActiveMQ.</p>
+     <p>ActiveMQ has extremely flexible clustering which allows you to set-up servers in
      many different topologies.</p>
      <p>The most common topology that you'll perhaps be familiar with if you are used to application
      server clustering is a <b>symmetric cluster</b>.</p>
@@ -17,9 +17,9 @@
      as every other node, and every node is connected to every other node in the cluster.</p>
      <p>By connecting node in such a way, we can, from a JMS point of view, give the impression of distributed
      JMS queues and topics.</p>
-     <p>The configuration used in this example is very similar to the configuration used by HornetQ
+     <p>The configuration used in this example is very similar to the configuration used by ActiveMQ
      when installed as a clustered profile in JBoss Application Server.</p>
-     <p>To set up HornetQ to form a symmetric cluster we simply need to mark each server as <code>clustered</code>
+     <p>To set up ActiveMQ to form a symmetric cluster we simply need to mark each server as <code>clustered</code>
      and we need to define a <code>cluster-connection</code> in <code>hornetq-configuration.xml</code>.</p>
      <p>The <code>cluster-connection</code> tells the nodes what other nodes to make connections to.
      With a <code>cluster-connection</code> each node that we connect to can either be specified
@@ -46,7 +46,7 @@
     <p>In this example will we will demonstrate this by deploying a JMS topic and Queue on all nodes of the cluster
      , sending messages to the queue and topic from different nodes, and verifying messages are received correctly
      by consumers on different nodes.</p>
-    <p>For more information on configuring HornetQ clustering in general, please see the clustering
+    <p>For more information on configuring ActiveMQ clustering in general, please see the clustering
      section of the user manual.</p>      
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
@@ -63,16 +63,16 @@
         
         <pre class="prettyprint">
            <code>
-   ConnectionFactory cf = HornetQJMSClient.createConnectionFactoryWithHA("231.7.7.7", 9876); 
+   ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA("231.7.7.7", 9876); 
    </code>
         </pre>
 
         <li>Directly instantiate JMS Queue and Topic objects</li>
         <pre class="prettyprint">
            <code>
-   Queue queue = new HornetQQueue("exampleQueue");
+   Queue queue = new ActiveMQQueue("exampleQueue");
          
-   Topic topic = HornetQJMSClient.createHornetQTopic("exampleTopic");           
+   Topic topic = ActiveMQJMSClient.createActiveMQTopic("exampleTopic");           
            </code>
         </pre>
 

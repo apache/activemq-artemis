@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS XA Receive Example</title>
+    <title>ActiveMQ JMS XA Receive Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -11,7 +11,7 @@
          the message will only be acknowledged and removed from the queue when the transaction is committed.
      If the transaction is not committed the message maybe redelivered after rollback or during XA recovery.</p>
      
-     <p>HornetQ is JTA aware, meaning you can use HornetQ in an XA transactional environment
+     <p>ActiveMQ is JTA aware, meaning you can use ActiveMQ in an XA transactional environment
      and participate in XA transactions. It provides the javax.transaction.xa.XAResource interface for that
      purpose. Users can get a XAConnectionFactory to create XAConnections and XASessions.</p>
      

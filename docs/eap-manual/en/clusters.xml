@@ -14,14 +14,14 @@
   -->
 
 <chapter id="clusters">
-   <title>HornetQ and EAP Cluster Configuration</title>
+   <title>ActiveMQ and EAP Cluster Configuration</title>
    <section>
       <title>Configuring Failover</title>
       <para>
-         This chapter explains how to configure HornetQ within EAP with live backup-groups. Currently in this version
-         HornetQ only supports shared store for backup nodes so we assume that in the rest of this chapter.
+         This chapter explains how to configure ActiveMQ within EAP with live backup-groups. Currently in this version
+         ActiveMQ only supports shared store for backup nodes so we assume that in the rest of this chapter.
       </para>
-      <para>There are 2 main ways to configure HornetQ servers to have a backup server:</para>
+      <para>There are 2 main ways to configure ActiveMQ servers to have a backup server:</para>
       <itemizedlist>
          <listitem>
             <para>Colocated. This is when an EAP instance has both a live and backup(s) running.</para>
@@ -206,7 +206,7 @@
                   are created from the Journal when the backup server becomes live.
                </para>
                <para>
-                  Firstly we need to define a new HornetQ Server that EAP will deploy. We do this by creating a new
+                  Firstly we need to define a new ActiveMQ Server that EAP will deploy. We do this by creating a new
                   <literal>hornetq-jboss-beans.xml</literal>
                   configuration. We will place this under a new directory
                   <literal>hornetq-backup1</literal>
@@ -228,7 +228,7 @@
 
 
       &lt;!-- The core server -->
-      &lt;bean name="BackupHornetQServer" class="org.apache.activemq.core.server.impl.HornetQServerImpl">
+      &lt;bean name="BackupActiveMQServer" class="org.apache.activemq.core.server.impl.ActiveMQServerImpl">
          &lt;constructor>
             &lt;parameter>
                &lt;inject bean="BackupConfiguration"/>
@@ -237,7 +237,7 @@
                &lt;inject bean="MBeanServer"/>
             &lt;/parameter>
             &lt;parameter>
-               &lt;inject bean="HornetQSecurityManager"/>
+               &lt;inject bean="ActiveMQSecurityManager"/>
             &lt;/parameter>
          &lt;/constructor>
          &lt;start ignored="true"/>
@@ -248,7 +248,7 @@
       &lt;bean name="BackupJMSServerManager" class="org.apache.activemq.jms.server.impl.JMSServerManagerImpl">
          &lt;constructor>
             &lt;parameter>
-               &lt;inject bean="BackupHornetQServer"/>
+               &lt;inject bean="BackupActiveMQServer"/>
             &lt;/parameter>
          &lt;/constructor>
       &lt;/bean>
@@ -263,7 +263,7 @@
                   server which we will place in the same directory.
                </para>
                <para>
-                  After that we just configure a new HornetQ Server and JMS server.
+                  After that we just configure a new ActiveMQ Server and JMS server.
                </para>
                <note>
                   <para>
@@ -386,7 +386,7 @@
                   The second thing you can see is we have added a
                   <literal>jmx-domain</literal>
                   attribute, this is used when
-                  adding objects, such as the HornetQ server and JMS server to jmx, we change this from the default
+                  adding objects, such as the ActiveMQ server and JMS server to jmx, we change this from the default
                   <literal>org.apache.activemq</literal>
                   to avoid naming clashes with the live server
                </para>
@@ -429,7 +429,7 @@
                </para>
                <para>
                   The Broadcast groups, Discovery group and cluster configurations are as per normal, details of these
-                  can be found in the HornetQ user manual.
+                  can be found in the ActiveMQ user manual.
                </para>
                <note>
                   <para>notice the commented out <literal>max-hops</literal> in the cluster connection, set this to 0 if
@@ -480,7 +480,7 @@
             <graphic fileref="images/simple-dedicated.jpg" align="center" format="jpg" scale="30"/>
         </para>
          <para>
-            Here you can see how this works with remote JMS clients. Once failover occurs the HornetQ backup Server takes
+            Here you can see how this works with remote JMS clients. Once failover occurs the ActiveMQ backup Server takes
             running within another eap instance takes over as live.
          </para>
          <para>
@@ -495,7 +495,7 @@
             makes no sense to host any applications in it. However you can host applications on the server running the live
             hornetq server. If failure occurs to an live hornetq server then remote jms clients will failover as previously
             explained however what happens to any messages meant for or sent from JEE components. Well when the backup comes
-            live, messages will be distributed to and from the backup server over HornetQ cluster connections and handled
+            live, messages will be distributed to and from the backup server over ActiveMQ cluster connections and handled
             appropriately.
          </para>
          <para>
@@ -506,7 +506,7 @@
             <graphic fileref="images/simple-dedicated-jca-remote.jpg" align="center" format="jpg" scale="30"/>
          </para>
          <para>
-            Here you can see that all the Application (via JCA) will be serviced by a HornetQ server in its own eap instance.
+            Here you can see that all the Application (via JCA) will be serviced by a ActiveMQ server in its own eap instance.
          </para>
          <section>
             <title>Configuration of dedicated Live and backup</title>

@@ -18,15 +18,15 @@
 <!-- ============================================================================= -->
 <chapter id="client-classpath">
     <title>客户端的Classpath</title>
-    <para>HornetQ的<emphasis>客户端Classpath</emphasis>需要有几个jar文件。具体是哪几个要根据客户端
+    <para>ActiveMQ的<emphasis>客户端Classpath</emphasis>需要有几个jar文件。具体是哪几个要根据客户端
           是需要内核API、JMS和JNDI中的哪些服务来确定。</para>
     <warning>
         <para>本章所提及的所有jar文件全部在HorneQ发布包的 <literal>lib</literal>目录下。在使用中一定
             要确保所有的jar文件属于同一个发布版本。将不同版本的jar混在一起使用可能造成一些难以发现的错误。</para>
     </warning>
     <section>
-        <title>使用HornetQ内核的客户端</title>
-        <para>如果客户端只使用HornetQ内核（非JMS客户端），需要将 <literal
+        <title>使用ActiveMQ内核的客户端</title>
+        <para>如果客户端只使用ActiveMQ内核（非JMS客户端），需要将 <literal
                 >hornetq-core-client.jar</literal>和
                 <literal>netty.jar</literal> 放到classpath中。</para>
     </section>
@@ -41,7 +41,7 @@
     </section>
     <section>
         <title>需要JNDI的JMS客户端</title>
-        <para>如果你的JMS客户端使用JNDI来查找HornetQ单独服务器上的对象，你需要将 <literal>jnp-client.jar</literal> 增加
+        <para>如果你的JMS客户端使用JNDI来查找ActiveMQ单独服务器上的对象，你需要将 <literal>jnp-client.jar</literal> 增加
               到你的classpath中。</para>
     </section>
 </chapter>

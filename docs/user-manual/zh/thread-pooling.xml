@@ -18,23 +18,23 @@
 <!-- ============================================================================= -->
 <chapter id="thread-pooling">
     <title>线程管理</title>
-    <para>本章讲述HornetQ如何使用线程池以及如何管理线程。</para>
+    <para>本章讲述ActiveMQ如何使用线程池以及如何管理线程。</para>
     <para>首先我们讨论在服务器端线程是如何被管理的，然后我们再讨论客户端的情况。</para>
     <section>
         <title>服务器端线程的管理</title>
-        <para>每个HornetQ服务器都有一个线程池作为一般线程使用，另外还有一个可计划线程池。Java的可计划线程池不能作为
+        <para>每个ActiveMQ服务器都有一个线程池作为一般线程使用，另外还有一个可计划线程池。Java的可计划线程池不能作为
             标准的线程池使用，因此我们采用了两个单独的线程池。</para>
         <para>当使用旧的（阻塞）IO时，使用了一个单独的线程池来处理连接。但是旧的IO要求一个线程配一个连接，所以如果你
             的应用有很多并发的连接，这个线程池会很快用光所有的线程，造成服务器出现“挂起”现象。因此，对于大量并发连接
             的应用，一定要使用NIO。</para>
-        <para>如果使用NIO，默认情况下HornetQ会使用系统中处理器内核（或超线程）数量三倍的线程来处理接收的数据包。
+        <para>如果使用NIO，默认情况下ActiveMQ会使用系统中处理器内核（或超线程）数量三倍的线程来处理接收的数据包。
             内核的数量是通过调用<literal>Runtime.getRuntime().availableProcessors()</literal>来得到
             的。如果你想改变这个数量，可以设置传输层配置参数<literal>nio-remoting-threads</literal>。
             参见<xref linkend="configuring-transports"/>。</para>
         <para>另外在其它一些地方直接使用了线程，没有用线程池。我们将对这些线程作出解释。</para>
         <section id="server.scheduled.thread.pool">
             <title>服务器端可计划线程池</title>
-            <para>服务器可计划线程池可以定期地或延迟地执行所交给的任务，它用来完成HornetQ中绝大部分这样的任务。
+            <para>服务器可计划线程池可以定期地或延迟地执行所交给的任务，它用来完成ActiveMQ中绝大部分这样的任务。
                   它内部使用的是一个 <literal
                     >java.util.concurrent.ScheduledThreadPoolExecutor</literal>实例。</para>
             <para>最大线程数可以在<literal
@@ -61,36 +61,36 @@
         </section>
         <section>
             <title>过期回收线程</title>
-            <para>HornetQ使用一个单独的线程来扫描队列中过期的消息。由于这个线程需要自己的优先级配置，所以不能使用上述的
+            <para>ActiveMQ使用一个单独的线程来扫描队列中过期的消息。由于这个线程需要自己的优先级配置，所以不能使用上述的
                 任何一个线程池。</para>
             <para>关于回收线程的配置请参阅<xref linkend="message-expiry"/>。</para>
         </section>
         <section>
             <title>异步IO</title>
-            <para>HornetQ使用一个线程池来进行异步IO的操作，包括事件的接收和发送。这些线程的名字都是以
-                HornetQ-AIO-poller-pool为开头。每个打开的日志文件都对应有一个线程为其服务（通常只有
+            <para>ActiveMQ使用一个线程池来进行异步IO的操作，包括事件的接收和发送。这些线程的名字都是以
+                ActiveMQ-AIO-poller-pool为开头。每个打开的日志文件都对应有一个线程为其服务（通常只有
                 一个）。</para>
             <para>还有一个单独的线程用于向libaio发送写请求。这样做是为了避免上下文转换带来的性能下降。该
-                线程的名字以HornetQ-AIO-writer-pool开头。</para>
+                线程的名字以ActiveMQ-AIO-writer-pool开头。</para>
         </section>
     </section>
     <section id="thread-pooling.client.side">
         <title>客户端线程管理</title>
-        <para>在客户端HornetQ有一个静态的可计划线程池和一个静态的通用线程池，它们在一个JVM中由同一个classloader装载的所有客户端
+        <para>在客户端ActiveMQ有一个静态的可计划线程池和一个静态的通用线程池，它们在一个JVM中由同一个classloader装载的所有客户端
             共同使用。</para>
         <para>静态的可计划的线程池的最大线程数为 <literal>5</literal>，通用线程池则没有线程数限制。</para>
         <para>如果需要还可以配置一个<literal
                 >ClientSessionFactory</literal>实例以使它拥有自己的可计划与通用线程池。通过这个工厂创建的会话都
             将使用这些线程池。</para>
         <para>要想配置<literal>ClientSessionFactory</literal>使用自己的线程池，只要调用它相应的方法取出可，如：</para>
-        <programlisting>ClientSessionFactory myFactory = HornetQClient.createClientSessionFactory(...);
+        <programlisting>ClientSessionFactory myFactory = ActiveMQClient.createClientSessionFactory(...);
 myFactory.setUseGlobalPools(false);
 myFactory.setScheduledThreadPoolMaxSize(10);
 myFactory.setThreadPoolMaxSize(-1);   </programlisting>
         <para>如果使用JMS，你可以先用同样的参数设置ClientSessionFactory，然后再用这样工厂创建<literal
                 >ConnectionFactory</literal>的实例。如：</para>
-        <programlisting>ConnectionFactory myConnectionFactory = HornetQJMSClient.createConnectionFactory(myFactory);     </programlisting>
-        <para>如果你使用JNDI来创建<literal>HornetQConnectionFactory</literal>
+        <programlisting>ConnectionFactory myConnectionFactory = ActiveMQJMSClient.createConnectionFactory(myFactory);     </programlisting>
+        <para>如果你使用JNDI来创建<literal>ActiveMQConnectionFactory</literal>
             实例，你还可以在<literal>hornetq-jms.xml</literal>文件中进行配置。如：</para>
         <programlisting>&lt;connection-factory name="ConnectionFactory"&gt;
     &lt;connectors>

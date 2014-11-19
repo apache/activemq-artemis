@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Durable Subscription Example</title>
+    <title>ActiveMQ JMS Durable Subscription Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -10,7 +10,7 @@
 
      <p>This example demonstrates a clustered JMS durable subscription.
      Normally durable subscriptions exist on a single node and can only have one subscriber at any one time,
-     however, with HornetQ it's possible to create durable subscription instances with the same name and client-id
+     however, with ActiveMQ it's possible to create durable subscription instances with the same name and client-id
      on different nodes of the cluster, and consume from them simultaneously.
      This allows the work of processing messages from a durable subscription to be spread across the cluster in
      a similar way to how JMS Queues can be load balanced across the cluster
@@ -37,7 +37,7 @@
      &lt;/cluster-connection&gt;
      </code>
      </pre>    
-     <p>For more information on HornetQ load balancing, and clustering in general, please see the clustering
+     <p>For more information on ActiveMQ load balancing, and clustering in general, please see the clustering
      section of the user manual.</p>    
        
      <h2>Example step-by-step</h2>

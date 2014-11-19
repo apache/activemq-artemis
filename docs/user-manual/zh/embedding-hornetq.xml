@@ -17,19 +17,19 @@
 <!-- permitted by applicable law.                                                  -->
 <!-- ============================================================================= -->
 <chapter id="embedding-hornetq">
-    <title>嵌入式HornetQ</title>
-    <para>HornetQ是由简单传统Java对象（POJO）实现，因此它可以在任何依赖注入的框架中运行，比如JBoss
+    <title>嵌入式ActiveMQ</title>
+    <para>ActiveMQ是由简单传统Java对象（POJO）实现，因此它可以在任何依赖注入的框架中运行，比如JBoss
         Microcontainer，Sprint或Google Guice。另外如果你的应用程序内部需要消息功能，你可以在程序中
-        <emphasis>直接实例化</emphasis>HornetQ的客户端或服务器端。我们称之为<emphasis>嵌入式</emphasis>
-        HornetQ。</para>
-    <para>有些应用需要高性能、事务性及持久化的消息服务，但是又不希望自己去费时费力实现它。于是嵌入式HornetQ就
+        <emphasis>直接实例化</emphasis>ActiveMQ的客户端或服务器端。我们称之为<emphasis>嵌入式</emphasis>
+        ActiveMQ。</para>
+    <para>有些应用需要高性能、事务性及持久化的消息服务，但是又不希望自己去费时费力实现它。于是嵌入式ActiveMQ就
         成为了一个很适当的选择。</para>
-    <para>要使用嵌入式HornetQ只需要几个简单的步骤。首先初始化配置对象，再初始化服务器并启动它，在你的虚拟机
-        中就运行越来了一个HornetQ服务器。就是这么简单。</para>
+    <para>要使用嵌入式ActiveMQ只需要几个简单的步骤。首先初始化配置对象，再初始化服务器并启动它，在你的虚拟机
+        中就运行越来了一个ActiveMQ服务器。就是这么简单。</para>
     <section>
         <title>POJO的初始化</title>
         <para>按照以下步骤去做：</para>
-        <para>创建配置对象－－这个对象包装了HornetQ的配置信息。如果你想使用配置文件，则使用<literal
+        <para>创建配置对象－－这个对象包装了ActiveMQ的配置信息。如果你想使用配置文件，则使用<literal
                 >FileConfigurationImpl</literal>。</para>
         <programlisting>import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.FileConfiguration;
@@ -56,29 +56,29 @@ transports.add(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
 transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
 config.setAcceptorConfigurations(transports);</programlisting>
-        <para>接着就需要初始化并启动HornetQ服务。<literal
-                >org.apache.activemq.api.core.server.HornetQ</literal>类有一些静态方法可用来创建HornetQ服务器。</para>
-        <programlisting>import org.apache.activemq.api.core.server.HornetQ;
-import org.apache.activemq.core.server.HornetQServer;
+        <para>接着就需要初始化并启动ActiveMQ服务。<literal
+                >org.apache.activemq.api.core.server.ActiveMQ</literal>类有一些静态方法可用来创建ActiveMQ服务器。</para>
+        <programlisting>import org.apache.activemq.api.core.server.ActiveMQ;
+import org.apache.activemq.core.server.ActiveMQServer;
 
 ...
 
-HornetQServer server = HornetQ.newHornetQServer(config);
+ActiveMQServer server = ActiveMQ.newActiveMQServer(config);
 
 server.start();</programlisting>
-        <para>你还可以直接实例化<literal>HornetQServerImpl</literal>：</para>
-        <programlisting>HornetQServer server = 
-        new HornetQServerImpl(config);
+        <para>你还可以直接实例化<literal>ActiveMQServerImpl</literal>：</para>
+        <programlisting>ActiveMQServer server = 
+        new ActiveMQServerImpl(config);
 server.start();</programlisting>
     </section>
     <section>
         <title>使用依赖注入框架</title>
-        <para>你还可以使用一个依赖注入框架来启动HornetQ，比如<trademark>JBoss
+        <para>你还可以使用一个依赖注入框架来启动ActiveMQ，比如<trademark>JBoss
                 Microcontainer</trademark>或<trademark>Spring框架</trademark>。</para>
-        <para>HornetQ独立服务器使用的是JBoss Microcontainer作为其框架。在HornetQ的发布中包括的<literal
-                >HornetQBootstrapServer</literal>和<literal>hornetq-beans.xml</literal>文件共同实现了
-                在JBoss Microcontainer中对HornetQ服务器的引导。</para>
-        <para>要使用JBoss Microcontainer，需要在xml文件中声明<literal>HornetQServer</literal>
+        <para>ActiveMQ独立服务器使用的是JBoss Microcontainer作为其框架。在ActiveMQ的发布中包括的<literal
+                >ActiveMQBootstrapServer</literal>和<literal>hornetq-beans.xml</literal>文件共同实现了
+                在JBoss Microcontainer中对ActiveMQ服务器的引导。</para>
+        <para>要使用JBoss Microcontainer，需要在xml文件中声明<literal>ActiveMQServer</literal>
             和<literal>Configuration</literal>对象。另外还可以注入一个安全管理器和一个MBean服务器。但是这些
             注入是可选的。</para>
         <para>下面是一个基本的JBoss Microcontainer的XML Bean的声明：</para>
@@ -92,8 +92,8 @@ server.start();</programlisting>
    &lt;/bean>
 
    	&lt;!-- The core server -->
-   &lt;bean name="HornetQServer" 
-         class="org.apache.activemq.core.server.impl.HornetQServerImpl">
+   &lt;bean name="ActiveMQServer" 
+         class="org.apache.activemq.core.server.impl.ActiveMQServerImpl">
       &lt;constructor>
          &lt;parameter>
             &lt;inject bean="Configuration"/>
@@ -101,18 +101,18 @@ server.start();</programlisting>
       &lt;/constructor>         
    &lt;/bean>
    &lt;/deployment></programlisting>
-        <para><literal>HornetQBootstrapServer</literal>实现了JBoss Microcontainer的简单封装。</para>
-        <programlisting>HornetQBootstrapServer bootStrap = 
-        new HornetQBootstrapServer(new String[] {"hornetq-beans.xml"});
+        <para><literal>ActiveMQBootstrapServer</literal>实现了JBoss Microcontainer的简单封装。</para>
+        <programlisting>ActiveMQBootstrapServer bootStrap = 
+        new ActiveMQBootstrapServer(new String[] {"hornetq-beans.xml"});
         bootStrap.run();</programlisting>
     </section>
     <section>
-        <title>连接嵌入式HornetQ</title>
-        <para>嵌入式HornetQ的连接和普通的连接一样要创建连接工厂：</para>
+        <title>连接嵌入式ActiveMQ</title>
+        <para>嵌入式ActiveMQ的连接和普通的连接一样要创建连接工厂：</para>
         <section>
             <title>核心接口</title>
             <para>使用核心接口，需要创建一个<literal>ClientSessionFactory</literal>然后正常建立连接。</para>
-            <programlisting>ClientSessionFactory nettyFactory =  HornetQClient.createClientSessionFactory(
+            <programlisting>ClientSessionFactory nettyFactory =  ActiveMQClient.createClientSessionFactory(
                                         new TransportConfiguration(
                                            InVMConnectorFactory.class.getName()));
 
@@ -140,10 +140,10 @@ session.close();</programlisting>
         </section>
         <section>
             <title>JMS接口</title>
-            <para>使用JMS接口连接嵌入HornetQ同样简单。只需要直接实例化
+            <para>使用JMS接口连接嵌入ActiveMQ同样简单。只需要直接实例化
                     <literal>ConnectionFactory</literal>即可。如下面例子所示：</para>
             <programlisting>ConnectionFactory cf =
-    HornetQJMSClient.createConnectionFactory(
+    ActiveMQJMSClient.createConnectionFactory(
        new TransportConfiguration(InVMConnectorFactory.class.getName()));
 
 Connection conn = cf.createConnection();
@@ -172,7 +172,7 @@ conn.close();</programlisting>
         </section>
     </section>
     <section>
-        <title>JMS嵌入式HornetQ的例子</title>
-        <para>有关如何设置与运行JMS嵌入式HornetQ的例子请参见<xref linkend="examples.embedded"/>。</para>
+        <title>JMS嵌入式ActiveMQ的例子</title>
+        <para>有关如何设置与运行JMS嵌入式ActiveMQ的例子请参见<xref linkend="examples.embedded"/>。</para>
     </section>
 </chapter>

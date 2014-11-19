@@ -14,17 +14,17 @@
 
 <!-- This document was created with Syntext Serna Free. -->
 <!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_EAP_Manual.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_EAP_Manual.ent">
 %BOOK_ENTITIES;
 ]>
-<bookinfo id="HornetQ_EAP_Manual">
-  <title>HornetQ Eap Manual</title>
+<bookinfo id="ActiveMQ_EAP_Manual">
+  <title>ActiveMQ Eap Manual</title>
   <subtitle>Putting the buzz in messaging</subtitle>
-  <productname>HornetQ</productname>
+  <productname>ActiveMQ</productname>
   <edition>2.1.0</edition>
   <pubsnumber>1</pubsnumber>
   <abstract>
-    <para>This is a guide to using HornetQ within EAP</para>
+    <para>This is a guide to using ActiveMQ within EAP</para>
   </abstract>
   <corpauthor>
     <inlinemediaobject>
@@ -32,7 +32,7 @@
         <imagedata fileref="images/hornetQ_logo_600px.png" format="PNG"/>
       </imageobject>
       <textobject>
-        <phrase>HornetQ Logo</phrase>
+        <phrase>ActiveMQ Logo</phrase>
       </textobject>
     </inlinemediaobject>
   </corpauthor>

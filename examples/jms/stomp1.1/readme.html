@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Stomp 1.1 Example</title>
+    <title>ActiveMQ Stomp 1.1 Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,8 +8,8 @@
   <body onload="prettyPrint()">
      <h1>Stomp 1.1 Example</h1>
 
-     <p>This example shows you how to configure HornetQ to send and receive Stomp messages using Stomp 1.1 protocol.</p>
-     <p>The example will start a HornetQ server configured with Stomp and JMS.</p>
+     <p>This example shows you how to configure ActiveMQ to send and receive Stomp messages using Stomp 1.1 protocol.</p>
+     <p>The example will start a ActiveMQ server configured with Stomp and JMS.</p>
      <p>The client will open a socket to initiate a Stomp 1.1 connection and then send one Stomp message (using TCP directly). 
        The client will then consume a message from a JMS Queue and check it is the message sent with Stomp.</p>
 
@@ -42,7 +42,7 @@
         </pre>
 
         <li>We send a SEND frame (a Stomp message) to the destination <code>jms.queue.exampleQueue</code> 
-          (which corresponds to the HornetQ address for the JMS Queue <code>exampleQueue</code>) with a text body</li>
+          (which corresponds to the ActiveMQ address for the JMS Queue <code>exampleQueue</code>) with a text body</li>
         <pre class="prettyprint">
           String text = "Hello World from Stomp 1.1 !";
           String message = "SEND\n" + 

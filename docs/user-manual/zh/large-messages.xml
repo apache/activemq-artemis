@@ -18,10 +18,10 @@
 <!-- ============================================================================= -->
 <chapter id="large-messages">
     <title>大消息</title>
-    <para>HornetQ支持超大消息的发送和接收。消息的大小不受客户端或服务器端的内存限制。它只受限于你的磁盘空间的大小。
+    <para>ActiveMQ支持超大消息的发送和接收。消息的大小不受客户端或服务器端的内存限制。它只受限于你的磁盘空间的大小。
         在我们作过的测试中，消息最大可达8GiB，而客户端和服务器端的内存只有50MiB！</para>
     <para>要发送一个大消息，用户需要为大消息提供一个<literal>InputStream</literal>，当大消息被发送时，
-        HornetQ从该<literal>InputStream</literal>读取消息。例如，要将一个磁盘中的大文件以消息形式发送，可以
+        ActiveMQ从该<literal>InputStream</literal>读取消息。例如，要将一个磁盘中的大文件以消息形式发送，可以
         使用<literal>FileInputStream</literal>。</para>
     <para>数据从<literal>InputStream</literal>读出并分解为一个个数据片段向服务器以流的形式发送。服务器在收到
         这些片段后将它们保存到磁盘上。当服务器准备向接收者传递消息时，它将这些片段读回，同样以片段流的形式向接收者
@@ -29,7 +29,7 @@
         以便向大消息保存到磁盘上或其它地方。从发送到接收整个过程中不需要整个消息都在内存中。</para>
     <section id="large.message.configuring">
         <title>服务器端的配置</title>
-        <para>大消息在服务器端是直接保存在磁盘目录中。这一目录可以在HornetQ的配置文件中定义。</para>
+        <para>大消息在服务器端是直接保存在磁盘目录中。这一目录可以在ActiveMQ的配置文件中定义。</para>
         <para>这个参数的名字是<literal>large-messages-directory</literal>：</para>
         <programlisting>&lt;configuration xmlns="urn:activemq"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -53,10 +53,10 @@
         <para>默认值是100KiB.</para>
         <section id="large-messages.core.config">
             <title>使用核心的API</title>
-            <para>如果使用HornetQ的核心，<literal>ClientSessionFactory.setMinLargeMessageSize</literal>方法
+            <para>如果使用ActiveMQ的核心，<literal>ClientSessionFactory.setMinLargeMessageSize</literal>方法
                   可以设置大消息的最小值。</para>
             <programlisting>ClientSessionFactory factory = 
-            HornetQClient.createClientSessionFactory(new 
+            ActiveMQClient.createClientSessionFactory(new 
             TransportConfiguration(NettyConnectorFactory.class.getName()), null);
 factory.setMinLargeMessageSize(25 * 1024);</programlisting>
             <para><xref linkend="configuring-transports.client.side"/>对于如何实例化一个会话工厂（session factory）
@@ -79,13 +79,13 @@ factory.setMinLargeMessageSize(25 * 1024);</programlisting>
 &lt;/connection-factory>
 ...</programlisting>
             <para>如果是直接实例化连接工厂，则使用<literal
-                    >HornetQConnectionFactory.setMinLargeMessageSize</literal>方法来定义。</para>
+                    >ActiveMQConnectionFactory.setMinLargeMessageSize</literal>方法来定义。</para>
         </section>
     </section>
     <section>
         <title>大消息与流（stream）</title>
-        <para>在HornetQ中可以定义大消息所使用的输入和输出流（<literal>java.lang.io</literal>)。</para>
-        <para>HornetQ将使用定义的流来发送（输入流）和接收（输出流）大消息。</para>
+        <para>在ActiveMQ中可以定义大消息所使用的输入和输出流（<literal>java.lang.io</literal>)。</para>
+        <para>ActiveMQ将使用定义的流来发送（输入流）和接收（输出流）大消息。</para>
         <para>在使用输出流接收大消息时，有两种选择：你可以用<literal>ClientMessage.saveOutputStream</literal>方法
             以阻塞的方式保存大消息；或者你可以使用<literal>ClientMessage.setOutputstream</literal>方法
             以异步方法保存大消息。在采用后一种方法时，必须保证接收者（consumer）在大消息的接收过程中保持
@@ -157,7 +157,7 @@ msg.setInputStream(dataInputStream);
         </section>
         <section id="large-messages.streaming.over.jms">
             <title>在JMS中使用流</title>
-            <para>使用JMS时，HornetQ根据定义的属性值调用对应的核心接口（参见 <xref
+            <para>使用JMS时，ActiveMQ根据定义的属性值调用对应的核心接口（参见 <xref
                     linkend="large-messages.ClientMessageAPI"/>）来使用流。你只需要用
                   <literal>Message.setObjectProperty</literal>方法设置适当的输入／输出流即可。</para>
             <para>输入流<literal>InputStream</literal>可以通过JMS属性JMS_HQ_InputStream来定义：</para>

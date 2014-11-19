@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Automatic Reattach Example</title>
+    <title>ActiveMQ JMS Automatic Reattach Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,11 +8,11 @@
   <body onload="prettyPrint()">
      <h1>JMS Reattach Example</h1>
 
-     <p>This example demonstrates how HornetQ connections can be configured to be resilient to
+     <p>This example demonstrates how ActiveMQ connections can be configured to be resilient to
      temporary network failures.</p>
      <p>In the case of a network failure being detected, either as a result of a failure to read/write to the connection,
      or the failure of a pong to arrive back from the server in good time after a ping is sent, instead of
-     failing the connection immediately and notifying any user ExceptionListener objects, HornetQ
+     failing the connection immediately and notifying any user ExceptionListener objects, ActiveMQ
      can be configured to automatically retry the connection, and reattach to the server when it becomes
      available again across the network.</p>
      <p>When the client reattaches to the server it will be able to resume using its sessions and connections
@@ -28,7 +28,7 @@
      related attributes in the <code>hornetq-jms.xml</code> file.</p>
 
      <p>For more details on how to configure this and for clustering in general
-     please consult the HornetQ user manual.</p>
+     please consult the ActiveMQ user manual.</p>
 
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
