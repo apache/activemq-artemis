@@ -1,21 +1,21 @@
 <html>
   <head>
-    <title>HornetQ Embedded Example</title>
+    <title>ActiveMQ Embedded Example</title>
     <link rel="stylesheet" type="text/css" href="../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../common/prettify.css" />
     <script type="text/javascript" src="../../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
      <h1>Embedded Example</h1>
-     <p>This example shows how to setup and run HornetQ embedded with remote clients connecting.</p>
-     <p>HornetQ was designed to use POJOs (Plain Old Java Objects), what makes embedding HornetQ as simple as instantiating a few objects.</p>
+     <p>This example shows how to setup and run ActiveMQ embedded with remote clients connecting.</p>
+     <p>ActiveMQ was designed to use POJOs (Plain Old Java Objects), what makes embedding ActiveMQ as simple as instantiating a few objects.</p>
 
-     <p>HornetQ Embedded could be used from very simple use cases with only InVM support to very complex cases with clustering, persistence and fail over.</p>
+     <p>ActiveMQ Embedded could be used from very simple use cases with only InVM support to very complex cases with clustering, persistence and fail over.</p>
 
 
      <h2>Example step-by-step</h2>     
      <p><i>To run the example, simply type <code>mvn -Pserver</code> from this directory to start the server and <code>mvn -Pclient</code> to run the client example</i></p>
-     <p>In this we don't use any configuration files. (Everything is embedded). We simply instantiate ConfigurationImpl, HornetQServer, start it and operate on JMS regularly</p>
+     <p>In this we don't use any configuration files. (Everything is embedded). We simply instantiate ConfigurationImpl, ActiveMQServer, start it and operate on JMS regularly</p>
      <br/>
      <ol>
         <li>On EmbeddedServer: Create the Configuration, and set the properties accordingly</li>
@@ -27,13 +27,13 @@
          
         <li>On EmbeddedServer: Create and start the server</li>
         <pre class="prettyprint">
-           HornetQServer server = HornetQ.newHornetQServer(configuration);
+           ActiveMQServer server = ActiveMQ.newActiveMQServer(configuration);
            server.start();
         </pre>
 
         <li>As we are not using a JNDI environment we instantiate the objects directly</li>
         <pre class="prettyprint">
-           ServerLocator serverLocator = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
+           ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
            ClientSessionFactory sf = serverLocator.createSessionFactory();
         </pre>
 

@@ -19,13 +19,13 @@
 <chapter id="message-expiry">
    <title>过期的消息</title>
    <para>消息在发送时有一个可选的<emphasis>生存时间</emphasis>属性。</para>
-   <para>如果一个消息已经超过了它的生存时间，HornetQ不再将它传递给任何接收者。
+   <para>如果一个消息已经超过了它的生存时间，ActiveMQ不再将它传递给任何接收者。
       服务器会将过期的消息抛弃。</para>
-   <para>HornetQ的地址可以配置一个过期地址，当消息过期时，它们被从队列中删除并被转移到过期地址中。
+   <para>ActiveMQ的地址可以配置一个过期地址，当消息过期时，它们被从队列中删除并被转移到过期地址中。
       多个不同的队列可以绑定到一个过期地址上。这些过期的消息过后可以接收下来以供分析用。</para>
    <section>
       <title>过期消息的配置</title>
-      <para>如果使用HornetQ核心API，可以直接在消息上设置过期时间：</para>
+      <para>如果使用ActiveMQ核心API，可以直接在消息上设置过期时间：</para>
       <programlisting>
 // message will expire in 5000ms from now
 message.setExpiration(System.currentTimeMillis() + 5000);         
@@ -61,7 +61,7 @@ producer.setTimeToLive(5000);
    </section>
    <section id="configuring.expiry.reaper">
       <title>配置过期回收线程</title>
-      <para>HornetQ有一个回收线程定期地检查队列中的消息，目的是发现是否有消息过期。</para>
+      <para>ActiveMQ有一个回收线程定期地检查队列中的消息，目的是发现是否有消息过期。</para>
       <para>在<literal>activemq-configuration.xml</literal>文件中可以对回收线程进行配置，参数如下：</para>
       <itemizedlist>
          <listitem>

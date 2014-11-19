@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Core Bridge Example</title>
+    <title>ActiveMQ Core Bridge Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -11,7 +11,7 @@
      <p>This example demonstrates a core bridge deployed on one server, which consumes messages from a
      local queue and forwards them to an address on a second server.</p>
      
-     <p>Core bridges are used to create message flows between any two HornetQ servers which are remotely separated.
+     <p>Core bridges are used to create message flows between any two ActiveMQ servers which are remotely separated.
      Core bridges are resilient and will cope with temporary connection failure allowing them to be an ideal
      choice for forwarding over unreliable connections, e.g. a WAN.</p>
      <p>They can also be configured with an optional filter expression, and will only forward messages that
@@ -19,11 +19,11 @@
      <p>Furthermore they can be configured to use an optional Transformer class. A user-defined Transformer class
      can be specified which is called at forwarding time. This gives the user the opportunity to transform
      the message in some ways, e.g. changing its properties or body</p>
-     <p>HornetQ also includes a <b>JMS Bridge</b>. This is similar to a core bridge, but uses the JMS API
+     <p>ActiveMQ also includes a <b>JMS Bridge</b>. This is similar to a core bridge, but uses the JMS API
      and can be used to bridge between any two JMS 1.1 compliant messaging systems. The core bridge is limited to bridging
-     between HornetQ instances, but may provide better performance than the JMS bridge. The JMS bridge is covered in
+     between ActiveMQ instances, but may provide better performance than the JMS bridge. The JMS bridge is covered in
      a separate example.</p>
-     <p>For more information on bridges, please see the HornetQ user manual.</p>
+     <p>For more information on bridges, please see the ActiveMQ user manual.</p>
 
      <p>In this example we will demonstrate a simple sausage factory for aardvarks.</p>
      <p>We have a JMS queue on server 0 named <code>sausage-factory</code>, and we have a 

@@ -1,6 +1,6 @@
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:hornetq /schema/activemq-jms.xsd">
+            xsi:schemaLocation="urn:activemq /schema/activemq-jms.xsd">
             
    <!--This connection factory is not actually used in the example, but we keep it here for good
    measure -->

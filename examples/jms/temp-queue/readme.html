@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS Temporary Queue Example</title>
+    <title>ActiveMQ JMS Temporary Queue Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,7 +8,7 @@
   <body onload="prettyPrint()">
      <h1>JMS Temporary Queue Example</h1>
 
-     <p>This example shows you how to use a TemporaryQueue with HornetQ. First a temporary queue is created to send and receive a message and then deleted.
+     <p>This example shows you how to use a TemporaryQueue with ActiveMQ. First a temporary queue is created to send and receive a message and then deleted.
          Then another temporary queue is created and used after its connection is closed to illustrate its scope.</p>
      <p>A TemporaryQueue is a JMS queue that exists only within the lifetime of its connection. It is often used in request-reply
          type messaging where the reply is sent through a temporary destination. The temporary queue is often created as

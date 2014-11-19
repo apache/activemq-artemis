@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Stomp WebSockets Example</title>
+    <title>ActiveMQ Stomp WebSockets Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script src="../common/prettify.js"></script>
@@ -8,9 +8,9 @@
   <body onload="prettyPrint()">
      <h1>Stomp WebSockets Example</h1>
 
-     <p>This example shows you how to configure HornetQ to send and receive Stomp messages from modern web browser using Web Sockets.</p>
+     <p>This example shows you how to configure ActiveMQ to send and receive Stomp messages from modern web browser using Web Sockets.</p>
 
-     <p>The example will start a HornetQ server configured with Stomp over Web Sockets and JMS. Web browsers clients and
+     <p>The example will start a ActiveMQ server configured with Stomp over Web Sockets and JMS. Web browsers clients and
        Java application will exchange message using a JMS Topic.</p></para>
      <pre class="prettyprint">
 &lt;acceptor name="stomp-websocket">
@@ -23,7 +23,7 @@
      <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
 
     <p>To subscribe to the topic from your web browser, open the <a href="chat/index.html">Chat Example</a> or the <a href="aerogear-chat/aerogear-index.html">JBoss AeroGear STOMP notifier Chat Example</a> from another tab.
-      The chat example is preconfigured to connect to the HornetQ server with the URL <code>ws://localhost:61614/stomp</code> and subscribe to the JMS Topic (through its core address
+      The chat example is preconfigured to connect to the ActiveMQ server with the URL <code>ws://localhost:61614/stomp</code> and subscribe to the JMS Topic (through its core address
       <code>jms.topic.chat</code>).
     </p>
     <p>You can open as many Web clients as you want and they will all exchange messages through the topic</p>

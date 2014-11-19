@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Java EE JCA Configuration Example</title>
+    <title>ActiveMQ Java EE JCA Configuration Example</title>
     <link rel="stylesheet" type="text/css" href="../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../common/prettify.css" />
     <script type="text/javascript" src="../../common/prettify.js"></script>
@@ -8,7 +8,7 @@
   <body onload="prettyPrint()">
      <h1>Java EE Resource Adapter Configuration Example</h1>
 
-     <p>This example demonstrates how to configure several properties on the HornetQ Resource Adapter. We setup two
+     <p>This example demonstrates how to configure several properties on the ActiveMQ Resource Adapter. We setup two
          WildFly. The enterprise application is being deployed in one application server while the MDBs and JMS
          Connections are pointing to a remote server</p>
      <p>This example is composed of two message-driven beans (MDB), MDBQueueA and MDBQueueB, and a stateless session
@@ -48,8 +48,8 @@
 
          <li>On the second server we invoke the EJB StatelessSender: This will send 2 messages to server 1 using the configured outbound adapter</li>
          <pre class="prettyprint">
-            Queue destQueueA = HornetQJMSClient.createQueue("A");
-            Queue destQueueB = HornetQJMSClient.createQueue("B");
+            Queue destQueueA = ActiveMQJMSClient.createQueue("A");
+            Queue destQueueB = ActiveMQJMSClient.createQueue("B");
          </pre>
       
          <li>Create a connection to a remote server using a connection-factory we injected. JCA will actually manage this through a <i>connection pool</i></li>

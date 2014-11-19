@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMX Management Example</title>
+    <title>ActiveMQ JMX Management Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,11 +8,11 @@
   <body onload="prettyPrint()">
      <h1>JMX Management Example</h1>
 
-     <p>This example shows how to manage HornetQ using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX</a></p>
+     <p>This example shows how to manage ActiveMQ using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX</a></p>
 
      <h2>Example configuration</h2>
 
-     <p>HornetQ exposes its managed resources by default on the platform MBeanServer.</p>
+     <p>ActiveMQ exposes its managed resources by default on the platform MBeanServer.</p>
      <p>To access this MBeanServer remotely, the Java Virtual machine must be started with system properties:
          <pre class="prettyprint">
              <code>-Dcom.sun.management.jmxremote
@@ -22,7 +22,7 @@
         </pre>
         <p>These properties are explained in the Java 5 <a href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#remote">Management guide</a>
             (please note that for this example, we will disable user authentication for simplicity sake).</p>        
-        <p>With these properties, HornetQ server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p> 
+        <p>With these properties, ActiveMQ server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p> 
      </p>
          
      <h2>Example step-by-step</h2>

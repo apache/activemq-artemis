@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Client Side Failover Listener Example</title>
+    <title>ActiveMQ Client Side Failover Listener Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -36,7 +36,7 @@
             <code>
             Thread.sleep(5000);
             connectionA = connectionFactory.createConnection();
-            ((HornetQConnection)connectionA).setFailoverListener(new FailoverListenerImpl());
+            ((ActiveMQConnection)connectionA).setFailoverListener(new FailoverListenerImpl());
 			</code>
         </pre>
 

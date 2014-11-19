@@ -18,11 +18,11 @@
 <!-- ============================================================================= -->
 <chapter id="configuring-transports">
     <title>传输层的配置</title>
-    <para>HornetQ的传输层是“可插拔的”。通过灵活的配置和一套服务提供接口（SPI），HornetQ可以很容易地更换其传输层。</para>
-    <para>在本章中我们将对HornetQ的传输相关的概念作出解释，并说明它的配置方法。</para>
+    <para>ActiveMQ的传输层是“可插拔的”。通过灵活的配置和一套服务提供接口（SPI），ActiveMQ可以很容易地更换其传输层。</para>
+    <para>在本章中我们将对ActiveMQ的传输相关的概念作出解释，并说明它的配置方法。</para>
     <section id="configuring-transports.acceptors">
         <title>接收器（Acceptor）</title>
-        <para>接收器（<emphasis>acceptor</emphasis>）是 HornetQ 的传输层中最为重要的概念之一。首先
+        <para>接收器（<emphasis>acceptor</emphasis>）是 ActiveMQ 的传输层中最为重要的概念之一。首先
             介绍一下在文件<literal>activemq-configuration.xml</literal>中是怎样定义一个接收器的：</para>
         <programlisting>
 &lt;acceptors&gt;                
@@ -36,12 +36,12 @@ org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory
         </programlisting>
         <para>所有接收器都在 <literal>acceptors</literal>单元（element）内定义。在<literal>acceptors</literal>
             内可以有零个或多个接收器的定义。每个服务器所拥有的接收器的数量是没有限制的。</para>
-        <para>每个接收器都要定义其与HornetQ服务器连接的方式。</para>
+        <para>每个接收器都要定义其与ActiveMQ服务器连接的方式。</para>
         <para>以上的例子中我们定义了一个<ulink
                 url="http://jboss.org/netty">Netty</ulink>接收器。它在端口<literal>5446</literal>监听连接请求。</para>
         <para>在<literal>acceptor</literal>单元内有一个子单元<literal>factory-class</literal>。这个单元是用来
             定义创建连接器的工厂类。一个连接器工厂类必须要实现<literal>AcceptorFactory</literal>接口。上例中我们定义
-            的连接器工厂是类NettyAcceptorFactory使用Netty来建立连接。有个这个类定义，HornetQ就知道了用什么传输来建立连接了。</para>
+            的连接器工厂是类NettyAcceptorFactory使用Netty来建立连接。有个这个类定义，ActiveMQ就知道了用什么传输来建立连接了。</para>
         <para>在<literal>acceptor</literal>中还可以配置零或多个参数<literal>param</literal>。在每个<literal>param</literal>
             中定义的是键-值对（key-value）。这些参数用来配置某个传输实现。不同传输有不同的配置参数。</para>
         <para>像IP地址、端口号等都是传输配置参数的例子。</para>
@@ -71,9 +71,9 @@ org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory
                     <emphasis>connectors</emphasis>下定义连接器。</para>
             </listitem>
             <listitem>
-                <para>如果你使用JMS服务，需要创建连接工厂的实例并绑定到JNDI。在HornetQ创建
-                    <literal>HornetQConnectionFactory</literal>时需要连接器的必要信息，以便这个连接工厂
-                    能知道它如何与HornetQ服务器相连接。</para>
+                <para>如果你使用JMS服务，需要创建连接工厂的实例并绑定到JNDI。在ActiveMQ创建
+                    <literal>ActiveMQConnectionFactory</literal>时需要连接器的必要信息，以便这个连接工厂
+                    能知道它如何与ActiveMQ服务器相连接。</para>
                 <para>这一信息被定义在配置文件<literal
                         >hornetq-jms.xml</literal>中的<literal>connector-ref</literal>单元下。下面这段配置
                         就是从该配置文件中提取的相关部分，它展示了JMS的连接工厂是如何引用定义在配置文件<literal
@@ -111,7 +111,7 @@ TransportConfiguration transportConfiguration =
     "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
     connectionParams);
 
-ClientSessionFactory sessionFactory = HornetQClient.createClientSessionFactory(transportConfiguration);
+ClientSessionFactory sessionFactory = ActiveMQClient.createClientSessionFactory(transportConfiguration);
 
 ClientSession session = sessionFactory.createSession(...);
 
@@ -129,7 +129,7 @@ TransportConfiguration transportConfiguration =
     "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
     connectionParams);
 
-ConnectionFactory connectionFactory = HornetQJMSClient.createConnectionFactory(transportConfiguration);
+ConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactory(transportConfiguration);
 
 Connection jmsConnection = connectionFactory.createConnection();
 
@@ -138,7 +138,7 @@ etc
     </section>
     <section>
         <title>配置 Netty 传输层</title>
-        <para>HornetQ当前使用<ulink url="http://www.jboss.org/netty/"
+        <para>ActiveMQ当前使用<ulink url="http://www.jboss.org/netty/"
                 >Netty</ulink>作为其默认的连接层。Netty是一个高性能的底层网络库.</para>
         <para>Netty传输的配置有几种不同的方法。它可以使用传统的Java IO（阻塞方式）、NIO（非阻塞）或直接使用
             TCP socket及SSL。或者使用HTTP或HTTPS协议。同时还可能使用servlet进行传输。</para>
@@ -202,7 +202,7 @@ etc
                         默认值是<literal>32768</literal>字节(32KiB)。</para>
                 </listitem>
                 <listitem>
-                    <para><literal>batch-delay</literal>。HornetQ可以通过配置该参数，在数据包写入传输层之前有一个
+                    <para><literal>batch-delay</literal>。ActiveMQ可以通过配置该参数，在数据包写入传输层之前有一个
                         最大延时（毫秒），达到批量写入的目的。这样可以提高小消息的发送效率。但这样做会增加单个消息的平均发送
                         延迟。默认值为<literal>0</literal>毫秒。</para>
                 </listitem>
@@ -214,7 +214,7 @@ etc
                         较大的呑吐量的话，将它设为<literal>false</literal>。</para>
                 </listitem>
                 <listitem>
-                    <para><literal>nio-remoting-threads</literal>。如果使用NIO，默认情况下HornetQ会使用系统中处理
+                    <para><literal>nio-remoting-threads</literal>。如果使用NIO，默认情况下ActiveMQ会使用系统中处理
                         器内核（或超线程）数量三倍的线程来处理接收的数据包。内核的数量是通过调用<literal
                             >Runtime.getRuntime().availableProcessors()</literal>来得到的。如果你想改变这个数量，
                         你可以设定本参数。默认的值是<literal>-1</literal>，表示线程数为<literal
@@ -247,7 +247,7 @@ etc
         </section>
         <section>
             <title>配置Netty HTTP</title>
-            <para>Netty HTTP 通过HTTP通道传送数据包。在有些用户环境中防火墙只允许有HTTP通信，这时采用Netty HTTP作为HornetQ
+            <para>Netty HTTP 通过HTTP通道传送数据包。在有些用户环境中防火墙只允许有HTTP通信，这时采用Netty HTTP作为ActiveMQ
                 的传输层就能解决问题。</para>
             <para>我们提供了一个Netty HTTP的例子来演示其配置和应用。</para>
             <para>Netty HTTP具有和Netty TCP同样的配置参数，另外它还有以下参数：</para>
@@ -276,14 +276,14 @@ etc
         </section>
         <section>
             <title>配置Netty Servlet</title>
-            <para>HornetQ可以使用Netty servlet来传输消息。使用servlet可以将HornetQ的数据通过HTTP传送到一个
-                运行的servlet，再由servlet转发给HornetQ服务器。</para>
-            <para>servlet与HTTP的不同之处在于，当用HTTP传输时，HornetQ如同一个web服务器，它监听在某个端口上的HTTP
-                请求并返回响应。比如80端口或8080端口。而当使用servlet时，HornetQ的传输数据是通过运行在某一servlet容器
+            <para>ActiveMQ可以使用Netty servlet来传输消息。使用servlet可以将ActiveMQ的数据通过HTTP传送到一个
+                运行的servlet，再由servlet转发给ActiveMQ服务器。</para>
+            <para>servlet与HTTP的不同之处在于，当用HTTP传输时，ActiveMQ如同一个web服务器，它监听在某个端口上的HTTP
+                请求并返回响应。比如80端口或8080端口。而当使用servlet时，ActiveMQ的传输数据是通过运行在某一servlet容器
                 中的一个特定的servlet来转发的。而这个sevlet容器中同时还可能运行其他的应用，如web服务。当一个公司有多个应用
-                但只允许一个http端口可以访问时，servlet传输可以很好的解决HornetQ的传输问题。</para>
-            <para>请参见HornetQ所提供的servlet例子来了解详细的配置方法。</para>
-            <para>要在HornetQ中使用Netty servlet传输方式，需要以下步骤：</para>
+                但只允许一个http端口可以访问时，servlet传输可以很好的解决ActiveMQ的传输问题。</para>
+            <para>请参见ActiveMQ所提供的servlet例子来了解详细的配置方法。</para>
+            <para>要在ActiveMQ中使用Netty servlet传输方式，需要以下步骤：</para>
             <itemizedlist>
                 <listitem>
                     <para>部署servlet。下面是一个web.xml例子：</para>
@@ -292,7 +292,7 @@ etc
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
    &lt;servlet>
-      &lt;servlet-name>HornetQServlet&lt;/servlet-name>
+      &lt;servlet-name>ActiveMQServlet&lt;/servlet-name>
       &lt;servlet-class>org.jboss.netty.channel.socket.http.HttpTunnelingServlet&lt;/servlet-class>
       &lt;init-param>
              &lt;param-name>endpoint&lt;/param-name>
@@ -302,8 +302,8 @@ etc
    &lt;/servlet>
 
    &lt;servlet-mapping>
-      &lt;servlet-name>HornetQServlet&lt;/servlet-name>
-      &lt;url-pattern>/HornetQServlet&lt;/url-pattern>
+      &lt;servlet-name>ActiveMQServlet&lt;/servlet-name>
+      &lt;url-pattern>/ActiveMQServlet&lt;/url-pattern>
    &lt;/servlet-mapping>
 &lt;/web-app>
 
@@ -337,7 +337,7 @@ etc
          &lt;param key="host" value="localhost"/>
          &lt;param key="port" value="8080"/>
          &lt;param key="use-servlet" value="true"/>
-         &lt;param key="servlet-path" value="/messaging/HornetQServlet"/>
+         &lt;param key="servlet-path" value="/messaging/ActiveMQServlet"/>
       &lt;/connector>
 
  &lt;/connectors></programlisting>
@@ -357,7 +357,7 @@ etc
          &lt;param key="host" value="localhost"/>
          &lt;param key="port" value="8443"/>
          &lt;param key="use-servlet" value="true"/>
-         &lt;param key="servlet-path" value="/messaging/HornetQServlet"/>
+         &lt;param key="servlet-path" value="/messaging/ActiveMQServlet"/>
          &lt;param key="ssl-enabled" value="true"/>
          &lt;param key="key-store-path" value="path to a keystoree"/>
          &lt;param key="key-store-password" value="keystore password"/>

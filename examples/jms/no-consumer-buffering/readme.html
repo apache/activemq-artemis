@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ No Consumer Buffering Example</title>
+    <title>ActiveMQ No Consumer Buffering Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,12 +8,12 @@
   <body onload="prettyPrint()">
      <h1>No Consumer Buffering Example</h1>
 
-     <p>By default, HornetQ consumers buffer messages from the server in a client side buffer
+     <p>By default, ActiveMQ consumers buffer messages from the server in a client side buffer
      before actual delivery actually occurs.</p>
      <p>This improves performance since otherwise every time you called receive() or had processed the last
-     message in a MessageListener onMessage() method, the HornetQ client would have to go the
+     message in a MessageListener onMessage() method, the ActiveMQ client would have to go the
      server to request the next message involving a network round trip for every message reducing performance.</p>
-     <p>Therefore, by default, HornetQ pre-fetches messages into a buffer on each consumer. The total maximum size of
+     <p>Therefore, by default, ActiveMQ pre-fetches messages into a buffer on each consumer. The total maximum size of
      messages in bytes that will be buffered on each consumer is determined by the <code>consumer-window-size</code>
      parameter on the connection factory.</p>
      <p>In some cases it is not desirable to buffer any messages on the client side consumer.</p>
@@ -23,7 +23,7 @@
      to process orders which were already in the client side buffer of another consumer.</p>
      <p>To turn off client side buffering of messages, set <code>consumer-window-size</code> to zero.</p>
      
-     <p>With HornetQ you can specify a maximum consume rate at which a JMS MessageConsumer will consume messages.
+     <p>With ActiveMQ you can specify a maximum consume rate at which a JMS MessageConsumer will consume messages.
      This can be specified when creating or deploying the connection factory. See <code>hornetq-jms.xml</code></p>     
      <h2>Example step-by-step</h2>
      <p>In this example we specify a <code>consumer-window-size</code> of <code>0</code> bytes in the <code>hornetq-jms.xml</code>

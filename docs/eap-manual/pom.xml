@@ -25,8 +25,8 @@
 
   <properties>
     <translation>en</translation>
-    <docname>HornetQ_EAP_Manual</docname>
-    <bookname>HornetQ EAP Manual</bookname>
+    <docname>ActiveMQ_EAP_Manual</docname>
+    <bookname>ActiveMQ EAP Manual</bookname>
   </properties> 
 
   <repositories>

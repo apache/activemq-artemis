@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Application-Layer Failover Example</title>
+    <title>ActiveMQ Application-Layer Failover Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,18 +8,18 @@
   <body onload="prettyPrint()">
      <h1>Application-Layer Failover Example</h1>
 
-     <p>HornetQ implements fully transparent <b>automatic</b> failover of connections from a live node to a backup node which requires
+     <p>ActiveMQ implements fully transparent <b>automatic</b> failover of connections from a live node to a backup node which requires
      no special coding. This is described in a different example and requires server replication.</p>
-     <p>However, HornetQ also supports <b>Application-Layer</b> failover which is useful in the case where replication is not enabled.</p>
-     <p>With Application-Layer failover, it's up to the application to register a JMS ExceptionListener with HornetQ.
-         This listener will then be called by HornetQ in the event that connection failure is detected.</p>
+     <p>However, ActiveMQ also supports <b>Application-Layer</b> failover which is useful in the case where replication is not enabled.</p>
+     <p>With Application-Layer failover, it's up to the application to register a JMS ExceptionListener with ActiveMQ.
+         This listener will then be called by ActiveMQ in the event that connection failure is detected.</p>
      <p>User code in the ExceptionListener can then recreate any JMS Connection, Session, etc on another node and the application
      can continue.</p>
      <p>Application-Layer failover is an alternative approach to High Availabilty (HA).</p>
      <p>Application-Layer failover differs from automatic failover in that some client side coding is required in order
      to implement this. Also, with Application-Layer failover, since the old Session object dies and a new is created, any uncommitted
      work in the old Session will be lost, and any unacknowledged messages might be redelivered.</p>    
-     <p>For more information on HornetQ failover and HA, and clustering in general, please see the clustering
+     <p>For more information on ActiveMQ failover and HA, and clustering in general, please see the clustering
      section of the user manual.</p>      
 
      <h2>Example step-by-step</h2>

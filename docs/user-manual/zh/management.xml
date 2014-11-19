@@ -18,20 +18,20 @@
 <!-- ============================================================================= -->
 <chapter id="management">
    <title>管理</title>
-   <para>HornetQ拥有套丰富的管理接口。用户使用这些接口可以修改服务器配置、创建新的资源（如队列和
+   <para>ActiveMQ拥有套丰富的管理接口。用户使用这些接口可以修改服务器配置、创建新的资源（如队列和
       话题）、检查这些资源（如队列中有多少消息）并进行管理（从队列中删除消息）。这样用户可以
-      <emphasis>管理</emphasis>HornetQ。另外，客户还可以订阅管理通知。</para>
-   <para>有三种方式管理HornetQ：</para>
+      <emphasis>管理</emphasis>ActiveMQ。另外，客户还可以订阅管理通知。</para>
+   <para>有三种方式管理ActiveMQ：</para>
    <itemizedlist>
       <listitem>
          <para>使用JMX -- JMX是标准的Java应用程序管理方式。</para>
       </listitem>
       <listitem>
-         <para>使用核心接口 -- 管理操作通过<emphasis>核心消息</emphasis>的方法发向HornetQ服
+         <para>使用核心接口 -- 管理操作通过<emphasis>核心消息</emphasis>的方法发向ActiveMQ服
          务。</para>
       </listitem>
       <listitem>
-         <para>使用JMS接口 -- 管理操作通过<emphasis>JMS消息</emphasis>的方式发向HornetQ服务器。</para>
+         <para>使用JMS接口 -- 管理操作通过<emphasis>JMS消息</emphasis>的方式发向ActiveMQ服务器。</para>
       </listitem>
    </itemizedlist>
    <para>虽然有三种方式，但它们提供相同的功能。使用JMX方法能完成的功能使用核心接口或JMS接口都可以完成。</para>
@@ -40,7 +40,7 @@
       <title>管理接口API</title>
       <para>不管使用哪种方式，管理接口都是一样的。</para>
       <para>对于每个<emphasis>被管理的资源</emphasis>都有一个Java的接口提供可使用的操作。</para>
-      <para>HornetQ的管理接口分布在2个包中：</para>
+      <para>ActiveMQ的管理接口分布在2个包中：</para>
       <itemizedlist>
          <listitem>
             <para><emphasis>核心</emphasis>资源的管理接口在 <literal
@@ -60,7 +60,7 @@
       </note>
       <section>
          <title>核心管理接口</title>
-         <para>HornetQ定义了一套对核心资源的管理接口。关于它们的详细说明请参见相应的javadoc。
+         <para>ActiveMQ定义了一套对核心资源的管理接口。关于它们的详细说明请参见相应的javadoc。
             下面是对它们的概述：</para>
          <section>
             <title>核心服务器管理</title>
@@ -68,7 +68,7 @@
                <listitem>
                   <para>队列的列表、创建、部署与删除</para>
                   <para><literal>getQueueNames()</literal> method方法用来列出所有已经部署的队列。</para>
-                  <para>在<literal>HornetQServerControl</literal> （ObjectName <literal
+                  <para>在<literal>ActiveMQServerControl</literal> （ObjectName <literal
                         >org.apache.activemq:module=Core,type=Server</literal>或资源名<literal
                         >core.server</literal>）上有队列创建或删除的方法，它们是
                         <literal>createQueue()</literal>、<literal>deployQueue()</literal>和
@@ -110,14 +110,14 @@
                </listitem>
                <listitem>
                   <para>获得服务器的配置和属性</para>
-                  <para><literal>HornetQServerControl</literal>提供了访问HornetQ服务器所有属性
+                  <para><literal>ActiveMQServerControl</literal>提供了访问ActiveMQ服务器所有属性
                      的方法（例如<literal>getVersion()</literal>方法可以得到服务器的版本，等等）。 </para>
                </listitem>
                <listitem>
                   <para>核心桥和转发器的创建，删除与列表</para>
                   <para>使用<literal>getBridgeNames()</literal>可以列出部署的核心桥。
                         使用<literal>getDivertNames()</literal>可以列出部署的转发器。</para>
-                  <para>使用<literal>HornetQServerControl</literal> (ObjectName <literal
+                  <para>使用<literal>ActiveMQServerControl</literal> (ObjectName <literal
                         >org.apache.activemq:module=Core,type=Server</literal> 或资源名 <literal
                         >core.server</literal>)的方法<literal>createBridge()</literal>
 　　　　　　　　　　　　　   和<literal>destroyBridge()</literal>可以创建和删除核心桥。
@@ -203,7 +203,7 @@
          </section>
          <section>
             <title>其它核心资源的管理</title>
-            <para>HornetQ允许用户启动或停止其远程资源（接收器，转发器，桥，等等）。这样可以使服务器暂停工作
+            <para>ActiveMQ允许用户启动或停止其远程资源（接收器，转发器，桥，等等）。这样可以使服务器暂停工作
                而不需要完全停止服务器（比如可以临时对服务器进行一些离线操作，像对一些事务的处理）。这些资源有：</para>
             <itemizedlist>
                <listitem>
@@ -273,7 +273,7 @@
       </section>
       <section>
          <title>JMS管理接口</title>
-         <para>HornetQ定义了一套JMS管理接口来管理JMS的<emphasis>可管理的对象</emphasis> 
+         <para>ActiveMQ定义了一套JMS管理接口来管理JMS的<emphasis>可管理的对象</emphasis> 
               （例如JMS队列，话题及连接工厂）。</para>
          <section>
             <title>JMS服务器管理</title>
@@ -414,10 +414,10 @@
    </section>
    <section id="management.jmx">
       <title>使用JMX</title>
-      <para>HornetQ提供了<ulink
+      <para>ActiveMQ提供了<ulink
             url="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/"
          >JMX</ulink>。</para>
-      <para>HornetQ通过MBean的接口暴露其JMX管理操作。它将自己的资源注册到<literal>org.apache.activemq</literal>域。</para>
+      <para>ActiveMQ通过MBean的接口暴露其JMX管理操作。它将自己的资源注册到<literal>org.apache.activemq</literal>域。</para>
       <para>比如，用来管理一个名为<literal>exampleQueue</literal>JMS队列的<literal>ObjectName</literal>是：</para>
       <programlisting>
    org.apache.activemq:module=JMS,type=Queue,name="exampleQueue"
@@ -429,30 +429,30 @@
       <para>MBean的<literal>ObjectName</literal>用 <literal
             >org.apache.activemq.api.core.management.ObjectNameBuilder</literal>来产生出来的。你也可以使用<literal
             >jconsole</literal>来查找你想要的MBean的<literal>ObjectName</literal>。</para>
-      <para>使用JMX来管理HornetQ与用JMX管理其它Java应用程序没有什么不同。你可以使用反射或者创建MBean代理的方法。</para>
+      <para>使用JMX来管理ActiveMQ与用JMX管理其它Java应用程序没有什么不同。你可以使用反射或者创建MBean代理的方法。</para>
       <section id="management.jmx.configuration">
          <title>配置JMX</title>
-         <para>默认情况下HornetQ的JMX是打开的。将<literal
+         <para>默认情况下ActiveMQ的JMX是打开的。将<literal
                >activemq-configuration.xml</literal>文件中的<literal
                >jmx-management-enabled</literal>设置为<literal>false</literal>就可以关闭JMX：</para>
          <programlisting>
-&lt;!-- false to disable JMX management for HornetQ --&gt;
+&lt;!-- false to disable JMX management for ActiveMQ --&gt;
 &lt;jmx-management-enabled&gt;false&lt;/jmx-management-enabled&gt;            
          </programlisting>
-         <para>如果JMX功能是打开的，则使用<literal>jconsole</literal>可以管理本地的HornetQ。</para>
+         <para>如果JMX功能是打开的，则使用<literal>jconsole</literal>可以管理本地的ActiveMQ。</para>
          <note>
            <para>出于安全考虑，默认情况下JMX远程连接是关闭的。参见<ulink url="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#remote"
                >Java管理指南</ulink>来配置服务器的远程管理（系统变量必须在<literal>run.sh</literal>或<literal>run.bat</literal>中定义）。</para>
          </note>
-         <para>HornetQ默认使用JMX域名"org.apache.activemq"。如果要用一个MBeanServer管理多个HornetQ服务器，可以将每个HornetQ
+         <para>ActiveMQ默认使用JMX域名"org.apache.activemq"。如果要用一个MBeanServer管理多个ActiveMQ服务器，可以将每个ActiveMQ
             服务器配置成不同的JMX域。方法就是在<literal>activemq-configuration.xml</literal>文件中设置<literal>jmx-domain</literal>：</para>
          <programlisting>
-&lt;!-- use a specific JMX domain for HornetQ MBeans -->
+&lt;!-- use a specific JMX domain for ActiveMQ MBeans -->
 &lt;jmx-domain>my.org.apache.activemq&lt;/jmx-domain>
          </programlisting>
          <section>
             <title>MBeanServer的配置</title>
-            <para>HornetQ在独立运行时使用Java虚拟机的<literal
+            <para>ActiveMQ在独立运行时使用Java虚拟机的<literal
                   >Platform MBeanServer</literal>来注册其MBean。这在JBoss Microcontainer（微容器）的bean
                文件中进行配置（参见<xref linkend="server.microcontainer.configuration"/>）：</para>
             <programlisting>&lt;!-- MBeanServer --&gt;
@@ -472,7 +472,7 @@
       </section>
       <section>
          <title>例子</title>
-         <para>参见<xref linkend="examples.jmx"/>，这个例子展示了如何使用远程JMX连接或MBean代理来管理HornetQ。</para>
+         <para>参见<xref linkend="examples.jmx"/>，这个例子展示了如何使用远程JMX连接或MBean代理来管理ActiveMQ。</para>
       </section>
    </section>
    <section>
@@ -490,7 +490,7 @@
             <para>管理操作的参数</para>
          </listitem>
       </itemizedlist>
-      <para>当一个管理消息发送到管理地址时，HornetQ服务器将从中提取出相应的信息，再调用相应的管理资源的方法，之后向
+      <para>当一个管理消息发送到管理地址时，ActiveMQ服务器将从中提取出相应的信息，再调用相应的管理资源的方法，之后向
          该管理消息的回答地址（reply-to address，由<literal>ClientMessageImpl.REPLYTO_HEADER_NAME
          </literal>定义）发送一个<emphasis>管理回答</emphasis>。</para>
       <para>一个<literal>ClientConsumer</literal>用来接收管理回答并提取出其中的操作的結果（如果有的话）。
@@ -545,7 +545,7 @@
                <literal>manage</literal>来接收并处理管理消息。这个权限也在hornetq-configuration.xml文件中配置：</para>
          <programlisting>
    &lt;!-- users with the admin role will be allowed to manage --&gt; 
-   &lt;!-- HornetQ using management messages        --&gt;
+   &lt;!-- ActiveMQ using management messages        --&gt;
    &lt;security-setting match="jms.queue.hornetq.management"&gt;
       &lt;permission type="manage" roles="admin" /&gt;
    &lt;/security-setting&gt;
@@ -554,11 +554,11 @@
    </section>
    <section id="management.jms">
       <title>使用JMS进行管理</title>
-      <para>使用JMS管理HornetQ与使用核心API管理HornetQ十分相似。</para>
+      <para>使用JMS管理ActiveMQ与使用核心API管理ActiveMQ十分相似。</para>
       <para>其中一个重要的不同是JMS需要一个JMS队列来发送消息（而核心接口使用的是一个地址）。</para>
       <para><emphasis>管理队列</emphasis>是一个特殊的队列，它需要客户端直接实例化：</para>
       <programlisting>
-   Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");
+   Queue managementQueue = ActiveMQJMSClient.createQueue("hornetq.management");
       </programlisting>
       <para>其余步骤完全和使用核心接口一样，只是相应的对象不同：</para>
       <orderedlist>
@@ -580,7 +580,7 @@
       </orderedlist>
       <para>例如，要得到一个JMS队列<literal>exampleQueue</literal>中有多少消息：</para>
       <programlisting>
-   Queue managementQueue = HornetQJMSClient.createQueue("hornetq.management");   
+   Queue managementQueue = ActiveMQJMSClient.createQueue("hornetq.management");   
    
    QueueSession session = ...      
    QueueRequestor requestor = new QueueRequestor(session, managementQueue);
@@ -597,13 +597,13 @@
       </section>
       <section>
          <title>例子</title>
-         <para>参见<xref linkend="examples.management"/>，它展示了如何使用JMS消息来管理HornetQ。</para>
+         <para>参见<xref linkend="examples.management"/>，它展示了如何使用JMS消息来管理ActiveMQ。</para>
       </section>
    </section>
  
    <section id="management.notifications">
       <title>管理通知</title>
-      <para>HornetQ可以向listener发送各种事件的<emphasis>通知</emphasis>（如资源的创建，安全破坏等）。</para>
+      <para>ActiveMQ可以向listener发送各种事件的<emphasis>通知</emphasis>（如资源的创建，安全破坏等）。</para>
       <para>有三种方式接收管理通知</para>
       <itemizedlist>
          <listitem>
@@ -633,7 +633,7 @@
       </section>
       <section>
          <title>核心消息通知</title>
-         <para>HornetQ定义了一个特殊的<emphasis>管理通知地址</emphasis>。核心队列绑定到该地址后，客户
+         <para>ActiveMQ定义了一个特殊的<emphasis>管理通知地址</emphasis>。核心队列绑定到该地址后，客户
             端就可以接收以核心消息形式发送的管理信通知了。</para>
          <para>一个核心客户端要想接收到管理通知，它必须要创建一个队列并绑定到这个管理通知地址上，然后从这个
             队列接收通知。</para>
@@ -650,7 +650,7 @@
       </section>
       <section>
          <title>JMS消息通知</title>
-         <para>HornetQ还可以通过JMS消息的方式发送通知。</para>
+         <para>ActiveMQ还可以通过JMS消息的方式发送通知。</para>
          <para>这种方式与核心消息通知相似，但是有一个重要的不同：JMS消息需要一个JMS的目标（通常是一个Topic）。</para>
          <para>要通过一个JMS目标来接收管理通知，必须将服务器的管理通知地址修改为以<literal>jms.queue</literal>开头（如果是一个
             JMS队列）或者<literal>jms.topic</literal>（如果是一个话题）：</para>
@@ -660,7 +660,7 @@
          </programlisting>
          <para>这个通知话题一旦被创建，就可以接收消息了（或者使用<literal>MessageListener</literal>）：</para>
          <programlisting>
-   Topic notificationsTopic = HornetQJMSClient.createTopic("notificationsTopic");
+   Topic notificationsTopic = ActiveMQJMSClient.createTopic("notificationsTopic");
 
    Session session = ...
    MessageConsumer notificationConsumer = session.createConsumer(notificationsTopic);
@@ -690,13 +690,13 @@
       <section>
          <title>例子</title>
          <para>参见<xref linkend="examples.management-notifications"/>。本例采用了JMS的<literal>
-            MessageListener</literal>方法从HornetQ
+            MessageListener</literal>方法从ActiveMQ
             服务器接收管理通知。</para>
       </section>
    </section>
    <section id="management.message-counters">
       <title>消息计数器</title>
-      <para>HornetQ保存着队列的历史数据，而消息计数器可以从服务器上获取这些信息。</para>
+      <para>ActiveMQ保存着队列的历史数据，而消息计数器可以从服务器上获取这些信息。</para>
       <para>这些信息可以显示队列的一些<emphasis>趋势</emphasis>。例如，使用管理接口你可以定期来查询一个队列
          的消息数量。但这个数量不足以说明这个队列是否在工作－－也许这个队列既没有发送者也没有接收者；也许这个队列
          在不停地发送与接收，但是发送消息的速度与接收的速度相等。两咱情况下都会造成消息数在队列中不变，但实际队列
@@ -747,7 +747,7 @@
          </programlisting>
          <para>使用管理接口可以获得消息计数器。例如要使用JMX得到一个JMS队列的消息计数器：</para>
          <programlisting>
-// retrieve a connection to HornetQ's MBeanServer
+// retrieve a connection to ActiveMQ's MBeanServer
 MBeanServerConnection mbsc = ...
 JMSQueueControlMBean queueControl = (JMSQueueControl)MBeanServerInvocationHandler.newProxyInstance(mbsc,
    on,
@@ -768,10 +768,10 @@ System.out.format("%s message(s) in the queue (since last sample: %s)\n",
       </section>
    </section>
    <section>
-      <title>通过JBoss应用服务器的Admin Console来管理HornetQ的资源</title>
-      <para>通过JBoss应用服务器的Admin Console可以创建与配置HornetQ的各种资源。</para>
+      <title>通过JBoss应用服务器的Admin Console来管理ActiveMQ的资源</title>
+      <para>通过JBoss应用服务器的Admin Console可以创建与配置ActiveMQ的各种资源。</para>
       <para>Admin Console允许你创建各种目标（JMS话题与队列）和JMS的连接工厂。</para>
-      <para>登录admin console后你在左边的树中会看到JMS Manager节点。所有HornetQ的资源都属于这个节点。在它的下面有JMS Queues、
+      <para>登录admin console后你在左边的树中会看到JMS Manager节点。所有ActiveMQ的资源都属于这个节点。在它的下面有JMS Queues、
          Topics以及Connection Factories。分别点击它们将会看到相应的资源。下面将解释如何创建并配置它们。</para>
       <section>
          <title>JMS队列</title>

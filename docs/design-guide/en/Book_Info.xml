@@ -13,17 +13,17 @@
   -->
 
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_Design_Guide.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_Design_Guide.ent">
 %BOOK_ENTITIES;
 ]>
-<bookinfo id="HornetQ_QuickStart_Guide">
-  <title>HornetQ Design Guide</title>
+<bookinfo id="ActiveMQ_QuickStart_Guide">
+  <title>ActiveMQ Design Guide</title>
   <subtitle>Putting the buzz in messaging</subtitle>
-  <productname>HornetQ</productname>
+  <productname>ActiveMQ</productname>
   <edition>2.1.0</edition>
   <pubsnumber>1</pubsnumber>
   <abstract>
-    <para>This Design guide is to help current and future developers how HornetQ's architectures are designed to
+    <para>This Design guide is to help current and future developers how ActiveMQ's architectures are designed to
     help the future development and maintenance of the project</para>
   </abstract>
   <corpauthor>
@@ -32,7 +32,7 @@
         <imagedata fileref="images/hornetQ_logo_600px.png" format="PNG"/>
       </imageobject>
       <textobject>
-        <phrase>HornetQ Logo</phrase>
+        <phrase>ActiveMQ Logo</phrase>
       </textobject>
     </inlinemediaobject>
   </corpauthor>

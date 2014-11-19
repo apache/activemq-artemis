@@ -1,5 +1,5 @@
 <configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="urn:hornetq /schema/activemq-users.xsd">
+               xsi:schemaLocation="urn:activemq /schema/activemq-users.xsd">
     <!-- the default user.  this is used where username is null-->
     <defaultuser name="guest" password="guest">
         <role name="guest"/>

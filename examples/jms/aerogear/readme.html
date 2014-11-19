@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JMS AeroGear Example</title>
+    <title>ActiveMQ JMS AeroGear Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -26,7 +26,7 @@
 
      <p>Now before we run the example we need a mobile application to receive it. Writing a mobile app is beyond the scope
      of this example but for testing purposes we have supplied an Android app you can use, simply install on your android phone.
-     It can be found <a href="http://downloads.jboss.org.apache.activemq/HornetQAeroGear.apk">here</a>. For a more in depth mobile
+     It can be found <a href="http://downloads.jboss.org.apache.activemq/ActiveMQAeroGear.apk">here</a>. For a more in depth mobile
          app example visit the AeroGear site.</p>
 
      <p>Once you have installed the mobile app you will need to configure the following:</p>
@@ -45,7 +45,7 @@
          'mvn -Dendpoint=my aerogear url -Dapplicationid=my application id -Dmastersecret=my master secret -Djsse.enableSNIExtension=false clean verify'.
      If you arent using java 7 you can omit the 'jsse.enableSNIExtension=false'</p>
 
-   <p>You should see something like this in your HornetQServer</p>
+   <p>You should see something like this in your ActiveMQServer</p>
      <ol>
         <pre class="prettyprint">
            <code>
@@ -58,7 +58,7 @@
            </code>
         </pre>
      </ol>
-   <p>And on your mobile app you should see a message from HornetQ</p>
+   <p>And on your mobile app you should see a message from ActiveMQ</p>
 
   <p>Now lets look a bit more closely at the configuration in hornetq-configuration.xml</p>
      <ol>
@@ -122,7 +122,7 @@
   // Step 7. Create a Text Message
   Message message = session.createMessage();
 
-  message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from HornetQ");
+  message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from ActiveMQ");
 
   producer.send(message);
       </code>

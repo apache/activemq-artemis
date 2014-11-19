@@ -18,12 +18,12 @@
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY % BOOK_ENTITIES SYSTEM "HornetQ_QuickStart_Guide.ent">
+<!ENTITY % BOOK_ENTITIES SYSTEM "ActiveMQ_QuickStart_Guide.ent">
 %BOOK_ENTITIES;
 ]>
 <chapter id="download">
    <title>Download</title>
-   <para>The official HornetQ project page is <ulink url="http://hornetq.org/"
+   <para>The official ActiveMQ project page is <ulink url="http://hornetq.org/"
          >http://hornetq.org/</ulink>.</para>
    <section id="download.software">
       <title>Software Download</title>
@@ -37,7 +37,7 @@
          <itemizedlist>
             <listitem>
                <para>Please take a look at our project <ulink
-                     url="http://www.jboss.org/community/wiki/HornetQ">wiki</ulink></para>
+                     url="http://www.jboss.org/community/wiki/ActiveMQ">wiki</ulink></para>
             </listitem>
             <listitem>
                <para>If you have any user questions please use our <ulink
@@ -60,7 +60,7 @@
                <para>Follow us on <ulink url="http://twitter.com/hornetq">twitter</ulink></para>
             </listitem>
             <listitem>
-               <para>HornetQ Git repository is <ulink
+               <para>ActiveMQ Git repository is <ulink
                      url="https://github.com/hornetq/hornetq"
                      >https://github.com/hornetq/hornetq</ulink></para>
             </listitem>

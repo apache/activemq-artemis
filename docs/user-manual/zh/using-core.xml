@@ -17,8 +17,8 @@
 <!-- permitted by applicable law.                                                  -->
 <!-- ============================================================================= -->
 <chapter id="using-core">
-    <title>使用HornetQ内核</title>
-    <para>HornetQ内核是一个与JMS无关的消息系统，它有一套自己的API。我们称它为<emphasis>内核API</emphasis>.</para>
+    <title>使用ActiveMQ内核</title>
+    <para>ActiveMQ内核是一个与JMS无关的消息系统，它有一套自己的API。我们称它为<emphasis>内核API</emphasis>.</para>
     <para>你可以直接使用内核API。使用内核API可以完成JMS同样的功能，只是比起JMS API使用更加简单方便。另外，内核API
         还提供了JMS不具有的额外的功能。</para>
     <section>
@@ -52,23 +52,23 @@
                         非持久消息则会因为服务器的故障或重启而丢失。</para>
                 </listitem>
                 <listitem>
-                    <para>消息具有优先级。优先级的值为从0到9的整数。0代表最低优先级，9代表最高优先级。HornetQ总
+                    <para>消息具有优先级。优先级的值为从0到9的整数。0代表最低优先级，9代表最高优先级。ActiveMQ总
                         会尝试先传送优先级高的消息。</para>
                 </listitem>
                 <listitem>
-                    <para>消息还有一个可选的失效时间。如果一个消息过了失效时间，HornetQ将不再传送它。</para>
+                    <para>消息还有一个可选的失效时间。如果一个消息过了失效时间，ActiveMQ将不再传送它。</para>
                 </listitem>
                 <listitem>
                     <para>消息还有一个可选的时间戳（timestamp）。这个时间戳表示的是消息被发送的时间。</para>
                 </listitem>
                 <listitem>
-                    <para>HornetQ还支持大消息的发送。它可以处理大到内存装不下的超大消息。</para>
+                    <para>ActiveMQ还支持大消息的发送。它可以处理大到内存装不下的超大消息。</para>
                 </listitem>
             </itemizedlist>
         </section>
         <section>
             <title>地址（Address）</title>
-            <para>HornetQ服务器保存有地址和queue的映射集。一个地址对应零个或多个queue。每个queue还可以拥有消息
+            <para>ActiveMQ服务器保存有地址和queue的映射集。一个地址对应零个或多个queue。每个queue还可以拥有消息
                 过滤器（filter）。当一个消息在服务器内进行路由时，它将会被送往与其地址相绑定的所有的queue中。但是
                 如果其中某个queue有过滤器，那么只有与其过滤器相匹配的消息才会被发到这个queue中。</para>
             <para>其它的实体如<emphasis role="italic">diverts</emphasis>也可以与一地址进行绑定，消息也会被同样
@@ -95,7 +95,7 @@
                     >ClientSession</literal> 实例。 <literal>ClientSessionFactory</literal>
                 知道如何连接到服务器并创建会话（session）。它是可以根据不同需要灵活配置的。</para>
             <para><literal>ClientSessionFactory</literal>实例是通过 <literal
-                    >HornetQClient</literal> 工厂类创建的。</para>
+                    >ActiveMQClient</literal> 工厂类创建的。</para>
         </section>
         <section>
             <title>ClientSession</title>
@@ -105,15 +105,15 @@
                 交易中。</para>
             <para>ClientSession 管理着ClientConsumers和ClientProducers。</para>
             <para>ClientSession 实例可以注册一个可选的 <literal
-                    >SendAcknowledgementHandler</literal>。每当消息被送达HornetQ服务器中时，
-                   HornetQ就用它来异步地发出通知。有了这个独特的功能，客户可以不必阻塞在每次消息的发送操作上来保证
+                    >SendAcknowledgementHandler</literal>。每当消息被送达ActiveMQ服务器中时，
+                   ActiveMQ就用它来异步地发出通知。有了这个独特的功能，客户可以不必阻塞在每次消息的发送操作上来保证
                    消息安全到达服务器。如果采用阻塞的方法，那么每一个消息的发送都要包括往返两次的网络传递操作，开销
                    是很大的。有了这个异步方式就可以避免这种开销，建立真正的异步的端到端间的系统。这是标准的JMS接口
                    无法做到的。参见 <xref linkend="send-guarantees"/>了解相关的更详细的信息。</para>
         </section>
         <section>
             <title>ClientConsumer</title>
-            <para>客户端使用 <literal>ClientConsumer</literal> 实例来接收来自queue的消息。HornetQ的内核同时支持
+            <para>客户端使用 <literal>ClientConsumer</literal> 实例来接收来自queue的消息。ActiveMQ的内核同时支持
                 同步与异步的消息接收。<literal>ClientConsumer</literal> 实例可以配置有可选的过滤器。它只接收与过滤
                 器相匹配的消息。</para>
         </section>
@@ -134,7 +134,7 @@
         <title>一个内核的应用实例</title>
         <para>下面是一个非常简单的使用内核API来发送的接收消息的实例：</para>
         <programlisting>
-ClientSessionFactory factory =  HornetQClient.createClientSessionFactory(
+ClientSessionFactory factory =  ActiveMQClient.createClientSessionFactory(
                                         new TransportConfiguration(
                                            InVMConnectorFactory.class.getName()));
 

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ JAAS Example</title>
+    <title>ActiveMQ JAAS Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,11 +8,11 @@
   <body onload="prettyPrint()">
      <h1>JAAS Example</h1>
 
-     <p>This example shows you how to configure HornetQ to use JAAS for security.</p>
-     <p>HornetQ can leverage JAAS to delegate user authentication and authorization to existing security infrastructure.</p>
+     <p>This example shows you how to configure ActiveMQ to use JAAS for security.</p>
+     <p>ActiveMQ can leverage JAAS to delegate user authentication and authorization to existing security infrastructure.</p>
      
      <p>
-         The example will show how to configure HornetQ with JAAS in <a href="server0/hornetq-beans.xml">hornetq-beans.xml</a>
+         The example will show how to configure ActiveMQ with JAAS in <a href="server0/hornetq-beans.xml">hornetq-beans.xml</a>
          (You would use <literal>hornetq-jboss-beans.xml</literal> if you are running inside JBoss Application
          Server).
          It will use a simple <code>LoginModule</code> without any user interaction.
@@ -24,10 +24,10 @@
      the hornetq-beans.xml is being configured, the example beans file can be found under the <code>src/main/resources</code>
      directory</p>
      <h2>Example setup</h2>
-     <p>HornetQ can use a JAAS security manager by specifying it in <a href="server0/hornetq-beans.xml">hornetq-beans.xml</a>:</p>
+     <p>ActiveMQ can use a JAAS security manager by specifying it in <a href="server0/hornetq-beans.xml">hornetq-beans.xml</a>:</p>
      <pre class="prettyprint">
              &lt;!-- The security manager using JAAS --&gt;
-             &lt;bean name=&quot;HornetQSecurityManager&quot; class=&quot;org.apache.activemq.integration.jboss.security.JAASSecurityManager&quot;&gt;
+             &lt;bean name=&quot;ActiveMQSecurityManager&quot; class=&quot;org.apache.activemq.integration.jboss.security.JAASSecurityManager&quot;&gt;
              &lt;property name=&quot;configurationName&quot;&gt;org.apache.activemq.jms.example.ExampleLoginModule&lt;/property&gt;
              &lt;property name=&quot;configuration&quot;&gt;
              &lt;inject bean=&quot;ExampleConfiguration&quot;/&gt;
@@ -68,7 +68,7 @@
      </pre>
      
      <ul>
-        <li>the HornetQSecurityManager's <code>configurationName</code> must be the name of the Java class implementing <code>LoginModule</code></li>
+        <li>the ActiveMQSecurityManager's <code>configurationName</code> must be the name of the Java class implementing <code>LoginModule</code></li>
         <li>the <code>callbackHandler</code> property must be an implementation of <code>CallbackHandler</code>. In this example, the ExampleCallbackHandler
            does nothing since the authentication requires no user interaction</li>
         <li>the <code>configuration</code> property must be an implementation of <code>Configuration</code>. For simplicity, we pass directly the

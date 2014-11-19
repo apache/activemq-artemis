@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Client Kickoff Example</title>
+    <title>ActiveMQ Client Kickoff Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,16 +8,16 @@
   <body onload="prettyPrint()">
      <h1>Client Kickoff Example</h1>
 
-     <p>This example shows how to kick off a client connected to HornetQ 
+     <p>This example shows how to kick off a client connected to ActiveMQ 
          using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX</a></p>
 
-     <p>The example will connect to HornetQ. Using JMX, we will list the remote addresses connected to the 
-         server and close the corresponding connections. The client will be kicked off from HornetQ receiving
+     <p>The example will connect to ActiveMQ. Using JMX, we will list the remote addresses connected to the 
+         server and close the corresponding connections. The client will be kicked off from ActiveMQ receiving
          an exception that its JMS connection was interrupted.</p>
 
      <h2>Example configuration</h2>
 
-     <p>HornetQ exposes its managed resources by default on the platform MBeanServer.</p>
+     <p>ActiveMQ exposes its managed resources by default on the platform MBeanServer.</p>
      <p>To access this MBeanServer remotely, the Java Virtual machine must be started with system properties:
          <pre class="prettyprint">
              <code>-Dcom.sun.management.jmxremote
@@ -27,7 +27,7 @@
         </pre>
         <p>These properties are explained in the Java 5 <a href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#remote">Management guide</a>
             (please note that for this example, we will disable user authentication for simplicity).</p>        
-        <p>With these properties, HornetQ server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p> 
+        <p>With these properties, ActiveMQ server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p> 
      </p>
          
      <h2>Example step-by-step</h2>
@@ -65,15 +65,15 @@
             <code>connection.start();</code>
        </pre>
 
-        <li>We create a MBean proxy to the HornetQServerControlMBean used to manage HornetQ server
+        <li>We create a MBean proxy to the ActiveMQServerControlMBean used to manage ActiveMQ server
             (see <a href="../jmx/readme.html">JMX example</a> for a complete explanation of the different steps)</li>
         <pre class="prettyprint">
-            <code>ObjectName on = ObjectNameBuilder.DEFAULT.getHornetQServerObjectName();
+            <code>ObjectName on = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
             JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, String>());
             MBeanServerConnection mbsc = connector.getMBeanServerConnection();
-            HornetQServerControlMBean serverControl = (HornetQServerControlMBean)MBeanServerInvocationHandler.newProxyInstance(mbsc,
+            ActiveMQServerControlMBean serverControl = (ActiveMQServerControlMBean)MBeanServerInvocationHandler.newProxyInstance(mbsc,
                                                                                                 on,
-                                                                                                HornetQServerControlMBean.class,
+                                                                                                ActiveMQServerControlMBean.class,
                                                                                                 false);
             </code>
         </pre>

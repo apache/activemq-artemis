@@ -1,6 +1,6 @@
 <configuration xmlns="urn:activemq"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+               xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
    <!--
    if you want to run this as a backup on different ports you would need to set the following variable
    export CLUSTER_PROPS="-Djnp.port=1199 -Djnp.rmiPort=1198 -Djnp.host=localhost -Dhornetq.remoting.netty.host=localhost -Dhornetq.remoting.netty.port=5545 -Dhornetq.remoting.netty.batch.port=5555 -Dhornetq.backup=true"

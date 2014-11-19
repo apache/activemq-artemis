@@ -18,8 +18,8 @@
 <!-- ============================================================================= -->
 <chapter id="jms-core-mapping">
     <title>JMS与内核API之间的映射关系</title>
-    <para>本意讲述JMS的目标实体（destination）如何映射到HornetQ的地址（addresses）。</para>
-    <para>HornetQ的内核没有JMS的任何实现。在内核中没有topic的概念，它是通过在一个地址上（相当于topic的名字）绑定
+    <para>本意讲述JMS的目标实体（destination）如何映射到ActiveMQ的地址（addresses）。</para>
+    <para>ActiveMQ的内核没有JMS的任何实现。在内核中没有topic的概念，它是通过在一个地址上（相当于topic的名字）绑定
         零或多个queue来实现JMS topic的功能的。每个绑定的queue相当于该topic的一个订阅（subscription）。
         类似地通过在一个地址上（相当于queue的名字）绑定单一的queue就可以实现JMS queue的功能。</para>
     <para>按照惯例，所有的JMS queue所对应的内核queue的名字都以<literal>jms.queue.</literal>做为开头。比如

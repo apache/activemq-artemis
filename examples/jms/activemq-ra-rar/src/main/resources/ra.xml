@@ -8,8 +8,8 @@
            http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
            version="1.5">
 
-   <description>HornetQ 2.0 Resource Adapter</description>
-   <display-name>HornetQ 2.0 Resource Adapter</display-name>
+   <description>ActiveMQ 2.0 Resource Adapter</description>
+   <display-name>ActiveMQ 2.0 Resource Adapter</display-name>
 
    <vendor-name>Red Hat Middleware LLC</vendor-name>
    <eis-type>JMS 1.1 Server</eis-type>
@@ -32,7 +32,7 @@ Copyright 2009 Red Hat, Inc.
    </license>
 
    <resourceadapter>
-      <resourceadapter-class>org.apache.activemq6.ra.HornetQResourceAdapter</resourceadapter-class>
+      <resourceadapter-class>org.apache.activemq6.ra.ActiveMQResourceAdapter</resourceadapter-class>
       <config-property>
          <description>
             The transport type. Multiple connectors can be configured by using a comma separated list,
@@ -258,7 +258,7 @@ Copyright 2009 Red Hat, Inc.
 
       <outbound-resourceadapter>
          <connection-definition>
-            <managedconnectionfactory-class>org.apache.activemq6.ra.HornetQRAManagedConnectionFactory</managedconnectionfactory-class>
+            <managedconnectionfactory-class>org.apache.activemq6.ra.ActiveMQRAManagedConnectionFactory</managedconnectionfactory-class>
 
             <config-property>
                <description>The default session type</description>
@@ -273,10 +273,10 @@ Copyright 2009 Red Hat, Inc.
                <config-property-value>0</config-property-value>
             </config-property>
 
-            <connectionfactory-interface>org.apache.activemq6.ra.HornetQRAConnectionFactory</connectionfactory-interface>
-            <connectionfactory-impl-class>org.apache.activemq6.ra.HornetQRAConnectionFactoryImpl</connectionfactory-impl-class>
+            <connectionfactory-interface>org.apache.activemq6.ra.ActiveMQRAConnectionFactory</connectionfactory-interface>
+            <connectionfactory-impl-class>org.apache.activemq6.ra.ActiveMQRAConnectionFactoryImpl</connectionfactory-impl-class>
             <connection-interface>javax.jms.Session</connection-interface>
-            <connection-impl-class>org.apache.activemq6.ra.HornetQRASession</connection-impl-class>
+            <connection-impl-class>org.apache.activemq6.ra.ActiveMQRASession</connection-impl-class>
          </connection-definition>
          <transaction-support>XATransaction</transaction-support>
          <authentication-mechanism>
@@ -291,7 +291,7 @@ Copyright 2009 Red Hat, Inc.
             <messagelistener>
                <messagelistener-type>javax.jms.MessageListener</messagelistener-type>
                <activationspec>
-                  <activationspec-class>org.apache.activemq6.ra.inflow.HornetQActivationSpec</activationspec-class>
+                  <activationspec-class>org.apache.activemq6.ra.inflow.ActiveMQActivationSpec</activationspec-class>
                   <required-config-property>
                       <config-property-name>destination</config-property-name>
                   </required-config-property>

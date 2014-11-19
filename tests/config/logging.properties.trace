@@ -28,7 +28,7 @@ loggers=org.jboss.logging,org.apache.activemq.core.server,org.apache.activemq.ut
 
 # Root logger level
 logger.level=INFO
-# HornetQ logger levels
+# ActiveMQ logger levels
 logger.org.apache.activemq.core.server.level=TRACE
 logger.org.apache.activemq.journal.level=INFO
 logger.org.apache.activemq.utils.level=INFO

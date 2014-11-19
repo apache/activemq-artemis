@@ -1,4 +1,4 @@
-Running the HornetQ Examples
+Running the ActiveMQ Examples
 ============================
 
 To run an individual example firstly cd into the example directory and run

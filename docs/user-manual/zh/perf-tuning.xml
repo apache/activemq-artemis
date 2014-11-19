@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 <chapter id="perf-tuning">
     <title>性能调优</title>
-    <para>本章讲述如何优化HornetQ的性能</para>
+    <para>本章讲述如何优化ActiveMQ的性能</para>
     <section>
         <title>持久层的优化</title>
         <itemizedlist>
@@ -31,7 +31,7 @@
             <listitem>
                 <para>尽量减少日志文件的数量。<literal>journal-min-files</literal>参数的设置应以满足平均
                     运行需要为准。如果你发现系统中经常有新的日志文件被创建，这说明持久的数据量很大，你需要适当增加
-                    这个参数的值，以使HornetQ更多时候是在重用文件，而不是创建新文件。</para>
+                    这个参数的值，以使ActiveMQ更多时候是在重用文件，而不是创建新文件。</para>
             </listitem>
             <listitem>
                 <para>日志文件的大小。日志文件的大小最好要与磁盘的一个柱面的容量对齐。默认值是10MiB，它在绝大多数
@@ -81,14 +81,14 @@
                     持久消息都会被写到磁盘中，这给系统带来了明显的负担。</para>
             </listitem>
             <listitem>
-                <para>将多个发送或通知放到一个事务中完成。这样HornetQ只需要一次网络的往返来发生事务的提交，而不是每次发送
+                <para>将多个发送或通知放到一个事务中完成。这样ActiveMQ只需要一次网络的往返来发生事务的提交，而不是每次发送
                     或通知就需要一次网络的往返通迅。</para>
             </listitem>
         </itemizedlist>
     </section>
     <section>
         <title>其它优化</title>
-        <para>在HornetQ中还有其它一些地方可以优化：</para>
+        <para>在ActiveMQ中还有其它一些地方可以优化：</para>
         <itemizedlist>
             <listitem>
                 <para>使用异步发送通知。如果你在非事务条件下发送持久的消息，并且要保证在send()返回时持久消息已经到达服
@@ -130,7 +130,7 @@
                 <para>如果你的接收者速度很快，你可以增加consumer-window-size。这样实际上就关闭了流控制的功能。</para>
             </listitem>
             <listitem>
-                <para>套接字NIO与旧的IO对比。默认情况下HornetQ在服务器端使用套接字NIO技术，而在客户端则使用旧的（阻塞）
+                <para>套接字NIO与旧的IO对比。默认情况下ActiveMQ在服务器端使用套接字NIO技术，而在客户端则使用旧的（阻塞）
                     IO（参见传输配置一章<xref linkend="configuring-transports"/>）。NIO比旧的阻塞式IO有更
                     强的可扩展性，但是也会带来一些延时。如果你的服务器要同时有数千个连接，使用NIO效果比较好。但是如果
                     连接数并没有这么多，你可以配置接收器使用旧的IO还提高性能。</para>
@@ -169,7 +169,7 @@ serveruser     hard    nofile  20000
             </listitem>
             <listitem>
                 <para>利用参数<literal>batch-delay</literal>并将参数<literal>direct-deliver</literal>
-                    设为false来提高小消息的处理效率。HornetQ在其<literal>activemq-configuration.xml</literal>
+                    设为false来提高小消息的处理效率。ActiveMQ在其<literal>activemq-configuration.xml</literal>
                     中预先配置了一个连接器／接受器对（<literal>netty-throughput</literal>），并且在
                     <literal>hornetq-jms.xml</literal>中配置了一个JMS连接工厂（
                     <literal>ThroughputConnectionFactory</literal>）。它们可以用在小消息的处理应用中以提
@@ -188,7 +188,7 @@ serveruser     hard    nofile  20000
                     JVM选项<literal>-XX:+UseParallelOldGC</literal>.</para>
             </listitem>
             <listitem id="perf-tuning.memory">
-                <para>内存设置。尽量为服务器分配更多的内存。HornetQ利用其分页转存技术可以在很少的内存下运行（在
+                <para>内存设置。尽量为服务器分配更多的内存。ActiveMQ利用其分页转存技术可以在很少的内存下运行（在
                     <xref linkend="paging"/>中有说明）。但是如果所有队列都在内存运行，性能将会很好。具体需要
                     多少内存要由你的队列的大小和数量以及消息的大小和数量决定。使用JVM参数<literal>-Xms</literal>
                     和<literal>-Xmx</literal>来为你的服务器分配内存。我们建议两个参数的设为相同的值。</para>
@@ -211,7 +211,7 @@ serveruser     hard    nofile  20000
                     ／会话／发送者或接收者。这样非常浪费资源。这些对象的创建要占用时间和网络带宽。它们应该进行重用。</para>
                 <note>
                     <para>有些常用的框架如Spring JMS Template在使用JMS时违背了设计模式。如果你在使用了它后性能
-                        受到了影响。这不是HornetQ的原因！Spring的JMS模板只有与能缓存JMS会话的应用服务器一起使用
+                        受到了影响。这不是ActiveMQ的原因！Spring的JMS模板只有与能缓存JMS会话的应用服务器一起使用
                         才是安全的，并且只能是用于发送消息。使用它在应用服务器中同步接收消息是不安全的。</para>
                 </note>
             </listitem>

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Message Group Example</title>
+    <title>ActiveMQ Message Group Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,7 +8,7 @@
   <body onload="prettyPrint()">
      <h1>Message Group Example</h1>
 
-     <p>This example shows you how to configure and use message groups via a connection factory with HornetQ.</p>
+     <p>This example shows you how to configure and use message groups via a connection factory with ActiveMQ.</p>
      
      <p>Message groups are sets of messages that has the following characteristics: </p>
      <li>Messages in a message group share the same group id, i.e. they have same JMSXGroupID string property values.</li>
@@ -18,7 +18,7 @@
      <p>You can make any message belong to a message group by setting a 'group-id' on the connection factory. All producers created via this connection factory will set that group id on its messages.
      In this example we set the group id 'Group-0'on a connection factory and send messages via 2 different producers and check that only 1 consumer receives them. </p>
 
-     <p>Alternatively, HornetQ's connection factories can be configured to <em>auto group</em> messages. By setting <code>autogroup</code> to </code>true</code> on the <code>HornetQConnectionFactory</code>
+     <p>Alternatively, ActiveMQ's connection factories can be configured to <em>auto group</em> messages. By setting <code>autogroup</code> to </code>true</code> on the <code>ActiveMQConnectionFactory</code>
         (or setting <code>&lt;autogroup&gt;true&lt;/autogroup&gt;</code> in <code>hornetq-jms.xml</code>'s connection factory settings), a random unique id
         will be picked to create a message group. <em>Every messages</em> sent by a producer created from this connection factory will automatically
         be part of this message group.</p>

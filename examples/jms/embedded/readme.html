@@ -1,6 +1,6 @@
 <html>
    <head>
-      <title>HornetQ Embedded JMS Server Example</title>
+      <title>ActiveMQ Embedded JMS Server Example</title>
       <link rel="stylesheet" type="text/css" href="../common/common.css" />
       <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
       <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,8 +8,8 @@
    <body onload="prettyPrint()">
       <h1>Embedded JMS Server Example</h1>
       
-      <p>This examples shows how to setup and run an embedded JMS server using HornetQ.</p>
-      <p>HornetQ was designed using POJOs (Plain Old Java Objects) which means embedding HornetQ in your own application
+      <p>This examples shows how to setup and run an embedded JMS server using ActiveMQ.</p>
+      <p>ActiveMQ was designed using POJOs (Plain Old Java Objects) which means embedding ActiveMQ in your own application
           is as simple as instantiating a few objects.</p>
       <p>This example does not use any configuration files. The server is configured using POJOs and can be easily ported to any dependency injection framework.<br /> 
          We will setup and run a full-fledged JMS server which binds its JMS resources to JNDI and can be accessed by remote clients.</p>
@@ -18,7 +18,7 @@
       <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
 
       <ol>
-         <li>Create HornetQ core configuration, and set the properties accordingly</li>
+         <li>Create ActiveMQ core configuration, and set the properties accordingly</li>
          <pre class="prettyprint">
             <code>Configuration configuration = new ConfigurationImpl();
             configuration.setPersistenceEnabled(false);
@@ -26,9 +26,9 @@
             configuration.getAcceptorConfigurations().add(new TransportConfiguration(NettyAcceptorFactory.class.getName()));</code>
             Configuration configuration = new ConfigurationImpl();</pre>
 
-         <li>Create the HornetQ core server</li>
+         <li>Create the ActiveMQ core server</li>
          <pre class="prettyprint">
-            <code>HornetQServer hornetqServer = HornetQ.newHornetQServer(configuration);</code>
+            <code>ActiveMQServer hornetqServer = ActiveMQ.newActiveMQServer(configuration);</code>
          </pre>
         
          <li>Create and start the JNDI server (using JBoss JNDI implementation)</li>
@@ -73,7 +73,7 @@
             jmsConfig.getQueueConfigurations().add(queueConfig);</code>
          </pre>
      
-         <li>Start the JMS Server using the HornetQ core server and the JMS configuration</li>
+         <li>Start the JMS Server using the ActiveMQ core server and the JMS configuration</li>
          <pre class="prettyprint">
             <code>JMSServerManager jmsServer = new JMSServerManagerImpl(hornetqServer, jmsConfig);
             jmsServer.start();</code>

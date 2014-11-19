@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>HornetQ Message Group Example</title>
+    <title>ActiveMQ Message Group Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,7 +8,7 @@
   <body onload="prettyPrint()">
      <h1>Message Group Example</h1>
 
-     <p>This example shows you how to configure and use message groups with HornetQ.</p>
+     <p>This example shows you how to configure and use message groups with ActiveMQ.</p>
      
      <p>Message groups are sets of messages that has the following characteristics: </p>
      <li>Messages in a message group share the same group id, i.e. they have same JMSXGroupID string property values.</li>
@@ -20,7 +20,7 @@
      where the 10 'Group-0' group messages are to be sent. You can see that with message grouping enabled, all the 10 messages will be received by
      the first consumer. The second consumer will receive none. </p>
 
-     <p>Alternatively, HornetQ's connection factories can be configured to <em>auto group</em> messages. By setting <code>autogroup</code> to </code>true</code> on the <code>HornetQConnectionFactory</code>
+     <p>Alternatively, ActiveMQ's connection factories can be configured to <em>auto group</em> messages. By setting <code>autogroup</code> to </code>true</code> on the <code>ActiveMQConnectionFactory</code>
         (or setting <code>&lt;autogroup&gt;true&lt;/autogroup&gt;</code> in <code>hornetq-jms.xml</code>'s connection factory settings), a random unique id
         will be picked to create a message group. <em>Every messages</em> sent by a producer created from this connection factory will automatically
         be part of this message group.</p>

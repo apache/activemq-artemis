@@ -18,11 +18,11 @@
 <!-- ============================================================================= -->
 <chapter id="project-info">
    <title>项目信息</title>
-   <para>HornetQ的官方网址是 <ulink url="http://hornetq.org/"
+   <para>ActiveMQ的官方网址是 <ulink url="http://hornetq.org/"
          >http://hornetq.org/</ulink>.</para>
    <section id="download.software">
       <title>软件下载</title>
-      <para>HornetQ的下载地址为：<ulink
+      <para>ActiveMQ的下载地址为：<ulink
             url="http://hornetq.org/downloads.html">http://hornetq.org/downloads.html</ulink></para>
    </section>
    <section id="download.git">
@@ -30,11 +30,11 @@
       <para>
          <itemizedlist>
             <listitem>
-               <para>HornetQ的 <ulink
-                     url="http://www.jboss.org/community/wiki/HornetQ">wiki</ulink></para>
+               <para>ActiveMQ的 <ulink
+                     url="http://www.jboss.org/community/wiki/ActiveMQ">wiki</ulink></para>
             </listitem>
             <listitem>
-               <para>如果在使用HornetQ中发生任何问题，可以去我们的 <ulink
+               <para>如果在使用ActiveMQ中发生任何问题，可以去我们的 <ulink
                      url="http://www.jboss.org/index.html?module=bb&amp;op=viewforum&amp;f=312">用户论坛
                      </ulink></para>
             </listitem>
@@ -54,7 +54,7 @@
                <para>还可以跟踪我们的<ulink url="http://twitter.com/hornetq">twitter</ulink></para>
             </listitem>
             <listitem>
-               <para>HornetQ的Git代码库地址 <ulink
+               <para>ActiveMQ的Git代码库地址 <ulink
                      url="https://github.com/hornetq/hornetq"
                      >https://github.com/hornetq/hornetq</ulink></para>
             </listitem>
@@ -65,7 +65,7 @@
             </listitem>
          </itemizedlist>
       </para>
-      <para>Red Hat 公司聘请全职工程师进行HornetQ项目的开发工作，他们是： <itemizedlist>
+      <para>Red Hat 公司聘请全职工程师进行ActiveMQ项目的开发工作，他们是： <itemizedlist>
             <listitem>
                <para>
                   <ulink url="http://jbossfox.blogspot.com">Tim Fox</ulink> (项目主管)</para>

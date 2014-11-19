@@ -17,8 +17,8 @@
 <!-- permitted by applicable law.                                                  -->
 <!-- ============================================================================= -->
 <chapter id="examples">
-   <title>运行HornetQ例子</title>
-   <para>在HornetQ的<literal>examples</literal>目录下有两组例子，它们是：</para>
+   <title>运行ActiveMQ例子</title>
+   <para>在ActiveMQ的<literal>examples</literal>目录下有两组例子，它们是：</para>
    <itemizedlist>
       <listitem>
          <para>JMS例子 - 这些例子展示的是使用JMS发送与接收消息的功能。</para>
@@ -47,7 +47,7 @@
       </itemizedlist>
       <para>在运行每个例子时，都要先启动一个或多个单独的服务器。当例子运行完毕，再将它们停止。</para>
       <para>做为演示我们这里运行queue例子。其它的例子可以参见用户手册。</para>
-      <para>首先打开一个命令行窗口（shell），进入到HornetQ的 <literal
+      <para>首先打开一个命令行窗口（shell），进入到ActiveMQ的 <literal
             >examples/jms/queue</literal>目录。</para>
       <para>敲入命令<literal>./build.sh</literal> (或者在Windows上<literal>build.bat</literal>），你
          将看到如下的输出：</para>
@@ -78,22 +78,22 @@ a NIO. If your platform is Linux, install LibAIO to enable the AIO journal
      [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:08,437 WARN  @main [Securit
 yStoreImpl] It has been detected that the cluster admin password which is used to replic
 ate management operation from one node to the other has not had its password changed fro
-m the installation default. Please see the HornetQ user guide for instructions o
+m the installation default. Please see the ActiveMQ user guide for instructions o
 n how to do this.
-     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [ActiveMQCo
 nnectionFactory] read only is false
-     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [ActiveMQCo
 nnectionFactory] read only is false
-     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [HornetQCo
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,941 INFO  @main [ActiveMQCo
 nnectionFactory] read only is false
      [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,991 WARN  @main [JMSServ
 erManagerImpl] Binding for java:/ConnectionFactory already exists
      [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:10,991 WARN  @main [JMSServ
 erManagerImpl] Binding for java:/XAConnectionFactory already exists
      [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:11,241 INFO  @main [Messagi
-ngServerImpl] HornetQ Server version 2.0.0.BETA5 (buzz-buzz, 107) started
-     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:11,241 INFO  @main [HornetQBoot
-strapServer] HornetQ server started
+ngServerImpl] ActiveMQ Server version 2.0.0.BETA5 (buzz-buzz, 107) started
+     [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:11,241 INFO  @main [ActiveMQBoot
+strapServer] ActiveMQ server started
      [java] org.apache.activemq.jms.example.SpawnedJMSServer out:STARTED::
      [java] 10:41:11,276 INFO  @main [JMSExample] using server0/client-jndi.properties f
 or jndi
@@ -107,7 +107,7 @@ or jndi
 BUILD SUCCESSFUL
 Total time: 13 seconds
 </programlisting>
-      <para>恭喜！你已经成功地运行了你的第一个HornetQ例子。试着运行其它的例子。</para>
+      <para>恭喜！你已经成功地运行了你的第一个ActiveMQ例子。试着运行其它的例子。</para>
    </section>
    <section id="examples.messaging">
       <title>Java EE例子</title>

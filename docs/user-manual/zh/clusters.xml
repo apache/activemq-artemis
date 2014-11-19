@@ -20,15 +20,15 @@
     <title>集群</title>    
     <section>
         <title>集群概述</title>
-        <para>HornetQ集群是由一组HornetQ服务器组成的集合，它们协同合作进行消息处理。集群中每个主节点就是一个
-            HornetQ服务器，它管理自己的连接并处理自己的消息。要将一个HornetQ服务器配置为集群服务器，需要将配置
+        <para>ActiveMQ集群是由一组ActiveMQ服务器组成的集合，它们协同合作进行消息处理。集群中每个主节点就是一个
+            ActiveMQ服务器，它管理自己的连接并处理自己的消息。要将一个ActiveMQ服务器配置为集群服务器，需要将配置
             文件<literal>activemq-configuration.xml</literal>中<literal>clustered</literal>的值设
             为<literal>true</literal>。默认值是<literal>false</literal>。</para>
         <para>要组成一个集群，每个节点都要在其核心配置文件<literal>activemq-configuration.xml</literal>
             中声明<emphasis>集群连接</emphasis>，用来建立与集群中其它节点的通迅。每两个节点间都是通过内部的一个
             <emphasis>核心桥</emphasis>（参见<xref linkend="core-bridges" />）连接的。这些连接的建立是
             透明的－－你不需要为每个连接显式地声明一个桥。集群连接的作用是在集群的各个节点间进行负载平衡。</para>
-        <para>HornetQ可以采用不同的拓扑结构来组成集群。本章后面将讲述几种常用的拓扑结构。</para>
+        <para>ActiveMQ可以采用不同的拓扑结构来组成集群。本章后面将讲述几种常用的拓扑结构。</para>
         <para>我们还将讨论客户端的负载均衡－－客户端如何均衡其与集群各节点的连接，以及消息的再分配－－在节点间合理
             的分配消息以避免消息匮乏（starvation）。</para>
         <para>本章还涉及集群的另一个重要方面－－<emphasis>服务器发现</emphasis>，即服务器通过广播的方式将
@@ -58,7 +58,7 @@
             <para>广播组包括了一系列的连接器对。每个连接器对由主服务器的连接器和备份（可选）服务器连接器信息组成。
                 广播组还定义了所使用的UDP的在址和端口信息。</para>
             <para>广播组的配置中服务器配置文件<literal
-                    >activemq-configuration.xml</literal>中。一个HornetQ服务器可以有多个广播组。所有的广播组
+                    >activemq-configuration.xml</literal>中。一个ActiveMQ服务器可以有多个广播组。所有的广播组
                 必需定义在<literal>broadcast-groups</literal>内。</para>
             <para>让我们来看一个<literal>activemq-configuration.xml</literal>文件中广播组的例子：</para>
             <programlisting>&lt;broadcast-groups>
@@ -115,7 +115,7 @@
             <para>一个发现组包括了一系列的连接器对－－每个连接器对代表一个不同的服务器广播的连接器信息。每当接收一次广播，
                 这个连接对的列表就被更新一次。</para>
             <para>如果在一定时间内没有收到某个服务器的广播，则其相应的连接器对将从列表中删除。</para>
-            <para>发现组在HornetQ中有两处应用：</para>
+            <para>发现组在ActiveMQ中有两处应用：</para>
             <itemizedlist>
                 <listitem>
                     <para>在创建集群连接时用来判断集群中哪些服务器是可以连接的。</para>
@@ -164,7 +164,7 @@
         </section>
         <section id="clusters-discovery.groups.clientside">
             <title>客户端的发现组</title>
-            <para>现在讨论如何配置HornetQ客户端来发现可以连接的服务器列表。使用JMS时所用的方法与使用核心接口时所用的
+            <para>现在讨论如何配置ActiveMQ客户端来发现可以连接的服务器列表。使用JMS时所用的方法与使用核心接口时所用的
                 方法有所不同。</para>
             <section>
                 <title>使用JMS时客户端发现的配置方法</title>
@@ -186,7 +186,7 @@
 final int groupPort = 9876;
 
 ConnectionFactory jmsConnectionFactory = 
-        HornetQJMSClient.createConnectionFactory(groupAddress, groupPort);
+        ActiveMQJMSClient.createConnectionFactory(groupAddress, groupPort);
 
 Connection jmsConnection1 = jmsConnectionFactory.createConnection();
 
@@ -205,7 +205,7 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
                     <programlisting>
                     final String groupAddress = "231.7.7.7"; 
                     final int groupPort = 9876;
-                    SessionFactory factory = HornetQClient.createClientSessionFactory(groupAddress, groupPort);
+                    SessionFactory factory = ActiveMQClient.createClientSessionFactory(groupAddress, groupPort);
                     ClientSession session1 = factory.createClientSession(...); ClientSession
                     session2 = factory.createClientSession(...);
                 
@@ -222,7 +222,7 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
     </section>
     <section>
         <title>服务器端消息的负载均衡</title>
-        <para>如果集群和各节点间定义了集群连接，HornetQ可以对到达一个节点的消息进行负载均衡。</para>
+        <para>如果集群和各节点间定义了集群连接，ActiveMQ可以对到达一个节点的消息进行负载均衡。</para>
         <para>举一个简单的例子。一个集群有4个节点，分别称为节点A、B、C和节点D。它们组成了一个
                 <emphasis>对称式集群</emphasis>（有关对称式集群参见<xref linkend="symmetric-cluster" />）。
                 在每个节点上部署了一个名为<literal>OrderQueue</literal>的队列。</para>
@@ -233,14 +233,14 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
             <literal>OrderQueue</literal>队列中。这种消息分配完全在服务器端完成，客户端只向节点A发送消息。</para>
         <para>例如到达节点A的消息可能以下列顺序进行分配：B、D、C、A、B、D、C、A、B、D。具体的顺序取决于节点启动的
             先后，但是其算法是不变的（即round-robin）。</para>
-        <para>HornetQ集群连接在进行消息负载均衡时，可以配置成统一负载均衡模式，即不管各个节点上有无合适的接收者，一律在
+        <para>ActiveMQ集群连接在进行消息负载均衡时，可以配置成统一负载均衡模式，即不管各个节点上有无合适的接收者，一律在
             所有节点间进行消息的分配。也可以配置成为智能负载均衡模式，即只将消息分配到有合适接收者的节点上。这两种模式我们
             都将举例说明。首先我们先介绍一般的集群连接配置。</para>
         <section id="clusters.cluster-connections">
             <title>配置集群连接</title>
             <para>集群连接将一组服务器连接成为一个集群，消息可以在集群的节点之间进行负载均衡。集群连接的配置在
                 <literal>activemq-configuration.xml</literal>文件中的
-                <literal>cluster-connection</literal>内。一个HornetQ服务器可以有零个或多个集群连接。
+                <literal>cluster-connection</literal>内。一个ActiveMQ服务器可以有零个或多个集群连接。
                 下面是一个典型的例子：</para>
             <programlisting>
 &lt;cluster-connections&gt;
@@ -262,9 +262,9 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
                     <para>本例中的集群连接只对发往以<literal>jms</literal>为开始的地址的消息进行负载均衡的
                         处理。这个集群连接实际上能够处理所有JMS队列和话题的订阅中的消息，这是国为所有JMS的队列
                         或订阅都映射到内核中以“jms“开头的队列。</para>
-                    <para>这个地址可以为任何值，而且可以配置多个集群连接，每个连接的地址值可以不同。这样HornetQ
+                    <para>这个地址可以为任何值，而且可以配置多个集群连接，每个连接的地址值可以不同。这样ActiveMQ
                         可以同时对不同地址同时进行消息的负载均衡。有的地址甚至可能在其它集群的节点中。这也就意谓着
-                        一个HornetQ服务器可以同时参与到多个集群中。</para>
+                        一个ActiveMQ服务器可以同时参与到多个集群中。</para>
                     <para>要注意别造成多个集群连接的地址互相重复。比如，地址“europe“和”europe.news“就互相重复，
                         就会造成同一个消息会被多个集群连接进行分配，这样有可能发生重复传递。</para>
                     <para>本参数是必须指定的。</para>
@@ -291,16 +291,16 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
                         的节点分配消息。即不管有没有合适的接收者，消息在所有的节点间轮流分配。</para>
                     <para>如果这个参数设为<literal>true</literal>，则消息就会轮流在每个节点间分配，不管是否
                         节点上有没有相应的接收者（或者有接收者但是具有不匹配的选择器）。注意，如果其它节点中没有
-                        与本节点同名的队列，HornetQ不会将消息转发到那些节点中去，不受本参数的限制。</para>
-                    <para>如果参数设为<literal>false</literal>， HornetQ中将消息转发到集群中那些有着适合接收者
+                        与本节点同名的队列，ActiveMQ不会将消息转发到那些节点中去，不受本参数的限制。</para>
+                    <para>如果参数设为<literal>false</literal>， ActiveMQ中将消息转发到集群中那些有着适合接收者
                         的节点中。如果接收者有选择器，则至少有一个选择器与所转发的消息匹配才可，否则不转发。</para>
                     <para>本参数是可选的，默认值是<literal>false</literal>。</para>
                 </listitem>
                 <listitem>
                     <para><literal>max-hops</literal>。当一个集群连接在确定进行消息负载均衡的节点组时，这些
-                        节点不一定是与本节点直接相连的节点。HornetQ可以通过其它HornetQ节点作为中介向那些非直接相
+                        节点不一定是与本节点直接相连的节点。ActiveMQ可以通过其它ActiveMQ节点作为中介向那些非直接相
                         连的节点转发消息。</para>
-                    <para>这样可以使HornetQ组成更加复杂的拓扑结构并且仍可提供消息的负载均衡。在本章的后面我们还要作
+                    <para>这样可以使ActiveMQ组成更加复杂的拓扑结构并且仍可提供消息的负载均衡。在本章的后面我们还要作
                         进一步的讨论。</para>
                     <para>本参数是可选参数，它的默认值是 <literal>1</literal>，表示消息只向直接相连的节点进行负载均衡。</para>
                 </listitem>
@@ -312,22 +312,21 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
         </section>
         <section id="clusters.clusteruser">
             <title>集群用户的安全信息</title>
-            
-            <para>当集群中两个节点建立连接时，HornetQ使用一个集群用户和集群密码。它们定义在
+            <para>当集群中两个节点建立连接时，ActiveMQ使用一个集群用户和集群密码。它们定义在
                   <literal>activemq-configuration.xml</literal>文件中：</para>
             <programlisting>
                 &lt;cluster-user&gt;HORNETQ.CLUSTER.ADMIN.USER&lt;/cluster-user&gt;
                 &lt;cluster-password&gt;CHANGE ME!!&lt;/cluster-password&gt;
             </programlisting>
             <warning><para>强烈建议在实际应用中不要使用默认的值，否则任意远程客户端会使用这些默认值连接到服务器上。当使用默认值时，
-                HornetQ会检测到并在每次启动的时候给出警告。</para></warning>
+                ActiveMQ会检测到并在每次启动的时候给出警告。</para></warning>
         </section>
     </section>
     <section id="clusters.client.loadbalancing">
         <title>客户端负载均衡</title>
-        <para>HornetQ的客户端负载均衡使同一个会话工厂每次创建一个会话时，都连接到集群不同的节点上。这样可以使所的有会话
+        <para>ActiveMQ的客户端负载均衡使同一个会话工厂每次创建一个会话时，都连接到集群不同的节点上。这样可以使所的有会话
             均匀分布在集群的各个节点上，而不会‘拥挤’到某一个节点上。</para>
-        <para>客户端负载均衡的策略是可配置的。HornetQ提供两种现成的负载均衡策略。你也可以实现自己的策略。</para>
+        <para>客户端负载均衡的策略是可配置的。ActiveMQ提供两种现成的负载均衡策略。你也可以实现自己的策略。</para>
         <para>两种现成的策略是：</para>
         <itemizedlist>
             <listitem>
@@ -356,14 +355,14 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
 &lt;/connection-factory&gt;            
         </programlisting>上面的配置将部署一个连接工厂，它的连接负载均衡策略是随机策略。</para>
         <para>如果使用JMS，但是你在客户端是直接创建连接工厂的实例，那么你需要用相应的方法在<literal
-                >HornetQConnectionFactory</literal>上直接设置：
+                >ActiveMQConnectionFactory</literal>上直接设置：
             <programlisting>
-ConnectionFactory jmsConnectionFactory = HornetQJMSClient.createConnectionFactory(...);
+ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactory(...);
 jmsConnectionFactory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
         </programlisting></para>
         <para>如果你使用核心接口的话，你要直接在<literal>ClientSessionFactory</literal>上设置策略：
             <programlisting>
-ClientSessionFactory factory = HornetQClient.createClientSessionFactory(...);
+ClientSessionFactory factory = ActiveMQClient.createClientSessionFactory(...);
 factory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
             </programlisting></para>
         <para>连接工厂进行负载均衡的服务器组可以有两种方法来确定：</para>
@@ -409,7 +408,7 @@ factory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
                         <literal>activemq-configuration.xml</literal>文件中定义的一个连接器。
                         有关连接器更多的信息参见<xref linkend="configuring-transports" />。</para>
                 <para>连接工厂这样就保存有一组[连接器, 备份连接器]对，用于客户端在创建连接时的负载均衡。</para>
-                <para>如果你使用JMS，但不使用JNDI，你可以直接创建<literal>HornetQConnectionFactory</literal>
+                <para>如果你使用JMS，但不使用JNDI，你可以直接创建<literal>ActiveMQConnectionFactory</literal>
                     的实例，然后用相应的方法来设定连接器对列表，如下例：<programlisting>List&lt;Pair&lt;TransportConfiguration, TransportConfiguration>> serverList = 
         new ArrayList&lt;Pair&lt;TransportConfiguration, TransportConfiguration>>();
 
@@ -420,14 +419,14 @@ serverList.add(new Pair&lt;TransportConfiguration,
 serverList.add(new Pair&lt;TransportConfiguration, 
         TransportConfiguration>(liveTC2, backupTC2));
 
-ConnectionFactory jmsConnectionFactory = HornetQJMSClient.createConnectionFactory(serverList);
+ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactory(serverList);
 
 Connection jmsConnection1 = jmsConnectionFactory.createConnection();
 
 Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlisting></para>
                 <para>上面的代码中我们创建了一组<literal>TransportConfiguration</literal>对象。每个
                     <literal>TransportConfiguration</literal>对象包括了如何连接某个特定服务器的信息。</para>
-                <para>然后，使用这个服务器列表创建了一个<literal>HornetQConnectionFactory</literal>实例。
+                <para>然后，使用这个服务器列表创建了一个<literal>ActiveMQConnectionFactory</literal>实例。
                     这样通过这个工厂创建的连接就可以使用这个列表，由所用的客户连接负载均衡策略来进行连接的负载均衡。</para>
             </section>
             <section>
@@ -444,7 +443,7 @@ serverList.add(new Pair&lt;TransportConfiguration,
 serverList.add(new Pair&lt;TransportConfiguration, 
         TransportConfiguration>(liveTC2, backupTC2));
 
-ClientSessionFactory factory = HornetQClient.createClientSessionFactory(serverList);
+ClientSessionFactory factory = ActiveMQClient.createClientSessionFactory(serverList);
 
 ClientSession sesison1 = factory.createClientSession(...);
 
@@ -452,7 +451,7 @@ ClientSession session2 = factory.createClientSession(...);</programlisting>
                 <para>在上面的代码中我们创建了一组<literal>ClientSessionFactoryImpl</literal>对象。每个
                     <literal>TransportConfiguration</literal>对象包括了如何连接某个特定服务器的信息。
                     有关信息请参见<xref linkend="configuring-transports" />。</para>
-                <para>然后，使用这个服务器列表创建了一个<literal>HornetQConnectionFactory</literal>实例。
+                <para>然后，使用这个服务器列表创建了一个<literal>ActiveMQConnectionFactory</literal>实例。
                     这样通过这个工厂创建的会话就可以使用这个列表，由所用的客户连接负载均衡策略来进行连接的负载均衡。</para>
             </section>
         </section>
@@ -481,7 +480,7 @@ ClientSession session2 = factory.createClientSession(...);</programlisting>
                     <literal>activemq-configuration.xml</literal>文件中定义的一个连接器。
                     有关连接器的详细信息参见<xref linkend="configuring-transports" />。</para>
             <note>
-               <para>由于HornetQ 2.0.0的限制，使用静态节点列表的集群不支持失效备援（failover）。要想支持失效备援，
+               <para>由于ActiveMQ 2.0.0的限制，使用静态节点列表的集群不支持失效备援（failover）。要想支持失效备援，
                   就必须使用发现组。</para>
             </note>
         </section>
@@ -493,7 +492,7 @@ ClientSession session2 = factory.createClientSession(...);</programlisting>
             这样可以有效避免了消息被送到一个不可能被接收的节点上。但仍然有一个问题无法解决：就是如果在消息发到一个节点后，
             它的接收者被关闭，那么这些消息仍然不能被接收了，造成了一种消息<emphasis>匮乏</emphasis>情形。
             这种情况下如何处理？</para>
-        <para>这里就需要消息再分配功能。通过配置，HornetQ可以将没有接收者的队列中的消息<emphasis>再次分配</emphasis>
+        <para>这里就需要消息再分配功能。通过配置，ActiveMQ可以将没有接收者的队列中的消息<emphasis>再次分配</emphasis>
             到有接收者的节点上去。</para>
         <para>通过配置，消息可以在队列最后一个接收者关闭时立即进行，也可以配置成等待一段时间再进行。默认消息再分配功能是
             关闭的。</para>
@@ -509,7 +508,7 @@ ClientSession session2 = factory.createClientSession(...);</programlisting>
                 >redistribution-delay</literal>值为<literal>0</literal>。它适用于所有以“jms“开头的
             地址。由于所有JMS队列与话题订阅都绑定到以”jms“为开头的地址，所以上述配置的立即方式（没有延迟）消息
             再分配适用于所有的JMS队列和话题订阅。</para>
-        <para><literal>match</literal>属性可以是精确匹配，也可以使用通配符。通配符要符合HornetQ的通配符
+        <para><literal>match</literal>属性可以是精确匹配，也可以使用通配符。通配符要符合ActiveMQ的通配符
             语法（在<xref linkend="wildcard-syntax"
             />中描述）。</para>
         <para><literal>redistribution-delay</literal>定义了队列最后一个接收者关闭后在进行消息再分配前所等待的
@@ -520,7 +519,7 @@ ClientSession session2 = factory.createClientSession(...);</programlisting>
     </section>
     <section>
         <title>集群拓扑结构</title>
-        <para>HornetQ集群可以有多种拓扑结构。我们来看两个最常见的结构。</para>
+        <para>ActiveMQ集群可以有多种拓扑结构。我们来看两个最常见的结构。</para>
         <section id="symmetric-cluster">
             <title>对称式集群</title>
             <para>对称式集群可能是最常见的集群方式了。如果你接触过JBoss应用服务器的集群，你就对这种方式很熟悉。</para>

@@ -1,6 +1,6 @@
 <html>
    <head>
-      <title>HornetQ Embedded JMS Server Example</title>
+      <title>ActiveMQ Embedded JMS Server Example</title>
       <link rel="stylesheet" type="text/css" href="../common/common.css" />
       <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
       <script type="text/javascript" src="../common/prettify.js"></script>
@@ -8,15 +8,15 @@
    <body onload="prettyPrint()">
       <h1>Embedded JMS Server Example</h1>
       
-      <p>This examples shows how to setup and run an embedded JMS server using HornetQ along with HornetQ configuration files.</p>
+      <p>This examples shows how to setup and run an embedded JMS server using ActiveMQ along with ActiveMQ configuration files.</p>
      
       <h2>Example step-by-step</h2>     
       <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
 
       <ol>
-         <li>Create HornetQ core configuration files and make sure they are within your classpath.  By default, HornetQ
+         <li>Create ActiveMQ core configuration files and make sure they are within your classpath.  By default, ActiveMQ
              expects the classnames to be "hornetq-configuration.xml", "hornetq-jms.xml", and "hornetq-users.xml".</li>
-         <li>Create and start HornetQ JMS server</li>
+         <li>Create and start ActiveMQ JMS server</li>
          <pre class="prettyprint">
             <code>EmbeddedJMS jmsServer = new EmbeddedJMS();
             jmsServer.start();</code>

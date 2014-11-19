@@ -1,18 +1,18 @@
 <html>
   <head>
-    <title>HornetQ Management Example</title>
+    <title>ActiveMQ Management Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
      <h1>Management Example</h1>
-     <p>This example shows how to manage HornetQ using JMS Messages to invoke management operations on the server.</a></p>
-     <p>To manage HornetQ using JMX, see the <a href="../jmx/readme.html">JMX</a> example.</p>
+     <p>This example shows how to manage ActiveMQ using JMS Messages to invoke management operations on the server.</a></p>
+     <p>To manage ActiveMQ using JMX, see the <a href="../jmx/readme.html">JMX</a> example.</p>
      
      <h2>Example configuration</h2>
 
-     <p>HornetQ can be managed by sending JMS messages with specific properties to its <em>management</em> queue.</p>
+     <p>ActiveMQ can be managed by sending JMS messages with specific properties to its <em>management</em> queue.</p>
      </p>By default, the management name is called <code>hornetq.management</code> but this can be configured in <a href="server0/hornetq-configuration.xml">hornetq-configuration.xml</a>
      <pre class="prettyprint">
          <code>&lt;management-address&gt;hornetq.management&lt;/management-address&gt;</code>
@@ -74,7 +74,7 @@
             
         <li>We create the JMS management queue. This is a <em>special</em> queue which is not looked up from JNDI but instantiated directly</li>
         <pre class="prettyprint">
-            <code>Queue managementQueue = new HornetQQueue("hornetq.management", "hornetq.management");</code>
+            <code>Queue managementQueue = new ActiveMQQueue("hornetq.management", "hornetq.management");</code>
         </pre>
 
         <li>We create a <code>QueueRequestor</code> to send messages to the management queue and receive replies (see <a href="../queue-requestor/readme.html">queue-requestor example</a>)</li>
@@ -92,7 +92,7 @@
             <code>Message m = session.createMessage();</code>
         </pre>
         
-        <li>a <em>management</em> message has well-defined properties that HornetQ server needs to know to perform management operations.<br />
+        <li>a <em>management</em> message has well-defined properties that ActiveMQ server needs to know to perform management operations.<br />
             We use a helper class <code>JMSManagementHelper</code> to fill these properties:
             <ul>
                 <li>The name of the resource to manage <code>jms.queue.exampleQueue</code> 

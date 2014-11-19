@@ -47,7 +47,7 @@
         &lt;redelivery-delay&gt;5000&lt;/redelivery-delay&gt;
      &lt;/address-setting&gt;
              </programlisting>
-         <para>如果定义了<literal>redelivery-delay</literal>，HornetQ在再传递之前等待所定义的时间。</para>
+         <para>如果定义了<literal>redelivery-delay</literal>，ActiveMQ在再传递之前等待所定义的时间。</para>
          <para>默认是没有延时的（即<literal>redelivery-delay</literal>的值是0）。</para>
          <para>可以使用通配符为一组地址定义再传递的延迟（参见<xref linkend="wildcard-syntax"/>）。
                </para>
@@ -62,7 +62,7 @@
       <para>通过定义一个<emphasis role="italic">死信地址</emphasis>也可以防止同一个消息被无休止地传递：
          当一个消息被重复传递一定次数后，就会从队列中删除并传递到定义好的死信地址中。</para>
       <para>这些死信中的消息之后可以转发到某个队列中，以供系统管理员分析处理。</para>
-      <para>每个HornetQ的地址可以有一个死信地址。当一个消息被反复传递达一定次数时，它就会被从队列中删除并送到
+      <para>每个ActiveMQ的地址可以有一个死信地址。当一个消息被反复传递达一定次数时，它就会被从队列中删除并送到
          死信地址。这些<emphasis>死信</emphasis>消息可以被接收进行分析处理。</para>
       <section id="undelivered-messages.configuring">
          <title>配置死信地址</title>
@@ -101,13 +101,13 @@
    </section>
    <section id="configuring.delivery.count.persistence">
       <title>传递计数的持久化</title>
-      <para>通常情况下HornetQ在一个消息被回滚之前并不更新持久的传递计数（即在消息传递到接收者之前不会更新传递计数）。
+      <para>通常情况下ActiveMQ在一个消息被回滚之前并不更新持久的传递计数（即在消息传递到接收者之前不会更新传递计数）。
          大多数情况下消息被接收、通知、然后被忘掉。这样对<emphasis>每一个消息</emphasis>的传递都要更新一次持久的
          传递计数，会显著降低系统的性能。</para>
       <para>介是如果在消息传递之前不进行持久传递计数的更新，服务器一旦发生故障而崩溃，就会造成消息可能被传递出去而传递
          计数却没有正确反映出传递的結果。在恢复阶段，服务器将错误地将该消息的<literal>redelivered</literal>设为
          <literal>false</literal>而不是<literal>true</literal>。 </para>
-      <para>这样是不符合严格的JMS要求的。因此HornetQ允许在消息传递前更新传递计数。但是默认不这样做，目的是优先考虑
+      <para>这样是不符合严格的JMS要求的。因此ActiveMQ允许在消息传递前更新传递计数。但是默认不这样做，目的是优先考虑
          了它对性能的影响。</para>
       <para>要想打开传递计数更新功能，将<literal>activemq-configuration.xml</literal>文件中的
             <literal>persist-delivery-count-before-delivery</literal>设为<literal>true</literal>即可：</para>

@@ -19,8 +19,8 @@
 
   <properties>
     <translation>en</translation>
-    <docname>HornetQ_QuickStart_Guide</docname>
-    <bookname>HornetQ QuickStart Guide</bookname>
+    <docname>ActiveMQ_QuickStart_Guide</docname>
+    <bookname>ActiveMQ QuickStart Guide</bookname>
   </properties>
 
   <repositories>
