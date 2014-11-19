@@ -433,7 +433,7 @@
       <section id="management.jmx.configuration">
          <title>配置JMX</title>
          <para>默认情况下HornetQ的JMX是打开的。将<literal
-               >hornetq-configuration.xml</literal>文件中的<literal
+               >activemq-configuration.xml</literal>文件中的<literal
                >jmx-management-enabled</literal>设置为<literal>false</literal>就可以关闭JMX：</para>
          <programlisting>
 &lt;!-- false to disable JMX management for HornetQ --&gt;
@@ -445,7 +445,7 @@
                >Java管理指南</ulink>来配置服务器的远程管理（系统变量必须在<literal>run.sh</literal>或<literal>run.bat</literal>中定义）。</para>
          </note>
          <para>HornetQ默认使用JMX域名"org.apache.activemq"。如果要用一个MBeanServer管理多个HornetQ服务器，可以将每个HornetQ
-            服务器配置成不同的JMX域。方法就是在<literal>hornetq-configuration.xml</literal>文件中设置<literal>jmx-domain</literal>：</para>
+            服务器配置成不同的JMX域。方法就是在<literal>activemq-configuration.xml</literal>文件中设置<literal>jmx-domain</literal>：</para>
          <programlisting>
 &lt;!-- use a specific JMX domain for HornetQ MBeans -->
 &lt;jmx-domain>my.org.apache.activemq&lt;/jmx-domain>
@@ -535,7 +535,7 @@
       <section id="management.core.configuration">
          <title>配置核心管理</title>
          <para>管理地址的配置在文件<literal
-               >hornetq-configuration.xml</literal>中：</para>
+               >activemq-configuration.xml</literal>中：</para>
          <programlisting>
    &lt;management-address&gt;jms.queue.hornetq.management&lt;/management-address&gt;
          </programlisting>
@@ -641,7 +641,7 @@
          <para>由于是标准的核心消息，使用选择器还能够过滤掉一部分通知而只接收感兴趣的通知。</para>
          <section id="management.notifications.core.configuration">
             <title>配置核心管理通知地址</title>
-            <para>用来发送管理通知的地址在文件中<literal>hornetq-configuration.xml</literal>配置：</para>
+            <para>用来发送管理通知的地址在文件中<literal>activemq-configuration.xml</literal>配置：</para>
             <programlisting>
                &lt;management-notification-address&gt;hornetq.notifications&lt;/management-notification-address&gt;
             </programlisting>
@@ -733,12 +733,12 @@
       <section id="configuring.message.counters">
          <title>配置消息计数器</title>
          <para>默认的消息计数器是关闭的，因为它需要占用一些内存。</para>
-         <para>要打开消息计数器，编辑<literal>hornetq-configuration.xml</literal>文件将其设为<literal>true</literal>：</para>
+         <para>要打开消息计数器，编辑<literal>activemq-configuration.xml</literal>文件将其设为<literal>true</literal>：</para>
          <programlisting>
 &lt;message-counter-enabled&gt;true&lt;/message-counter-enabled&gt;
          </programlisting>
          <para>消息计数器会保存队列的历史数据（默认是10天）。它以一定间隔（默认10秒一次）对每个队列进行扫描。
-            如果消息计数器打开，这些参数可以在<literal>hornetq-configuration.xml</literal>文件中进行调整：</para>
+            如果消息计数器打开，这些参数可以在<literal>activemq-configuration.xml</literal>文件中进行调整：</para>
          <programlisting>
 &lt;!-- keep history for a week --&gt;
 &lt;message-counter-max-day-history&gt;7&lt;/message-counter-max-day-history&gt;            

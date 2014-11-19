@@ -141,11 +141,12 @@
             <configuration>
                <skipTests>${skipJmsTests}</skipTests>
                <excludes>
-                  <exclude>org.apache.activemq/jms/tests/XARecoveryTest.java</exclude>
-                  <exclude>org.apache.activemq/jms/tests/XAResourceRecoveryTest.java</exclude>
-                  <exclude>org.apache.activemq/jms/tests/XATest.java</exclude>
-                  <exclude>org.apache.activemq/jms/tests/stress/*.java</exclude>
-                  <exclude>org.apache.activemq/jms/tests/manual/**</exclude>
+                  <!-- TODO: Can we remove XATests? Can we remove them all? -->
+                  <exclude>org/apache/activemq/jms/tests/XARecoveryTest.java</exclude>
+                  <exclude>org/apache/activemq/jms/tests/XAResourceRecoveryTest.java</exclude>
+                  <exclude>org/apache/activemq/jms/tests/XATest.java</exclude>
+                  <exclude>org/apache/activemq/jms/tests/stress/*.java</exclude>
+                  <exclude>org/apache/activemq/jms/tests/manual/**</exclude>
                </excludes>
                <argLine>${activemq-surefire-argline}</argLine>
             </configuration>

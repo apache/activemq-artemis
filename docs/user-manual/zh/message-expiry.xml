@@ -62,7 +62,7 @@ producer.setTimeToLive(5000);
    <section id="configuring.expiry.reaper">
       <title>配置过期回收线程</title>
       <para>HornetQ有一个回收线程定期地检查队列中的消息，目的是发现是否有消息过期。</para>
-      <para>在<literal>hornetq-configuration.xml</literal>文件中可以对回收线程进行配置，参数如下：</para>
+      <para>在<literal>activemq-configuration.xml</literal>文件中可以对回收线程进行配置，参数如下：</para>
       <itemizedlist>
          <listitem>
             <para><literal>message-expiry-scan-period</literal></para>

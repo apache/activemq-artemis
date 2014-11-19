@@ -49,10 +49,10 @@
                 <graphic fileref="images/ha-replicated-store.png" align="center"/>
                 <section id="configuring.live.backup">
                     <title>配置</title>
-                    <para>首先在主服务器的 <literal>hornetq-configuration.xml</literal>文件中配置备份服务器。
+                    <para>首先在主服务器的 <literal>activemq-configuration.xml</literal>文件中配置备份服务器。
                         配置的参数是<literal>backup-connector-ref</literal>。这个参数指向一个连接器。这个连接器
                         也在主服务器上配置。它定义了如何与备份服务器建立连接。</para>
-                    <para>下面就是一个在<literal>hornetq-configuration.xml</literal>文件中的例子：</para>
+                    <para>下面就是一个在<literal>activemq-configuration.xml</literal>文件中的例子：</para>
                     <programlisting>
   &lt;backup-connector-ref connector-name="backup-connector"/>
 
@@ -113,7 +113,7 @@
                 <graphic fileref="images/ha-shared-store.png" align="center"/>
                 <section id="ha/mode.shared.configuration">
                     <title>配置</title>
-                    <para>要使用存贮共享模式，在两个服务器的配置文件<literal>hornetq-configuration.xml</literal>
+                    <para>要使用存贮共享模式，在两个服务器的配置文件<literal>activemq-configuration.xml</literal>
                         中将作如下设置：</para>
                     <programlisting>
                    &lt;shared-store>true&lt;shared-store>

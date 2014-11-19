@@ -22,7 +22,7 @@
     <section id="server.configuration">
         <title>服务器配置</title>
         <section>
-            <title>hornetq-configuration.xml</title>
+            <title>activemq-configuration.xml</title>
             <para>HornetQ主要核心服务器配置文件</para>
             <table frame="topbot" border="2">
                 <title>服务器配置</title>

@@ -34,7 +34,7 @@
         地址中。</para>
     <para>由转发器与桥进行配合可以组成复杂的路由系统。在服务器中由一组转发器可以形成一个消息路由表。如果加上桥，就
         可以进一步形成一个分布式的可靠的消息路由网。</para>
-    <para>转发器的配置在<literal>hornetq-configuration.xml</literal>中定义。可以配置零个或多个转发器。</para>
+    <para>转发器的配置在<literal>activemq-configuration.xml</literal>中定义。可以配置零个或多个转发器。</para>
     <para>参见转发器的例子<xref linkend="divert-example" />，它展示了如何配置与使用转发器。</para>
     <para>让我们看一些转发器的配置例子：</para>
     <section>

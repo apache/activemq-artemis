@@ -23,7 +23,7 @@
     <section id="configuring-transports.acceptors">
         <title>接收器（Acceptor）</title>
         <para>接收器（<emphasis>acceptor</emphasis>）是 HornetQ 的传输层中最为重要的概念之一。首先
-            介绍一下在文件<literal>hornetq-configuration.xml</literal>中是怎样定义一个接收器的：</para>
+            介绍一下在文件<literal>activemq-configuration.xml</literal>中是怎样定义一个接收器的：</para>
         <programlisting>
 &lt;acceptors&gt;                
     &lt;acceptor name="netty"&gt;
@@ -49,7 +49,7 @@ org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory
     <section id="configuring-transports.connectors">
         <title>连接器（Connectors）</title>
         <para>接收器定义的是如何在服务器端接收连接，而连接器则是定义客户端如何连接到服务器。</para>
-        <para>以下是<literal>hornetq-configuration.xml</literal>文件中一个连接器配置的例子。</para>
+        <para>以下是<literal>activemq-configuration.xml</literal>文件中一个连接器配置的例子。</para>
         <programlisting>
 &lt;connectors&gt;
     &lt;connector name="netty"&gt;
@@ -77,7 +77,7 @@ org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory
                 <para>这一信息被定义在配置文件<literal
                         >hornetq-jms.xml</literal>中的<literal>connector-ref</literal>单元下。下面这段配置
                         就是从该配置文件中提取的相关部分，它展示了JMS的连接工厂是如何引用定义在配置文件<literal
-                        >hornetq-configuration.xml</literal>中的连接器的：</para>
+                        >activemq-configuration.xml</literal>中的连接器的：</para>
                 <programlisting>
 &lt;connection-factory name="ConnectionFactory"&gt;
     &lt;connectors>
@@ -311,7 +311,7 @@ etc
                 </listitem>
                 <listitem>
                     <para>我们还需要在服务器端加上一个特殊的Netty invm 接收器。</para>
-                    <para>下面是从<literal>hornetq-configuration.xml</literal>配置文件中摘取的定义接收器的配置部分：</para>
+                    <para>下面是从<literal>activemq-configuration.xml</literal>配置文件中摘取的定义接收器的配置部分：</para>
                     <programlisting>                    
 &lt;acceptors>
 
@@ -327,7 +327,7 @@ etc
                 </programlisting>
                 </listitem>
                 <listitem>
-                    <para>最后我们需要在客户端配置连接器，也是在<literal>hornetq-configuration.xml</literal>文件中来做。如下所示：</para>
+                    <para>最后我们需要在客户端配置连接器，也是在<literal>activemq-configuration.xml</literal>文件中来做。如下所示：</para>
                     <programlisting>&lt;connectors>
 
       &lt;connector name="netty-servlet">

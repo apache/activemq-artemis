@@ -22,9 +22,9 @@
         <title>集群概述</title>
         <para>HornetQ集群是由一组HornetQ服务器组成的集合，它们协同合作进行消息处理。集群中每个主节点就是一个
             HornetQ服务器，它管理自己的连接并处理自己的消息。要将一个HornetQ服务器配置为集群服务器，需要将配置
-            文件<literal>hornetq-configuration.xml</literal>中<literal>clustered</literal>的值设
+            文件<literal>activemq-configuration.xml</literal>中<literal>clustered</literal>的值设
             为<literal>true</literal>。默认值是<literal>false</literal>。</para>
-        <para>要组成一个集群，每个节点都要在其核心配置文件<literal>hornetq-configuration.xml</literal>
+        <para>要组成一个集群，每个节点都要在其核心配置文件<literal>activemq-configuration.xml</literal>
             中声明<emphasis>集群连接</emphasis>，用来建立与集群中其它节点的通迅。每两个节点间都是通过内部的一个
             <emphasis>核心桥</emphasis>（参见<xref linkend="core-bridges" />）连接的。这些连接的建立是
             透明的－－你不需要为每个连接显式地声明一个桥。集群连接的作用是在集群的各个节点间进行负载平衡。</para>
@@ -58,9 +58,9 @@
             <para>广播组包括了一系列的连接器对。每个连接器对由主服务器的连接器和备份（可选）服务器连接器信息组成。
                 广播组还定义了所使用的UDP的在址和端口信息。</para>
             <para>广播组的配置中服务器配置文件<literal
-                    >hornetq-configuration.xml</literal>中。一个HornetQ服务器可以有多个广播组。所有的广播组
+                    >activemq-configuration.xml</literal>中。一个HornetQ服务器可以有多个广播组。所有的广播组
                 必需定义在<literal>broadcast-groups</literal>内。</para>
-            <para>让我们来看一个<literal>hornetq-configuration.xml</literal>文件中广播组的例子：</para>
+            <para>让我们来看一个<literal>activemq-configuration.xml</literal>文件中广播组的例子：</para>
             <programlisting>&lt;broadcast-groups>
    &lt;broadcast-group name="my-broadcast-group">
       &lt;local-bind-address>172.16.9.3&lt;/local-bind-address>
@@ -127,7 +127,7 @@
         </section>
         <section>
             <title>在服务器端定义发现组。</title>
-            <para>服务器端的发现组定义在<literal>hornetq-configuration.xml</literal>配置文件中。所有的发现组都必须
+            <para>服务器端的发现组定义在<literal>activemq-configuration.xml</literal>配置文件中。所有的发现组都必须
                 在<literal>discovery-groups</literal>内定义。发现组可以定义多个。请看下面的例子：</para>
             <programlisting>&lt;discovery-groups>
    &lt;discovery-group name="my-discovery-group">
@@ -177,7 +177,7 @@
     &lt;/entries>
 &lt;/connection-factory></programlisting>
                 <para>其中<literal>discovery-group-ref</literal>的值是定义在
-                    <literal>hornetq-configuration.xml</literal>文件中的一个发现组。</para>
+                    <literal>activemq-configuration.xml</literal>文件中的一个发现组。</para>
                 <para>当连接工厂从JNDI下载到客户端时，使用它创建连接就会在列表中的服务器间进行负载均衡。
                     客户端通过监听发现组中的广播地址可以不断更新这个服务器列表。</para>
                 <para>如果使用JMS但是不用JNDI，而是直接实例化JMS的连接工厂的话，可以用适当的方法来设置发现组的各个
@@ -239,7 +239,7 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
         <section id="clusters.cluster-connections">
             <title>配置集群连接</title>
             <para>集群连接将一组服务器连接成为一个集群，消息可以在集群的节点之间进行负载均衡。集群连接的配置在
-                <literal>hornetq-configuration.xml</literal>文件中的
+                <literal>activemq-configuration.xml</literal>文件中的
                 <literal>cluster-connection</literal>内。一个HornetQ服务器可以有零个或多个集群连接。
                 下面是一个典型的例子：</para>
             <programlisting>
@@ -314,7 +314,7 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
             <title>集群用户的安全信息</title>
             
             <para>当集群中两个节点建立连接时，HornetQ使用一个集群用户和集群密码。它们定义在
-                  <literal>hornetq-configuration.xml</literal>文件中：</para>
+                  <literal>activemq-configuration.xml</literal>文件中：</para>
             <programlisting>
                 &lt;cluster-user&gt;HORNETQ.CLUSTER.ADMIN.USER&lt;/cluster-user&gt;
                 &lt;cluster-password&gt;CHANGE ME!!&lt;/cluster-password&gt;
@@ -404,9 +404,9 @@ factory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
                         <literal>connector-ref</literal>。每个<literal>connector-ref</literal>
                         都拥有<literal>connector-name</literal>属性和一个可选的<literal
                         >backup-connector-name</literal>属性。<literal
-                        >connector-name</literal> 属性指向的是一个在<literal>hornetq-configuration.xml</literal>
+                        >connector-name</literal> 属性指向的是一个在<literal>activemq-configuration.xml</literal>
                         文件中定义的连接器。而<literal>backup-connector-name</literal>属性也是指向在
-                        <literal>hornetq-configuration.xml</literal>文件中定义的一个连接器。
+                        <literal>activemq-configuration.xml</literal>文件中定义的一个连接器。
                         有关连接器更多的信息参见<xref linkend="configuring-transports" />。</para>
                 <para>连接工厂这样就保存有一组[连接器, 备份连接器]对，用于客户端在创建连接时的负载均衡。</para>
                 <para>如果你使用JMS，但不使用JNDI，你可以直接创建<literal>HornetQConnectionFactory</literal>
@@ -476,9 +476,9 @@ ClientSession session2 = factory.createClientSession(...);</programlisting>
                     每个<literal>connector-ref</literal>都有一个<literal>connector-name</literal>属性和
                     一个可选的<literal>backup-connector-name</literal>属性。<literal
                     >connector-name</literal>属性指向一个在<literal
-                    >hornetq-configuration.xml</literal>文件中定义的一个连接器，它是主连接器。可选的
+                    >activemq-configuration.xml</literal>文件中定义的一个连接器，它是主连接器。可选的
                     <literal>backup-connector-name</literal>指向的也是在
-                    <literal>hornetq-configuration.xml</literal>文件中定义的一个连接器。
+                    <literal>activemq-configuration.xml</literal>文件中定义的一个连接器。
                     有关连接器的详细信息参见<xref linkend="configuring-transports" />。</para>
             <note>
                <para>由于HornetQ 2.0.0的限制，使用静态节点列表的集群不支持失效备援（failover）。要想支持失效备援，
@@ -499,7 +499,7 @@ ClientSession session2 = factory.createClientSession(...);</programlisting>
             关闭的。</para>
         <para>消息再分配功能可以基于地址进行配置，即在地址设置中指定再分配的延时。关于地址设置的更多信息，请参见
             <xref linkend="queue-attributes" />。</para>
-        <para>下面是从<literal>hornetq-configuration.xml</literal>文件中提取的消息再分配的配置：</para>
+        <para>下面是从<literal>activemq-configuration.xml</literal>文件中提取的消息再分配的配置：</para>
         <programlisting>&lt;address-settings>     
    &lt;address-setting match="jms.#">
       &lt;redistribution-delay>0&lt;/redistribution-delay>

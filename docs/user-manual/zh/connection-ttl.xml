@@ -132,7 +132,7 @@ at org.acme.yourproject.YourClass (YourClass.java:666)
         <para>为了避免远程模块的线程被长时间占用，数据包可以转给另外的一个线程池来处理。要注意这样做的增加了一些时间延迟。
             因此如果数据包处理耗时很少，还是由远程模块线程来处理较好。
 
-            要配置这样的异步连接很行任务，将<literal>hornetq-configuration.xml</literal>文件中的
+            要配置这样的异步连接很行任务，将<literal>activemq-configuration.xml</literal>文件中的
                 <literal>async-connection-execution-enabled</literal> 参数设为<literal>true</literal>
                （默认值是 <literal>true</literal>）。</para>
     </section>

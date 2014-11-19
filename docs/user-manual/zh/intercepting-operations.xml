@@ -48,7 +48,7 @@ public interface Interceptor
    </section>
    <section>
       <title>配置拦截器</title>
-      <para>拦截器的配置在<literal>hornetq-configuration.xml</literal>文件中：</para>
+      <para>拦截器的配置在<literal>activemq-configuration.xml</literal>文件中：</para>
       <programlisting>
 &lt;remoting-interceptors&gt;
    &lt;class-name&gt;org.apache.activemq.jms.example.LoginInterceptor&lt;/class-name&gt;

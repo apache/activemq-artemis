@@ -90,7 +90,7 @@
     <section id="configuring.bindings.journal">
         <title>配置绑定日志</title>
         <para>绑定日志的配置参数在 <literal
-                >hornetq-configuration.xml</literal>文件中。</para>
+                >activemq-configuration.xml</literal>文件中。</para>
         <itemizedlist>
             <listitem>
                 <para><literal>bindings-directory</literal></para>
@@ -225,7 +225,7 @@
     <section id="persistence.enabled">
         <title>配置HornetQ不使用持久化</title>
         <para>在一些情况下消息系统并不需要持久化。这时可以配置HornetQ不使用持久层。只要将<literal
-                >hornetq-configuration.xml</literal>文件中的<literal>persistence-enabled</literal>
+                >activemq-configuration.xml</literal>文件中的<literal>persistence-enabled</literal>
               参数设为<literal>false</literal>即可。 </para>
         <para>注意如果你将该参数设为 false来关闭持久化，就意味着所有的绑定数据、消息数据、超大消息数据、重复ID缓冲以及转移（paging）数据都将不会被持久。</para>
     </section>

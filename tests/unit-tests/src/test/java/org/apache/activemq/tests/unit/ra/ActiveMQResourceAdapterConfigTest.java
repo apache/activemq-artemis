@@ -298,7 +298,7 @@ public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
       "      <config-property>\n" +
       "         <description>Add a new managed connection factory</description>\n" +
       "         <config-property-name>ManagedConnectionFactory</config-property-name>\n" +
-      "         <config-property-type>org.apache.activemq.ra.ActiveMQManagedConnectionFactory</config-property-type>\n" +
+      "         <config-property-type>org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory</config-property-type>\n" +
       "         <config-property-value></config-property-value>\n" +
       "      </config-property>" +
       "      <config-property>\n" +
@@ -437,7 +437,7 @@ public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
          assertEquals("setter " + configPropertyName + " has no type set", elementsByTagName.getLength(), 1);
          Node configPropertyTypeNode = elementsByTagName.item(0);
          String configPropertyTypeName = configPropertyTypeNode.getTextContent();
-         assertEquals(c.getName(), configPropertyTypeName);
+         assertEquals(configPropertyTypeName, c.getName());
       }
       if (!methodList.isEmpty())
       {

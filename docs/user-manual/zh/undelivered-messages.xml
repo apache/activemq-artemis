@@ -109,7 +109,7 @@
          <literal>false</literal>而不是<literal>true</literal>。 </para>
       <para>这样是不符合严格的JMS要求的。因此HornetQ允许在消息传递前更新传递计数。但是默认不这样做，目的是优先考虑
          了它对性能的影响。</para>
-      <para>要想打开传递计数更新功能，将<literal>hornetq-configuration.xml</literal>文件中的
+      <para>要想打开传递计数更新功能，将<literal>activemq-configuration.xml</literal>文件中的
             <literal>persist-delivery-count-before-delivery</literal>设为<literal>true</literal>即可：</para>
       <programlisting>
 &lt;persist-delivery-count-before-delivery&gt;true&lt;/persist-delivery-count-before-delivery&gt;

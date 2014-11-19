@@ -18,7 +18,7 @@
 <!-- ============================================================================= -->
 <chapter id="security">
     <title>安全</title>
-    <para>本章讲述HornetQ的安全机制以及如何配置它。要完全关闭安全，只要将<literal>hornetq-configuration.xml</literal>
+    <para>本章讲述HornetQ的安全机制以及如何配置它。要完全关闭安全，只要将<literal>activemq-configuration.xml</literal>
         文件中的<literal>security-enabled</literal>参数设为false即可。</para>
     <para>出于性能的考虑，安全在HornetQ中被缓存一定的时间。要改变这个时间，需要设置参数
         <literal>security-invalidation-interval</literal>，单位是毫秒。默认值是
@@ -55,8 +55,8 @@
             </listitem>
         </itemizedlist>
         <para>每个权限有一个角色表。如果用户的角色在这个表中，那么它将拥有这个权限。</para>
-        <para>让我们看个简单的例子。下面是从<literal>hornetq-configuration.xml</literal>文件或
-              <literal>hornetq-queues.xml</literal>文件中提取的安全设置：</para>
+        <para>让我们看个简单的例子。下面是从<literal>activemq-configuration.xml</literal>文件或
+              <literal>activemq-queues.xml</literal>文件中提取的安全设置：</para>
         <programlisting>
 &lt;security-setting match="globalqueues.europe.#"&gt;
     &lt;permission type="createDurableQueue" roles="admin"/&gt;
@@ -108,7 +108,7 @@
     <section>
         <title>基本用户身份信息（Credentials）</title>
         <para>HornetQ自带一个安全管理器（security manager）可以从xml文件中读取用户身份信息，即用户名、
-            密码、角色信息。该xml文件名为<literal>hornetq-users.xml</literal>，它必须要在classpath中。</para>
+            密码、角色信息。该xml文件名为<literal>activemq-users.xml</literal>，它必须要在classpath中。</para>
         <para>如果你要使用这个安全管理器，就将用户名，密码，角色等信息加入到这个文件中。</para>
         <para>让我们看一个例子：</para>
         <programlisting>

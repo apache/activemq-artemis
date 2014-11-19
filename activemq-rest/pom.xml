@@ -14,7 +14,7 @@
    <packaging>jar</packaging>
 
    <properties>
-      <hornetq.version>${project.version}</hornetq.version>
+      <activemq.version>${project.version}</activemq.version>
       <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
    </properties>
 
@@ -67,12 +67,12 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-server</artifactId>
-         <version>${hornetq.version}</version>
+         <version>${activemq.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-jms-server</artifactId>
-         <version>${hornetq.version}</version>
+         <version>${activemq.version}</version>
       </dependency>
       <dependency>
          <groupId>org.jboss.spec.javax.jms</groupId>

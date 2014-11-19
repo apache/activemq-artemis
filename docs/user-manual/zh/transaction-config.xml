@@ -22,7 +22,7 @@
         有的时候一个事务开始后，最終被忘记。有时客户端崩溃并且再也不能恢复，这样的话该事务就一直存在下去。</para>
     <para>为了解决这个问题，可以配置HornetQ来扫描过期的事务，并且将它们回滚。默认值是3000000毫秒（5分钟）。
         它表示任何超过5分钟的事务都将被删除。这个超时对应的参数是<literal
-            >transaction-timeout</literal>，它在配置文件<literal>hornetq-configuration.xml</literal>中（单位毫秒）。
+            >transaction-timeout</literal>，它在配置文件<literal>activemq-configuration.xml</literal>中（单位毫秒）。
         参数<literal>transaction-timeout-scan-period</literal>定义了HornetQ扫描过期事务的间隔。</para>
     <para>注意HornetQ不会单方面回滚一个已经处于准备状态的XA事务。如果你认为这些事务永远不会被事务管理器（transaction manager）
         来处理的话，你必须通过管理接口来进行回滚。</para>
