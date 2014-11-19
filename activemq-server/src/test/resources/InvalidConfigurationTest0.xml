@@ -1,7 +1,7 @@
 <configuration
    xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq ../../src/config/common/schema/activemq-configuration.xsd">
+   xsi:schemaLocation="urn:activemq ../../src/config/common/schema/activemq-configuration.xsd">
       <name>SomeNameForUseOnTheApplicationServer</name>
       <scheduled-thread-pool-max-size>12345</scheduled-thread-pool-max-size>
       <thread-pool-max-size>54321</thread-pool-max-size>

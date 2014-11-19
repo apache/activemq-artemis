@@ -286,7 +286,7 @@
                <programlisting>
    &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:hornetq /schema/activemq-configuration.xsd">
+   xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
 
       &lt;jmx-domain>org.apache.activemq.backup1&lt;/jmx-domain>
 

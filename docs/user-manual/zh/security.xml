@@ -114,7 +114,7 @@
         <programlisting>
 &lt;configuration xmlns="urn:activemq"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="urn:hornetq ../schemas/activemq-users.xsd "&gt;
+    xsi:schemaLocation="urn:activemq ../schemas/activemq-users.xsd "&gt;
     
     &lt;defaultuser name="guest" password="guest"&gt;
         &lt;role name="guest"/&gt;
