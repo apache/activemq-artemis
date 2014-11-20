@@ -355,7 +355,7 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214010, value = "Failed to receive datagram", format = Message.Format.MESSAGE_FORMAT)
-   void failedToReceiveDatagramInDiscovery(@Cause Exception e);
+   void failedToReceiveDatagramInDiscovery(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214011, value = "Failed to call discovery listener", format = Message.Format.MESSAGE_FORMAT)
