@@ -275,7 +275,7 @@
 &lt;/server&gt;
             </programlisting>
         </para>
-        <para>这个jboss-service.xml包含在hornetq-service.sar文件中，它用来配置AS4中嵌入运行的ActiveMQ。
+        <para>这个jboss-service.xml包含在activemq-server.sar文件中，它用来配置AS4中嵌入运行的ActiveMQ。
               在这个配置文件中我们启动了以下几个服务：</para>
         <itemizedlist>
             <listitem>

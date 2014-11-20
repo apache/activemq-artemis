@@ -32,10 +32,10 @@
         <li>in the first terminal, go to the <code>bin</code> directory and start the first server (with default configuration):
            <pre class="prettyprint"><code>./run.sh ../config/stand-alone/clustered</code></pre>
         <li>in the second terminal, start the second server:
-           <pre class="prettyprint"><code>export CLUSTER_PROPS="-Ddata.dir=../data-server2 -Djnp.port=2099 -Djnp.rmiPort=2098 -Dactivemq.remoting.netty.port=6445 -Dhornetq.remoting.netty.batch.port=6455"
+           <pre class="prettyprint"><code>export CLUSTER_PROPS="-Ddata.dir=../data-server2 -Djnp.port=2099 -Djnp.rmiPort=2098 -Dactivemq.remoting.netty.port=6445 -Dactivemq.remoting.netty.batch.port=6455"
 ./run.sh ../config/stand-alone/clustered</code></pre>
         <li>in the third terminal, start the third server (with default configuration):
-           <pre class="prettyprint"><code>export CLUSTER_PROPS="-Ddata.dir=../data-server3 -Djnp.port=3099 -Djnp.rmiPort=3098 -Dactivemq.remoting.netty.port=7445 -Dhornetq.remoting.netty.batch.port=7455"
+           <pre class="prettyprint"><code>export CLUSTER_PROPS="-Ddata.dir=../data-server3 -Djnp.port=3099 -Djnp.rmiPort=3098 -Dactivemq.remoting.netty.port=7445 -Dactivemq.remoting.netty.batch.port=7455"
 ./run.sh ../config/stand-alone/clustered</code></pre>
         <li>finally, in the fourth terminal, start the example
            <pre class="prettyprint"><code>./build.sh runRemote</code> (or <code>build.bat runRemote</code> on windows)</pre>

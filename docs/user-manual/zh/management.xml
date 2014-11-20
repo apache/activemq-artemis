@@ -542,7 +542,7 @@
          <para>它的默认地址是<literal>jms.queue.activemq.management</literal> （地址前缀加上
             “jms.queue”是为了方便JMS客户端也可以向它发送管理消息。</para>
          <para>管理地址需要一个<emphasis>特殊</emphasis>的用户权限
-               <literal>manage</literal>来接收并处理管理消息。这个权限也在hornetq-configuration.xml文件中配置：</para>
+               <literal>manage</literal>来接收并处理管理消息。这个权限也在activemq-configuration.xml文件中配置：</para>
          <programlisting>
    &lt;!-- users with the admin role will be allowed to manage --&gt; 
    &lt;!-- ActiveMQ using management messages        --&gt;

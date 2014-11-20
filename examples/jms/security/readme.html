@@ -32,18 +32,18 @@
 		      &lt;role name=&quot;user&quot;/&gt;
 		   &lt;/user&gt;
 		  
-		   &lt;user name=&quot;andrew&quot; password=&quot;hornetq1&quot;&gt;
+		   &lt;user name=&quot;andrew&quot; password=&quot;activemq1&quot;&gt;
 		      &lt;role name=&quot;europe-user&quot;/&gt;
 		      &lt;role name=&quot;user&quot;/&gt;
 		   &lt;/user&gt;
 		   
-		   &lt;user name=&quot;frank&quot; password=&quot;hornetq2&quot;&gt;
+		   &lt;user name=&quot;frank&quot; password=&quot;activemq2&quot;&gt;
 		      &lt;role name=&quot;us-user&quot;/&gt;
 		      &lt;role name=&quot;news-user&quot;/&gt;
 		      &lt;role name=&quot;user&quot;/&gt;
 		   &lt;/user&gt;
 		   
-		   &lt;user name=&quot;sam&quot; password=&quot;hornetq3&quot;&gt;
+		   &lt;user name=&quot;sam&quot; password=&quot;activemq3&quot;&gt;
 		      &lt;role name=&quot;news-user&quot;/&gt;
 		      &lt;role name=&quot;user&quot;/&gt;
 		   &lt;/user&gt;
@@ -160,7 +160,7 @@
            billConnection = null;
            try
            {
-              billConnection = createConnection("bill", "hornetq1", cf);
+              billConnection = createConnection("bill", "activemq1", cf);
               result = false;
            }
            catch (JMSException e)
@@ -181,7 +181,7 @@
         <li>Andrew makes a good connection</li>
          <pre class="prettyprint">
            <code>
-           andrewConnection = createConnection("andrew", "hornetq1", cf);
+           andrewConnection = createConnection("andrew", "activemq1", cf);
            andrewConnection.start();
            </code>
          </pre>
@@ -189,7 +189,7 @@
         <li>Frank makes a good connection</li>
         <pre class="prettyprint">
            <code>
-           frankConnection = createConnection("frank", "hornetq2", cf);
+           frankConnection = createConnection("frank", "activemq2", cf);
            frankConnection.start();
            </code>
         </pre>
@@ -197,7 +197,7 @@
         <li>Sam makes a good connection</li>
         <pre class="prettyprint">
            <code>
-           samConnection = createConnection("sam", "hornetq3", cf);
+           samConnection = createConnection("sam", "activemq3", cf);
            samConnection.start();
            </code>
         </pre>

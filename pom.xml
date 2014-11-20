@@ -138,6 +138,13 @@
          <url>http://hornetq.com</url>
          <timezone>0</timezone>
       </developer>
+      <developer>
+         <id>martyntaylor</id>
+         <name>Martyn Taylor</name>
+         <email>mtaylor@redhat.com</email>
+         <url>http://www.redhat.com</url>
+         <timezone>0</timezone>
+      </developer>
    </developers>
 
    <contributors>

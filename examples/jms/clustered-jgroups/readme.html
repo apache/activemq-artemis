@@ -26,7 +26,7 @@
       &lt;broadcast-group name="my-broadcast-group">
          &lt;broadcast-period>5000&lt;/broadcast-period>
          &lt;jgroups-file>test-jgroups-file_ping.xml&lt;/jgroups-file>
-         &lt;jgroups-channel>hornetq_broadcast_channel&lt;/jgroups-channel>
+         &lt;jgroups-channel>activemq_broadcast_channel&lt;/jgroups-channel>
          &lt;connector-ref>netty-connector&lt;/connector-ref>
       &lt;/broadcast-group>
    &lt;/broadcast-groups&gt;
@@ -34,7 +34,7 @@
    &lt;discovery-groups&gt;
       &lt;discovery-group name="my-discovery-group">
          &lt;jgroups-file>test-jgroups-file_ping.xml&lt;/jgroups-file>
-         &lt;jgroups-channel>hornetq_broadcast_channel&lt;/jgroups-channel>
+         &lt;jgroups-channel>activemq_broadcast_channel&lt;/jgroups-channel>
          &lt;refresh-timeout>10000&lt;/refresh-timeout>
       &lt;/discovery-group>
    &lt;/discovery-groups&gt;

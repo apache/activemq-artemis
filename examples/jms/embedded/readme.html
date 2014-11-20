@@ -28,7 +28,7 @@
 
          <li>Create the ActiveMQ core server</li>
          <pre class="prettyprint">
-            <code>ActiveMQServer hornetqServer = ActiveMQ.newActiveMQServer(configuration);</code>
+            <code>ActiveMQServer activemqServer = ActiveMQ.newActiveMQServer(configuration);</code>
          </pre>
         
          <li>Create and start the JNDI server (using JBoss JNDI implementation)</li>
@@ -75,7 +75,7 @@
      
          <li>Start the JMS Server using the ActiveMQ core server and the JMS configuration</li>
          <pre class="prettyprint">
-            <code>JMSServerManager jmsServer = new JMSServerManagerImpl(hornetqServer, jmsConfig);
+            <code>JMSServerManager jmsServer = new JMSServerManagerImpl(activemqServer, jmsConfig);
             jmsServer.start();</code>
          </pre>
 

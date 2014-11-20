@@ -5,18 +5,18 @@
       <role name="user"/>
    </user>
   
-   <user name="andrew" password="hornetq1">
+   <user name="andrew" password="activemq1">
       <role name="europe-user"/>
       <role name="user"/>
    </user>
    
-   <user name="frank" password="hornetq2">
+   <user name="frank" password="activemq2">
       <role name="us-user"/>
       <role name="news-user"/>
       <role name="user"/>
    </user>
    
-   <user name="sam" password="hornetq3">
+   <user name="sam" password="activemq3">
       <role name="news-user"/>
       <role name="user"/>
    </user>

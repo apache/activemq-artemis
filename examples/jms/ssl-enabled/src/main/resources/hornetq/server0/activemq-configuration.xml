@@ -20,7 +20,7 @@
          <param key="port" value="5500"/>
          <param key="ssl-enabled" value="true"/>
          <param key="trust-store-path" value="activemq/server0/activemq.example.truststore"/>
-         <param key="trust-store-password" value="hornetqexample"/>
+         <param key="trust-store-password" value="activemqexample"/>
       </connector>
    </connectors>
    
@@ -32,7 +32,7 @@
          <param key="port" value="5500"/>
          <param key="ssl-enabled" value="true"/>
          <param key="key-store-path" value="activemq/server0/activemq.example.keystore"/>
-         <param key="key-store-password" value="hornetqexample"/>
+         <param key="key-store-password" value="activemqexample"/>
       </acceptor>
    </acceptors>
 

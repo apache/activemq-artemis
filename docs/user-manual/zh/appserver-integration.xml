@@ -52,7 +52,7 @@ public class MDBExample implements MessageListener
    &lt;ejb-name>ExampleMDB&lt;/ejb-name>
    &lt;resource-adapter-name>activemq-ra.rar&lt;/resource-adapter-name>
 &lt;/message-driven>
-</programlisting>你还可以将hornetq-ra.rar改名为jms-ra.rar而不需要任何annotation或额外的部署描述信息。但是你需要
+</programlisting>你还可以将activemq-ra.rar改名为jms-ra.rar而不需要任何annotation或额外的部署描述信息。但是你需要
             编辑<literal>jms-ds.xml</literal>文件，将其中的<literal>rar-name</literal>项改成相应的值。</para>
         <note>
            <para>ActiveMQ是JBoss AS 6默认的JMS提供者。从这个版本开始ActiveMQ的资源适配器名字是

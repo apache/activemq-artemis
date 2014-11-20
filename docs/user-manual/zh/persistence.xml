@@ -231,7 +231,7 @@
     </section>
     <section id="persistence.importexport">
         <title>导入入/导出日志数据</title>
-        <para>有时你需要使用导入／导出工具来查看日志文件的记录。这个导入／导出工具类在hornetq-core.jar文件中。
+        <para>有时你需要使用导入／导出工具来查看日志文件的记录。这个导入／导出工具类在activemq-core.jar文件中。
 　　　       使用以下命令可以将日志文件导出为文本文件：</para>
         <para><literal>java -cp activemq-core.jar org.apache.activemq.core.journal.impl.ExportJournal
                 &lt;JournalDirectory> &lt;JournalPrefix> &lt;FileExtension> &lt;FileSize>
