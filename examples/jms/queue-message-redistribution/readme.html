@@ -18,12 +18,12 @@
      with no consumers, to nodes where there are consumers. If the consumers have JMS selectors set on them, then they
      will only be redistributed to nodes with consumers whose selectors match.</p>
      <p>By default, message redistribution is disabled, but can be enabled by specifying some AddressSettings configuration
-     in either <code>hornetq-queues.xml</code> or <code>hornetq-configuration.xml</code></p>
+     in either <code>activemq-queues.xml</code> or <code>activemq-configuration.xml</code></p>
      <p>Setting <code>redistribution-delay</code> to <code>0</code> will cause redistribution to occur immediately
      once there are no more matching consumers on a particular queue instance. Setting it to a positive value > 0 specifies
      a delay in milliseconds before attempting to redistribute. The delay is useful in the case that another consumer is
      likely to be created on the queue, to avoid unnecessary redistribution.</p>     
-     <p>Here's the relevant snippet from the <code>hornetq-queues.xml</code> configuration, which tells the server
+     <p>Here's the relevant snippet from the <code>activemq-queues.xml</code> configuration, which tells the server
      to use a redistribution delay of <code>0</code> on any jms queues, i.e. any queues whose name starts with
      <code>jms.</code></p>
      <pre class="prettyprint">

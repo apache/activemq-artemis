@@ -15,7 +15,7 @@
 
    <properties>
       <activemq.version>${project.version}</activemq.version>
-      <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+      <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
    <dependencies>
@@ -96,7 +96,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <argLine>
-                  -Djava.util.logging.config.file=${project.build.directory}/../../../distribution/hornetq/src/main/resources/config/stand-alone/non-clustered/logging.properties
+                  -Djava.util.logging.config.file=${project.build.directory}/../../../distribution/activemq/src/main/resources/config/stand-alone/non-clustered/logging.properties
                </argLine>
                <skipTests>${skipRestTests}</skipTests>
                <!--includes>

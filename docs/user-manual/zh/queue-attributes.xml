@@ -23,7 +23,7 @@
     <section id="predefined.queues">
         <title>预定义的队列</title>
         <para>通过配置可以定义队列。队列的定义可以在核心层定义，也可以在JMS层来定义。首先我们看一下JMS层。</para>
-        <para>下面就是一个在<literal>hornetq-jms.xml</literal>中定义的一个队列的例子：</para>
+        <para>下面就是一个在<literal>activemq-jms.xml</literal>中定义的一个队列的例子：</para>
         <programlisting>&lt;queue name="selectorQueue">
       &lt;entry name="/queue/selectorQueue"/>
       &lt;selector string="color='red'"/>

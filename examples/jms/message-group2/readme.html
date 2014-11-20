@@ -19,7 +19,7 @@
      In this example we set the group id 'Group-0'on a connection factory and send messages via 2 different producers and check that only 1 consumer receives them. </p>
 
      <p>Alternatively, ActiveMQ's connection factories can be configured to <em>auto group</em> messages. By setting <code>autogroup</code> to </code>true</code> on the <code>ActiveMQConnectionFactory</code>
-        (or setting <code>&lt;autogroup&gt;true&lt;/autogroup&gt;</code> in <code>hornetq-jms.xml</code>'s connection factory settings), a random unique id
+        (or setting <code>&lt;autogroup&gt;true&lt;/autogroup&gt;</code> in <code>activemq-jms.xml</code>'s connection factory settings), a random unique id
         will be picked to create a message group. <em>Every messages</em> sent by a producer created from this connection factory will automatically
         be part of this message group.</p>
 

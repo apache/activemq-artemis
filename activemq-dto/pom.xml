@@ -13,7 +13,7 @@
    <name>ActiveMQ6 DTO</name>
 
    <properties>
-     <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+     <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
    <dependencies>
@@ -55,7 +55,7 @@
                  <echo message="Generating XSD to: ${project.build.directory}/schema/org.apache.activemq/dto"/>
                  <schemagen srcdir="${basedir}/.." destdir="${project.build.directory}/schema/org.apache.activemq/dto"
                             includeantruntime="false">
-                   <schema namespace="http://hornetq.org/schema" file="hornetq.xsd"/>
+                   <schema namespace="http://activemq.org/schema" file="activemq.xsd"/>
                    <classpath refid="maven.compile.classpath"/>
                    <include name="**/package-info.java"/>
                    <include name="**/*DTO.java"/>

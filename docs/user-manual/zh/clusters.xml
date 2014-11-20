@@ -169,7 +169,7 @@
             <section>
                 <title>使用JMS时客户端发现的配置方法</title>
                 <para>如果使用JMS，并且在服务器端的JMS连接工厂是注册到JNDI的情况下，你可以在服务器端的配置文件
-                    <literal>hornetq-jms.xml</literal>中指定连接工厂所用的发现组。如下面所示：</para>
+                    <literal>activemq-jms.xml</literal>中指定连接工厂所用的发现组。如下面所示：</para>
                 <programlisting>&lt;connection-factory name="ConnectionFactory">
    &lt;discovery-group-ref discovery-group-name="my-discovery-group"/>
     &lt;entries>
@@ -342,7 +342,7 @@ Connection jmsConnection2 = jmsConnectionFactory.createConnection();</programlis
                 >org.apache.activemq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy</literal>即可。</para>
         <para>根据你使用的是JMS还是核心接口，指定负载均衡的方法是有所不同的。如果你不指定策略，默认的策略是<literal
                 >org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>.</para>
-        <para>如果使用的是JMS，并且JMS连接工厂注册到JNDI，则你需要在<literal>hornetq-jms.xml</literal>文件中定义策略，如：
+        <para>如果使用的是JMS，并且JMS连接工厂注册到JNDI，则你需要在<literal>activemq-jms.xml</literal>文件中定义策略，如：
             <programlisting>
 &lt;connection-factory name="ConnectionFactory"&gt;
     &lt;discovery-group-ref discovery-group-name="my-discovery-group"/&gt;
@@ -385,7 +385,7 @@ factory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
             <section>
                 <title>使用JMS时指定服务器列表</title>
                 <para>如果使用JMS，并且JMS连接工厂是注册到JNDI的话，你需要在服务器端的配置文件
-                    <literal>hornetq-jms.xml</literal>中来指定，如下面的例子：</para>
+                    <literal>activemq-jms.xml</literal>中来指定，如下面的例子：</para>
                 <programlisting>&lt;connection-factory name="ConnectionFactory">
    &lt;connectors>
       &lt;connector-ref connector-name="my-connector1" 

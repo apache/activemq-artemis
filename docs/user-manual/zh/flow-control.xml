@@ -83,7 +83,7 @@
          </section>
          <section>
             <title>使用JMS的流控制</title>
-            <para>若使用JNDI来获得连接工厂，则需要通过配置<literal>hornetq-jms.xml</literal>文件来设定窗口大小：</para>
+            <para>若使用JNDI来获得连接工厂，则需要通过配置<literal>activemq-jms.xml</literal>文件来设定窗口大小：</para>
             <programlisting>
 &lt;connection-factory name="ConnectionFactory"&gt;
    &lt;connectors>
@@ -118,7 +118,7 @@
          </section>
          <section>
             <title>使用JMS</title>
-            <para>如果从JNDI中获取连接工厂，需要通过配置<literal>hornetq-jms.xml</literal>来进行速率流控制：</para>
+            <para>如果从JNDI中获取连接工厂，需要通过配置<literal>activemq-jms.xml</literal>来进行速率流控制：</para>
             <programlisting>&lt;connection-factory name="ConnectionFactory">
       &lt;connectors>
          &lt;connector-ref connector-name="netty-connector"/>
@@ -161,7 +161,7 @@
          </section>
          <section>
             <title>使用JMS</title>
-            <para>如果使用JNDI来获得连接工厂，则需要配置<literal>hornetq-jms.xml</literal>文件以设定窗口大小：</para>
+            <para>如果使用JNDI来获得连接工厂，则需要配置<literal>activemq-jms.xml</literal>文件以设定窗口大小：</para>
             <programlisting>
                &lt;connection-factory name="ConnectionFactory">
                   &lt;connectors>
@@ -222,7 +222,7 @@
          </section>
          <section>
             <title>使用 JMS</title>
-            <para>如果使用JNDI，需要配置<literal>hornetq-jms.xml</literal>文件：</para>
+            <para>如果使用JNDI，需要配置<literal>activemq-jms.xml</literal>文件：</para>
             <programlisting>&lt;connection-factory name="ConnectionFactory">
       &lt;connectors>
          &lt;connector-ref connector-name="netty-connector"/>

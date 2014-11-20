@@ -14,7 +14,7 @@
    <name>ActiveMQ6 JBoss AS Integration</name>
 
    <properties>
-      <hornetq.basedir>${project.basedir}/../..</hornetq.basedir>
+      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
    </properties>
 
    <dependencies>

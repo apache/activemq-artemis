@@ -34,7 +34,7 @@ try:
             raise Exception('failed')
 finally:
     if session != None:
-        print "deleting hornetq session..."
+        print "deleting activemq session..."
         createParsed = urlparse.urlparse(session)
         conn = httplib.HTTPConnection(createParsed.netloc)
         conn.request("DELETE", createParsed.path)

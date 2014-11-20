@@ -75,7 +75,7 @@ org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory
                     <literal>ActiveMQConnectionFactory</literal>时需要连接器的必要信息，以便这个连接工厂
                     能知道它如何与ActiveMQ服务器相连接。</para>
                 <para>这一信息被定义在配置文件<literal
-                        >hornetq-jms.xml</literal>中的<literal>connector-ref</literal>单元下。下面这段配置
+                        >activemq-jms.xml</literal>中的<literal>connector-ref</literal>单元下。下面这段配置
                         就是从该配置文件中提取的相关部分，它展示了JMS的连接工厂是如何引用定义在配置文件<literal
                         >activemq-configuration.xml</literal>中的连接器的：</para>
                 <programlisting>
@@ -118,7 +118,7 @@ ClientSession session = sessionFactory.createSession(...);
 etc                       
         </programlisting>
         <para>如果在客户端直接使用JMS的连接工厂的话，也可以用类似的方法而不需要在服务器端定义连接器或在
-            <literal>hornetq-jms.xml</literal>配置文件中创建连接工厂：</para>
+            <literal>activemq-jms.xml</literal>配置文件中创建连接工厂：</para>
         <programlisting>
 Map&lt;String, Object&gt; connectionParams = new HashMap&lt;String, Object&gt;();
 

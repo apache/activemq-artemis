@@ -5,7 +5,7 @@ with earlier or later versions of Maven.
 
 This is an example of using duplicate detection for posted messages.  The first file to look at is:
 
-src/main/resource/hornetq-rest.xml
+src/main/resource/activemq-rest.xml
 
 You see that by default, all messages posted to msg-create URLs will follow the duplicate detection pattern talked
 about in the documentation.

@@ -54,7 +54,7 @@
  producer.send(message);          
        </programlisting>
       <para>另一个方法是将<literal>ActiveMQConnectonFactory</literal>的<literal>autogroup</literal>
-         属性设为true，或者在<literal>hornetq-jms.xml</literal>文件中进行配置：</para>
+         属性设为true，或者在<literal>activemq-jms.xml</literal>文件中进行配置：</para>
       <programlisting>&lt;connection-factory name="ConnectionFactory">
       &lt;connectors>
          &lt;connector-ref connector-name="netty-connector"/>
@@ -65,7 +65,7 @@
       &lt;autogroup>true&lt;/autogroup>
 &lt;/connection-factory></programlisting>
       <para>还可以通过连接工厂来设置组id。来自这个连接工厂的所有的发送者（producer）发送的消息的<literal
-            >JMSXGroupID</literal>将具有指定的值。这种方法需要在<literal>hornetq-jms.xml</literal>
+            >JMSXGroupID</literal>将具有指定的值。这种方法需要在<literal>activemq-jms.xml</literal>
             文件中作如下配置：
          <programlisting>
          &lt;connection-factory name="ConnectionFactory"&gt;

@@ -209,7 +209,7 @@
                                     >management-address</link></entry>
                             <entry>String</entry>
                             <entry>管理消息发送的地址</entry>
-                            <entry>jms.queue.hornetq.management</entry>
+                            <entry>jms.queue.activemq.management</entry>
                         </row>
                         <row>
                             <entry><link linkend="clusters.clusteruser"
@@ -230,7 +230,7 @@
                                     >management-notification-address</link></entry>
                             <entry>String</entry>
                             <entry>用于接收管理通知的地址</entry>
-                            <entry>hornetq.notifications</entry>
+                            <entry>activemq.notifications</entry>
                         </row>
                         <row>
                             <entry><link linkend="configuring.message.counters"
@@ -925,7 +925,7 @@
             </table>
         </section>
         <section>
-            <title>hornetq-jms.xml</title>
+            <title>activemq-jms.xml</title>
             <para>该文件是服务器端JMS服务所使用的，用来装载JMS队列，话题和连接工厂。</para>
             <table frame="topbot" border="2">
                 <title>JMS服务器配置</title>

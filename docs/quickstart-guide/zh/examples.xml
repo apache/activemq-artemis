@@ -58,17 +58,17 @@ run:
 init:
 
 compile:
-     [echo] src.example.dir=/home/andy/projects/hornetq/trunk/examples/jms/queue/src
-    [javac] Compiling 5 source files to /home/andy/projects/hornetq/trunk/examples/jms/queue
+     [echo] src.example.dir=/home/andy/projects/activemq/trunk/examples/jms/queue/src
+    [javac] Compiling 5 source files to /home/andy/projects/activemq/trunk/examples/jms/queue
 /build/classes
 
 runExample:
-     [java] 10:41:04,149 INFO  @main [JMSExample] hornetq.example.runServer is true
+     [java] 10:41:04,149 INFO  @main [JMSExample] activemq.example.runServer is true
      [java] 10:41:04,149 INFO  @main [JMSExample] starting server with config 'server0'
  logServerOutput true
      [java] 10:41:04,149 INFO  @main [JMSExample] and vm args: -Xms512M,-Xmx512M,-XX:+U
 seParallelGC,-XX:+AggressiveOpts,-XX:+UseFastAccessorMethods,-Djava.util.logging.config.
-file=/home/andy/projects/hornetq/trunk/examples/jms/common/../../../src/config/stand-alone/no
+file=/home/andy/projects/activemq/trunk/examples/jms/common/../../../src/config/stand-alone/no
 n-clustered/logging.properties
      [java] org.apache.activemq.jms.example.SpawnedJMSServer out:10:41:08,437 INFO  @main [Journal
 StorageManager] AIO journal selected
@@ -129,20 +129,20 @@ deploy:
 
 deploy-resources:
      [copy] Copying 1 file to /home/andy/projects/jbossas5.1/build/output/jboss-5.1.0.GA
-     /server/default-with-hornetq/deploy/hornetq.sar
+     /server/default-with-activemq/deploy/activemq.sar
      [copy] Copying 1 file to /home/andy/projects/jbossas5.1/build/output/jboss-5.1.0.GA
-     /server/default-with-hornetq/deploy/hornetq.sar
+     /server/default-with-activemq/deploy/activemq.sar
 
 init:
 
 compile:
 
 jar:
-      [jar] Building jar: /home/andy/projects/hornetq/trunk/examples/javaee/mdb/build/mdb-exa
+      [jar] Building jar: /home/andy/projects/activemq/trunk/examples/javaee/mdb/build/mdb-exa
       mple.jar
 
 ear:
-      [jar] Building jar: /home/andy/projects/hornetq/trunk/examples/javaee/mdb/build/mdb-exa
+      [jar] Building jar: /home/andy/projects/activemq/trunk/examples/javaee/mdb/build/mdb-exa
       mple.ear
 
 deploy-ear:
@@ -198,11 +198,11 @@ undeploy:
 
 undeploy-misc:
    [delete] Deleting: /home/andy/projects/jbossas5.1/build/output/jboss-5.1.0.GA
-   /server/default-with-hornetq/deploy/mdb-example.ear
+   /server/default-with-activemq/deploy/mdb-example.ear
    [delete] Deleting: /home/andy/projects/jbossas5.1/build/output/jboss-5.1.0.GA
-   /server/default-with-hornetq/deploy/hornetq.sar/activemq-queues.xml
+   /server/default-with-activemq/deploy/activemq.sar/activemq-queues.xml
    [delete] Deleting: /home/andy/projects/jbossas5.1/build/output/jboss-5.1.0.GA
-   /server/default-with-hornetq/deploy/hornetq.sar/hornetq-jms.xml
+   /server/default-with-activemq/deploy/activemq.sar/activemq-jms.xml
 
 BUILD SUCCESSFUL
 Total time: 1 second

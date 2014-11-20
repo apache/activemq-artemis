@@ -146,9 +146,9 @@
     </section>
     <section id="change-security-manager">
         <title>更换安全管理器</title>
-        <para>如果你不想用默认的安全管理器，可以通过修改配置文件<literal>hornetq-beans.xml</literal>
+        <para>如果你不想用默认的安全管理器，可以通过修改配置文件<literal>activemq-beans.xml</literal>
             （或者在运行JBoss应用服务器情况下<literal
-                >hornetq-jboss-beans.xml</literal>文件）来更换。同时要更换
+                >activemq-jboss-beans.xml</literal>文件）来更换。同时要更换
             <literal>ActiveMQSecurityManager</literal> bean 的类。</para>
         <para>让我们看一段默认bean文件的内容：</para>
         <programlisting>           
@@ -163,8 +163,8 @@
         <para>ActiveMQ自带有另外两个安全管理器可供使用。一个是JAAS安全管理器，另一个是用来与JBoss应用服务
             器集成的安全管理器。此外，你还可以编写实现你自己的安全管理器。首先要实现
             <literal>org.apache.activemq.core.security.SecurityManager</literal>接口，再将你的实现
-            类定义到<literal>hornetq-beans.xml</literal>文件中即可（或者在JBoss应用服务器中
-            使用<literal>hornetq-jboss-beans.xml</literal>文件）。</para>
+            类定义到<literal>activemq-beans.xml</literal>文件中即可（或者在JBoss应用服务器中
+            使用<literal>activemq-jboss-beans.xml</literal>文件）。</para>
         <para>以下分别介绍这两咱安全管理器</para>
     </section>
     <section>
@@ -212,7 +212,7 @@
         <para>此安全管理器的类是 <literal
                 >org.apache.activemq.integration.jboss.security.JBossASSecurityManager</literal>。</para>
         <para>要了解如何配置JBoss安全管理器，可以看一眼ActiveMQ发布包中相关例子中的
-            <literal>hornetq-jboss-beans.xml</literal>文件。</para>
+            <literal>activemq-jboss-beans.xml</literal>文件。</para>
        <section>
           <title>配置客户端登录</title>
           <para>JBoss可以配置使用客户登录。JEE的模块如servlet或EJB可以将安全认证信息设置到安全上下文（security context）中，

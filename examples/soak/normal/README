@@ -27,15 +27,15 @@ settings.
 
 To run a server with the same configuration but on a different host.  Check out this source on the host machine and
 change:
-* hornetq.remoting.netty.host property in hornetq-configuration.xml
-* bindAddress and rmiBindAddress properties in hornetq-beans.xml
+* activemq.remoting.netty.host property in activemq-configuration.xml
+* bindAddress and rmiBindAddress properties in activemq-beans.xml
 
   $ mvn verify -P server
 
 Configure Server Dump
 =====================
 
-The server can "dump" info at regular interval. In hornetq-configuration.xml, set
+The server can "dump" info at regular interval. In activemq-configuration.xml, set
 
    <server-dump-interval>10000</server-dump-interval>
 

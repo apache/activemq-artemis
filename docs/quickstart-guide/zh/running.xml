@@ -43,7 +43,7 @@
          例如，要运行一个带有<emphasis>非集群</emphasis>的ActiveMQ服务的AS 5，进入<literal
             >$JBOSS_HOME/bin</literal>目录，然后键入：</para>
       <programlisting>
-        bin$ ./run.sh -c default-with-hornetq
+        bin$ ./run.sh -c default-with-activemq
         
         15:18:35,460 INFO  [ServerImpl] Starting JBoss (Microcontainer)...
         15:18:35,462 INFO  [ServerImpl] Release ID: JBoss (Microcontainer) [5.1.0.GA (build: SVNTag=

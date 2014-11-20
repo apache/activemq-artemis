@@ -76,6 +76,7 @@
            <property name="illegalPkgs" value="junit.framework"/>
        </module>
 
+      <!-- TODO: Where to place this now? -->
       <!-- developed at https://github.com/hornetq/hornetq-checkstyle-checks -->
       <module name="org.hornetq.checks.annotation.RequiredAnnotation">
          <property name="annotationName" value="Parameters"/>

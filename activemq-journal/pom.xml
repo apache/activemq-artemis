@@ -13,7 +13,7 @@
    <name>ActiveMQ6 Journal</name>
 
    <properties>
-      <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+      <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
    <dependencies>

@@ -36,7 +36,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server0</hornetqConfigurationDir>
+                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -52,7 +52,7 @@
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
-                           <value>${basedir}/target/classes/hornetq</value>
+                           <value>${basedir}/target/classes/activemq</value>
                         </property>
                      </systemProperties>
                   </configuration>
@@ -63,7 +63,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server0</hornetqConfigurationDir>
+                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
                   </configuration>
                </execution>
             </executions>

@@ -68,7 +68,7 @@
       <foaf:OnlineAccount>
         <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/OnlineChatAccount" />
         <foaf:accountServiceHomepage rdf:resource="http://twitter.com/" />
-        <foaf:accountName>hornetq</foaf:accountName>
+        <foaf:accountName>activemq</foaf:accountName>
       </foaf:OnlineAccount>
     </foaf:account>
   </Project>

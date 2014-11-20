@@ -195,7 +195,7 @@
             <singleton default-access-timeout="5000"/>
          </session-bean>
          <mdb>
-            <resource-adapter-ref resource-adapter-name="${ejb.resource-adapter-name:hornetq-ra.rar}"/>
+            <resource-adapter-ref resource-adapter-name="${ejb.resource-adapter-name:activemq-ra.rar}"/>
             <bean-instance-pool-ref pool-name="mdb-strict-max-pool"/>
          </mdb>
          <pools>
@@ -309,7 +309,7 @@
          </mail-session>
       </subsystem>
       <subsystem xmlns="urn:jboss:domain:messaging:2.0">
-         <hornetq-server>
+         <activemq-server>
             <persistence-enabled>true</persistence-enabled>
             <journal-file-size>102400</journal-file-size>
             <journal-min-files>2</journal-min-files>
@@ -368,7 +368,7 @@
                      <entry name="java:jboss/exported/jms/RemoteConnectionFactory"/>
                   </entries>
                </connection-factory>
-               <pooled-connection-factory name="hornetq-ra">
+               <pooled-connection-factory name="activemq-ra">
                   <transaction mode="xa"/>
                   <connectors>
                      <connector-ref connector-name="in-vm"/>
@@ -386,7 +386,7 @@
                   <entry name="java:jboss/exported/jms/queues/testQueue"/>
                </jms-queue>
             </jms-destinations>
-         </hornetq-server>
+         </activemq-server>
       </subsystem>
       <subsystem xmlns="urn:jboss:domain:naming:2.0">
          <remote-naming/>

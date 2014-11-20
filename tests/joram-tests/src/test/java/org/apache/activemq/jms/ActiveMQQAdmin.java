@@ -59,7 +59,7 @@ public class ActiveMQQAdmin implements Admin
     * {@link ActiveMQQAdmin#serverStop()}. This is used when testing combinations of client and
     * servers with different versions.
     *
-    * @see https://github.com/hornetq/hornetq-version-tests
+    * @see https://github.com/activemq/activemq-version-tests
     */
    private final boolean serverLifeCycleActive;
    private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq.jms.ActiveMQAdmin.serverLifeCycle";

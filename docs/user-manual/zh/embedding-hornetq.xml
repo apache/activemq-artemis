@@ -16,7 +16,7 @@
 <!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
 <!-- permitted by applicable law.                                                  -->
 <!-- ============================================================================= -->
-<chapter id="embedding-hornetq">
+<chapter id="embedding-activemq">
     <title>嵌入式ActiveMQ</title>
     <para>ActiveMQ是由简单传统Java对象（POJO）实现，因此它可以在任何依赖注入的框架中运行，比如JBoss
         Microcontainer，Sprint或Google Guice。另外如果你的应用程序内部需要消息功能，你可以在程序中
@@ -76,7 +76,7 @@ server.start();</programlisting>
         <para>你还可以使用一个依赖注入框架来启动ActiveMQ，比如<trademark>JBoss
                 Microcontainer</trademark>或<trademark>Spring框架</trademark>。</para>
         <para>ActiveMQ独立服务器使用的是JBoss Microcontainer作为其框架。在ActiveMQ的发布中包括的<literal
-                >ActiveMQBootstrapServer</literal>和<literal>hornetq-beans.xml</literal>文件共同实现了
+                >ActiveMQBootstrapServer</literal>和<literal>activemq-beans.xml</literal>文件共同实现了
                 在JBoss Microcontainer中对ActiveMQ服务器的引导。</para>
         <para>要使用JBoss Microcontainer，需要在xml文件中声明<literal>ActiveMQServer</literal>
             和<literal>Configuration</literal>对象。另外还可以注入一个安全管理器和一个MBean服务器。但是这些
@@ -103,7 +103,7 @@ server.start();</programlisting>
    &lt;/deployment></programlisting>
         <para><literal>ActiveMQBootstrapServer</literal>实现了JBoss Microcontainer的简单封装。</para>
         <programlisting>ActiveMQBootstrapServer bootStrap = 
-        new ActiveMQBootstrapServer(new String[] {"hornetq-beans.xml"});
+        new ActiveMQBootstrapServer(new String[] {"activemq-beans.xml"});
         bootStrap.run();</programlisting>
     </section>
     <section>

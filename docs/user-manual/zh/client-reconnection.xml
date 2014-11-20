@@ -34,7 +34,7 @@
             <literal>ConfirmationWindowSize</literal>字节的命令时，会向客户端发送一个命令确认，以使客户端
             及时清除缓存。</para>
         <para>如果使用JMS服务，并且JMS的连接工厂是注册到JNDI的话，相应的参数是<literal
-                >hornetq-jms.xml</literal>文件中的<literal
+                >activemq-jms.xml</literal>文件中的<literal
                 >confirmation-window-size</literal>项。如果你并不将JMS连接工厂注册到JNDI，则你需要在
             <literal>ActiveMQConnectionFactory</literal>上使用相应的方法直接设置该参数。</para>
         <para>如果使用核心服务，你可以直接在<literal>ClientSessionFactory</literal>实例上直接设置该参数。</para>
@@ -82,7 +82,7 @@
                     并退出。<literal>-1</literal>表示进行无限次重试。默认值是<literal>0</literal>。</para>
             </listitem>
         </itemizedlist>
-        <para>如果使用JMS并且将JMS的连接工厂绑定到JNDI服务中，则需要在<literal>hornetq-jms.xml</literal>
+        <para>如果使用JMS并且将JMS的连接工厂绑定到JNDI服务中，则需要在<literal>activemq-jms.xml</literal>
             文件中对这些参数进行配置，如下例所示：</para>
         <programlisting>
 &lt;connection-factory name="ConnectionFactory"&gt;

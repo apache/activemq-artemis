@@ -121,7 +121,7 @@
                     <xref linkend="send-guarantees"/>。</para>
             </listitem>
             <listitem>
-                <para>采用非阻塞方式发送消息。将文件<literal>hornetq-jms.xml</literal>中的参数
+                <para>采用非阻塞方式发送消息。将文件<literal>activemq-jms.xml</literal>中的参数
                     <literal>block-on-non-durable-send</literal>设为<literal>false</literal>
                     （使用JMS和JNDI时）或者直接在上进行相应的设置，可以使
                     消息发送时不阻塞等待服务器的响应。参见 <xref linkend="send-guarantees"/>。</para>
@@ -171,7 +171,7 @@ serveruser     hard    nofile  20000
                 <para>利用参数<literal>batch-delay</literal>并将参数<literal>direct-deliver</literal>
                     设为false来提高小消息的处理效率。ActiveMQ在其<literal>activemq-configuration.xml</literal>
                     中预先配置了一个连接器／接受器对（<literal>netty-throughput</literal>），并且在
-                    <literal>hornetq-jms.xml</literal>中配置了一个JMS连接工厂（
+                    <literal>activemq-jms.xml</literal>中配置了一个JMS连接工厂（
                     <literal>ThroughputConnectionFactory</literal>）。它们可以用在小消息的处理应用中以提
                     供最佳呑吐量。参见<xref
                         linkend="configuring-transports"/>。</para>

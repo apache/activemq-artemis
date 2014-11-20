@@ -54,7 +54,7 @@
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
-                           <value>${basedir}/target/classes/hornetq</value>
+                           <value>${basedir}/target/classes/activemq</value>
                         </property>
                         <property>
                            <name>build.directory</name>

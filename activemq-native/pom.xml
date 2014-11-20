@@ -120,7 +120,7 @@
 
    <properties>
       <native-package-type>jar</native-package-type>
-      <hornetq.basedir>${project.basedir}/..</hornetq.basedir>
+      <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
 </project>

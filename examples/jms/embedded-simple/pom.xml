@@ -54,7 +54,7 @@
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
-                           <value>${basedir}/target/classes/hornetq</value>
+                           <value>${basedir}/target/classes/activemq</value>
                         </property>
                      </systemProperties>
                   </configuration>
@@ -104,7 +104,7 @@
             </dependencies>
             <configuration>
                <waitOnStart>false</waitOnStart>
-               <hornetqConfigurationDir>${basedir}/target/classes/hornetq/server0</hornetqConfigurationDir>
+               <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
             </configuration>
          </plugin>
       </plugins>

@@ -13,15 +13,15 @@
      <h2>Example configuration</h2>
 
      <p>ActiveMQ can be managed by sending JMS messages with specific properties to its <em>management</em> queue.</p>
-     </p>By default, the management name is called <code>hornetq.management</code> but this can be configured in <a href="server0/hornetq-configuration.xml">hornetq-configuration.xml</a>
+     </p>By default, the management name is called <code>activemq.management</code> but this can be configured in <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a>
      <pre class="prettyprint">
-         <code>&lt;management-address&gt;hornetq.management&lt;/management-address&gt;</code>
+         <code>&lt;management-address&gt;activemq.management&lt;/management-address&gt;</code>
      </pre>
      
      <p>The management queue requires a "special" user permission <code>manage</code> to be able to receive management messages.
-         This is also configured in <a href="server0/hornetq-configuration.xml">hornetq-configuration.xml</a></p>
+         This is also configured in <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a></p>
      <pre class="prettyprint">
-         <code>&lt;security-setting match="hornetq.management"&gt;
+         <code>&lt;security-setting match="activemq.management"&gt;
             &lt;permission type="manage" roles="guest" /&gt;
          &lt;/security-setting&gt;</code>
      </pre>
@@ -74,7 +74,7 @@
             
         <li>We create the JMS management queue. This is a <em>special</em> queue which is not looked up from JNDI but instantiated directly</li>
         <pre class="prettyprint">
-            <code>Queue managementQueue = new ActiveMQQueue("hornetq.management", "hornetq.management");</code>
+            <code>Queue managementQueue = new ActiveMQQueue("activemq.management", "activemq.management");</code>
         </pre>
 
         <li>We create a <code>QueueRequestor</code> to send messages to the management queue and receive replies (see <a href="../queue-requestor/readme.html">queue-requestor example</a>)</li>
@@ -96,7 +96,7 @@
             We use a helper class <code>JMSManagementHelper</code> to fill these properties:
             <ul>
                 <li>The name of the resource to manage <code>jms.queue.exampleQueue</code> 
-                    (i.e. <code>jms.queue</code> followed by the name of the queue as defined in <a href="server0/hornetq-jms.xml">hornetq-jms.xml</a>)</li>
+                    (i.e. <code>jms.queue</code> followed by the name of the queue as defined in <a href="server0/activemq-jms.xml">activemq-jms.xml</a>)</li>
                 <li>In our case, the name of the attribute to retrieve <code>MessageCount</code></li>
             </ul>
         </li>

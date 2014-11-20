@@ -16,7 +16,7 @@
 
   <properties>
 
-    <hornetq.basedir>${project.basedir}/../..</hornetq.basedir>
+    <activemq.basedir>${project.basedir}/../..</activemq.basedir>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 

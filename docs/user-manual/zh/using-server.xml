@@ -80,8 +80,8 @@
         <para>配置文件的路径定义在 <literal>run.sh</literal> 和 <literal>run.bat</literal> 脚本中的classpath里。该路径下可以包含以下文件：</para>
         <itemizedlist>
             <listitem>
-                <para><literal>hornetq-beans.xml</literal> （如果是运行在JBoss应用服务器内，则为 <literal
-                        >hornetq-jboss-beans.xml</literal>）。这是JBoss Microcontainer的bean配置文件。其中定义了ActiveMQ的
+                <para><literal>activemq-beans.xml</literal> （如果是运行在JBoss应用服务器内，则为 <literal
+                        >activemq-jboss-beans.xml</literal>）。这是JBoss Microcontainer的bean配置文件。其中定义了ActiveMQ的
                     各种bean，以及它们之间的依赖关系。ActiveMQ的bean都是一些POJO。是JBoss Microcontainer保证了这些bean的正确装载和运行。</para>
             </listitem>
             <listitem>
@@ -101,7 +101,7 @@
                     想了解更多关于安全的信息，参见 <xref linkend="security"/>。</para>
             </listitem>
             <listitem>
-                <para><literal>hornetq-jms.xml</literal>。这个文件包含有JMS对象。ActiveMQ的默认配置中包含有JMS服务，
+                <para><literal>activemq-jms.xml</literal>。这个文件包含有JMS对象。ActiveMQ的默认配置中包含有JMS服务，
                     它从这个文件中读取JMS Queue，Topic和ConnectionFactory并将它们部署到JNDI服务中。如果你不使用JMS，
                     或者你不需要部署这些JMS对象，那么你就不需要这个文件。有关JMS的使用详见<xref linkend="using-jms"
                     />。</para>
@@ -122,12 +122,12 @@
         <programlisting>&lt;connector name="netty">
          &lt;factory-class>org.apache.activemq.integration.transports.netty.NettyConnectorFactory
            &lt;/factory-class>
-         &lt;param key="host"  value="${hornetq.remoting.netty.host:localhost}" type="String"/>
-         &lt;param key="port"  value="${hornetq.remoting.netty.port:5445}" type="Integer"/>
+         &lt;param key="host"  value="${activemq.remoting.netty.host:localhost}" type="String"/>
+         &lt;param key="port"  value="${activemq.remoting.netty.port:5445}" type="Integer"/>
 &lt;/connector></programlisting>
         <para>在上面的配置中我们定义了两个系统变量 <literal
-                >hornetq.remoting.netty.host</literal> 和 <literal
-                >hornetq.remoting.netty.port</literal>。它们的值会被相应的系统变量的值（如果定义了的话）所替代。
+                >activemq.remoting.netty.host</literal> 和 <literal
+                >activemq.remoting.netty.port</literal>。它们的值会被相应的系统变量的值（如果定义了的话）所替代。
                 如果没有定义这些系统变量，它们的默认值将分别为 localhost 及 5445。也可以不给出默认值，但如果这样就
                 <emphasis>必须</emphasis>要定义相应的系统变量。</para>
     </section>
@@ -232,7 +232,7 @@
             </listitem>
             <listitem id="bean-jmsservermanager">
                 <para>JMSServerManager</para>
-                <para>这个对象将<literal>hornetq-jms.xml</literal>文件中定义的JMS的对象进行部署，比如JMS Queues, Topics
+                <para>这个对象将<literal>activemq-jms.xml</literal>文件中定义的JMS的对象进行部署，比如JMS Queues, Topics
                       以及ConnectionFactory。它还提供一套简单的管理接口以方便地对这些JMS对象进行管理。通常它只是将工作代理给
                       核心服务器。如果你不需要在服务器端进行JMS对象的部署与管理，可以将它从配置中去掉。</para>
             </listitem>

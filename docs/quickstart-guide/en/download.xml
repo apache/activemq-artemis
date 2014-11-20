@@ -23,13 +23,13 @@
 ]>
 <chapter id="download">
    <title>Download</title>
-   <para>The official ActiveMQ project page is <ulink url="http://hornetq.org/"
-         >http://hornetq.org/</ulink>.</para>
+   <para>The official ActiveMQ project page is <ulink url="http://activemq.org/"
+         >http://activemq.org/</ulink>.</para>
    <section id="download.software">
       <title>Software Download</title>
       <para>The software can be download from the Download page:<ulink
-            url="http://hornetq.org/downloads.html"
-         >http://hornetq.org/downloads.html</ulink></para>
+            url="http://activemq.org/downloads.html"
+         >http://activemq.org/downloads.html</ulink></para>
    </section>
    <section id="download.git">
       <title>Project Information</title>
@@ -41,7 +41,7 @@
             </listitem>
             <listitem>
                <para>If you have any user questions please use our <ulink
-                     url="https://community.jboss.org/en/hornetq">user
+                     url="https://community.jboss.org/en/activemq">user
                      forum</ulink></para>
             </listitem>
             <listitem>
@@ -50,24 +50,24 @@
                      >developer forum</ulink></para>
             </listitem>
             <listitem>
-               <para>Pop in and chat to us in our <ulink url="irc://irc.freenode.net:6667/hornetq"
+               <para>Pop in and chat to us in our <ulink url="irc://irc.freenode.net:6667/activemq"
                      >IRC channel</ulink></para>
             </listitem>
             <listitem>
-               <para>Our project <ulink url="http://hornetq.blogspot.com/">blog</ulink></para>
+               <para>Our project <ulink url="http://activemq.blogspot.com/">blog</ulink></para>
             </listitem>
             <listitem>
-               <para>Follow us on <ulink url="http://twitter.com/hornetq">twitter</ulink></para>
+               <para>Follow us on <ulink url="http://twitter.com/activemq">twitter</ulink></para>
             </listitem>
             <listitem>
                <para>ActiveMQ Git repository is <ulink
-                     url="https://github.com/hornetq/hornetq"
-                     >https://github.com/hornetq/hornetq</ulink></para>
+                     url="https://github.com/activemq/activemq"
+                     >https://github.com/activemq/activemq</ulink></para>
             </listitem>
             <listitem>
                <para>All release tags are available from <ulink
-                     url="https://github.com/hornetq/hornetq/tags"
-                     >https://github.com/hornetq/hornetq/tags</ulink></para>
+                     url="https://github.com/activemq/activemq/tags"
+                     >https://github.com/activemq/activemq/tags</ulink></para>
             </listitem>
          </itemizedlist>
       </para>

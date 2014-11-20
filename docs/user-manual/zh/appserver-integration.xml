@@ -35,7 +35,7 @@
                         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
                         @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
                      })
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDBExample implements MessageListener
 {
    public void onMessage(Message message)...
@@ -50,7 +50,7 @@ public class MDBExample implements MessageListener
             >jboss.xml</literal>中加入类似以下的内容：
 <programlisting>&lt;message-driven>
    &lt;ejb-name>ExampleMDB&lt;/ejb-name>
-   &lt;resource-adapter-name>hornetq-ra.rar&lt;/resource-adapter-name>
+   &lt;resource-adapter-name>activemq-ra.rar&lt;/resource-adapter-name>
 &lt;/message-driven>
 </programlisting>你还可以将hornetq-ra.rar改名为jms-ra.rar而不需要任何annotation或额外的部署描述信息。但是你需要
             编辑<literal>jms-ds.xml</literal>文件，将其中的<literal>rar-name</literal>项改成相应的值。</para>
@@ -72,7 +72,7 @@ public class MDBExample implements MessageListener
                      })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDB_CMP_TxRequiredExample implements MessageListener
 {
    public void onMessage(Message message)...
@@ -108,7 +108,7 @@ public class MDB_CMP_TxRequiredExample implements MessageListener
                      })
 @TransactionManagement(value = TransactionManagementType.CONTAINER)
 @TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDB_CMP_TxLocalExample implements MessageListener
 {
    public void onMessage(Message message)...
@@ -126,7 +126,7 @@ public class MDB_CMP_TxLocalExample implements MessageListener
                         @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Dups-ok-acknowledge")
                      })
 @TransactionManagement(value= TransactionManagementType.BEAN)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDB_BMPExample implements MessageListener
 {
    public void onMessage(Message message)
@@ -175,7 +175,7 @@ public class MDB_BMPExample implements MessageListener
                      })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDBMessageSelectorExample implements MessageListener
 {
    public void onMessage(Message message)....
@@ -195,7 +195,7 @@ public class MDBMessageSelectorExample implements MessageListener
                      })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MDBMessageSendTxExample implements MessageListener
 {
    @Resource(mappedName = "java:/JmsXA")
@@ -263,7 +263,7 @@ public class MDBMessageSendTxExample implements MessageListener
                      })
 @TransactionManagement(value= TransactionManagementType.CONTAINER)
 @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-@ResourceAdapter("hornetq-ra.rar")
+@ResourceAdapter("activemq-ra.rar")
 public class MyMDB implements MessageListener
 { ....}
       </programlisting>
@@ -646,7 +646,7 @@ public class MyMDB implements MessageListener
             <title>适配器外部（outbound）配置</title>
             <para>外部配置参数应该保持不变。这是因为它所定义的连接工厂要被Java EE的模块所使用。这些连接工厂
                 可以定义在名字样式为<literal>*-ds.xml</literal>的配置文件中。在JBoss的部署目录
-                <literal>hornetq.sar</literal>下有一个默认的配置文件<literal>jms-ds.xml</literal>。
+                <literal>activemq.sar</literal>下有一个默认的配置文件<literal>jms-ds.xml</literal>。
                 在这个文件中的连接工厂的配置从主要的配置文件<literal>ra.xml</literal>中继承，
                 但是可以在这里重新定义。下面的例子中给出了重新定义的方法。</para>
             <note>
@@ -784,7 +784,7 @@ private ConnectionFactory connectionFactory;</programlisting>
           <section>
                 <title>配置内部适配器</title>
                 <para>首先在<literal>deploy</literal>目录下创建一个以.rar为结尾的文件夹。
-                      在这里我们将其命名为<literal>hornetq-ra.rar</literal>。主注意这一点很重要，因为MDB和外部配置都需要引用
+                      在这里我们将其命名为<literal>activemq-ra.rar</literal>。主注意这一点很重要，因为MDB和外部配置都需要引用
                       该文件夹的名字。
                 </para>
                 <note>
@@ -793,7 +793,7 @@ private ConnectionFactory connectionFactory;</programlisting>
                    </para>
                 </note>
                 <para>在文件夹
-                   <literal>hornetq-ra.rar</literal>
+                   <literal>activemq-ra.rar</literal>
                    下创建名为
                    <literal>META-INF</literal>
                    的文件夹，然后在些文件夹内创建一个
@@ -825,8 +825,8 @@ private ConnectionFactory connectionFactory;</programlisting>
 
           <section>
              <title>配置外部适配器</title>
-                <para>你还需要创建一个<literal>hornetq-ds.xml</literal>文件来配置外部连接。该文件需要放置在<literal>deploy</literal>
-                   下的任意一个文件夹中。在一相标准的安装中这个文件夹是<literal>horneq</literal> 或者 <literal>hornetq.sar</literal>。
+                <para>你还需要创建一个<literal>activemq-ds.xml</literal>文件来配置外部连接。该文件需要放置在<literal>deploy</literal>
+                   下的任意一个文件夹中。在一相标准的安装中这个文件夹是<literal>horneq</literal> 或者 <literal>activemq.sar</literal>。
                    当然你可以选择其它文件夹。该文件的名字只要是以<literal>-ds.xml</literal>即可。在ActiveMQ的发布包中包含有一个模板文件，
                    它的名字是<literal>jms-ds.xml</literal>，位置就在config文件夹下。
                 </para>
@@ -835,7 +835,7 @@ private ConnectionFactory connectionFactory;</programlisting>
              &lt;tx-connection-factory&gt;
               &lt;jndi-name&gt;RemoteJmsXA&lt;/jndi-name&gt;
               &lt;xa-transaction/&gt;
-              &lt;rar-name&gt;hornetq-ra.rar&lt;/rar-name&gt;
+              &lt;rar-name&gt;activemq-ra.rar&lt;/rar-name&gt;
               &lt;connection-definition&gt;org.apache.activemq.ra.ActiveMQRAConnectionFactory&lt;/connection-definition&gt;
               &lt;config-property name="SessionDefaultType" type="java.lang.String"&gt;javax.jms.Topic&lt;/config-property&gt;
               &lt;config-property name="ConnectorClassName" type="java.lang.String"&gt;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/config-property&gt;
@@ -864,17 +864,17 @@ private ConnectionFactory connectionFactory;</programlisting>
                         </thead>
                         <tbody>
                             <row>
-                                <entry>hornetq-ra.jar</entry>
+                                <entry>activemq-ra.jar</entry>
                                 <entry>ActiveMQ资源适配器文件</entry>
-                                <entry>deploy/hornetq-ra.rar或相应的位置</entry>
+                                <entry>deploy/activemq-ra.rar或相应的位置</entry>
                             </row>
                             <row>
-                                <entry>hornetq-core-client.jar</entry>
+                                <entry>activemq-core-client.jar</entry>
                                 <entry>ActiveMQ核心客户类库</entry>
                                 <entry>在JBoss的default/lib下或者是$JBOSS_HOME/common/lib下。 </entry>
                             </row>
                             <row>
-                                <entry>hornetq-jms-client.jar</entry>
+                                <entry>activemq-jms-client.jar</entry>
                                 <entry>ActiveMQ的JMS类</entry>
                                 <entry>同上</entry>
                             </row>

@@ -10,7 +10,7 @@
    <artifactId>activemq-openwire-protocol</artifactId>
 
    <properties>
-      <hornetq.basedir>${project.parent.parent.basedir}</hornetq.basedir>
+      <activemq.basedir>${project.parent.parent.basedir}</activemq.basedir>
    </properties>
 
    <dependencies>

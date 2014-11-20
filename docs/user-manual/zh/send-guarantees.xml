@@ -53,7 +53,7 @@
             <emphasis>异步发送通知功能</emphasis>。这一功能在<xref linkend="asynchronous-send-acknowledgements"/>
             进行了描述。</para>
         <para>使用JMS时，如果JMS的连接工厂是在服务器端被注册到JNDI服务，你需要配置
-                <literal>hornetq-jms.xml</literal>文件中的<literal>block-on-durable-send</literal>
+                <literal>activemq-jms.xml</literal>文件中的<literal>block-on-durable-send</literal>
                 和<literal>block-on-non-durable-send</literal>。如果不使用JNDI，可以调用
                 <literal>ActiveMQConnectionFactory</literal>相应的设置方法进行配置。</para>
         <para>如果你使用的是内核服务，你可以直接在<literal

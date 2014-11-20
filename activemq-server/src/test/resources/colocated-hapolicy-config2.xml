@@ -1,7 +1,7 @@
 <configuration
       xmlns="urn:activemq"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:activemq ../../../../hornetq-server/src/main/resources/schema/activemq-configuration.xsd">
+      xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/activemq-configuration.xsd">
    <ha-policy>
       <shared-store>
          <colocated>

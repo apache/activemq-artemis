@@ -120,7 +120,7 @@ at org.acme.yourproject.YourClass (YourClass.java:666)
             收到任何数据，客户端就认为这们连接发生了故障。根据不同的配置，客户端在这种情况下要么进行failover，要么
             调用<literal>FailureListener</literal>的接口（或者是JMS的<literal>ExceptionListener</literal>）。</para>
         <para>如果使用JMS，这个参数是<literal>ActiveMQConnectionFactory</literal>的<literal>ClientFailureCheckPeriod</literal>。
-            如果你向JNDI部署JMS连接工厂，那么相应的参数在<literal>hornetq-jms.xml</literal>配置文件中，参数名
+            如果你向JNDI部署JMS连接工厂，那么相应的参数在<literal>activemq-jms.xml</literal>配置文件中，参数名
             为<literal>client-failure-check-period</literal>。</para>
         <para>这个参数的默认值是<literal>30000</literal>毫秒，即半分钟。<literal>-1</literal>表示客户端不检查
             连接的有效性。即不论是否有数据来自服务器，连接都一直有效。这一参数通常要比服务器端的连接TTL小许多，以使

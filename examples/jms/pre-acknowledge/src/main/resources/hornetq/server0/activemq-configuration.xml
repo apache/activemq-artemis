@@ -38,7 +38,7 @@
          <permission type="send" roles="guest"/>
       </security-setting>
 
-      <security-setting match="jms.queue.hornetq.management">
+      <security-setting match="jms.queue.activemq.management">
          <permission type="manage" roles="guest" />
       </security-setting>
    </security-settings>

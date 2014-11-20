@@ -520,7 +520,7 @@
       <para>例如，要得到核心队列<literal>exampleQueue</literal>中消息的数量：</para>
       <programlisting>
    ClientSession session = ...
-   ClientRequestor requestor = new ClientRequestor(session, "jms.queue.hornetq.management");
+   ClientRequestor requestor = new ClientRequestor(session, "jms.queue.activemq.management");
    ClientMessage message = session.createMessage(false);
    ManagementHelper.putAttribute(message, "core.queue.exampleQueue", "messageCount");
    ClientMessage reply = requestor.request(m);
@@ -537,16 +537,16 @@
          <para>管理地址的配置在文件<literal
                >activemq-configuration.xml</literal>中：</para>
          <programlisting>
-   &lt;management-address&gt;jms.queue.hornetq.management&lt;/management-address&gt;
+   &lt;management-address&gt;jms.queue.activemq.management&lt;/management-address&gt;
          </programlisting>
-         <para>它的默认地址是<literal>jms.queue.hornetq.management</literal> （地址前缀加上
+         <para>它的默认地址是<literal>jms.queue.activemq.management</literal> （地址前缀加上
             “jms.queue”是为了方便JMS客户端也可以向它发送管理消息。</para>
          <para>管理地址需要一个<emphasis>特殊</emphasis>的用户权限
                <literal>manage</literal>来接收并处理管理消息。这个权限也在hornetq-configuration.xml文件中配置：</para>
          <programlisting>
    &lt;!-- users with the admin role will be allowed to manage --&gt; 
    &lt;!-- ActiveMQ using management messages        --&gt;
-   &lt;security-setting match="jms.queue.hornetq.management"&gt;
+   &lt;security-setting match="jms.queue.activemq.management"&gt;
       &lt;permission type="manage" roles="admin" /&gt;
    &lt;/security-setting&gt;
          </programlisting>
@@ -558,7 +558,7 @@
       <para>其中一个重要的不同是JMS需要一个JMS队列来发送消息（而核心接口使用的是一个地址）。</para>
       <para><emphasis>管理队列</emphasis>是一个特殊的队列，它需要客户端直接实例化：</para>
       <programlisting>
-   Queue managementQueue = ActiveMQJMSClient.createQueue("hornetq.management");
+   Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
       </programlisting>
       <para>其余步骤完全和使用核心接口一样，只是相应的对象不同：</para>
       <orderedlist>
@@ -580,7 +580,7 @@
       </orderedlist>
       <para>例如，要得到一个JMS队列<literal>exampleQueue</literal>中有多少消息：</para>
       <programlisting>
-   Queue managementQueue = ActiveMQJMSClient.createQueue("hornetq.management");   
+   Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
    
    QueueSession session = ...      
    QueueRequestor requestor = new QueueRequestor(session, managementQueue);
@@ -643,9 +643,9 @@
             <title>配置核心管理通知地址</title>
             <para>用来发送管理通知的地址在文件中<literal>activemq-configuration.xml</literal>配置：</para>
             <programlisting>
-               &lt;management-notification-address&gt;hornetq.notifications&lt;/management-notification-address&gt;
+               &lt;management-notification-address&gt;activemq.notifications&lt;/management-notification-address&gt;
             </programlisting>
-            <para>默认的地址是<literal>hornetq.notifications</literal>。</para>
+            <para>默认的地址是<literal>activemq.notifications</literal>。</para>
          </section>
       </section>
       <section>
