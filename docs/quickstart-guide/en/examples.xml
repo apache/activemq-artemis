@@ -257,7 +257,7 @@ INFO: Starting container with: [/home/andy/devtools/jdk1.6.0_25//bin/java, -Djbo
 10:58:08,840 INFO  [org.jboss.as.messaging] (MSC service thread 1-3) JBAS011601: Bound messaging object to jndi name java:jboss/exported/jms/queues/testQueue
 10:58:08,859 INFO  [org.jboss.as.deployment.connector] (MSC service thread 1-9) JBAS010406: Registered connection factory java:/JmsXA
 10:58:08,866 INFO  [org.apache.activemq.ra.ActiveMQResourceAdapter] (MSC service thread 1-9) ActiveMQ resource adaptor started
-10:58:08,867 INFO  [org.jboss.as.connector.services.ResourceAdapterActivatorService$ResourceAdapterActivator] (MSC service thread 1-9) IJ020002: Deployed: file://RaActivatorhornetq-ra
+10:58:08,867 INFO  [org.jboss.as.connector.services.ResourceAdapterActivatorService$ResourceAdapterActivator] (MSC service thread 1-9) IJ020002: Deployed: file://RaActivatoractivemq-ra
 10:58:08,870 INFO  [org.jboss.as.deployment.connector] (MSC service thread 1-5) JBAS010401: Bound JCA ConnectionFactory [java:/JmsXA]
 10:58:08,898 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-10) JBAS015876: Starting deployment of "ONT001-1.0.war"
 10:58:09,146 INFO  [org.jboss.wsf.stack.cxf.metadata.MetadataBuilder] (MSC service thread 1-1) Add Service

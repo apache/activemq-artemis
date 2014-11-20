@@ -24,7 +24,7 @@
          &lt;param key=&quot;activemq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;
          &lt;param key=&quot;activemq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
          &lt;param key=&quot;activemq.remoting.netty.trust-store-path&quot; value=&quot;server0/activemq.example.truststore&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.trust-store-password&quot; value=&quot;hornetqexample&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.trust-store-password&quot; value=&quot;activemqexample&quot; type=&quot;String&quot;/&gt;
       &lt;/connector&gt;
 
       &lt;!-- Acceptor --&gt;
@@ -35,7 +35,7 @@
          &lt;param key=&quot;activemq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;
          &lt;param key=&quot;activemq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
          &lt;param key=&quot;activemq.remoting.netty.key-store-path&quot; value=&quot;activemq.example.keystore&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.key-store-password&quot; value=&quot;hornetqexample&quot; type=&quot;String&quot;/&gt;
+         &lt;param key=&quot;activemq.remoting.netty.key-store-password&quot; value=&quot;activemqexample&quot; type=&quot;String&quot;/&gt;
       &lt;/acceptor&gt;
 
            </code>
@@ -127,9 +127,9 @@
      <ol>
          <li><a id="fn1"/>The stores were generating using the following commands&nbsp;<a href="readme.html#fnr1">&#8617;</a>:
              <ul>
-                 <li>create the keystore: <code>keytool -genkey -keystore activemq.example.keystore -storepass hornetqexample</code></li>
+                 <li>create the keystore: <code>keytool -genkey -keystore activemq.example.keystore -storepass activemqexample</code></li>
                  <li>export the certificate: <code>keytool -export -keystore activemq.example.keystore -file activemq.cer</code></li>
-                 <li>create the truststore: <code>keytool -import -file activemq.cer -keystore activemq.example.truststore -storepass hornetqexample</code></li>
+                 <li>create the truststore: <code>keytool -import -file activemq.cer -keystore activemq.example.truststore -storepass activemqexample</code></li>
             </ul>
          </li>
     </ol>
