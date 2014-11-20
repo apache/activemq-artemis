@@ -3,7 +3,7 @@
                xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
    <!--
    if you want to run this as a backup on different ports you would need to set the following variable
-   export CLUSTER_PROPS="-Djnp.port=1199 -Djnp.rmiPort=1198 -Djnp.host=localhost -Dhornetq.remoting.netty.host=localhost -Dhornetq.remoting.netty.port=5545 -Dhornetq.remoting.netty.batch.port=5555 -Dhornetq.backup=true"
+   export CLUSTER_PROPS="-Djnp.port=1199 -Djnp.rmiPort=1198 -Djnp.host=localhost -Dactivemq.remoting.netty.host=localhost -Dactivemq.remoting.netty.port=5545 -Dhornetq.remoting.netty.batch.port=5555 -Dhornetq.backup=true"
    -->
 
    <paging-directory>${data.dir:../data}/paging</paging-directory>
