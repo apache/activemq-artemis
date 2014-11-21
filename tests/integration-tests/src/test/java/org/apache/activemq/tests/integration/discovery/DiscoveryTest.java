@@ -15,22 +15,15 @@ package org.apache.activemq.tests.integration.discovery;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.api.core.BroadcastEndpoint;
 import org.apache.activemq.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
@@ -40,17 +33,12 @@ import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.core.cluster.DiscoveryEntry;
 import org.apache.activemq.core.cluster.DiscoveryGroup;
-import org.apache.activemq.core.cluster.DiscoveryListener;
 import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationService;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.integration.SimpleNotificationService;
 import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
@@ -77,17 +65,9 @@ import org.junit.Test;
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public class DiscoveryTest extends UnitTestCase
+public class DiscoveryTest extends DiscoveryBaseTest
 {
    private static final String TEST_JGROUPS_CONF_FILE = "test-jgroups-file_ping.xml";
-
-   private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
-   private final String address1 = getUDPDiscoveryAddress();
-
-   private final String address2 = getUDPDiscoveryAddress(1);
-
-   private final String address3 = getUDPDiscoveryAddress(2);
 
    BroadcastGroup bg = null, bg1 = null, bg2 = null, bg3 = null;
    DiscoveryGroup dg = null, dg1 = null, dg2 = null, dg3 = null;
@@ -879,26 +859,6 @@ public class DiscoveryTest extends UnitTestCase
       Assert.assertFalse(listener3.called);
    }
 
-   /**
-    * @param discoveryGroup
-    * @throws Exception
-    */
-   private static void verifyBroadcast(BroadcastGroup broadcastGroup, DiscoveryGroup discoveryGroup) throws Exception
-   {
-      broadcastGroup.broadcastConnectors();
-      Assert.assertTrue("broadcast received", discoveryGroup.waitForBroadcast(2000));
-   }
-
-   /**
-    * @param discoveryGroup
-    * @throws Exception
-    */
-   private static void verifyNonBroadcast(BroadcastGroup broadcastGroup, DiscoveryGroup discoveryGroup) throws Exception
-   {
-      broadcastGroup.broadcastConnectors();
-      Assert.assertFalse("NO broadcast received", discoveryGroup.waitForBroadcast(2000));
-   }
-
    @Test
    public void testConnectorsUpdatedMultipleBroadcasters() throws Exception
    {
@@ -1238,185 +1198,4 @@ public class DiscoveryTest extends UnitTestCase
       assertNotNull(object);
       assertTrue(object instanceof JGroupsBroadcastGroupConfiguration);
    }
-
-   private TransportConfiguration generateTC(String debug)
-   {
-      String className = "org.foo.bar." + debug + "|" + UUIDGenerator.getInstance().generateStringUUID() + "";
-      String name = UUIDGenerator.getInstance().generateStringUUID();
-      Map<String, Object> params = new HashMap<String, Object>();
-      params.put(UUIDGenerator.getInstance().generateStringUUID(), 123);
-      params.put(UUIDGenerator.getInstance().generateStringUUID(), UUIDGenerator.getInstance().generateStringUUID());
-      params.put(UUIDGenerator.getInstance().generateStringUUID(), true);
-      TransportConfiguration tc = new TransportConfiguration(className, params, name);
-      return tc;
-   }
-
-   private TransportConfiguration generateTC()
-   {
-      return generateTC("");
-   }
-
-   private static class MyListener implements DiscoveryListener
-   {
-      volatile boolean called;
-
-      public void connectorsChanged(List<DiscoveryEntry> newConnectors)
-      {
-         called = true;
-      }
-   }
-
-   private static void assertEqualsDiscoveryEntries(List<TransportConfiguration> expected, List<DiscoveryEntry> actual)
-   {
-      assertNotNull(actual);
-
-      List<TransportConfiguration> sortedExpected = new ArrayList<TransportConfiguration>(expected);
-      Collections.sort(sortedExpected, new Comparator<TransportConfiguration>()
-      {
-
-         public int compare(TransportConfiguration o1, TransportConfiguration o2)
-         {
-            return o2.toString().compareTo(o1.toString());
-         }
-      });
-      List<DiscoveryEntry> sortedActual = new ArrayList<DiscoveryEntry>(actual);
-      Collections.sort(sortedActual, new Comparator<DiscoveryEntry>()
-      {
-         public int compare(DiscoveryEntry o1, DiscoveryEntry o2)
-         {
-            return o2.getConnector().toString().compareTo(o1.getConnector().toString());
-         }
-      });
-      if (sortedExpected.size() != sortedActual.size())
-      {
-         dump(sortedExpected, sortedActual);
-      }
-      assertEquals(sortedExpected.size(), sortedActual.size());
-      for (int i = 0; i < sortedExpected.size(); i++)
-      {
-         if (!sortedExpected.get(i).equals(sortedActual.get(i).getConnector()))
-         {
-            dump(sortedExpected, sortedActual);
-         }
-         assertEquals(sortedExpected.get(i), sortedActual.get(i).getConnector());
-      }
-   }
-
-   private static void dump(List<TransportConfiguration> sortedExpected, List<DiscoveryEntry> sortedActual)
-   {
-      System.out.println("wrong broadcasts received");
-      System.out.println("expected");
-      System.out.println("----------------------------");
-      for (TransportConfiguration transportConfiguration : sortedExpected)
-      {
-         System.out.println("transportConfiguration = " + transportConfiguration);
-      }
-      System.out.println("----------------------------");
-      System.out.println("actual");
-      System.out.println("----------------------------");
-      for (DiscoveryEntry discoveryEntry : sortedActual)
-      {
-         System.out.println("transportConfiguration = " + discoveryEntry.getConnector());
-      }
-      System.out.println("----------------------------");
-   }
-
-   /**
-    * This method is here just to facilitate creating the Broadcaster for this test
-    */
-   private BroadcastGroupImpl newBroadcast(final String nodeID,
-                                           final String name,
-                                           final InetAddress localAddress,
-                                           int localPort,
-                                           final InetAddress groupAddress,
-                                           final int groupPort) throws Exception
-   {
-      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastGroupConfiguration()
-         .setGroupAddress(groupAddress.getHostAddress())
-         .setGroupPort(groupPort)
-         .setLocalBindAddress(localAddress != null ? localAddress.getHostAddress() : null)
-         .setLocalBindPort(localPort)
-         .createBroadcastEndpointFactory());
-   }
-
-   private DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
-                                            final InetAddress groupAddress, final int groupPort, final long timeout) throws Exception
-   {
-      return newDiscoveryGroup(nodeID, name, localBindAddress, groupAddress, groupPort, timeout, null);
-   }
-
-   private DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
-                                            final InetAddress groupAddress, final int groupPort, final long timeout, NotificationService notif) throws Exception
-   {
-      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastGroupConfiguration()
-         .setGroupAddress(groupAddress.getHostAddress())
-         .setGroupPort(groupPort)
-         .setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : null)
-         .createBroadcastEndpointFactory(), notif);
-   }
-
-
-   private final class FakeNodeManager extends NodeManager
-   {
-
-      public FakeNodeManager(String nodeID)
-      {
-         super(false, null);
-         this.setNodeID(nodeID);
-      }
-
-      @Override
-      public void awaitLiveNode() throws Exception
-      {
-      }
-
-      @Override
-      public void startBackup() throws Exception
-      {
-      }
-
-      @Override
-      public void startLiveNode() throws Exception
-      {
-      }
-
-      @Override
-      public void pauseLiveServer() throws Exception
-      {
-      }
-
-      @Override
-      public void crashLiveServer() throws Exception
-      {
-      }
-
-      @Override
-      public void releaseBackup() throws Exception
-      {
-      }
-
-      @Override
-      public SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException
-      {
-         return null;
-      }
-
-      @Override
-      public boolean isAwaitingFailback() throws Exception
-      {
-         return false;
-      }
-
-      @Override
-      public boolean isBackupLive() throws Exception
-      {
-         return false;
-      }
-
-      @Override
-      public void interrupt()
-      {
-      }
-   }
-
 }
