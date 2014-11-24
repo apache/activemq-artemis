@@ -5239,7 +5239,7 @@ public class PagingTest extends ServiceTestBase
          // allow time for the logging to actually happen on the server
          Thread.sleep(100);
 
-         Assert.assertTrue("Expected to find HQ224016", AssertionLoggerHandler.findText("HQ224016"));
+         Assert.assertTrue("Expected to find AMQ224016", AssertionLoggerHandler.findText("AMQ224016"));
 
          ClientConsumer consumer = session.createConsumer(ADDRESS);
 
