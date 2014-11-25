@@ -11,23 +11,18 @@
  * permissions and limitations under the License.
  */
 
-package org.apache.activemq.ra;
+package org.apache.activemq.service.extensions.xa;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-
-import org.apache.activemq.core.client.impl.ActiveMQXAResource;
-import org.apache.activemq.utils.VersionLoader;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- *
- * Wraps XAResource with org.jboss.tm.XAResourceWrapper.  This adds extra meta-data to to the XAResource used by
- * Transaction Manager for recovery scenarios.
  */
 
-public class ActiveMQXAResourceWrapper implements org.jboss.tm.XAResourceWrapper, org.jboss.jca.core.spi.transaction.xa.XAResourceWrapper, ActiveMQXAResource
+public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper
 {
    private final XAResource xaResource;
 
@@ -46,35 +41,35 @@ public class ActiveMQXAResourceWrapper implements org.jboss.tm.XAResourceWrapper
     * from relevant recovery scenarios.
     *
     * @param xaResource
-    * @param jndiName
+    * @param properties
     */
-   public ActiveMQXAResourceWrapper(XAResource xaResource, String jndiName, String nodeId)
+   public ActiveMQXAResourceWrapperImpl(XAResource xaResource, Map<String, Object> properties)
    {
       this.xaResource = xaResource;
-      this.productName = ActiveMQResourceAdapter.PRODUCT_NAME;
-      this.productVersion = VersionLoader.getVersion().getFullVersion();
-      this.jndiNameNodeId = jndiName + " NodeId:" + nodeId;
+      //this.productName = ActiveMQResourceAdapter.PRODUCT_NAME;
+      this.productName = (String) properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME);
+      //this.productVersion = VersionLoader.getVersion().getFullVersion();
+      this.productVersion = (String) properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION);
+
+      this.jndiNameNodeId = properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME) +
+         " NodeId:" + properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID);
    }
 
-   @Override
    public XAResource getResource()
    {
       return xaResource;
    }
 
-   @Override
    public String getProductName()
    {
       return productName;
    }
 
-   @Override
    public String getProductVersion()
    {
       return productVersion;
    }
 
-   @Override
    public String getJndiName()
    {
       return jndiNameNodeId;

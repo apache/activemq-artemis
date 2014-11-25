@@ -1,0 +1,51 @@
+/*
+ * Copyright 2005-2014 Red Hat, Inc.
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+package org.apache.activemq.service.extensions.tests.xa;
+
+import javax.transaction.xa.XAResource;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperImpl;
+import org.junit.Test;
+
+import static org.jgroups.util.Util.assertEquals;
+
+/**
+ * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
+ */
+
+public class ActiveMQXAResourceWrapperImplTest
+{
+   @Test
+   public void testXAResourceWrapper()
+   {
+      String jndiName = "java://jmsXA";
+      String nodeId = "0";
+      XAResource xaResource = new MockXAResource();
+
+      Map<String, Object> xaResourceWrapperProperties = new HashMap<String, Object>();
+      xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, jndiName);
+      xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, nodeId);
+      xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION, "6");
+      xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, "ActiveMQ");
+      ActiveMQXAResourceWrapperImpl xaResourceWrapper = new ActiveMQXAResourceWrapperImpl(xaResource, xaResourceWrapperProperties);
+
+      String expectedJndiNodeId = jndiName + " NodeId:" + nodeId;
+      assertEquals(xaResource, xaResourceWrapper.getResource());
+      assertEquals(expectedJndiNodeId, xaResourceWrapper.getJndiName());
+   }
+}

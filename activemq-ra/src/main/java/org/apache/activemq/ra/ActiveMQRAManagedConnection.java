@@ -35,8 +35,10 @@ import javax.transaction.xa.XAResource;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,6 +48,9 @@ import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.jms.client.ActiveMQConnection;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQXAConnection;
+import org.apache.activemq.service.extensions.ServiceUtils;
+import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.utils.VersionLoader;
 
 /**
  * The managed connection
@@ -531,7 +536,12 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       {
          ClientSessionInternal csi = (ClientSessionInternal) xaSession.getXAResource();
          ActiveMQRAXAResource activeMQRAXAResource = new ActiveMQRAXAResource(this, xaSession.getXAResource());
-         xaResource = new ActiveMQXAResourceWrapper(activeMQRAXAResource, ra.getJndiName(), csi.getNodeId());
+         Map<String, Object> xaResourceProperties = new HashMap<String, Object>();
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, ra.getJndiName());
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, csi.getNodeId());
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, ActiveMQResourceAdapter.PRODUCT_NAME);
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION, VersionLoader.getVersion().getFullVersion());
+         xaResource = ServiceUtils.wrapXAResource(activeMQRAXAResource, xaResourceProperties);
       }
 
       if (ActiveMQRAManagedConnection.trace)

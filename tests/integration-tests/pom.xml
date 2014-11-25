@@ -220,11 +220,6 @@
          <version>1.0.1</version>
          <scope>test</scope>
       </dependency>
-      <dependency>
-         <groupId>org.jboss.ironjacamar</groupId>
-         <artifactId>ironjacamar-core-api</artifactId>
-         <scope>test</scope>
-      </dependency>
    </dependencies>
 
    <build>
