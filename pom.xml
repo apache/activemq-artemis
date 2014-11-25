@@ -242,12 +242,6 @@
             <artifactId>jbossjts-jacorb</artifactId>
             <version>4.17.13.Final</version>
          </dependency>
-         <!-- this for Ironjacamar SPI XAResourceWrapper implementation -->
-         <dependency>
-            <groupId>org.jboss.ironjacamar</groupId>
-            <artifactId>ironjacamar-core-api</artifactId>
-            <version>1.2.0.Beta2</version>
-         </dependency>
          <!--needed to compile security-->
          <dependency>
             <groupId>org.jboss.security</groupId>
@@ -489,6 +483,7 @@
             <module>activemq-ra</module>
             <module>activemq-rest</module>
             <module>activemq-tools</module>
+            <module>activemq-service-extensions</module>
             <!-- <module>integration/activemq-jboss-as-integration</module> -->
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-twitter-integration</module>
@@ -513,6 +508,7 @@
             <module>activemq-ra</module>
             <module>activemq-rest</module>
             <module>activemq-tools</module>
+            <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-twitter-integration</module>
@@ -537,6 +533,7 @@
             <module>activemq-ra</module>
             <module>activemq-rest</module>
             <module>activemq-tools</module>
+            <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-twitter-integration</module>
@@ -563,6 +560,7 @@
             <module>activemq-ra</module>
             <module>activemq-rest</module>
             <module>activemq-tools</module>
+            <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-twitter-integration</module>
@@ -600,6 +598,7 @@
             <module>activemq-ra</module>
             <module>activemq-rest</module>
             <module>activemq-tools</module>
+            <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-twitter-integration</module>
@@ -633,6 +632,7 @@
             <module>activemq-ra</module>
             <module>activemq-rest</module>
             <module>activemq-tools</module>
+            <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-twitter-integration</module>

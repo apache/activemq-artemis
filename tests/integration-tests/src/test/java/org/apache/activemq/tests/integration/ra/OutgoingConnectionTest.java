@@ -49,8 +49,9 @@ import org.apache.activemq.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.ra.ActiveMQRASession;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperImpl;
 import org.apache.activemq.utils.UUIDGenerator;
-import org.apache.activemq.ra.ActiveMQXAResourceWrapper;
 import org.apache.activemq.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -525,7 +526,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
       XAResource resource = s.getXAResource();
       assertTrue(resource instanceof ActiveMQXAResourceWrapper);
 
-      ActiveMQXAResourceWrapper xaResourceWrapper  = (ActiveMQXAResourceWrapper) resource;
+      ActiveMQXAResourceWrapperImpl xaResourceWrapper  = (ActiveMQXAResourceWrapperImpl) resource;
       assertTrue(xaResourceWrapper.getJndiName().equals("java://jmsXA NodeId:" + server.getNodeID()));
       assertTrue(xaResourceWrapper.getProductVersion().equals(VersionLoader.getVersion().getFullVersion()));
       assertTrue(xaResourceWrapper.getProductName().equals(ActiveMQResourceAdapter.PRODUCT_NAME));

@@ -19,6 +19,8 @@ import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.activemq.api.core.ActiveMQException;
@@ -34,8 +36,10 @@ import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.ra.ActiveMQRALogger;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.ra.ActiveMQXAResourceWrapper;
+import org.apache.activemq.service.extensions.ServiceUtils;
+import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.utils.VersionLoader;
 
 /**
  * The message handler
@@ -191,9 +195,13 @@ public class ActiveMQMessageHandler implements MessageHandler
       transacted = activation.isDeliveryTransacted();
       if (activation.isDeliveryTransacted() && !activation.getActivationSpec().isUseLocalTx())
       {
-         XAResource xaResource = new ActiveMQXAResourceWrapper(session,
-                                                     ((ActiveMQResourceAdapter) spec.getResourceAdapter()).getJndiName(),
-                                                     ((ClientSessionFactoryInternal) cf).getLiveNodeId());
+         Map<String, Object> xaResourceProperties = new HashMap<String, Object>();
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, ((ActiveMQResourceAdapter) spec.getResourceAdapter()).getJndiName());
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, ((ClientSessionFactoryInternal) cf).getLiveNodeId());
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, ActiveMQResourceAdapter.PRODUCT_NAME);
+         xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION, VersionLoader.getVersion().getFullVersion());
+         XAResource xaResource = ServiceUtils.wrapXAResource(session, xaResourceProperties);
+
          endpoint = endpointFactory.createEndpoint(xaResource);
          useXA = true;
       }

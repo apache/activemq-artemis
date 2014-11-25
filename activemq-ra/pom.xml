@@ -53,19 +53,14 @@
          <scope>provided</scope>
       </dependency>
       <dependency>
-         <groupId>org.jboss.ironjacamar</groupId>
-         <artifactId>ironjacamar-core-api</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-ejb_3.0_spec</artifactId>
          <scope>provided</scope>
       </dependency>
       <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-transaction-spi</artifactId>
-         <scope>provided</scope>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-service-extensions</artifactId>
+         <version>${project.version}</version>
       </dependency>
    </dependencies>
 
