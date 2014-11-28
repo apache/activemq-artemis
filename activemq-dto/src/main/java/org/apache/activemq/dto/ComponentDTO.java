@@ -16,37 +16,15 @@
  */
 package org.apache.activemq.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
-@XmlRootElement(name = "broker")
+@XmlRootElement(name = "component")
 @XmlAccessorType(XmlAccessType.FIELD)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public class BrokerDTO
+public class ComponentDTO
 {
-
-   @XmlElementRef
-   public CoreDTO core;
-
-   @XmlElementRef(required = false)
-   public JmsDTO jms;
-
-   @XmlElementRef
-   public SecurityDTO security;
-
-   @XmlElementRef
-   public NamingDTO naming;
-
-   @XmlElementRef(required = false)
-   public WebServerDTO web;
-
-   @XmlElementRef
-   public List<ComponentDTO> components = new ArrayList<>();
-
+   @XmlAttribute
+   public String componentClassName;
 }

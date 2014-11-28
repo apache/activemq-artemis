@@ -358,6 +358,17 @@
             <artifactId>tjws</artifactId>
             <version>${resteasy.version}</version>
          </dependency>
+         <!-- needed for jetty web support-->
+         <dependency>
+            <groupId>org.eclipse.jetty.aggregate</groupId>
+            <artifactId>jetty-all-server</artifactId>
+            <version>7.6.9.v20130131</version>
+        </dependency>
+        <dependency>
+           <groupId>org.apache.geronimo.specs</groupId>
+           <artifactId>geronimo-servlet_3.0_spec</artifactId>
+           <version>1.0</version>
+      </dependency>
          <!-- needed to compile the tests -->
          <dependency>
             <groupId>junit</groupId>
@@ -471,6 +482,8 @@
          </activation>
          <modules>
             <module>activemq-dto</module>
+            <module>activemq-web</module>
+            <module>activemq-website</module>
             <module>activemq-bootstrap</module>
             <module>activemq-commons</module>
             <module>activemq-selector</module>
@@ -496,6 +509,8 @@
          <id>maven-release</id>
          <modules>
             <module>activemq-dto</module>
+            <module>activemq-web</module>
+            <module>activemq-website</module>
             <module>activemq-bootstrap</module>
             <module>activemq-commons</module>
             <module>activemq-selector</module>
@@ -521,6 +536,8 @@
          <id>release</id>
          <modules>
             <module>activemq-dto</module>
+            <module>activemq-web</module>
+            <module>activemq-website</module>
             <module>activemq-bootstrap</module>
             <module>activemq-commons</module>
             <module>activemq-selector</module>
@@ -548,6 +565,8 @@
          <id>hudson-tests</id>
          <modules>
             <module>activemq-dto</module>
+            <module>activemq-web</module>
+            <module>activemq-website</module>
             <module>activemq-bootstrap</module>
             <module>activemq-commons</module>
             <module>activemq-selector</module>
@@ -586,6 +605,7 @@
          <id>jenkins-fast-tests</id>
          <modules>
             <module>activemq-dto</module>
+            <module>activemq-web</module>
             <module>activemq-bootstrap</module>
             <module>activemq-commons</module>
             <module>activemq-selector</module>
@@ -620,6 +640,7 @@
          <id>examples</id>
          <modules>
             <module>activemq-dto</module>
+            <module>activemq-web</module>
             <module>activemq-bootstrap</module>
             <module>activemq-commons</module>
             <module>activemq-selector</module>

@@ -20,9 +20,12 @@ import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 
 import org.apache.activemq.cli.ActiveMQ;
+import org.apache.activemq.components.ExternalComponent;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.dto.BrokerDTO;
+import org.apache.activemq.dto.ComponentDTO;
 import org.apache.activemq.factory.BrokerFactory;
 import org.apache.activemq.factory.CoreFactory;
 import org.apache.activemq.factory.JmsFactory;
@@ -38,6 +41,7 @@ import javax.management.MBeanServer;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,6 +53,7 @@ public class Run implements Action
    String configuration;
    private StandaloneNamingServer namingServer;
    private JMSServerManager jmsServerManager;
+   private ArrayList<ActiveMQComponent> components = new ArrayList<>();
 
    @Override
    public Object execute(ActionContext context) throws Exception
@@ -56,9 +61,11 @@ public class Run implements Action
 
       ActiveMQ.printBanner();
 
+      String activemqHome = System.getProperty("activemq.home").replace("\\", "/");
+
       if (configuration == null)
       {
-         configuration = "xml:" + System.getProperty("activemq.home").replace("\\", "/") + "/config/non-clustered/bootstrap.xml";
+         configuration = "xml:" + activemqHome + "/config/non-clustered/bootstrap.xml";
       }
 
       System.out.println("Loading configuration file: " + configuration);
@@ -104,6 +111,20 @@ public class Run implements Action
 
       jmsServerManager.start();
 
+      if (broker.web != null)
+      {
+         broker.components.add(broker.web);
+      }
+
+      for (ComponentDTO componentDTO : broker.components)
+      {
+         Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
+         ExternalComponent component = (ExternalComponent)clazz.newInstance();
+         component.configure(componentDTO, activemqHome);
+         component.start();
+         components.add(component);
+      }
+
       return null;
    }
 
@@ -133,6 +154,7 @@ public class Run implements Action
                {
                   try
                   {
+                     //TODO stop components
                      jmsServerManager.stop();
                   }
                   catch (Exception e)

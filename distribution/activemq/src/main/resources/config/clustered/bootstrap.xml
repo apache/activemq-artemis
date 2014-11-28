@@ -18,12 +18,15 @@
 
 <broker xmlns="http://activemq.org/schema">
 
-   <core configuration="file:${activemq.home}/config/clustered/activemq-configuration.xml"></core>
-   <jms configuration="file:${activemq.home}/config/clustered/activemq-jms.xml"></jms>
+   <core configuration="file:${activemq.home}/config/clustered/activemq-configuration.xml"/>
+
+   <jms configuration="file:${activemq.home}/config/clustered/activemq-jms.xml"/>
 
    <basic-security/>
 
    <naming bindAddress="localhost" port="1099" rmiBindAddress="localhost" rmiPort="1098"/>
+
+   <web bind="http://localhost:8161" path="web"/>
 
 </broker>
 

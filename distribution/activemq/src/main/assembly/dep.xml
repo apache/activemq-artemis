@@ -45,9 +45,11 @@
             <include>com.google.guava:guava</include>
             <include>javax.inject:javax.inject</include>
             <include>com.fasterxml.jackson.core:jackson-*</include>
+            <include>org.eclipse.jetty.aggregate:jetty-all-server</include>
+            <include>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</include>
          </includes>
          <excludes>
-           <exclude>*:javadoc</exclude>
+           <exclude>org.apache.activemq:activemq-website</exclude>
          </excludes>
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
@@ -65,17 +67,23 @@
             </includes>
          </unpackOptions>
       </dependencySet>
-      <!-- javadoc -->
-      <dependencySet>
-        <includes>
-          <include>org.apache.activemq:activemq-core-client:*:javadoc</include>
-          <include>org.apache.activemq:activemq-server:*:javadoc</include>
-          <include>org.apache.activemq:activemq-jms-server:*:javadoc</include>
-          <include>org.apache.activemq:activemq-jms-client:*:javadoc</include>
-        </includes>
-        <outputDirectory>docs/api/${artifact.artifactId}</outputDirectory>
-        <unpack>true</unpack>
-      </dependencySet>
+       <dependencySet>
+           <includes>
+               <include>org.apache.activemq:activemq-website</include>
+           </includes>
+           <excludes>
+               <exclude>org.apache.activemq:activemq-website:jar:javadoc</exclude>
+           </excludes>
+           <outputDirectory>web</outputDirectory>
+           <unpack>true</unpack>
+       </dependencySet>
+       <dependencySet>
+           <includes>
+               <include>org.apache.activemq:activemq-website:jar:javadoc</include>
+           </includes>
+           <outputDirectory>web/api</outputDirectory>
+           <unpack>true</unpack>
+       </dependencySet>
    </dependencySets>
    <fileSets>
      <!-- schema -->
@@ -94,15 +102,15 @@
        <directory>src/main/resources</directory>
        <outputDirectory>/</outputDirectory>
        <lineEnding>keep</lineEnding>
-       <includes>
-         <include>bin/*</include>
-         <include>config/**</include>
-         <include>licenses/*</include>
-       </includes>
+        <excludes>
+           <exclude>**/target/**</exclude>
+           <exclude>**/**/*.iml</exclude>
+           <exclude>**/**/*.dat</exclude>
+        </excludes>
      </fileSet>
      <fileSet>
        <directory>../../examples</directory>
-       <outputDirectory>examples</outputDirectory>
+       <outputDirectory>web/examples</outputDirectory>
        <lineEnding>keep</lineEnding>
        <excludes>
          <exclude>**/target/**</exclude>
@@ -113,13 +121,8 @@
      <!-- docs -->
      <!--todo, this is crap, there must be better jdocbook assembly integration-->
       <fileSet>
-         <directory>../../docs/user-manual/target/docbook/publish/en</directory>
-         <outputDirectory>docs/user-manual</outputDirectory>
-         <lineEnding>keep</lineEnding>
-      </fileSet>
-      <fileSet>
-         <directory>../../docs/quickstart-guide/target/docbook/publish/en</directory>
-         <outputDirectory>docs/quickstart-guide</outputDirectory>
+         <directory>../../docs/user-manual/target/docbook/publish/en/html/</directory>
+         <outputDirectory>web/user-manual</outputDirectory>
          <lineEnding>keep</lineEnding>
       </fileSet>
       <fileSet>
