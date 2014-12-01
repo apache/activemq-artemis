@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ============================================================================= -->
-<!-- Copyright © 2009 Red Hat, Inc. and others.                                    -->
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more            -->
+<!-- contributor license agreements. See the NOTICE file distributed with          -->
+<!-- this work for additional information regarding copyright ownership.           -->
+<!-- The ASF licenses this file to You under the Apache License, Version 2.0       -->
+<!-- (the "License"); you may not use this file except in compliance with          -->
+<!-- the License. You may obtain a copy of the License at                          -->
 <!--                                                                               -->
-<!-- The text of and illustrations in this document are licensed by Red Hat under  -->
-<!-- a Creative Commons Attribution–Share Alike 3.0 Unported license ("CC-BY-SA"). -->
+<!--     http://www.apache.org/licenses/LICENSE-2.0                                -->
 <!--                                                                               -->
-<!-- An explanation of CC-BY-SA is available at                                    -->
-<!--                                                                               -->
-<!--            http://creativecommons.org/licenses/by-sa/3.0/.                    -->
-<!--                                                                               -->
-<!-- In accordance with CC-BY-SA, if you distribute this document or an adaptation -->
-<!-- of it, you must provide the URL for the original version.                     -->
-<!--                                                                               -->
-<!-- Red Hat, as the licensor of this document, waives the right to enforce,       -->
-<!-- and agrees not to assert, Section 4d of CC-BY-SA to the fullest extent        -->
-<!-- permitted by applicable law.                                                  -->
+<!-- Unless required by applicable law or agreed to in writing, software           -->
+<!-- distributed under the License is distributed on an "AS IS" BASIS,             -->
+<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.      -->
+<!-- See the License for the specific language governing permissions and           -->
+<!-- limitations under the License.                                                -->
 <!-- ============================================================================= -->
 
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
