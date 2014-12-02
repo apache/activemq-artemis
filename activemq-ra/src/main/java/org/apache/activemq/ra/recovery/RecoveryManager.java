@@ -18,12 +18,14 @@ package org.apache.activemq.ra.recovery;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.server.recovery.ActiveMQRegistryBase;
-import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
 import org.apache.activemq.ra.ActiveMQRALogger;
+import org.apache.activemq.service.extensions.xa.recovery.ActiveMQRegistry;
+import org.apache.activemq.service.extensions.xa.recovery.ActiveMQRegistryImpl;
+import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConcurrentHashSet;
 
@@ -33,7 +35,7 @@ import org.apache.activemq.utils.ConcurrentHashSet;
  */
 public final class RecoveryManager
 {
-   private ActiveMQRegistryBase registry;
+   private ActiveMQRegistry registry;
 
    private static final String RESOURCE_RECOVERY_CLASS_NAMES = "org.jboss.as.messaging.jms.AS7RecoveryRegistry;"
             + "org.jboss.as.integration.activemq.recovery.AS5RecoveryRegistry";
@@ -97,7 +99,15 @@ public final class RecoveryManager
       {
          try
          {
-            registry = (ActiveMQRegistryBase) safeInitNewInstance(locatorClasse);
+            ServiceLoader<ActiveMQRegistry> sl = ServiceLoader.load(ActiveMQRegistry.class);
+            if (sl.iterator().hasNext())
+            {
+               registry = sl.iterator().next();
+            }
+            else
+            {
+               registry = ActiveMQRegistryImpl.getInstance();
+            }
          }
          catch (Throwable e)
          {

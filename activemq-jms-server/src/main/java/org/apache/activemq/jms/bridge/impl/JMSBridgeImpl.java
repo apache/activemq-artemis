@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -63,9 +64,10 @@ import org.apache.activemq.jms.client.ActiveMQConnection;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.jms.server.ActiveMQJMSServerBundle;
-import org.apache.activemq.jms.server.recovery.ActiveMQRegistryBase;
-import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
 import org.apache.activemq.service.extensions.ServiceUtils;
+import org.apache.activemq.service.extensions.xa.recovery.ActiveMQRegistry;
+import org.apache.activemq.service.extensions.xa.recovery.ActiveMQRegistryImpl;
+import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.utils.PasswordMaskingUtil;
@@ -183,7 +185,7 @@ public final class JMSBridgeImpl implements JMSBridge
 
    private static final int FORWARD_MODE_NONTX = 2;
 
-   private ActiveMQRegistryBase registry;
+   private ActiveMQRegistry registry;
 
    /*
     * Constructor for MBean
@@ -2228,7 +2230,15 @@ public final class JMSBridgeImpl implements JMSBridge
          {
             try
             {
-               registry = (ActiveMQRegistryBase) safeInitNewInstance(locatorClasse);
+               ServiceLoader<ActiveMQRegistry> sl = ServiceLoader.load(ActiveMQRegistry.class);
+               if (sl.iterator().hasNext())
+               {
+                  registry = sl.iterator().next();
+               }
+               else
+               {
+                  registry = ActiveMQRegistryImpl.getInstance();
+               }
             }
             catch (Throwable e)
             {

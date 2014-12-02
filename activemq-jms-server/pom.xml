@@ -50,13 +50,14 @@
          <artifactId>geronimo-ejb_3.0_spec</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.jboss.jbossts.jts</groupId>
-         <artifactId>jbossjts-jacorb</artifactId>
-         <optional>true</optional>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
+         <version>1.1.1</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-transaction-spi</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-service-extensions</artifactId>
+         <version>${project.version}</version>
       </dependency>
    </dependencies>
 

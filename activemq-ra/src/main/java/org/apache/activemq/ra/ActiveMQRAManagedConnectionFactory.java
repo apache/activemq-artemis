@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
+import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
 
 /**
  * ActiveMQ ManagedConnectionFactory
