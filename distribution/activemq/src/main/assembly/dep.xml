@@ -84,6 +84,13 @@
            <outputDirectory>web/api</outputDirectory>
            <unpack>true</unpack>
        </dependencySet>
+       <dependencySet>
+           <includes>
+               <include>org.jolokia:jolokia-war:war</include>
+           </includes>
+           <outputDirectory>web</outputDirectory>
+           <unpack>false</unpack>
+       </dependencySet>
    </dependencySets>
    <fileSets>
      <!-- schema -->

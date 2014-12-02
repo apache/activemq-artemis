@@ -368,7 +368,13 @@
            <groupId>org.apache.geronimo.specs</groupId>
            <artifactId>geronimo-servlet_3.0_spec</artifactId>
            <version>1.0</version>
-      </dependency>
+        </dependency>
+        <dependency>
+           <groupId>org.jolokia</groupId>
+           <artifactId>jolokia-war</artifactId>
+           <type>war</type>
+           <version>1.2.3</version>
+        </dependency>
          <!-- needed to compile the tests -->
          <dependency>
             <groupId>junit</groupId>

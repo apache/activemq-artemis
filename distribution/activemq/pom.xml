@@ -179,6 +179,11 @@
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-servlet_3.0_spec</artifactId>
        </dependency>
+       <dependency>
+          <groupId>org.jolokia</groupId>
+          <artifactId>jolokia-war</artifactId>
+          <type>war</type>
+       </dependency>
        <!-- javadoc -->
        <dependency>
            <groupId>org.apache.activemq</groupId>
