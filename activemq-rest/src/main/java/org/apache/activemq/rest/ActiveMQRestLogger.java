@@ -45,9 +45,6 @@ import org.jboss.logging.annotations.MessageLogger;
 @MessageLogger(projectCode = "AMQ")
 public interface ActiveMQRestLogger extends BasicLogger
 {
-   /**
-    * The twitter logger.
-    */
    ActiveMQRestLogger LOGGER = Logger.getMessageLogger(ActiveMQRestLogger.class, ActiveMQRestLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
