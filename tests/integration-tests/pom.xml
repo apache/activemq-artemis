@@ -71,11 +71,6 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-twitter-integration</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-spring-integration</artifactId>
          <version>${project.version}</version>
       </dependency>
@@ -120,10 +115,6 @@
       <dependency>
          <groupId>org.jboss.security</groupId>
          <artifactId>jbosssx</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.twitter4j</groupId>
-         <artifactId>twitter4j-core</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

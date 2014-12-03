@@ -281,14 +281,6 @@
             <artifactId>jboss-logging-spi</artifactId>
             <version>2.1.0.GA</version>
          </dependency>
-         <!--needed to compile twitter support-->
-         <dependency>
-            <groupId>org.twitter4j</groupId>
-            <artifactId>twitter4j-core</artifactId>
-            <!-- there is a new version of this JAR but it breaks our usage of it -->
-            <version>2.1.2</version>
-         </dependency>
-         <!---->
 
          <dependency>
             <groupId>org.apache.qpid</groupId>
@@ -505,7 +497,6 @@
             <module>activemq-service-extensions</module>
             <!-- <module>integration/activemq-jboss-as-integration</module> -->
             <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-twitter-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
@@ -532,7 +523,6 @@
             <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-twitter-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>examples</module>
@@ -559,7 +549,6 @@
             <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-twitter-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>examples</module>
@@ -588,7 +577,6 @@
             <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-twitter-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
@@ -627,7 +615,6 @@
             <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-twitter-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
@@ -662,7 +649,6 @@
             <module>activemq-service-extensions</module>
             <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-twitter-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
