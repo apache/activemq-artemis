@@ -382,17 +382,6 @@
 
          <!--needed to run the jms tests -->
          <dependency>
-            <groupId>org.jboss.naming</groupId>
-            <artifactId>jnpserver</artifactId>
-            <version>5.0.3.GA</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>org.jboss.logging</groupId>
-                  <artifactId>jboss-logging-spi</artifactId>
-               </exclusion>
-            </exclusions>
-         </dependency>
-         <dependency>
             <groupId>apache-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.1.0.jboss</version>

@@ -96,25 +96,16 @@
                     to other servers. That's defined by <emphasis>connectors</emphasis>.</para>
             </listitem>
             <listitem>
-                <para>If you're using JMS and the server side JMS service to instantiate JMS
-                    ConnectionFactory instances and bind them in JNDI, then when creating the
-                        <literal>ActiveMQConnectionFactory</literal> it needs to know what server
-                    that connection factory will create connections to.</para>
-                <para>That's defined by the <literal>connector-ref</literal> element in the <literal
-                        >activemq-jms.xml</literal> file on the server side. Let's take a look at a
-                    snipped from a <literal>activemq-jms.xml</literal> file that shows a JMS
-                    connection factory that references our netty connector defined in our <literal
-                        >activemq-configuration.xml</literal> file:</para>
+                <para>If you're using JMS and you're using JNDI on the client to look up your JMS connection factory
+                    instances then when creating the <literal>ActiveMQConnectionFactory</literal> it needs to know what
+                    server that connection factory will create connections to.</para>
+                <para>That's defined by the <literal>java.naming.provider.url</literal> element in the JNDI context
+                    environment, e.g. <literal>jndi.properties</literal>. Behind the scenes, the
+                    <literal>org.apache.activemq.jndi.ActiveMQInitialContextFactory</literal> uses the
+                    <literal>java.naming.provider.url</literal> to construct the transport. Here's a simple example:</para>
                 <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-      &lt;entry name="XAConnectionFactory"/>
-   &lt;/entries>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://myhost:5445</programlisting>
             </listitem>
         </itemizedlist>
     </section>
@@ -168,7 +159,7 @@ Connection jmsConnection = connectionFactory.createConnection();
 
 etc</programlisting>
     </section>
-    <section>
+    <section id="configuring-transports.netty">
         <title>Configuring the Netty transport</title>
         <para>Out of the box, ActiveMQ currently uses <ulink url="http://www.jboss.org/netty/"
                 >Netty</ulink>, a high performance low level network library.</para>

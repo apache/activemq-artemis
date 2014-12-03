@@ -58,11 +58,6 @@ integration/activemq-*-integration/.project
 # /distribution/activemq/
 /distribution/activemq/.project
 
-# /distribution/jnp-client/
-/distribution/jnp-client/target
-/distribution/jnp-client/bin
-/distribution/jnp-client/.project
-
 # /docs/
 /docs/.project
 

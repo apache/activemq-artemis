@@ -34,7 +34,6 @@ import org.apache.activemq.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.jms.server.impl.StandaloneNamingServer;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
 import javax.management.MBeanServer;
@@ -51,7 +50,6 @@ public class Run implements Action
 
    @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_HOME}/config/non-clustered/bootstrap.xml'")
    String configuration;
-   private StandaloneNamingServer namingServer;
    private JMSServerManager jmsServerManager;
    private ArrayList<ActiveMQComponent> components = new ArrayList<>();
 
@@ -83,20 +81,6 @@ public class Run implements Action
       MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
       ActiveMQServerImpl server = new ActiveMQServerImpl(core, mBeanServer, security);
-
-      namingServer = new StandaloneNamingServer(server);
-
-      namingServer.setBindAddress(broker.naming.bindAddress);
-
-      namingServer.setPort(broker.naming.port);
-
-      namingServer.setRmiBindAddress(broker.naming.rmiBindAddress);
-
-      namingServer.setRmiPort(broker.naming.rmiPort);
-
-      namingServer.start();
-
-      ActiveMQBootstrapLogger.LOGGER.startedNamingService(broker.naming.bindAddress, broker.naming.port, broker.naming.rmiBindAddress, broker.naming.rmiPort);
 
       if (jms != null)
       {

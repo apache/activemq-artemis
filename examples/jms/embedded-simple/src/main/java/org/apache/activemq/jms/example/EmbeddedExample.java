@@ -53,7 +53,7 @@ public class EmbeddedExample extends ActiveMQExample
          System.out.println("Started Embedded JMS Server");
 
          ConnectionFactory cf = (ConnectionFactory)jmsServer.lookup("ConnectionFactory");
-         Queue queue = (Queue)jmsServer.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)jmsServer.lookup("queue/exampleQueue");
 
          // Step 10. Send and receive a message using JMS API
          Connection connection = null;

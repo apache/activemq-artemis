@@ -50,11 +50,6 @@
                   <artifactId>netty-all</artifactId>
                   <version>${netty.version}</version>
                </dependency>
-               <dependency>
-                  <groupId>org.jboss.naming</groupId>
-                  <artifactId>jnpserver</artifactId>
-                  <version>5.0.3.GA</version>
-               </dependency>
             </dependencies>
             <configuration>
                <waitOnStart>false</waitOnStart>
@@ -99,7 +94,7 @@
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
                            <args>
-                              <param>jnp://localhost:1099</param>
+                              <param>tcp://localhost:5445</param>
                            </args>
                         </configuration>
                      </execution>
@@ -111,7 +106,7 @@
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
                            <args>
-                              <param>jnp://localhost:1099</param>
+                              <param>tcp://localhost:5445</param>
                            </args>
                         </configuration>
                      </execution>
@@ -145,7 +140,7 @@
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
                            <args>
-                              <param>jnp://localhost:1099</param>
+                              <param>tcp://localhost:5445</param>
                            </args>
                         </configuration>
                      </execution>
@@ -157,7 +152,7 @@
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
                            <args>
-                              <param>jnp://localhost:1099</param>
+                              <param>tcp://localhost:5445</param>
                            </args>
                         </configuration>
                      </execution>

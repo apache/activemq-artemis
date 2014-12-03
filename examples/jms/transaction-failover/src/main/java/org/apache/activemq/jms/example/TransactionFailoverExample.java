@@ -57,8 +57,8 @@ public class TransactionFailoverExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Look-up the JMS resources from JNDI
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 3. We create a JMS Connection
          connection = connectionFactory.createConnection();

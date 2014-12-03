@@ -56,10 +56,10 @@ public class ReattachExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perform a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -136,7 +136,7 @@ public class ReattachExample extends ActiveMQExample
    // when the main connection has been stopped
    private void stopStartAcceptor(final InitialContext initialContext, final boolean stop) throws Exception
    {
-      ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory2");
+      ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory2");
 
       Connection connection = null;
       try

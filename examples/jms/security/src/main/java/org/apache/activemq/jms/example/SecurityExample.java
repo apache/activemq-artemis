@@ -58,12 +58,12 @@ public class SecurityExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. perform lookup on the topics
-         Topic genericTopic = (Topic)initialContext.lookup("/topic/genericTopic");
-         Topic europeTopic = (Topic)initialContext.lookup("/topic/europeTopic");
-         Topic usTopic = (Topic)initialContext.lookup("/topic/usTopic");
+         Topic genericTopic = (Topic)initialContext.lookup("topic/genericTopic");
+         Topic europeTopic = (Topic)initialContext.lookup("topic/europeTopic");
+         Topic usTopic = (Topic)initialContext.lookup("topic/usTopic");
 
          // Step 3. perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. Try to create a JMS Connection without user/password. It will fail.
          try

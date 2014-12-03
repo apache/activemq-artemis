@@ -70,10 +70,10 @@ public class RequestReplyExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 3. Lookup the queue for sending the request message
-         Queue requestQueue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 4. Lookup for the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 5. Create a JMS Connection
          connection = cf.createConnection();
@@ -165,10 +165,10 @@ public class RequestReplyExample extends ActiveMQExample
          InitialContext initialContext = getContext(0);
 
          // Lookup the queue to receive the request message
-         Queue requestQueue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Lookup for the Connection Factory
-         ConnectionFactory cfact = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cfact = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Create a connection
          connection = cfact.createConnection();

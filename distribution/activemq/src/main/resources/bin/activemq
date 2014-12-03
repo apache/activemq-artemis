@@ -81,7 +81,7 @@ for i in `ls $ACTIVEMQ_HOME/lib/*.jar`; do
 done
 
 
-JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Dactivemq.home=$ACTIVEMQ_HOME -Ddata.dir=$ACTIVEMQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration=file:$ACTIVEMQ_HOME/config/logging.properties -Djava.library.path=$ACTIVEMQ_HOME/bin/lib/linux-i686:$ACTIVEMQ_HOME/bin/lib/linux-x86_64"
-#JAVA_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces"
+JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Dactivemq.home=$ACTIVEMQ_HOME -Ddata.dir=$ACTIVEMQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration=file:$ACTIVEMQ_HOME/config/logging.properties -Djava.library.path=$ACTIVEMQ_HOME/bin/lib/linux-i686:$ACTIVEMQ_HOME/bin/lib/linux-x86_64"
+#JAVA_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 exec "$JAVACMD" $JAVA_ARGS -classpath $CLASSPATH org.apache.activemq.cli.ActiveMQ $@

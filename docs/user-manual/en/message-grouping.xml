@@ -77,34 +77,23 @@
  message = ...
  message.setStringProperty("JMSXGroupID", "Group-0");
  producer.send(message);</programlisting>
-      <para>Alternatively, you can set <literal>autogroup</literal> to true on the <literal
-            >ActiveMQConnectonFactory</literal> which will pick a random unique id. This can also be
-         set in the <literal>activemq-jms.xml</literal> file like this:</para>
+      <para>Alternatively, you can set <literal>autogroup</literal> to true on the
+          <literal>ActiveMQConnectonFactory</literal> which will pick a random unique id. This can also be set in the
+          JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a simple example using the
+          "ConnectionFactory" connection factory which is available in the context by default</para>
       <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty-connector"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-   &lt;autogroup>true&lt;/autogroup>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.autoGroup=true</programlisting>
       <para>Alternatively you can set the group id via the connection factory. All messages sent
          with producers created via this connection factory will set the <literal
-            >JMSXGroupID</literal> to the specified value on all messages sent. To configure the
-         group id set it on the connection factory in the <literal>activemq-jms.xml</literal> config
-         file as follows
+            >JMSXGroupID</literal> to the specified value on all messages sent. This can also be set in the
+         JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a simple example using the
+         "ConnectionFactory" connection factory which is available in the context by default:</para>
          <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty-connector"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-   &lt;group-id>Group-0&lt;/group-id>
-&lt;/connection-factory></programlisting></para>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.groupID=Group-0</programlisting>
    </section>
    <section>
       <title>Example</title>

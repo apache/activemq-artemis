@@ -23,8 +23,11 @@ import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 
-import org.jboss.util.NestedRuntimeException;
+import java.util.Hashtable;
+
+import org.apache.activemq.jndi.ActiveMQInitialContextFactory;
 import org.junit.After;
 import org.junit.Before;
 
@@ -117,8 +120,12 @@ public abstract class PTPTestCase extends JMSTestCase
          admin.createQueueConnectionFactory(PTPTestCase.QCF_NAME);
          admin.createQueue(PTPTestCase.QUEUE_NAME);
 
-         // end of admin step, start of JMS client step
-         ctx = admin.createContext();
+         Hashtable props = new Hashtable<>();
+         props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
+         props.put(ActiveMQInitialContextFactory.CONNECTION_FACTORY_NAMES, PTPTestCase.QCF_NAME);
+         props.put(Context.PROVIDER_URL, "tcp://127.0.0.1:5445");
+         props.put("queue." + PTPTestCase.QUEUE_NAME, PTPTestCase.QUEUE_NAME);
+         Context ctx = new InitialContext(props);
 
          senderQCF = (QueueConnectionFactory)ctx.lookup(PTPTestCase.QCF_NAME);
          senderQueue = (Queue)ctx.lookup(PTPTestCase.QUEUE_NAME);
@@ -138,7 +145,7 @@ public abstract class PTPTestCase extends JMSTestCase
       }
       catch (Exception e)
       {
-         throw new NestedRuntimeException(e);
+         throw new RuntimeException(e);
       }
    }
 

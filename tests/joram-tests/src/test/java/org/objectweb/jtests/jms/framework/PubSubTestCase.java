@@ -23,8 +23,11 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 
-import org.jboss.util.NestedRuntimeException;
+import java.util.Hashtable;
+
+import org.apache.activemq.jndi.ActiveMQInitialContextFactory;
 import org.junit.After;
 import org.junit.Before;
 
@@ -117,8 +120,12 @@ public abstract class PubSubTestCase extends JMSTestCase
          admin.createTopicConnectionFactory(PubSubTestCase.TCF_NAME);
          admin.createTopic(PubSubTestCase.TOPIC_NAME);
 
-         // end of admin step, start of JMS client step
-         ctx = admin.createContext();
+         Hashtable props = new Hashtable<>();
+         props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
+         props.put(ActiveMQInitialContextFactory.CONNECTION_FACTORY_NAMES, PubSubTestCase.TCF_NAME);
+         props.put(Context.PROVIDER_URL, "tcp://127.0.0.1:5445");
+         props.put("topic." + PubSubTestCase.TOPIC_NAME, PubSubTestCase.TOPIC_NAME);
+         Context ctx = new InitialContext(props);
 
          publisherTCF = (TopicConnectionFactory)ctx.lookup(PubSubTestCase.TCF_NAME);
          publisherTopic = (Topic)ctx.lookup(PubSubTestCase.TOPIC_NAME);
@@ -140,7 +147,7 @@ public abstract class PubSubTestCase extends JMSTestCase
       }
       catch (Exception e)
       {
-         throw new NestedRuntimeException(e);
+         throw new RuntimeException(e);
       }
    }
 

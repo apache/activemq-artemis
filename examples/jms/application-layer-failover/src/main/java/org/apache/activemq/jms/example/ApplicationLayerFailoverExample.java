@@ -152,10 +152,10 @@ public class ApplicationLayerFailoverExample extends ActiveMQExample
       initialContext = getContext(server);
 
       // Step 2. Look-up the JMS Queue object from JNDI
-      Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+      Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
       // Step 3. Look-up a JMS Connection Factory object from JNDI on server 1
-      ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+      ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
       // Step 4. We create a JMS Connection connection
       connection = connectionFactory.createConnection();

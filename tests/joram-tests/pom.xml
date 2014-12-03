@@ -67,10 +67,6 @@
          <artifactId>junit</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.jboss.naming</groupId>
-         <artifactId>jnpserver</artifactId>
-      </dependency>
-      <dependency>
          <groupId>apache-logging</groupId>
          <artifactId>commons-logging</artifactId>
       </dependency>

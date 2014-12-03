@@ -37,4 +37,8 @@ public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ
       return ((EmbeddedJMS) embeddedActiveMQ).getRegistry();
    }
 
+   public EmbeddedJMS getEmbeddedJMS()
+   {
+      return (EmbeddedJMS) embeddedActiveMQ;
+   }
 }

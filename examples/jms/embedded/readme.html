@@ -30,34 +30,10 @@
          <pre class="prettyprint">
             <code>ActiveMQServer activemqServer = ActiveMQ.newActiveMQServer(configuration);</code>
          </pre>
-        
-         <li>Create and start the JNDI server (using JBoss JNDI implementation)</li>
-         <pre class="prettyprint">
-            <code>System.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-            NamingBeanImpl naming = new NamingBeanImpl();
-            naming.start();
-            Main jndiServer = new Main();
-            jndiServer.setNamingInfo(naming);
-            jndiServer.setPort(1099);
-            jndiServer.setBindAddress("localhost");
-            jndiServer.setRmiPort(1098);
-            jndiServer.setRmiBindAddress("localhost");         
-            jndiServer.start();</code>
-         </pre>
 
          <li>Create the JMS configuration</li>
          <pre class="prettyprint">
             <code>JMSConfiguration jmsConfig = new JMSConfigurationImpl();</code>
-         </pre>
-
-         <li>Configure context used to bind the JMS resources to JNDI</li>
-         <pre class="prettyprint">
-            <code>Hashtable&lt;String, String> env = new Hashtable&lt;String, String>();
-            env.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-            env.put("java.naming.provider.url", "jnp://localhost:1099");
-            env.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-            Context context = new InitialContext(env);
-            jmsConfig.setContext(context);</code>
          </pre>
 
          <li>Configure the JMS ConnectionFactory</li>
@@ -101,8 +77,7 @@
         
          <li>Stop the JNDI server</li>
          <pre class="prettyprint">
-            <code>naming.stop();
-            jndiServer.stop();</code>
+            <code>naming.stop();</code>
          </pre>
       </ol>
    </body>

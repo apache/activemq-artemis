@@ -52,10 +52,10 @@ public class DeadLetterExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection
          connection = cf.createConnection();
@@ -108,7 +108,7 @@ public class DeadLetterExample extends ActiveMQExample
          // We will now consume the message from the dead letter queue
 
          // Step 17. Perform a lookup on the dead letter queue
-         Queue deadLetterQueue = (Queue)initialContext.lookup("/queue/deadLetterQueue");
+         Queue deadLetterQueue = (Queue)initialContext.lookup("queue/deadLetterQueue");
 
          // Step 18. Create a JMS Message Consumer for the dead letter queue
          MessageConsumer deadLetterConsumer = session.createConsumer(deadLetterQueue);

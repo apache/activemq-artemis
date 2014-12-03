@@ -44,7 +44,7 @@ public class SoakSender
       String jndiURL = System.getProperty("jndi.address");
       if(jndiURL == null)
       {
-         jndiURL = args.length > 0 ? args[0] : "jnp://localhost:1099";
+         jndiURL = args.length > 0 ? args[0] : "tcp://localhost:5445";
       }
 
       System.out.println("Connecting to JNDI at " + jndiURL);
@@ -56,8 +56,7 @@ public class SoakSender
 
          Hashtable<String, String> jndiProps = new Hashtable<String, String>();
          jndiProps.put("java.naming.provider.url", jndiURL);
-         jndiProps.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-         jndiProps.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+         jndiProps.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 
          final SoakSender sender = new SoakSender(jndiProps, params);
 

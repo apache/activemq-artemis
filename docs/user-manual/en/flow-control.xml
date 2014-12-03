@@ -111,20 +111,14 @@
          </section>
          <section>
             <title>Using JMS</title>
-            <para>if JNDI is used to look up the connection factory, the consumer window size is
-               configured in <literal>activemq-jms.xml</literal>:</para>
+            <para>If JNDI is used on the client to instantiate and look up the connection factory the consumer window
+               size is configured in the JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a
+               simple example using the "ConnectionFactory" connection factory which is available in the context by
+               default:</para>
             <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty-connector"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-      
-   &lt;!-- Set the consumer window size to 0 to have *no* buffer on the client side -->
-   &lt;consumer-window-size>0&lt;/consumer-window-size>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.consumerWindowSize=0</programlisting>
             <para>If the connection factory is directly instantiated, the consumer window size is
                specified by <literal>ActiveMQConnectionFactory.setConsumerWindowSize()</literal>
                method.</para>
@@ -153,20 +147,13 @@
          </section>
          <section>
             <title>Using JMS</title>
-            <para>If JNDI is used to look up the connection factory, the max rate can be configured
-               in <literal>activemq-jms.xml</literal>:</para>
+            <para>If JNDI is used to instantiate and look up the connection factory, the max rate can be configured in
+               the JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a simple example using the
+               "ConnectionFactory" connection factory which is available in the context by default:</para>
             <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty-connector"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-   &lt;!-- We limit consumers created on this connection factory to consume messages at a maximum rate
-   of 10 messages per sec -->
-   &lt;consumer-max-rate>10&lt;/consumer-max-rate>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.consumerMaxRate=10</programlisting>
             <para>If the connection factory is directly instantiated, the max rate size can be set
                via the <literal>ActiveMQConnectionFactory.setConsumerMaxRate(int
                   consumerMaxRate)</literal> method.</para>
@@ -208,18 +195,13 @@
          </section>
          <section>
             <title>Using JMS</title>
-            <para>If JNDI is used to look up the connection factory, the producer window size can be
-               configured in <literal>activemq-jms.xml</literal>:</para>
+            <para>If JNDI is used to instantiate and look up the connection factory, the producer window size can be
+               configured in the JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a simple
+               example using the "ConnectionFactory" connection factory which is available in the context by default:</para>
             <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty-connector"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-   &lt;producer-window-size>10&lt;/producer-window-size>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.producerWindowSize=10</programlisting>
             <para>If the connection factory is directly instantiated, the producer window size can
                be set via the <literal>ActiveMQConnectionFactory.setProducerWindowSize(int
                   producerWindowSize)</literal> method.</para>
@@ -286,29 +268,22 @@
          <section id="flow-control.producer.rate.core.api">
             <title>Using Core API</title>
             <para>If the ActiveMQ core API is being used the rate can be set via the <literal
-                  >ServerLocator.setProducerMaxRate(int consumerMaxRate)</literal> method or
+                  >ServerLocator.setProducerMaxRate(int producerMaxRate)</literal> method or
                alternatively via some of the <literal>ClientSession.createProducer()</literal>
                methods. </para>
          </section>
          <section>
             <title>Using JMS</title>
-            <para>If JNDI is used to look up the connection factory, the max rate can be configured
-               in <literal>activemq-jms.xml</literal>:</para>
+            <para>If JNDI is used to instantiate and look up the connection factory, the max rate size can be
+               configured in the JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a simple
+               example using the "ConnectionFactory" connection factory which is available in the context by default:</para>
             <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty-connector"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-   &lt;!-- We limit producers created on this connection factory to produce messages at a maximum rate
-   of 10 messages per sec -->
-   &lt;producer-max-rate>10&lt;/producer-max-rate>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.producerMaxRate=10</programlisting>
             <para>If the connection factory is directly instantiated, the max rate size can be set
                via the <literal>ActiveMQConnectionFactory.setProducerMaxRate(int
-                  consumerMaxRate)</literal> method.</para>
+                  producerMaxRate)</literal> method.</para>
          </section>
       </section>
    </section>

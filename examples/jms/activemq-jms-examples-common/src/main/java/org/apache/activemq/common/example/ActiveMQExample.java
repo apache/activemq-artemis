@@ -180,9 +180,10 @@ public abstract class ActiveMQExample
    {
       ActiveMQExample.log.info("using " + args[serverId] + " for jndi");
       Properties props = new Properties();
-      props.put("java.naming.factory.initial","org.jnp.interfaces.NamingContextFactory");
+      props.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
       props.put("java.naming.provider.url", args[serverId]);
-      props.put("java.naming.factory.url.pkgs","org.jboss.naming:org.jnp.interfaces");
+      props.put("queue.queue/exampleQueue", "exampleQueue");
+      props.put("topic.topic/exampleTopic", "exampleTopic");
       return new InitialContext(props);
    }
 

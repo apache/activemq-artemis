@@ -119,6 +119,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
          isDeliveryTransacted = deliveryTransacted;
       }
 
+      @Override
       public MessageEndpoint createEndpoint(XAResource xaResource) throws UnavailableException
       {
          if (xaResource != null)
@@ -196,11 +197,13 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
          return null;
       }
 
+      @Override
       public WorkManager getWorkManager()
       {
          return workManager;
       }
 
+      @Override
       public XATerminator getXATerminator()
       {
          return null;
@@ -208,29 +211,35 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
 
       class DummyWorkManager implements WorkManager
       {
+         @Override
          public void doWork(Work work) throws WorkException
          {
          }
 
+         @Override
          public void doWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException
          {
          }
 
+         @Override
          public long startWork(Work work) throws WorkException
          {
             return 0;
          }
 
+         @Override
          public long startWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException
          {
             return 0;
          }
 
+         @Override
          public void scheduleWork(Work work) throws WorkException
          {
             work.run();
          }
 
+         @Override
          public void scheduleWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException
          {
          }

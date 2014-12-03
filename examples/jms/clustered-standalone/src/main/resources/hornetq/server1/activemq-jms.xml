@@ -1,19 +1,9 @@
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:activemq /schema/activemq-jms.xsd">
-   <!--the connection factory used by the example-->
-   <connection-factory name="ConnectionFactory">
-      <connectors>
-         <connector-ref connector-name="netty-connector"/>
-      </connectors>
-      <entries>
-         <entry name="ConnectionFactory"/>
-      </entries>
-   </connection-factory>
 
    <!--the topic used by the example-->
-   <topic name="exampleTopic">
-      <entry name="/topic/ExampleTopic"/>
+   <topic name="exampleTopic"/>
    </topic>
 
 </configuration>

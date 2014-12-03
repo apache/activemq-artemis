@@ -65,10 +65,10 @@ public class MessageCounterExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection, session and a producer for the queue
          connection = cf.createQueueConnection();

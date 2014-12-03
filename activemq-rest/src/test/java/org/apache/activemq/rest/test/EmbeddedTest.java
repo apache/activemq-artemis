@@ -23,7 +23,10 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.rest.HttpHeaderProperty;
 import org.apache.activemq.rest.integration.EmbeddedRestActiveMQJMS;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
@@ -49,6 +52,9 @@ public class EmbeddedTest
       server = new EmbeddedRestActiveMQJMS();
       server.getManager().setConfigResourcePath("activemq-rest.xml");
       server.start();
+      List<String> connectors = new ArrayList<>();
+      connectors.add("in-vm");
+      server.getEmbeddedJMS().getJMSServerManager().createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
    }
 
    @AfterClass
@@ -61,10 +67,10 @@ public class EmbeddedTest
    public static void publish(String destination, Serializable object, String contentType) throws Exception
    {
       BindingRegistry reg = server.getRegistry();
-      Destination dest = (Destination) reg.lookup(destination);
       ConnectionFactory factory = (ConnectionFactory) reg.lookup("ConnectionFactory");
       Connection conn = factory.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination dest = session.createQueue(destination);
 
       try
       {
@@ -109,7 +115,7 @@ public class EmbeddedTest
          TransformTest.Order order = new TransformTest.Order();
          order.setName("1");
          order.setAmount("$5.00");
-         publish("/queue/exampleQueue", order, null);
+         publish("exampleQueue", order, null);
 
          ClientResponse<?> res = consumeNext.request().header("Accept-Wait", "2").accept("application/xml").post(String.class);
          Assert.assertEquals(200, res.getStatus());
@@ -126,7 +132,7 @@ public class EmbeddedTest
          TransformTest.Order order = new TransformTest.Order();
          order.setName("1");
          order.setAmount("$5.00");
-         publish("/queue/exampleQueue", order, null);
+         publish("exampleQueue", order, null);
 
          ClientResponse<?> res = consumeNext.request().header("Accept-Wait", "2").accept("application/json").post(String.class);
          Assert.assertEquals(200, res.getStatus());
@@ -143,7 +149,7 @@ public class EmbeddedTest
          TransformTest.Order order = new TransformTest.Order();
          order.setName("2");
          order.setAmount("$15.00");
-         publish("/queue/exampleQueue", order, "application/xml");
+         publish("exampleQueue", order, "application/xml");
 
          ClientResponse<?> res = consumeNext.request().header("Accept-Wait", "2").post(String.class);
          Assert.assertEquals(200, res.getStatus());

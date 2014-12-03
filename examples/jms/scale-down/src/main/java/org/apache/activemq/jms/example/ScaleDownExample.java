@@ -56,9 +56,9 @@ public class ScaleDownExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Look up the JMS resources from JNDI
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
-         ConnectionFactory connectionFactory1 = (ConnectionFactory)initialContext1.lookup("/ConnectionFactory");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory connectionFactory1 = (ConnectionFactory)initialContext1.lookup("ConnectionFactory");
 
          // Step 3. Create a JMS Connections
          connection = connectionFactory.createConnection();

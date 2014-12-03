@@ -51,7 +51,7 @@ public class TemporaryQueueExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Look-up the JMS connection factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 3. Create a JMS Connection
          connection = cf.createConnection();

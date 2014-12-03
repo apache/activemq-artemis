@@ -55,10 +55,10 @@ public class ManagementNotificationExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perform a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS connection, a session and a producer for the queue
          connection = cf.createConnection();
@@ -66,7 +66,7 @@ public class ManagementNotificationExample extends ActiveMQExample
          MessageProducer producer = session.createProducer(queue);
 
          // Step 5. Perform a lookup on the notifications topic
-         Topic notificationsTopic = (Topic)initialContext.lookup("/topic/notificationsTopic");
+         Topic notificationsTopic = (Topic)initialContext.lookup("topic/notificationsTopic");
 
          // Step 6. Create a JMS message consumer for the notification queue and set its message listener
          // It will display all the properties of the JMS Message

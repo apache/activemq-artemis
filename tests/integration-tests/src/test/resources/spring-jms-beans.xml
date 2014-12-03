@@ -9,16 +9,29 @@
        <property name="jmsConfigResourcePath" value="spring-activemq-jms.xml"/>
    </bean>
 
+   <bean id="connectionFactory" class="org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory">
+      <constructor-arg value="false" />
+      <constructor-arg>
+         <bean class="org.apache.activemq.api.core.TransportConfiguration">
+            <constructor-arg value="org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory" />
+         </bean>
+      </constructor-arg>
+   </bean>
+
+   <bean id="exampleQueue" class="org.apache.activemq.jms.client.ActiveMQQueue">
+      <constructor-arg index="0" value="exampleQueue"/>
+   </bean>
+
     <bean id="listener" class="org.apache.activemq.tests.integration.spring.ExampleListener"/>
     
     <bean id="MessageSender" class="org.apache.activemq.tests.integration.spring.MessageSender">
-        <property name="connectionFactory" ref="ConnectionFactory"/>
-        <property name="destination" ref="/queue/exampleQueue"/>
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="exampleQueue"/>
     </bean>
 
     <bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="ConnectionFactory"/>
-        <property name="destination" ref="/queue/exampleQueue"/>
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="exampleQueue"/>
         <property name="messageListener" ref="listener"/>
     </bean>
     

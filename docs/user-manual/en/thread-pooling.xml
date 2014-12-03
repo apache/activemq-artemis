@@ -137,20 +137,14 @@ myFactory.setThreadPoolMaxSize(-1);   </programlisting>
         <programlisting>
 ConnectionFactory myConnectionFactory = ActiveMQJMSClient.createConnectionFactory(myFactory);</programlisting>
         <para>If you're using JNDI to instantiate <literal>ActiveMQConnectionFactory</literal>
-            instances, you can also set these parameters in the <literal>activemq-jms.xml</literal>
-            file where you describe your connection factory, for example:</para>
+            instances, you can also set these parameters in the JNDI context environment, e.g.
+            <literal>jndi.properties</literal>.  Here's a simple example using the "ConnectionFactory" connection
+            factory which is available in the context by default:</para>
         <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-      &lt;entry name="XAConnectionFactory"/>
-   &lt;/entries>
-   &lt;use-global-pools>false&lt;/use-global-pools>
-   &lt;scheduled-thread-pool-max-size>10&lt;/scheduled-thread-pool-max-size>
-   &lt;thread-pool-max-size>-1&lt;/thread-pool-max-size>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.useGlobalPools=false
+connection.ConnectionFactory.scheduledThreadPoolMaxSize=10
+connection.ConnectionFactory.threadPoolMaxSize=-1</programlisting>
     </section>
 </chapter>

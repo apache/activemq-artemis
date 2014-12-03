@@ -1,24 +1,11 @@
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:activemq /schema/activemq-jms.xsd">
-   <!--the connection factory used by the example-->
-   <connection-factory name="ConnectionFactory">
-      <connectors>
-         <connector-ref connector-name="netty-connector"/>
-      </connectors>
-      <entries>
-         <entry name="ConnectionFactory"/>
-      </entries>
-   </connection-factory>
 
    <!--the queue used by the example-->
-   <queue name="exampleQueue">
-      <entry name="/queue/exampleQueue"/>
-   </queue>
+   <queue name="exampleQueue"/>
 
    <!--the expiry queue where expired messages will be sent-->
-   <queue name="expiryQueue">
-      <entry name="/queue/expiryQueue"/>
-   </queue>
+   <queue name="expiryQueue"/>
 
 </configuration>

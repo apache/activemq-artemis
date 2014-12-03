@@ -50,8 +50,8 @@ public class StompWebSocketExample extends ActiveMQExample
       try
       {
          initialContext = getContext(0);
-         Topic topic = (Topic)initialContext.lookup("/topic/chat");
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         Topic topic = (Topic)initialContext.lookup("topic/chat");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
          connection = cf.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

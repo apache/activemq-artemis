@@ -60,14 +60,14 @@ public class DivertExample extends ActiveMQExample
          initialContextLondon = getContext(0);
 
          // Step 2. Look-up the queue orderQueue on the London server - this is the queue any orders are sent to
-         Queue orderQueue = (Queue)initialContextLondon.lookup("/queue/orders");
+         Queue orderQueue = (Queue)initialContextLondon.lookup("queue/orders");
 
          // Step 3. Look-up the topic priceUpdates on the London server- this is the topic that any price updates are
          // sent to
-         Topic priceUpdates = (Topic)initialContextLondon.lookup("/topic/priceUpdates");
+         Topic priceUpdates = (Topic)initialContextLondon.lookup("topic/priceUpdates");
 
          // Step 4. Look-up the spy topic on the London server- this is what we will use to snoop on any orders
-         Topic spyTopic = (Topic)initialContextLondon.lookup("/topic/spyTopic");
+         Topic spyTopic = (Topic)initialContextLondon.lookup("topic/spyTopic");
 
          // Step 6. Create an initial context to perform the JNDI lookup on the New York server
          initialContextNewYork = getContext(1);
@@ -79,13 +79,13 @@ public class DivertExample extends ActiveMQExample
          // them to the address newYorkPriceUpdates on the New York server where they will be distributed to the topic
          // subscribers on
          // the New York server
-         Topic newYorkPriceUpdates = (Topic)initialContextNewYork.lookup("/topic/newYorkPriceUpdates");
+         Topic newYorkPriceUpdates = (Topic)initialContextNewYork.lookup("topic/newYorkPriceUpdates");
 
          // Step 8. Perform a lookup on the Connection Factory on the London server
-         ConnectionFactory cfLondon = (ConnectionFactory)initialContextLondon.lookup("/ConnectionFactory");
+         ConnectionFactory cfLondon = (ConnectionFactory)initialContextLondon.lookup("ConnectionFactory");
 
          // Step 9. Perform a lookup on the Connection Factory on the New York server
-         ConnectionFactory cfNewYork = (ConnectionFactory)initialContextNewYork.lookup("/ConnectionFactory");
+         ConnectionFactory cfNewYork = (ConnectionFactory)initialContextNewYork.lookup("ConnectionFactory");
 
          // Step 10. Create a JMS Connection on the London server
          connectionLondon = cfLondon.createConnection();

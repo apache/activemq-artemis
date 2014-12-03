@@ -39,6 +39,7 @@ import java.util.Set;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.security.Role;
@@ -245,6 +246,9 @@ public abstract class ActiveMQServerTestCase
       createQueue("Queue2");
       createQueue("Queue3");
       createQueue("Queue4");
+      deployConnectionFactory(0, JMSFactoryType.CF, "ConnectionFactory", "/ConnectionFactory");
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_TOPIC", "/CF_TOPIC");
+      deployConnectionFactory(0, JMSFactoryType.XA_CF, "CF_XA_TRUE", "/CF_XA_TRUE");
    }
 
    private void lookUp() throws Exception
@@ -276,6 +280,10 @@ public abstract class ActiveMQServerTestCase
       destroyQueue("Queue2");
       destroyQueue("Queue3");
       destroyQueue("Queue4");
+
+      undeployConnectionFactory("ConnectionFactory");
+      undeployConnectionFactory("CF_TOPIC");
+      undeployConnectionFactory("CF_XA_TRUE");
    }
 
    @AfterClass
@@ -490,6 +498,11 @@ public abstract class ActiveMQServerTestCase
       ActiveMQServerTestCase.servers.get(server).deployConnectionFactory(objectName, jndiBindings);
    }
 
+   public static void deployConnectionFactory(final int server, JMSFactoryType type, final String objectName, final String... jndiBindings) throws Exception
+   {
+      ActiveMQServerTestCase.servers.get(server).deployConnectionFactory(objectName, type, jndiBindings);
+   }
+
    public void deployConnectionFactory(final String clientId,
                                        final String objectName,
                                        final int prefetchSize,
@@ -503,6 +516,7 @@ public abstract class ActiveMQServerTestCase
                                        final String... jndiBindings) throws Exception
    {
       ActiveMQServerTestCase.servers.get(0).deployConnectionFactory(clientId,
+                                                                   JMSFactoryType.CF,
                                                                    objectName,
                                                                    prefetchSize,
                                                                    defaultTempQueueFullSize,

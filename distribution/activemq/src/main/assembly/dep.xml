@@ -33,7 +33,6 @@
             <include>org.apache.activemq.rest:activemq-rest</include>
             <!-- dependencies -->
             <include>org.jboss.spec.javax.jms:jboss-jms-api_2.0_spec</include>
-            <include>org.jboss.naming:jnpserver</include>
             <include>org.jboss.logmanager:jboss-logmanager</include>
             <include>org.jboss:jboss-common-core</include>
             <include>io.netty:netty-all</include>

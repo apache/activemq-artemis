@@ -14,26 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.dto;
+package org.apache.activemq.jndi;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
 
-@XmlRootElement(name = "naming")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class NamingDTO
+public abstract class LazyCreateContext extends ReadOnlyContext
 {
-   @XmlAttribute
-   public String bindAddress = "localhost";
+   public Object lookup(String name) throws NamingException
+   {
+      try
+      {
+         return super.lookup(name);
+      }
+      catch (NameNotFoundException e)
+      {
+         Object answer = createEntry(name);
+         if (answer == null)
+         {
+            throw e;
+         }
+         internalBind(name, answer);
+         return answer;
+      }
+   }
 
-   @XmlAttribute
-   public int port = 1099;
-
-   @XmlAttribute
-   public String rmiBindAddress = "localhost";
-
-   @XmlAttribute
-   public int rmiPort = 1098;
+   protected abstract Object createEntry(String name);
 }

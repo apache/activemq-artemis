@@ -18,7 +18,6 @@ package org.apache.activemq.jms.server;
 
 import java.io.InputStream;
 
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
@@ -58,12 +57,4 @@ public interface JMSServerConfigParser
     * @throws Exception
     */
    JMSQueueConfiguration parseQueueConfiguration(final Node node) throws Exception;
-
-   /**
-    * Parse the Connection Configuration node as a ConnectionFactoryConfiguration object
-    * @param node
-    * @return
-    * @throws Exception
-    */
-   ConnectionFactoryConfiguration parseConnectionFactoryConfiguration(final Node node) throws Exception;
 }

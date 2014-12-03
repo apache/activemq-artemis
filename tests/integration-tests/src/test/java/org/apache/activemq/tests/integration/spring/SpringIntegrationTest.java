@@ -50,9 +50,10 @@ public class SpringIntegrationTest extends UnitTestCase
    public void testSpring() throws Exception
    {
       System.out.println("Creating bean factory...");
-      ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"spring-jms-beans.xml"});
+      ApplicationContext context = null;
       try
       {
+         context = new ClassPathXmlApplicationContext(new String[]{"spring-jms-beans.xml"});
          MessageSender sender = (MessageSender) context.getBean("MessageSender");
          System.out.println("Sending message...");
          ExampleListener.latch.countUp();
@@ -66,8 +67,11 @@ public class SpringIntegrationTest extends UnitTestCase
       {
          try
          {
-            DefaultMessageListenerContainer container = (DefaultMessageListenerContainer) context.getBean("listenerContainer");
-            container.stop();
+            if (context != null)
+            {
+               DefaultMessageListenerContainer container = (DefaultMessageListenerContainer) context.getBean("listenerContainer");
+               container.stop();
+            }
          }
          catch (Throwable ignored)
          {
@@ -75,8 +79,11 @@ public class SpringIntegrationTest extends UnitTestCase
          }
          try
          {
-            EmbeddedJMS jms = (EmbeddedJMS) context.getBean("EmbeddedJms");
-            jms.stop();
+            if (context != null)
+            {
+               EmbeddedJMS jms = (EmbeddedJMS) context.getBean("EmbeddedJms");
+               jms.stop();
+            }
          }
          catch (Throwable ignored)
          {

@@ -59,10 +59,10 @@ public class ClusterStaticOnewayExample extends ActiveMQExample
          ic0 = getContext(0);
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("/ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
 
          //step 4. grab an initial connection and wait, in reality you wouldn't do it this way but since we want to ensure an
          // equal load balance we do this and then create 4 connections round robined
