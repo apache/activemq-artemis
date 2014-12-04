@@ -12,14 +12,6 @@
 
    <name>ActiveMQ6 Parent</name>
    <url>http://apache.org/activemq</url>
-   <description>
-      Putting the buzz in messaging
-   </description>
-
-   <organization>
-      <name>JBoss, a division of Red Hat</name>
-      <url>http://www.jboss.org/</url>
-   </organization>
 
    <licenses>
       <license>
@@ -34,6 +26,8 @@
    </prerequisites>
 
    <properties>
+       <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
+      <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
       <netty.version>4.0.20.Final</netty.version>
       <activemq.version.versionName>Active Hornet</activemq.version.versionName>
       <activemq.version.majorVersion>2</activemq.version.majorVersion>
@@ -83,27 +77,31 @@
    </properties>
 
    <scm>
-      <connection>scm:git:git://github.com/activemq/activemq.git</connection>
-      <developerConnection>scm:git://github.com/activemq/activemq.git</developerConnection>
-      <url>https://github.com/activemq/activemq</url>
+      <connection>scm:git:http://git-wip-us.apache.org/repos/asf/activemq-6.git</connection>
+      <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/activemq-6.git</developerConnection>
+      <url>https://fisheye6.atlassian.com/browse/~br=master/activemq-6-git</url>
+      <tag>HEAD</tag>
    </scm>
 
    <distributionManagement>
-      <repository>
-         <id>jboss-releases-repository</id>
-         <name>JBoss Releases Repository</name>
-         <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
-      </repository>
+      <site>
+         <!-- this needs to match a server in your settings.xml with upload settings -->
+         <id>activemq-website</id>
+         <!-- set the staging.siteURL in your ~/.m2/settings.xml in a release or other profile -->
+         <url>${staging.siteURL}/maven/${project.version}</url>
+         <!--<url>${site-repo-url}</url>-->
+      </site>
       <snapshotRepository>
-         <id>jboss-snapshots-repository</id>
-         <name>JBoss Snapshots Repository</name>
-         <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+         <id>apache.snapshots.https</id>
+         <name>Apache Development Snapshot Repository</name>
+         <url>https://repository.apache.org/content/repositories/snapshots</url>
+         <uniqueVersion>false</uniqueVersion>
       </snapshotRepository>
    </distributionManagement>
 
    <issueManagement>
       <system>JIRA</system>
-      <url>http://jira.jboss.com/jira/browse/HORNETQ</url>
+      <url>https://issues.apache.org/jira/browse/ACTIVEMQ6</url>
    </issueManagement>
 
    <developers>
@@ -120,7 +118,7 @@
       <developer>
          <id>andytaylor</id>
          <name>Andy Taylor</name>
-         <email>ataylor@redhat.com</email>
+         <email>andytaylor@apache.org</email>
          <url>http://hornetq.com</url>
          <timezone>0</timezone>
       </developer>
@@ -435,25 +433,6 @@
          <name>JBoss releases</name>
          <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       </repository>
-      <!--
-	This is a repository for intermediate releases from Proton.
-        In case there's an API broken, we will release an intermediate release here, on that case we will uncomment this and
-        use this repository again
-
-      <repository>
-         <snapshots>
-            <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
-         </snapshots>
-         <releases>
-            <enabled>true</enabled>
-            <updatePolicy>interval:10080</updatePolicy>
-         </releases>
-         <id>fuse.release</id>
-         <name>Fuse releases</name>
-         <url>https://repository.jboss.org/nexus/content/repositories/fs-releases/</url>
-      </repository>
-      -->
    </repositories>
    <pluginRepositories>
       <pluginRepository>
@@ -500,32 +479,6 @@
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>tests</module>
-         </modules>
-      </profile>
-      <profile>
-         <id>maven-release</id>
-         <modules>
-            <module>activemq-dto</module>
-            <module>activemq-web</module>
-            <module>activemq-website</module>
-            <module>activemq-bootstrap</module>
-            <module>activemq-commons</module>
-            <module>activemq-selector</module>
-            <module>activemq-core-client</module>
-            <module>activemq-server</module>
-            <module>activemq-jms-client</module>
-            <module>activemq-jms-server</module>
-            <module>activemq-journal</module>
-            <module>activemq-native</module>
-            <module>activemq-ra</module>
-            <module>activemq-rest</module>
-            <module>activemq-tools</module>
-            <module>activemq-service-extensions</module>
-            <module>integration/activemq-jboss-as-integration</module>
-            <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
-            <module>examples</module>
          </modules>
       </profile>
       <profile>
