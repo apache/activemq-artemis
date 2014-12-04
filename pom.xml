@@ -494,7 +494,6 @@
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>examples</module>
-            <module>docs</module>
             <module>distribution</module>
          </modules>
       </profile>

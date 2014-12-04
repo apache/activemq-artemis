@@ -124,17 +124,5 @@
          <exclude>**/**/*.dat</exclude>
        </excludes>
      </fileSet>
-     <!-- docs -->
-     <!--todo, this is crap, there must be better jdocbook assembly integration-->
-      <fileSet>
-         <directory>../../docs/user-manual/target/docbook/publish/en/html/</directory>
-         <outputDirectory>web/user-manual</outputDirectory>
-         <lineEnding>keep</lineEnding>
-      </fileSet>
-      <fileSet>
-         <directory>../../docs/rest-manual/target/docbook/publish/en</directory>
-         <outputDirectory>docs/rest-manual</outputDirectory>
-         <lineEnding>keep</lineEnding>
-      </fileSet>
   </fileSets>
 </assembly>
