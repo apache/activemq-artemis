@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.utils;
 
+import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
@@ -40,6 +41,8 @@ public final class ActiveMQThreadFactory implements ThreadFactory
 
    private final ClassLoader tccl;
 
+   private final AccessControlContext acc;
+
    public ActiveMQThreadFactory(final String groupName, final boolean daemon, final ClassLoader tccl)
    {
       group = new ThreadGroup(groupName + "-" + System.identityHashCode(this));
@@ -49,24 +52,46 @@ public final class ActiveMQThreadFactory implements ThreadFactory
       this.tccl = tccl;
 
       this.daemon = daemon;
+
+      this.acc = (System.getSecurityManager() == null) ? null : AccessController.getContext();
    }
 
    public Thread newThread(final Runnable command)
    {
-      // always create a thread in a privileged block.
-      return AccessController.doPrivileged(new PrivilegedAction<Thread>()
+      // create a thread in a privileged block if running with Security Manager
+      if (acc != null && System.getSecurityManager() != null)
       {
-         @Override
-         public Thread run()
-         {
-            final Thread t = new Thread(group, command, "Thread-" + threadCount.getAndIncrement() + " (" + group.getName() + ")");
-            t.setDaemon(daemon);
-            t.setPriority(threadPriority);
-            t.setContextClassLoader(tccl);
+         return AccessController.doPrivileged(new ThreadCreateAction(command), acc);
+      }
+      else
+      {
+         return createThread(command);
+      }
+   }
 
-            return t;
-         }
-      });
+   private final class ThreadCreateAction implements PrivilegedAction<Thread>
+   {
+      private final Runnable target;
+
+      private ThreadCreateAction(final Runnable target)
+      {
+         this.target = target;
+      }
+
+      public Thread run()
+      {
+         return createThread(target);
+      }
+   }
+
+   private Thread createThread(final Runnable command)
+   {
+      final Thread t = new Thread(group, command, "Thread-" + threadCount.getAndIncrement() + " (" + group.getName() + ")");
+      t.setDaemon(daemon);
+      t.setPriority(threadPriority);
+      t.setContextClassLoader(tccl);
+
+      return t;
    }
 
 }
