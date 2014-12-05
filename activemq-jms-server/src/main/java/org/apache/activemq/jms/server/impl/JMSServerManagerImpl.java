@@ -481,7 +481,10 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       {
          if (!contextSet)
          {
-            registry = new JndiBindingRegistry(new InitialContext());
+            if (System.getProperty(Context.INITIAL_CONTEXT_FACTORY) != null)
+            {
+               registry = new JndiBindingRegistry(new InitialContext());
+            }
          }
       }
 
@@ -1731,10 +1734,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    private void checkJNDI(final String... jndiNames) throws NamingException
    {
-
       for (String jndiName : jndiNames)
       {
-         if (registry.lookup(jndiName) != null)
+         if (registry != null && registry.lookup(jndiName) != null)
          {
             throw new NamingException(jndiName + " already has an object bound");
          }
@@ -1772,15 +1774,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       List<JMSQueueConfiguration> queueConfigs = config.getQueueConfigurations();
       for (JMSQueueConfiguration qConfig : queueConfigs)
       {
-         String[] bindings = qConfig.getBindings();
-         createQueue(false, qConfig.getName(), qConfig.getSelector(), qConfig.isDurable(), bindings);
+         createQueue(false, qConfig.getName(), qConfig.getSelector(), qConfig.isDurable(), qConfig.getBindings());
       }
 
       List<TopicConfiguration> topicConfigs = config.getTopicConfigurations();
       for (TopicConfiguration tConfig : topicConfigs)
       {
-         String[] bindings = tConfig.getBindings();
-         createTopic(false, tConfig.getName(), bindings);
+         createTopic(false, tConfig.getName(), tConfig.getBindings());
       }
    }
 

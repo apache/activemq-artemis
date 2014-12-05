@@ -59,10 +59,10 @@ public class ClientSideLoadBalancingExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. We create 3 JMS connections from the same connection factory. Since we are using round-robin
          // load-balancing this should result in each sessions being connected to a different node of the cluster

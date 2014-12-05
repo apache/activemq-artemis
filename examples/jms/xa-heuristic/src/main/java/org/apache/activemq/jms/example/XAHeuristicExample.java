@@ -74,10 +74,10 @@ public class XAHeuristicExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the XA Connection Factory
-         XAConnectionFactory cf = (XAConnectionFactory)initialContext.lookup("/XAConnectionFactory");
+         XAConnectionFactory cf = (XAConnectionFactory)initialContext.lookup("XAConnectionFactory");
 
          // Step 4.Create a JMS XAConnection
          connection = cf.createXAConnection();

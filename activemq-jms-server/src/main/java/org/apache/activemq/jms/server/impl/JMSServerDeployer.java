@@ -20,7 +20,6 @@ import org.apache.activemq.core.deployers.DeploymentManager;
 import org.apache.activemq.core.deployers.impl.XmlDeployer;
 import org.apache.activemq.jms.server.JMSServerConfigParser;
 import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
 import org.w3c.dom.Node;
@@ -35,18 +34,6 @@ public class JMSServerDeployer extends XmlDeployer
    private final JMSServerConfigParser parser;
 
    private final JMSServerManager jmsServerManager;
-
-   protected static final String CONNECTOR_REF_ELEMENT = "connector-ref";
-
-   protected static final String DISCOVERY_GROUP_ELEMENT = "discovery-group-ref";
-
-   protected static final String ENTRIES_NODE_NAME = "entries";
-
-   protected static final String ENTRY_NODE_NAME = "entry";
-
-   protected static final String CONNECTORS_NODE_NAME = "connectors";
-
-   protected static final String CONNECTION_FACTORY_NODE_NAME = "connection-factory";
 
    protected static final String QUEUE_NODE_NAME = "queue";
 
@@ -77,8 +64,7 @@ public class JMSServerDeployer extends XmlDeployer
    public String[] getElementTagName()
    {
       return new String[]{JMSServerDeployer.QUEUE_NODE_NAME,
-         JMSServerDeployer.TOPIC_NODE_NAME,
-         JMSServerDeployer.CONNECTION_FACTORY_NODE_NAME};
+         JMSServerDeployer.TOPIC_NODE_NAME};
    }
 
    @Override
@@ -100,19 +86,14 @@ public class JMSServerDeployer extends XmlDeployer
    }
 
    /**
-    * Creates the object to bind, this will either be a JBossConnectionFActory, ActiveMQQueue or
-    * ActiveMQTopic.
+    * Creates the object to bind, this will either be a ActiveMQQueue or ActiveMQTopic.
     *
     * @param node the config
     * @throws Exception
     */
    private void createAndBindObject(final Node node) throws Exception
    {
-      if (node.getNodeName().equals(JMSServerDeployer.CONNECTION_FACTORY_NODE_NAME))
-      {
-         deployConnectionFactory(node);
-      }
-      else if (node.getNodeName().equals(JMSServerDeployer.QUEUE_NODE_NAME))
+      if (node.getNodeName().equals(JMSServerDeployer.QUEUE_NODE_NAME))
       {
          deployQueue(node);
       }
@@ -131,12 +112,7 @@ public class JMSServerDeployer extends XmlDeployer
    @Override
    public void undeploy(final Node node) throws Exception
    {
-      if (node.getNodeName().equals(JMSServerDeployer.CONNECTION_FACTORY_NODE_NAME))
-      {
-         String cfName = node.getAttributes().getNamedItem(getKeyAttribute()).getNodeValue();
-         jmsServerManager.destroyConnectionFactory(cfName);
-      }
-      else if (node.getNodeName().equals(JMSServerDeployer.QUEUE_NODE_NAME))
+      if (node.getNodeName().equals(JMSServerDeployer.QUEUE_NODE_NAME))
       {
          String queueName = node.getAttributes().getNamedItem(getKeyAttribute()).getNodeValue();
          jmsServerManager.removeQueueFromJNDI(queueName);
@@ -162,7 +138,7 @@ public class JMSServerDeployer extends XmlDeployer
    private void deployTopic(final Node node) throws Exception
    {
       TopicConfiguration topicConfig = parser.parseTopicConfiguration(node);
-      jmsServerManager.createTopic(false, topicConfig.getName(), topicConfig.getBindings());
+      jmsServerManager.createTopic(false, topicConfig.getName());
    }
 
    /**
@@ -172,18 +148,6 @@ public class JMSServerDeployer extends XmlDeployer
    private void deployQueue(final Node node) throws Exception
    {
       JMSQueueConfiguration queueconfig = parser.parseQueueConfiguration(node);
-      jmsServerManager.createQueue(false, queueconfig.getName(), queueconfig.getSelector(), queueconfig.isDurable(), queueconfig.getBindings());
+      jmsServerManager.createQueue(false, queueconfig.getName(), queueconfig.getSelector(), queueconfig.isDurable());
    }
-
-   /**
-    * @param node
-    * @throws Exception
-    */
-   private void deployConnectionFactory(final Node node) throws Exception
-   {
-      ConnectionFactoryConfiguration cfConfig = parser.parseConnectionFactoryConfiguration(node);
-      jmsServerManager.createConnectionFactory(false, cfConfig, cfConfig.getBindings());
-   }
-
-
 }

@@ -26,8 +26,11 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 
-import org.jboss.util.NestedRuntimeException;
+import java.util.Hashtable;
+
+import org.apache.activemq.jndi.ActiveMQInitialContextFactory;
 import org.junit.After;
 import org.junit.Before;
 
@@ -166,8 +169,14 @@ public abstract class UnifiedTestCase extends JMSTestCase
          admin.createQueue(UnifiedTestCase.QUEUE_NAME);
          admin.createTopic(UnifiedTestCase.TOPIC_NAME);
 
-         // end of admin step, start of JMS client step
-         ctx = admin.createContext();
+         Hashtable props = new Hashtable<>();
+         props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
+         props.put(ActiveMQInitialContextFactory.CONNECTION_FACTORY_NAMES, UnifiedTestCase.CF_NAME + ", " + UnifiedTestCase.QCF_NAME + ", " + UnifiedTestCase.TCF_NAME);
+         props.put(Context.PROVIDER_URL, "tcp://127.0.0.1:5445");
+         props.put("queue." + UnifiedTestCase.DESTINATION_NAME, UnifiedTestCase.DESTINATION_NAME);
+         props.put("queue." + UnifiedTestCase.QUEUE_NAME, UnifiedTestCase.QUEUE_NAME);
+         props.put("topic." + UnifiedTestCase.TOPIC_NAME, UnifiedTestCase.TOPIC_NAME);
+         Context ctx = new InitialContext(props);
 
          producerCF = (ConnectionFactory)ctx.lookup(UnifiedTestCase.CF_NAME);
          // we see destination of the unified domain as a javax.jms.Destination
@@ -197,7 +206,7 @@ public abstract class UnifiedTestCase extends JMSTestCase
       }
       catch (Exception e)
       {
-         throw new NestedRuntimeException(e);
+         throw new RuntimeException(e);
       }
    }
 

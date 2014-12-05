@@ -23,7 +23,10 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.TemporaryQueue;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import java.util.Hashtable;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -204,7 +207,12 @@ public class MessageHeaderTest extends PTPTestCase
       try
       {
          admin.createQueue("anotherQueue");
-         Context ctx = admin.createContext();
+
+         Hashtable props = new Hashtable<>();
+         props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         props.put("queue.anotherQueue", "anotherQueue");
+
+         Context ctx = new InitialContext(props);
          Queue anotherQueue = (Queue)ctx.lookup("anotherQueue");
          Assert.assertTrue(anotherQueue != senderQueue);
 

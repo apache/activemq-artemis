@@ -44,7 +44,7 @@ import org.objectweb.jtests.jms.admin.Admin;
  *
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class ActiveMQQAdmin implements Admin
+public class ActiveMQAdmin implements Admin
 {
 
    private ClientSession clientSession;
@@ -59,8 +59,8 @@ public class ActiveMQQAdmin implements Admin
 
    ServerLocator serverLocator;
    /**
-    * Determines whether to act or 'no-op' on {@link ActiveMQQAdmin#serverStart()} and
-    * {@link ActiveMQQAdmin#serverStop()}. This is used when testing combinations of client and
+    * Determines whether to act or 'no-op' on {@link ActiveMQAdmin#serverStart()} and
+    * {@link ActiveMQAdmin#serverStop()}. This is used when testing combinations of client and
     * servers with different versions.
     *
     * @see https://github.com/activemq/activemq-version-tests
@@ -68,15 +68,14 @@ public class ActiveMQQAdmin implements Admin
    private final boolean serverLifeCycleActive;
    private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq.jms.ActiveMQAdmin.serverLifeCycle";
 
-   public ActiveMQQAdmin()
+   public ActiveMQAdmin()
    {
       serverLifeCycleActive = Boolean.valueOf(System.getProperty(SERVER_LIVE_CYCLE_PROPERTY, "true"));
       try
       {
          Hashtable<String, String> env = new Hashtable<String, String>();
-         env.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-         env.put("java.naming.provider.url", "jnp://localhost:1099");
-         env.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+         env.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         env.put("java.naming.provider.url", "tcp://localhost:5445");
          context = new InitialContext(env);
       }
       catch (NamingException e)

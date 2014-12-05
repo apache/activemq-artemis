@@ -21,6 +21,7 @@ import javax.naming.Context;
 import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.registry.MapBindingRegistry;
 import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
+import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
@@ -56,6 +57,11 @@ public class EmbeddedJMS extends EmbeddedActiveMQ
    public BindingRegistry getRegistry()
    {
       return registry;
+   }
+
+   public JMSServerManager getJMSServerManager()
+   {
+      return serverManager;
    }
 
    /**

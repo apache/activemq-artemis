@@ -47,12 +47,5 @@
                 needed for the <literal>javax.jms.*</literal> classes. If you already have a jar
                 with these interface classes on your classpath, you will not need it.</para>
         </note>
-        
-    </section>
-    <section>
-        <title>JMS Client with JNDI</title>
-        <para>If you are looking up JMS resources from the JNDI server co-located with the ActiveMQ
-            standalone server, you will also need the jar <literal>jnp-client.jar</literal> jar on
-            your client classpath as well as any other jars mentioned previously.</para>
     </section>
 </chapter>

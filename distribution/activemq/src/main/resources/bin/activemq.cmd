@@ -31,7 +31,7 @@ echo.
 
 :RUN_JAVA
 
-if "%JVM_FLAGS%" == "" set JVM_FLAGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Djava.naming.factory.initial=org.jnp.interfaces.NamingContextFactory -Djava.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces -Dactivemq.home=$ACTIVEMQ_HOME -Ddata.dir=$ACTIVEMQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration="file:%ACTIVEMQ_HOME%\config\logging.properties" -Djava.library.path="%ACTIVEMQ_HOME%/bin/lib/linux-i686:%ACTIVEMQ_HOME%/bin/lib/linux-x86_64"
+if "%JVM_FLAGS%" == "" set JVM_FLAGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Dactivemq.home=$ACTIVEMQ_HOME -Ddata.dir=$ACTIVEMQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration="file:%ACTIVEMQ_HOME%\config\logging.properties" -Djava.library.path="%ACTIVEMQ_HOME%/bin/lib/linux-i686:%ACTIVEMQ_HOME%/bin/lib/linux-x86_64"
 
 if "x%ACTIVEMQ_OPTS%" == "x" goto noACTIVEMQ_OPTS
   set JVM_FLAGS=%JVM_FLAGS% %ACTIVEMQ_OPTS%

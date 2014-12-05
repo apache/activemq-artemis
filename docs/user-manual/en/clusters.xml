@@ -378,18 +378,15 @@
                     whether you're using JMS or the core API.</para>
                 <section>
                     <title>Configuring client discovery using JMS</title>
-                    <para>If you're using JMS and you're also using the JMS Service on the server to
-                        load your JMS connection factory instances into JNDI, then you can specify which
-                        discovery group to use for your JMS connection factory in the server side xml
-                        configuration <literal>activemq-jms.xml</literal>. Let's take a look at an
+                    <para>If you're using JMS and you're using JNDI on the client to look up your JMS
+                        connection factory instances then you can specify these parameters in the JNDI
+                        context environment. e.g. in <literal>jndi.properties</literal>. Simply ensure the
+                        host:port combination matches the group-address and group-port from the corresponding
+                        <literal>broadcast-group</literal> on the server. Let's take a look at an
                         example:</para>
                     <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;discovery-group-ref discovery-group-name="my-discovery-group"/>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial = org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url = udp://231.7.7.7:9876</programlisting>
                     <para>The element <literal>discovery-group-ref</literal> specifies the name of a
                         discovery group defined in <literal>activemq-configuration.xml</literal>.</para>
                     <para>When this connection factory is downloaded from JNDI by a client application
@@ -471,27 +468,17 @@ ClientSession session2 = factory.createSession();</programlisting>
                 <para>A static list of possible servers can also be used by a normal client.</para>
                 <section>
                     <title>Configuring client discovery using JMS</title>
-                    <para>If you're using JMS and you're also using the JMS Service on the server to
-                        load your JMS connection factory instances into JNDI, then you can specify which
-                        connectors to use for your JMS connection factory in the server side xml
-                        configuration <literal>activemq-jms.xml</literal>. Let's take a look at an
-                        example:</para>
+                    <para>If you're using JMS and you're using JNDI on the client to look up your JMS
+                       connection factory instances then you can specify these parameters
+                       in the JNDI context environment in, e.g. <literal>jndi.properties</literal>:</para>
                     <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty-connector"/>
-      &lt;connector-ref connector-name="netty-connector2"/>
-      &lt;connector-ref connector-name="netty-connector3"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://myhost:5445,myhost2:5445</programlisting>
                     <para>
-                        The element <literal>connectors</literal> contains a list of pre defined connectors in the
-                        <literal>activemq-configuration.xml</literal> file. When this connection factory is downloaded
-                        from JNDI by a client application and JMS connections are created from it, those connections will
-                        be load-balanced across the list of servers defined by these connectors.
+                        The <literal>java.naming.provider.url</literal> contains a list of servers to use for the
+                        connection factory. When this connection factory used client application and JMS connections
+                        are created from it, those connections will be load-balanced across the list of servers defined
+                        by the <literal>java.naming.provider.url</literal>.
                     </para>
                     <para>
                         If you're using JMS, but you're not using JNDI to lookup a connection factory - you're instantiating
@@ -830,20 +817,14 @@ ClientSession session = factory.createSession();</programlisting>
         <para>Specifying which load balancing policy to use differs whether you are using JMS or the
             core API. If you don't specify a policy then the default will be used which is <literal
                     >org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</literal>.</para>
-        <para>If you're using JMS, and you're using JNDI on the server to put your JMS connection
-            factories into JNDI, then you can specify the load balancing policy directly in the
-            <literal>activemq-jms.xml</literal> configuration file on the server as follows:</para>
+        <para>If you're using JMS and you're using JNDI on the client to look up your JMS connection factory instances
+            then you can specify these parameters in the JNDI context environment in, e.g.
+            <literal>jndi.properties</literal>, to specify the load balancing policy directly:</para>
             <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;discovery-group-ref discovery-group-name="my-discovery-group"/>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-   &lt;/entries>
-   &lt;connection-load-balancing-policy-class-name>
-      org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
-   &lt;/connection-load-balancing-policy-class-name>
-&lt;/connection-factory></programlisting>
-        <para>The above example would deploy a JMS connection factory that uses the random connection load
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.loadBalancingPolicyClassName=org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy</programlisting>
+        <para>The above example would instantiate a JMS connection factory that uses the random connection load
             balancing policy. </para>
         <para>If you're using JMS but you're instantiating your connection factory directly on the
             client side then you can set the load balancing policy using the setter on the

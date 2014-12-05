@@ -40,9 +40,6 @@ public class BrokerDTO
    @XmlElementRef
    public SecurityDTO security;
 
-   @XmlElementRef
-   public NamingDTO naming;
-
    @XmlElementRef(required = false)
    public WebServerDTO web;
 

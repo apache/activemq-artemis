@@ -73,364 +73,56 @@
                     </thead>
                     <tbody>
                         <row>
-                            <entry>
-                               <link linkend="using-jms.server.configuration">connection-factory</link>
-                            </entry>
-                            <entry>ConnectionFactory</entry>
-                            <entry>a list of connection factories to create and add to JNDI</entry>
-                            <entry/>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
-            <para></para>
-            <para></para>
-            <para>Continued..</para>
-            <informaltable frame="topbot">
-                <tgroup cols="4">
-                    <colspec colname="c1" colnum="1"/>
-                    <colspec colname="c2" colnum="2"/>
-                    <colspec colname="c3" colnum="3"/>
-                    <colspec colname="c4" colnum="4"/>
-                    <tbody>
-                        <row>
-                            <entry id="configuration.connection-factory.signature">
-                               <link linkend="using-jms.configure.factory.types">connection-factory.signature (attribute)</link>
-                            </entry>
-                            <entry>String</entry>
-                            <entry>Type of connection factory</entry>
-                            <entry>generic</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.signature.xa">
-                               <link linkend="using-jms.configure.factory.types">connection-factory.xa</link>
-                            </entry>
-                            <entry>Boolean</entry>
-                            <entry>If it is a XA connection factory</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.auto-group">
-                               <link linkend="message-grouping.jmsconfigure">connection-factory.auto-group</link>
-                            </entry>
-                            <entry>Boolean</entry>
-                            <entry>whether or not message grouping is automatically used</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry><link linkend="clusters">connection-factory.connectors</link>
-                            </entry>
-                            <entry>String</entry>
-                            <entry>A list of connectors used by the connection factory</entry>
-                            <entry />
-                        </row>
-                        <row>
-                            <entry><link linkend="clusters"
-                                    >connection-factory.connectors.connector-ref.connector-name (attribute)</link>
-                            </entry>
-                            <entry>String</entry>
-                            <entry>Name of the connector to connect to the live server</entry>
-                            <entry />
-                        </row>
-                        <row>
-                            <entry><link linkend="clusters"
-                                    >connection-factory.discovery-group-ref.discovery-group-name (attribute)</link>
-                            </entry>
-                            <entry>String</entry>
-                            <entry>Name of discovery group used by this connection factory</entry>
-                            <entry />
-                        </row>
-                        <row>
-                          <!-- FIXME documented but does not exist? -->
-                            <entry id="configuration.connection-factory.discovery-initial-wait-timeout">
-                               <link linkend="clusters"
-                                    >connection-factory.discovery-initial-wait-timeout</link>
-                            </entry>
-                            <entry>Long</entry>
-                            <entry>the initial time to wait (in ms) for discovery groups to wait for
-                                broadcasts</entry>
-                            <entry>10000</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.block-on-acknowledge">
-                               <link linkend="send-guarantees.nontrans.acks">connection-factory.block-on-acknowledge</link>
-                            </entry>
-                            <entry>Boolean</entry>
-                            <entry>whether or not messages are acknowledged synchronously</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.block-on-non-durable-send">
-                               <link linkend="non-transactional-sends">connection-factory.block-on-non-durable-send</link>
-                            </entry>
-                            <entry>Boolean</entry>
-                            <entry>whether or not non-durable messages are sent synchronously</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.block-on-durable-send">
-                               <link linkend="non-transactional-sends">connection-factory.block-on-durable-send</link>
-                            </entry>
-                            <entry>Boolean</entry>
-                            <entry>whether or not durable messages are sent synchronously</entry>
-                            <entry>true</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.call-timeout">connection-factory.call-timeout</entry>
-                            <entry>Long</entry>
-                            <entry>the timeout (in ms) for remote calls</entry>
-                            <entry>30000</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.client-failure-check-period">
-                               <link linkend="dead.connections">connection-factory.client-failure-check-period</link>
-                            </entry>
-                            <entry>Long</entry>
-                            <entry>the period (in ms) after which the client will consider the
-                                connection failed after not receiving packets from the
-                                server</entry>
-                            <entry>30000</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.client-id">
-                               <link linkend="using-jms.clientid">connection-factory.client-id</link>
-                            </entry>
-                            <entry>String</entry>
-                            <entry>the pre-configured client ID for the connection factory</entry>
-                            <entry>null</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.connection-load-balancing-policy-class-name">
-                               <link linkend="clusters">
-                                  connection-factory.connection-load-balancing-policy-class-name</link>
-                            </entry>
-                            <entry>String</entry>
-                            <entry>the name of the load balancing class</entry>
-                            <entry>org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.connection-ttl">
-                               <link linkend="dead.connections">connection-factory.connection-ttl</link>
-                            </entry>
-                            <entry>Long</entry>
-                            <entry>the time to live (in ms) for connections</entry>
-                            <entry>1 * 60000</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.consumer-max-rate">
-                               <link linkend="flow-control.rate.core.api">connection-factory.consumer-max-rate</link></entry>
-                            <entry>Integer</entry>
-                            <entry>the fastest rate a consumer may consume messages per
-                                second</entry>
-                            <entry>-1</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.consumer-window-size">
-                               <link linkend="flow-control.core.api">connection-factory.consumer-window-size</link></entry>
-                            <entry>Integer</entry>
-                            <entry>the window size (in bytes) for consumer flow control</entry>
-                            <entry>1024 * 1024</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.dups-ok-batch-size">
-                               <link linkend="using-jms.dupsokbatchsize">connection-factory.dups-ok-batch-size</link></entry>
-                            <entry>Integer</entry>
-                            <entry>the batch size (in bytes) between acknowledgements when using
-                                DUPS_OK_ACKNOWLEDGE mode</entry>
-                            <entry>1024 * 1024</entry>
-                        </row>
-                        <row>
-                            <entry><link linkend="ha.automatic.failover"
-                                    >connection-factory.failover-on-initial-connection</link></entry>
-                            <entry>Boolean</entry>
-                            <entry>whether or not to failover to backup on event that initial connection to live server fails</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.failover-on-server-shutdown">
-                               <link linkend="ha.automatic.failover">connection-factory.failover-on-server-shutdown</link></entry>
-                            <entry>Boolean</entry>
-                            <entry>whether or not to failover on server shutdown</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.min-large-message-size">
-                               <link linkend="large-messages.core.config">connection-factory.min-large-message-size</link></entry>
-                            <entry>Integer</entry>
-                            <entry>the size (in bytes) before a message is treated as large</entry>
-                            <entry>100 * 1024</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.avoid-large-messages">
-                               <link linkend="large.message.configuring">connection-factory.avoid-large-messages</link></entry>
-                            <entry>Boolean</entry>
-                            <entry>If compress large messages and send them as regular messages if possible</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry><link linkend="clusters"
-                                    >connection-factory.cache-large-message-client</link></entry>
-                            <entry>Boolean</entry>
-                            <entry>If true clients using this connection factory will hold the large
-                                message body on temporary files.</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.pre-acknowledge">
-                               <link linkend="pre-acknowledge.configure">connection-factory.pre-acknowledge</link></entry>
-                            <entry>Boolean</entry>
-                            <entry>whether messages are pre acknowledged by the server before
-                                sending</entry>
-                            <entry>false</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.producer-max-rate">
-                               <link linkend="flow-control.producer.rate.core.api">connection-factory.producer-max-rate</link></entry>
-                            <entry>Integer</entry>
-                            <entry>the maximum rate of messages per second that can be sent</entry>
-                            <entry>-1</entry>
-                        </row>
-                        <row>
-                            <entry><link linkend="client-reconnection"
-                                >connection-factory.producer-window-size</link></entry>
-                            <entry>Integer</entry>
-                            <entry>the window size in bytes for producers sending messages</entry>
-                            <entry>1024 * 1024</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.confirmation-window-size">
-                               <link linkend="client-reconnection">connection-factory.confirmation-window-size</link>
-                            </entry>
-                            <entry>Integer</entry>
-                            <entry>the window size (in bytes) for reattachment confirmations</entry>
-                            <entry>1024 * 1024</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.reconnect-attempts">
-                               <link linkend="client-reconnection">connection-factory.reconnect-attempts</link>
-                            </entry>
-                            <entry>Integer</entry>
-                            <entry>maximum number of retry attempts, -1 signifies infinite</entry>
-                            <entry>0</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.retry-interval">
-                               <link linkend="client-reconnection">connection-factory.retry-interval</link>
-                            </entry>
-                            <entry>Long</entry>
-                            <entry>the time (in ms) to retry a connection after failing</entry>
-                            <entry>2000</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.retry-interval-multiplier">
-                               <link linkend="client-reconnection">connection-factory.retry-interval-multiplier</link>
-                            </entry>
-                            <entry>Double</entry>
-                            <entry>multiplier to apply to successive retry intervals</entry>
-                            <entry>1.0</entry>
-                        </row>
-                        <row>
-                            <entry><link linkend="client-reconnection"
-                                >connection-factory.max-retry-interval</link></entry>
-                            <entry>Integer</entry>
-                            <entry>The maximum retry interval in the case a retry-interval-multiplier has been specified</entry>
-                            <entry>2000</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.scheduled-thread-pool-max-size">
-                               <link linkend="thread-pooling.client.side">connection-factory.scheduled-thread-pool-max-size</link>
-                            </entry>
-                            <entry>Integer</entry>
-                            <entry>the size of the <emphasis>scheduled thread</emphasis> pool</entry>
-                            <entry>5</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.thread-pool-max-size">
-                               <link linkend="thread-pooling.client.side">connection-factory.thread-pool-max-size</link>
-                            </entry>
-                            <entry>Integer</entry>
-                            <entry>the size of the thread pool</entry>
-                            <entry>-1</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.transaction-batch-size">
-                               <link linkend="using-jms.txbatchsize">
-                                  connection-factory.transaction-batch-size</link>
-                            </entry>
-                            <entry>Integer</entry>
-                            <entry>the batch size (in bytes) between acknowledgements when using a
-                                transactional session</entry>
-                            <entry>1024 * 1024</entry>
-                        </row>
-                        <row>
-                            <entry id="configuration.connection-factory.use-global-pools">
-                               <link linkend="thread-pooling.client.side">connection-factory.use-global-pools</link>
-                            </entry>
-                            <entry>Boolean</entry>
-                            <entry>whether or not to use a global thread pool for threads</entry>
-                            <entry>true</entry>
-                        </row>
-                        <row>
-                            <entry><link linkend="using-jms.server.configuration"
-                                >queue</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">queue</link></entry>
                             <entry>Queue</entry>
                             <entry>a queue to create and add to JNDI</entry>
                             <entry/>
                         </row>
                         <row>
-                            <entry><link linkend="using-jms.server.configuration">queue.name
-                                    (attribute)</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">queue.name (attribute)</link></entry>
                             <entry>String</entry>
                             <entry>unique name of the queue</entry>
                             <entry/>
                         </row>
                         <row>
-                            <entry><link linkend="using-jms.server.configuration"
-                                >queue.entry</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">queue.entry</link></entry>
                             <entry>String</entry>
-                            <entry>context where the queue will be bound in JNDI (there can be
-                                many)</entry>
+                            <entry>context where the queue will be bound in JNDI (there can be many)</entry>
                             <entry/>
                         </row>
                         <row>
-                            <entry><link linkend="using-jms.server.configuration"
-                                    >queue.durable</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">queue.durable</link></entry>
                             <entry>Boolean</entry>
                             <entry>is the queue durable?</entry>
                             <entry>true</entry>
                         </row>
                         <row>
-                            <entry><link linkend="using-jms.server.configuration"
-                                    >queue.filter</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">queue.filter</link></entry>
                             <entry>String</entry>
                             <entry>optional filter expression for the queue</entry>
                             <entry/>
                         </row>
                         <row>
-                            <entry><link linkend="using-jms.server.configuration"
-                                >topic</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">topic</link></entry>
                             <entry>Topic</entry>
                             <entry>a topic to create and add to JNDI</entry>
                             <entry/>
                         </row>
                         <row>
-                            <entry><link linkend="using-jms.server.configuration">topic.name
-                                    (attribute)</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">topic.name (attribute)</link></entry>
                             <entry>String</entry>
                             <entry>unique name of the topic</entry>
                             <entry/>
                         </row>
                         <row>
-                            <entry><link linkend="using-jms.server.configuration"
-                                >topic.entry</link></entry>
+                            <entry><link linkend="using-jms.server.configuration">topic.entry</link></entry>
                             <entry>String</entry>
-                            <entry>context where the topic will be bound in JNDI (there can be
-                                many)</entry>
+                            <entry>context where the topic will be bound in JNDI (there can be many)</entry>
                             <entry/>
                         </row>
                     </tbody>
                 </tgroup>
-            </informaltable>
+            </table>
         </section>
 
         <section id="configuration.masked-password">

@@ -95,13 +95,6 @@ public class TopicDestinationsResource
             {
             }
          }
-         if (topic.getBindings() != null && topic.getBindings().length > 0 && manager.getRegistry() != null)
-         {
-            for (String binding : topic.getBindings())
-            {
-               manager.getRegistry().bind(binding, activeMQTopic);
-            }
-         }
          URI uri = uriInfo.getRequestUriBuilder().path(topicName).build();
          return Response.created(uri).build();
       }

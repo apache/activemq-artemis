@@ -56,8 +56,6 @@ public class InVMInitialContextFactory implements InitialContextFactory
    {
       Hashtable<String, String> env = new Hashtable<String, String>();
       env.put("java.naming.factory.initial", "org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory");
-      env.put("java.naming.provider.url", "org.jboss.naming:org.jnp.interface");
-      // env.put("java.naming.factory.url.pkgs", "");
       env.put(Constants.SERVER_INDEX_PROPERTY_NAME, Integer.toString(serverIndex));
       return env;
    }

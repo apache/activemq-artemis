@@ -39,6 +39,7 @@ import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnection;
 import javax.jms.XATopicConnectionFactory;
 
+import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
@@ -69,9 +70,11 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testQueueConnectionFactory() throws Exception
    {
+      deployConnectionFactory(0, JMSFactoryType.QUEUE_CF, "CF_QUEUE_XA_FALSE", "/CF_QUEUE_XA_FALSE");
       QueueConnectionFactory qcf = (QueueConnectionFactory)ic.lookup("/CF_QUEUE_XA_FALSE");
       QueueConnection qc = qcf.createQueueConnection();
       qc.close();
+      undeployConnectionFactory("CF_QUEUE_XA_FALSE");
    }
 
    /**
@@ -81,9 +84,11 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testTopicConnectionFactory() throws Exception
    {
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_TOPIC_XA_FALSE", "/CF_TOPIC_XA_FALSE");
       TopicConnectionFactory qcf = (TopicConnectionFactory)ic.lookup("/CF_TOPIC_XA_FALSE");
       TopicConnection tc = qcf.createTopicConnection();
       tc.close();
+      undeployConnectionFactory("CF_TOPIC_XA_FALSE");
    }
 
    @Test
@@ -117,12 +122,14 @@ public class ConnectionFactoryTest extends JMSTestCase
       // the ConnectionFactories that ship with ActiveMQ do not have their clientID
       // administratively configured.
 
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");
       ConnectionFactory cf = (ConnectionFactory)ic.lookup("/CF_XA_FALSE");
       Connection c = cf.createConnection();
 
       ProxyAssertSupport.assertNull(c.getClientID());
 
       c.close();
+      undeployConnectionFactory("CF_XA_FALSE");
    }
 
    @Test
@@ -131,6 +138,7 @@ public class ConnectionFactoryTest extends JMSTestCase
       // the ConnectionFactories that ship with ActiveMQ do not have their clientID
       // administratively configured.
 
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");
       ConnectionFactory cf = (ConnectionFactory)ic.lookup("/CF_XA_FALSE");
       Connection c = cf.createConnection();
 
@@ -140,6 +148,7 @@ public class ConnectionFactoryTest extends JMSTestCase
       ProxyAssertSupport.assertEquals(testClientId, c.getClientID());
 
       c.close();
+      undeployConnectionFactory("CF_XA_FALSE");
    }
 
    // Added for http://jira.jboss.org/jira/browse/JBMESSAGING-939
@@ -337,6 +346,19 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testFactoryTypes() throws Exception
    {
+      deployConnectionFactory(0, JMSFactoryType.CF, "ConnectionFactory", "/ConnectionFactory");
+      deployConnectionFactory(0, JMSFactoryType.QUEUE_XA_CF, "CF_QUEUE_XA_TRUE", "/CF_QUEUE_XA_TRUE");
+      deployConnectionFactory(0, JMSFactoryType.QUEUE_CF, "CF_QUEUE_XA_FALSE", "/CF_QUEUE_XA_FALSE");
+      deployConnectionFactory(0, JMSFactoryType.XA_CF, "CF_XA_TRUE", "/CF_XA_TRUE");
+      deployConnectionFactory(0, JMSFactoryType.CF, "CF_XA_FALSE", "/CF_XA_FALSE");
+      deployConnectionFactory(0, JMSFactoryType.QUEUE_CF, "CF_QUEUE", "/CF_QUEUE");
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_TOPIC", "/CF_TOPIC");
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_XA_CF, "CF_TOPIC_XA_TRUE", "/CF_TOPIC_XA_TRUE");
+      deployConnectionFactory(0, JMSFactoryType.CF, "CF_GENERIC", "/CF_GENERIC");
+      deployConnectionFactory(0, JMSFactoryType.XA_CF, "CF_GENERIC_XA_TRUE", "/CF_GENERIC_XA_TRUE");
+      deployConnectionFactory(0, JMSFactoryType.CF, "CF_GENERIC_XA_FALSE", "/CF_GENERIC_XA_FALSE");
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_TOPIC_XA_FALSE", "/CF_TOPIC_XA_FALSE");
+
       ActiveMQConnectionFactory factory = null;
 
       factory = (ActiveMQConnectionFactory)ic.lookup("/ConnectionFactory");
@@ -398,11 +420,31 @@ public class ConnectionFactoryTest extends JMSTestCase
 
       Assert.assertTrue(factory instanceof TopicConnectionFactory);
       assertNTypes(factory, 3);
+
+      undeployConnectionFactory("ConnectionFactory");
+      undeployConnectionFactory("CF_QUEUE_XA_TRUE");
+      undeployConnectionFactory("CF_QUEUE_XA_FALSE");
+      undeployConnectionFactory("CF_XA_TRUE");
+      undeployConnectionFactory("CF_XA_FALSE");
+      undeployConnectionFactory("CF_QUEUE");
+      undeployConnectionFactory("CF_TOPIC");
+      undeployConnectionFactory("CF_TOPIC_XA_TRUE");
+      undeployConnectionFactory("CF_GENERIC");
+      undeployConnectionFactory("CF_GENERIC_XA_TRUE");
+      undeployConnectionFactory("CF_GENERIC_XA_FALSE");
+      undeployConnectionFactory("CF_TOPIC_XA_FALSE");
    }
 
    @Test
    public void testConnectionTypes() throws Exception
    {
+      deployConnectionFactory(0, JMSFactoryType.CF, "ConnectionFactory", "/ConnectionFactory");
+      deployConnectionFactory(0, JMSFactoryType.QUEUE_XA_CF, "CF_QUEUE_XA_TRUE", "/CF_QUEUE_XA_TRUE");
+      deployConnectionFactory(0, JMSFactoryType.XA_CF, "CF_XA_TRUE", "/CF_XA_TRUE");
+      deployConnectionFactory(0, JMSFactoryType.QUEUE_CF, "CF_QUEUE", "/CF_QUEUE");
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_TOPIC", "/CF_TOPIC");
+      deployConnectionFactory(0, JMSFactoryType.TOPIC_XA_CF, "CF_TOPIC_XA_TRUE", "/CF_TOPIC_XA_TRUE");
+
       Connection genericConnection = null;
       XAConnection xaConnection = null;
       QueueConnection queueConnection = null;
@@ -440,6 +482,13 @@ public class ConnectionFactoryTest extends JMSTestCase
       topicConnection.close();
       xaQueueConnection.close();
       xaTopicConnection.close();
+
+      undeployConnectionFactory("ConnectionFactory");
+      undeployConnectionFactory("CF_QUEUE_XA_TRUE");
+      undeployConnectionFactory("CF_XA_TRUE");
+      undeployConnectionFactory("CF_QUEUE");
+      undeployConnectionFactory("CF_TOPIC");
+      undeployConnectionFactory("CF_TOPIC_XA_TRUE");
    }
 
    private void assertConnectionType(Connection conn, String type)

@@ -55,10 +55,10 @@ public class JMSSharedConsumerExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perfom a lookup on the queue
-         Topic topic = (Topic) initialContext.lookup("/topic/exampleTopic");
+         Topic topic = (Topic) initialContext.lookup("topic/exampleTopic");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Context
          jmsContext = cf.createContext();

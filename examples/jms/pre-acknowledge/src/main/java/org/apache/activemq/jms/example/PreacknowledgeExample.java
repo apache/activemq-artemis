@@ -63,9 +63,9 @@ public class PreacknowledgeExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perform the look-ups
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 3. Create a the JMS objects
          connection = cf.createConnection();

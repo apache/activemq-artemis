@@ -55,10 +55,10 @@ public class StaticSelectorJMSExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. look-up the JMS queue object from JNDI, this is the queue that has filter configured with it.
-         Queue queue = (Queue)initialContext.lookup("/queue/selectorQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. look-up the JMS connection factory object from JNDI
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();

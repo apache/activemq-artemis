@@ -86,7 +86,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       spec.setUser("user");
       spec.setPassword("password");
 
-      spec.setDestinationType("Topic");
+      spec.setDestinationType("javax.jms.Topic");
       spec.setDestination("test");
 
       spec.setMinSession(1);

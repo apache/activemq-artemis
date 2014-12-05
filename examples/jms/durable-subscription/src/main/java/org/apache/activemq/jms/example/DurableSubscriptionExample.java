@@ -50,10 +50,10 @@ public class DurableSubscriptionExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Look-up the JMS topic
-         Topic topic = (Topic)initialContext.lookup("/topic/exampleTopic");
+         Topic topic = (Topic)initialContext.lookup("topic/exampleTopic");
 
          // Step 3. Look-up the JMS connection factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS connection
          connection = cf.createConnection();

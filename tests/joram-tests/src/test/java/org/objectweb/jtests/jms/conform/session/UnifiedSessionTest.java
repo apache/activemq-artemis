@@ -23,7 +23,6 @@ import javax.jms.Session;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 
-import org.jboss.util.NestedRuntimeException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -279,7 +278,7 @@ public class UnifiedSessionTest extends UnifiedTestCase
       }
       catch (Exception e)
       {
-         throw new NestedRuntimeException(e);
+         throw new RuntimeException(e);
       }
    }
 

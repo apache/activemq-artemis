@@ -52,11 +52,11 @@ public class PagingExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 3. We look-up the JMS queue object from JNDI. pagingQueue is configured to hold a very limited number
          // of bytes in memory
-         Queue pageQueue = (Queue)initialContext.lookup("/queue/pagingQueue");
+         Queue pageQueue = (Queue)initialContext.lookup("queue/pagingQueue");
 
          // Step 4. Lookup for a JMS Queue
          Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");

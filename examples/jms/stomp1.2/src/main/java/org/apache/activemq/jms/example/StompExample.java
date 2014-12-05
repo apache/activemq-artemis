@@ -97,8 +97,8 @@ public class StompExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 7. Perform a lookup on the queue and the connection factory
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 8.Create a JMS Connection, Session and a MessageConsumer on the queue
          connection = cf.createConnection();

@@ -40,20 +40,9 @@
 &lt;configuration xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="urn:activemq /schema/activemq-jms.xsd">
-   &lt;!--the connection factory used by the example-->
-   &lt;connection-factory name="ConnectionFactory">
-      &lt;connectors>
-         &lt;connector-ref connector-name="in-vm"/>
-      &lt;/connectors>
-      &lt;entries>
-         &lt;entry name="ConnectionFactory"/>
-      &lt;/entries>
-   &lt;/connection-factory>
 
    &lt;!--the queue used by the example-->
-   &lt;queue name="exampleQueue">
-      &lt;entry name="/queue/exampleQueue"/>
-   &lt;/queue>
+   &lt;queue name="exampleQueue"/>
 &lt;/configuration></programlisting>
     <para>Here we've specified a
   <literal>javax.jms.ConnectionFactory</literal> we want bound to a

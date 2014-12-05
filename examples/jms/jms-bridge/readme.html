@@ -11,8 +11,8 @@
      <img src="jms-bridge.png"  />
      <p>The example will use two ActiveMQ servers:</p>
      <ul>
-        <li>Server #0 &ndash; the <em>Source</em> server. It will be configured with a JMS Topic bound to JNDI under <code>/source/topic</code>
-        <li>Server #1 &ndash; the <em>Target</em> server. It will be configured with a JMS Queue bound to JNDI under <code>/target/queue</code><br />
+        <li>Server #0 &ndash; the <em>Source</em> server. It will be configured with a JMS Topic bound to JNDI under <code>source/topic</code>
+        <li>Server #1 &ndash; the <em>Target</em> server. It will be configured with a JMS Queue bound to JNDI under <code>target/queue</code><br />
      </ul>
      <p>Both ActiveMQ server will run their own JNDI server used by the JMS Bridge and the JMS Client to lookup JMS
         resources (ConnectionFactory and Destination).</p>
@@ -102,10 +102,10 @@
         <li>We then create a JMS Bridge and start it, Note, the Bridge needs a transaction manager, in this instance we will use the JBoss TM</li>
         <pre class="prettyprint">
             JMSBridge jmsBridge = new JMSBridgeImpl(
-               new JNDIConnectionFactoryFactory(sourceJndiParams, "/source/ConnectionFactory"),
-               new JNDIConnectionFactoryFactory(targetJndiParams, "/target/ConnectionFactory"),
-               new JNDIDestinationFactory(sourceJndiParams, "/source/topic"),
-               new JNDIDestinationFactory(targetJndiParams, "/target/queue"),
+               new JNDIConnectionFactoryFactory(sourceJndiParams, "source/ConnectionFactory"),
+               new JNDIConnectionFactoryFactory(targetJndiParams, "target/ConnectionFactory"),
+               new JNDIDestinationFactory(sourceJndiParams, "source/topic"),
+               new JNDIDestinationFactory(targetJndiParams, "target/queue"),
                null,
                null,
                null,
@@ -125,8 +125,8 @@
         </pre>
         <li>We look up the JMS resources from the Source server</li>
         <pre class="prettyprint">
-           ConnectionFactory sourceConnectionFactory = (ConnectionFactory)sourceContext.lookup("/source/ConnectionFactory");
-           Topic sourceTopic = (Topic)sourceContext.lookup("/source/topic");
+           ConnectionFactory sourceConnectionFactory = (ConnectionFactory)sourceContext.lookup("source/ConnectionFactory");
+           Topic sourceTopic = (Topic)sourceContext.lookup("source/topic");
         </pre>
 
         <li>We create JMS objects to send a message to the source destination</li>
@@ -153,8 +153,8 @@
 
         <li>We look up the JMS resources from the target server</li>
         <pre class="prettyprint">
-           ConnectionFactory targetConnectionFactory = (ConnectionFactory)targetContext.lookup("/target/ConnectionFactory");
-           Queue targetQueue = (Queue)targetContext.lookup("/target/queue");
+           ConnectionFactory targetConnectionFactory = (ConnectionFactory)targetContext.lookup("target/ConnectionFactory");
+           Queue targetQueue = (Queue)targetContext.lookup("target/queue");
         </pre>
 
         <li>We create JMS objects to receive a message from the target destination</li>

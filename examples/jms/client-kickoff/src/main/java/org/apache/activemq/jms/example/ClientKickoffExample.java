@@ -60,7 +60,7 @@ public class ClientKickoffExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perform a lookup on the Connection Factory
-         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 3.Create a JMS Connection
          connection = cf.createQueueConnection();

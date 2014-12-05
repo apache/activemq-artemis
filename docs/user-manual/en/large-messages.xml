@@ -83,21 +83,14 @@ ClientSessionFactory factory = ActiveMQClient.createClientSessionFactory();</pro
         </section>
         <section>
             <title>Using JMS</title>
-            <para>If JNDI is used to look up the connection factory, the minimum large message size
-                is specified in <literal>activemq-jms.xml</literal></para>
-            <programlisting>...
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-      &lt;entry name="XAConnectionFactory"/>
-   &lt;/entries>
-
-   &lt;min-large-message-size>250000&lt;/min-large-message-size>
-&lt;/connection-factory>
-...</programlisting>
+            <para>If JNDI is used to instantiate and look up the connection factory, the minimum large message size
+                is configured in the JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a simple
+                example using the "ConnectionFactory" connection factory which is available in the context by default:</para>
+            <programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.minLargeMessageSize=250000
+            </programlisting>
             <para>If the connection factory is being instantiated directly, the minimum large
                 message size is specified by <literal
                     >ActiveMQConnectionFactory.setMinLargeMessageSize</literal>.</para>
@@ -121,17 +114,13 @@ ClientSessionFactory factory = ActiveMQClient.createClientSessionFactory();</pro
 			    data directory, thus reducing the disk I/O.</para>
             </section>
             <section>
-                <para>If you use JMS, you can achieve large messages compression by configuring your 
-                connection factories. For example,</para>
-            <programlisting>...
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty"/>
-   &lt;/connectors>
-...
-   &lt;compress-large-messages>true&lt;/compress-large-messages>
-&lt;/connection-factory>
-...</programlisting>
+               <para>If JNDI is used to instantiate and look up the connection factory, large message compression can be
+                  configured in the JNDI context environment, e.g. <literal>jndi.properties</literal>. Here's a simple
+                  example using the "ConnectionFactory" connection factory which is available in the context by default:</para>
+               <programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url=tcp://localhost:5445
+connection.ConnectionFactory.compressLargeMessages=true</programlisting>
             </section>
         </section>
     </section>

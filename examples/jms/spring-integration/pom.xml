@@ -47,7 +47,7 @@
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.SpringExample</clientClass>
                      <args>
-                        <param>jnp://localhost:1099</param>
+                        <param>tcp://localhost:5445</param>
                      </args>
                   </configuration>
                </execution>
@@ -87,11 +87,6 @@
                   <groupId>org.jboss.javaee</groupId>
                   <artifactId>jboss-jms-api</artifactId>
                   <version>1.1.0.GA</version>
-               </dependency>
-               <dependency>
-                  <groupId>org.jboss.naming</groupId>
-                  <artifactId>jnpserver</artifactId>
-                  <version>5.0.3.GA</version>
                </dependency>
             </dependencies>
             <configuration>

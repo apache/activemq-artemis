@@ -2,52 +2,8 @@
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:activemq ../../src/schemas/activemq-jms.xsd ">
 
-   <connection-factory name="fullConfigurationConnectionFactory">
-      <entries>
-         <entry name="/fullConfigurationConnectionFactory"/>
-         <entry name="/acme/fullConfigurationConnectionFactory"/>
-         <entry name="java:/xyz/tfullConfigurationConnectionFactory"/>
-         <entry name="java:/connectionfactories/acme/fullConfigurationConnectionFactory"/>
-      </entries>
-      <connectors>
-         <connector-ref connector-name="netty"/>
-      </connectors>
-      <discovery-group-ref discovery-group-name="mygroup"/>
-      <client-failure-check-period>1234</client-failure-check-period>
-      <call-timeout>5678</call-timeout>
-      <consumer-window-size>12345</consumer-window-size>
-      <consumer-max-rate>6789</consumer-max-rate>
-      <confirmation-window-size>123456</confirmation-window-size>
-      <producer-window-size>7712652</producer-window-size>
-      <producer-max-rate>789</producer-max-rate>
-      <min-large-message-size>12</min-large-message-size>
-      <client-id>TestClientID</client-id>
-      <dups-ok-batch-size>3456</dups-ok-batch-size>
-      <transaction-batch-size>4567</transaction-batch-size>
-      <block-on-acknowledge>true</block-on-acknowledge>
-      <block-on-non-durable-send>false</block-on-non-durable-send>
-      <block-on-durable-send>true</block-on-durable-send>
-      <auto-group>false</auto-group>
-      <pre-acknowledge>true</pre-acknowledge>
-      <connection-ttl>2345</connection-ttl>
-      <failover-on-initial-connection>true</failover-on-initial-connection>
-      <failover-on-server-shutdown>false</failover-on-server-shutdown>
-      <connection-load-balancing-policy-class-name>FooClass</connection-load-balancing-policy-class-name>
-      <reconnect-attempts>34</reconnect-attempts>
-      <retry-interval>5</retry-interval>
-      <retry-interval-multiplier>6.0</retry-interval-multiplier>
-      <max-retry-interval>300</max-retry-interval>
-      <cache-large-message-client>true</cache-large-message-client>
-   </connection-factory>
+   <queue name="fullConfigurationQueue"/>
 
-   <queue name="fullConfigurationQueue">
-      <entry name="/fullConfigurationQueue"/>
-      <entry name="/queue/fullConfigurationQueue"/>
-   </queue>
-
-   <topic name="fullConfigurationTopic">
-      <entry name="/fullConfigurationTopic"/>
-      <entry name="/topic/fullConfigurationTopic"/>
-   </topic>
+   <topic name="fullConfigurationTopic"/>
 
 </configuration>

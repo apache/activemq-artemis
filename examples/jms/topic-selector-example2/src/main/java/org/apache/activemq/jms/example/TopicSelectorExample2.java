@@ -55,10 +55,10 @@ public class TopicSelectorExample2 extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. perform a lookup on the topic
-         Topic topic = (Topic)initialContext.lookup("/topic/exampleTopic");
+         Topic topic = (Topic)initialContext.lookup("topic/exampleTopic");
 
          // Step 3. perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();

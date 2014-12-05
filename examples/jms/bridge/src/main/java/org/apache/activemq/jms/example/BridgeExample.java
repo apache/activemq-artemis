@@ -59,11 +59,11 @@ public class BridgeExample extends ActiveMQExample
 
          // Step 2 - we look up the sausage-factory queue from node 0
 
-         Queue sausageFactory = (Queue)ic0.lookup("/queue/sausage-factory");
+         Queue sausageFactory = (Queue)ic0.lookup("queue/exampleQueue");
 
          // Step 3 - we look up a JMS ConnectionFactory object from node 0
 
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("/ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
 
          // Step 4 - we create an initial context for looking up JNDI on node 1
 
@@ -71,11 +71,11 @@ public class BridgeExample extends ActiveMQExample
 
          // Step 5 - we look up the mincing-machine queue on node 1
 
-         Queue mincingMachine = (Queue)ic1.lookup("/queue/mincing-machine");
+         Queue mincingMachine = (Queue)ic1.lookup("queue/exampleQueue1");
 
          // Step 6 - we look up a JMS ConnectionFactory object from node 1
 
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("/ConnectionFactory");
+         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
 
          // Step 7. We create a JMS Connection connection0 which is a connection to server 0
 

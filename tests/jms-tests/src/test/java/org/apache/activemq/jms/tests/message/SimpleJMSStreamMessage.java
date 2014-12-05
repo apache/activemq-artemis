@@ -26,8 +26,6 @@ import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 import javax.jms.StreamMessage;
 
-import org.jboss.util.Primitives;
-
 /**
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  * @version $Revision$
@@ -555,7 +553,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       {
          throw new MessageNotWriteableException("The message body is readonly");
       }
-      content.add(Primitives.valueOf(value));
+      content.add(new Boolean(value));
    }
 
    public void writeByte(final byte value) throws JMSException

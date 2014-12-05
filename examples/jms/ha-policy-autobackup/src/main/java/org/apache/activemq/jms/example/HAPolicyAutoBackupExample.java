@@ -67,11 +67,11 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
          ic1 = getContext(1);
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue) ic0.lookup("/queue/exampleQueue");
+         Queue queue = (Queue) ic0.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0 and 1
-         ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("/ConnectionFactory");
-         ConnectionFactory cf1 = (ConnectionFactory) ic1.lookup("/ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("ConnectionFactory");
+         ConnectionFactory cf1 = (ConnectionFactory) ic1.lookup("ConnectionFactory");
 
          // Step 6. We create JMS Connections to server 0 and 1
          connection0 = cf0.createConnection();

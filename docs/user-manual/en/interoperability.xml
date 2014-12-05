@@ -229,9 +229,8 @@ hq-message-id : STOMP12345</programlisting>
           <para>Stomp requires the file <literal>jndi.properties</literal> to be available on the
             classpath. This should look something like:</para>
           <programlisting>
-java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
-java.naming.provider.url=jnp://localhost:1099
-java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces</programlisting>
+java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory</programlisting>
+          <para>Configure any required JNDI resources in this file according to the documentation.</para>
           <para>Make sure this file is in the classpath along with the StompConnect jar and the
             ActiveMQ jars and simply run <literal>java org.codehaus.stomp.jms.Main</literal>.</para>
         </section>

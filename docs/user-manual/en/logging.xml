@@ -69,21 +69,9 @@
    <section>
       <title>Logging in a client or with an Embedded server</title>
       <para>
-         Firstly, if you want to enable logging on the client side you need to include the jboss logging jars in your library.
-         If you are using the distribution make sure the jnp-client.jar is included or if you are using maven add the following
-         dependencies.
+         Firstly, if you want to enable logging on the client side you need to include the JBoss logging jars in your library.
+         If you are using maven add the following dependencies.
          <programlisting>
-&lt;dependency>
-&lt;groupId>org.jboss.naming&lt;/groupId>
-&lt;artifactId>jnp-client&lt;/artifactId>
-&lt;version>5.0.5.Final&lt;/version>
-   &lt;exclusions>
-      &lt;exclusion>
-         &lt;groupId>org.jboss.logging&lt;/groupId>
-         &lt;artifactId>jboss-logging-spi&lt;/artifactId>
-      &lt;/exclusion>
-   &lt;/exclusions>
-&lt;/dependency>
 &lt;dependency>
    &lt;groupId>org.jboss.logmanager&lt;/groupId>
    &lt;artifactId>jboss-logmanager&lt;/artifactId>
@@ -94,8 +82,6 @@
    &lt;artifactId>activemq-core-client&lt;/artifactId>
    &lt;version>2.3.0.Final&lt;/version>
 &lt;/dependency></programlisting>
-         The first dependency <literal>jnp-client</literal> is not actually needed for logging, however this is needed for
-         using JNDI and imports a previous version JBoss logging which needs to be excluded
       </para>
       <para>
          There are 2 properties you need to set when starting your java program, the first is to set the Log Manager to use

@@ -51,10 +51,10 @@ public class ExpiryExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection
          connection = cf.createConnection();
@@ -91,7 +91,7 @@ public class ExpiryExample extends ActiveMQExample
          System.out.println("Received message from " + queue.getQueueName() + ": " + messageReceived);
 
          // Step 14. Perfom a lookup on the expiry queue
-         Queue expiryQueue = (Queue)initialContext.lookup("/queue/expiryQueue");
+         Queue expiryQueue = (Queue)initialContext.lookup("queue/expiryQueue");
 
          // Step 15. Create a JMS Message Consumer for the expiry queue
          MessageConsumer expiryConsumer = session.createConsumer(expiryQueue);

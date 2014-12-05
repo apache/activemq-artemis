@@ -33,6 +33,7 @@ import javax.jms.TopicSession;
 import javax.jms.XAConnection;
 import javax.jms.XASession;
 
+import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -97,6 +98,7 @@ public class SessionTest extends ActiveMQServerTestCase
    @Test
    public void testGetSession2() throws Exception
    {
+      deployConnectionFactory(0, JMSFactoryType.CF, "ConnectionFactory", "/ConnectionFactory");
       XAConnection conn = getXAConnectionFactory().createXAConnection();
       XASession sess = conn.createXASession();
 

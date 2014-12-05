@@ -494,38 +494,35 @@ public class MyMDB implements MessageListener
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.discovery-initial-wait-timeout">
-                                  DiscoveryInitialWaitTimeout
-                               </link>
+                               DiscoveryInitialWaitTimeout
                             </entry>
                             <entry>Long</entry>
                             <entry>The initial time to wait for discovery.</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.connection-load-balancing-policy-class-name">
-                                  ConnectionLoadBalancingPolicyClassName</link>
+                               ConnectionLoadBalancingPolicyClassName
                             </entry>
                             <entry>String</entry>
                             <entry>The load balancing policy class to use.</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.connection-ttl">ConnectionTTL</link>
+                               ConnectionTTL
                             </entry>
                             <entry>Long</entry>
                             <entry>The time to live (in milliseconds) for the connection.</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.call-timeout">CallTimeout</link>
+                               CallTimeout
                             </entry>
                             <entry>Long</entry>
                             <entry>the call timeout (in milliseconds) for each packet sent.</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.dups-ok-batch-size">DupsOKBatchSize</link>
+                               DupsOKBatchSize
                             </entry>
                             <entry>Integer</entry>
                             <entry>the batch size (in bytes) between acknowledgements when using
@@ -533,7 +530,7 @@ public class MyMDB implements MessageListener
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.transaction-batch-size">TransactionBatchSize</link>
+                               TransactionBatchSize
                             </entry>
                             <entry>Integer</entry>
                             <entry>the batch size (in bytes) between acknowledgements when using a
@@ -541,70 +538,70 @@ public class MyMDB implements MessageListener
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.consumer-window-size">ConsumerWindowSize</link>
+                               ConsumerWindowSize
                             </entry>
                             <entry>Integer</entry>
                             <entry>the window size (in bytes) for consumer flow control</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.consumer-max-rate">ConsumerMaxRate</link>
+                               ConsumerMaxRate
                             </entry>
                             <entry>Integer</entry>
                             <entry>the fastest rate a consumer may consume messages per second</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.confirmation-window-size">ConfirmationWindowSize</link>
+                               ConfirmationWindowSize
                             </entry>
                             <entry>Integer</entry>
                             <entry>the window size (in bytes) for reattachment confirmations</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.producer-max-rate">ProducerMaxRate</link>
+                               ProducerMaxRate
                             </entry>
                             <entry>Integer</entry>
                             <entry>the maximum rate of messages per second that can be sent</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.min-large-message-size">MinLargeMessageSize</link>
+                               MinLargeMessageSize
                             </entry>
                             <entry>Integer</entry>
                             <entry>the size (in bytes) before a message is treated as large </entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.block-on-acknowledge">BlockOnAcknowledge</link>
+                               BlockOnAcknowledge
                             </entry>
                             <entry>Boolean</entry>
                             <entry>whether or not messages are acknowledged synchronously</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.block-on-non-durable-send">BlockOnNonDurableSend</link>
+                               BlockOnNonDurableSend
                             </entry>
                             <entry>Boolean</entry>
                             <entry>whether or not non-durable messages are sent synchronously</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.block-on-durable-send">BlockOnDurableSend</link>
+                               BlockOnDurableSend
                             </entry>
                             <entry>Boolean</entry>
                             <entry>whether or not durable messages are sent synchronously</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.auto-group">AutoGroup</link>
+                               AutoGroup
                             </entry>
                             <entry>Boolean</entry>
                             <entry>whether or not message grouping is automatically used</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.pre-acknowledge">PreAcknowledge</link>
+                               PreAcknowledge
                             </entry>
                             <entry>Boolean</entry>
                             <entry>whether messages are pre acknowledged by the server before
@@ -612,28 +609,28 @@ public class MyMDB implements MessageListener
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.reconnect-attempts">ReconnectAttempts</link>
+                               ReconnectAttempts
                             </entry>
                             <entry>Integer</entry>
                             <entry>maximum number of retry attempts, default for the resource adapter is -1 (infinite attempts)</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.retry-interval">RetryInterval</link>
+                               RetryInterval
                             </entry>
                             <entry>Long</entry>
                             <entry>the time (in milliseconds) to retry a connection after failing</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.retry-interval-multiplier">RetryIntervalMultiplier</link>
+                               RetryIntervalMultiplier
                             </entry>
                             <entry>Double</entry>
                             <entry>multiplier to apply to successive retry intervals</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.failover-on-server-shutdown">FailoverOnServerShutdown</link>
+                               FailoverOnServerShutdown
                             </entry>
                             <entry>Boolean</entry>
                             <entry>If true client will reconnect to another server if
@@ -641,14 +638,14 @@ public class MyMDB implements MessageListener
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.client-id">ClientID</link>
+                               ClientID
                             </entry>
                             <entry>String</entry>
                             <entry>the pre-configured client ID for the connection factory</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.client-failure-check-period">ClientFailureCheckPeriod</link>
+                               ClientFailureCheckPeriod
                             </entry>
                             <entry>Long</entry>
                             <entry>the period (in ms) after which the client will consider the
@@ -657,21 +654,21 @@ public class MyMDB implements MessageListener
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.use-global-pools">UseGlobalPools</link>
+                               UseGlobalPools
                             </entry>
                             <entry>Boolean</entry>
                             <entry>whether or not to use a global thread pool for threads</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.scheduled-thread-pool-max-size">ScheduledThreadPoolMaxSize</link>
+                               ScheduledThreadPoolMaxSize
                             </entry>
                             <entry>Integer</entry>
                             <entry>the size of the <emphasis>scheduled thread</emphasis> pool</entry>
                         </row>
                         <row>
                             <entry>
-                               <link linkend="configuration.connection-factory.thread-pool-max-size">ThreadPoolMaxSize</link>
+                               ThreadPoolMaxSize
                             </entry>
                             <entry>Integer</entry>
                             <entry>the size of the thread pool</entry>

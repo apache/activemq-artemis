@@ -70,12 +70,12 @@ public class LargeMessageExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory. This ConnectionFactory has a special attribute set on
          // it.
          // Messages with more than 10K are considered large
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create the JMS objects
          connection = cf.createConnection();
@@ -139,9 +139,9 @@ public class LargeMessageExample extends ActiveMQExample
 
          initialContext = getContext(0);
 
-         queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
-         cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          connection = cf.createConnection();
 

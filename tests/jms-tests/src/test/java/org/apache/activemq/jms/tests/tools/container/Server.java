@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
@@ -136,6 +137,7 @@ public interface Server extends Remote
     */
    // boolean undeployDestinationProgrammatically(boolean isQueue, String name) throws Exception;
    void deployConnectionFactory(String clientId,
+                                JMSFactoryType type,
                                 String objectName,
                                 int prefetchSize,
                                 int defaultTempQueueFullSize,
@@ -166,6 +168,10 @@ public interface Server extends Remote
                                 final String... jndiBindings) throws Exception;
 
    void deployConnectionFactory(String objectName,
+                                final String... jndiBindings) throws Exception;
+
+   void deployConnectionFactory(String objectName,
+                                JMSFactoryType type,
                                 final String... jndiBindings) throws Exception;
 
    void undeployConnectionFactory(String objectName) throws Exception;

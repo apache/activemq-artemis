@@ -34,11 +34,6 @@
          <version>1.1.0.GA</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.naming</groupId>
-         <artifactId>jnp-client</artifactId>
-         <version>5.0.5.Final</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq.examples.jms</groupId>
          <artifactId>activemq-jms-examples-common</artifactId>
          <version>${project.version}</version>
@@ -117,11 +112,6 @@
                         <groupId>org.jboss.javaee</groupId>
                         <artifactId>jboss-jms-api</artifactId>
                         <version>1.1.0.GA</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.jboss.naming</groupId>
-                        <artifactId>jnpserver</artifactId>
-                        <version>5.0.3.GA</version>
                      </dependency>
                   </dependencies>
                </plugin>

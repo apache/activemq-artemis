@@ -1,16 +1,7 @@
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:activemq /schema/activemq-jms.xsd">
-   <!--the connection factory used by the example-->
-   <connection-factory name="ConnectionFactory">
-      <connector-ref connector-name="netty-connector"/>
-      <entries>
-         <entry name="ConnectionFactory"/>
-      </entries>
-   </connection-factory>
    
-   <queue name="myJMSQueue">
-      <entry name="myJMSQueue"/>
-   </queue>
+   <queue name="myJMSQueue/>
 
 </configuration>

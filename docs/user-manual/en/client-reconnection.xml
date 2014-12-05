@@ -115,23 +115,16 @@
                     default value is <literal>0</literal>.</para>
             </listitem>
         </itemizedlist>
-        <para>If you're using JMS, and you're using the JMS Service on the server to load your JMS
-            connection factory instances directly into JNDI, then you can specify these parameters
-            in the xml configuration in <literal>activemq-jms.xml</literal>, for example:</para>
+        <para>If you're using JMS and you're using JNDI on the client to look up your JMS
+            connection factory instances then you can specify these parameters
+            in the JNDI context environment in, e.g. <literal>jndi.properties</literal>:</para>
         <programlisting>
-&lt;connection-factory name="ConnectionFactory">
-   &lt;connectors>
-      &lt;connector-ref connector-name="netty"/>
-   &lt;/connectors>
-   &lt;entries>
-      &lt;entry name="ConnectionFactory"/>
-      &lt;entry name="XAConnectionFactory"/>
-   &lt;/entries>
-   &lt;retry-interval>1000&lt;/retry-interval>
-   &lt;retry-interval-multiplier>1.5&lt;/retry-interval-multiplier>
-   &lt;max-retry-interval>60000&lt;/max-retry-interval>
-   &lt;reconnect-attempts>1000&lt;/reconnect-attempts>
-&lt;/connection-factory></programlisting>
+java.naming.factory.initial = org.apache.activemq.jndi.ActiveMQInitialContextFactory
+java.naming.provider.url = tcp://localhost:5445
+connection.ConnectionFactory.retryInterval=1000
+connection.ConnectionFactory.retryIntervalMultiplier=1.5
+connection.ConnectionFactory.maxRetryInterval=60000
+connection.ConnectionFactory.reconnectAttempts=1000</programlisting>
         <para>If you're using JMS, but instantiating your JMS connection factory directly, you can
             specify the parameters using the appropriate setter methods on the <literal
                 >ActiveMQConnectionFactory</literal> immediately after creating it.</para>

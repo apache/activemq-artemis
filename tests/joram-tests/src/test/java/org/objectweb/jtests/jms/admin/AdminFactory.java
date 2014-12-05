@@ -18,8 +18,6 @@ package org.objectweb.jtests.jms.admin;
 
 import java.util.Properties;
 
-import org.jboss.util.NestedRuntimeException;
-
 public class AdminFactory
 {
    private static final String PROP_NAME = "jms.provider.admin.class";
@@ -36,7 +34,7 @@ public class AdminFactory
       Admin admin = null;
       if (adminClassName == null)
       {
-         throw new NestedRuntimeException("Property " + AdminFactory.PROP_NAME + " has not been found in input props");
+         throw new RuntimeException("Property " + AdminFactory.PROP_NAME + " has not been found in input props");
       }
       try
       {
@@ -45,11 +43,11 @@ public class AdminFactory
       }
       catch (ClassNotFoundException e)
       {
-         throw new NestedRuntimeException("Class " + adminClassName + " not found.", e);
+         throw new RuntimeException("Class " + adminClassName + " not found.", e);
       }
       catch (Exception e)
       {
-         throw new NestedRuntimeException(e);
+         throw new RuntimeException(e);
       }
       return admin;
    }

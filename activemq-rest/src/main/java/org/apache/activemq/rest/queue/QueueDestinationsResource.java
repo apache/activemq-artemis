@@ -101,13 +101,6 @@ public class QueueDestinationsResource
             {
             }
          }
-         if (queue.getBindings() != null && queue.getBindings().length > 0 && manager.getRegistry() != null)
-         {
-            for (String binding : queue.getBindings())
-            {
-               manager.getRegistry().bind(binding, activeMQQueue);
-            }
-         }
          URI uri = uriInfo.getRequestUriBuilder().path(queueName).build();
          return Response.created(uri).build();
       }

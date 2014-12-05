@@ -45,8 +45,6 @@ import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.jms.tests.JmsTestLogger;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.jnp.server.Main;
-import org.jnp.server.NamingBeanImpl;
 
 /**
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
@@ -62,7 +60,6 @@ public class LocalTestServer implements Server, Runnable
    private boolean started = false;
 
    private final HashMap<String, List<String>> allBindings = new HashMap<String, List<String>>();
-   private Main jndiServer;
    private JMSServerManagerImpl jmsServerManager;
 
    // Static ---------------------------------------------------------------------------------------
@@ -116,14 +113,6 @@ public class LocalTestServer implements Server, Runnable
          JmsTestLogger.LOGGER.info("Deleted dir: " + dir.getAbsolutePath() + " deleted: " + deleted);
       }
 
-      org.jnp.server.NamingBeanImpl namingBean = new NamingBeanImpl();
-      jndiServer = new Main();
-      jndiServer.setNamingInfo(namingBean);
-      jndiServer.setPort(1099);
-      jndiServer.setBindAddress("localhost");
-      jndiServer.setRmiPort(1098);
-      jndiServer.setRmiBindAddress("localhost");
-
       javax.management.MBeanServer beanServer = java.lang.management.ManagementFactory.getPlatformMBeanServer();
       FileConfiguration fileConfiguration = new FileConfiguration();
       ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
@@ -131,8 +120,6 @@ public class LocalTestServer implements Server, Runnable
       jmsServerManager = new JMSServerManagerImpl(activeMQServer);
       System.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
 
-      namingBean.start();
-      jndiServer.start();
       fileConfiguration.start();
       jmsServerManager.start();
       started = true;
@@ -160,11 +147,9 @@ public class LocalTestServer implements Server, Runnable
    public synchronized boolean stop() throws Exception
    {
       jmsServerManager.stop();
-      jndiServer.stop();
       started = false;
       unbindAll();
       jmsServerManager = null;
-      jndiServer.stop();
       return true;
    }
 
@@ -242,19 +227,24 @@ public class LocalTestServer implements Server, Runnable
 
    public void deployConnectionFactory(final String clientId, final String objectName, final String ... jndiBindings) throws Exception
    {
-      deployConnectionFactory(clientId, objectName, -1, -1, -1, -1, false, false, -1, false, jndiBindings);
+      deployConnectionFactory(clientId, JMSFactoryType.CF, objectName, -1, -1, -1, -1, false, false, -1, false, jndiBindings);
    }
 
    public void deployConnectionFactory(final String objectName,
                                        final int consumerWindowSize,
                                        final String ... jndiBindings) throws Exception
    {
-      deployConnectionFactory(null, objectName, consumerWindowSize, -1, -1, -1, false, false, -1, false, jndiBindings);
+      deployConnectionFactory(null, JMSFactoryType.CF, objectName, consumerWindowSize, -1, -1, -1, false, false, -1, false, jndiBindings);
    }
 
    public void deployConnectionFactory(final String objectName, final String ... jndiBindings) throws Exception
    {
-      deployConnectionFactory(null, objectName, -1, -1, -1, -1, false, false, -1, false, jndiBindings);
+      deployConnectionFactory(null, JMSFactoryType.CF, objectName, -1, -1, -1, -1, false, false, -1, false, jndiBindings);
+   }
+
+   public void deployConnectionFactory(final String objectName, JMSFactoryType type, final String ... jndiBindings) throws Exception
+   {
+      deployConnectionFactory(null, type, objectName, -1, -1, -1, -1, false, false, -1, false, jndiBindings);
    }
 
    public void deployConnectionFactory(final String objectName,
@@ -265,6 +255,7 @@ public class LocalTestServer implements Server, Runnable
                                        final String ... jndiBindings) throws Exception
    {
       this.deployConnectionFactory(null,
+                                   JMSFactoryType.CF,
                                    objectName,
                                    prefetchSize,
                                    defaultTempQueueFullSize,
@@ -283,6 +274,7 @@ public class LocalTestServer implements Server, Runnable
                                        final String ... jndiBindings) throws Exception
    {
       this.deployConnectionFactory(null,
+                                   JMSFactoryType.CF,
                                    objectName,
                                    -1,
                                    -1,
@@ -296,6 +288,7 @@ public class LocalTestServer implements Server, Runnable
    }
 
    public void deployConnectionFactory(final String clientId,
+                                       final JMSFactoryType type,
                                        final String objectName,
                                        final int prefetchSize,
                                        final int defaultTempQueueFullSize,
@@ -315,7 +308,7 @@ public class LocalTestServer implements Server, Runnable
 
       getJMSServerManager().createConnectionFactory(objectName,
                                                     false,
-                                                    JMSFactoryType.CF,
+                                                    type,
                                                     connectors,
                                                     clientId,
                                                     ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
@@ -392,7 +385,6 @@ public class LocalTestServer implements Server, Runnable
       props.setProperty("java.naming.factory.initial",
                         "org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory");
       props.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
-      // props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
       return new InitialContext(props);
    }
 

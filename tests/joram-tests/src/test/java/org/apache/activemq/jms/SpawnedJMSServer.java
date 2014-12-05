@@ -18,9 +18,6 @@ package org.apache.activemq.jms;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Hashtable;
-
-import javax.naming.InitialContext;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
@@ -31,8 +28,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.jnp.server.Main;
-import org.jnp.server.NamingBeanImpl;
 
 /**
  * A SpawnedServer
@@ -53,20 +48,6 @@ public class SpawnedJMSServer
    {
       try
       {
-         System.setProperty("java.rmi.server.hostname", "localhost");
-         System.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-         System.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-
-         final NamingBeanImpl namingInfo = new NamingBeanImpl();
-         namingInfo.start();
-         final Main jndiServer = new Main();
-         jndiServer.setNamingInfo(namingInfo);
-         jndiServer.setPort(1099);
-         jndiServer.setBindAddress("localhost");
-         jndiServer.setRmiPort(1098);
-         jndiServer.setRmiBindAddress("localhost");
-         jndiServer.start();
-
          Configuration conf = new ConfigurationImpl()
             .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
             .setSecurityEnabled(false)
@@ -77,11 +58,7 @@ public class SpawnedJMSServer
          // disable server persistence since JORAM tests do not restart server
          final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
 
-         Hashtable<String, String> env = new Hashtable<String, String>();
-         env.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-         env.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
          JMSServerManager serverManager = new JMSServerManagerImpl(server);
-         serverManager.setContext(new InitialContext(env));
          serverManager.start();
 
          System.out.println("Server started, ready to start client test");
@@ -99,8 +76,6 @@ public class SpawnedJMSServer
             if ("STOP".equals(line.trim()))
             {
                server.stop();
-               jndiServer.stop();
-               namingInfo.stop();
                System.out.println("Server stopped");
                System.exit(0);
             }

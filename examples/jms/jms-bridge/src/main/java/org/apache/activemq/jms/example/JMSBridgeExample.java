@@ -66,10 +66,10 @@ public class JMSBridgeExample
       // Step 2. Create and start a JMS Bridge
       // Note, the Bridge needs a transaction manager, in this instance we will use the JBoss TM
       JMSBridge jmsBridge = new JMSBridgeImpl(
-               new JNDIConnectionFactoryFactory(sourceJndiParams, "/source/ConnectionFactory"),
-               new JNDIConnectionFactoryFactory(targetJndiParams, "/target/ConnectionFactory"),
-               new JNDIDestinationFactory(sourceJndiParams, "/source/topic"),
-               new JNDIDestinationFactory(targetJndiParams, "/target/queue"),
+               new JNDIConnectionFactoryFactory(sourceJndiParams, "source/ConnectionFactory"),
+               new JNDIConnectionFactoryFactory(targetJndiParams, "target/ConnectionFactory"),
+               new JNDIDestinationFactory(sourceJndiParams, "source/topic"),
+               new JNDIDestinationFactory(targetJndiParams, "target/queue"),
                null,
                null,
                null,
@@ -111,8 +111,8 @@ public class JMSBridgeExample
          sourceConnection.close();
 
          // Step 7. Lookup the *target* JMS resources
-         ConnectionFactory targetConnectionFactory = (ConnectionFactory)targetContext.lookup("/client/ConnectionFactory");
-         Queue targetQueue = (Queue)targetContext.lookup("/target/queue");
+         ConnectionFactory targetConnectionFactory = (ConnectionFactory)targetContext.lookup("client/ConnectionFactory");
+         Queue targetQueue = (Queue)targetContext.lookup("target/queue");
 
          // Step 8. Create a connection, a session and a message consumer for the *target* queue
          targetConnection = targetConnectionFactory.createConnection();
@@ -168,8 +168,7 @@ public class JMSBridgeExample
    {
       Hashtable<String, String> jndiProps = new Hashtable<String, String>();
       jndiProps.put("java.naming.provider.url", server);
-      jndiProps.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-      jndiProps.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+      jndiProps.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
       return jndiProps;
    }
 }

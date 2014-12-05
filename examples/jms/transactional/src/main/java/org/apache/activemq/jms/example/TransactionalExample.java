@@ -50,10 +50,10 @@ public class TransactionalExample extends ActiveMQExample
          initialContext = getContext(0);
 
          // Step 2. Look-up the JMS topic
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Look-up the JMS connection factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS connection
          connection = cf.createConnection();

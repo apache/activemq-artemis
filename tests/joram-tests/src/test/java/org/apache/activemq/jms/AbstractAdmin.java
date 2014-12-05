@@ -19,7 +19,6 @@ package org.apache.activemq.jms;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jboss.util.NotImplementedException;
 import org.objectweb.jtests.jms.admin.Admin;
 
 /**
@@ -51,22 +50,22 @@ public class AbstractAdmin implements Admin
 
    public void createConnectionFactory(final String name)
    {
-      throw new NotImplementedException("FIXME NYI createConnectionFactory");
+      throw new RuntimeException("FIXME NYI createConnectionFactory");
    }
 
    public void deleteConnectionFactory(final String name)
    {
-      throw new NotImplementedException("FIXME NYI deleteConnectionFactory");
+      throw new RuntimeException("FIXME NYI deleteConnectionFactory");
    }
 
    public void createQueue(final String name)
    {
-      throw new NotImplementedException("FIXME NYI createQueue");
+      throw new RuntimeException("FIXME NYI createQueue");
    }
 
    public void deleteQueue(final String name)
    {
-      throw new NotImplementedException("FIXME NYI deleteQueue");
+      throw new RuntimeException("FIXME NYI deleteQueue");
    }
 
    public void createQueueConnectionFactory(final String name)
@@ -81,12 +80,12 @@ public class AbstractAdmin implements Admin
 
    public void createTopic(final String name)
    {
-      throw new NotImplementedException("FIXME NYI createTopic");
+      throw new RuntimeException("FIXME NYI createTopic");
    }
 
    public void deleteTopic(final String name)
    {
-      throw new NotImplementedException("FIXME NYI deleteTopic");
+      throw new RuntimeException("FIXME NYI deleteTopic");
    }
 
    public void createTopicConnectionFactory(final String name)

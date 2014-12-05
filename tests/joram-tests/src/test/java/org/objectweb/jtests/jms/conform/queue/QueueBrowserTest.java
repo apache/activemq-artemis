@@ -22,7 +22,6 @@ import javax.jms.Message;
 import javax.jms.QueueBrowser;
 import javax.jms.TextMessage;
 
-import org.jboss.util.NestedRuntimeException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -164,7 +163,7 @@ public class QueueBrowserTest extends PTPTestCase
       }
       catch (JMSException e)
       {
-         throw new NestedRuntimeException(e);
+         throw new RuntimeException(e);
       }
    }
 
