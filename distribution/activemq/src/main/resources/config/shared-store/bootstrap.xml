@@ -24,8 +24,6 @@
 
    <basic-security/>
 
-   <naming bindAddress="localhost" port="1099" rmiBindAddress="localhost" rmiPort="1098"/>
-
    <web bind="http://localhost:8161" path="web">
        <app url="jolokia" war="jolokia-war-1.2.3.war"/>
    </web>
