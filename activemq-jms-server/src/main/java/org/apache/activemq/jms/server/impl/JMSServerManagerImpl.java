@@ -620,18 +620,23 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                   throw new IllegalArgumentException("Queue does not exist");
                }
 
-               ArrayList<String> bindings = new ArrayList<String>();
+               String[] usedJNDI = null;
 
-               for (String jndiItem : jndi)
+               if (jndi != null)
                {
-                  if (bindToJndi(jndiItem, destination))
-                  {
-                     bindings.add(jndiItem);
-                  }
-               }
+                  ArrayList<String> bindings = new ArrayList<String>();
 
-               String[] usedJNDI = bindings.toArray(new String[bindings.size()]);
-               addToBindings(queueJNDI, queueName, usedJNDI);
+                  for (String jndiItem : jndi)
+                  {
+                     if (bindToJndi(jndiItem, destination))
+                     {
+                        bindings.add(jndiItem);
+                     }
+                  }
+
+                  usedJNDI = bindings.toArray(new String[bindings.size()]);
+                  addToBindings(queueJNDI, queueName, usedJNDI);
+               }
 
                if (storeConfig && durable)
                {
@@ -639,7 +644,10 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                                     queueName,
                                                                     selectorString,
                                                                     durable));
-                  storage.addJNDI(PersistedType.Queue, queueName, usedJNDI);
+                  if (usedJNDI != null)
+                  {
+                     storage.addJNDI(PersistedType.Queue, queueName, usedJNDI);
+                  }
                }
             }
          }
@@ -1734,11 +1742,14 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    private void checkJNDI(final String... jndiNames) throws NamingException
    {
-      for (String jndiName : jndiNames)
+      if (jndiNames != null)
       {
-         if (registry != null && registry.lookup(jndiName) != null)
+         for (String jndiName : jndiNames)
          {
-            throw new NamingException(jndiName + " already has an object bound");
+            if (registry != null && registry.lookup(jndiName) != null)
+            {
+               throw new NamingException(jndiName + " already has an object bound");
+            }
          }
       }
    }
