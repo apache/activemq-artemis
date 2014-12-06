@@ -60,8 +60,6 @@ public class JMSContextTest extends ActiveMQRATestBase
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
       resourceAdapter = new ActiveMQResourceAdapter();
-      resourceAdapter.setTransactionManagerLocatorClass(JMSContextTest.class.getName());
-      resourceAdapter.setTransactionManagerLocatorMethod("getTm");
 
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
       MyBootstrapContext ctx = new MyBootstrapContext();

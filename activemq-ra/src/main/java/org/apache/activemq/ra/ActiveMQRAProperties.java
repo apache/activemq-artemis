@@ -58,18 +58,6 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     */
    private Boolean localTx = false;
 
-
-   /**
-    * Class used to locate the Transaction Manager.
-    * Using JBoss5 as the default locator
-    */
-   private String transactionManagerLocatorClass = "org.apache.activemq.integration.jboss.tm.JBoss5TransactionManagerLocator;org.apache.activemq.integration.jboss.tm.JBoss4TransactionManagerLocator";
-
-   /**
-    * Method used to locate the TM
-    */
-   private String transactionManagerLocatorMethod = "getTm;getTM";
-
    private static final int DEFAULT_SETUP_ATTEMPTS = -1;
 
    private static final long DEFAULT_SETUP_INTERVAL = 2 * 1000;
@@ -234,27 +222,6 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       }
 
       this.localTx = localTx;
-   }
-
-
-   public void setTransactionManagerLocatorClass(final String transactionManagerLocatorClass)
-   {
-      this.transactionManagerLocatorClass = transactionManagerLocatorClass;
-   }
-
-   public String getTransactionManagerLocatorClass()
-   {
-      return transactionManagerLocatorClass;
-   }
-
-   public String getTransactionManagerLocatorMethod()
-   {
-      return transactionManagerLocatorMethod;
-   }
-
-   public void setTransactionManagerLocatorMethod(final String transactionManagerLocatorMethod)
-   {
-      this.transactionManagerLocatorMethod = transactionManagerLocatorMethod;
    }
 
    public int getSetupAttempts()

@@ -36,7 +36,6 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
 import javax.transaction.xa.XAResource;
-import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Enumeration;
@@ -66,6 +65,7 @@ import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.jms.server.ActiveMQJMSServerBundle;
 import org.apache.activemq.jms.server.recovery.ActiveMQRegistryBase;
 import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
+import org.apache.activemq.service.extensions.ServiceUtils;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.utils.PasswordMaskingUtil;
@@ -166,10 +166,6 @@ public final class JMSBridgeImpl implements JMSBridge
    private boolean connectedTarget = false;
 
    private int forwardMode;
-
-   private String transactionManagerLocatorClass = "org.apache.activemq.integration.jboss.tm.JBoss5TransactionManagerLocator";
-
-   private String transactionManagerLocatorMethod = "getTm";
 
    private MBeanServer mbeanServer;
 
@@ -404,7 +400,7 @@ public final class JMSBridgeImpl implements JMSBridge
 
       checkParams();
 
-      TransactionManager tm = getTm();
+      TransactionManager tm = ServiceUtils.getTransactionManager();
 
       // There may already be a JTA transaction associated to the thread
 
@@ -839,27 +835,6 @@ public final class JMSBridgeImpl implements JMSBridge
       this.clientID = clientID;
    }
 
-   public String getTransactionManagerLocatorClass()
-   {
-      return transactionManagerLocatorClass;
-   }
-
-   public void setTransactionManagerLocatorClass(final String transactionManagerLocatorClass)
-   {
-      checkBridgeNotStarted();
-      this.transactionManagerLocatorClass = transactionManagerLocatorClass;
-   }
-
-   public String getTransactionManagerLocatorMethod()
-   {
-      return transactionManagerLocatorMethod;
-   }
-
-   public void setTransactionManagerLocatorMethod(final String transactionManagerLocatorMethod)
-   {
-      this.transactionManagerLocatorMethod = transactionManagerLocatorMethod;
-   }
-
    public boolean isAddMessageIDInHeader()
    {
       return addMessageIDInHeader;
@@ -1038,7 +1013,7 @@ public final class JMSBridgeImpl implements JMSBridge
          ActiveMQJMSBridgeLogger.LOGGER.trace("Starting JTA transaction");
       }
 
-      TransactionManager tm = getTm();
+      TransactionManager tm = ServiceUtils.getTransactionManager();
 
       // Set timeout to a large value since we do not want to time out while waiting for messages
       // to arrive - 10 years should be enough
@@ -1059,33 +1034,6 @@ public final class JMSBridgeImpl implements JMSBridge
       }
 
       return tx;
-   }
-
-   private TransactionManager getTm()
-   {
-      if (tm == null)
-      {
-         try
-         {
-            Object o = safeInitNewInstance(transactionManagerLocatorClass);
-            Method m = o.getClass().getMethod(transactionManagerLocatorMethod);
-            tm = (TransactionManager) m.invoke(o);
-         }
-         catch (Exception e)
-         {
-            throw new IllegalStateException("unable to create TransactionManager from " + transactionManagerLocatorClass +
-                                               "." +
-                                               transactionManagerLocatorMethod,
-                                            e);
-         }
-
-         if (tm == null)
-         {
-            throw new IllegalStateException("Cannot locate a transaction manager");
-         }
-      }
-
-      return tm;
    }
 
    private Connection createConnection(final String username, final String password,

@@ -76,10 +76,6 @@ public interface ActiveMQRALogger extends BasicLogger
    void awaitingJMSServerCreation();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152000, value = "It wasn''t possible to lookup for a Transaction Manager through the configured properties TransactionManagerLocatorClass and TransactionManagerLocatorMethod\nActiveMQ Resource Adapter won''t be able to set and verify transaction timeouts in certain cases.", format = Message.Format.MESSAGE_FORMAT)
-   void noTXLocator();
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 152001, value = "problem resetting ActiveMQ xa session after failure", format = Message.Format.MESSAGE_FORMAT)
    void problemResettingXASession();
 

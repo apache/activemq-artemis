@@ -14,19 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.jboss.tm;
+package org.apache.activemq.service.extensions.transactions;
 
 import javax.transaction.TransactionManager;
-
-import org.jboss.tm.TransactionManagerLocator;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
-public class JBoss4TransactionManagerLocator
+public interface TransactionManagerLocator
 {
-   public TransactionManager getTm()
-   {
-      return TransactionManagerLocator.getInstance().locate();
-   }
+   TransactionManager getTransactionManager();
 }

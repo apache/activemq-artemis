@@ -2371,8 +2371,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManagerLocatorClass(this.getClass().getName());
-         bridge.setTransactionManagerLocatorMethod("getNewTm");
          bridge.start();
       }
       finally

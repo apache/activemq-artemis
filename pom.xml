@@ -220,6 +220,11 @@
             <artifactId>geronimo-jta_1.1_spec</artifactId>
             <version>1.1.1</version>
          </dependency>
+         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+            <version>1.1.1</version>
+         </dependency>
 
          <!--this specifically for the JMS Bridge-->
          <dependency>
@@ -489,7 +494,6 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
-            <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -517,7 +521,6 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
-            <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -555,7 +558,6 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
-            <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -589,7 +591,6 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
-            <module>integration/activemq-jboss-as-integration</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>

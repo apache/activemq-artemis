@@ -53,6 +53,7 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.ra.recovery.RecoveryManager;
+import org.apache.activemq.service.extensions.ServiceUtils;
 import org.apache.activemq.utils.SensitiveDataCodec;
 import org.jgroups.JChannel;
 
@@ -247,7 +248,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
          ActiveMQRALogger.LOGGER.trace("start(" + ctx + ")");
       }
 
-      locateTM();
+      tm = ServiceUtils.getTransactionManager();
 
       recoveryManager.start(useAutoRecovery);
 
@@ -1811,24 +1812,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    }
 
    /**
-    * @param transactionManagerLocatorClass
-    * @see ActiveMQRAProperties#setTransactionManagerLocatorClass(java.lang.String)
-    */
-   public void setTransactionManagerLocatorClass(String transactionManagerLocatorClass)
-   {
-      raProperties.setTransactionManagerLocatorClass(transactionManagerLocatorClass);
-   }
-
-   /**
-    * @return
-    * @see ActiveMQRAProperties#getTransactionManagerLocatorClass()
-    */
-   public String getTransactionManagerLocatorClass()
-   {
-      return raProperties.getTransactionManagerLocatorClass();
-   }
-
-   /**
     * @return
     * @see ActiveMQRAProperties#getJgroupsChannelLocatorClass()
     */
@@ -1862,24 +1845,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    public void setJgroupsChannelRefName(String jgroupsChannelRefName)
    {
       raProperties.setJgroupsChannelRefName(jgroupsChannelRefName);
-   }
-
-   /**
-    * @return
-    * @see ActiveMQRAProperties#getTransactionManagerLocatorMethod()
-    */
-   public String getTransactionManagerLocatorMethod()
-   {
-      return raProperties.getTransactionManagerLocatorMethod();
-   }
-
-   /**
-    * @param transactionManagerLocatorMethod
-    * @see ActiveMQRAProperties#setTransactionManagerLocatorMethod(java.lang.String)
-    */
-   public void setTransactionManagerLocatorMethod(String transactionManagerLocatorMethod)
-   {
-      raProperties.setTransactionManagerLocatorMethod(transactionManagerLocatorMethod);
    }
 
    public ActiveMQConnectionFactory createActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties)
@@ -2172,31 +2137,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
       }
       return map;
    }
-
-   private void locateTM()
-   {
-      String[] locatorClasses = raProperties.getTransactionManagerLocatorClass().split(";");
-      String[] locatorMethods = raProperties.getTransactionManagerLocatorMethod().split(";");
-
-      for (int i = 0; i < locatorClasses.length; i++)
-      {
-         tm = ActiveMQRaUtils.locateTM(locatorClasses[i], locatorMethods[i]);
-         if (tm != null)
-         {
-            break;
-         }
-      }
-
-      if (tm == null)
-      {
-         ActiveMQRALogger.LOGGER.noTXLocator();
-      }
-      else
-      {
-         ActiveMQRALogger.LOGGER.debug("TM located = " + tm);
-      }
-   }
-
 
    private void setParams(final ActiveMQConnectionFactory cf,
                           final ConnectionFactoryProperties overrideProperties)

@@ -280,18 +280,6 @@ public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
       "         <config-property-type>long</config-property-type>\n" +
       "         <config-property-value></config-property-value>\n" +
       "      </config-property>\n" +
-      "      <config-property>" +
-      "         <description></description>" +
-      "         <config-property-name>TransactionManagerLocatorMethod</config-property-name>" +
-      "         <config-property-type>java.lang.String</config-property-type>" +
-      "         <config-property-value></config-property-value>" +
-      "      </config-property>" +
-      "      <config-property>" +
-      "         <description></description>" +
-      "         <config-property-name>TransactionManagerLocatorClass</config-property-name>" +
-      "         <config-property-type>java.lang.String</config-property-type>" +
-      "         <config-property-value></config-property-value>" +
-      "      </config-property>" +
       "      <config-property>\n" +
       "         <description>How many attempts should be made when connecting the MDB</description>\n" +
       "         <config-property-name>SetupAttempts</config-property-name>\n" +

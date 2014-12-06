@@ -476,8 +476,6 @@ public class ResourceAdapterTest extends ServiceTestBase
          ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
          ra.setUserName("userGlobal");
          ra.setPassword("passwordGlobal");
-         ra.setTransactionManagerLocatorClass("");
-         ra.setTransactionManagerLocatorMethod("");
          ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
          Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
@@ -532,8 +530,6 @@ public class ResourceAdapterTest extends ServiceTestBase
          ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
          ra.setUserName("badUser");
          ra.setPassword("badPassword");
-         ra.setTransactionManagerLocatorClass("");
-         ra.setTransactionManagerLocatorMethod("");
          ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
          ActiveMQActivationSpec spec = new ActiveMQActivationSpec();

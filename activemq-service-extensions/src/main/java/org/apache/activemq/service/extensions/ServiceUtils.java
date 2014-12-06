@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.service.extensions;
 
+import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.apache.activemq.service.extensions.transactions.TransactionManagerLocator;
 import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
@@ -31,6 +34,10 @@ import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactor
 public class ServiceUtils
 {
    private static ActiveMQXAResourceWrapperFactory activeMQXAResourceWrapperFactory;
+
+   private static TransactionManager transactionManager;
+
+   private static boolean transactionManagerLoaded = false;
 
    private static ActiveMQXAResourceWrapperFactory getActiveMQXAResourceWrapperFactory()
    {
@@ -44,6 +51,20 @@ public class ServiceUtils
    public static ActiveMQXAResourceWrapper wrapXAResource(XAResource xaResource, Map<String, Object> properties)
    {
       return getActiveMQXAResourceWrapperFactory().wrap(xaResource, properties);
+   }
+
+   public static synchronized TransactionManager getTransactionManager()
+   {
+      if (!transactionManagerLoaded)
+      {
+         Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class).iterator();
+         if (it.hasNext())
+         {
+            transactionManager = it.next().getTransactionManager();
+         }
+         transactionManagerLoaded = true;
+      }
+      return transactionManager;
    }
 
    private static void setActiveMQXAResourceWrapperFactory(Iterable<ActiveMQXAResourceWrapperFactory> iterable)

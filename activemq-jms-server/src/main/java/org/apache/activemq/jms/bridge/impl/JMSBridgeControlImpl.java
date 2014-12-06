@@ -136,16 +136,6 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       return bridge.getTargetUsername();
    }
 
-   public String getTransactionManagerLocatorClass()
-   {
-      return bridge.getTransactionManagerLocatorClass();
-   }
-
-   public String getTransactionManagerLocatorMethod()
-   {
-      return bridge.getTransactionManagerLocatorMethod();
-   }
-
    public boolean isAddMessageIDInHeader()
    {
       return bridge.isAddMessageIDInHeader();
@@ -231,16 +221,6 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
    public void setTargetUsername(final String name)
    {
       bridge.setTargetUsername(name);
-   }
-
-   public void setTransactionManagerLocatorClass(final String transactionManagerLocatorClass)
-   {
-      bridge.setTransactionManagerLocatorClass(transactionManagerLocatorClass);
-   }
-
-   public void setTransactionManagerLocatorMethod(final String transactionManagerLocatorMethod)
-   {
-      bridge.setTransactionManagerLocatorMethod(transactionManagerLocatorMethod);
    }
 
    // Constants -----------------------------------------------------

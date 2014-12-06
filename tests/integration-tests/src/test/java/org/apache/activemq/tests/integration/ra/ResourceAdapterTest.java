@@ -69,8 +69,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
       ra.setUserName("userGlobal");
       ra.setPassword("passwordGlobal");
-      ra.setTransactionManagerLocatorClass("");
-      ra.setTransactionManagerLocatorMethod("");
       ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
 
       Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
@@ -131,7 +129,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -363,7 +360,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectionParameters("server-id=0");
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -390,7 +386,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectionParameters("server-id=0");
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -419,7 +414,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectionParameters("server-id=0");
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -446,7 +440,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setDiscoveryInitialWaitTimeout(1L);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -469,10 +462,8 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setDiscoveryAddress("231.7.7.7");
 
-      // qResourceAdapter.getTransactionManagerLocatorClass
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -504,7 +495,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setHA(true);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -528,7 +518,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectionParameters("server-id=0");
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -552,7 +541,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectionParameters("server-id=0");
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -577,7 +565,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setReconnectAttempts(100);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -601,7 +588,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectionParameters("server-id=0");
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -625,7 +611,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setConnectionParameters("server-id=0");
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -654,7 +639,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       qResourceAdapter.setUseMaskedPassword(true);
       qResourceAdapter.setPassword(mask);
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
 
       assertEquals("helloworld", qResourceAdapter.getPassword());
@@ -699,7 +683,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
 
       qResourceAdapter.setPassword(mask);
 
-      qResourceAdapter.setTransactionManagerLocatorClass("");
       qResourceAdapter.start(ctx);
 
       assertEquals("helloworld", qResourceAdapter.getPassword());
