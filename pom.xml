@@ -30,8 +30,8 @@
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
       <netty.version>4.0.20.Final</netty.version>
       <activemq.version.versionName>Active Hornet</activemq.version.versionName>
-      <activemq.version.majorVersion>2</activemq.version.majorVersion>
-      <activemq.version.minorVersion>5</activemq.version.minorVersion>
+      <activemq.version.majorVersion>6</activemq.version.majorVersion>
+      <activemq.version.minorVersion>0</activemq.version.minorVersion>
       <activemq.version.microVersion>0</activemq.version.microVersion>
       <activemq.version.incrementingVersion>125,124,123,122</activemq.version.incrementingVersion>
       <activemq.version.versionSuffix>SNAPSHOT</activemq.version.versionSuffix>

@@ -5184,6 +5184,8 @@ public class PagingTest extends ServiceTestBase
     * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
     *
     *   -Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dlogging.configuration=file:<path_to_source>/tests/config/logging.properties
+    *
+    *   Note: Idea should get these from the pom and you shouldn't need to do this.
     */
    public void testFailMessagesNonDurable() throws Exception
    {
@@ -5850,6 +5852,120 @@ public class PagingTest extends ServiceTestBase
          session.close();
 
          waitForNotPaging(store);
+      }
+      finally
+      {
+         server.stop();
+      }
+
+   }
+
+
+   @Test
+   public void testMultiFiltersBrowsing() throws Throwable
+   {
+      internalTestMultiFilters(true);
+   }
+
+   @Test
+   public void testMultiFiltersRegularConsumer() throws Throwable
+   {
+      internalTestMultiFilters(false);
+   }
+
+   public void internalTestMultiFilters(boolean browsing) throws Throwable
+   {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultConfig()
+         .setJournalSyncNonTransactional(false);
+
+      server = createServer(true,
+                            config,
+                            PagingTest.PAGE_SIZE,
+                            PagingTest.PAGE_MAX,
+                            new HashMap<String, AddressSettings>());
+
+      server.start();
+
+      try
+      {
+         ServerLocator locator = createInVMNonHALocator();
+         locator.setBlockOnDurableSend(true);
+         ClientSessionFactory sf = locator.createSessionFactory();
+         ClientSession session = sf.createSession(true, true, 0);
+
+         session.createQueue(ADDRESS.toString(), "Q1", null, true);
+
+         PagingStore store = server.getPagingManager().getPageStore(ADDRESS);
+
+         ClientProducer prod = session.createProducer(ADDRESS);
+
+         ClientMessage msg = null;
+         store.startPaging();
+
+         for (int i = 0; i < 100; i++)
+         {
+            msg = session.createMessage(true);
+            msg.putStringProperty("color", "red");
+            msg.putIntProperty("count", i);
+            prod.send(msg);
+
+            if (i > 0 && i % 10 == 0)
+            {
+               store.startPaging();
+               store.forceAnotherPage();
+            }
+         }
+
+         for (int i = 0; i < 100; i++)
+         {
+            msg = session.createMessage(true);
+            msg.putStringProperty("color", "green");
+            msg.putIntProperty("count", i);
+            prod.send(msg);
+
+            if (i > 0 && i % 10 == 0)
+            {
+               store.startPaging();
+               store.forceAnotherPage();
+            }
+         }
+
+         session.commit();
+
+         session.close();
+
+         session = sf.createSession(false, false, 0);
+         session.start();
+
+
+         ClientConsumer cons1;
+
+         if (browsing)
+         {
+            cons1 = session.createConsumer("Q1", "color='green'", true);
+         }
+         else
+         {
+            cons1 = session.createConsumer("Q1", "color='red'", false);
+         }
+
+         for (int i = 0; i < 100; i++)
+         {
+            msg = cons1.receive(5000);
+
+            System.out.println("Received " + msg);
+            assertNotNull(msg);
+            if (!browsing)
+            {
+               msg.acknowledge();
+            }
+         }
+
+         session.commit();
+
+         session.close();
       }
       finally
       {

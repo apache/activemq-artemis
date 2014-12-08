@@ -213,7 +213,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
       if (browseOnly)
       {
-         browserDeliverer = new BrowserDeliverer(messageQueue.iterator());
+         browserDeliverer = new BrowserDeliverer(messageQueue.totalIterator());
       }
       else
       {
