@@ -99,9 +99,6 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
    protected ActiveMQResourceAdapter newResourceAdapter()
    {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
-      // We don't have a TM on these tests.. This would cause the lookup to take at least 10 seconds if we didn't set to ""
-      qResourceAdapter.setTransactionManagerLocatorClass("");
-      qResourceAdapter.setTransactionManagerLocatorMethod("");
       qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
       return qResourceAdapter;
    }

@@ -17,7 +17,6 @@
 package org.apache.activemq.ra;
 
 import javax.naming.Context;
-import javax.transaction.TransactionManager;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -252,39 +251,6 @@ public final class ActiveMQRaUtils
       }
 
       return res;
-   }
-
-
-   /**
-    * The Resource adapter can't depend on any provider's specific library. Because of that we use reflection to locate the
-    * transaction manager during startup.
-    * <p/>
-    * <p/>
-    * TODO: https://jira.jboss.org/browse/HORNETQ-417
-    * We should use a proper SPI instead of reflection
-    * We would need to define a proper SPI package for this.
-    */
-   public static TransactionManager locateTM(final String locatorClass, final String locatorMethod)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<TransactionManager>()
-      {
-         public TransactionManager run()
-         {
-            try
-            {
-               ClassLoader loader = Thread.currentThread().getContextClassLoader();
-               Class<?> aClass = loader.loadClass(locatorClass);
-               Object o = aClass.newInstance();
-               Method m = aClass.getMethod(locatorMethod);
-               return (TransactionManager) m.invoke(o);
-            }
-            catch (Throwable e)
-            {
-               ActiveMQRALogger.LOGGER.debug(e.getMessage(), e);
-               return null;
-            }
-         }
-      });
    }
 
    /**

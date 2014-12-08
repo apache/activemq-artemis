@@ -50,8 +50,6 @@ public class ConnectionFactoryPropertiesTest extends UnitTestCase
       UNSUPPORTED_RA_PROPERTIES.add("discoveryInitialWaitTimeout");
       UNSUPPORTED_RA_PROPERTIES.add("connectionParameters");
       UNSUPPORTED_RA_PROPERTIES.add("connectorClassName");
-      UNSUPPORTED_RA_PROPERTIES.add("transactionManagerLocatorClass");
-      UNSUPPORTED_RA_PROPERTIES.add("transactionManagerLocatorMethod");
       UNSUPPORTED_RA_PROPERTIES.add("managedConnectionFactory");
       UNSUPPORTED_RA_PROPERTIES.add("jndiParams");
       UNSUPPORTED_RA_PROPERTIES.add("password");

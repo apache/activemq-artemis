@@ -90,9 +90,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;
 
-      qResourceAdapter.setTransactionManagerLocatorClass(DummyTMLocator.class.getName());
-      qResourceAdapter.setTransactionManagerLocatorMethod("getTM");
-
       MyBootstrapContext ctx = new MyBootstrapContext();
 
       qResourceAdapter.setConnectorClassName(NETTY_CONNECTOR_FACTORY);
@@ -169,9 +166,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;
-
-      qResourceAdapter.setTransactionManagerLocatorClass(DummyTMLocator.class.getName());
-      qResourceAdapter.setTransactionManagerLocatorMethod("getTM");
 
       MyBootstrapContext ctx = new MyBootstrapContext();
 

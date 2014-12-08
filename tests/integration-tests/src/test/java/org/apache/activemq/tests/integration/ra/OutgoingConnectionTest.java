@@ -96,8 +96,6 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
 
       resourceAdapter = new ActiveMQResourceAdapter();
-      resourceAdapter.setTransactionManagerLocatorClass(JMSContextTest.class.getName());
-      resourceAdapter.setTransactionManagerLocatorMethod("getTm");
       resourceAdapter.setEntries("[\"java://jmsXA\"]");
 
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
@@ -288,8 +286,6 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    {
       setupDLQ(10);
       resourceAdapter = newResourceAdapter();
-      resourceAdapter.setTransactionManagerLocatorClass(JMSContextTest.class.getName());
-      resourceAdapter.setTransactionManagerLocatorMethod("getTm");
       DummyTransactionManager.tm.tx = new DummyTransaction();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);

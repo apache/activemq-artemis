@@ -197,8 +197,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    protected ActiveMQResourceAdapter newResourceAdapter()
    {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
-      qResourceAdapter.setTransactionManagerLocatorClass("");
-      qResourceAdapter.setTransactionManagerLocatorMethod("");
       qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
       return qResourceAdapter;
    }
@@ -209,8 +207,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       qResourceAdapter.setReconnectAttempts(-1);
       qResourceAdapter.setCallTimeout(500L);
-      qResourceAdapter.setTransactionManagerLocatorClass("");
-      qResourceAdapter.setTransactionManagerLocatorMethod("");
       qResourceAdapter.setRetryInterval(500L);
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -551,8 +547,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    public void testNonDurableSubscriptionDeleteAfterCrash() throws Exception
    {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
-      qResourceAdapter.setTransactionManagerLocatorClass("");
-      qResourceAdapter.setTransactionManagerLocatorMethod("");
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();

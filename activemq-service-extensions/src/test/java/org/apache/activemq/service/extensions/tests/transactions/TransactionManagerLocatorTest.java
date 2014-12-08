@@ -14,22 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.jboss;
+package org.apache.activemq.service.extensions.tests.transactions;
 
-
-import org.jboss.logging.annotations.MessageBundle;
+import org.apache.activemq.service.extensions.ServiceUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         3/12/12
- *
- * Logger Code 13
- *
- * each message id must be 6 digits long starting with 13, the 3rd digit should be 9
- *
- * so 139000 to 139999
  */
-@MessageBundle(projectCode = "AMQ")
-public class ActiveMQJBossBundle
+public class TransactionManagerLocatorTest extends Assert
 {
+   @Test
+   public void getTM()
+   {
+      assertNotNull(ServiceUtils.getTransactionManager());
+      assertEquals(ServiceUtils.getTransactionManager().getClass(), DummyTransactionManagerLocator.class);
+   }
 }
