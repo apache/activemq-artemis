@@ -51,9 +51,6 @@
                   </goals>
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.XASendExample</clientClass>
-                     <args>
-                        <param>tcp://localhost:5445</param>
-                     </args>
                   </configuration>
                </execution>
                <execution>
@@ -102,7 +99,7 @@
             </dependencies>
             <configuration>
                <waitOnStart>false</waitOnStart>
-               <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+               <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
             </configuration>
          </plugin>
       </plugins>

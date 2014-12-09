@@ -31,6 +31,11 @@
          <artifactId>jbossjta</artifactId>
          <version>4.16.4.Final</version>
       </dependency>
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
+         <version>1.1.1</version>
+      </dependency>
    </dependencies>
 
    <build>
@@ -60,9 +65,6 @@
                   </goals>
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.XAwithJTAExample</clientClass>
-                     <args>
-                        <param>tcp://localhost:5445</param>
-                     </args>
                   </configuration>
                </execution>
                <execution>
@@ -111,7 +113,7 @@
             </dependencies>
             <configuration>
                <waitOnStart>false</waitOnStart>
-               <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+               <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
             </configuration>
          </plugin>
       </plugins>

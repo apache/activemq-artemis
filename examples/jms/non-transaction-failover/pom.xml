@@ -41,18 +41,12 @@
                            <name>build.directory</name>
                            <value>${basedir}/target/</value>
                         </property>
-                     </systemProperties>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
-                     <systemProperties>
-                        <property>
-                           <name>build.directory</name>
-                           <value>${basedir}/target/</value>
-                        </property>
                         <property>
                            <name>udp-address</name>
                            <value>${udp-address}</value>
                         </property>
                      </systemProperties>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -61,9 +55,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <jndiPort>1199</jndiPort>
-                     <jndiRmiPort>1198</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -84,10 +76,6 @@
                   </goals>
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.NonTransactionFailoverExample</clientClass>
-                     <args>
-                        <param>tcp://localhost:5445</param>
-                        <param>tcp://localhost:5446</param>
-                     </args>
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
@@ -102,7 +90,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -111,7 +99,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                   </configuration>
                </execution>
             </executions>

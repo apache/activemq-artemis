@@ -36,7 +36,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -46,9 +46,6 @@
                   </goals>
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.ReattachExample</clientClass>
-                     <args>
-                        <param>tcp://localhost:5445</param>
-                     </args>
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
@@ -63,7 +60,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                   </configuration>
                </execution>
             </executions>

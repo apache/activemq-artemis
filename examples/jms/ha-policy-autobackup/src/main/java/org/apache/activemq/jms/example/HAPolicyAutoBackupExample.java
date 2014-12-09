@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -63,8 +65,24 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI from server 0 and 1
-         ic0 = getContext(0);
-         ic1 = getContext(1);
+         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[0]);
+         properties.put("queue.queue/exampleQueue", "exampleQueue");
+         properties.put("connection.ConnectionFactory.ha", true);
+         properties.put("connection.ConnectionFactory.retryInterval", 1000);
+         properties.put("connection.ConnectionFactory.retryIntervalMultiplier", 1.0);
+         properties.put("connection.ConnectionFactory.reconnectAttempts", -1);
+         ic0 = new InitialContext(properties);
+
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[1]);
+         properties.put("connection.ConnectionFactory.ha", true);
+         properties.put("connection.ConnectionFactory.retryInterval", 1000);
+         properties.put("connection.ConnectionFactory.retryIntervalMultiplier", 1.0);
+         properties.put("connection.ConnectionFactory.reconnectAttempts", -1);
+         ic1 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
          Queue queue = (Queue) ic0.lookup("queue/exampleQueue");

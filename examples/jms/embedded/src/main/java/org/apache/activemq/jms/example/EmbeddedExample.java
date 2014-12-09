@@ -81,11 +81,17 @@ public final class EmbeddedExample extends ActiveMQExample
          // Step 3. Configure the JMS ConnectionFactory
          ArrayList<String> connectorNames = new ArrayList<String>();
          connectorNames.add("connector");
-         ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl("cf", false,  connectorNames, "/cf");
+         ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
+            .setName("cf")
+            .setConnectorNames(connectorNames)
+            .setBindings("cf");
          jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 
          // Step 4. Configure the JMS Queue
-         JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl("queue1", null, false, "queue/queue1");
+         JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
+            .setName("queue1")
+            .setDurable(false)
+            .setBindings("queue/queue1");
          jmsConfig.getQueueConfigurations().add(queueConfig);
 
          // Step 5. Start the JMS Server using the ActiveMQ core server and the JMS configuration
@@ -96,7 +102,7 @@ public final class EmbeddedExample extends ActiveMQExample
          System.out.println("Started Embedded JMS Server");
 
          // Step 6. Lookup JMS resources defined in the configuration
-         ConnectionFactory cf = (ConnectionFactory)jmsServer.lookup("/cf");
+         ConnectionFactory cf = (ConnectionFactory)jmsServer.lookup("cf");
          Queue queue = (Queue)jmsServer.lookup("queue/queue1");
 
          // Step 7. Send and receive a message using JMS API

@@ -52,7 +52,7 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI from the server #1
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Look up the JMS resources from JNDI
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
@@ -97,7 +97,7 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
 
          // Step 10. Crash server #1, the live server, and wait a little while to make sure
          // it has really crashed
-         Thread.sleep(2000);
+         Thread.sleep(5000);
          killServer(0);
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
@@ -119,7 +119,7 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
          }
          message0.acknowledge();
 
-         Thread.sleep(2000);
+         Thread.sleep(5000);
          killServer(getServer(connection));
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the

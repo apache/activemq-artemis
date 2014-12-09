@@ -1,0 +1,39 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+
+   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-ssl-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <param key="host" value="localhost"/>
+         <param key="port" value="5500"/>
+         <param key="ssl-enabled" value="true"/>
+         <param key="key-store-path" value="activemq/server0/activemq.example.keystore"/>
+         <param key="key-store-password" value="activemqexample"/>
+      </acceptor>
+   </acceptors>
+
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="jms.queue.exampleQueue">
+         <permission type="createDurableQueue" roles="guest"/>
+         <permission type="deleteDurableQueue" roles="guest"/>
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+   
+</configuration>

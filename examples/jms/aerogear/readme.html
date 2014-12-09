@@ -65,8 +65,8 @@
         <pre class="prettyprint">
            <code>
    &lt;queues>
-       &lt;queue name="jms.queue.aerogearQueue">
-           &lt;address>jms.queue.aerogearQueue&lt;/address>
+       &lt;queue name="jms.queue.exampleQueue">
+           &lt;address>jms.queue.exampleQueue&lt;/address>
        &lt;/queue>
    &lt;/queues>
 
@@ -74,7 +74,7 @@
        &lt;connector-service name="aerogear-connector">
            &lt;factory-class>org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory&lt;/factory-class>
            &lt;param key="endpoint" value="${endpoint}"/>
-           &lt;param key="queue" value="jms.queue.aerogearQueue"/>
+           &lt;param key="queue" value="jms.queue.exampleQueue"/>
            &lt;param key="application-id" value="${applicationid}"/>
            &lt;param key="master-secret" value="${mastersecret}"/>
        &lt;/connector-service>
@@ -105,7 +105,7 @@
   <p>Now lets look at a snippet of code we used to send the message for our JMS client</p>
   <pre class="prettyprint">
       <code>
-  Queue queue = (Queue)initialContext.lookup("/queue/aerogearQueue");
+  Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
   // Step 3. Perform a lookup on the Connection Factory
   ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");

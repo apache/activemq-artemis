@@ -52,7 +52,7 @@ public class StaticSelectorExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. look-up the JMS queue object from JNDI, this is the queue that has filter configured with it.
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
@@ -68,9 +68,10 @@ public class StaticSelectorExample extends ActiveMQExample
 
          // Step 6. Create a JMS Session
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 7. Create a JMS Message Producer
-         MessageProducer producer = session.createProducer(queue);
+         MessageProducer producer = producerSession.createProducer(queue);
 
          // Step 8. Create a JMS Message Consumer that receives 'red' messages
          MessageConsumer redConsumer = session.createConsumer(queue);
@@ -138,7 +139,7 @@ public class StaticSelectorExample extends ActiveMQExample
                                textMessage.getText() +
                                "] with color property: " +
                                colorProp);
-            if (!colorProp.equals(name))
+            if (colorProp != null && !colorProp.equals(name))
             {
                result = false;
             }

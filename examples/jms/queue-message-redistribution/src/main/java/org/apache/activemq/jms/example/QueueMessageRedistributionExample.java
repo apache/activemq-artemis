@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -56,7 +58,11 @@ public class QueueMessageRedistributionExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI from server 0
-         ic0 = getContext(0);
+         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[0]);
+         properties.put("queue.queue/exampleQueue", "exampleQueue");
+         ic0 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
          Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
@@ -65,7 +71,10 @@ public class QueueMessageRedistributionExample extends ActiveMQExample
          ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
 
          // Step 4. Get an initial context for looking up JNDI from server 1
-         ic1 = getContext(1);
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[1]);
+         ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
          ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");

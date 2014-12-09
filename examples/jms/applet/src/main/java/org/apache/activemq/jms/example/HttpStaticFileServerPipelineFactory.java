@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.jms.example;
 
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
-import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
-import org.jboss.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPipelineFactory;
+import io.netty.channel.Channels;
+import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * A HttpStaticFileServerPipelineFactory

@@ -53,7 +53,7 @@ public class StopServerFailoverExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI from the server #1
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Look up the JMS resources from JNDI
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
@@ -98,7 +98,7 @@ public class StopServerFailoverExample extends ActiveMQExample
 
          // Step 10. Crash server #1, the live server, and wait a little while to make sure
          // it has really crashed
-         Thread.sleep(2000);
+         Thread.sleep(5000);
          System.out.println("stop the server by logging into jconsole");
          System.in.read();
 

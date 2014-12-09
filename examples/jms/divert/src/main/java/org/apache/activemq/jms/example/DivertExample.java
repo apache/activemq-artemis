@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -57,7 +59,13 @@ public class DivertExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup on the London server
-         initialContextLondon = getContext(0);
+         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[0]);
+         properties.put("queue.queue/orders", "orders");
+         properties.put("topic.topic/priceUpdates", "priceUpdates");
+         properties.put("topic.topic/spyTopic", "spyTopic");
+         initialContextLondon = new InitialContext(properties);
 
          // Step 2. Look-up the queue orderQueue on the London server - this is the queue any orders are sent to
          Queue orderQueue = (Queue)initialContextLondon.lookup("queue/orders");
@@ -70,7 +78,11 @@ public class DivertExample extends ActiveMQExample
          Topic spyTopic = (Topic)initialContextLondon.lookup("topic/spyTopic");
 
          // Step 6. Create an initial context to perform the JNDI lookup on the New York server
-         initialContextNewYork = getContext(1);
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[1]);
+         properties.put("topic.topic/newYorkPriceUpdates", "newYorkPriceUpdates");
+         initialContextNewYork = new InitialContext(properties);
 
          // Step 7. Look-up the topic newYorkPriceUpdates on the New York server - any price updates sent to
          // priceUpdates on the London server will

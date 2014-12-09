@@ -66,8 +66,8 @@ public class JMSBridgeExample
       // Step 2. Create and start a JMS Bridge
       // Note, the Bridge needs a transaction manager, in this instance we will use the JBoss TM
       JMSBridge jmsBridge = new JMSBridgeImpl(
-               new JNDIConnectionFactoryFactory(sourceJndiParams, "source/ConnectionFactory"),
-               new JNDIConnectionFactoryFactory(targetJndiParams, "target/ConnectionFactory"),
+               new JNDIConnectionFactoryFactory(sourceJndiParams, "ConnectionFactory"),
+               new JNDIConnectionFactoryFactory(targetJndiParams, "ConnectionFactory"),
                new JNDIDestinationFactory(sourceJndiParams, "source/topic"),
                new JNDIDestinationFactory(targetJndiParams, "target/queue"),
                null,
@@ -91,8 +91,8 @@ public class JMSBridgeExample
       {
          jmsBridge.start();
          // Step 3. Lookup the *source* JMS resources
-         ConnectionFactory sourceConnectionFactory = (ConnectionFactory)sourceContext.lookup("/client/ConnectionFactory");
-         Topic sourceTopic = (Topic)sourceContext.lookup("/source/topic");
+         ConnectionFactory sourceConnectionFactory = (ConnectionFactory)sourceContext.lookup("ConnectionFactory");
+         Topic sourceTopic = (Topic)sourceContext.lookup("source/topic");
 
          // Step 4. Create a connection, a session and a message producer for the *source* topic
          sourceConnection = sourceConnectionFactory.createConnection();
@@ -111,7 +111,7 @@ public class JMSBridgeExample
          sourceConnection.close();
 
          // Step 7. Lookup the *target* JMS resources
-         ConnectionFactory targetConnectionFactory = (ConnectionFactory)targetContext.lookup("client/ConnectionFactory");
+         ConnectionFactory targetConnectionFactory = (ConnectionFactory)targetContext.lookup("ConnectionFactory");
          Queue targetQueue = (Queue)targetContext.lookup("target/queue");
 
          // Step 8. Create a connection, a session and a message consumer for the *target* queue
@@ -169,6 +169,8 @@ public class JMSBridgeExample
       Hashtable<String, String> jndiProps = new Hashtable<String, String>();
       jndiProps.put("java.naming.provider.url", server);
       jndiProps.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+      jndiProps.put("queue.target/queue", "target");
+      jndiProps.put("topic.source/topic", "topic");
       return jndiProps;
    }
 }

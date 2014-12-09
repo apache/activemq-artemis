@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -28,6 +30,8 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.common.example.ActiveMQExample;
 import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.api.jms.JMSFactoryType;
 
 /**
  * This example demonstrates how to run a ActiveMQ embedded with JMS
@@ -52,6 +56,11 @@ public class EmbeddedExample extends ActiveMQExample
          jmsServer.start();
          System.out.println("Started Embedded JMS Server");
 
+         JMSServerManager jmsServerManager = jmsServer.getJMSServerManager();
+         jmsServerManager.addQueueToJndi("exampleQueue", "queue/exampleQueue");
+         List<String> connectors = new ArrayList<String>();
+         connectors.add("in-vm");
+         jmsServerManager.createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
          ConnectionFactory cf = (ConnectionFactory)jmsServer.lookup("ConnectionFactory");
          Queue queue = (Queue)jmsServer.lookup("queue/exampleQueue");
 

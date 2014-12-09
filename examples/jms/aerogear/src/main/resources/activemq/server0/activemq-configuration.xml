@@ -1,0 +1,52 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+
+   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+      </acceptor>
+   </acceptors>
+
+    <!-- We need to create a core queue for the JMS queue explicitly because the connector will be deployed
+     before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
+    <queues>
+        <queue name="jms.queue.exampleQueue">
+            <address>jms.queue.exampleQueue</address>
+        </queue>
+    </queues>
+
+    <connector-services>
+        <connector-service name="aerogear-connector">
+            <factory-class>org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory</factory-class>
+            <param key="endpoint" value="${endpoint}"/>
+            <param key="queue" value="jms.queue.exampleQueue"/>
+            <param key="application-id" value="${applicationid}"/>
+            <param key="master-secret" value="${mastersecret}"/>
+        </connector-service>
+    </connector-services>
+
+   <!-- Other config -->
+
+   <security-settings>
+      <!--security for example queue-->
+      <security-setting match="jms.queue.exampleQueue">
+         <permission type="createDurableQueue" roles="guest"/>
+         <permission type="deleteDurableQueue" roles="guest"/>
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+</configuration>

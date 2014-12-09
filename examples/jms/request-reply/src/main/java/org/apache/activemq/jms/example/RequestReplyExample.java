@@ -67,7 +67,7 @@ public class RequestReplyExample extends ActiveMQExample
          server.start();
 
          // Step 2. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 3. Lookup the queue for sending the request message
          Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");
@@ -162,7 +162,7 @@ public class RequestReplyExample extends ActiveMQExample
       public void start() throws Exception
       {
          // Get an initial context to perform the JNDI lookup.
-         InitialContext initialContext = getContext(0);
+         InitialContext initialContext = new InitialContext();
 
          // Lookup the queue to receive the request message
          Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");

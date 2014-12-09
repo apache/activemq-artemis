@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -53,7 +55,7 @@ public class ReattachExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Perform a lookup on the queue
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
@@ -86,7 +88,7 @@ public class ReattachExample extends ActiveMQExample
 
          // Step 11. To simulate a temporary problem on the network, we stop the remoting acceptor on the
          // server which will close all connections
-         stopAcceptor(initialContext);
+         stopAcceptor();
 
          System.out.println("Acceptor now stopped, will wait for 10 seconds. This simulates the network connection failing for a while");
 
@@ -95,7 +97,7 @@ public class ReattachExample extends ActiveMQExample
 
          System.out.println("Re-starting acceptor");
 
-         startAcceptor(initialContext);
+         startAcceptor();
 
          System.out.println("Restarted acceptor. The client will now reconnect.");
 
@@ -121,22 +123,26 @@ public class ReattachExample extends ActiveMQExample
       }
    }
 
-   private void stopAcceptor(final InitialContext ic) throws Exception
+   private void stopAcceptor() throws Exception
    {
-      stopStartAcceptor(ic, true);
+      stopStartAcceptor(true);
    }
 
-   private void startAcceptor(final InitialContext ic) throws Exception
+   private void startAcceptor() throws Exception
    {
-      stopStartAcceptor(ic, false);
+      stopStartAcceptor(false);
    }
 
    // To do this we send a management message to close the acceptor, we do this on a different
    // connection factory which uses a different remoting connection so we can still send messages
    // when the main connection has been stopped
-   private void stopStartAcceptor(final InitialContext initialContext, final boolean stop) throws Exception
+   private void stopStartAcceptor(final boolean stop) throws Exception
    {
-      ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory2");
+      Hashtable<String, Object> properties = new Hashtable<String, Object>();
+      properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+      properties.put("java.naming.provider.url", "tcp://localhost:5446");
+      InitialContext initialContext = new InitialContext(properties);
+      ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
       Connection connection = null;
       try

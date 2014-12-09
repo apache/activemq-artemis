@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -28,24 +30,7 @@ import javax.naming.InitialContext;
 import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- *
- * This example demonstrates a distributed topic, and needs three servers to be started before the example is run.
- *
- * The example will not spawn the servers itself.
- *
- * The servers should be started using ./run.sh ../config/stand-alone/clustered
- *
- * If running on the same physical box, make sure that each server:
- *
- * a) uses a different data directory
- * b) uses different ports for the netty acceptor
- * c) uses different ports for JNDI
- *
- * Update server[0|1|2]/client-jndi.properties to the correct ports and hosts for the 3 servers
- *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class ClusteredStandaloneExample extends ActiveMQExample
 {
@@ -69,11 +54,21 @@ public class ClusteredStandaloneExample extends ActiveMQExample
 
       try
       {
-         initialContext0 = getContext(0);
+         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[0]);
+         properties.put("topic.topic/exampleTopic", "exampleTopic");
+         initialContext0 = new InitialContext(properties);
 
-         initialContext1 = getContext(1);
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[1]);
+         initialContext1 = new InitialContext(properties);
 
-         initialContext2 = getContext(2);
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[2]);
+         initialContext2 = new InitialContext(properties);
 
          // First we demonstrate a distributed topic.
          // We create a connection on each node, create a consumer on each connection and send some

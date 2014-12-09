@@ -108,7 +108,7 @@
             </dependencies>
             <configuration>
                <waitOnStart>false</waitOnStart>
-               <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+               <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
             </configuration>
          </plugin>
       </plugins>

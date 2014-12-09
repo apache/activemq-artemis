@@ -49,7 +49,7 @@ public class PagingExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Perform a lookup on the Connection Factory
          ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
@@ -59,7 +59,7 @@ public class PagingExample extends ActiveMQExample
          Queue pageQueue = (Queue)initialContext.lookup("queue/pagingQueue");
 
          // Step 4. Lookup for a JMS Queue
-         Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
+         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
 
          // Step 5. Create a JMS Connection
          connection = cf.createConnection();

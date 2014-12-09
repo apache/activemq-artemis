@@ -83,7 +83,7 @@
                         </goals>
                         <configuration>
                            <fork>true</fork>
-                           <hornetqConfigurationDir>${server.dir}</hornetqConfigurationDir>
+                           <configurationDir>${server.dir}</configurationDir>
                         </configuration>
                      </execution>
                      <execution>
@@ -116,7 +116,7 @@
                            <goal>stop</goal>
                         </goals>
                         <configuration>
-                           <hornetqConfigurationDir>${server.dir}</hornetqConfigurationDir>
+                           <configurationDir>${server.dir}</configurationDir>
                         </configuration>
                      </execution>
                   </executions>
@@ -175,7 +175,7 @@
                            <goal>start</goal>
                         </goals>
                         <configuration>
-                           <hornetqConfigurationDir>${server.dir}</hornetqConfigurationDir>
+                           <configurationDir>${server.dir}</configurationDir>
                            <fork>true</fork>
                            <waitOnStart>true</waitOnStart>
                         </configuration>

@@ -55,7 +55,7 @@ public class SecurityExample extends ActiveMQExample
       try
       {
          // /Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. perform lookup on the topics
          Topic genericTopic = (Topic)initialContext.lookup("topic/genericTopic");

@@ -39,11 +39,7 @@ public class PerfSender extends PerfBase
 
          PerfParams params = PerfBase.getParams(fileName);
 
-         fileName = PerfBase.getJndiFileName(args);
-
-         Properties properties = PerfBase.getJndiProps(fileName);
-
-         new PerfSender(params, properties).run();
+         new PerfSender(params).run();
       }
       catch (Exception e)
       {
@@ -51,9 +47,9 @@ public class PerfSender extends PerfBase
       }
    }
 
-   private PerfSender(final PerfParams perfParams, Properties properties)
+   private PerfSender(final PerfParams perfParams)
    {
-      super(perfParams, properties);
+      super(perfParams);
    }
 
    public void run() throws Exception

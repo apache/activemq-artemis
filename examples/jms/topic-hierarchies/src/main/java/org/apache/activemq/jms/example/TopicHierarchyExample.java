@@ -51,7 +51,7 @@ public class TopicHierarchyExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 3. Perform a lookup on the Connection Factory
          ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");

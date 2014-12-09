@@ -36,7 +36,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                      <systemProperties>
                         <property>
                            <name>udp-address</name>
@@ -53,7 +53,7 @@
                   <configuration>
                      <jndiPort>1199</jndiPort>
                      <jndiRmiPort>1198</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -88,7 +88,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -97,7 +97,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                   </configuration>
                </execution>
             </executions>

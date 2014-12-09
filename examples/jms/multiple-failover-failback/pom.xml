@@ -36,7 +36,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                      <systemProperties>
                         <property>
                            <name>build.directory</name>
@@ -55,9 +55,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <jndiPort>1199</jndiPort>
-                     <jndiRmiPort>1198</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -77,9 +75,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <jndiPort>1299</jndiPort>
-                     <jndiRmiPort>1298</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server2</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server2</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -100,11 +96,6 @@
                   </goals>
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.MultipleFailoverFailbackExample</clientClass>
-                     <args>
-                        <param>tcp://localhost:5445</param>
-                        <param>tcp://localhost:5446</param>
-                        <param>tcp://localhost:5447</param>
-                     </args>
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
@@ -119,7 +110,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -128,7 +119,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -137,7 +128,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server2</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server2</configurationDir>
                   </configuration>
                </execution>
             </executions>

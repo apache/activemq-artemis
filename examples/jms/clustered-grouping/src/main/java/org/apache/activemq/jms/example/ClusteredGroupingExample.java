@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -58,7 +60,11 @@ public class ClusteredGroupingExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI from server 0
-         ic0 = getContext(0);
+         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[0]);
+         properties.put("queue.queue/exampleQueue", "exampleQueue");
+         ic0 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
          Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
@@ -67,15 +73,21 @@ public class ClusteredGroupingExample extends ActiveMQExample
          ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
 
          // Step 4. Get an initial context for looking up JNDI from server 1
-         ic1 = getContext(1);
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[1]);
+         ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
          ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
 
-         // Step 4. Get an initial context for looking up JNDI from server 1
-         ic2 = getContext(2);
+         // Step 4. Get an initial context for looking up JNDI from server 2
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[2]);
+         ic2 = new InitialContext(properties);
 
-         // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
+         // Step 5. Look-up a JMS Connection Factory object from JNDI on server 2
          ConnectionFactory cf2 = (ConnectionFactory)ic2.lookup("ConnectionFactory");
 
          // Step 6. We create a JMS Connection connection0 which is a connection to server 0
@@ -93,7 +105,7 @@ public class ClusteredGroupingExample extends ActiveMQExample
          // Step 10. We create a JMS Session on server 1
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 11. We create a JMS Session on server 1
+         // Step 11. We create a JMS Session on server 2
          Session session2 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 12. We start the connections to ensure delivery occurs on them
@@ -200,5 +212,4 @@ public class ClusteredGroupingExample extends ActiveMQExample
          }
       }
    }
-
 }

@@ -49,7 +49,7 @@ public class StompWebSocketExample extends ActiveMQExample
       InitialContext initialContext = null;
       try
       {
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
          Topic topic = (Topic)initialContext.lookup("topic/chat");
          ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
          connection = cf.createConnection();

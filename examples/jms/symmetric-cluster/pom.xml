@@ -36,7 +36,7 @@
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                      <systemProperties>
                         <property>
                            <name>build.directory</name>
@@ -57,7 +57,7 @@
                   <configuration>
                      <jndiPort>1199</jndiPort>
                      <jndiRmiPort>1198</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -79,7 +79,7 @@
                   <configuration>
                      <jndiPort>1299</jndiPort>
                      <jndiRmiPort>1298</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server2</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server2</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -101,7 +101,7 @@
                   <configuration>
                      <jndiPort>1399</jndiPort>
                      <jndiRmiPort>1398</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server3</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server3</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -123,7 +123,7 @@
                   <configuration>
                      <jndiPort>1499</jndiPort>
                      <jndiRmiPort>1498</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server4</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server4</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -145,7 +145,7 @@
                   <configuration>
                      <jndiPort>1599</jndiPort>
                      <jndiRmiPort>1598</jndiRmiPort>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server5</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server5</configurationDir>
                      <fork>true</fork>
                      <systemProperties>
                         <property>
@@ -188,7 +188,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -197,7 +197,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server1</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -206,7 +206,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server2</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server2</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -215,7 +215,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server3</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server3</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -224,7 +224,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server4</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server4</configurationDir>
                   </configuration>
                </execution>
                <execution>
@@ -233,7 +233,7 @@
                      <goal>stop</goal>
                   </goals>
                   <configuration>
-                     <hornetqConfigurationDir>${basedir}/target/classes/activemq/server5</hornetqConfigurationDir>
+                     <configurationDir>${basedir}/target/classes/activemq/server5</configurationDir>
                   </configuration>
                </execution>
             </executions>

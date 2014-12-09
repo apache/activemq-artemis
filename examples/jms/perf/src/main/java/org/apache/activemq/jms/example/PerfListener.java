@@ -39,11 +39,7 @@ public class PerfListener extends PerfBase
 
          PerfParams params = PerfBase.getParams(fileName);
 
-         fileName = PerfBase.getJndiFileName(args);
-
-         Properties properties = PerfBase.getJndiProps(fileName);
-
-         new PerfListener(params, properties).run();
+         new PerfListener(params).run();
       }
       catch (Exception e)
       {
@@ -51,9 +47,9 @@ public class PerfListener extends PerfBase
       }
    }
 
-   private PerfListener(final PerfParams perfParams, Properties properties)
+   private PerfListener(final PerfParams perfParams)
    {
-      super(perfParams, properties);
+      super(perfParams);
    }
 
    public void run() throws Exception

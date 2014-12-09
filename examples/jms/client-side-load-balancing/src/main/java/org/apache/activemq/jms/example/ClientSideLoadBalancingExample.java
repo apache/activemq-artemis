@@ -56,7 +56,7 @@ public class ClientSideLoadBalancingExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI from server 0
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Look-up the JMS Queue object from JNDI
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");

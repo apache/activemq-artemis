@@ -43,12 +43,11 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
  */
 public abstract class ActiveMQExample
 {
-   protected static final Logger log = Logger.getLogger(ActiveMQExample.class
-         .getName());
+   protected static final Logger log = Logger.getLogger(ActiveMQExample.class.getName());
 
    protected boolean failure = false;
 
-   private String[] args;
+   protected String[] args;
 
    public abstract boolean runExample() throws Exception;
 
@@ -174,17 +173,6 @@ public abstract class ActiveMQExample
          }
          break;
       }
-   }
-
-   protected InitialContext getContext(final int serverId) throws Exception
-   {
-      ActiveMQExample.log.info("using " + args[serverId] + " for jndi");
-      Properties props = new Properties();
-      props.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      props.put("java.naming.provider.url", args[serverId]);
-      props.put("queue.queue/exampleQueue", "exampleQueue");
-      props.put("topic.topic/exampleTopic", "exampleTopic");
-      return new InitialContext(props);
    }
 
    protected int getServer(Connection connection)

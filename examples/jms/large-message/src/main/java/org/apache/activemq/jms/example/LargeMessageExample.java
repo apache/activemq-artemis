@@ -50,13 +50,13 @@ public class LargeMessageExample extends ActiveMQExample
    }
 
    /**
-    * The message we will send is size 10GiB, even though we are only running in 50MB of RAM on both
+    * The message we will send is size 2GiB, even though we are only running in 50MB of RAM on both
     * client and server.
     * <p>
     * This may take some considerable time to create, send and consume - if it takes too long or you
     * don't have enough disk space just reduce the file size here
     */
-   private static final long FILE_SIZE = 2L * 1024 * 1024 * 1024; // 10 GiB message
+   private static final long FILE_SIZE = 2L * 1024 * 1024 * 1024; // 2 GiB message
 
    @Override
    public boolean runExample() throws Exception
@@ -67,7 +67,7 @@ public class LargeMessageExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
@@ -137,7 +137,7 @@ public class LargeMessageExample extends ActiveMQExample
 
          // Step 11. Now the server is restarted we can recreate the JMS Objects, and start the new connection
 
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          queue = (Queue)initialContext.lookup("queue/exampleQueue");
 

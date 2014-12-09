@@ -1,0 +1,52 @@
+<configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+
+   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+
+   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+
+   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+
+   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+   
+   <!-- Acceptors -->
+   <acceptors>
+      <acceptor name="netty-acceptor">
+         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+      </acceptor>
+   </acceptors>
+
+   <!-- Other config -->
+
+   <security-settings>
+      <!-- any user can have full control of generic topics -->
+      <security-setting match="jms.topic.#">
+         <permission type="createDurableQueue" roles="user"/>
+         <permission type="deleteDurableQueue" roles="user"/>
+         <permission type="createNonDurableQueue" roles="user"/>
+         <permission type="deleteNonDurableQueue" roles="user"/>
+         <permission type="send" roles="user"/>
+         <permission type="consume" roles="user"/>
+      </security-setting>
+
+      <security-setting match="jms.topic.news.europe.#">
+         <permission type="createDurableQueue" roles="user"/>
+         <permission type="deleteDurableQueue" roles="user"/>
+         <permission type="createNonDurableQueue" roles="user"/>
+         <permission type="deleteNonDurableQueue" roles="user"/>
+         <permission type="send" roles="europe-user"/>
+         <permission type="consume" roles="news-user"/>
+      </security-setting>
+
+      <security-setting match="jms.topic.news.us.#">
+         <permission type="createDurableQueue" roles="user"/>
+         <permission type="deleteDurableQueue" roles="user"/>
+         <permission type="createNonDurableQueue" roles="user"/>
+         <permission type="deleteNonDurableQueue" roles="user"/>
+         <permission type="send" roles="us-user"/>
+         <permission type="consume" roles="news-user"/>
+      </security-setting>
+   </security-settings>
+   
+</configuration>

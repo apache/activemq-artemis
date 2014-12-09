@@ -53,7 +53,7 @@ public class NonTransactionFailoverExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI from the server #1
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Look up the JMS resources from JNDI
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");

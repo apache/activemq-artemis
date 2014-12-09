@@ -44,8 +44,6 @@ public abstract class PerfBase
 
    private static final String DEFAULT_PERF_PROPERTIES_FILE_NAME = "target/classes/perf.properties";
 
-   private static final String DEFAULT_JNDI_PROPERTIES_FILE_NAME = "target/classes/client.jndi.properties";
-
    private static byte[] randomByteArray(final int length)
    {
       byte[] bytes = new byte[length];
@@ -76,45 +74,6 @@ public abstract class PerfBase
       return fileName;
    }
 
-   protected static String getJndiFileName(final String[] args)
-   {
-      String fileName;
-
-      if (args.length > 1)
-      {
-         fileName = args[1];
-      }
-      else
-      {
-         fileName = PerfBase.DEFAULT_JNDI_PROPERTIES_FILE_NAME;
-      }
-
-      return fileName;
-   }
-
-   protected static Properties getJndiProps(final String fileName) throws Exception
-   {
-      Properties props = null;
-
-      InputStream is = null;
-
-      try
-      {
-         is = new FileInputStream(fileName);
-
-         props = new Properties();
-
-         props.load(is);
-      }
-      finally
-      {
-         if (is != null)
-         {
-            is.close();
-         }
-      }
-      return props;
-   }
    protected static PerfParams getParams(final String fileName) throws Exception
    {
       Properties props = null;
@@ -185,12 +144,9 @@ public abstract class PerfBase
 
    private final PerfParams perfParams;
 
-   private Properties properties;
-
-   protected PerfBase(final PerfParams perfParams, Properties properties)
+   protected PerfBase(final PerfParams perfParams)
    {
       this.perfParams = perfParams;
-      this.properties = properties;
    }
 
    private ConnectionFactory factory;
@@ -205,7 +161,7 @@ public abstract class PerfBase
 
    private void init() throws Exception
    {
-      InitialContext ic = new InitialContext(properties);
+      InitialContext ic = new InitialContext();
       System.out.println("ic = " + ic);
       factory = (ConnectionFactory)ic.lookup(perfParams.getConnectionFactoryLookup());
 

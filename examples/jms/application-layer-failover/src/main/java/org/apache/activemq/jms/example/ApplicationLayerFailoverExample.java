@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.lang.Object;
+import java.lang.String;
+import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -149,7 +152,11 @@ public class ApplicationLayerFailoverExample extends ActiveMQExample
    private void createJMSObjects(final int server) throws Exception
    {
       // Step 1. Get an initial context for looking up JNDI from the server
-      initialContext = getContext(server);
+      Hashtable<String, Object> properties = new Hashtable<String, Object>();
+      properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+      properties.put("java.naming.provider.url", "tcp://127.0.0.1:" + (5445 + server));
+      properties.put("queue.queue/exampleQueue", "exampleQueue");
+      initialContext = new InitialContext(properties);
 
       // Step 2. Look-up the JMS Queue object from JNDI
       Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");

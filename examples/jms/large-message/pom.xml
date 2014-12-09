@@ -51,9 +51,6 @@
                   </goals>
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.LargeMessageExample</clientClass>
-                     <args>
-                        <param>tcp://localhost:5445</param>
-                     </args>
                      <systemProperties>
                         <property>
                            <name>exampleConfigDir</name>
@@ -108,7 +105,7 @@
             </dependencies>
             <configuration>
                <waitOnStart>false</waitOnStart>
-               <hornetqConfigurationDir>${basedir}/target/classes/activemq/server0</hornetqConfigurationDir>
+               <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
             </configuration>
          </plugin>
       </plugins>

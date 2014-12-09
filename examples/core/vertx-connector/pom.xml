@@ -161,7 +161,7 @@
                   </dependencies>
             <configuration>
                <waitOnStart>false</waitOnStart>
-               <hornetqConfigurationDir>${basedir}/target/classes/server0</hornetqConfigurationDir>
+               <configurationDir>${basedir}/target/classes/server0</configurationDir>
             </configuration>
                </plugin>
             </plugins>

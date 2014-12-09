@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -54,8 +56,20 @@ public class ColocatedFailoverScaleDownExample extends ActiveMQExample
       try
       {
          // Step 1. Get an initial context for looking up JNDI for both servers
-         initialContext1 = getContext(1);
-         initialContext = getContext(0);
+         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[1]);
+         initialContext1 = new InitialContext(properties);
+
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", args[0]);
+         properties.put("queue.queue/exampleQueue", "exampleQueue");
+         properties.put("connection.ConnectionFactory.ha", true);
+         properties.put("connection.ConnectionFactory.retryInterval", 1000);
+         properties.put("connection.ConnectionFactory.retryIntervalMultiplier", 1.0);
+         properties.put("connection.ConnectionFactory.reconnectAttempts", -1);
+         initialContext = new InitialContext(properties);
 
          // Step 2. Look up the JMS resources from JNDI
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");

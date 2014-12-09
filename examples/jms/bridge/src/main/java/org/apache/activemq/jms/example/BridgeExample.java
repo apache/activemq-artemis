@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.util.Hashtable;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -55,11 +57,15 @@ public class BridgeExample extends ActiveMQExample
       {
          // Step 1 - we create an initial context for looking up JNDI on node 0
 
-         ic0 = getContext(0);
+         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", "tcp://127.0.0.1:5445");
+         properties.put("queue.queue/sausage-factory", "sausage-factory");
+         ic0 = new InitialContext(properties);
 
          // Step 2 - we look up the sausage-factory queue from node 0
 
-         Queue sausageFactory = (Queue)ic0.lookup("queue/exampleQueue");
+         Queue sausageFactory = (Queue)ic0.lookup("queue/sausage-factory");
 
          // Step 3 - we look up a JMS ConnectionFactory object from node 0
 
@@ -67,11 +73,15 @@ public class BridgeExample extends ActiveMQExample
 
          // Step 4 - we create an initial context for looking up JNDI on node 1
 
-         ic1 = getContext(1);
+         properties = new Hashtable<String, Object>();
+         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.provider.url", "tcp://127.0.0.1:5446");
+         properties.put("queue.queue/mincing-machine", "mincing-machine");
+         ic1 = new InitialContext(properties);
 
          // Step 5 - we look up the mincing-machine queue on node 1
 
-         Queue mincingMachine = (Queue)ic1.lookup("queue/exampleQueue1");
+         Queue mincingMachine = (Queue)ic1.lookup("queue/mincing-machine");
 
          // Step 6 - we look up a JMS ConnectionFactory object from node 1
 

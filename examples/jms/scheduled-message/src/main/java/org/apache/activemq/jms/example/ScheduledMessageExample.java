@@ -51,7 +51,7 @@ public class ScheduledMessageExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");

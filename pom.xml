@@ -455,6 +455,7 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
+            <module>activemq-maven-plugin</module>
             <!-- <module>integration/activemq-jboss-as-integration</module> -->
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
@@ -506,6 +507,7 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
+            <module>activemq-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -532,6 +534,7 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
+            <module>activemq-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -569,6 +572,7 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
+            <module>activemq-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -602,6 +606,7 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
+            <module>activemq-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -762,7 +767,7 @@
             <plugin>
                <groupId>org.apache.activemq</groupId>
                <artifactId>activemq-maven-plugin</artifactId>
-               <version>1.2.0</version>
+               <version>6.0.0-SNAPSHOT</version>
             </plugin>
          </plugins>
       </pluginManagement>

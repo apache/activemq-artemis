@@ -95,7 +95,7 @@ public class StompExample extends ActiveMQExample
          // We will now consume from JMS the message sent with Stomp.
 
          // Step 6. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 7. Perform a lookup on the queue and the connection factory
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");

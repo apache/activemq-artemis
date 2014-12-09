@@ -52,7 +52,7 @@ public class QueueSelectorExample extends ActiveMQExample
       try
       {
          // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = getContext(0);
+         initialContext = new InitialContext();
 
          // Step 2. look-up the JMS queue object from JNDI
          Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
