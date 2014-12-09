@@ -24,11 +24,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-jboss-as-integration</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.jboss</groupId>
          <artifactId>jboss-transaction-spi</artifactId>
       </dependency>

@@ -25,6 +25,31 @@ unsolved [1]. This is specially true for the 'site' plugin [2].
 [1]: <https://cwiki.apache.org/MAVEN/maven-3x-compatibility-notes.html>
 [2]: <https://cwiki.apache.org/MAVEN/maven-3x-and-site-plugin.html>
 
+
+## building the distribution
+
+If you want to build the full release with documentation, Javadocs and the full web site then run the following:
+
+```% mvn -Prelease package```
+
+If you want to install it to your local maven repo then run
+
+```% mvn -Prelease install```
+
+The full release uses gitbook to build a static website from the documentation, if you don't have gitbook installed then
+ install gitbook using npm
+
+```npm install -g gitbook```
+
+If you dont have npm installed then you would need to install that first, on Fedora this would be
+
+```yum install npm```
+
+It is possible to build a distribution with out the manuals and javadocs if you dont have or want gitbook installed, 
+simply run
+
+```% mvn -Prelease distro```
+
 ## Tests
 
 To run the unit tests:
@@ -70,14 +95,6 @@ If you are trying to copy the examples somewhere else and modifying them. Consid
 # if trying to modify the 'topic' example:
 cd examples/jms/topic && mvn dependency:list
 ```
-
-## To build a release artifact
-
-```% mvn -Prelease install```
-
-## To build the release bundle
-
-```% mvn -Prelease package```
 
 ## Eclipse
 

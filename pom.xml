@@ -476,6 +476,31 @@
          </modules>
       </profile>
       <profile>
+         <id>distro</id>
+         <modules>
+            <module>activemq-dto</module>
+            <module>activemq-web</module>
+            <module>activemq-website</module>
+            <module>activemq-bootstrap</module>
+            <module>activemq-commons</module>
+            <module>activemq-selector</module>
+            <module>activemq-core-client</module>
+            <module>activemq-server</module>
+            <module>activemq-jms-client</module>
+            <module>activemq-jms-server</module>
+            <module>activemq-native</module>
+            <module>activemq-journal</module>
+            <module>activemq-ra</module>
+            <module>activemq-rest</module>
+            <module>activemq-tools</module>
+            <module>activemq-service-extensions</module>
+            <module>integration/activemq-spring-integration</module>
+            <module>integration/activemq-aerogear-integration</module>
+            <module>integration/activemq-vertx-integration</module>
+            <module>distribution</module>
+         </modules>
+      </profile>
+      <profile>
          <id>release</id>
          <modules>
             <module>activemq-dto</module>
