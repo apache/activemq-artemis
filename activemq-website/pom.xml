@@ -47,50 +47,81 @@
 
    <properties>
      <activemq.basedir>${project.basedir}/..</activemq.basedir>
+     <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
+     <webapp-outdir>${basedir}/target/classes/user-manual</webapp-outdir>
    </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.1</version>
-                <executions>
-                    <execution>
-                        <id>javadoc-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <doclet>org.jboss.apiviz.APIviz</doclet>
-                            <docletArtifact>
-                                <groupId>org.jboss.apiviz</groupId>
-                                <artifactId>apiviz</artifactId>
-                                <version>1.3.2.GA</version>
-                            </docletArtifact>
-                            <useStandardDocletOptions>true</useStandardDocletOptions>
-                            <minmemory>128m</minmemory>
-                            <maxmemory>512m</maxmemory>
-                            <quiet>false</quiet>
-                            <!-- switch on dependency-driven aggregation -->
-                            <includeDependencySources>true</includeDependencySources>
+   <profiles>
+      <profile>
+         <id>release</id>
+         <build>
+             <plugins>
+                 <plugin>
+                     <artifactId>maven-javadoc-plugin</artifactId>
+                     <version>2.10.1</version>
+                     <executions>
+                         <execution>
+                             <id>javadoc-jar</id>
+                             <phase>package</phase>
+                             <goals>
+                                 <goal>jar</goal>
+                             </goals>
+                             <configuration>
+                                 <doclet>org.jboss.apiviz.APIviz</doclet>
+                                 <docletArtifact>
+                                     <groupId>org.jboss.apiviz</groupId>
+                                     <artifactId>apiviz</artifactId>
+                                     <version>1.3.2.GA</version>
+                                 </docletArtifact>
+                                 <useStandardDocletOptions>true</useStandardDocletOptions>
+                                 <minmemory>128m</minmemory>
+                                 <maxmemory>512m</maxmemory>
+                                 <quiet>false</quiet>
+                                 <!-- switch on dependency-driven aggregation -->
+                                 <includeDependencySources>true</includeDependencySources>
 
-                            <dependencySourceIncludes>
-                               <!-- include ONLY dependencies I control -->
-                               <dependencySourceInclude>org.apache.activemq:activemq-core-client</dependencySourceInclude>
-                               <dependencySourceInclude>org.apache.activemq:activemq-jms-client</dependencySourceInclude>
-                               <dependencySourceInclude>org.apache.activemq:activemq-server</dependencySourceInclude>
-                               <dependencySourceInclude>org.apache.activemq:activemq-jms-server</dependencySourceInclude>
-                               <dependencySourceInclude>org.apache.activemq:activemq-journal</dependencySourceInclude>
-                               <dependencySourceInclude>org.apache.activemq:activemq-selector</dependencySourceInclude>
-                            </dependencySourceIncludes>
-                            <quiet>false</quiet>
-                            <aggregate>true</aggregate>
-                            <excludePackageNames>org.apache.activemq.core:org.apache.activemq.utils</excludePackageNames>
-                        </configuration>
+                                 <dependencySourceIncludes>
+                                    <!-- include ONLY dependencies I control -->
+                                    <dependencySourceInclude>org.apache.activemq:activemq-core-client</dependencySourceInclude>
+                                    <dependencySourceInclude>org.apache.activemq:activemq-jms-client</dependencySourceInclude>
+                                    <dependencySourceInclude>org.apache.activemq:activemq-server</dependencySourceInclude>
+                                    <dependencySourceInclude>org.apache.activemq:activemq-jms-server</dependencySourceInclude>
+                                    <dependencySourceInclude>org.apache.activemq:activemq-journal</dependencySourceInclude>
+                                    <dependencySourceInclude>org.apache.activemq:activemq-selector</dependencySourceInclude>
+                                 </dependencySourceIncludes>
+                                 <quiet>false</quiet>
+                                 <aggregate>true</aggregate>
+                                 <excludePackageNames>org.apache.activemq.core:org.apache.activemq.utils</excludePackageNames>
+                             </configuration>
+                         </execution>
+                     </executions>
+                 </plugin>
+                <plugin>
+                  <artifactId>maven-antrun-plugin</artifactId>
+                  <version>1.6</version>
+                  <executions>
+                    <execution>
+                      <phase>generate-sources</phase>
+                      <configuration>
+                        <target>
+                          <!-- lets generate the gitbook -->
+                          <mkdir dir="${webapp-outdir}/gitbook"/>
+                          <echo>executing gitbook</echo>
+                          <exec executable="gitbook">
+                            <arg value="build"/>
+                            <arg value="${basedir}/../docs/user-manual/en"/>
+                            <arg value="--output=${webapp-outdir}"/>
+                          </exec>
+                        </target>
+                      </configuration>
+                      <goals>
+                        <goal>run</goal>
+                      </goals>
                     </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+                  </executions>
+                </plugin>
+             </plugins>
+         </build>
+      </profile>
+   </profiles>
 </project>
