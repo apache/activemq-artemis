@@ -226,19 +226,6 @@
             <version>1.1.1</version>
          </dependency>
 
-         <!--this specifically for the JMS Bridge-->
-         <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jboss-transaction-spi</artifactId>
-            <version>7.0.0.Final</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>org.jboss.logging</groupId>
-                  <artifactId>jboss-logging-spi</artifactId>
-               </exclusion>
-            </exclusions>
-         </dependency>
-
          <!--this for xa recovery-->
          <dependency>
             <groupId>org.jboss.jbossts.jts</groupId>
