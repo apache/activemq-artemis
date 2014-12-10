@@ -87,6 +87,19 @@
          <artifactId>geronimo-ejb_3.0_spec</artifactId>
       </dependency>
 
+      <!--this specifically for the XA Tests -->
+      <dependency>
+         <groupId>org.jboss</groupId>
+         <artifactId>jboss-transaction-spi</artifactId>
+         <version>7.0.0.Final</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.jboss.logging</groupId>
+               <artifactId>jboss-logging-spi</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
       <dependency>
          <groupId>org.apache.geronimo.components</groupId>
          <artifactId>geronimo-jaspi</artifactId>
