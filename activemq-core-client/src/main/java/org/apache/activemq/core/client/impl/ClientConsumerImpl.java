@@ -63,10 +63,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    private static final int NUM_PRIORITIES = 10;
 
-
-   // TODO: We need to set this to _hornetq | activemq based on the version of the protocol
-   // I have added a comment about this at https://issues.apache.org/jira/browse/ACTIVEMQ6-42
-   public static final SimpleString FORCED_DELIVERY_MESSAGE = new SimpleString("_activemq.forced.delivery.seq");
+   public static final SimpleString FORCED_DELIVERY_MESSAGE = new SimpleString("_hornetq.forced.delivery.seq");
 
    // Attributes
    // -----------------------------------------------------------------------------------

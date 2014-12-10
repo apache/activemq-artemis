@@ -166,17 +166,16 @@ class CoreProtocolManager implements ProtocolManager
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
    {
       //if we are not an old client then handshake
-      if (buffer.getByte(0) == 'A' &&
-         buffer.getByte(1) == 'C' &&
-         buffer.getByte(2) == 'T' &&
-         buffer.getByte(3) == 'I' &&
-         buffer.getByte(4) == 'V' &&
-         buffer.getByte(5) == 'E' &&
-         buffer.getByte(6) == 'M' &&
-         buffer.getByte(7) == 'Q')
+      if (buffer.getByte(0) == 'H' &&
+         buffer.getByte(1) == 'O' &&
+         buffer.getByte(2) == 'R' &&
+         buffer.getByte(3) == 'N' &&
+         buffer.getByte(4) == 'E' &&
+         buffer.getByte(5) == 'T' &&
+         buffer.getByte(6) == 'Q')
       {
          //todo add some handshaking
-         buffer.readBytes(8);
+         buffer.readBytes(7);
       }
    }
 
