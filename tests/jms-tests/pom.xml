@@ -86,11 +86,7 @@
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-ejb_3.0_spec</artifactId>
       </dependency>
-      <!--this specifically for the JMS Bridge -->
-      <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-transaction-spi</artifactId>
-      </dependency>
+
       <dependency>
          <groupId>org.apache.geronimo.components</groupId>
          <artifactId>geronimo-jaspi</artifactId>
