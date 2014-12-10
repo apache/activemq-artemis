@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server;
+package org.apache.activemq.service.extensions.xa.recovery;
 
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.jboss.logging.BasicLogger;
@@ -43,12 +43,12 @@ import org.w3c.dom.Node;
  * so an INFO message would be 121000 to 121999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQJMSServerLogger extends BasicLogger
+public interface ActiveMQXARecoveryLogger extends BasicLogger
 {
    /**
     * The default logger.
     */
-   ActiveMQJMSServerLogger LOGGER = Logger.getMessageLogger(ActiveMQJMSServerLogger.class, ActiveMQJMSServerLogger.class.getPackage().getName());
+   ActiveMQXARecoveryLogger LOGGER = Logger.getMessageLogger(ActiveMQXARecoveryLogger.class, ActiveMQXARecoveryLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 121003, value = "JMS Server Manager Running cached command for {0}" , format = Message.Format.MESSAGE_FORMAT)
@@ -89,6 +89,11 @@ public interface ActiveMQJMSServerLogger extends BasicLogger
             format = Message.Format.MESSAGE_FORMAT)
    void xaRecoverConnectionError(@Cause Exception e, ClientSessionFactory csf);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 122015, value = "Can not connect to {0} on auto-generated resource recovery",
+            format = Message.Format.MESSAGE_FORMAT)
+   void xaRecoverAutoConnectionError(@Cause Throwable e, XARecoveryConfig csf);
+
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 122016, value = "Error in XA Recovery" , format = Message.Format.MESSAGE_FORMAT)
    void xaRecoveryError(@Cause Exception e);
@@ -97,6 +102,11 @@ public interface ActiveMQJMSServerLogger extends BasicLogger
    @Message(id = 122017, value = "Tried to correct invalid \"host\" value \"0.0.0.0\" for \"{0}\" connector, but received an exception.",
             format = Message.Format.MESSAGE_FORMAT)
    void failedToCorrectHost(@Cause Exception e, String name);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 122018, value = "Could not start recovery discovery on {0}, we will retry every recovery scan until the server is available",
+            format = Message.Format.MESSAGE_FORMAT)
+   void xaRecoveryStartError(XARecoveryConfig e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 124000, value = "key attribute missing for JMS configuration {0}" , format = Message.Format.MESSAGE_FORMAT)

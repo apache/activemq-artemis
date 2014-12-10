@@ -14,5 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.recovery;
 
+package org.apache.activemq.service.extensions.xa.recovery;
+
+/**
+ * @author mtaylor
+ */
+
+public class ActiveMQRegistryImpl implements ActiveMQRegistry
+{
+   private static ActiveMQRegistryImpl instance;
+
+   public static ActiveMQRegistry getInstance()
+   {
+      if (instance == null)
+      {
+         instance = new ActiveMQRegistryImpl();
+      }
+      return instance;
+   }
+
+   @Override
+   public void register(XARecoveryConfig resourceConfig)
+   {
+
+   }
+
+   @Override
+   public void unRegister(XARecoveryConfig resourceConfig)
+   {
+
+   }
+
+   @Override
+   public void stop()
+   {
+
+   }
+
+   @Override
+   public void init()
+   {
+
+   }
+}

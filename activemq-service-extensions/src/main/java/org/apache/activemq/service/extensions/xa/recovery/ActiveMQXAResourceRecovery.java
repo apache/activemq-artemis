@@ -14,15 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.recovery;
+package org.apache.activemq.service.extensions.xa.recovery;
 
 import javax.transaction.xa.XAResource;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.arjuna.ats.jta.recovery.XAResourceRecovery;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
 
 /**
  * A XAResourceRecovery instance that can be used to recover any JMS provider.
@@ -52,9 +50,9 @@ import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  * @version <tt>$Revision: 1.1 $</tt>
  */
-public class ActiveMQXAResourceRecovery implements XAResourceRecovery
+public class ActiveMQXAResourceRecovery
 {
-   private final boolean trace = ActiveMQJMSServerLogger.LOGGER.isTraceEnabled();
+   private final boolean trace = ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled();
 
    private boolean hasMore;
 
@@ -64,15 +62,15 @@ public class ActiveMQXAResourceRecovery implements XAResourceRecovery
    {
       if (trace)
       {
-         ActiveMQJMSServerLogger.LOGGER.trace("Constructing ActiveMQXAResourceRecovery");
+         ActiveMQXARecoveryLogger.LOGGER.trace("Constructing ActiveMQXAResourceRecovery");
       }
    }
 
    public boolean initialise(final String config)
    {
-      if (ActiveMQJMSServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
       {
-         ActiveMQJMSServerLogger.LOGGER.trace(this + " intialise: " + config);
+         ActiveMQXARecoveryLogger.LOGGER.trace(this + " intialise: " + config);
       }
 
       String[] configs = config.split(";");
@@ -92,9 +90,9 @@ public class ActiveMQXAResourceRecovery implements XAResourceRecovery
 
       res = new ActiveMQXAResourceWrapper(xaRecoveryConfigs);
 
-      if (ActiveMQJMSServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
       {
-         ActiveMQJMSServerLogger.LOGGER.trace(this + " initialised");
+         ActiveMQXARecoveryLogger.LOGGER.trace(this + " initialised");
       }
 
       return true;
@@ -102,9 +100,9 @@ public class ActiveMQXAResourceRecovery implements XAResourceRecovery
 
    public boolean hasMoreResources()
    {
-      if (ActiveMQJMSServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
       {
-         ActiveMQJMSServerLogger.LOGGER.trace(this + " hasMoreResources");
+         ActiveMQXARecoveryLogger.LOGGER.trace(this + " hasMoreResources");
       }
 
       /*
@@ -128,9 +126,9 @@ public class ActiveMQXAResourceRecovery implements XAResourceRecovery
 
    public XAResource getXAResource()
    {
-      if (ActiveMQJMSServerLogger.LOGGER.isTraceEnabled())
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
       {
-         ActiveMQJMSServerLogger.LOGGER.trace(this + " getXAResource");
+         ActiveMQXARecoveryLogger.LOGGER.trace(this + " getXAResource");
       }
 
       return res;

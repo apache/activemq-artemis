@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.recovery;
+package org.apache.activemq.service.extensions.xa.recovery;
 
 import java.util.Arrays;
 

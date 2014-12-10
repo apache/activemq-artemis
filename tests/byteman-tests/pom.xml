@@ -128,8 +128,8 @@
       </dependency>
       <!--this specifically for the JMS Bridge -->
       <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-transaction-spi</artifactId>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.components</groupId>

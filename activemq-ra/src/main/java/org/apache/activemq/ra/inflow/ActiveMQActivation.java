@@ -44,12 +44,12 @@ import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.server.recovery.XARecoveryConfig;
 import org.apache.activemq.ra.ActiveMQRABundle;
 import org.apache.activemq.ra.ActiveMQRAConnectionFactory;
 import org.apache.activemq.ra.ActiveMQRALogger;
 import org.apache.activemq.ra.ActiveMQRaUtils;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.utils.FutureLatch;
 import org.apache.activemq.utils.SensitiveDataCodec;
 
