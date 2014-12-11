@@ -1,12 +1,10 @@
-Flow Control
-============
+# Flow Control
 
 Flow control is used to limit the flow of data between a client and
 server, or a server and another server in order to prevent the client or
 server being overwhelmed with data.
 
-Consumer Flow Control
-=====================
+## Consumer Flow Control
 
 This controls the flow of data between the server and the client as the
 client consumes messages. For performance reasons clients normally
@@ -17,8 +15,7 @@ internal buffer, then you could end up with a situation where messages
 would keep building up possibly causing out of memory on the client if
 they cannot be processed in time.
 
-Window-Based Flow Control
--------------------------
+## Window-Based Flow Control
 
 By default, ActiveMQ consumers buffer messages from the server in a
 client side buffer before the client consumes them. This improves
@@ -51,38 +48,38 @@ Setting the consumer window size can considerably improve performance
 depending on the messaging use case. As an example, let's consider the
 two extremes:
 
-Fast consumers
-:   Fast consumers can process messages as fast as they consume them (or
-    even faster)
+### Fast consumers
+Fast consumers can process messages as fast as they consume them (or
+even faster)
 
-    To allow fast consumers, set the `consumer-window-size` to -1. This
-    will allow *unbounded* message buffering on the client side.
+To allow fast consumers, set the `consumer-window-size` to -1. This
+will allow *unbounded* message buffering on the client side.
 
-    Use this setting with caution: it can overflow the client memory if
-    the consumer is not able to process messages as fast as it receives
-    them.
+Use this setting with caution: it can overflow the client memory if
+the consumer is not able to process messages as fast as it receives
+them.
 
-Slow consumers
-:   Slow consumers takes significant time to process each message and it
-    is desirable to prevent buffering messages on the client side so
-    that they can be delivered to another consumer instead.
+### Slow consumers
+Slow consumers takes significant time to process each message and it
+is desirable to prevent buffering messages on the client side so
+that they can be delivered to another consumer instead.
 
-    Consider a situation where a queue has 2 consumers; 1 of which is
-    very slow. Messages are delivered in a round robin fashion to both
-    consumers, the fast consumer processes all of its messages very
-    quickly until its buffer is empty. At this point there are still
-    messages awaiting to be processed in the buffer of the slow consumer
-    thus preventing them being processed by the fast consumer. The fast
-    consumer is therefore sitting idle when it could be processing the
-    other messages.
+Consider a situation where a queue has 2 consumers; 1 of which is
+very slow. Messages are delivered in a round robin fashion to both
+consumers, the fast consumer processes all of its messages very
+quickly until its buffer is empty. At this point there are still
+messages awaiting to be processed in the buffer of the slow consumer
+thus preventing them being processed by the fast consumer. The fast
+consumer is therefore sitting idle when it could be processing the
+other messages.
 
-    To allow slow consumers, set the `consumer-window-size` to 0 (for no
-    buffer at all). This will prevent the slow consumer from buffering
-    any messages on the client side. Messages will remain on the server
-    side ready to be consumed by other consumers.
+To allow slow consumers, set the `consumer-window-size` to 0 (for no
+buffer at all). This will prevent the slow consumer from buffering
+any messages on the client side. Messages will remain on the server
+side ready to be consumed by other consumers.
 
-    Setting this to 0 can give deterministic distribution between
-    multiple consumers on a queue.
+Setting this to 0 can give deterministic distribution between
+multiple consumers on a queue.
 
 Most of the consumers cannot be clearly identified as fast or slow
 consumers but are in-between. In that case, setting the value of
@@ -115,8 +112,7 @@ method.
 Please see ? for an example which shows how to configure ActiveMQ to
 prevent consumer buffering when dealing with slow consumers.
 
-Rate limited flow control
--------------------------
+## Rate limited flow control
 
 It is also possible to control the *rate* at which a consumer can
 consume messages. This is a form of throttling and can be used to make
@@ -162,14 +158,12 @@ can be set via the `ActiveMQConnectionFactory.setConsumerMaxRate(int
 Please see ? for an example which shows how to configure ActiveMQ to
 prevent consumer buffering when dealing with slow consumers.
 
-Producer flow control
-=====================
+## Producer flow control
 
 ActiveMQ also can limit the amount of data sent from a client to a
 server to prevent the server being overwhelmed.
 
-Window based flow control
--------------------------
+### Window based flow control
 
 In a similar way to consumer window based flow control, ActiveMQ
 producers, by default, can only send messages to an address as long as
@@ -186,12 +180,12 @@ The window size therefore determines the amount of bytes that can be
 in-flight at any one time before more need to be requested - this
 prevents the remoting connection from getting overloaded.
 
-### Using Core API
+#### Using Core API
 
 If the ActiveMQ core API is being used, window size can be set via the
 `ServerLocator.setProducerWindowSize(int producerWindowSize)` method.
 
-### Using JMS
+#### Using JMS
 
 If JNDI is used to instantiate and look up the connection factory, the
 producer window size can be configured in the JNDI context environment,
@@ -208,7 +202,7 @@ size can be set via the
 `ActiveMQConnectionFactory.setProducerWindowSize(int
                   producerWindowSize)` method.
 
-### Blocking producer window based flow control
+#### Blocking producer window based flow control
 
 Normally the server will always give the same number of credits as have
 been requested. However, it is also possible to set a maximum size on
@@ -234,7 +228,7 @@ but instead pages messages to storage.
 
 To configure an address with a maximum size and tell the server that you
 want to block producers for this address if it becomes full, you need to
-define an AddressSettings (?) block for the address and specify
+define an AddressSettings ([Configuring Queues Via Address Settings](queue-attributes.md)) block for the address and specify
 `max-size-bytes` and `address-full-policy`
 
 The address block applies to all queues registered to that address. I.e.
@@ -267,8 +261,7 @@ control.
 > want this behaviour increase the `max-size-bytes` parameter or change
 > the address full message policy.
 
-Rate limited flow control
--------------------------
+### Rate limited flow control
 
 ActiveMQ also allows the rate a producer can emit message to be limited,
 in units of messages per second. By specifying such a rate, ActiveMQ
@@ -282,13 +275,13 @@ control. The default value is `-1`.
 
 Please see the ? for a working example of limiting producer rate.
 
-### Using Core API
+#### Using Core API
 
 If the ActiveMQ core API is being used the rate can be set via the
 `ServerLocator.setProducerMaxRate(int producerMaxRate)` method or
 alternatively via some of the `ClientSession.createProducer()` methods.
 
-### Using JMS
+#### Using JMS
 
 If JNDI is used to instantiate and look up the connection factory, the
 max rate size can be configured in the JNDI context environment, e.g.

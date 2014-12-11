@@ -1,5 +1,4 @@
-AeroGear Integration
-====================
+# AeroGear Integration
 
 AeroGears push technology provides support for different push
 notification technologies like Google Cloud Messaging, Apple's APNs or
@@ -8,8 +7,7 @@ Service that will consume messages from a queue and forward them to an
 AeroGear push server and subsequently sent as notifications to mobile
 devices.
 
-Configuring an AeroGear Connector Service
-=========================================
+## Configuring an AeroGear Connector Service
 
 AeroGear Connector services are configured in the connector-services
 configuration:
@@ -64,20 +62,21 @@ parameters
 More in depth explanations of the AeroGear related parameters can be
 found in the [AeroGear Push docs](http://aerogear.org/push/)
 
-How to send a message for AeroGear
-==================================
+## How to send a message for AeroGear
 
 To send a message intended for AeroGear simply send a JMS Message and
 set the appropriate headers, like so
 
-        Message message = session.createMessage();
+``` java
+Message message = session.createMessage();
 
-        message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from ActiveMQ");
+message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from ActiveMQ");
 
-        producer.send(message);
+producer.send(message);
+```
             
 
-The 'AEROGEAR\_ALERT' property will be the alert sent to the mobile
+The 'AEROGEAR_ALERT' property will be the alert sent to the mobile
 device.
 
 > **Note**
@@ -89,13 +88,17 @@ Its also possible to override any of the other AeroGear parameters by
 simply setting them on the message, for instance if you wanted to set
 ttl of a message you would:
 
-        message.setIntProperty("AEROGEAR_TTL", 1234);
+``` java
+message.setIntProperty("AEROGEAR_TTL", 1234);
+```
             
 
 or if you wanted to set the list of variants you would use:
 
-        message.setStringProperty("AEROGEAR_VARIANTS", "variant1,variant2,variant3");
-            
+``` java
+message.setStringProperty("AEROGEAR_VARIANTS", "variant1,variant2,variant3");
+```            
+```            
 
 Again refer to the AeroGear documentation for a more in depth view on
 how to use these settings

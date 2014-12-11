@@ -1,13 +1,11 @@
-Queue Attributes
-================
+# Queue Attributes
 
 Queue attributes can be set in one of two ways. Either by configuring
 them using the configuration file or by using the core API. This chapter
 will explain how to configure each attribute and what effect the
 attribute has.
 
-Predefined Queues
-=================
+## Predefined Queues
 
 Queues can be predefined via configuration at a core level or at a JMS
 level. Firstly let's look at a JMS level.
@@ -59,11 +57,10 @@ which are.
 
 3.  There is no entry element.
 
-4.  The filter uses the *Core filter syntax* (described in ?), *not* the
+4.  The filter uses the *Core filter syntax* (described in [filter Expressions](filter-expressions.md)), *not* the
     JMS selector syntax.
 
-Using the API
-=============
+## Using the API
 
 Queues can also be created using the core API or the management API.
 
@@ -74,11 +71,10 @@ previously mentioned attributes. There is one extra attribute that can
 be set via this API which is `temporary`. setting this to true means
 that the queue will be deleted once the session is disconnected.
 
-Take a look at ? for a description of the management API for creating
+Take a look at [Management](management.md) for a description of the management API for creating
 queues.
 
-Configuring Queues Via Address Settings
-=======================================
+## Configuring Queues Via Address Settings
 
 There are some attributes that are defined against an address wildcard
 rather than a specific queue. Here an example of an `address-setting`
@@ -163,7 +159,7 @@ to disk. If the value is DROP then further messages will be silently
 dropped. If the value is FAIL then further messages will be dropped and
 an exception will be thrown on the client-side. If the value is BLOCK
 then client message producers will block when they try and send further
-messages. See the following chapters for more info ?, ?.
+messages. See the following chapters for more info [Flow Control](flow-control.md), [Paging](paging.md).
 
 `slow-consumer-threshold`. The minimum rate of message consumption
 allowed before a consumer is considered "slow." Measured in

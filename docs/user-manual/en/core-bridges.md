@@ -1,5 +1,4 @@
-Core Bridges
-============
+# Core Bridges
 
 The function of a bridge is to consume messages from a source queue, and
 forward them to a target address, typically on a different ActiveMQ
@@ -21,7 +20,7 @@ be ActiveMQ servers.
 
 Bridges can be configured to provide *once and only once* delivery
 guarantees even in the event of the failure of the source or the target
-server. They do this by using duplicate detection (described in ?).
+server. They do this by using duplicate detection (described in [Duplicate Detection](duplicate-detection.md)).
 
 > **Note**
 >
@@ -37,8 +36,7 @@ server. They do this by using duplicate detection (described in ?).
 > provide the same guarantee using a JMS bridge you would have to use XA
 > which has a higher overhead and is more complex to configure.
 
-Configuring Bridges
-===================
+## Configuring Bridges
 
 Bridges are configured in `activemq-configuration.xml`. Let's kick off
 with an example (this is actually from the bridge example):
@@ -100,7 +98,7 @@ Let's take a look at all the parameters in turn:
 -   `filter-string`. An optional filter string can be supplied. If
     specified then only messages which match the filter expression
     specified in the filter string will be forwarded. The filter string
-    follows the ActiveMQ filter expression syntax described in ?.
+    follows the ActiveMQ filter expression syntax described in [Filter Expressions](filter-expressions.md).
 
 -   `transformer-class-name`. An optional transformer-class-name can be
     specified. This is the name of a user-defined class which implements
@@ -179,7 +177,7 @@ Let's take a look at all the parameters in turn:
     allows these duplicates to be screened out and ignored.
 
     This allows the bridge to provide a *once and only once* delivery
-    guarantee without using heavyweight methods such as XA (see ? for
+    guarantee without using heavyweight methods such as XA (see [Duplicate Detection](duplicate-detection.md) for
     more information).
 
     The default value for this parameter is `true`.
@@ -187,7 +185,7 @@ Let's take a look at all the parameters in turn:
 -   `confirmation-window-size`. This optional parameter determines the
     `confirmation-window-size` to use for the connection used to forward
     messages to the target node. This attribute is described in section
-    ?
+    [Reconnection and Session Reattachment](client-reconnection.md)
 
     > **Warning**
     >
@@ -215,11 +213,11 @@ Let's take a look at all the parameters in turn:
     encapsulates knowledge of what transport to use (TCP, SSL, HTTP etc)
     as well as the server connection parameters (host, port etc). For
     more information about what connectors are and how to configure
-    them, please see ?.
+    them, please see [Configuring the Transport](configuring-transports.md).
 
     The `discovery-group-ref` element has one attribute -
     `discovery-group-name`. This attribute points to a `discovery-group`
     defined elsewhere. For more information about what discovery-groups
-    are and how to configure them, please see ?.
+    are and how to configure them, please see [Discovery Groups](clusters.md).
 
 

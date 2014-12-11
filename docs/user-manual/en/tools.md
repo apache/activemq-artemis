@@ -1,5 +1,4 @@
-Tools
-=====
+# Tools
 
 ActiveMQ ships with several helpful command line tools. All tools are
 available from the activemq-tools-\<version\>-jar-with-dependencies.jar.

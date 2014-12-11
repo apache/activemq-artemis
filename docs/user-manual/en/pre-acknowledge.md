@@ -1,5 +1,4 @@
-Extra Acknowledge Modes
-=======================
+# Extra Acknowledge Modes
 
 JMS specifies 3 acknowledgement modes:
 
@@ -41,8 +40,7 @@ arrive soon, overriding the previous price.
 > the transaction. This may be stating the obvious but we like to be
 > clear on these things to avoid confusion!
 
-Using PRE\_ACKNOWLEDGE
-======================
+## Using PRE_ACKNOWLEDGE
 
 This can be configured in a client's JNDI context environment, e.g.
 `jndi.properties`, like this:
@@ -63,8 +61,7 @@ Or you can set pre-acknowledge directly on the
 To use pre-acknowledgement mode using the core API you can set it
 directly on the `ClientSessionFactory` instance using the setter method.
 
-Individual Acknowledge
-======================
+## Individual Acknowledge
 
 A valid use-case for individual acknowledgement would be when you need
 to have your own scheduling and you don't know when your message
@@ -85,8 +82,7 @@ the exception the message is individually acked.
 > adapter). this is because you have to finish the process of your
 > message inside the MDB.
 
-Example
-=======
+## Example
 
 See ? for an example which shows how to use pre-acknowledgement mode
 with JMS.

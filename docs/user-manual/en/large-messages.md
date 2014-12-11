@@ -1,5 +1,4 @@
-Large Messages
-==============
+# Large Messages
 
 ActiveMQ supports sending and receiving of huge messages, even when the
 client and server are running with limited memory. The only realistic
@@ -23,8 +22,7 @@ stream the huge message body to a file on disk or elsewhere. At no time
 is the entire message body stored fully in memory, either on the client
 or the server.
 
-Configuring the server
-======================
+## Configuring the server
 
 Large messages are stored on a disk directory on the server side, as
 configured on the main configuration file.
@@ -46,8 +44,7 @@ For the best performance we recommend large messages directory is stored
 on a different physical volume to the message journal or paging
 directory.
 
-Configuring Parameters
-======================
+## Configuring Parameters
 
 Any message larger than a certain size is considered a large message.
 Large messages will be split up and sent in fragments. This is
@@ -64,23 +61,23 @@ determined by the parameter `min-large-message-size`
 
 The default value is 100KiB.
 
-Using Core API
---------------
+### Using Core API
 
 If the ActiveMQ Core API is used, the minimal large message size is
 specified by `ServerLocator.setMinLargeMessageSize`.
 
-    ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()))
+``` java
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()))
 
-    locator.setMinLargeMessageSize(25 * 1024);
+locator.setMinLargeMessageSize(25 * 1024);
 
-    ClientSessionFactory factory = ActiveMQClient.createClientSessionFactory();
+ClientSessionFactory factory = ActiveMQClient.createClientSessionFactory();
+```
 
-? will provide more information on how to instantiate the session
+[Configuring the transport directly from the client side](configuring-transports.md) will provide more information on how to instantiate the session
 factory.
 
-Using JMS
----------
+### Using JMS
 
 If JNDI is used to instantiate and look up the connection factory, the
 minimum large message size is configured in the JNDI context
@@ -97,13 +94,12 @@ If the connection factory is being instantiated directly, the minimum
 large message size is specified by
 `ActiveMQConnectionFactory.setMinLargeMessageSize`.
 
-Compressed Large Messages
--------------------------
+### Compressed Large Messages
 
 You can choose to send large messages in compressed form using `
                 compress-large-messages` attributes.
 
-### `compress-large-messages`
+#### `compress-large-messages`
 
 If you specify the boolean property `compress-large-messages` on the
 `server locator` or `ConnectionFactory` as true, The system will use the
@@ -129,8 +125,7 @@ by default:
     java.naming.provider.url=tcp://localhost:5445
     connection.ConnectionFactory.compressLargeMessages=true
 
-Streaming large messages
-========================
+## Streaming large messages
 
 ActiveMQ supports setting the body of messages using input and output
 streams (`java.lang.io`)
@@ -151,8 +146,7 @@ Blobs, `SocketInputStream`, things you recovered from `HTTPRequests`
 etc. Anything as long as it implements `java.io.InputStream` for sending
 messages or `java.io.OutputStream` for receiving them.
 
-Streaming over Core API
------------------------
+### Streaming over Core API
 
 The following table shows a list of methods available at `ClientMessage`
 which are also available through JMS by the use of object properties.
@@ -167,78 +161,82 @@ which are also available through JMS by the use of object properties.
 
 To set the output stream when receiving a core message:
 
-    ...
-    ClientMessage msg = consumer.receive(...);
+``` java
+ClientMessage msg = consumer.receive(...);
 
 
-    // This will block here until the stream was transferred
-    msg.saveOutputStream(someOutputStream); 
+// This will block here until the stream was transferred
+msg.saveOutputStream(someOutputStream); 
 
-    ClientMessage msg2 = consumer.receive(...);
+ClientMessage msg2 = consumer.receive(...);
 
-    // This will not wait the transfer to finish
-    msg.setOutputStream(someOtherOutputStream); 
-    ...
+// This will not wait the transfer to finish
+msg.setOutputStream(someOtherOutputStream); 
+```
 
 Set the input stream when sending a core message:
 
-    ...
-    ClientMessage msg = session.createMessage();
-    msg.setInputStream(dataInputStream);
-    ...
+``` java
+ClientMessage msg = session.createMessage();
+msg.setInputStream(dataInputStream);
+```
 
 Notice also that for messages with more than 2GiB the getBodySize() will
 return invalid values since this is an integer (which is also exposed to
 the JMS API). On those cases you can use the message property
-\_HQ\_LARGE\_SIZE.
+_HQ_LARGE_SIZE.
 
-Streaming over JMS
-------------------
+### Streaming over JMS
 
 When using JMS, ActiveMQ maps the streaming methods on the core API (see
-?) by setting object properties . You can use the method
+ClientMessage API table above) by setting object properties . You can use the method
 `Message.setObjectProperty` to set the input and output streams.
 
 The `InputStream` can be defined through the JMS Object Property
-JMS\_HQ\_InputStream on messages being sent:
+JMS_HQ_InputStream on messages being sent:
 
-    BytesMessage message = session.createBytesMessage();
+``` java
+BytesMessage message = session.createBytesMessage();
 
-    FileInputStream fileInputStream = new FileInputStream(fileInput);
+FileInputStream fileInputStream = new FileInputStream(fileInput);
 
-    BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
+BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
 
-    message.setObjectProperty("JMS_HQ_InputStream", bufferedInput);
+message.setObjectProperty("JMS_HQ_InputStream", bufferedInput);
 
-    someProducer.send(message);
+someProducer.send(message);
+```
 
 The `OutputStream` can be set through the JMS Object Property
-JMS\_HQ\_SaveStream on messages being received in a blocking way.
+JMS_HQ_SaveStream on messages being received in a blocking way.
 
-    BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
-                    
-    File outputFile = new File("huge_message_received.dat");
-                    
-    FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-                    
-    BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
-                    
-    // This will block until the entire content is saved on disk
-    messageReceived.setObjectProperty("JMS_HQ_SaveStream", bufferedOutput);
+``` java
+BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
+                
+File outputFile = new File("huge_message_received.dat");
+                
+FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+                
+BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
+                
+// This will block until the entire content is saved on disk
+messageReceived.setObjectProperty("JMS_HQ_SaveStream", bufferedOutput);
+```
 
 Setting the `OutputStream` could also be done in a non blocking way
-using the property JMS\_HQ\_OutputStream.
+using the property JMS_HQ_OutputStream.
 
-    // This won't wait the stream to finish. You need to keep the consumer active.
-    messageReceived.setObjectProperty("JMS_HQ_OutputStream", bufferedOutput);
+``` java
+// This won't wait the stream to finish. You need to keep the consumer active.
+messageReceived.setObjectProperty("JMS_HQ_OutputStream", bufferedOutput);
+```
 
 > **Note**
 >
 > When using JMS, Streaming large messages are only supported on
 > `StreamMessage` and `BytesMessage`.
 
-Streaming Alternative
-=====================
+## Streaming Alternative
 
 If you choose not to use the `InputStream` or `OutputStream` capability
 of ActiveMQ You could still access the data directly in an alternative
@@ -246,30 +244,32 @@ fashion.
 
 On the Core API just get the bytes of the body as you normally would.
 
-    ClientMessage msg = consumer.receive();
-             
-    byte[] bytes = new byte[1024];
-    for (int i = 0 ;  i < msg.getBodySize(); i += bytes.length)
-    {
-       msg.getBody().readBytes(bytes);
-       // Whatever you want to do with the bytes
-    }
+``` java
+ClientMessage msg = consumer.receive();
+         
+byte[] bytes = new byte[1024];
+for (int i = 0 ;  i < msg.getBodySize(); i += bytes.length)
+{
+   msg.getBody().readBytes(bytes);
+   // Whatever you want to do with the bytes
+}
+```
 
 If using JMS API, `BytesMessage` and `StreamMessage` also supports it
 transparently.
+``` java
+BytesMessage rm = (BytesMessage)cons.receive(10000);
 
-    BytesMessage rm = (BytesMessage)cons.receive(10000);
+byte data[] = new byte[1024];
 
-    byte data[] = new byte[1024];
+for (int i = 0; i < rm.getBodyLength(); i += 1024)
+{
+   int numberOfBytes = rm.readBytes(data);
+   // Do whatever you want with the data
+}        
+```
 
-    for (int i = 0; i < rm.getBodyLength(); i += 1024)
-    {
-       int numberOfBytes = rm.readBytes(data);
-       // Do whatever you want with the data
-    }        
-
-Large message example
-=====================
+## Large message example
 
 Please see ? for an example which shows how large message is configured
 and used with JMS.

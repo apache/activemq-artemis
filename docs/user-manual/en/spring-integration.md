@@ -1,5 +1,4 @@
-Spring Integration
-==================
+# Spring Integration
 
 ActiveMQ provides a simple bootstrap class,
 `org.apache.activemq.integration.spring.SpringJmsBootstrap`, for
@@ -44,7 +43,7 @@ taking advantage of this feature:
 
 As you can see, the `listenerContainer` bean references the components
 defined in the `activemq-jms.xml` file. The `SpringJmsBootstrap` class
-extends the EmbeddedJMS class talked about in ? and the same defaults
+extends the EmbeddedJMS class talked about in [JMS API](embedding-activemq.md) and the same defaults
 and configuration options apply. Also notice that an `init-method` must
 be declared with a start value so that the bean's lifecycle is executed.
 See the javadocs for more details on other properties of the bean class.

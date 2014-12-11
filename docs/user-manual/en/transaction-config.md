@@ -1,5 +1,4 @@
-Resource Manager Configuration
-==============================
+# Resource Manager Configuration
 
 ActiveMQ has its own Resource Manager for handling the lifespan of JTA
 transactions. When a transaction is started the resource manager is

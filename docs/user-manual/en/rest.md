@@ -1,5 +1,4 @@
-REST Interface
-==============
+# REST Interface
 
 The ActiveMQ REST interface allows you to leverage the reliability and
 scalability features of ActiveMQ over a simple REST/HTTP interface.
@@ -24,8 +23,7 @@ as a JMS message and distributed through core ActiveMQ. Simple and easy.
 Consuming messages from a queue or topic looks very similar. We'll
 discuss the entire interface in detail later in this docbook.
 
-Goals of REST Interface
-=======================
+## Goals of REST Interface
 
 Why would you want to use ActiveMQ's REST interface? What are the goals
 of the REST interface?
@@ -54,8 +52,7 @@ of the REST interface?
     ActiveMQ on the back end without sacrificing the simplicity of a
     REST interface.
 
-Installation and Configuration
-==============================
+## Installation and Configuration
 
 ActiveMQ's REST interface is installed as a Web archive (WAR). It
 depends on the [RESTEasy](http://jboss.org/resteasy) project and can
@@ -66,8 +63,7 @@ deploying within JBoss AS 7) or you want the ActiveMQ REST WAR to
 startup and manage the ActiveMQ server (e.g. you're deploying within
 something like Apache Tomcat).
 
-Installing Within Pre-configured Environment
---------------------------------------------
+### Installing Within Pre-configured Environment
 
 This section should be used when you want to use the ActiveMQ REST
 interface in an environment that already has ActiveMQ installed and
@@ -178,8 +174,7 @@ more about this later.
 > It is possible to put the WAR file at the "root context" of AS7, but
 > that is beyond the scope of this documentation.
 
-Bootstrapping ActiveMQ Along with REST
---------------------------------------
+### Bootstrapping ActiveMQ Along with REST
 
 You can bootstrap ActiveMQ within your WAR as well. To do this, you must
 have the ActiveMQ core and JMS jars along with Netty, Resteasy, and the
@@ -293,8 +288,7 @@ WEB-INF/classes directory!
        </dependencies>
     </project>
 
-REST Configuration
-------------------
+### REST Configuration
 
 The ActiveMQ REST implementation does have some configuration options.
 These are configured via XML configuration file that must be in your
@@ -362,8 +356,7 @@ Let's give an explanation of each config option.
     same as the ActiveMQ one of the same name. It will be used by
     sessions created by the ActiveMQ REST implementation.
 
-ActiveMQ REST Interface Basics
-==============================
+## ActiveMQ REST Interface Basics
 
 The ActiveMQ REST interface publishes a variety of REST resources to
 perform various tasks on a queue or topic. Only the top-level queue and
@@ -372,8 +365,7 @@ all over resources to interact with by looking for and traversing links.
 You'll find published links within custom response headers and embedded
 in published XML representations. Let's look at how this works.
 
-Queue and Topic Resources
--------------------------
+### Queue and Topic Resources
 
 To interact with a queue or topic you do a HEAD or GET request on the
 following relative URI pattern:
@@ -420,8 +412,7 @@ every time you initially interact (at boot time) with the server. If you
 treat all URLs as opaque then you will be isolated from implementation
 changes as the ActiveMQ REST interface evolves over time.
 
-Queue Resource Response Headers
--------------------------------
+### Queue Resource Response Headers
 
 Below is a list of response headers you should expect when interacting
 with a Queue resource.
@@ -441,8 +432,7 @@ with a Queue resource.
     want the ActiveMQ REST server to push messages to. The semantics of
     this link are described in [Pushing Messages](#message-push).
 
-Topic Resource Response Headers
--------------------------------
+### Topic Resource Response Headers
 
 Below is a list of response headers you should expect when interacting
 with a Topic resource.
@@ -462,8 +452,7 @@ with a Topic resource.
     you want the ActiveMQ REST server to push messages to. The semantics
     of this link are described in [Pushing Messages](#message-push).
 
-Posting Messages
-================
+## Posting Messages
 
 This chapter discusses the protocol for posting messages to a queue or a
 topic. In [ActiveMQ REST Interface Basics](#basics), you saw that a
@@ -548,8 +537,7 @@ ActiveMQ destination. Here's an example scenario:
 > then just go back to the queue or topic resource to get the
 > `msg-create` URL again.
 
-Duplicate Detection
--------------------
+### Duplicate Detection
 
 Sometimes you might have network problems when posting new messages to a
 queue or topic. You may do a POST and never receive a response.
@@ -670,8 +658,7 @@ The advantage of this approach is that the client does not have to
 repost the message. It also only has to come up with a unique
 `DUPLICATE_DETECTION_ID` once.
 
-Persistent Messages
--------------------
+### Persistent Messages
 
 By default, posted messages are not durable and will not be persisted in
 ActiveMQ's journal. You can create durable messages by modifying the
@@ -691,8 +678,7 @@ headers. here's an example of that.
        <cost>$199.99</cost>
     </order>
 
-TTL, Expiration and Priority
-----------------------------
+### TTL, Expiration and Priority
 
 You can set the time to live, expiration, and/or the priority of the
 message in the queue or topic by setting an additional query parameter.
@@ -712,8 +698,7 @@ the priority of the message. i.e.:
        <cost>$199.99</cost>
     </order>
 
-Consuming Messages via Pull
-===========================
+## Consuming Messages via Pull
 
 There are two different ways to consume messages from a topic or queue.
 You can wait and have the messaging server push them to you, or you can
@@ -769,8 +754,7 @@ parameters (`application/x-www-form-urlencoded`) described below.
 > then one consumer might buffer messages while the other consumer gets
 > none.
 
-Auto-Acknowledge
-----------------
+### Auto-Acknowledge
 
 This section focuses on the auto-acknowledge protocol for consuming
 messages via a pull. Here's a list of the response headers and URLs
@@ -790,7 +774,7 @@ you'll be interested in.
 -   `msg-consumer`. This is a URL pointing back to the consumer or
     subscription resource created for the client.
 
-### Creating an Auto-Ack Consumer or Subscription
+#### Creating an Auto-Ack Consumer or Subscription
 
 Here is an example of creating an auto-acknowledged queue pull consumer.
 
@@ -858,7 +842,7 @@ pull subscription.
     although, as you'll see later, it is transmitted with each response
     just to remind you.
 
-### Consuming Messages
+#### Consuming Messages
 
 After you have created a consumer resource, you are ready to start
 pulling messages from the server. Notice that when you created the
@@ -935,7 +919,7 @@ resource.
 
         <order>...</order>
 
-### Recovering From Network Failures
+#### Recovering From Network Failures
 
 If you experience a network failure and do not know if your post to a
 msg-consume-next URL was successful or not, just re-do your POST. A POST
@@ -948,7 +932,7 @@ URL). This is the reason why the protocol always requires you to use the
 next new msg-consume-next URL returned with each response. Information
 about what state the client is in is embedded within the actual URL.
 
-### Recovering From Client or Server Crashes
+#### Recovering From Client or Server Crashes
 
 If the server crashes and you do a POST to the msg-consume-next URL, the
 server will return a 412 (Preconditions Failed) response code. This is
@@ -970,8 +954,7 @@ would happen if the server crashes after auto-acknowledging a message
 and before the client receives the message. If you want more reliable
 messaging, then you must use the acknowledgement protocol.
 
-Manual Acknowledgement
-----------------------
+### Manual Acknowledgement
 
 The manual acknowledgement protocol is similar to the auto-ack protocol
 except there is an additional round trip to the server to tell it that
@@ -995,7 +978,7 @@ in.
 -   `msg-consumer`. This is a URL pointing back to the consumer or
     subscription resource created for the client.
 
-### Creating manually-acknowledged consumers or subscriptions
+#### Creating manually-acknowledged consumers or subscriptions
 
 Here is an example of creating an auto-acknowledged queue pull consumer.
 
@@ -1067,7 +1050,7 @@ topic pull subscription.
     although, as you'll see later, it is transmitted with each response
     just to remind you.
 
-### Consuming and Acknowledging a Message
+#### Consuming and Acknowledging a Message
 
 After you have created a consumer resource, you are ready to start
 pulling messages from the server. Notice that when you created the
@@ -1127,7 +1110,7 @@ resource.
     will contain a new msg-acknowledge-next header that you must use to
     obtain the next message.
 
-### Recovering From Network Failures
+#### Recovering From Network Failures
 
 If you experience a network failure and do not know if your post to a
 `msg-acknowledge-next` or `msg-acknowledgement` URL was successful or
@@ -1142,7 +1125,7 @@ at the URLs you'll see that they contain information about the expected
 current state of the server. This is how the server knows what the
 client is expecting.
 
-### Recovering From Client or Server Crashes
+#### Recovering From Client or Server Crashes
 
 If the server crashes and while you are doing a POST to the
 `msg-acknowledge-next` URL, just re-post. Everything should reconnect
@@ -1168,8 +1151,7 @@ can re-create the consumer resource with the same exact name. The
 response will contain the same information as if you did a GET or HEAD
 request on the consumer resource.
 
-Blocking Pulls with Accept-Wait
--------------------------------
+#### Blocking Pulls with Accept-Wait
 
 Unless your queue or topic has a high rate of message flowing though it,
 if you use the pull protocol, you're going to be receiving a lot of 503
@@ -1195,8 +1177,7 @@ header with your pull requests. Here's an example:
 In this example, we're posting to a msg-consume-next URL and telling the
 server that we would be willing to block for 30 seconds.
 
-Clean Up Your Consumers!
-------------------------
+### Clean Up Your Consumers!
 
 When the client is done with its consumer or topic subscription it
 should do an HTTP DELETE call on the consumer URL passed back from the
@@ -1208,16 +1189,14 @@ clean up your messes. A consumer timeout for durable subscriptions will
 not delete the underlying durable JMS subscription though, only the
 server-side consumer resource (and underlying JMS session).
 
-Pushing Messages
-================
+## Pushing Messages
 
 You can configure the ActiveMQ REST server to push messages to a
 registered URL either remotely through the REST interface, or by
 creating a pre-configured XML file for the ActiveMQ REST server to load
 at boot time.
 
-The Queue Push Subscription XML
--------------------------------
+### The Queue Push Subscription XML
 
 Creating a push consumer for a queue first involves creating a very
 simple XML document. This document tells the server if the push
@@ -1302,8 +1281,7 @@ values a rel attribute can have:
            <link href="http://somewhere.com" type="application/json" method="PUT"/>
         </push-registration>
 
-The Topic Push Subscription XML
--------------------------------
+### The Topic Push Subscription XML
 
 The push XML for a topic is the same except the root element is
 push-topic-registration. (Also remember the `selector` element is
@@ -1319,8 +1297,7 @@ template registration:
        <link rel="template" href="http://somewhere.com/resources/{id}/messages" method="POST"/>
     </push-topic registration>
 
-Creating a Push Subscription at Runtime
----------------------------------------
+### Creating a Push Subscription at Runtime
 
 Creating a push subscription at runtime involves getting the factory
 resource URL from the msg-push-consumers header, if the destination is a
@@ -1387,8 +1364,7 @@ Here's an example of creating a push registration for a topic:
     The Location header contains the URL for the created resource. If
     you want to unregister this, then do a HTTP DELETE on this URL.
 
-Creating a Push Subscription by Hand
-------------------------------------
+### Creating a Push Subscription by Hand
 
 You can create a push XML file yourself if you do not want to go through
 the REST interface to create a push subscription. There is some
@@ -1420,8 +1396,7 @@ variable defined in Chapter 2:
        <topic>jms.topic.foo</topic>
     </push-topic-registration>
 
-Pushing to Authenticated Servers
---------------------------------
+### Pushing to Authenticated Servers
 
 Push subscriptions only support BASIC and DIGEST authentication out of
 the box. Here is an example of adding BASIC authentication:
@@ -1450,8 +1425,7 @@ headers might look like:
        <header name="secret-header">jfdiwe3321</header>
     </push-topic registration>
 
-Creating Destinations
-=====================
+## Creating Destinations
 
 You can create a durable queue or topic through the REST interface.
 Currently you cannot create a temporary queue or topic. To create a
@@ -1487,11 +1461,9 @@ Here's what creating a topic would look like:
     HTTP/1.1 201 Created
     Location: http://example.com/topics/jms.topic.testTopic
 
-Securing the ActiveMQ REST Interface
-====================================
+## Securing the ActiveMQ REST Interface
 
-Within JBoss Application server
--------------------------------
+### Within JBoss Application server
 
 Securing the ActiveMQ REST interface is very simple with the JBoss
 Application Server. You turn on authentication for all URLs within your
@@ -1499,8 +1471,7 @@ WAR's web.xml, and let the user Principal to propagate to ActiveMQ. This
 only works if you are using the JBossSecurityManager with ActiveMQ. See
 the ActiveMQ documentation for more details.
 
-Security in other environments
-------------------------------
+### Security in other environments
 
 To secure the ActiveMQ REST interface in other environments you must
 role your own security by specifying security constraints with your
@@ -1520,8 +1491,7 @@ is a list of URI patterns:
   /topics/{topic-name}/push-subscriptions/\*   secure this URL pattern for pushing messages.
   -------------------------------------------- -----------------------------------------------------------------------
 
-Mixing JMS and REST
-===================
+## Mixing JMS and REST
 
 The ActiveMQ REST interface supports mixing JMS and REST producers and
 consumers. You can send an ObjectMessage through a JMS Producer, and
@@ -1530,8 +1500,7 @@ to a topic and have a JMS Consumer receive it. Some simple
 transformations are supported if you have the correct RESTEasy providers
 installed.
 
-JMS Producers - REST Consumers
-------------------------------
+### JMS Producers - REST Consumers
 
 If you have a JMS producer, the ActiveMQ REST interface only supports
 ObjectMessage type. If the JMS producer is aware that there may be REST
@@ -1551,8 +1520,7 @@ types it wants to convert the Java object into. If the REST client is a
 push registration, then the type attribute of the link element of the
 push registration should be set to the desired type.
 
-REST Producers - JMS Consumers
-------------------------------
+### REST Producers - JMS Consumers
 
 If you have a REST client producing messages and a JMS consumer,
 ActiveMQ REST has a simple helper class for you to transform the HTTP

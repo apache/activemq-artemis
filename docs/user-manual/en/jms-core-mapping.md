@@ -1,5 +1,4 @@
-Mapping JMS Concepts to the Core API
-====================================
+# Mapping JMS Concepts to the Core API
 
 This chapter describes how JMS destinations are mapped to ActiveMQ
 addresses.

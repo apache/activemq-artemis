@@ -1,5 +1,4 @@
-Using Core
-==========
+# Using Core
 
 ActiveMQ core is a completely JMS-agnostic messaging system with its own
 non-JMS API. We call this the *core API*.
@@ -8,8 +7,7 @@ If you don't want to use JMS you can use the core API directly. The core
 API provides all the functionality of JMS but without much of the
 complexity. It also provides features that are not available using JMS.
 
-Core Messaging Concepts
-=======================
+## Core Messaging Concepts
 
 Some of the core messaging concepts are similar to JMS concepts, but
 core messaging concepts differ in some ways. In general the core
@@ -18,8 +16,7 @@ between queues, topics and subscriptions. We'll discuss each of the
 major core messaging concepts in turn, but to see the API in detail,
 please consult the Javadoc.
 
-Message
--------
+### Message
 
 -   A message is the unit of data which is sent between clients and
     servers.
@@ -54,10 +51,9 @@ Message
     the message was sent.
 
 -   ActiveMQ also supports the sending/consuming of very large messages
-    - much larger than can fit in available RAM at any one time.
+    much larger than can fit in available RAM at any one time.
 
-Address
--------
+### Address
 
 A server maintains a mapping between an address and a set of queues.
 Zero or more queues can be bound to a single address. Each queue can be
@@ -80,8 +76,7 @@ messages will also be routed there.
 > the topic. A JMS Queue would be implemented as a single address to
 > which one queue is bound - that queue represents the JMS queue.
 
-Queue
------
+### Queue
 
 Queues can be durable, meaning the messages they contain survive a
 server crash or restart, as long as the messages in them are durable.
@@ -99,8 +94,7 @@ match that filter expression to any queues bound to the address.
 Many queues can be bound to a single address. A particular queue is only
 bound to a maximum of one address.
 
-ServerLocator
--------------
+### ServerLocator
 
 Clients use `ServerLocator` instances to create `ClientSessionFactory`
 instances. `ServerLocator` instances are used to locate servers and
@@ -112,8 +106,7 @@ Connection Factory.
 `ServerLocator` instances are created using the `ActiveMQClient` factory
 class.
 
-ClientSessionFactory
---------------------
+### ClientSessionFactory
 
 Clients use `ClientSessionFactory` instances to create `ClientSession`
 instances. `ClientSessionFactory` instances are basically the connection
@@ -124,8 +117,7 @@ In JMS terms think of them as JMS Connections.
 `ClientSessionFactory` instances are created using the `ServerLocator`
 class.
 
-ClientSession
--------------
+### ClientSession
 
 A client uses a ClientSession for consuming and producing messages and
 for grouping them in transactions. ClientSession instances can support
@@ -147,10 +139,9 @@ messages sent is costly since it requires a network round trip for each
 message sent. By not blocking and receiving send acknowledgements
 asynchronously you can create true end to end asynchronous systems which
 is not possible using the standard JMS API. For more information on this
-advanced feature please see the section ?.
+advanced feature please see the section [Guarantees of sends and commits]{send-guarantees.md).
 
-ClientConsumer
---------------
+### ClientConsumer
 
 Clients use `ClientConsumer` instances to consume messages from a queue.
 Core Messaging supports both synchronous and asynchronous message
@@ -158,8 +149,7 @@ consumption semantics. `ClientConsumer` instances can be configured with
 an optional filter expression and will only consume messages which match
 that expression.
 
-ClientProducer
---------------
+### ClientProducer
 
 Clients create `ClientProducer` instances on `ClientSession` instances
 so they can send messages. ClientProducer instances can specify an
@@ -175,48 +165,48 @@ message.
 > It's an anti-pattern to create new ClientSession, ClientProducer and
 > ClientConsumer instances for each message you produce or consume. If
 > you do this, your application will perform very poorly. This is
-> discussed further in the section on performance tuning ?.
+> discussed further in the section on performance tuning [Performance Tuning](perf-tuning.md).
 
-A simple example of using Core
-==============================
+## A simple example of using Core
 
 Here's a very simple program using the core messaging API to send and
 receive a message. Logically it's comprised of two sections: firstly
 setting up the producer to write a message to an *addresss*, and
 secondly, creating a *queue* for the consumer, creating the consumer and
 *starting* it.
+``` java
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
+                                           InVMConnectorFactory.class.getName()));
 
-    ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                                               InVMConnectorFactory.class.getName()));
+// In this simple example, we just use one session for both producing and receiving
 
-    // In this simple example, we just use one session for both producing and receiving
+ClientSessionFactory factory =  locator.createClientSessionFactory();
+ClientSession session = factory.createSession();
 
-    ClientSessionFactory factory =  locator.createClientSessionFactory();
-    ClientSession session = factory.createSession();
+// A producer is associated with an address ...
 
-    // A producer is associated with an address ...
+ClientProducer producer = session.createProducer("example");
+ClientMessage message = session.createMessage(true);
+message.getBodyBuffer().writeString("Hello");
 
-    ClientProducer producer = session.createProducer("example");
-    ClientMessage message = session.createMessage(true);
-    message.getBodyBuffer().writeString("Hello");
+// We need a queue attached to the address ...
 
-    // We need a queue attached to the address ...
+session.createQueue("example", "example", true);
 
-    session.createQueue("example", "example", true);
+// And a consumer attached to the queue ...
 
-    // And a consumer attached to the queue ...
+ClientConsumer consumer = session.createConsumer("example");
 
-    ClientConsumer consumer = session.createConsumer("example");
+// Once we have a queue, we can send the message ...
 
-    // Once we have a queue, we can send the message ...
+producer.send(message);
 
-    producer.send(message);
+// We need to start the session before we can -receive- messages ...
 
-    // We need to start the session before we can -receive- messages ...
+session.start();
+ClientMessage msgReceived = consumer.receive();
 
-    session.start();
-    ClientMessage msgReceived = consumer.receive();
+System.out.println("message = " + msgReceived.getBodyBuffer().readString());
 
-    System.out.println("message = " + msgReceived.getBodyBuffer().readString());
-
-    session.close();
+session.close();
+```

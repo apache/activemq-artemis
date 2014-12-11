@@ -1,5 +1,4 @@
-Preface
-=======
+# Preface
 
 What is ActiveMQ?
 
@@ -8,11 +7,11 @@ What is ActiveMQ?
     system.
 
 -   ActiveMQ is an example of Message Oriented Middleware (MoM). For a
-    description of MoMs and other messaging concepts please see the ?.
+    description of MoMs and other messaging concepts please see the [Messaging Concepts](messaging-concepts.md).
 
 -   For answers to more questions about what ActiveMQ is and what it
     isn't please visit the [FAQs wiki
-    page](http://www.jboss.org/community/wiki/ActiveMQGeneralFAQs).
+    page](todo).
 
 Why use ActiveMQ? Here are just a few of the reasons:
 
@@ -47,6 +46,6 @@ Why use ActiveMQ? Here are just a few of the reasons:
     routing of messages in a highly flexible way.
 
 -   For a full list of features, please see the [features wiki
-    page](http://www.jboss.org/community/wiki/ActiveMQFeatures) .
+    page](todo) .
 
 

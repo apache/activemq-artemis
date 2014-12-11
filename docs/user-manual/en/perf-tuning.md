@@ -1,11 +1,9 @@
-Performance Tuning
-==================
+# Performance Tuning
 
 In this chapter we'll discuss how to tune ActiveMQ for optimum
 performance.
 
-Tuning persistence
-==================
+## Tuning persistence
 
 -   Put the message journal on its own physical volume. If the disk is
     shared with other processes e.g. transaction co-ordinator, database
@@ -38,8 +36,7 @@ Tuning persistence
     performance by increasing `journal-max-io`. DO NOT change this
     parameter if you are running NIO.
 
-Tuning JMS
-==========
+## Tuning JMS
 
 There are a few areas where some tweaks can be done if you are using the
 JMS API
@@ -78,8 +75,7 @@ JMS API
     ActiveMQ will only require a network round trip on the commit, not
     on every send or acknowledgement.
 
-Other Tunings
-=============
+## Other Tunings
 
 There are various other places in ActiveMQ where we can perform some
 tuning:
@@ -89,12 +85,13 @@ tuning:
     reached the server by the time the call to send() returns, don't set
     durable messages to be sent blocking, instead use asynchronous send
     acknowledgements to get your acknowledgements of send back in a
-    separate stream, see ? for more information on this.
+    separate stream, see [Guarantees of sends and commits](send-guarantees.md) 
+    for more information on this.
 
 -   Use pre-acknowledge mode. With pre-acknowledge mode, messages are
     acknowledged `before` they are sent to the client. This reduces the
     amount of acknowledgement traffic on the wire. For more information
-    on this, see ?.
+    on this, see [Extra Acknowledge Modes](pre-acknowledge.md).
 
 -   Disable security. You may get a small performance boost by disabling
     security by setting the `security-enabled` parameter to `false` in
@@ -107,20 +104,22 @@ tuning:
 -   Sync transactions lazily. Setting `journal-sync-transactional` to
     `false` in `activemq-configuration.xml` can give you better
     transactional persistent performance at the expense of some
-    possibility of loss of transactions on failure. See ? for more
-    information.
+    possibility of loss of transactions on failure. See  [Guarantees of sends and commits](send-guarantees.md) 
+    for more information.
 
 -   Sync non transactional lazily. Setting
     `journal-sync-non-transactional` to `false` in
     `activemq-configuration.xml` can give you better non-transactional
     persistent performance at the expense of some possibility of loss of
-    durable messages on failure. See ? for more information.
+    durable messages on failure. See  [Guarantees of sends and commits](send-guarantees.md)
+    for more information.
 
 -   Send messages non blocking. Setting `block-on-durable-send` and
     `block-on-non-durable-send` to `false` in `activemq-jms.xml` (if
     you're using JMS and JNDI) or directly on the ServerLocator. This
     means you don't have to wait a whole network round trip for every
-    message sent. See ? for more information.
+    message sent. See  [Guarantees of sends and commits](send-guarantees.md) 
+    for more information.
 
 -   If you have very fast consumers, you can increase
     consumer-window-size. This effectively disables consumer flow
@@ -128,7 +127,7 @@ tuning:
 
 -   Socket NIO vs Socket Old IO. By default ActiveMQ uses old (blocking)
     on the server and the client side (see the chapter on configuring
-    transports for more information ?). NIO is much more scalable but
+    transports for more information [Configuring the Transport](configuring-transports.md). NIO is much more scalable but
     can give you some latency hit compared to old blocking IO. If you
     need to be able to service many thousands of connections on the
     server, then you should make sure you're using NIO on the server.
@@ -145,12 +144,12 @@ tuning:
     the wire, so if you re-use `SimpleString` instances between calls
     then you can avoid some unnecessary copying.
 
-Tuning Transport Settings
-=========================
+## Tuning Transport Settings
 
 -   TCP buffer sizes. If you have a fast network and fast machines you
     may get a performance boost by increasing the TCP send and receive
-    buffer sizes. See the ? for more information on this.
+    buffer sizes. See the [Configuring the Transport](configuring-transports.md) 
+    for more information on this.
 
     > **Note**
     >
@@ -180,10 +179,10 @@ Tuning Transport Settings
     `activemq-configuration.xml` and JMS connection factory
     (`ThroughputConnectionFactory`) in `activemq-jms.xml`which can be
     used to give the very best throughput, especially for small
-    messages. See the ? for more information on this.
+    messages. See the [Configuring the Transport](configuring-transports.md) 
+    for more information on this.
 
-Tuning the VM
-=============
+## Tuning the VM
 
 We highly recommend you use the latest Java JVM for the best
 performance. We test internally using the Sun JVM, so some of these
@@ -194,7 +193,7 @@ tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
     `-XX:+UseParallelOldGC` on Sun JDKs.
 
 -   Memory settings. Give as much memory as you can to the server.
-    ActiveMQ can run in low memory by using paging (described in ?) but
+    ActiveMQ can run in low memory by using paging (described in [Paging](paging.md)) but
     if it can run with all queues in RAM this will improve performance.
     The amount of memory you require will depend on the size and number
     of your queues and the size and number of your messages. Use the JVM
@@ -210,8 +209,7 @@ tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
     some mileage with the other tuning parameters depending on your OS
     platform and application usage patterns.
 
-Avoiding Anti-Patterns
-======================
+## Avoiding Anti-Patterns
 
 -   Re-use connections / sessions / consumers / producers. Probably the
     most common messaging anti-pattern we see is users who create a new

@@ -1,8 +1,6 @@
-Interoperability
-================
+# Interoperability
 
-Stomp
-=====
+## Stomp
 
 [Stomp](http://stomp.github.com/) is a text-orientated wire protocol
 that allows Stomp clients to communicate with Stomp Brokers. ActiveMQ
@@ -11,8 +9,7 @@ now supports Stomp 1.0, 1.1 and 1.2.
 Stomp clients are available for several languages and platforms making
 it a good choice for interoperability.
 
-Native Stomp support
---------------------
+## Native Stomp support
 
 ActiveMQ provides native support for Stomp. To be able to send and
 receive Stomp messages, you must configure a `NettyAcceptor` with a
@@ -52,8 +49,7 @@ heartbeat values lower than 500, the server will defaults the value to
 500 milliseconds regardless the values of the 'heart-beat' header in the
 frame.
 
-Mapping Stomp destinations to ActiveMQ addresses and queues
------------------------------------------------------------
+### Mapping Stomp destinations to ActiveMQ addresses and queues
 
 Stomp clients deals with *destinations* when sending messages and
 subscribing. Destination names are simply strings which are mapped to
@@ -66,8 +62,7 @@ specified destination is mapped to an address. When a Stomp client
 subscribes (or unsubscribes) for a destination (using a `SUBSCRIBE` or
 `UNSUBSCRIBE` frame), the destination is mapped to a ActiveMQ queue.
 
-STOMP and connection-ttl
-------------------------
+### STOMP and connection-ttl
 
 Well behaved STOMP clients will always send a DISCONNECT frame before
 closing their connections. In this case the server will clear up any
@@ -105,12 +100,12 @@ seconds.
 > users can use heart-beats to maintain the life cycle of stomp
 > connections.
 
-Stomp and JMS interoperability
-------------------------------
+### Stomp and JMS interoperability
 
-### Using JMS destinations
+#### Using JMS destinations
 
-As explained in ?, JMS destinations are also mapped to ActiveMQ
+As explained in [Mapping JMS Concepts to the Core API](jms-core-mapping.md), 
+JMS destinations are also mapped to ActiveMQ
 addresses and queues. If you want to use Stomp to send messages to JMS
 destinations, the Stomp destinations must follow the same convention:
 
@@ -137,7 +132,7 @@ destinations, the Stomp destinations must follow the same convention:
 
         ^@
 
-### Sending and consuming Stomp message from JMS or ActiveMQ Core API
+#### Sending and consuming Stomp message from JMS or ActiveMQ Core API
 
 Stomp is mainly a text-orientated protocol. To make it simpler to
 interoperate with JMS and ActiveMQ Core API, our Stomp implementation
@@ -156,7 +151,7 @@ The same logic applies when mapping a JMS message or a Core message to
 Stomp. A Stomp client can check the presence of the `content-length`
 header to determine the type of the message body (String or bytes).
 
-### Message IDs for Stomp messages
+#### Message IDs for Stomp messages
 
 When receiving Stomp messages via a JMS consumer or a QueueBrowser, the
 messages have no properties like JMSMessageID by default. However this
@@ -183,7 +178,7 @@ long type internal message id prefixed with "`STOMP`", like:
 If `stomp-enable-message-id` is not specified in the configuration,
 default is `false`.
 
-### Handling of Large Messages with Stomp
+#### Handling of Large Messages with Stomp
 
 Stomp clients may send very large bodys of frames which can exceed the
 size of ActiveMQ server's internal buffer, causing unexpected errors. To
@@ -212,8 +207,7 @@ sending it to stomp clients. The default value of
 `stomp-min-large-message-size` is the same as the default value of
 [min-large-message-size](#large-messages.core.config).
 
-Stomp Over Web Sockets
-----------------------
+### Stomp Over Web Sockets
 
 ActiveMQ also support Stomp over [Web
 Sockets](http://dev.w3.org/html5/websockets/). Modern web browser which
@@ -242,8 +236,7 @@ The `stomp-websockets` example shows how to configure ActiveMQ server to
 have web browsers and Java applications exchanges messages on a JMS
 topic.
 
-StompConnect
-------------
+### StompConnect
 
 [StompConnect](http://stomp.codehaus.org/StompConnect) is a server that
 can act as a Stomp broker and proxy the Stomp protocol to the standard
@@ -265,13 +258,11 @@ documentation.
 Make sure this file is in the classpath along with the StompConnect jar
 and the ActiveMQ jars and simply run `java org.codehaus.stomp.jms.Main`.
 
-REST
-====
+## REST
 
-Please see ?
+Please see [Rest Interface](rest.md)
 
-AMQP
-====
+## AMQP
 
 ActiveMQ supports the [AMQP
 1.0](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp)
@@ -291,15 +282,13 @@ default AMQP port.
 There are 2 Stomp examples available see proton-j and proton-ruby which
 use the qpid Java and Ruby clients respectively
 
-AMQP and security
------------------
+### AMQP and security
 
 The ActiveMQ Server accepts AMQP SASL Authentication and will use this
 to map onto the underlying session created for the connection so you can
 use the normal ActiveMQ security configuration.
 
-AMQP Links
-----------
+### AMQP Links
 
 An AMQP Link is a uni directional transport for messages between a
 source and a target, i.e. a client and the ActiveMQ Broker. A link will
@@ -309,8 +298,7 @@ Message and forwarded to its destination or target. A Receiver will map
 onto a ActiveMQ Server Consumer and convert ActiveMQ messages back into
 AMQP messages before being delivered.
 
-AMQP and destinations
----------------------
+### AMQP and destinations
 
 If an AMQP Link is dynamic then a temporary queue will be created and
 either the remote source or remote target address will be set to the
@@ -323,8 +311,7 @@ does not exist then an exception will be sent
 > For the next version we will add a flag to aut create durable queue
 > but for now you will have to add them via the configuration
 
-AMQP and Coordinations - Handling Transactions
-----------------------------------------------
+### AMQP and Coordinations - Handling Transactions
 
 An AMQP links target can also be a Coordinator, the Coordinator is used
 to handle transactions. If a coordinator is used the the underlying
@@ -337,8 +324,7 @@ or committed via the coordinator.
 > `amqp:multi-txns-per-ssn`, however in this version ActiveMQ will only
 > support single transactions per session
 
-OpenWire
-========
+## OpenWire
 
 ActiveMQ now supports the
 [OpenWire](http://activemq.apache.org/openwire.html) protocol so that an

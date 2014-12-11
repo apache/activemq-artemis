@@ -1,5 +1,4 @@
-Message Grouping
-================
+# Message Grouping
 
 Message groups are sets of messages that have the following
 characteristics:
@@ -21,7 +20,7 @@ An example might be orders for a certain stock. You may want orders for
 any particular stock to be processed serially by the same consumer. To
 do this you can create a pool of consumers (perhaps one for each stock,
 but less will work too), then set the stock name as the value of the
-\_HQ\_GROUP\_ID property.
+_HQ_GROUP_ID property.
 
 This will ensure that all messages for a particular stock will always be
 processed by the same consumer.
@@ -41,16 +40,14 @@ processed by the same consumer.
 > and consider whether or not you should isolate your grouped messages
 > from your non-grouped messages.
 
-Using Core API
-==============
+## Using Core API
 
 The property name used to identify the message group is `"_HQ_GROUP_ID"`
 (or the constant `MessageImpl.HDR_GROUP_ID`). Alternatively, you can set
 `autogroup` to true on the `SessionFactory` which will pick a random
 unique id.
 
-Using JMS
-=========
+## Using JMS
 
 The property name used to identify the message group is `JMSXGroupID`.
 
@@ -85,20 +82,17 @@ which is available in the context by default:
     java.naming.provider.url=tcp://localhost:5445
     connection.ConnectionFactory.groupID=Group-0
 
-Example
-=======
+## Example
 
 See ? for an example which shows how message groups are configured and
 used with JMS.
 
-Example
-=======
+## Example
 
 See ? for an example which shows how message groups are configured via a
 connection factory.
 
-Clustered Grouping
-==================
+## Clustered Grouping
 
 Using message groups in a cluster is a bit more complex. This is because
 messages with a particular group id can arrive on any node so each node
@@ -158,8 +152,7 @@ exception thrown. To avoid this happening Local Handlers can be
 replicated on another backup node. Simple create your back up node and
 configure it with the same Local handler.
 
-Clustered Grouping Best Practices
----------------------------------
+## Clustered Grouping Best Practices
 
 Some best practices should be followed when using clustered grouping:
 
@@ -191,8 +184,7 @@ Some best practices should be followed when using clustered grouping:
     last-time-use value should be updated with a round trip for a
     request to the group between the nodes.
 
-Clustered Grouping Example
---------------------------
+## Clustered Grouping Example
 
 See ? for an example of how to configure message groups with a ActiveMQ
 cluster

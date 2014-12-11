@@ -1,5 +1,4 @@
-Detecting Slow Consumers
-========================
+#Detecting Slow Consumers
 
 In this section we will discuss how ActiveMQ can be configured to deal
 with slow consumers. A slow consumer with a server-side queue (e.g. JMS
@@ -13,8 +12,7 @@ non-durable JMS subscriber would allow the broker to remove the
 subscription and all of its messages freeing up valuable server
 resources.
 
-Configuration required for detecting slow consumers
-===================================================
+## Configuration required for detecting slow consumers
 
 By default the server will not detect slow consumers. If slow consumer
 detection is desired then see ? for more details.

@@ -1,5 +1,4 @@
-Message Redelivery and Undelivered Messages
-===========================================
+# Message Redelivery and Undelivered Messages
 
 Messages can be delivered unsuccessfully (e.g. if the transacted session
 used to consume them is rolled back). Such a message goes back to its
@@ -23,8 +22,7 @@ There are 2 ways to deal with these undelivered messages:
 
 Both options can be combined for maximum flexibility.
 
-Delayed Redelivery
-==================
+## Delayed Redelivery
 
 Delaying redelivery can often be useful in the case that clients
 regularly fail or rollback. Without a delayed redelivery, the system can
@@ -32,19 +30,18 @@ get into a "thrashing" state, with delivery being attempted, the client
 rolling back, and delivery being re-attempted ad infinitum in quick
 succession, consuming valuable CPU and network resources.
 
-Configuring Delayed Redelivery
-------------------------------
+### Configuring Delayed Redelivery
 
 Delayed redelivery is defined in the address-setting configuration:
 
     <!-- delay redelivery of messages for 5s -->
     <address-setting match="jms.queue.exampleQueue">
-       <!-- default is 1.0 --> 
-       <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
-       <!-- default is 0 (no delay) --> 
-       <redelivery-delay>5000</redelivery-delay>
-       <!-- default is redelivery-delay * 10 -->
-       <max-redelivery-delay>50000</max-redelivery-delay>
+    <!-- default is 1.0 --> 
+    <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
+    <!-- default is 0 (no delay) --> 
+    <redelivery-delay>5000</redelivery-delay>
+    <!-- default is redelivery-delay * 10 -->
+    <max-redelivery-delay>50000</max-redelivery-delay>
      
     </address-setting>
 
@@ -63,17 +60,15 @@ redelivery-delay with a max-redelivery-delay to be taken into account.
 The max-redelivery-delay is defaulted to redelivery-delay \* 10
 
 Address wildcards can be used to configure redelivery delay for a set of
-addresses (see ?), so you don't have to specify redelivery delay
+addresses (see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md)), so you don't have to specify redelivery delay
 individually for each address.
 
-Example
--------
+### Example
 
 See ? for an example which shows how delayed redelivery is configured
 and used with JMS.
 
-Dead Letter Addresses
-=====================
+## Dead Letter Addresses
 
 To prevent a client infinitely receiving the same undelivered message
 (regardless of what is causing the unsuccessful deliveries), messaging
@@ -90,16 +85,15 @@ attempts, they are removed from the queue and sent to the dead letter
 address. These *dead letter* messages can later be consumed for further
 inspection.
 
-Configuring Dead Letter Addresses
----------------------------------
+### Configuring Dead Letter Addresses
 
 Dead letter address is defined in the address-setting configuration:
 
     <!-- undelivered messages in exampleQueue will be sent to the dead letter address
-       deadLetterQueue after 3 unsuccessful delivery attempts -->
+    deadLetterQueue after 3 unsuccessful delivery attempts -->
     <address-setting match="jms.queue.exampleQueue">
-       <dead-letter-address>jms.queue.deadLetterQueue</dead-letter-address>
-       <max-delivery-attempts>3</max-delivery-attempts>
+    <dead-letter-address>jms.queue.deadLetterQueue</dead-letter-address>
+    <max-delivery-attempts>3</max-delivery-attempts>
     </address-setting>
 
 If a `dead-letter-address` is not specified, messages will removed after
@@ -113,10 +107,9 @@ addresses and you can set `max-delivery-attempts` to -1 for a specific
 address setting to allow infinite redeliveries only for this address.
 
 Address wildcards can be used to configure dead letter settings for a
-set of addresses (see ?).
+set of addresses (see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md)).
 
-Dead Letter Properties
-----------------------
+### Dead Letter Properties
 
 Dead letter messages which are consumed from a dead letter address have
 the following properties:
@@ -131,14 +124,12 @@ the following properties:
     a String property containing the *original queue* of the dead letter
     message
 
-Example
--------
+### Example
 
 See ? for an example which shows how dead letter is configured and used
 with JMS.
 
-Delivery Count Persistence
-==========================
+## Delivery Count Persistence
 
 In normal use, ActiveMQ does not update delivery count *persistently*
 until a message is rolled back (i.e. the delivery count is not updated

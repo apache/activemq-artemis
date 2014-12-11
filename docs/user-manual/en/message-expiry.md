@@ -1,5 +1,4 @@
-Message Expiry
-==============
+# Message Expiry
 
 Messages can be set with an optional *time to live* when sending them.
 
@@ -12,8 +11,7 @@ messages are expired, they are removed from the queue and sent to the
 expiry address. Many different queues can be bound to an expiry address.
 These *expired* messages can later be consumed for further inspection.
 
-Message Expiry
-==============
+## Message Expiry
 
 Using ActiveMQ Core API, you can set an expiration time directly on the
 message:
@@ -44,8 +42,7 @@ following properties:
     a Long property containing the *actual expiration time* of the
     expired message
 
-Configuring Expiry Addresses
-============================
+## Configuring Expiry Addresses
 
 Expiry address are defined in the address-setting configuration:
 
@@ -56,10 +53,9 @@ Expiry address are defined in the address-setting configuration:
 
 If messages are expired and no expiry address is specified, messages are
 simply removed from the queue and dropped. Address wildcards can be used
-to configure expiry address for a set of addresses (see ?).
+to configure expiry address for a set of addresses (see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md)).
 
-Configuring The Expiry Reaper Thread
-====================================
+## Configuring The Expiry Reaper Thread
 
 A reaper thread will periodically inspect the queues to check if
 messages have expired.
@@ -78,8 +74,7 @@ The reaper thread can be configured with the following properties in
     The reaper thread priority (it must be between 0 and 9, 9 being the
     highest priority, default is 3)
 
-Example
-=======
+## Example
 
 See ? for an example which shows how message expiry is configured and
 used with JMS.

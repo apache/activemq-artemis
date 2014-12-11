@@ -1,5 +1,4 @@
-Filter Expressions
-==================
+# Filter Expressions
 
 ActiveMQ provides a powerful filter language based on a subset of the
 SQL 92 expression syntax.
@@ -17,13 +16,13 @@ Filter expressions are used in several places in ActiveMQ
     filter expression will enter the queue.
 
 -   Core bridges can be defined with an optional filter expression, only
-    matching messages will be bridged (see ?).
+    matching messages will be bridged (see [Core Bridges]9core-bridges.md)).
 
 -   Diverts can be defined with an optional filter expression, only
-    matching messages will be diverted (see ?).
+    matching messages will be diverted (see [Diverts](diverts.md)).
 
 -   Filter are also used programmatically when creating consumers,
-    queues and in several places as described in ?.
+    queues and in several places as described in [management](management.md).
 
 There are some differences between JMS selector expressions and ActiveMQ
 core filter expressions. Whereas JMS selector expressions operate on a

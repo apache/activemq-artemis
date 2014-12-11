@@ -1,5 +1,4 @@
-Security
-========
+# Security
 
 This chapter describes how security works with ActiveMQ and how you can
 configure it. To disable security completely simply set the
@@ -11,13 +10,12 @@ long. To change this period set the property
 `security-invalidation-interval`, which is in milliseconds. The default
 is `10000` ms.
 
-Role based security for addresses
-=================================
+## Role based security for addresses
 
 ActiveMQ contains a flexible role-based security model for applying
 security to queues, based on their addresses.
 
-As explained in ?, ActiveMQ core consists mainly of sets of queues bound
+As explained in [Using Core](using-core.md), ActiveMQ core consists mainly of sets of queues bound
 to addresses. A message is sent to an address and the server looks up
 the set of queues that are bound to that address, the server then routes
 the message to those set of queues.
@@ -69,7 +67,8 @@ Let's take a simple example, here's a security block from
 
 The '`#`' character signifies "any sequence of words". Words are
 delimited by the '`.`' character. For a full description of the wildcard
-syntax please see ?. The above security block applies to any address
+syntax please see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md). 
+The above security block applies to any address
 that starts with the string "globalqueues.europe.":
 
 Only users who have the `admin` role can create or delete durable queues
@@ -88,7 +87,7 @@ security manager. ActiveMQ ships with a user manager that reads user
 credentials from a file on disk, and can also plug into JAAS or JBoss
 Application Server security.
 
-For more information on configuring the security manager, please see ?.
+For more information on configuring the security manager, please see 'Changing the Security Manager'.
 
 There can be zero or more `security-setting` elements in each xml file.
 Where more than one match applies to a set of addresses the *more
@@ -121,18 +120,16 @@ permissions in more specific security-setting blocks by simply not
 specifying them. Otherwise it would not be possible to deny permissions
 in sub-groups of addresses.
 
-Secure Sockets Layer (SSL) Transport
-====================================
+## Secure Sockets Layer (SSL) Transport
 
 When messaging clients are connected to servers, or servers are
 connected to other servers (e.g. via bridges) over an untrusted network
 then ActiveMQ allows that traffic to be encrypted using the Secure
 Sockets Layer (SSL) transport.
 
-For more information on configuring the SSL transport, please see ?.
+For more information on configuring the SSL transport, please see [Configuring the Transport](configuring-transports.md).
 
-Basic user credentials
-======================
+## Basic user credentials
 
 ActiveMQ ships with a security manager implementation that reads user
 credentials, i.e. user names, passwords and role information from an xml
@@ -178,8 +175,7 @@ We then have three more users, the user `tim` has the role `admin`. The
 user `andy` has the roles `admin` and `guest`, and the user `jeff` has
 the roles `europe-users` and `guest`.
 
-Changing the security manager
-=============================
+## Changing the security manager
 
 If you do not want to use the default security manager then you can
 specify a different one by editing the file `activemq-beans.xml` (or
@@ -209,8 +205,7 @@ running JBoss Application Server).
 
 These two implementations are discussed in the next two sections.
 
-JAAS Security Manager
-=====================
+## JAAS Security Manager
 
 JAAS stands for 'Java Authentication and Authorization Service' and is a
 standard part of the Java platform. It provides a common API for
@@ -245,14 +240,12 @@ properties:
 -   CallbackHandler: the `CallbackHandler` implementation to use if user
     interaction are required
 
-Example
--------
+## Example
 
 See ? for an example which shows how ActiveMQ can be configured to use
 JAAS.
 
-JBoss AS Security Manager
-=========================
+## JBoss AS Security Manager
 
 The JBoss AS security manager is used when running ActiveMQ inside the
 JBoss Application server. This allows tight integration with the JBoss
@@ -265,8 +258,7 @@ Take a look at one of the default `activemq-jboss-beans.xml` files for
 JBoss Application Server that are bundled in the distribution for an
 example of how this is configured.
 
-Configuring Client Login
-------------------------
+### Configuring Client Login
 
 JBoss can be configured to allow client login, basically this is when a
 JEE component such as a Servlet or EJB sets security credentials on the
@@ -287,20 +279,18 @@ There is more info on using the JBoss client login module
 > meaning that the security context has been cleared. If this is the
 > case then messages will need to be sent blocking
 
-Changing the Security Domain
-----------------------------
+### Changing the Security Domain
 
 The name of the security domain used by the JBoss AS security manager
 defaults to `java:/jaas/activemq
           `. This can be changed by specifying `securityDomainName`
 (e.g. java:/jaas/myDomain).
 
-Changing the username/password for clustering
-=============================================
+## Changing the username/password for clustering
 
 In order for cluster connections to work correctly, each node in the
 cluster must make connections to the other nodes. The username/password
 they use for this should always be changed from the installation default
 to prevent a security risk.
 
-Please see ? for instructions on how to do this.
+Please see [Management](management.md) for instructions on how to do this.

@@ -1,5 +1,4 @@
-Management
-==========
+# Management
 
 ActiveMQ has an extensive management API that allows a user to modify a
 server configuration, create new resources (e.g. JMS queues and topics),
@@ -26,8 +25,7 @@ JMS messages.
 This choice depends on your requirements, your application settings and
 your environment to decide which way suits you best.
 
-The Management API
-==================
+## The Management API
 
 Regardless of the way you *invoke* management operations, the management
 API is the same.
@@ -53,13 +51,12 @@ messages, or JMS messages are used.
 > empty string means that the management operation will be performed on
 > *all messages*.
 
-Core Management API
--------------------
+### Core Management API
 
 ActiveMQ defines a core management API to manage core resources. For
 full details of the API please consult the javadoc. In summary:
 
-### Core Server Management
+#### Core Server Management
 
 -   Listing, creating, deploying and destroying queues
 
@@ -145,7 +142,7 @@ full details of the API please consult the javadoc. In summary:
     > receive some sort of error depending on which management service
     > you use to call it.
 
-### Core Address Management
+#### Core Address Management
 
 Core addresses can be managed using the `AddressControl` class (with the
 ObjectName `org.apache.activemq:module=Core,type=Address,name="<the
@@ -159,7 +156,7 @@ ObjectName `org.apache.activemq:module=Core,type=Address,name="<the
     `addRole()` or `removeRole()` methods. You can list all the roles
     associated to the queue with the `getRoles()` method
 
-### Core Queue Management
+#### Core Queue Management
 
 The bulk of the core management API deals with core queues. The
 `QueueControl` class defines the Core queue management operations (with
@@ -219,8 +216,8 @@ messages with a given property.)
 
     Message counters can be listed for a queue with the
     `listMessageCounter()` and `listMessageCounterHistory()` methods
-    (see ?). The message counters can also be reset for a single queue
-    using the `resetMessageCounter()` method.
+    (see Message Counters section). The message counters can also be 
+    reset for a single queue using the `resetMessageCounter()` method.
 
 -   Retrieving the queue attributes
 
@@ -236,7 +233,7 @@ messages with a given property.)
     When it's resume, it'll begin delivering the queued messages, if
     any.
 
-### Other Core Resources Management
+#### Other Core Resources Management
 
 ActiveMQ allows to start and stop its remote resources (acceptors,
 diverts, bridges, etc.) so that a server can be taken off line for a
@@ -252,7 +249,7 @@ transactions). These resources are:
                             name>"` or the resource name
     `core.acceptor.<the
                             address name>`). The acceptors parameters
-    can be retrieved using the `AcceptorControl` attributes (see ?)
+    can be retrieved using the `AcceptorControl` attributes (see [Understanding Acceptors](configuring-transports.md))
 
 -   Diverts
 
@@ -261,7 +258,7 @@ transactions). These resources are:
     `org.apache.activemq:module=Core,type=Divert,name=<the divert name>`
     or the resource name `core.divert.<the divert name>`). Diverts
     parameters can be retrieved using the `DivertControl` attributes
-    (see ?)
+    (see [Diverting and Splitting Message Flows)](diverts.md))
 
 -   Bridges
 
@@ -271,7 +268,7 @@ transactions). These resources are:
                             name>"` or the resource name
     `core.bridge.<the bridge
                             name>`). Bridges parameters can be retrieved
-    using the `BridgeControl` attributes (see ?)
+    using the `BridgeControl` attributes (see [Core bridges](core-bridges.md))
 
 -   Broadcast groups
 
@@ -281,7 +278,7 @@ transactions). These resources are:
                             name>"` or the resource name
     `core.broadcastgroup.<the broadcast group name>`). Broadcast groups
     parameters can be retrieved using the `BroadcastGroupControl`
-    attributes (see ?)
+    attributes (see [Clusters](clusters.md))
 
 -   Discovery groups
 
@@ -292,7 +289,7 @@ transactions). These resources are:
     `core.discovery.<the
                             discovery group name>`). Discovery groups
     parameters can be retrieved using the `DiscoveryGroupControl`
-    attributes (see ?)
+    attributes (see [Clusters](clusters.md))
 
 -   Cluster connections
 
@@ -302,15 +299,14 @@ transactions). These resources are:
                             connection name>"` or the resource name
     `core.clusterconnection.<the cluster connection name>`). Cluster
     connections parameters can be retrieved using the
-    `ClusterConnectionControl` attributes (see ?)
+    `ClusterConnectionControl` attributes (see [Clusters](clusters.md))
 
-JMS Management API
-------------------
+### JMS Management API
 
 ActiveMQ defines a JMS Management API to manage JMS *administrated
 objects* (i.e. JMS queues, topics and connection factories).
 
-### JMS Server Management
+#### JMS Server Management
 
 JMS Resources (connection factories and destinations) can be created
 using the `JMSServerControl` class (with the ObjectName
@@ -333,7 +329,8 @@ using the `JMSServerControl` class (with the ObjectName
     curly braces. For example `{key=10}, {key=20}`. In that case, the
     first `key` will be associated to the first transport configuration
     and the second `key` will be associated to the second transport
-    configuration (see ? for a list of the transport parameters)
+    configuration (see [Configuring Transports](configuring-transports.md) 
+    for a list of the transport parameters)
 
 -   Listing, creating, destroying queues
 
@@ -364,7 +361,7 @@ using the `JMSServerControl` class (with the ObjectName
     `listConnectionIDs()` and all the sessions for a given connection ID
     can be listed using `listSessions()`.
 
-### JMS ConnectionFactory Management
+#### JMS ConnectionFactory Management
 
 JMS Connection Factories can be managed using the
 `ConnectionFactoryControl` class (with the ObjectName
@@ -382,7 +379,7 @@ JMS Connection Factories can be managed using the
     from the connection factory will block or not when sending
     non-durable messages, etc.)
 
-### JMS Queue Management
+#### JMS Queue Management
 
 JMS queues can be managed using the `JMSQueueControl` class (with the
 ObjectName `org.apache.activemq:module=JMS,type=Queue,name="<the queue
@@ -439,7 +436,7 @@ operations on a core queue.*
 
     Message counters can be listed for a queue with the
     `listMessageCounter()` and `listMessageCounterHistory()` methods
-    (see ?)
+    (see Message Counters section)
 
 -   Retrieving the queue attributes
 
@@ -455,7 +452,7 @@ operations on a core queue.*
     will not deliver them. When resumed again it will deliver the
     enqueued messages, if any.
 
-### JMS Topic Management
+#### JMS Topic Management
 
 JMS Topics can be managed using the `TopicControl` class (with the
 ObjectName `org.apache.activemq:module=JMS,type=Topic,name="<the topic
@@ -484,8 +481,7 @@ ObjectName `org.apache.activemq:module=JMS,type=Topic,name="<the topic
     message selector to know the number of messages matching the
     selector)
 
-Using Management Via JMX
-========================
+## Using Management Via JMX
 
 ActiveMQ can be managed using
 [JMX](http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html).
@@ -510,8 +506,7 @@ Managing ActiveMQ using JMX is identical to management of any Java
 Applications using JMX. It can be done by reflection or by creating
 proxies of the MBeans.
 
-Configuring JMX
----------------
+### Configuring JMX
 
 By default, JMX is enabled to manage ActiveMQ. It can be disabled by
 setting `jmx-management-enabled` to `false` in
@@ -538,7 +533,7 @@ domain can be configured for each individual ActiveMQ server by setting
     <!-- use a specific JMX domain for ActiveMQ MBeans -->
     <jmx-domain>my.org.apache.activemq</jmx-domain>
 
-### MBeanServer configuration
+#### MBeanServer configuration
 
 When ActiveMQ is run in standalone, it uses the Java Virtual Machine's
 `Platform MBeanServer` to register its MBeans. This is configured in
@@ -559,14 +554,12 @@ own MBean Server so that it can be managed using AS 5's jmx-console:
                        factoryMethod="locateJBoss" />
     </bean>
 
-Example
--------
+### Example
 
 See ? for an example which shows how to use a remote connection to JMX
 and MBean proxies to manage ActiveMQ.
 
-Using Management Via Core API
-=============================
+## Using Management Via Core API
 
 The core management API in ActiveMQ is called by sending Core messages
 to a special address, the *management address*.
@@ -615,14 +608,16 @@ operations using Core messages:
 For example, to find out the number of messages in the core queue
 `exampleQueue`:
 
-    ClientSession session = ...
-    ClientRequestor requestor = new ClientRequestor(session, "jms.queue.activemq.management");
-    ClientMessage message = session.createMessage(false);
-    ManagementHelper.putAttribute(message, "core.queue.exampleQueue", "messageCount");
-    session.start();
-    ClientMessage reply = requestor.request(m);
-    int count = (Integer) ManagementHelper.getResult(reply);
-    System.out.println("There are " + count + " messages in exampleQueue");
+``` java
+ClientSession session = ...
+ClientRequestor requestor = new ClientRequestor(session, "jms.queue.activemq.management");
+ClientMessage message = session.createMessage(false);
+ManagementHelper.putAttribute(message, "core.queue.exampleQueue", "messageCount");
+session.start();
+ClientMessage reply = requestor.request(m);
+int count = (Integer) ManagementHelper.getResult(reply);
+System.out.println("There are " + count + " messages in exampleQueue");
+```
 
 Management operation name and parameters must conform to the Java
 interfaces defined in the `management` packages.
@@ -633,8 +628,7 @@ straightforward (`core.queue.exampleQueue` for the Core Queue
 `exampleQueue`, `jms.topic.exampleTopic` for the JMS Topic
 `exampleTopic`, etc.).
 
-Configuring Core Management
----------------------------
+### Configuring Core Management
 
 The management address to send management messages is configured in
 `activemq-configuration.xml`:
@@ -655,8 +649,7 @@ configured in activemq-configuration.xml:
        <permission type="manage" roles="admin" />
     </security-setting>
 
-Using Management Via JMS
-========================
+## Using Management Via JMS
 
 Using JMS messages to manage ActiveMQ is very similar to using core API.
 
@@ -688,32 +681,29 @@ API instead:
 
 For example, to know the number of messages in the JMS queue
 `exampleQueue`:
+``` java
+Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
 
-    Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
-
-    QueueSession session = ...
-    QueueRequestor requestor = new QueueRequestor(session, managementQueue);
-    connection.start();
-    Message message = session.createMessage();
-    JMSManagementHelper.putAttribute(message, "jms.queue.exampleQueue", "messageCount");
-    Message reply = requestor.request(message);
-    int count = (Integer)JMSManagementHelper.getResult(reply);
-    System.out.println("There are " + count + " messages in exampleQueue");
-
-Configuring JMS Management
---------------------------
+QueueSession session = ...
+QueueRequestor requestor = new QueueRequestor(session, managementQueue);
+connection.start();
+Message message = session.createMessage();
+JMSManagementHelper.putAttribute(message, "jms.queue.exampleQueue", "messageCount");
+Message reply = requestor.request(message);
+int count = (Integer)JMSManagementHelper.getResult(reply);
+System.out.println("There are " + count + " messages in exampleQueue");
+```
+### Configuring JMS Management
 
 Whether JMS or the core API is used for management, the configuration
-steps are the same (see ?).
+steps are the same (see Configuring Core Management section).
 
-Example
--------
+### Example
 
 See ? for an example which shows how to use JMS messages to manage
 ActiveMQ server.
 
-Management Notifications
-========================
+## Management Notifications
 
 ActiveMQ emits *notifications* to inform listeners of potentially
 interesting events (creation of new resources, security violation,
@@ -727,10 +717,9 @@ These notifications can be received by 3 different ways:
 
 -   JMS messages
 
-JMX Notifications
------------------
+### JMX Notifications
 
-If JMX is enabled (see ?), JMX notifications can be received by
+If JMX is enabled (see Configuring JMX section), JMX notifications can be received by
 subscribing to 2 MBeans:
 
 -   `org.apache.activemq:module=Core,type=Server` for notifications on
@@ -739,8 +728,7 @@ subscribing to 2 MBeans:
 -   `org.apache.activemq:module=JMS,type=Server` for notifications on
     *JMS* resources
 
-Core Messages Notifications
----------------------------
+### Core Messages Notifications
 
 ActiveMQ defines a special *management notification address*. Core
 queues can be bound to this address so that clients will receive
@@ -758,7 +746,7 @@ Since notifications are regular core messages, it is possible to use
 message selectors to filter out notifications and receives only a subset
 of all the notifications emitted by the server.
 
-### Configuring The Core Management Notification Address
+#### Configuring The Core Management Notification Address
 
 The management notification address to receive management notifications
 is configured in `activemq-configuration.xml`:
@@ -767,8 +755,7 @@ is configured in `activemq-configuration.xml`:
 
 By default, the address is `activemq.notifications`.
 
-JMS Messages Notifications
---------------------------
+### JMS Messages Notifications
 
 ActiveMQ's notifications can also be received using JMS messages.
 
@@ -786,40 +773,39 @@ change the server's management notification address to start with
 Once the notification topic is created, you can receive messages from it
 or set a `MessageListener`:
 
-    Topic notificationsTopic = ActiveMQJMSClient.createTopic("notificationsTopic");
+``` java
+Topic notificationsTopic = ActiveMQJMSClient.createTopic("notificationsTopic");
 
-    Session session = ...
-    MessageConsumer notificationConsumer = session.createConsumer(notificationsTopic);
-    notificationConsumer.setMessageListener(new MessageListener()
-    {
-       public void onMessage(Message notif)
-       {
-          System.out.println("------------------------");
-          System.out.println("Received notification:");
-          try
-          {
-             Enumeration propertyNames = notif.getPropertyNames();
-             while (propertyNames.hasMoreElements())
-             {
-                String propertyName = (String)propertyNames.nextElement();
-                System.out.format("  %s: %s\n", propertyName, notif.getObjectProperty(propertyName));
-             }
-          }
-          catch (JMSException e)
-          {
-          }
-          System.out.println("------------------------");
-       }
-    });
-
-Example
--------
+Session session = ...
+MessageConsumer notificationConsumer = session.createConsumer(notificationsTopic);
+notificationConsumer.setMessageListener(new MessageListener()
+{
+   public void onMessage(Message notif)
+   {
+      System.out.println("------------------------");
+      System.out.println("Received notification:");
+      try
+      {
+         Enumeration propertyNames = notif.getPropertyNames();
+         while (propertyNames.hasMoreElements())
+         {
+            String propertyName = (String)propertyNames.nextElement();
+            System.out.format("  %s: %s\n", propertyName, notif.getObjectProperty(propertyName));
+         }
+      }
+      catch (JMSException e)
+      {
+      }
+      System.out.println("------------------------");
+   }
+});
+```
+### Example
 
 See ? for an example which shows how to use a JMS `MessageListener` to
 receive management notifications from ActiveMQ server.
 
-Notification Types and Headers
-------------------------------
+### Notification Types and Headers
 
 Below is a list of all the different kinds of notifications as well as
 which headers are on the messages. Every notification has a
@@ -914,8 +900,7 @@ header. The timestamp is the un-formatted result of a call to
     `_HQ_Address`, `_HQ_ConsumerCount`, `_HQ_RemoteAddress`,
     `_HQ_ConnectionName`, `_HQ_ConsumerName`, `_HQ_SessionName`
 
-Message Counters
-================
+## Message Counters
 
 Message counters can be used to obtain information on queues *over time*
 as ActiveMQ keeps a history on queue metrics.
@@ -966,8 +951,7 @@ For example, to know specifically how many messages were *consumed* from
 the queue since the last update simply subtract the `messageCountDelta`
 from `countDelta`.
 
-Configuring Message Counters
-----------------------------
+### Configuring Message Counters
 
 By default, message counters are disabled as it might have a small
 negative effect on memory.
@@ -991,28 +975,28 @@ configured to suit your messaging use case in
 Message counters can be retrieved using the Management API. For example,
 to retrieve message counters on a JMS Queue using JMX:
 
-    // retrieve a connection to ActiveMQ's MBeanServer
-    MBeanServerConnection mbsc = ...
-    JMSQueueControlMBean queueControl = (JMSQueueControl)MBeanServerInvocationHandler.newProxyInstance(mbsc,
-       on,
-       JMSQueueControl.class,
-       false);
-    // message counters are retrieved as a JSON String                                                                                                      
-    String counters = queueControl.listMessageCounter();
-    // use the MessageCounterInfo helper class to manipulate message counters more easily
-    MessageCounterInfo messageCounter = MessageCounterInfo.fromJSON(counters);         
-    System.out.format("%s message(s) in the queue (since last sample: %s)\n",
-    messageCounter.getMessageCount(),
-    messageCounter.getMessageCountDelta());
+``` java
+// retrieve a connection to ActiveMQ's MBeanServer
+MBeanServerConnection mbsc = ...
+JMSQueueControlMBean queueControl = (JMSQueueControl)MBeanServerInvocationHandler.newProxyInstance(mbsc,
+   on,
+   JMSQueueControl.class,
+   false);
+// message counters are retrieved as a JSON String                                                                                                      
+String counters = queueControl.listMessageCounter();
+// use the MessageCounterInfo helper class to manipulate message counters more easily
+MessageCounterInfo messageCounter = MessageCounterInfo.fromJSON(counters);         
+System.out.format("%s message(s) in the queue (since last sample: %s)\n",
+messageCounter.getMessageCount(),
+messageCounter.getMessageCountDelta());
+```
 
-Example
--------
+### Example
 
 See ? for an example which shows how to use message counters to retrieve
 information on a JMS `Queue`.
 
-Administering ActiveMQ Resources Using The JBoss AS Admin Console
-=================================================================
+## Administering ActiveMQ Resources Using The JBoss AS Admin Console
 
 Its possible to create and configure ActiveMQ resources via the admin
 console within the JBoss Application Server.
@@ -1027,8 +1011,7 @@ Factories, clicking on each node will reveal which resources are
 currently available. The following sections explain how to create and
 configure each resource in turn.
 
-JMS Queues
-----------
+### JMS Queues
 
 To create a new JMS Queue click on the JMS Queues item to reveal the
 available queues. On the right hand panel you will see an add a new
@@ -1055,7 +1038,7 @@ configuration options, apart from security roles, relate to address
 settings for a particular address. The default address settings are
 picked up from the servers configuration, if you change any of these
 settings or create a queue via the console a new Address Settings entry
-will be added. For a full explanation on Address Settings see ?
+will be added. For a full explanation on Address Settings see [Configuring Queues Via Address Settings](queue-attributes.md)
 
 To delete a queue simply click on the delete button beside the queue
 name in the main JMS Queues screen. This will also delete any address
@@ -1065,7 +1048,7 @@ The last part of the configuration options are security roles. If non
 are provided on creation then the servers default security settings will
 be shown. If these are changed or updated then new security settings are
 created for the address of this queue. For more information on security
-setting see ?
+setting see [Security](security.md)
 
 It is also possible via the metrics tab to view statistics for this
 queue. This will show statistics such as message count, consumer count
@@ -1079,15 +1062,13 @@ you to a screen where you can parameters for the operation can be set.
 Once set clicking the ok button will invoke the operation, results
 appear at the bottom of the screen.
 
-JMS Topics
-----------
+### JMS Topics
 
 Creating and configuring JMS Topics is almost identical to creating
 queues. The only difference is that the configuration will be applied to
 the queue representing a subscription.
 
-JMS Connection Factories
-------------------------
+### JMS Connection Factories
 
 The format for creating connection factories is the same as for JMS
 Queues and topics apart from the configuration being different. For as

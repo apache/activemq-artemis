@@ -1,5 +1,4 @@
-Libaio Native Libraries
-=======================
+# Libaio Native Libraries
 
 ActiveMQ distributes a native library, used as a bridge between ActiveMQ
 and Linux libaio.
@@ -10,7 +9,7 @@ processed asynchronously. Some time later the OS will call our code back
 when they have been processed.
 
 We use this in our high performance journal if configured to do so,
-please see ?.
+please see [Persistence](persistence.md).
 
 These are the native libraries distributed by ActiveMQ:
 
@@ -21,16 +20,14 @@ These are the native libraries distributed by ActiveMQ:
 When using libaio, ActiveMQ will always try loading these files as long
 as they are on the [library path](#using-server.library.path).
 
-Compiling the native libraries
-==============================
+## Compiling the native libraries
 
 In the case that you are using Linux on a platform other than x86\_32 or
 x86\_64 (for example Itanium 64 bits or IBM Power) you may need to
 compile the native library, since we do not distribute binaries for
 those platforms with the release.
 
-Install requirements
---------------------
+## Install requirements
 
 > **Note**
 >
@@ -76,8 +73,7 @@ Or on Debian systems:
 > the version and Linux distribution. (for example gcc-c++ on Fedora
 > versus g++ on Debian systems)
 
-Invoking the compilation
-------------------------
+## Invoking the compilation
 
 In the distribution, in the `native-src` directory, execute the shell
 script `bootstrap`. This script will invoke `automake` and `make` what

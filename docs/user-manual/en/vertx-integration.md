@@ -1,5 +1,4 @@
-Vert.x Integration
-==================
+# Vert.x Integration
 
 [Vert.x](http://vertx.io/) is a lightweight, high performance
 application platform for the JVM that's designed for modern mobile, web,
@@ -9,20 +8,19 @@ can now redirect and persist any vert.x messages to ActiveMQ and route
 those messages to a specified vertx address by configuring ActiveMQ
 vertx incoming and outgoing vertx connector services.
 
-Configuring a Vertx Incoming Connector Service
-==============================================
+## Configuring a Vertx Incoming Connector Service
 
 Vertx Incoming Connector services receive messages from vertx event bus
 and route them to a ActiveMQ queue. Such a service can be configured as
 follows:
 
-        <connector-service name="vertx-incoming-connector">
-        <factory-class>org.apache.activemq.integration.vertx.VertxIncomingConnectorServiceFactory</factory-class>
-        <param key="host" value="127.0.0.1"/>
-        <param key="port" value="0"/>
-        <param key="queue" value="jms.queue.vertxQueue"/>
-        <param key="vertx-address" value="vertx.in.eventaddress"/>
-        </connector-service>
+    <connector-service name="vertx-incoming-connector">
+    <factory-class>org.apache.activemq.integration.vertx.VertxIncomingConnectorServiceFactory</factory-class>
+    <param key="host" value="127.0.0.1"/>
+    <param key="port" value="0"/>
+    <param key="queue" value="jms.queue.vertxQueue"/>
+    <param key="vertx-address" value="vertx.in.eventaddress"/>
+    </connector-service>
         
 
 Shown are the required params for the connector service:
@@ -46,21 +44,20 @@ parameters
 -   `vertx-address`. The vertx address to listen to. default is
     org.apache.activemq.
 
-Configuring a Vertx Outgoing Connector Service
-==============================================
+## Configuring a Vertx Outgoing Connector Service
 
 Vertx Outgoing Connector services fetch vertx messages from a ActiveMQ
 queue and put them to vertx event bus. Such a service can be configured
 as follows:
 
-        <connector-service name="vertx-outgoing-connector">
-        <factory-class>org.apache.activemq.integration.vertx.VertxOutgoingConnectorServiceFactory</factory-class>
-        <param key="host" value="127.0.0.1"/>
-        <param key="port" value="0"/>
-        <param key="queue" value="jms.queue.vertxQueue"/>
-        <param key="vertx-address" value="vertx.out.eventaddress"/>
-        <param key="publish" value="true"/>
-        </connector-service>
+    <connector-service name="vertx-outgoing-connector">
+    <factory-class>org.apache.activemq.integration.vertx.VertxOutgoingConnectorServiceFactory</factory-class>
+    <param key="host" value="127.0.0.1"/>
+    <param key="port" value="0"/>
+    <param key="queue" value="jms.queue.vertxQueue"/>
+    <param key="vertx-address" value="vertx.out.eventaddress"/>
+    <param key="publish" value="true"/>
+    </connector-service>
         
 
 Shown are the required params for the connector service:

@@ -1,8 +1,6 @@
-Guarantees of sends and commits
-===============================
+# Guarantees of sends and commits
 
-Guarantees of Transaction Completion
-====================================
+## Guarantees of Transaction Completion
 
 When committing or rolling back a transaction with ActiveMQ, the request
 to commit or rollback is sent to the server, and the call will block on
@@ -26,8 +24,7 @@ of some loss of transaction durability.
 
 This parameter is set in `activemq-configuration.xml`
 
-Guarantees of Non Transactional Message Sends
-=============================================
+## Guarantees of Non Transactional Message Sends
 
 If you are sending messages to a server using a non transacted session,
 ActiveMQ can be configured to block the call to send until the message
@@ -53,7 +50,7 @@ of your network. For better performance we recommend either batching
 many messages sends together in a transaction since with a transactional
 session, only the commit / rollback blocks not every send, or, using
 ActiveMQ's advanced *asynchronous send acknowledgements feature*
-described in ?.
+described in Asynchronous Send Acknowledgements.
 
 If you are using JMS and you're using the JMS service on the server to
 load your JMS connection factory instances into JNDI then these
@@ -75,8 +72,7 @@ send a response back to the client until the message has been persisted
 and the server has a guarantee that the data has been persisted to disk.
 The default value for this parameter is `true`.
 
-Guarantees of Non Transactional Acknowledgements
-================================================
+## Guarantees of Non Transactional Acknowledgements
 
 If you are acknowledging the delivery of a message at the client side
 using a non transacted session, ActiveMQ can be configured to block the
@@ -89,12 +85,11 @@ been sent back. You might want to set this to `true` if you want to
 implement a strict *at most once* delivery policy. The default value is
 `false`
 
-Asynchronous Send Acknowledgements
-==================================
+## Asynchronous Send Acknowledgements
 
 If you are using a non transacted session but want a guarantee that
 every message sent to the server has reached it, then, as discussed in
-?, you can configure ActiveMQ to block the call to send until the server
+Guarantees of Non Transactional Message Sends, you can configure ActiveMQ to block the call to send until the server
 has received the message, persisted it and sent back a response. This
 works well but has a severe performance penalty - each call to send
 needs to block for at least the time of a network round trip (RTT) - the
@@ -128,10 +123,9 @@ successfully reached the server.
 
 The window size for send acknowledgements is determined by the
 confirmation-window-size parameter on the connection factory or client
-session factory. Please see ? for more info on this.
+session factory. Please see [Client Reconnection and Session Reattachment](client-reconnection.md) for more info on this.
 
-Asynchronous Send Acknowledgements
-----------------------------------
+# Asynchronous Send Acknowledgements
 
 To use the feature using the core API, you implement the interface
 `org.apache.activemq.api.core.client.SendAcknowledgementHandler` and set

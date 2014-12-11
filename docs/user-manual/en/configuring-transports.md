@@ -1,5 +1,4 @@
-Configuring the Transport
-=========================
+# Configuring the Transport
 
 ActiveMQ has a fully pluggable and highly flexible transport layer and
 defines its own Service Provider Interface (SPI) to make plugging in a
@@ -8,8 +7,7 @@ new transport provider relatively straightforward.
 In this chapter we'll describe the concepts required for understanding
 ActiveMQ transports and where and how they're configured.
 
-Understanding Acceptors
-=======================
+## Understanding Acceptors
 
 One of the most important concepts in ActiveMQ transports is the
 *acceptor*. Let's dive straight in and take a look at an acceptor
@@ -56,8 +54,7 @@ multiple protocols. By default this will be all available protocols but
 can be limited by either the now deprecated `protocol` param or by
 setting a comma seperated list to the newly added `protocols` parameter.
 
-Understanding Connectors
-========================
+## Understanding Connectors
 
 Whereas acceptors are used on the server to define how we accept
 connections, connectors are used by a client to define how it connects
@@ -103,8 +100,7 @@ couple of reasons for this:
         java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
         java.naming.provider.url=tcp://myhost:5445
 
-Configuring the transport directly from the client side.
-========================================================
+## Configuring the transport directly from the client side.
 
 How do we configure a core `ClientSessionFactory` with the information
 that it needs to connect with a server?
@@ -120,45 +116,48 @@ connect directly to the acceptor we defined earlier in this chapter, it
 uses the standard Netty TCP transport and will try and connect on port
 5446 to localhost (default):
 
-    Map<String, Object> connectionParams = new HashMap<String, Object>();
+``` java
+Map<String, Object> connectionParams = new HashMap<String, Object>();
 
-    connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                        5446);
+connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                    5446);
 
-    TransportConfiguration transportConfiguration =
-        new TransportConfiguration(
-        "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
-        connectionParams);
+TransportConfiguration transportConfiguration =
+    new TransportConfiguration(
+    "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
+    connectionParams);
 
-    ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(transportConfiguration);
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(transportConfiguration);
 
-    ClientSessionFactory sessionFactory = locator.createClientSessionFactory();
+ClientSessionFactory sessionFactory = locator.createClientSessionFactory();
 
-    ClientSession session = sessionFactory.createSession(...);
+ClientSession session = sessionFactory.createSession(...);
 
-    etc
+etc
+```
 
 Similarly, if you're using JMS, you can configure the JMS connection
 factory directly on the client side without having to define a connector
 on the server side or define a connection factory in `activemq-jms.xml`:
 
-    Map<String, Object> connectionParams = new HashMap<String, Object>();
+``` java
+Map<String, Object> connectionParams = new HashMap<String, Object>();
 
-    connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 5446);
+connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 5446);
 
-    TransportConfiguration transportConfiguration =
-        new TransportConfiguration(
-        "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
-        connectionParams);
+TransportConfiguration transportConfiguration =
+    new TransportConfiguration(
+    "org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory",
+    connectionParams);
 
-    ConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+ConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
 
-    Connection jmsConnection = connectionFactory.createConnection();
+Connection jmsConnection = connectionFactory.createConnection();
 
-    etc
+etc
+```
 
-Configuring the Netty transport
-===============================
+## Configuring the Netty transport
 
 Out of the box, ActiveMQ currently uses
 [Netty](http://www.jboss.org/netty/), a high performance low level
@@ -170,8 +169,7 @@ straightforward TCP sockets, SSL, or to tunnel over HTTP or HTTPS..
 
 We believe this caters for the vast majority of transport requirements.
 
-Single Port Support
--------------------
+## Single Port Support
 
 As of version 2.4 ActiveMQ now supports using a single port for all
 protocols, ActiveMQ will automatically detect which protocol is being
@@ -189,8 +187,7 @@ It is possible to limit which protocols are supported by using the
 >
 > The `protocol` parameter is now deprecated
 
-Configuring Netty TCP
----------------------
+## Configuring Netty TCP
 
 Netty TCP is a simple unencrypted TCP sockets based transport. Netty TCP
 can be configured to use old blocking Java IO or non blocking Java NIO.
@@ -320,8 +317,7 @@ Netty for simple TCP:
     connector will let the system pick up an ephemeral port. valid ports
     are 0 to 65535
 
-Configuring Netty SSL
----------------------
+## Configuring Netty SSL
 
 Netty SSL is similar to the Netty TCP transport but it provides
 additional security by encrypting TCP connections using the Secure
@@ -424,8 +420,7 @@ following additional properties:
     connecting to this acceptor that 2-way SSL is required. Valid values
     are `true` or `false`. Default is `false`.
 
-Configuring Netty HTTP
-----------------------
+## Configuring Netty HTTP
 
 Netty HTTP tunnels packets over the HTTP protocol. It can be useful in
 scenarios where firewalls only allow HTTP traffic to pass.
@@ -454,9 +449,3 @@ additional properties:
 -   `http-requires-session-id`. If true the client will wait after the
     first call to receive a session id. Used the http connector is
     connecting to servlet acceptor (not recommended)
-
-Configuring Netty Servlet
--------------------------
-
-As of 2.4 ActiveMQ Servlet support will be provided via Undertow in
-Wildfly

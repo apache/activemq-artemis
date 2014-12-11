@@ -1,5 +1,4 @@
-Routing Messages With Wild Cards
-================================
+# Routing Messages With Wild Cards
 
 ActiveMQ allows the routing of messages via wildcard addresses.
 

@@ -1,5 +1,4 @@
-Application Server Integration and Java EE
-==========================================
+# Application Server Integration and Java EE
 
 ActiveMQ can be easily installed in JBoss Application Server 4 or later.
 For details on installing ActiveMQ in the JBoss Application Server
@@ -18,8 +17,7 @@ JEE components, e.g. EJBs and Servlets.
 This section explains the basics behind configuring the different JEE
 components in the AS.
 
-Configuring Message-Driven Beans
-================================
+## Configuring Message-Driven Beans
 
 The delivery of messages to an MDB using ActiveMQ is configured on the
 JCA Adapter via a configuration file `ra.xml` which can be found under
@@ -32,16 +30,18 @@ All MDBs however need to have the destination type and the destination
 configured. The following example shows how this can be done using
 annotations:
 
-    @MessageDriven(name = "MDBExample", activationConfig =
-    {
-       @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-       @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
-    })
-    @ResourceAdapter("activemq-ra.rar")
-    public class MDBExample implements MessageListener
-    {
-       public void onMessage(Message message)...
-    }
+``` java
+@MessageDriven(name = "MDBExample", activationConfig =
+{
+   @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+   @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
+})
+@ResourceAdapter("activemq-ra.rar")
+public class MDBExample implements MessageListener
+{
+   public void onMessage(Message message)...
+}
+```
 
 In this example you can see that the MDB will consume messages from a
 queue that is mapped into JNDI with the binding `queue/testQueue`. This
@@ -77,8 +77,7 @@ file and change `rar-name` element.
 All the examples shipped with the ActiveMQ distribution use the
 annotation.
 
-Using Container-Managed Transactions
-------------------------------------
+### Using Container-Managed Transactions
 
 When an MDB is using Container-Managed Transactions (CMT), the delivery
 of the message is done within the scope of a JTA transaction. The commit
@@ -88,18 +87,20 @@ will kick in (by default, it will try to redeliver the message up to 10
 times before sending to a DLQ). Using annotations this would be
 configured as follows:
 
-    @MessageDriven(name = "MDB_CMP_TxRequiredExample", activationConfig =
-    {
-       @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-       @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
-    })
-    @TransactionManagement(value= TransactionManagementType.CONTAINER)
-    @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-    @ResourceAdapter("activemq-ra.rar")
-    public class MDB_CMP_TxRequiredExample implements MessageListener
-    {
-       public void onMessage(Message message)...
-    }
+``` java
+@MessageDriven(name = "MDB_CMP_TxRequiredExample", activationConfig =
+{
+   @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+   @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
+})
+@TransactionManagement(value= TransactionManagementType.CONTAINER)
+@TransactionAttribute(value= TransactionAttributeType.REQUIRED)
+@ResourceAdapter("activemq-ra.rar")
+public class MDB_CMP_TxRequiredExample implements MessageListener
+{
+   public void onMessage(Message message)...
+}
+```
 
 The `TransactionManagement` annotation tells the container to manage the
 transaction. The `TransactionAttribute` annotation tells the container
@@ -112,59 +113,64 @@ It is also possible to inform the container that it must rollback the
 transaction by calling `setRollbackOnly` on the `MessageDrivenContext`.
 The code for this would look something like:
 
-    @Resource
-    MessageDrivenContextContext ctx;
+``` java
+@Resource
+MessageDrivenContextContext ctx;
 
-    public void onMessage(Message message)
-    {
-       try
-       {
-          //something here fails
-       }
-       catch (Exception e)
-       {
-          ctx.setRollbackOnly();
-       }
-    }
+public void onMessage(Message message)
+{
+   try
+   {
+      //something here fails
+   }
+   catch (Exception e)
+   {
+      ctx.setRollbackOnly();
+   }
+}
+```
 
 If you do not want the overhead of an XA transaction being created every
 time but you would still like the message delivered within a transaction
 (i.e. you are only using a JMS resource) then you can configure the MDB
 to use a local transaction. This would be configured as such:
 
-    @MessageDriven(name = "MDB_CMP_TxLocalExample", activationConfig =
-    {
-          @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-          @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
-          @ActivationConfigProperty(propertyName = "useLocalTx", propertyValue = "true")
-    })
-    @TransactionManagement(value = TransactionManagementType.CONTAINER)
-    @TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
-    @ResourceAdapter("activemq-ra.rar")
-    public class MDB_CMP_TxLocalExample implements MessageListener
-    {
-       public void onMessage(Message message)...
-    }
+``` java
+@MessageDriven(name = "MDB_CMP_TxLocalExample", activationConfig =
+{
+      @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+      @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
+      @ActivationConfigProperty(propertyName = "useLocalTx", propertyValue = "true")
+})
+@TransactionManagement(value = TransactionManagementType.CONTAINER)
+@TransactionAttribute(value = TransactionAttributeType.NOT_SUPPORTED)
+@ResourceAdapter("activemq-ra.rar")
+public class MDB_CMP_TxLocalExample implements MessageListener
+{
+   public void onMessage(Message message)...
+}
+```
 
-Using Bean-Managed Transactions
--------------------------------
+### Using Bean-Managed Transactions
 
 Message-driven beans can also be configured to use Bean-Managed
 Transactions (BMT). In this case a User Transaction is created. This
 would be configured as follows:
 
-    @MessageDriven(name = "MDB_BMPExample", activationConfig =
-    {
-       @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-       @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
-       @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Dups-ok-acknowledge")
-    })
-    @TransactionManagement(value= TransactionManagementType.BEAN)
-    @ResourceAdapter("activemq-ra.rar")
-    public class MDB_BMPExample implements MessageListener
-    {
-       public void onMessage(Message message)
-    }
+``` java
+@MessageDriven(name = "MDB_BMPExample", activationConfig =
+{
+   @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+   @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
+   @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Dups-ok-acknowledge")
+})
+@TransactionManagement(value= TransactionManagementType.BEAN)
+@ResourceAdapter("activemq-ra.rar")
+public class MDB_BMPExample implements MessageListener
+{
+   public void onMessage(Message message)
+}
+```
 
 When using Bean-Managed Transactions the message delivery to the MDB
 will occur outside the scope of the user transaction and use the
@@ -177,55 +183,57 @@ not cause the message to be redelivered.
 A user would control the life-cycle of the transaction something like
 the following:
 
-    @Resource
-    MessageDrivenContext ctx;
+``` java
+@Resource
+MessageDrivenContext ctx;
 
-    public void onMessage(Message message)
-    {
-       UserTransaction tx;
-       try
-       {
-          TextMessage textMessage = (TextMessage)message;
+public void onMessage(Message message)
+{
+   UserTransaction tx;
+   try
+   {
+      TextMessage textMessage = (TextMessage)message;
 
-          String text = textMessage.getText();
+      String text = textMessage.getText();
 
-          UserTransaction tx = ctx.getUserTransaction();
+      UserTransaction tx = ctx.getUserTransaction();
 
-          tx.begin();
+      tx.begin();
 
-          //do some stuff within the transaction
+      //do some stuff within the transaction
 
-          tx.commit();
+      tx.commit();
 
-       }
-       catch (Exception e)
-       {
-          tx.rollback();
-       }
-    }
+   }
+   catch (Exception e)
+   {
+      tx.rollback();
+   }
+}
+```
 
-Using Message Selectors with Message-Driven Beans
--------------------------------------------------
+### Using Message Selectors with Message-Driven Beans
 
 It is also possible to use MDBs with message selectors. To do this
 simple define your message selector as follows:
 
-    @MessageDriven(name = "MDBMessageSelectorExample", activationConfig =
-    {
-       @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-       @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
-       @ActivationConfigProperty(propertyName = "messageSelector", propertyValue = "color = 'RED'")
-    })
-    @TransactionManagement(value= TransactionManagementType.CONTAINER)
-    @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-    @ResourceAdapter("activemq-ra.rar")
-    public class MDBMessageSelectorExample implements MessageListener
-    {
-       public void onMessage(Message message)....
-    }
+``` java
+@MessageDriven(name = "MDBMessageSelectorExample", activationConfig =
+{
+   @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+   @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
+   @ActivationConfigProperty(propertyName = "messageSelector", propertyValue = "color = 'RED'")
+})
+@TransactionManagement(value= TransactionManagementType.CONTAINER)
+@TransactionAttribute(value= TransactionAttributeType.REQUIRED)
+@ResourceAdapter("activemq-ra.rar")
+public class MDBMessageSelectorExample implements MessageListener
+{
+   public void onMessage(Message message)....
+}
+```
 
-Sending Messages from within JEE components
-===========================================
+## Sending Messages from within JEE components
 
 The JCA adapter can also be used for sending messages. The Connection
 Factory to use is configured by default in the `jms-ds.xml` file and is
@@ -237,70 +245,71 @@ This means that if the sending of the message fails the overall
 transaction would rollback and the message be re-sent. Heres an example
 of this from within an MDB:
 
-    @MessageDriven(name = "MDBMessageSendTxExample", activationConfig =
-    {
-       @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-       @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
-    })
-    @TransactionManagement(value= TransactionManagementType.CONTAINER)
-    @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-    @ResourceAdapter("activemq-ra.rar")
-    public class MDBMessageSendTxExample implements MessageListener
-    {
-       @Resource(mappedName = "java:/JmsXA")
-       ConnectionFactory connectionFactory;
+``` java
+@MessageDriven(name = "MDBMessageSendTxExample", activationConfig =
+{
+   @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+   @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue")
+})
+@TransactionManagement(value= TransactionManagementType.CONTAINER)
+@TransactionAttribute(value= TransactionAttributeType.REQUIRED)
+@ResourceAdapter("activemq-ra.rar")
+public class MDBMessageSendTxExample implements MessageListener
+{
+   @Resource(mappedName = "java:/JmsXA")
+   ConnectionFactory connectionFactory;
 
-       @Resource(mappedName = "queue/replyQueue")
-       Queue replyQueue;
+   @Resource(mappedName = "queue/replyQueue")
+   Queue replyQueue;
 
-       public void onMessage(Message message)
-       {
-          Connection conn = null;
-          try
-          {
-             //Step 9. We know the client is sending a text message so we cast
-             TextMessage textMessage = (TextMessage)message;
+   public void onMessage(Message message)
+   {
+      Connection conn = null;
+      try
+      {
+         //Step 9. We know the client is sending a text message so we cast
+         TextMessage textMessage = (TextMessage)message;
 
-             //Step 10. get the text from the message.
-             String text = textMessage.getText();
+         //Step 10. get the text from the message.
+         String text = textMessage.getText();
 
-             System.out.println("message " + text);
+         System.out.println("message " + text);
 
-             conn = connectionFactory.createConnection();
+         conn = connectionFactory.createConnection();
 
-             Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-             MessageProducer producer = sess.createProducer(replyQueue);
+         MessageProducer producer = sess.createProducer(replyQueue);
 
-             producer.send(sess.createTextMessage("this is a reply"));
+         producer.send(sess.createTextMessage("this is a reply"));
 
-          }
-          catch (Exception e)
-          {
-             e.printStackTrace();
-          }
-          finally
-          {
-             if(conn != null)
-             {
-                try
-                {
-                   conn.close();
-                }
-                catch (JMSException e)
-                { 
-                }
-             }
-          }
-       }
-       }
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         if(conn != null)
+         {
+            try
+            {
+               conn.close();
+            }
+            catch (JMSException e)
+            { 
+            }
+         }
+      }
+   }
+}
+```
 
 In JBoss Application Server you can use the JMS JCA adapter for sending
 messages from EJBs (including Session, Entity and Message-Driven Beans),
 Servlets (including jsps) and custom MBeans.
 
-MDB and Consumer pool size
-==========================
+## MDB and Consumer pool size
 
 Most application servers, including JBoss, allow you to configure how
 many MDB's there are in a pool. In JBoss this is configured via the
@@ -314,21 +323,22 @@ limit how many sessions/consumers are created then you need to set the
 `maxSession` parameter either on the resource adapter itself or via an
 an Activation Config Property on the MDB itself
 
-    @MessageDriven(name = "MDBMessageSendTxExample", activationConfig =
-    {
-       @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-       @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
-       @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
-    })
-    @TransactionManagement(value= TransactionManagementType.CONTAINER)
-    @TransactionAttribute(value= TransactionAttributeType.REQUIRED)
-    @ResourceAdapter("activemq-ra.rar")
-    public class MyMDB implements MessageListener
-    { ....}
+``` java
+@MessageDriven(name = "MDBMessageSendTxExample", activationConfig =
+{
+   @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+   @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/testQueue"),
+   @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
+})
+@TransactionManagement(value= TransactionManagementType.CONTAINER)
+@TransactionAttribute(value= TransactionAttributeType.REQUIRED)
+@ResourceAdapter("activemq-ra.rar")
+public class MyMDB implements MessageListener
+{ ....}
+```
           
 
-Configuring the JCA Adaptor
-===========================
+## Configuring the JCA Adaptor
 
 The Java Connector Architecture (JCA) Adapter is what allows ActiveMQ to
 be integrated with JEE components such as MDBs and EJBs. It configures
@@ -422,8 +432,7 @@ There are three main parts to this configuration.
 3.  The configuration of the inbound part of the adapter. This is used
     for controlling the consumption of messages via MDBs.
 
-Global Properties
------------------
+### Global Properties
 
 The first element you see is `resourceadapter-class` which should be
 left unchanged. This is the ActiveMQ resource adapter class.
@@ -446,7 +455,7 @@ The following table explains what each property is for.
 
   Property Name                                                               Property Type   Property Description
   --------------------------------------------------------------------------- --------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  ConnectorClassName                                                          String          The Connector class name (see ? for more information). If multiple connectors are needed this should be provided as a comma separated list.
+  ConnectorClassName                                                          String          The Connector class name (see [Configuring the Transport](configuring-transports.md) for more information). If multiple connectors are needed this should be provided as a comma separated list.
   ConnectionParameters                                                        String          The transport configuration. These parameters must be in the form of `key1=val1;key2=val2;` and will be specific to the connector used. If multiple connectors are configured then parameters should be supplied for each connector separated by a comma.
   ha                                                                          boolean         True if high availability is needed.
   useLocalTx                                                                  boolean         True will enable local transaction optimisation.
@@ -485,8 +494,7 @@ The following table explains what each property is for.
 
   : Global Configuration Properties
 
-Adapter Outbound Configuration
-------------------------------
+### Adapter Outbound Configuration
 
 The outbound configuration should remain unchanged as they define
 connection factories that are used by Java EE components. These
@@ -545,8 +553,7 @@ addition to the global configuration properties.
 
   : Outbound Configuration Properties
 
-Adapter Inbound Configuration
------------------------------
+### Adapter Inbound Configuration
 
 The inbound configuration should again remain unchanged. This controls
 what forwards messages onto MDBs. It is possible to override properties
@@ -572,15 +579,12 @@ to the global configuration properties.
 
   : Inbound Configuration Properties
 
-Configuring the adapter to use a standalone ActiveMQ Server
------------------------------------------------------------
+### Configuring the adapter to use a standalone ActiveMQ Server
 
 Sometime you may want your messaging server on a different machine or
 separate from the application server. If this is the case you will only
 need the activemq client libs installed. This section explains what
 config to create and what jar dependencies are needed.
-
-### 
 
 There are two configuration files needed to do this, one for the
 incoming adapter used for MDB's and one for outgoing connections managed
@@ -700,15 +704,13 @@ This is a list of the ActiveMQ and third party jars needed
 
   : Jar Dependencies
 
-Configuring the JBoss Application Server to connect to Remote ActiveMQ Server
-=============================================================================
+## Configuring the JBoss Application Server to connect to Remote ActiveMQ Server
 
 This is a step by step guide on how to configure a JBoss application
 server that doesn't have ActiveMQ installed to use a remote instance of
 ActiveMQ
 
-Configuring JBoss 5
--------------------
+### Configuring JBoss 5
 
 Firstly download and install JBoss AS 5 as per the JBoss installation
 guide and ActiveMQ as per the ActiveMQ installation guide. After that
@@ -836,7 +838,7 @@ the following steps are required
 At this point you should be able to now deploy MDB's that consume from
 the remote server. You will however, have to make sure that your MDB's
 have the annotation `@ResourceAdapter("activemq-ra.rar")` added, this is
-illustrated in the ? section. If you don't want to add this annotation
+illustrated in the Configuring Message-Driven Beans section. If you don't want to add this annotation
 then you can delete the generic resource adapter `jms-ra.rar` and rename
 the `activemq-ra.rar` to this.
 
@@ -879,8 +881,7 @@ connections, i.e. sending messages, then do the following:
 Now you should be able to send messages using the JCA JMS connection
 pooling within an XA transaction.
 
-Configuring JBoss 5
--------------------
+### Configuring JBoss 5
 
 The steps to do this are exactly the same as for JBoss 4, you will have
 to create a jboss.xml definition file for your MDB with the following
@@ -896,33 +897,7 @@ section with the following 'Uncomment to use JMS message inflow from
 jmsra.rar' and then comment out the invoker-proxy-binding called
 'message-driven-bean'
 
-High Availability JNDI (HA-JNDI)
-================================
-
-If you are using JNDI to look-up JMS queues, topics and connection
-factories from a cluster of servers, it is likely you will want to use
-HA-JNDI so that your JNDI look-ups will continue to work if one or more
-of the servers in the cluster fail.
-
-HA-JNDI is a JBoss Application Server service which allows you to use
-JNDI from clients without them having to know the exact JNDI connection
-details of every server in the cluster. This service is only available
-if using a cluster of JBoss Application Server instances.
-
-To use it use the following properties when connecting to JNDI.
-
-    Hashtable<String, String> jndiParameters = new Hashtable<String, String>();
-    jndiParameters.put("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-    jndiParameters.put("java.naming.factory.url.pkgs=", "org.jboss.naming:org.jnp.interfaces");
-
-    initialContext = new InitialContext(jndiParameters);
-
-For more information on using HA-JNDI see the [JBoss Application Server
-clustering
-documentation](http://www.jboss.org/file-access/default/members/jbossas/freezone/docs/Clustering_Guide/5/html/clustering-jndi.html)
-
-XA Recovery
-===========
+## XA Recovery
 
 *XA recovery* deals with system or application failures to ensure that
 of a transaction are applied consistently to all resources affected by
@@ -938,8 +913,7 @@ crash, the recovery manager will ensure that the transactions are
 recovered and the messages will either be committed or rolled back
 (depending on the transaction outcome) when the server is restarted.
 
-XA Recovery Configuration
--------------------------
+### XA Recovery Configuration
 
 To enable ActiveMQ's XA Recovery, the Recovery Manager must be
 configured to connect to ActiveMQ to recover its resources. The
@@ -971,7 +945,7 @@ to connect to ActiveMQ node under the form `[connector factory class
     mandatory only if the user name is specified
 
 -   `[connector parameters]` is a list of comma-separated key=value pair
-    which are passed to the connector factory (see ? for a list of the
+    which are passed to the connector factory (see [Configuring the transport](configuring-transports.md) for a list of the
     transport parameters).
 
 Also note the `com.arjuna.ats.jta.xaRecoveryNode` parameter. If you want
@@ -984,7 +958,7 @@ id is set to, this is configured in the same file by the
 > ActiveMQ must have a valid acceptor which corresponds to the connector
 > specified in `conf/jbossts-properties.xml`.
 
-### Configuration Settings
+#### Configuration Settings
 
 If ActiveMQ is configured with a default in-vm acceptor:
 
@@ -1024,8 +998,7 @@ Configuring ActiveMQ with an invm acceptor and configuring the Recovery
 Manager with an invm connector is the recommended way to enable XA
 Recovery.
 
-Example
--------
+## Example
 
 See ? which shows how to configure XA Recovery and recover messages
 after a server crash.

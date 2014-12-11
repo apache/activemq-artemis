@@ -1,5 +1,4 @@
-The JMS Bridge
-==============
+# The JMS Bridge
 
 ActiveMQ includes a fully functional JMS message bridge.
 
@@ -23,7 +22,7 @@ JMS servers, as long as they are JMS 1.1 compliant.
 >
 > Do not confuse a JMS bridge with a core bridge. A JMS bridge can be
 > used to bridge any two JMS 1.1 compliant JMS providers and uses the
-> JMS API. A core bridge (described in ?) is used to bridge any two
+> JMS API. A core bridge (described in [Core Bidges](core-bridges.md)) is used to bridge any two
 > ActiveMQ instances and uses the core API. Always use a core bridge if
 > you can in preference to a JMS bridge. The core bridge will typically
 > provide better performance than a JMS bridge. Also the core bridge can
@@ -183,8 +182,7 @@ server.
        </bean>
     </deployment>
 
-JMS Bridge Parameters
-=====================
+## JMS Bridge Parameters
 
 The main bean deployed is the `JMSBridge` bean. The bean is configurable
 by the parameters passed to its constructor.
@@ -268,7 +266,7 @@ by the parameters passed to its constructor.
 
     -   `ONCE_AND_ONLY_ONCE`
 
-    See ? for a explanation of these modes.
+    See Quality Of Service section for a explanation of these modes.
 
 -   Max Batch Size
 
@@ -333,8 +331,7 @@ look something like this:
 
     <bean name="RealTransactionManager" class="com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple"/>
 
-Source and Target Connection Factories
-======================================
+## Source and Target Connection Factories
 
 The source and target connection factory factories are used to create
 the connection factory used to create the connection for the source or
@@ -346,8 +343,7 @@ Application Servers or JMS providers a new implementation may have to be
 provided. This can easily be done by implementing the interface
 `org.apache.activemq.jms.bridge.ConnectionFactoryFactory`.
 
-Source and Target Destination Factories
-=======================================
+## Source and Target Destination Factories
 
 Again, similarly, these are used to create or lookup up the
 destinations.
@@ -358,14 +354,12 @@ ActiveMQ that looks up the destination using JNDI.
 A new implementation can be provided by implementing
 `org.apache.activemq.jms.bridge.DestinationFactory` interface.
 
-Quality Of Service
-==================
+## Quality Of Service
 
 The quality of service modes used by the bridge are described here in
 more detail.
 
-AT\_MOST\_ONCE
---------------
+### AT_MOST_ONCE
 
 With this QoS mode messages will reach the destination from the source
 at most once. The messages are consumed from the source and acknowledged
@@ -376,8 +370,7 @@ occur at most once.
 
 This mode is available for both durable and non-durable messages.
 
-DUPLICATES\_OK
---------------
+### DUPLICATES_OK
 
 With this QoS mode, the messages are consumed from the source and then
 acknowledged after they have been successfully sent to the destination.
@@ -388,8 +381,7 @@ after a failure.
 
 This mode is available for both durable and non-durable messages.
 
-ONCE\_AND\_ONLY\_ONCE
----------------------
+### ONCE_AND_ONLY_ONCE
 
 This QoS mode ensures messages will reach the destination from the
 source once and only once. (Sometimes this mode is known as "exactly
@@ -420,8 +412,7 @@ This mode is only available for durable messages.
 > this approach is not as watertight as using ONCE\_AND\_ONLY\_ONCE but
 > may be a good choice depending on your specific application.
 
-Time outs and the JMS bridge
-----------------------------
+### Time outs and the JMS bridge
 
 There is a possibility that the target or source server will not be
 available at some point in time. If this occurs then the bridge will try
@@ -449,8 +440,7 @@ connection and the second the read timeout for the socket.
 If you implement your own factories for looking up JMS resources then
 you will have to bear in mind timeout issues.
 
-Examples
---------
+### Examples
 
 Please see ? which shows how to configure and use a JMS Bridge with
 JBoss AS to send messages to the source destination and consume them

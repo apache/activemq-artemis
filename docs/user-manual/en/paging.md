@@ -1,5 +1,4 @@
-Paging
-======
+# Paging
 
 ActiveMQ transparently supports huge queues containing millions of
 messages while the server is running with limited memory.
@@ -15,8 +14,7 @@ messages in memory for an address exceeds a configured maximum size.
 By default, ActiveMQ does not page messages - this must be explicitly
 configured to activate it.
 
-Page Files
-==========
+## Page Files
 
 Messages are stored per address on the file system. Each address has an
 individual folder where messages are stored in multiple files (page
@@ -30,8 +28,7 @@ Browsers will read through the page-cursor system.
 Consumers with selectors will also navigate through the page-files and
 it will ignore messages that don't match the criteria.
 
-Configuration
-=============
+## Configuration
 
 You can configure the location of the paging folder
 
@@ -51,8 +48,7 @@ Global paging parameters are specified on the main configuration file
 
   : Paging Configuration Parameters
 
-Paging Mode
-===========
+## Paging Mode
 
 As soon as messages delivered to an address exceed the configured size,
 that address alone goes into page mode.
@@ -65,8 +61,7 @@ that address alone goes into page mode.
 > total overall size of all matching addresses is limited to
 > max-size-bytes.
 
-Configuration
--------------
+## Configuration
 
 Configuration is done at the address settings, done at the main
 configuration file (`activemq-configuration.xml`).
@@ -90,8 +85,7 @@ This is the list of available parameters on the address settings.
 
   : Paging Address Settings
 
-Dropping messages
-=================
+## Dropping messages
 
 Instead of paging messages when the max size is reached, an address can
 also be configured to just drop messages when the address is full.
@@ -99,8 +93,7 @@ also be configured to just drop messages when the address is full.
 To do this just set the `address-full-policy` to `DROP` in the address
 settings
 
-Dropping messages and throwing an exception to producers
-========================================================
+## Dropping messages and throwing an exception to producers
 
 Instead of paging messages when the max size is reached, an address can
 also be configured to drop messages and also throw an exception on the
@@ -109,8 +102,7 @@ client-side when the address is full.
 To do this just set the `address-full-policy` to `FAIL` in the address
 settings
 
-Blocking producers
-==================
+## Blocking producers
 
 Instead of paging messages when the max size is reached, an address can
 also be configured to block producers from sending further messages when
@@ -126,8 +118,7 @@ settings
 In the default configuration, all addresses are configured to block
 producers after 10 MiB of data are in the address.
 
-Caution with Addresses with Multiple Queues
-===========================================
+## Caution with Addresses with Multiple Queues
 
 When a message is routed to an address that has multiple queues bound to
 it, e.g. a JMS subscription in a Topic, there is only 1 copy of the
@@ -154,7 +145,6 @@ In this example all the other 9 queues will be consuming messages from
 the page system. This may cause performance issues if this is an
 undesirable state.
 
-Example
-=======
+## Example
 
 See ? for an example which shows how to use paging with ActiveMQ.

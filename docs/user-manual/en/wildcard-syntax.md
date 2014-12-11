@@ -1,5 +1,4 @@
-Understanding the ActiveMQ Wildcard Syntax
-==========================================
+# Understanding the ActiveMQ Wildcard Syntax
 
 ActiveMQ uses a specific syntax for representing wildcards in security
 settings, address settings and when creating consumers.
