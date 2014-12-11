@@ -425,28 +425,7 @@ public class PageCursorProviderImpl implements PageCursorProvider
             // on that case we need to move to verify it in a different way
             if (minPage == pagingStore.getCurrentWritingPage() && pagingStore.getCurrentPage().getNumberOfMessages() > 0)
             {
-               boolean complete = true;
-
-               for (PageSubscription cursor : cursorList)
-               {
-                  if (!cursor.isComplete(minPage))
-                  {
-                     if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-                     {
-                        ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + " was considered incomplete at page " + minPage);
-                     }
-
-                     complete = false;
-                     break;
-                  }
-                  else
-                  {
-                     if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-                     {
-                        ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + "was considered **complete** at page " + minPage);
-                     }
-                  }
-               }
+               boolean complete = checkPageCompletion(cursorList, minPage);
 
                if (!pagingStore.isStarted())
                {
@@ -475,6 +454,10 @@ public class PageCursorProviderImpl implements PageCursorProvider
 
             for (long i = pagingStore.getFirstPage(); i < minPage; i++)
             {
+               if (!checkPageCompletion(cursorList, i))
+               {
+                  break;
+               }
                Page page = pagingStore.depage();
                if (page == null)
                {
@@ -577,6 +560,33 @@ public class PageCursorProviderImpl implements PageCursorProvider
 
    }
 
+
+   private boolean checkPageCompletion(ArrayList<PageSubscription> cursorList, long minPage)
+   {
+      boolean complete = true;
+
+      for (PageSubscription cursor : cursorList)
+      {
+         if (!cursor.isComplete(minPage))
+         {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+            {
+               ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + " was considered incomplete at page " + minPage);
+            }
+
+            complete = false;
+            break;
+         }
+         else
+         {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+            {
+               ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + "was considered **complete** at page " + minPage);
+            }
+         }
+      }
+      return complete;
+   }
    /**
     * @return
     */

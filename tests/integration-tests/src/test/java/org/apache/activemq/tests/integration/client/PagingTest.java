@@ -113,6 +113,120 @@ public class PagingTest extends ServiceTestBase
    }
 
    @Test
+   public void testPageOnLargeMessageMultipleQueues() throws Exception
+   {
+      Configuration config = createDefaultConfig();
+
+      final int PAGE_MAX = 20 * 1024;
+
+      final int PAGE_SIZE = 10 * 1024;
+
+      HashMap<String, AddressSettings> map = new HashMap<String, AddressSettings>();
+
+      AddressSettings value = new AddressSettings();
+      map.put(ADDRESS.toString(), value);
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, map);
+      server.start();
+
+      final int numberOfBytes = 1024;
+
+      locator.setBlockOnNonDurableSend(true);
+      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnAcknowledge(true);
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
+
+      session.createQueue(ADDRESS, ADDRESS.concat("-0"), null, true);
+      session.createQueue(ADDRESS, ADDRESS.concat("-1"), null, true);
+
+      ClientProducer producer = session.createProducer(ADDRESS);
+
+      ClientMessage message = null;
+
+      for (int i = 0; i < 201; i++)
+      {
+         message = session.createMessage(true);
+
+         message.getBodyBuffer().writerIndex(0);
+
+         message.getBodyBuffer().writeBytes(new byte[numberOfBytes]);
+
+         for (int j = 1; j <= numberOfBytes; j++)
+         {
+            message.getBodyBuffer().writeInt(j);
+         }
+
+         producer.send(message);
+      }
+
+
+      session.close();
+
+      server.stop();
+
+      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, map);
+      server.start();
+
+      sf = createSessionFactory(locator);
+
+      for (int ad = 0; ad < 2; ad++)
+      {
+         session = sf.createSession(false, false, false);
+
+         ClientConsumer consumer = session.createConsumer(ADDRESS.concat("-" + ad));
+
+         session.start();
+
+         for (int i = 0; i < 201; i++)
+         {
+            ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
+
+            Assert.assertNotNull(message2);
+
+            message2.acknowledge();
+
+            Assert.assertNotNull(message2);
+         }
+
+         try
+         {
+            if (ad > -1)
+            {
+               session.commit();
+            }
+            else
+            {
+               session.rollback();
+               for (int i = 0; i < 100; i++)
+               {
+                  ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
+
+                  Assert.assertNotNull(message2);
+
+                  message2.acknowledge();
+
+                  Assert.assertNotNull(message2);
+               }
+               session.commit();
+
+            }
+         }
+         catch (Throwable e)
+         {
+            System.err.println("here!!!!!!!");
+            e.printStackTrace();
+            System.exit(-1);
+         }
+
+         consumer.close();
+
+         session.close();
+      }
+   }
+
+   @Test
    public void testPageCleanup() throws Exception
    {
       clearDataRecreateServerDirs();
