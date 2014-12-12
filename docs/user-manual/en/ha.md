@@ -1,5 +1,4 @@
-High Availability and Failover
-==============================
+# High Availability and Failover
 
 We define high availability as the *ability for the system to continue
 functioning after failure of one or more of the servers*.
@@ -8,8 +7,7 @@ A part of high availability is *failover* which we define as the
 *ability for client connections to migrate from one server to another in
 event of server failure so client applications can continue to operate*.
 
-Live - Backup Groups
-====================
+## Live - Backup Groups
 
 ActiveMQ allows servers to be linked together as *live - backup* groups
 where each live server can have 1 or more backup servers. A backup
@@ -28,8 +26,7 @@ become live when the current live server goes down, if the current live
 server is configured to allow automatic failback then it will detect the
 live server coming back up and automatically stop.
 
-HA Policies
------------
+### HA Policies
 
 ActiveMQ supports two different strategies for backing up a server
 *shared store* and *replication*. Which is configured via the
@@ -95,8 +92,7 @@ or
     </ha-policy>
                
 
-Data Replication
-----------------
+### Data Replication
 
 Support for network-based data replication was added in version 2.3.
 
@@ -124,13 +120,13 @@ the connection speed.
 Replication will create a copy of the data at the backup. One issue to
 be aware of is: in case of a successful fail-over, the backup's data
 will be newer than the one at the live's storage. If you configure your
-live server to perform a ? when restarted, it will synchronize its data
+live server to perform a failback to live server when restarted, it will synchronize its data
 with the backup's. If both servers are shutdown, the administrator will
 have to determine which one has the latest data.
 
 The replicating live and backup pair must be part of a cluster. The
 Cluster Connection also defines how backup servers will find the remote
-live servers to pair with. Refer to ? for details on how this is done,
+live servers to pair with. Refer to [Clusters](clusters.md) for details on how this is done,
 and how to configure a cluster connection. Notice that:
 
 -   Both live and backup servers must be part of the same cluster.
@@ -202,7 +198,7 @@ than half the servers, it will become active, if more than half the
 servers also disappeared with the live, the backup will wait and try
 reconnecting with the live. This avoids a split brain situation.
 
-### Configuration
+#### Configuration
 
 To configure the live and backup servers to be a replicating pair,
 configure the live server in ' `activemq-configuration.xml` to have:
@@ -228,7 +224,7 @@ The backup server must be similarly configured but as a `slave`
        </replication>
     </ha-policy>
 
-### All Replication Configuration
+#### All Replication Configuration
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Replication for `master`:
@@ -250,8 +246,7 @@ HA strategy Replication for `slave`:
   `allow-failback`                       Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over
   `failback-delay`                       delay to wait before fail-back occurs on (failed over live's) restart
 
-Shared Store
-------------
+### Shared Store
 
 When using a shared store, both live and backup servers share the *same*
 entire data directory using a shared file system. This means the paging
@@ -284,7 +279,7 @@ on amount of data).
 
 ![ActiveMQ ha-shared-store.png](images/ha-shared-store.png)
 
-### Configuration
+#### Configuration
 
 To configure the live and backup servers to share their store, configure
 id via the `ha-policy` configuration in `activemq-configuration.xml`:
@@ -313,7 +308,7 @@ The backup server must also be configured as a backup.
 
 In order for live - backup groups to operate properly with a shared
 store, both servers must have configured the location of journal
-directory to point to the *same shared location* (as explained in ?)
+directory to point to the *same shared location* (as explained in [Configuring the message journal](persistence.md))
 
 > **Note**
 >
@@ -322,11 +317,10 @@ directory to point to the *same shared location* (as explained in ?)
 Also each node, live and backups, will need to have a cluster connection
 defined even if not part of a cluster. The Cluster Connection info
 defines how backup servers announce there presence to its live server or
-any other nodes in the cluster. Refer to ? for details on how this is
+any other nodes in the cluster. Refer to [Clusters](clusters.md) for details on how this is
 done.
 
-Failing Back to live Server
----------------------------
+### Failing Back to live Server
 
 After a live server has failed and a backup taken has taken over its
 duties, you may want to restart the live server and have clients fail
@@ -396,7 +390,7 @@ or `slave` like so:
 
 By default this is set to false, if by some chance you have set this to
 false but still want to stop the server normally and cause failover then
-you can do this by using the management API as explained at ?
+you can do this by using the management API as explained at [Management](management.md)
 
 You can also force the running live server to shutdown when the old live
 server comes back up allowing the original live server to take over
@@ -411,7 +405,7 @@ automatically by setting the following property in the
        </shared-store>
     </ha-policy>
 
-### All Shared Store Configuration
+#### All Shared Store Configuration
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy shared store for `master`:
@@ -419,19 +413,18 @@ HA strategy shared store for `master`:
   name                            Description
   ------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   `failback-delay`                If a backup server is detected as being live, via the lock file, then the live server will wait announce itself as a backup and wait this amount of time (in ms) before starting as a live
-  `failover-on-server-shutdown`   If set to true then when this server is stopped normally the backup will become live assuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at ?
+  `failover-on-server-shutdown`   If set to true then when this server is stopped normally the backup will become live assuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md)
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Shared Store for `slave`:
 
   name                            Description
   ------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  `failover-on-server-shutdown`   In the case of a backup that has become live. then when set to true then when this server is stopped normally the backup will become liveassuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at ?
+  `failover-on-server-shutdown`   In the case of a backup that has become live. then when set to true then when this server is stopped normally the backup will become liveassuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md)
   `allow-failback`                Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over.
   `failback-delay`                After failover and the slave has become live, this is set on the new live server. When starting If a backup server is detected as being live, via the lock file, then the live server will wait announce itself as a backup and wait this amount of time (in ms) before starting as a live, however this is unlikely since this backup has just stopped anyway. It is also used as the delay after failback before this backup will restart (if `allow-failback` is set to true.
 
-Colocated Backup Servers
-------------------------
+#### Colocated Backup Servers
 
 It is also possible when running standalone to colocate backup servers
 in the same JVM as another live server. Live Servers can be configured
@@ -467,7 +460,7 @@ replication as in the previous chapter. `shared-store` is also supported
 
 ![ActiveMQ ha-colocated.png](images/ha-colocated.png)
 
-### Configuring Connectors and Acceptors
+#### Configuring Connectors and Acceptors
 
 If the HA Policy is colocated then connectors and acceptors will be
 inherited from the live server creating it and offset depending on the
@@ -499,7 +492,7 @@ adding them to the `ha-policy` configuration like so:
     </ha-policy>
                      
 
-### Configuring Directories
+#### Configuring Directories
 
 Directories for the Journal, Large messages and Paging will be set
 according to what the HA strategy is. If shared store the the requesting
@@ -517,8 +510,7 @@ The following table lists all the `ha-policy` configuration elements:
   `max-backups`                     Whether or not this live server will accept backup requests from other live servers.
   `backup-port-offset`              The offset to use for the Connectors and Acceptors when creating a new backup server.
 
-Scaling Down
-============
+### Scaling Down
 
 An alternative to using Live/Backup groups is to configure scaledown.
 when configured for scale down a server can copy all its messages and
@@ -568,8 +560,7 @@ this would look like:
     </ha-policy>
           
 
-Scale Down with groups
-----------------------
+#### Scale Down with groups
 
 It is also possible to configure servers to only scale down to servers
 that belong in the same group. This is done by configuring the group
@@ -588,8 +579,7 @@ like so:
 In this scenario only servers that belong to the group `my-group` will
 be scaled down to
 
-Scale Down and Backups
-----------------------
+#### Scale Down and Backups
 
 It is also possible to mix scale down with HA via backup servers. If a
 slave is configured to scale down then after failover has occurred,
@@ -630,8 +620,7 @@ typical configuration would look like:
     </ha-policy>
              
 
-Scale Down and Clients
-----------------------
+#### Scale Down and Clients
 
 When a server is stopping and preparing to scale down it will send a
 message to all its clients informing them which server it is scaling
@@ -642,8 +631,7 @@ transactions are there for the client when it reconnects. The normal
 reconnect settings apply when the client is reconnecting so these should
 be high enough to deal with the time needed to scale down.
 
-Failover Modes
-==============
+## Failover Modes
 
 ActiveMQ defines two types of client failover:
 
@@ -654,15 +642,14 @@ ActiveMQ defines two types of client failover:
 ActiveMQ also provides 100% transparent automatic reattachment of
 connections to the same server (e.g. in case of transient network
 problems). This is similar to failover, except it is reconnecting to the
-same server and is discussed in ?
+same server and is discussed in [Client Reconnection and Session Reattachment](client-reconnection.md)
 
 During failover, if the client has consumers on any non persistent or
 temporary queues, those queues will be automatically recreated during
 failover on the backup node, since the backup node will not have any
 knowledge of non persistent queues.
 
-Automatic Client Failover
--------------------------
+### Automatic Client Failover
 
 ActiveMQ clients can be configured to receive knowledge of all live and
 backup servers, so that in event of connection failure at the client -
@@ -673,7 +660,7 @@ thus saving the user from having to hand-code manual reconnection logic.
 
 ActiveMQ clients detect connection failure when it has not received
 packets from the server within the time given by
-`client-failure-check-period` as explained in section ?. If the client
+`client-failure-check-period` as explained in section [Detecting Dead Connections](connection-ttl.md). If the client
 does not receive data in good time, it will assume the connection has
 failed and attempt failover. Also if the socket is closed by the OS,
 usually if the server process is killed rather than the machine itself
@@ -683,12 +670,12 @@ ActiveMQ clients can be configured to discover the list of live-backup
 server groups in a number of different ways. They can be configured
 explicitly or probably the most common way of doing this is to use
 *server discovery* for the client to automatically discover the list.
-For full details on how to configure server discovery, please see ?.
+For full details on how to configure server discovery, please see [Clusters](clusters.md).
 Alternatively, the clients can explicitly connect to a specific server
-and download the current servers and backups see ?.
+and download the current servers and backups see [Clusters](clusters.md).
 
 To enable automatic client failover, the client must be configured to
-allow non-zero reconnection attempts (as explained in ?).
+allow non-zero reconnection attempts (as explained in [Client Reconnection and Session Reattachment](client-reconnection.md)).
 
 By default failover will only occur after at least one connection has
 been made to the live server. In other words, by default, failover will
@@ -697,7 +684,7 @@ server - in this case it will simply retry connecting to the live server
 according to the reconnect-attempts property and fail after this number
 of attempts.
 
-### Failing over on the Initial Connection
+#### Failing over on the Initial Connection
 
 Since the client does not learn about the full topology until after the
 first connection is made there is a window where it does not know about
@@ -712,7 +699,7 @@ will be thrown.
 For examples of automatic failover with transacted and non-transacted
 JMS sessions, please see ? and ?.
 
-### A Note on Server Replication
+#### A Note on Server Replication
 
 ActiveMQ does not replicate full server state between live and backup
 servers. When the new session is automatically recreated on the backup
@@ -747,7 +734,7 @@ and only once* delivery, even in the case of failure, by using a
 combination of duplicate detection and retrying of transactions. However
 this is not 100% transparent to the client code.
 
-### Handling Blocking Calls During Failover
+#### Handling Blocking Calls During Failover
 
 If the client code is in a blocking call to the server, waiting for a
 response to continue its execution, when failover occurs, the new
@@ -767,7 +754,7 @@ throw a `javax.jms.TransactionRolledBackException` (if using JMS), or a
 `ActiveMQException` with error code
 `ActiveMQException.TRANSACTION_ROLLED_BACK` if using the core API.
 
-### Handling Failover With Transactions
+#### Handling Failover With Transactions
 
 If the session is transactional and messages have already been sent or
 acknowledged in the current transaction, then the server cannot be sure
@@ -816,7 +803,7 @@ live server before failure occurred.
 > it does not exist then it is assumed to have been committed although
 > the transaction manager may log a warning.
 
-To remedy this, the client can simply enable duplicate detection (?) in
+To remedy this, the client can simply enable duplicate detection ([Duplicate Message Detection](duplicate-detection.md)) in
 the transaction, and retry the transaction operations again after the
 call is unblocked. If the transaction had indeed been committed on the
 live server successfully before failover, then when the transaction is
@@ -831,17 +818,16 @@ getting sent more than once.
 > guarantees for messages can be provided in the case of failure,
 > guaranteeing 100% no loss or duplication of messages.
 
-### Handling Failover With Non Transactional Sessions
+#### Handling Failover With Non Transactional Sessions
 
 If the session is non transactional, messages or acknowledgements can be
 lost in the event of failover.
 
 If you wish to provide *once and only once* delivery guarantees for non
 transacted sessions too, enabled duplicate detection, and catch unblock
-exceptions as described in ?
+exceptions as described in [Handling Blocking Calls During Failover](ha.md)
 
-Getting Notified of Connection Failure
---------------------------------------
+### Getting Notified of Connection Failure
 
 JMS provides a standard mechanism for getting notified asynchronously of
 connection failure: `java.jms.ExceptionListener`. Please consult the JMS
@@ -867,8 +853,7 @@ following:
 
   : JMSException error codes
 
-Application-Level Failover
---------------------------
+### Application-Level Failover
 
 In some cases you may not want automatic client failover, and prefer to
 handle any connection failure yourself, and code your own manually

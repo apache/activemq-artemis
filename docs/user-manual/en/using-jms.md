@@ -1,5 +1,4 @@
-Using JMS
-=========
+# Using JMS
 
 Although ActiveMQ provides a JMS agnostic messaging API, many users will
 be more comfortable using JMS.
@@ -14,7 +13,7 @@ ActiveMQ also ships with a wide range of examples, many of which
 demonstrate JMS API usage. A good place to start would be to play around
 with the simple JMS Queue and Topic example, but we also provide
 examples for many other parts of the JMS API. A full description of the
-examples is available in ?.
+examples is available in [Examples](examples.md).
 
 In this section we'll go through the main steps in configuring the
 server for JMS and creating a simple JMS program. We'll also show how to
@@ -214,19 +213,39 @@ Any property available on the underlying
 this way in addition to the `ha` (boolean) and `type` (String)
 properties. Here are the different options for the `type`:
 
-  type            interface
-  --------------- ------------------------------------
-  CF (default)    javax.jms.ConnectionFactory
-  XA\_CF          javax.jms.XAConnectionFactory
-  QUEUE\_CF       javax.jms.QueueConnectionFactory
-  QUEUE\_XA\_CF   javax.jms.XAQueueConnectionFactory
-  TOPIC\_CF       javax.jms.TopicConnectionFactory
-  TOPIC\_XA\_CF   javax.jms.XATopicConnectionFactory
+#### Configuration for Connection Factory Types
+<table>
+  <tr>
+    <th>type</th>
+    <th>interface</th> 
+  </tr>
+  <tr>
+    <td>CF (default)</td>
+    <td>javax.jms.ConnectionFactory</td> 
+  </tr>    
+  <tr>
+    <td>XA_CF</td>
+    <td>javax.jms.XAConnectionFactory</td> 
+  </tr>
+  <tr>
+    <td>QUEUE_CF</td>
+    <td>javax.jms.QueueConnectionFactory</td> 
+  </tr>
+  <tr>
+    <td>QUEUE_XA_CF</td>
+    <td>javax.jms.XAQueueConnectionFactory</td> 
+  </tr>
+  <tr>
+    <td>TOPIC_CF</td>
+    <td>javax.jms.TopicConnectionFactory</td> 
+  </tr>
+  <tr>
+    <td>TOPIC_XA_CF</td>
+    <td>javax.jms.XATopicConnectionFactory</td> 
+  </tr>
+</table>
 
-  : Configuration for Connection Factory Types
-
-Destination JNDI
-----------------
+### Destination JNDI
 
 JMS destinations are also typically looked up via JNDI. As with
 connection factories, destinations can be configured using special
@@ -253,8 +272,7 @@ it could do so simply by using the string "dynamicQueues/OrderQueue".
 Note, the text that follows `dynamicQueues/` or `dynamicTopics/` must
 correspond *exactly* to the name of the destination on the server.
 
-The code
---------
+### The code
 
 Here's the code for the example:
 
@@ -262,49 +280,50 @@ First we'll create a JNDI initial context from which to lookup our JMS
 objects. If the above properties are set in `jndi.properties` and it is
 on the classpath then any new, empty `InitialContext` will be
 initialized using those properties:
+``` java
+InitialContext ic = new InitialContext();
 
-    InitialContext ic = new InitialContext();
+//Now we'll look up the connection factory from which we can create
+//connections to myhost:5445:
 
-Now we'll look up the connection factory from which we can create
-connections to myhost:5445:
+ConnectionFactory cf = (ConnectionFactory)ic.lookup("ConnectionFactory");
 
-    ConnectionFactory cf = (ConnectionFactory)ic.lookup("ConnectionFactory");
+//And look up the Queue:
 
-And look up the Queue:
+Queue orderQueue = (Queue)ic.lookup("queues/OrderQueue");
 
-    Queue orderQueue = (Queue)ic.lookup("queues/OrderQueue");
+//Next we create a JMS connection using the connection factory:
 
-Next we create a JMS connection using the connection factory:
+Connection connection = cf.createConnection();
 
-    Connection connection = cf.createConnection();
+//And we create a non transacted JMS Session, with AUTO\_ACKNOWLEDGE
+//acknowledge mode:
 
-And we create a non transacted JMS Session, with AUTO\_ACKNOWLEDGE
-acknowledge mode:
+Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+//We create a MessageProducer that will send orders to the queue:
 
-We create a MessageProducer that will send orders to the queue:
+MessageProducer producer = session.createProducer(orderQueue);
 
-    MessageProducer producer = session.createProducer(orderQueue);
+//And we create a MessageConsumer which will consume orders from the
+//queue:
 
-And we create a MessageConsumer which will consume orders from the
-queue:
+MessageConsumer consumer = session.createConsumer(orderQueue);
 
-    MessageConsumer consumer = session.createConsumer(orderQueue);
+//We make sure we start the connection, or delivery won't occur on it:
 
-We make sure we start the connection, or delivery won't occur on it:
+connection.start();
 
-    connection.start();
+//We create a simple TextMessage and send it:
 
-We create a simple TextMessage and send it:
+TextMessage message = session.createTextMessage("This is an order");
+producer.send(message);
 
-    TextMessage message = session.createTextMessage("This is an order");
-    producer.send(message);
+//And we consume the message:
 
-And we consume the message:
-
-    TextMessage receivedMessage = (TextMessage)consumer.receive();
-    System.out.println("Got order: " + receivedMessage.getText());
+TextMessage receivedMessage = (TextMessage)consumer.receive();
+System.out.println("Got order: " + receivedMessage.getText());
+```
 
 It is as simple as that. For a wide range of working JMS examples please
 see the examples directory in the distribution.
@@ -317,10 +336,9 @@ see the examples directory in the distribution.
 > It is an anti-pattern to create new connections, sessions, producers
 > and consumers for each message you produce or consume. If you do this,
 > your application will perform very poorly. This is discussed further
-> in the section on performance tuning ?.
+> in the section on performance tuning [Performance Tuning](perf-tuning.md).
 
-Directly instantiating JMS Resources without using JNDI
-=======================================================
+### Directly instantiating JMS Resources without using JNDI
 
 Although it is a very common JMS usage pattern to lookup JMS
 *Administered Objects* (that's JMS Queue, Topic and ConnectionFactory
@@ -339,51 +357,52 @@ Here's our simple example, rewritten to not use JNDI at all:
 We create the JMS ConnectionFactory object via the ActiveMQJMSClient
 Utility class, note we need to provide connection parameters and specify
 which transport we are using, for more information on connectors please
-see ?.
+see [Configuring the Transport](configuring-transports.md).
 
-                  
-    TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName());
-    ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,transportConfiguration);
+``` java                  
+TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName());
 
-We also create the JMS Queue object via the ActiveMQJMSClient Utility
-class:
+ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,transportConfiguration);
 
-    Queue orderQueue = ActiveMQJMSClient.createQueue("OrderQueue");
+//We also create the JMS Queue object via the ActiveMQJMSClient Utility
+//class:
 
-Next we create a JMS connection using the connection factory:
+Queue orderQueue = ActiveMQJMSClient.createQueue("OrderQueue");
 
-    Connection connection = cf.createConnection();
+//Next we create a JMS connection using the connection factory:
 
-And we create a non transacted JMS Session, with AUTO\_ACKNOWLEDGE
-acknowledge mode:
+Connection connection = cf.createConnection();
 
-    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+//And we create a non transacted JMS Session, with AUTO\_ACKNOWLEDGE
+//acknowledge mode:
 
-We create a MessageProducer that will send orders to the queue:
+Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-    MessageProducer producer = session.createProducer(orderQueue);
+//We create a MessageProducer that will send orders to the queue:
 
-And we create a MessageConsumer which will consume orders from the
-queue:
+MessageProducer producer = session.createProducer(orderQueue);
 
-    MessageConsumer consumer = session.createConsumer(orderQueue);
+//And we create a MessageConsumer which will consume orders from the
+//queue:
 
-We make sure we start the connection, or delivery won't occur on it:
+MessageConsumer consumer = session.createConsumer(orderQueue);
 
-    connection.start();
+//We make sure we start the connection, or delivery won't occur on it:
 
-We create a simple TextMessage and send it:
+connection.start();
 
-    TextMessage message = session.createTextMessage("This is an order");
-    producer.send(message);
+//We create a simple TextMessage and send it:
 
-And we consume the message:
+TextMessage message = session.createTextMessage("This is an order");
+producer.send(message);
 
-    TextMessage receivedMessage = (TextMessage)consumer.receive();
-    System.out.println("Got order: " + receivedMessage.getText());
+//And we consume the message:
 
-Setting The Client ID
-=====================
+TextMessage receivedMessage = (TextMessage)consumer.receive();
+System.out.println("Got order: " + receivedMessage.getText());
+```
+
+### Setting The Client ID
 
 This represents the client id for a JMS client and is needed for
 creating durable subscriptions. It is possible to configure this on the
@@ -391,8 +410,7 @@ connection factory and can be set via the `client-id` element. Any
 connection created by this connection factory will have this set as its
 client id.
 
-Setting The Batch Size for DUPS\_OK
-===================================
+### Setting The Batch Size for DUPS_OK
 
 When the JMS acknowledge mode is set to `DUPS_OK` it is possible to
 configure the consumer so that it sends acknowledgements in batches
@@ -400,8 +418,7 @@ rather that one at a time, saving valuable bandwidth. This can be
 configured via the connection factory via the `dups-ok-batch-size`
 element and is set in bytes. The default is 1024 \* 1024 bytes = 1 MiB.
 
-Setting The Transaction Batch Size
-==================================
+### Setting The Transaction Batch Size
 
 When receiving messages in a transaction it is possible to configure the
 consumer to send acknowledgements in batches rather than individually

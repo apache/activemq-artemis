@@ -1,5 +1,4 @@
-Intercepting Operations
-=======================
+# Intercepting Operations
 
 ActiveMQ supports *interceptors* to intercept packets entering and
 exiting the server. Incoming and outgoing interceptors are be called for
@@ -8,17 +7,18 @@ custom code to be executed, e.g. for auditing packets, filtering or
 other reasons. Interceptors can change the packets they intercept. This
 makes interceptors powerful, but also potentially dangerous.
 
-Implementing The Interceptors
-=============================
+## Implementing The Interceptors
 
 An interceptor must implement the `Interceptor interface`:
 
-    package org.apache.activemq.api.core.interceptor;
+``` java
+package org.apache.activemq.api.core.interceptor;
 
-    public interface Interceptor
-    {   
-       boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException;
-    }
+public interface Interceptor
+{   
+   boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException;
+}
+```
 
 The returned boolean value is important:
 
@@ -28,8 +28,7 @@ The returned boolean value is important:
     interceptors will be called and the packet will not be processed
     further by the server.
 
-Configuring The Interceptors
-============================
+## Configuring The Interceptors
 
 Both incoming and outgoing interceptors are configured in
 `activemq-configuration.xml`:
@@ -47,8 +46,7 @@ Both incoming and outgoing interceptors are configured in
 The interceptors classes (and their dependencies) must be added to the
 server classpath to be properly instantiated and called.
 
-Interceptors on the Client Side
-===============================
+## Interceptors on the Client Side
 
 The interceptors can also be run on the client side to intercept packets
 either sent by the client to the server or by the server to the client.
@@ -77,8 +75,7 @@ As on the server, the client interceptor classes (and their
 dependencies) must be added to the classpath to be properly instantiated
 and invoked.
 
-Example
-=======
+## Example
 
 See ? for an example which shows how to use interceptors to add
 properties to a message on the server.

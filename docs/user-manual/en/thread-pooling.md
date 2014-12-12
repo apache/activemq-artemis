@@ -1,5 +1,4 @@
-Thread management
-=================
+# Thread management
 
 This chapter describes how ActiveMQ uses and pools threads and how you
 can manage them.
@@ -7,8 +6,7 @@ can manage them.
 First we'll discuss how threads are managed and used on the server side,
 then we'll look at the client side.
 
-Server-Side Thread Management
-=============================
+## Server-Side Thread Management
 
 Each ActiveMQ Server maintains a single thread pool for general use, and
 a scheduled thread pool for scheduled use. A Java scheduled thread pool
@@ -45,8 +43,7 @@ transport configuration. See the ? for more information on this.
 There are also a small number of other places where threads are used
 directly, we'll discuss each in turn.
 
-Server Scheduled Thread Pool
-----------------------------
+### Server Scheduled Thread Pool
 
 The server scheduled thread pool is used for most activities on the
 server side that require running periodically or with delays. It maps
@@ -58,8 +55,7 @@ The maximum number of thread used by this pool is configure in
 parameter. The default value is `5` threads. A small number of threads
 is usually sufficient for this pool.
 
-General Purpose Server Thread Pool
-----------------------------------
+### General Purpose Server Thread Pool
 
 This general purpose thread pool is used for most asynchronous actions
 on the server side. It maps internally to a
@@ -87,8 +83,7 @@ javadoc](http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/ThreadPoo
 for more information on unbounded (cached), and bounded (fixed) thread
 pools.
 
-Expiry Reaper Thread
---------------------
+### Expiry Reaper Thread
 
 A single thread is also used on the server side to scan for expired
 messages in queues. We cannot use either of the thread pools for this
@@ -96,8 +91,7 @@ since this thread needs to run at its own configurable priority.
 
 For more information on configuring the reaper, please see ?.
 
-Asynchronous IO
----------------
+### Asynchronous IO
 
 Asynchronous IO has a thread pool for receiving and dispatching events
 out of the native layer. You will find it on a thread dump with the
@@ -109,8 +103,7 @@ that to avoid context switching on libaio that would cause performance
 issues. You will find this thread on a thread dump with the prefix
 ActiveMQ-AIO-writer-pool.
 
-Client-Side Thread Management
-=============================
+## Client-Side Thread Management
 
 On the client side, ActiveMQ maintains a single static scheduled thread
 pool and a single static general thread pool for use by all clients
@@ -129,17 +122,25 @@ To configure a `ClientSessionFactory` instance to use its own pools,
 simply use the appropriate setter methods immediately after creation,
 for example:
 
-    ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(...)
-    ClientSessionFactory myFactory = locator.createClientSessionFactory();
-    myFactory.setUseGlobalPools(false);
-    myFactory.setScheduledThreadPoolMaxSize(10);
-    myFactory.setThreadPoolMaxSize(-1);   
+``` java
+ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(...)
+
+ClientSessionFactory myFactory = locator.createClientSessionFactory();
+
+myFactory.setUseGlobalPools(false);
+
+myFactory.setScheduledThreadPoolMaxSize(10);
+
+myFactory.setThreadPoolMaxSize(-1); 
+```
 
 If you're using the JMS API, you can set the same parameters on the
 ClientSessionFactory and use it to create the `ConnectionFactory`
 instance, for example:
 
-    ConnectionFactory myConnectionFactory = ActiveMQJMSClient.createConnectionFactory(myFactory);
+``` java
+ConnectionFactory myConnectionFactory = ActiveMQJMSClient.createConnectionFactory(myFactory);
+```
 
 If you're using JNDI to instantiate `ActiveMQConnectionFactory`
 instances, you can also set these parameters in the JNDI context
@@ -148,7 +149,12 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    
     java.naming.provider.url=tcp://localhost:5445
+    
     connection.ConnectionFactory.useGlobalPools=false
+    
     connection.ConnectionFactory.scheduledThreadPoolMaxSize=10
+    
     connection.ConnectionFactory.threadPoolMaxSize=-1
+

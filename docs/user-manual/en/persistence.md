@@ -1,5 +1,4 @@
-Persistence
-===========
+# Persistence
 
 In this chapter we will describe how persistence works with ActiveMQ and
 how to configure it.
@@ -63,14 +62,14 @@ implementations. ActiveMQ ships with two implementations:
 
     The AIO journal is only available when running Linux kernel 2.6 or
     later and after having installed libaio (if it's not already
-    installed). For instructions on how to install libaio please see ?.
+    installed). For instructions on how to install libaio please see Installing AIO section.
 
     Also, please note that AIO will only work with the following file
     systems: ext2, ext3, ext4, jfs, xfs. With other file systems, e.g.
     NFS it may appear to work, but it will fall back to a slower
     synchronous behaviour. Don't put the journal on a NFS share!
 
-    For more information on libaio please see ?.
+    For more information on libaio please see [lib AIO](libaio.md).
 
     libaio is part of the kernel project.
 
@@ -118,16 +117,16 @@ The standard ActiveMQ core server uses two instances of the journal:
     (configurable), and it is located at the journal folder.
 
 For large messages, ActiveMQ persists them outside the message journal.
-This is discussed in ?.
+This is discussed in [Large Messages](large-messages.md).
 
 ActiveMQ can also be configured to page messages to disk in low memory
-situations. This is discussed in ?.
+situations. This is discussed in [Paging](paging.md).
 
 If no persistence is required at all, ActiveMQ can also be configured
-not to persist any data at all to storage as discussed in ?.
+not to persist any data at all to storage as discussed in the Configuring 
+HornetQ for Zero Persistence section.
 
-Configuring the bindings journal
-================================
+## Configuring the bindings journal
 
 The bindings journal is configured using the following attributes in
 `activemq-configuration.xml`
@@ -144,13 +143,11 @@ The bindings journal is configured using the following attributes in
     `bindings-directory` if it does not already exist. The default value
     is `true`
 
-Configuring the jms journal
-===========================
+## Configuring the jms journal
 
 The jms config shares its configuration with the bindings journal.
 
-Configuring the message journal
-===============================
+## Configuring the message journal
 
 The message journal is configured using the following attributes in
 `activemq-configuration.xml`
@@ -283,8 +280,7 @@ The message journal is configured using the following attributes in
 
     The default for this parameter is `30`
 
-An important note on disabling disk write cache.
-================================================
+## An important note on disabling disk write cache.
 
 > **Warning**
 >
@@ -323,8 +319,7 @@ An important note on disabling disk write cache.
 > On Windows you can check / change the setting by right clicking on the
 > disk and clicking properties.
 
-Installing AIO
-==============
+## Installing AIO
 
 The Java NIO journal gives great performance, but If you are running
 ActiveMQ using Linux Kernel 2.6 or later, we highly recommend you use
@@ -344,8 +339,7 @@ Using aptitude, (e.g. on Ubuntu or Debian system):
 
     apt-get install libaio
 
-Configuring ActiveMQ for Zero Persistence
-=========================================
+## Configuring ActiveMQ for Zero Persistence
 
 In some situations, zero persistence is sometimes required for a
 messaging system. Configuring ActiveMQ to perform zero persistence is
@@ -356,8 +350,7 @@ Please note that if you set this parameter to false, then *zero*
 persistence will occur. That means no bindings data, message data, large
 message data, duplicate id caches or paging data will be persisted.
 
-Import/Export the Journal Data
-==============================
+## Import/Export the Journal Data
 
 You may want to inspect the existent records on each one of the journals
 used by ActiveMQ, and you can use the export/import tool for that
@@ -379,13 +372,12 @@ require netty.jar):
     folder. Example: ./activemq/data/journal
 
 -   JournalPrefix: Use the prefix for your selected journal, as
-    discussed [here](#persistence.journallist)
+    discussed above
 
 -   FileExtension: Use the extension for your selected journal, as
-    discussed [here](#persistence.journallist)
+    discussed above
 
--   FileSize: Use the size for your selected journal, as discussed
-    [here](#persistence.journallist)
+-   FileSize: Use the size for your selected journal, as discussed above
 
 -   FileOutput: text file that will contain the exported data
 

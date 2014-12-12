@@ -1,5 +1,4 @@
-Logging
-=======
+# Logging
 
 ActiveMQ uses the JBoss Logging framework to do its logging and is
 configurable via the `logging.properties` file found in the
@@ -19,8 +18,7 @@ There are 6 loggers available which are as follows:
 
   : Global Configuration Properties
 
-Logging in a client or with an Embedded server
-==============================================
+## Logging in a client or with an Embedded server
 
 Firstly, if you want to enable logging on the client side you need to
 include the JBoss logging jars in your library. If you are using maven
@@ -85,8 +83,7 @@ The following is a typical `logging.properties for a client`
     formatter.PATTERN.properties=pattern
     formatter.PATTERN.pattern=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
 
-Logging With The JBoss Application Server
-=========================================
+## Logging With The JBoss Application Server
 
 When ActiveMQ is deployed within the JBoss Application Server version
 7.x or above then it will still use JBoss Logging, refer to the AS7

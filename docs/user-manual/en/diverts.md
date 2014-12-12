@@ -1,5 +1,4 @@
-Diverting and Splitting Message Flows
-=====================================
+# Diverting and Splitting Message Flows
 
 ActiveMQ allows you to configure objects called *diverts* with some
 simple server configuration.
@@ -43,8 +42,7 @@ use diverts.
 
 Let's take a look at some divert examples:
 
-Exclusive Divert
-================
+## Exclusive Divert
 
 Let's take a look at an exclusive divert. An exclusive divert diverts
 all matching messages that are routed to the old address to the new
@@ -86,8 +84,7 @@ queue, which is configured with a bridge which forwards the message to
 an address on another ActiveMQ server. Please see the example for more
 details.
 
-Non-exclusive Divert
-====================
+## Non-exclusive Divert
 
 Now we'll take a look at a non-exclusive divert. Non exclusive diverts
 are the same as exclusive diverts, but they only forward a *copy* of the

@@ -1,5 +1,4 @@
-The Client Classpath
-====================
+# The Client Classpath
 
 ActiveMQ requires several jars on the *Client Classpath* depending on
 whether the client uses ActiveMQ Core API, JMS, and JNDI.
@@ -12,15 +11,13 @@ whether the client uses ActiveMQ Core API, JMS, and JNDI.
 > from different ActiveMQ versions. Mixing and matching different jar
 > versions may cause subtle errors and failures to occur.
 
-ActiveMQ Core Client
-====================
+## ActiveMQ Core Client
 
 If you are using just a pure ActiveMQ Core client (i.e. no JMS) then you
 need `activemq-core-client.jar`, `activemq-commons.jar`, and `netty.jar`
 on your client classpath.
 
-JMS Client
-==========
+## JMS Client
 
 If you are using JMS on the client side, then you will also need to
 include `activemq-jms-client.jar` and `jboss-jms-api.jar`.

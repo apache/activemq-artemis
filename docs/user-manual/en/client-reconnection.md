@@ -1,17 +1,15 @@
-Client Reconnection and Session Reattachment
-============================================
+# Client Reconnection and Session Reattachment
 
 ActiveMQ clients can be configured to automatically reconnect or
 re-attach to the server in the event that a failure is detected in the
 connection between the client and the server.
 
-100% Transparent session re-attachment
-======================================
+## 100% Transparent session re-attachment
 
 If the failure was due to some transient failure such as a temporary
 network failure, and the target server was not restarted, then the
 sessions will still be existent on the server, assuming the client
-hasn't been disconnected for more than connection-ttl ?.
+hasn't been disconnected for more than connection-ttl [Detecting Dead Connections](connection-ttl.md)
 
 In this scenario, ActiveMQ will automatically re-attach the client
 sessions to the server sessions when the connection reconnects. This is
@@ -54,8 +52,7 @@ re-attachment from occurring, forcing reconnect instead. The default
 value for this parameter is `-1`. (Which means by default no auto
 re-attachment will occur)
 
-Session reconnection
-====================
+## Session reconnection
 
 Alternatively, the server might have actually been restarted after
 crashing or being stopped. In this case any sessions will no longer be
@@ -70,13 +67,12 @@ as what happens during failover onto a backup server.
 Client reconnection is also used internally by components such as core
 bridges to allow them to reconnect to their target servers.
 
-Please see the section on failover ? to get a full understanding of how
+Please see the section on failover [Automatic Client Failover](ha.md) to get a full understanding of how
 transacted and non-transacted sessions are reconnected during
 failover/reconnect and what you need to do to maintain *once and only
 once*delivery guarantees.
 
-Configuring reconnection/reattachment attributes
-================================================
+## Configuring reconnection/reattachment attributes
 
 Client reconnection is configured using the following parameters:
 

@@ -1,50 +1,30 @@
-Project Information
-===================
+# Project Information
 
-The official ActiveMQ project page is <http://activemq.org/>.
+The official ActiveMQ project page is <http://activemq.apache.org//>.
 
-Software Download
-=================
+## Software Download
 
 The software can be download from the Download
-page:<http://activemq.org/downloads.html>
+page:<http://activemq.apache.org/download.html>
 
-Project Information
-===================
-
--   Please take a look at our project
-    [wiki](http://www.jboss.org/community/wiki/ActiveMQ)
+## Project Information
 
 -   If you have any user questions please use our [user
-    forum](https://community.jboss.org/en/activemq)
+    forum](http://activemq.2283324.n4.nabble.com/ActiveMQ-User-f2341805.html)
 
 -   If you have development related questions, please use our [developer
-    forum](https://community.jboss.org/en/activemq/dev)
+    forum](http://activemq.2283324.n4.nabble.com/ActiveMQ-Dev-f2368404.html)
 
 -   Pop in and chat to us in our [IRC
     channel](irc://irc.freenode.net:6667/activemq)
 
--   Our project [blog](http://activemq.blogspot.com/)
+-   Follow us on [twitter](https://twitter.com/activemq)
 
--   Follow us on [twitter](http://twitter.com/activemq)
-
--   ActiveMQ Git repository is <https://github.com/activemq/activemq>
+-   ActiveMQ Git repository is <https://github.com/apache/activemq-6>
 
 -   All release tags are available from
-    <https://github.com/activemq/activemq/tags>
+    <https://github.com/apache/activemq-6/releases>
 
-Red Hat kindly employs developers to work full time on ActiveMQ, they
-are:
-
--   Clebert Suconic (project lead)
-
--   Andy Taylor
-
--   Howard Gao
-
--   Justin Bertram
 
 And many thanks to all our contributors, both old and new who helped
-create ActiveMQ, for a full list of the people who made it happen, take
-a look at our [team
-page](http://jboss.org.apache.activemq/community/team.html).
+create ActiveMQ.

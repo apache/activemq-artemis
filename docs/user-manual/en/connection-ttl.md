@@ -1,12 +1,10 @@
-Detecting Dead Connections
-==========================
+# Detecting Dead Connections
 
 In this section we will discuss connection time-to-live (TTL) and
 explain how ActiveMQ deals with crashed clients and clients which have
 exited without cleanly closing their resources.
 
-Cleaning up Dead Connection Resources on the Server
-===================================================
+## Cleaning up Dead Connection Resources on the Server
 
 Before a ActiveMQ client application exits it is considered good
 practice that it should close its resources in a controlled manner,
@@ -15,57 +13,61 @@ using a `finally` block.
 Here's an example of a well behaved core client application closing its
 session and session factory in a finally block:
 
-    ServerLocator locator = null;
-    ClientSessionFactory sf = null;
-    ClientSession session = null;
+``` java
+ServerLocator locator = null;
+ClientSessionFactory sf = null;
+ClientSession session = null;
 
-    try
-    {
-       locator = ActiveMQClient.createServerLocatorWithoutHA(..);
+try
+{
+   locator = ActiveMQClient.createServerLocatorWithoutHA(..);
 
-       sf = locator.createClientSessionFactory();;
+   sf = locator.createClientSessionFactory();;
 
-       session = sf.createSession(...);
-       
-       ... do some stuff with the session...
-    }
-    finally
-    {
-       if (session != null)
-       {
-          session.close();
-       }
-       
-       if (sf != null)
-       {
-          sf.close();
-       }
+   session = sf.createSession(...);
+   
+   ... do some stuff with the session...
+}
+finally
+{
+   if (session != null)
+   {
+      session.close();
+   }
+   
+   if (sf != null)
+   {
+      sf.close();
+   }
 
-       if(locator != null)
-       {
-          locator.close();
-       }
-    }
+   if(locator != null)
+   {
+      locator.close();
+   }
+}
+```
 
 And here's an example of a well behaved JMS client application:
 
-    Connection jmsConnection = null;
+``` java
+Connection jmsConnection = null;
 
-    try
-    {
-       ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(...);
+try
+{
+   ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(...);
 
-       jmsConnection = jmsConnectionFactory.createConnection();
+   jmsConnection = jmsConnectionFactory.createConnection();
 
-       ... do some stuff with the connection...
-    }
-    finally
-    {
-       if (connection != null)
-       {
-          connection.close();
-       }
-    }
+   ... do some stuff with the connection...
+}
+finally
+{
+   if (connection != null)
+   {
+      connection.close();
+   }
+}
+```
 
 Unfortunately users don't always write well behaved applications, and
 sometimes clients just crash so they don't have a chance to clean up
@@ -112,8 +114,7 @@ server side. This can be done by specifying the
 The default value for `connection-ttl-override` is `-1` which means "do
 not override" (i.e. let clients use their own values).
 
-Closing core sessions or JMS connections that you have failed to close
-----------------------------------------------------------------------
+## Closing core sessions or JMS connections that you have failed to close
 
 As previously discussed, it's important that all core client sessions
 and JMS connections are always closed explicitly in a `finally` block
@@ -138,8 +139,7 @@ where you created the JMS connection / client session that you later did
 not close. This will enable you to pinpoint the error in your code and
 correct it appropriately.
 
-Detecting failure from the client side.
-=======================================
+## Detecting failure from the client side.
 
 In the previous section we discussed how the client sends pings to the
 server and how "dead" connection resources are cleaned up by the server.
@@ -169,8 +169,7 @@ will never fail the connection on the client side if no data is received
 from the server. Typically this is much lower than connection TTL to
 allow clients to reconnect in case of transitory failure.
 
-Configuring Asynchronous Connection Execution
-=============================================
+## Configuring Asynchronous Connection Execution
 
 Most packets received on the server side are executed on the remoting
 thread. These packets represent short-running operations and are always

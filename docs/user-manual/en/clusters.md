@@ -1,8 +1,6 @@
-Clusters
-========
+# Clusters
 
-Clusters Overview
-=================
+## Clusters Overview
 
 ActiveMQ clusters allow groups of ActiveMQ servers to be grouped
 together in order to share message processing load. Each active node in
@@ -18,7 +16,7 @@ and handles its own connections.
 The cluster is formed by each node declaring *cluster connections* to
 other nodes in the core configuration file `activemq-configuration.xml`.
 When a node forms a cluster connection to another node, internally it
-creates a *core bridge* (as described in ?) connection between it and
+creates a *core bridge* (as described in [Core Bridges](core-bridges.md)) connection between it and
 the other node, this is done transparently behind the scenes - you don't
 have to declare an explicit bridge for each node. These cluster
 connections allow messages to flow between the nodes of the cluster to
@@ -49,8 +47,7 @@ connect to them with the minimum of configuration.
 > *must* be unique among nodes in the cluster or the cluster will not
 > form properly.
 
-Server discovery
-================
+## Server discovery
 
 Server discovery is a mechanism by which servers can propagate their
 connection details to:
@@ -72,20 +69,19 @@ techniques like
 [JGroups](http://www.jgroups.org/), or by providing a list of initial
 connectors.
 
-Dynamic Discovery
------------------
+### Dynamic Discovery
 
 Server discovery uses
 [UDP](http://en.wikipedia.org/wiki/User_Datagram_Protocol) multicast or
 [JGroups](http://www.jgroups.org/) to broadcast server connection
 settings.
 
-### Broadcast Groups
+#### Broadcast Groups
 
 A broadcast group is the means by which a server broadcasts connectors
 over the network. A connector defines a way in which a client (or other
 server) can make connections to the server. For more information on what
-a connector is, please see ?.
+a connector is, please see [Configuring the Transport](configuring-transports.md).
 
 The broadcast group takes a set of connector pairs, each connector pair
 contains connection settings for a live and backup server (if one
@@ -147,7 +143,7 @@ clarity. Let's discuss each one in turn:
     value is `2000` milliseconds.
 
 -   `connector-ref`. This specifies the connector and optional backup
-    connector that will be broadcasted (see ? for more information on
+    connector that will be broadcasted (see [Configuring the Transport](configuring-transports.md) for more information on
     connectors). The connector to be broadcasted is specified by the
     `connector-name` attribute.
 
@@ -244,7 +240,7 @@ example if the above stacks configuration is stored in a file named
 
     <jgroups-file>jgroups-stacks.xml</jgroups-file>
 
-### Discovery Groups
+#### Discovery Groups
 
 While the broadcast group defines how connector information is
 broadcasted from a server, a discovery group defines how connector
@@ -279,7 +275,7 @@ normal ActiveMQ connections.
 > if broadcast is configured using UDP, the discovery group must also
 > use UDP, and the same multicast address.
 
-### Defining Discovery Groups on the Server
+#### Defining Discovery Groups on the Server
 
 For cluster connections, discovery groups are defined in the server side
 configuration file `activemq-configuration.xml`. All discovery groups
@@ -353,13 +349,13 @@ details as following:
 > one set can be specified in a discovery group configuration. Don't mix
 > them!
 
-### Discovery Groups on the Client Side
+#### Discovery Groups on the Client Side
 
 Let's discuss how to configure a ActiveMQ client to use discovery to
 discover a list of servers to which it can connect. The way to do this
 differs depending on whether you're using JMS or the core API.
 
-#### Configuring client discovery using JMS
+##### Configuring client discovery using JMS
 
 If you're using JMS and you're using JNDI on the client to look up your
 JMS connection factory instances then you can specify these parameters
@@ -385,17 +381,19 @@ factory - you're instantiating the JMS connection factory directly then
 you can specify the discovery group parameters directly when creating
 the JMS connection factory. Here's an example:
 
-    final String groupAddress = "231.7.7.7";
+``` java
+final String groupAddress = "231.7.7.7";
 
-    final int groupPort = 9876;
+final int groupPort = 9876;
 
-    ConnectionFactory jmsConnectionFactory =
-    ActiveMQJMSClient.createConnectionFactory(new DiscoveryGroupConfiguration(groupAddress, groupPort,
-                           new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1)), JMSFactoryType.CF);
+ConnectionFactory jmsConnectionFactory =
+ActiveMQJMSClient.createConnectionFactory(new DiscoveryGroupConfiguration(groupAddress, groupPort,
+                       new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1)), JMSFactoryType.CF);
 
-    Connection jmsConnection1 = jmsConnectionFactory.createConnection();
+Connection jmsConnection1 = jmsConnectionFactory.createConnection();
 
-    Connection jmsConnection2 = jmsConnectionFactory.createConnection();
+Connection jmsConnection2 = jmsConnectionFactory.createConnection();
+```
 
 The `refresh-timeout` can be set directly on the
 DiscoveryGroupConfiguration by using the setter method
@@ -410,20 +408,22 @@ the connection factory will make sure it waits this long since creation
 before creating the first connection. The default value for this
 parameter is `10000` milliseconds.
 
-#### Configuring client discovery using Core
+##### Configuring client discovery using Core
 
 If you're using the core API to directly instantiate
 `ClientSessionFactory` instances, then you can specify the discovery
 group parameters directly when creating the session factory. Here's an
 example:
 
-    final String groupAddress = "231.7.7.7";
-    final int groupPort = 9876;
-    ServerLocator factory = ActiveMQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration(groupAddress, groupPort,
-                               new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1))));
-    ClientSessionFactory factory = locator.createSessionFactory();
-    ClientSession session1 = factory.createSession();
-    ClientSession session2 = factory.createSession();
+``` java
+final String groupAddress = "231.7.7.7";
+final int groupPort = 9876;
+ServerLocator factory = ActiveMQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration(groupAddress, groupPort,
+                           new UDPBroadcastGroupConfiguration(groupAddress, groupPort, null, -1))));
+ClientSessionFactory factory = locator.createSessionFactory();
+ClientSession session1 = factory.createSession();
+ClientSession session2 = factory.createSession();
+```
 
 The `refresh-timeout` can be set directly on the
 DiscoveryGroupConfiguration by using the setter method
@@ -438,8 +438,7 @@ the session factory will make sure it waits this long since creation
 before creating the first session. The default value for this parameter
 is `10000` milliseconds.
 
-Discovery using static Connectors
----------------------------------
+### Discovery using static Connectors
 
 Sometimes it may be impossible to use UDP on the network you are using.
 In this case its possible to configure a connection with an initial list
@@ -452,18 +451,18 @@ to be hosted, you can configure these servers to use the reliable
 servers to connect to. Once they are connected there connection details
 will be propagated via the server it connects to
 
-### Configuring a Cluster Connection
+#### Configuring a Cluster Connection
 
 For cluster connections there is no extra configuration needed, you just
 need to make sure that any connectors are defined in the usual manner,
-(see ? for more information on connectors). These are then referenced by
+(see [Configuring the Transport](configuring-transports.md) for more information on connectors). These are then referenced by
 the cluster connection configuration.
 
-### Configuring a Client Connection
+#### Configuring a Client Connection
 
 A static list of possible servers can also be used by a normal client.
 
-#### Configuring client discovery using JMS
+##### Configuring client discovery using JMS
 
 If you're using JMS and you're using JNDI on the client to look up your
 JMS connection factory instances then you can specify these parameters
@@ -483,43 +482,46 @@ factory - you're instantiating the JMS connection factory directly then
 you can specify the connector list directly when creating the JMS
 connection factory. Here's an example:
 
-    HashMap<String, Object> map = new HashMap<String, Object>();
-    map.put("host", "myhost");
-    map.put("port", "5445");
-    TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
-    HashMap<String, Object> map2 = new HashMap<String, Object>();
-    map2.put("host", "myhost2");
-    map2.put("port", "5446");
-    TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
+``` java
+HashMap<String, Object> map = new HashMap<String, Object>();
+map.put("host", "myhost");
+map.put("port", "5445");
+TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
+HashMap<String, Object> map2 = new HashMap<String, Object>();
+map2.put("host", "myhost2");
+map2.put("port", "5446");
+TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
 
-    ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, server1, server2);
+ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, server1, server2);
+```
 
-#### Configuring client discovery using Core
+##### Configuring client discovery using Core
 
 If you are using the core API then the same can be done as follows:
 
-    HashMap<String, Object> map = new HashMap<String, Object>();
-    map.put("host", "myhost");
-    map.put("port", "5445");
-    TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
-    HashMap<String, Object> map2 = new HashMap<String, Object>();
-    map2.put("host", "myhost2");
-    map2.put("port", "5446");
-    TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
+``` java
+HashMap<String, Object> map = new HashMap<String, Object>();
+map.put("host", "myhost");
+map.put("port", "5445");
+TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
+HashMap<String, Object> map2 = new HashMap<String, Object>();
+map2.put("host", "myhost2");
+map2.put("port", "5446");
+TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
 
-    ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
-    ClientSessionFactory factory = locator.createSessionFactory();
-    ClientSession session = factory.createSession();
+ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
+ClientSessionFactory factory = locator.createSessionFactory();
+ClientSession session = factory.createSession();
+```
 
-Server-Side Message Load Balancing
-==================================
+## Server-Side Message Load Balancing
 
 If cluster connections are defined between nodes of a cluster, then
 ActiveMQ will load balance messages arriving at a particular node from a
 client.
 
 Let's take a simple example of a cluster of four nodes A, B, C, and D
-arranged in a *symmetric cluster* (described in ?). We have a queue
+arranged in a *symmetric cluster* (described in Symmetrical Clusters section). We have a queue
 called `OrderQueue` deployed on each node of the cluster.
 
 We have client Ca connected to node A, sending orders to the server. We
@@ -549,8 +551,7 @@ nodes if they have matching consumers. We'll look at both these cases in
 turn with some examples, but first we'll discuss configuring cluster
 connections in general.
 
-Configuring Cluster Connections
--------------------------------
+### Configuring Cluster Connections
 
 Cluster connections group servers into clusters so that messages can be
 load balanced between the nodes of the cluster. Let's take a look at a
@@ -665,7 +666,7 @@ specified. The following shows all the available configuration options
 
     This parameter determines the interval in milliseconds between retry
     attempts. It has the same meaning as the `retry-interval` on a
-    bridge (as described in ?).
+    bridge (as described in [Core Bridges](core-bridges.md)).
 
     This parameter is optional and its default value is `500`
     milliseconds.
@@ -697,7 +698,7 @@ specified. The following shows all the available configuration options
     the target node.
 
     This parameter has the same meaning as `use-duplicate-detection` on
-    a bridge. For more information on duplicate detection, please see ?.
+    a bridge. For more information on duplicate detection, please see [Duplicate Detection](duplicate-detection.md).
     Default is true.
 
 -   `forward-when-no-consumers`. This parameter determines whether
@@ -772,8 +773,7 @@ one will be available. There may be many more servers in the cluster but
 these will; be discovered via one of these connectors once an initial
 connection has been made.
 
-Cluster User Credentials
-------------------------
+### Cluster User Credentials
 
 When creating connections between nodes of a cluster to form a cluster
 connection, ActiveMQ uses a cluster user and cluster password which is
@@ -789,8 +789,7 @@ defined in `activemq-configuration.xml`:
 > the default values. If they are not changed from the default, ActiveMQ
 > will detect this and pester you with a warning on every start-up.
 
-Client-Side Load balancing
-==========================
+## Client-Side Load balancing
 
 With ActiveMQ client-side load balancing, subsequent sessions created
 using a single session factory can be connected to different nodes of
@@ -857,14 +856,18 @@ If you're using JMS but you're instantiating your connection factory
 directly on the client side then you can set the load balancing policy
 using the setter on the `ActiveMQConnectionFactory` before using it:
 
-    ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactory(...);
-    jmsConnectionFactory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
+``` java
+ConnectionFactory jmsConnectionFactory = ActiveMQJMSClient.createConnectionFactory(...);
+jmsConnectionFactory.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
+```
 
 If you're using the core API, you can set the load balancing policy
 directly on the `ServerLocator` instance you are using:
 
-    ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
-    locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
+``` java
+ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
+locator.setLoadBalancingPolicyClassName("com.acme.MyLoadBalancingPolicy");
+```
 
 The set of servers over which the factory load balances can be
 determined in one of two ways:
@@ -873,8 +876,7 @@ determined in one of two ways:
 
 -   Using discovery.
 
-Specifying Members of a Cluster Explicitly
-==========================================
+## Specifying Members of a Cluster Explicitly
 
 Sometimes you want to explicitly define a cluster more explicitly, that
 is control which server connect to each other in the cluster. This is
@@ -899,8 +901,7 @@ In this example we have set the attribute
 this server can create a cluster connection to is server1-connector.
 This means you can explicitly create any cluster topology you want.
 
-Message Redistribution
-======================
+## Message Redistribution
 
 Another important part of clustering is message redistribution. Earlier
 we learned how server side message load balancing round robins messages
@@ -925,7 +926,7 @@ default message redistribution is disabled.
 
 Message redistribution can be configured on a per address basis, by
 specifying the redistribution delay in the address settings, for more
-information on configuring address settings, please see ?.
+information on configuring address settings, please see [Queue Attributes](queue-attributes.md).
 
 Here's an address settings snippet from `activemq-configuration.xml`
 showing how message redistribution is enabled for a set of queues:
@@ -943,7 +944,7 @@ with "jms.", so the above would enable instant (no delay) redistribution
 for all JMS queues and topic subscriptions.
 
 The attribute `match` can be an exact match or it can be a string that
-conforms to the ActiveMQ wildcard syntax (described in ?).
+conforms to the ActiveMQ wildcard syntax (described in [Wildcard Syntax](wildcard-syntax.md)).
 
 The element `redistribution-delay` defines the delay in milliseconds
 after the last consumer is closed on a queue before redistributing
@@ -957,14 +958,12 @@ a common case that a consumer closes but another one quickly is created
 on the same queue, in such a case you probably don't want to
 redistribute immediately since the new consumer will arrive shortly.
 
-Cluster topologies
-==================
+## Cluster topologies
 
 ActiveMQ clusters can be connected together in many different
 topologies, let's consider the two most common ones here
 
-Symmetric cluster
------------------
+### Symmetric cluster
 
 A symmetric cluster is probably the most common cluster topology, and
 you'll be familiar with if you've had experience of JBoss Application
@@ -989,8 +988,7 @@ the nodes.
 Don't forget [this warning](#copy-warning) when creating a symmetric
 cluster.
 
-Chain cluster
--------------
+### Chain cluster
 
 With a chain cluster, each node in the cluster is not connected to every
 node in the cluster directly, instead the nodes form a chain with a node
@@ -1021,8 +1019,7 @@ distribute messages to node B when they arrive, even though node B has
 no consumers itself, it would know that a further hop away is node C
 which does have consumers.
 
-Scaling Down
-============
+### Scaling Down
 
 ActiveMQ supports scaling down a cluster with no message loss (even for
 non-durable messages). This is especially useful in certain environments

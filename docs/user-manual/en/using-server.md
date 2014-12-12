@@ -1,5 +1,4 @@
-Using the Server
-================
+# Using the Server
 
 This chapter will familiarise you with how to use the ActiveMQ server.
 
@@ -13,8 +12,7 @@ with a JMS Service and JNDI service enabled.
 When running embedded in JBoss Application Server the layout may be
 slightly different but by-and-large will be the same.
 
-Starting and Stopping the standalone server
-===========================================
+## Starting and Stopping the standalone server
 
 In the distribution you will find a directory called `bin`.
 
@@ -42,8 +40,7 @@ used. The configuration can be changed e.g. by running
 `./activemq run -- xml:../config/clustered/bootstrap.xml` or another
 config of your choosing.
 
-Server JVM settings
-===================
+## Server JVM settings
 
 The run scripts set some JVM settings for tuning the garbage collection
 policy and heap size. We recommend using a parallel garbage collection
@@ -56,8 +53,7 @@ would for any Java program.
 If you wish to add any more JVM arguments or tune the existing ones, the
 run scripts are the place to do it.
 
-Pre-configured Options
-======================
+## Pre-configured Options
 
 The distribution contains several standard configuration sets for
 running:
@@ -73,8 +69,7 @@ running:
 You can of course create your own configuration and specify any
 configuration when running the run script.
 
-Library Path
-============
+## Library Path
 
 If you're using the [Asynchronous IO Journal](#aio-journal) on Linux,
 you need to specify `java.library.path` as a property on your Java
@@ -83,16 +78,14 @@ options. This is done automatically in the scripts.
 If you don't specify `java.library.path` at your Java options then the
 JVM will use the environment variable `LD_LIBRARY_PATH`.
 
-System properties
-=================
+## System properties
 
 ActiveMQ can take a system property on the command line for configuring
 logging.
 
 For more information on configuring logging, please see ?.
 
-Configuration files
-===================
+## Configuration files
 
 The configuration file used to bootstrap the server (e.g.
 `bootstrap.xml` by default) references the specific broker configuration
@@ -149,8 +142,7 @@ respectively. It is also possible to not supply a default. i.e.
 `${activemq.remoting.netty.host}`, however the system property *must* be
 supplied in that case.
 
-Bootstrap File
-==============
+## Bootstrap File
 
 The stand-alone server is basically a set of POJOs which are
 instantiated by Airline commands.
@@ -164,19 +156,13 @@ The bootstrap file is very simple. Let's take a look at an example:
 
        <basic-security/>
 
-       <naming bindAddress="localhost" port="1099" rmiBindAddress="localhost" rmiPort="1098"/>
-
     </broker>
 
--   core
-
-    Instantiates a core server using the configuration file from the
+-   core - Instantiates a core server using the configuration file from the
     `configuration` attribute. This is the main broker POJO necessary to
     do all the real messaging work.
 
--   jms
-
-    This deploys any JMS Objects such as JMS Queues, Topics and
+-   jms - This deploys any JMS Objects such as JMS Queues, Topics and
     ConnectionFactory instances from the `activemq-jms.xml` file
     specified. It also provides a simple management API for manipulating
     JMS Objects. On the whole it just translates and delegates its work
@@ -184,13 +170,7 @@ The bootstrap file is very simple. Let's take a look at an example:
     and ConnectionFactories from server side configuration and don't
     require the JMS management interface this can be disabled.
 
--   naming
-
-    Instantiates a naming server which implements JNDI. This is used by
-    JMS clients
-
-The main configuration file.
-============================
+## The main configuration file.
 
 The configuration for the ActiveMQ core server is contained in
 `activemq-configuration.xml`. This is what the FileConfiguration bean

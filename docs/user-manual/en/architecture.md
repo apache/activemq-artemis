@@ -1,11 +1,9 @@
-Architecture
-============
+# Architecture
 
 In this section we will give an overview of the ActiveMQ high level
 architecture.
 
-Core Architecture
-=================
+## Core Architecture
 
 ActiveMQ core is designed simply as set of Plain Old Java Objects
 (POJOs) - we hope you like its clean-cut design.
@@ -16,8 +14,8 @@ other than the standard JDK classes! This is because we use some of the
 netty buffer classes internally.
 
 This allows ActiveMQ to be easily embedded in your own project, or
-instantiated in any dependency injection framework such as JBoss
-Microcontainer, Spring or Google Guice.
+instantiated in any dependency injection framework such as Spring or 
+Google Guice.
 
 Each ActiveMQ server has its own ultra high performance persistent
 journal, which it uses for message and other persistence.
@@ -61,18 +59,16 @@ server. User Application 1 is using the JMS API, while User Application
 You can see from the diagram that the JMS API is implemented by a thin
 facade layer on the client side.
 
-ActiveMQ embedded in your own application
-=========================================
+## ActiveMQ embedded in your own application
 
 ActiveMQ core is designed as a set of simple POJOs so if you have an
 application that requires messaging functionality internally but you
 don't want to expose that as a ActiveMQ server you can directly
 instantiate and embed ActiveMQ servers in your own application.
 
-For more information on embedding ActiveMQ, see ?.
+For more information on embedding ActiveMQ, see [Embedding HornetQ](embedding-hornetq.md).
 
-ActiveMQ integrated with a JEE application server
-=================================================
+## ActiveMQ integrated with a JEE application server
 
 ActiveMQ provides its own fully functional Java Connector Architecture
 (JCA) adaptor which enables it to be integrated easily into any JEE
@@ -118,35 +114,26 @@ time you want to interact from the EJB, which is an anti-pattern.
 
 ![ActiveMQ architecture2](images/architecture2.jpg)
 
-For more information on using the JCA adaptor, please see ?.
+For more information on using the JCA adaptor, please see [Application Server Integration and Java EE](appserver-integration.md).
 
-ActiveMQ stand-alone server
-===========================
+## ActiveMQ stand-alone server
 
 ActiveMQ can also be deployed as a stand-alone server. This means a
 fully independent messaging server not dependent on a JEE application
 server.
 
 The standard stand-alone messaging server configuration comprises a core
-messaging server, a JMS service and a JNDI service.
+messaging server and a JMS service.
 
 The role of the JMS Service is to deploy any JMS Queue, Topic and
 ConnectionFactory instances from any server side `activemq-jms.xml`
 configuration files. It also provides a simple management API for
-creating and destroying Queues, Topics and ConnectionFactory instances
+creating and destroying Queues and Topics
 which can be accessed via JMX or the connection. It is a separate
 service to the ActiveMQ core server, since the core server is JMS
-agnostic. If you don't want to deploy any JMS Queue, Topic or
-ConnectionFactory instances via server side XML configuration and don't
-require a JMS management API on the server side then you can disable
-this service.
-
-We also include a JNDI server since JNDI is a common requirement when
-using JMS to lookup Queues, Topics and ConnectionFactory instances. If
-you do not require JNDI then this service can also be disabled. ActiveMQ
-allows you to programmatically create JMS and core objects directly on
-the client side as opposed to looking them up from JNDI, so a JNDI
-server is not always a requirement.
+agnostic. If you don't want to deploy any JMS Queue or Topic via 
+server side XML configuration and don't require a JMS management 
+API on the server side then you can disable this service.
 
 The stand-alone server configuration uses JBoss Microcontainer to
 instantiate and enforce dependencies between the components. JBoss
@@ -156,4 +143,4 @@ The stand-alone server architecture is shown in figure 3.3 below:
 
 ![ActiveMQ architecture3](images/architecture3.jpg)
 
-For more information on server configuration files see ?. \$
+For more information on server configuration files see [Server Configuration](server-configuration.md)

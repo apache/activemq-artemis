@@ -1,5 +1,4 @@
-Messaging Concepts
-==================
+# Messaging Concepts
 
 ActiveMQ is an asynchronous messaging system, an example of [Message
 Oriented
@@ -13,8 +12,7 @@ about in the messaging world.
 If you're already familiar with what a messaging system is and what it's
 capable of, then you can skip this chapter.
 
-Messaging Concepts
-==================
+## Messaging Concepts
 
 Messaging systems allow you to loosely couple heterogeneous systems
 together, whilst typically providing reliability, transactions and many
@@ -51,8 +49,7 @@ grow and adapt more easily. It also allows more flexibility to add new
 systems or retire old ones since they don't have brittle dependencies on
 each other.
 
-Messaging styles
-================
+## Messaging styles
 
 Messaging systems normally support two main styles of asynchronous
 messaging: [message queue](http://en.wikipedia.org/wiki/Message_queue)
@@ -60,8 +57,7 @@ messaging (also known as *point-to-point messaging*) and [publish
 subscribe](http://en.wikipedia.org/wiki/Publish_subscribe) messaging.
 We'll summarise them briefly here:
 
-The Message Queue Pattern
--------------------------
+### The Message Queue Pattern
 
 With this type of messaging you send a message to a queue. The message
 is then typically persisted to provide a guarantee of delivery, then
@@ -101,8 +97,7 @@ forgotten about. Often the send to the warehouse system, update in
 database and acknowledgement will be completed in a single transaction
 to ensure [ACID](http://en.wikipedia.org/wiki/ACID) properties.
 
-The Publish-Subscribe Pattern
------------------------------
+### The Publish-Subscribe Pattern
 
 With publish-subscribe messaging many senders can send messages to an
 entity on the server, often called a *topic* (e.g. in the JMS world).
@@ -126,8 +121,7 @@ are interested in receiving news items - each one creates a subscription
 and the messaging system ensures that a copy of each news message is
 delivered to each subscription.
 
-Delivery guarantees
-===================
+## Delivery guarantees
 
 A key feature of most messaging systems is *reliable messaging*. With
 reliable messaging the server gives a guarantee that the message will be
@@ -143,16 +137,14 @@ which are quickly superseded by the next update on the same stock. The
 messaging system allows you to configure which delivery guarantees you
 require.
 
-Transactions
-============
+## Transactions
 
 Messaging systems typically support the sending and acknowledgement of
 multiple messages in a single local transaction. ActiveMQ also supports
 the sending and acknowledgement of message as part of a large global
 transaction - using the Java mapping of XA: JTA.
 
-Durability
-==========
+## Durability
 
 Messages are either durable or non durable. Durable messages will be
 persisted in permanent storage and will survive server failure or
@@ -162,8 +154,7 @@ they cannot be lost. An example of a non durable message might be a
 stock price update which is transitory and doesn't need to survive a
 restart.
 
-Messaging APIs and protocols
-============================
+## Messaging APIs and protocols
 
 How do client applications interact with messaging systems in order to
 send and consume messages?
@@ -176,8 +167,7 @@ and some emerging standards in this space.
 
 Let's take a brief look at these:
 
-Java Message Service (JMS)
---------------------------
+### Java Message Service (JMS)
 
 [JMS](http://en.wikipedia.org/wiki/Java_Message_Service) is part of
 Sun's JEE specification. It's a Java API that encapsulates both message
@@ -196,8 +186,7 @@ internal wire protocol.
 
 ActiveMQ provides a fully compliant JMS 1.1 and JMS 2.0 API.
 
-System specific APIs
---------------------
+### System specific APIs
 
 Many systems provide their own programmatic API for which to interact
 with the messaging system. The advantage of this it allows the full set
@@ -209,8 +198,7 @@ ActiveMQ provides its own core client API for clients to use if they
 wish to have access to functionality over and above that accessible via
 the JMS API.
 
-RESTful API
------------
+### RESTful API
 
 [REST](http://en.wikipedia.org/wiki/Representational_State_Transfer)
 approaches to messaging are showing a lot interest recently.
@@ -228,10 +216,9 @@ use HTTP as their underlying protocol.
 The advantage of a REST approach with HTTP is in its simplicity and the
 fact the internet is already tuned to deal with HTTP optimally.
 
-Please see ? for using ActiveMQ's RESTful interface.
+Please see [Rest Interface](rest.md) for using ActiveMQ's RESTful interface.
 
-STOMP
------
+### STOMP
 
 [Stomp](http://stomp.github.io/) is a very simple text protocol for
 interoperating with messaging systems. It defines a wire format, so
@@ -239,10 +226,9 @@ theoretically any Stomp client can work with any messaging system that
 supports Stomp. Stomp clients are available in many different
 programming languages.
 
-Please see ? for using STOMP with ActiveMQ.
+Please see [Stomp](interoperability.md) for using STOMP with ActiveMQ.
 
-AMQP
-----
+### AMQP
 
 [AMQP](http://en.wikipedia.org/wiki/AMQP) is a specification for
 interoperable messaging. It also defines a wire format, so any AMQP
@@ -254,8 +240,7 @@ ActiveMQ implements the [AMQP
 specification. Any client that supports the 1.0 specification will be
 able to interact with ActiveMQ.
 
-High Availability
-=================
+## High Availability
 
 High Availability (HA) means that the system should remain operational
 after failure of one or more of the servers. The degree of support for
@@ -265,10 +250,9 @@ ActiveMQ provides automatic failover where your sessions are
 automatically reconnected to the backup server on event of live server
 failure.
 
-For more information on HA, please see ?.
+For more information on HA, please see [High Availability and Failover](ha.md).
 
-Clusters
-========
+## Clusters
 
 Many messaging systems allow you to create groups of messaging servers
 called *clusters*. Clusters allow the load of sending and consuming
@@ -287,10 +271,9 @@ whether they are ready for messages.
 ActiveMQ also has the ability to automatically redistribute messages
 between nodes of a cluster to prevent starvation on any particular node.
 
-For full details on clustering, please see ?.
+For full details on clustering, please see [Clusters](clusters.md).
 
-Bridges and routing
-===================
+## Bridges and routing
 
 Some messaging systems allow isolated clusters or single nodes to be
 bridged together, typically over unreliable connections like a wide area
@@ -309,4 +292,4 @@ side configuration. This allows complex routing networks to be set up
 forwarding or copying messages from one destination to another, forming
 a global network of interconnected brokers.
 
-For more information please see ? and ?.
+For more information please see [Core Bridges](core-bridges.md) and [Diverting and Splitting Message Flows](diverts.md).

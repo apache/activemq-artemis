@@ -1,5 +1,4 @@
-Duplicate Message Detection
-===========================
+# Duplicate Message Detection
 
 ActiveMQ includes powerful automatic duplicate message detection,
 filtering out duplicate messages without you having to code your own
@@ -38,8 +37,7 @@ successfully committed or not!
 To solve these issues ActiveMQ provides automatic duplicate messages
 detection for messages sent to addresses.
 
-Using Duplicate Detection for Message Sending
-=============================================
+## Using Duplicate Detection for Message Sending
 
 Enabling duplicate message detection for sent messages is simple: you
 just need to set a special property on the message to a unique value.
@@ -75,30 +73,32 @@ by generating a UUID.
 
 Here's an example of setting the property using the core API:
 
-    ...     
+``` java
+...     
 
-    ClientMessage message = session.createMessage(true);
+ClientMessage message = session.createMessage(true);
 
-    SimpleString myUniqueID = "This is my unique id";   // Could use a UUID for this
+SimpleString myUniqueID = "This is my unique id";   // Could use a UUID for this
 
-    message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, myUniqueID);
+message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, myUniqueID);
 
-    ...
+```
 
 And here's an example using the JMS API:
 
-    ...     
+``` java
+...     
 
-    Message jmsMessage = session.createMessage();
+Message jmsMessage = session.createMessage();
 
-    String myUniqueID = "This is my unique id";   // Could use a UUID for this
+String myUniqueID = "This is my unique id";   // Could use a UUID for this
 
-    message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
+message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
 
-    ...
+...
+```
 
-Configuring the Duplicate ID Cache
-==================================
+## Configuring the Duplicate ID Cache
 
 The server maintains caches of received values of the
 `org.apache.activemq.core.message.impl.HDR_DUPLICATE_DETECTION_ID`
@@ -124,8 +124,7 @@ value for this parameter is `true`.
 > larger enough size so if you resend messages all the previously sent
 > ones are in the cache not having been overwritten.
 
-Duplicate Detection and Bridges
-===============================
+## Duplicate Detection and Bridges
 
 Core bridges can be configured to automatically add a unique duplicate
 id value (if there isn't already one in the message) before forwarding
@@ -141,10 +140,9 @@ the `use-duplicate-detection` to `true` when configuring a bridge in
 The default value for this parameter is `true`.
 
 For more information on core bridges and how to configure them, please
-see ?.
+see [Core Bridges](core-bridges.md).
 
-Duplicate Detection and Cluster Connections
-===========================================
+## Duplicate Detection and Cluster Connections
 
 Cluster connections internally use core bridges to move messages
 reliable between nodes of the cluster. Consequently they can also be
@@ -158,4 +156,4 @@ connection in `activemq-configuration.xml`.
 The default value for this parameter is `true`.
 
 For more information on cluster connections and how to configure them,
-please see ?.
+please see [Clusters](clusters.md).
