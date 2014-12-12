@@ -463,7 +463,7 @@ public class SimpleJNDIClientTest extends UnitTestCase
    {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      props.put(Context.PROVIDER_URL, "jgroups://test-jgroups-file_ping.xml");
+      props.put(Context.PROVIDER_URL, "jgroups://test-jgroups-file_ping.xml/");
       Context ctx = new InitialContext(props);
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) ctx.lookup("ConnectionFactory");

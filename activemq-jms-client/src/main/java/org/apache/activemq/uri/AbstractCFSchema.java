@@ -14,30 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.invm;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+package org.apache.activemq.uri;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import java.net.URI;
+import java.util.Map;
+
+import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.utils.uri.URISchema;
 
 /**
- * A TransportConstants
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- * @author ClebertSuconic
- *
+ * @author clebertsuconic
  */
-public final class TransportConstants
+
+public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory>
 {
-   public static final String SERVER_ID_PROP_NAME = "serverId";
 
-   public static final int DEFAULT_SERVER_ID = 0;
-
-   private TransportConstants()
+   protected ConnectionOptions newConectionOptions(URI uri, Map<String, String> query) throws Exception
    {
-      // Utility class
+      String type = query.get("type");
+      // We do this check here to guarantee proper logging
+      if (ConnectionOptions.convertCFType(type) == null)
+      {
+         ActiveMQClientLogger.LOGGER.invalidCFType(type, uri.toString());
+      }
+      return setData(uri, new ConnectionOptions(), query);
    }
+
 }

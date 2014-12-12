@@ -48,11 +48,6 @@ public class InVMConnectorFactory implements ConnectorFactory
       return connector;
    }
 
-   public Set<String> getAllowableProperties()
-   {
-      return TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
-   }
-
    @Override
    public boolean isReliable()
    {

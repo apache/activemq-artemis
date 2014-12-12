@@ -47,10 +47,4 @@ public class InVMAcceptorFactory implements AcceptorFactory
    {
       return new InVMAcceptor(clusterConnection, configuration, handler, listener, threadPool);
    }
-
-   public Set<String> getAllowableProperties()
-   {
-      return TransportConstants.ALLOWABLE_ACCEPTOR_KEYS;
-   }
-
 }

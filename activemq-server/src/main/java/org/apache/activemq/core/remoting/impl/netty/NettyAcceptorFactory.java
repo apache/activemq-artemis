@@ -46,9 +46,4 @@ public class NettyAcceptorFactory implements AcceptorFactory
    {
       return new NettyAcceptor(name, connection, configuration, handler, listener, scheduledThreadPool, protocolMap);
    }
-
-   public Set<String> getAllowableProperties()
-   {
-      return TransportConstants.ALLOWABLE_ACCEPTOR_KEYS;
-   }
 }

@@ -416,4 +416,8 @@ public interface ActiveMQClientLogger extends BasicLogger
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214024, value = "HTTP upgrade not supported by remote acceptor")
    void httpUpgradeNotSupportedByRemoteAcceptor();
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 214025, value = "Invalid type {0}, Using default connection factory at {1}", format = Message.Format.MESSAGE_FORMAT)
+   void invalidCFType(String type, String uri);
 }

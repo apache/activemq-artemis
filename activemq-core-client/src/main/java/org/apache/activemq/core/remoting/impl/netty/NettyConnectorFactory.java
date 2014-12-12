@@ -17,7 +17,6 @@
 package org.apache.activemq.core.remoting.impl.netty;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -44,11 +43,6 @@ public class NettyConnectorFactory implements ConnectorFactory
                                     final ClientProtocolManager protocolManager)
    {
       return new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
-   }
-
-   public Set<String> getAllowableProperties()
-   {
-      return TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
    }
 
    @Override

@@ -1,0 +1,120 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.activemq.uri;
+
+import org.apache.activemq.api.jms.JMSFactoryType;
+
+/**
+ * This will represent all the possible options you could setup on URLs
+ * When parsing the URL this will serve as an intermediate object
+ * And it could also be a pl
+ * @author clebertsuconic
+ */
+
+public class ConnectionOptions
+{
+
+   private boolean ha;
+
+   private JMSFactoryType factoryType = JMSFactoryType.CF;
+
+   private String host;
+
+   private int port;
+
+   public ConnectionOptions setHost(String host)
+   {
+      this.host = host;
+      return this;
+   }
+
+   public String getHost()
+   {
+      return host;
+   }
+
+
+   public ConnectionOptions setPort(int port)
+   {
+      this.port = port;
+      return this;
+   }
+
+   public int getPort()
+   {
+      return port;
+   }
+
+   public boolean isHa()
+   {
+      return ha;
+   }
+
+   public void setHa(boolean ha)
+   {
+      this.ha = ha;
+   }
+
+   public JMSFactoryType getFactoryTypeEnum()
+   {
+      return factoryType;
+   }
+
+   public String getType()
+   {
+      return factoryType.toString();
+   }
+
+
+   public void setType(final String type)
+   {
+      this.factoryType = convertCFType(type);
+      if (factoryType == null)
+      {
+         factoryType = JMSFactoryType.CF;
+      }
+   }
+
+   public static JMSFactoryType convertCFType(String type)
+   {
+      try
+      {
+         if (type == null)
+         {
+            return null;
+         }
+         else
+         {
+            return Enum.valueOf(JMSFactoryType.class, type);
+         }
+      }
+      catch (Exception e)
+      {
+         return null;
+      }
+   }
+
+   @Override
+   public String toString()
+   {
+      return "ConnectionOptions{" +
+         "ha=" + ha +
+         ", factoryType=" + factoryType +
+         '}';
+   }
+}

@@ -56,12 +56,4 @@ public interface AcceptorFactory
                            ScheduledExecutorService scheduledThreadPool,
                            Map<String, ProtocolManager> protocolMap);
 
-   /**
-    * Returns the allowable properties for this acceptor.
-    * <p/>
-    * This will differ between different acceptor implementations.
-    *
-    * @return the allowable properties.
-    */
-   Set<String> getAllowableProperties();
 }

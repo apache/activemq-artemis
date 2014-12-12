@@ -60,8 +60,8 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 public class ActiveMQInitialContextFactory implements InitialContextFactory
 {
    public static final String CONNECTION_FACTORY_NAMES = "connectionFactoryNames";
-   public static final String REFRESH_TIMEOUT = "refresh-timeout";
-   public static final String DISCOVERY_INITIAL_WAIT_TIMEOUT = "discovery-initial-wait-timeout";
+   public static final String REFRESH_TIMEOUT = "refreshTimeout";
+   public static final String DISCOVERY_INITIAL_WAIT_TIMEOUT = "discoveryInitialWaitTimeout";
 
    private static final String[] DEFAULT_CONNECTION_FACTORY_NAMES = {"ConnectionFactory", "XAConnectionFactory", "QueueConnectionFactory", "TopicConnectionFactory"};
    public static final String TCP_SCHEME = "tcp";
@@ -340,7 +340,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
          else if (providerURI.getScheme().equals(VM_SCHEME))
          {
             Map inVmTransportConfig = new HashMap();
-            inVmTransportConfig.put("server-id", providerURI.getHost());
+            inVmTransportConfig.put("serverId", providerURI.getHost());
             TransportConfiguration tc = new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory", inVmTransportConfig);
             connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(getJmsFactoryType(environment), tc);
          }
