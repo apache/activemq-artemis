@@ -402,7 +402,10 @@ public final class JMSBridgeImpl implements JMSBridge
 
       checkParams();
 
-      TransactionManager tm = ServiceUtils.getTransactionManager();
+      if (tm == null)
+      {
+         tm = ServiceUtils.getTransactionManager();
+      }
 
       // There may already be a JTA transaction associated to the thread
 
@@ -1015,7 +1018,10 @@ public final class JMSBridgeImpl implements JMSBridge
          ActiveMQJMSBridgeLogger.LOGGER.trace("Starting JTA transaction");
       }
 
-      TransactionManager tm = ServiceUtils.getTransactionManager();
+      if (tm == null)
+      {
+         tm = ServiceUtils.getTransactionManager();
+      }
 
       // Set timeout to a large value since we do not want to time out while waiting for messages
       // to arrive - 10 years should be enough
