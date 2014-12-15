@@ -66,7 +66,6 @@ import org.apache.activemq.jms.client.ActiveMQMessage;
 import org.apache.activemq.jms.server.ActiveMQJMSServerBundle;
 import org.apache.activemq.service.extensions.ServiceUtils;
 import org.apache.activemq.service.extensions.xa.recovery.ActiveMQRegistry;
-import org.apache.activemq.service.extensions.xa.recovery.ActiveMQRegistryImpl;
 import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
@@ -402,28 +401,45 @@ public final class JMSBridgeImpl implements JMSBridge
 
       checkParams();
 
-      if (tm == null)
-      {
-         tm = ServiceUtils.getTransactionManager();
-      }
-
       // There may already be a JTA transaction associated to the thread
 
       boolean ok;
 
-      Transaction toResume = null;
-      try
+      // Check to see if the QoSMode requires a TM
+      if (qualityOfServiceMode.equals(QualityOfServiceMode.AT_MOST_ONCE) ||
+         qualityOfServiceMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
       {
-         toResume = tm.suspend();
-
-         ok = setupJMSObjects();
-      }
-      finally
-      {
-         if (toResume != null)
+         if (tm == null)
          {
-            tm.resume(toResume);
+            tm = ServiceUtils.getTransactionManager();
          }
+
+         if (tm == null)
+         {
+            ActiveMQJMSBridgeLogger.LOGGER.jmsBridgeTransactionManagerMissing(qualityOfServiceMode);
+            throw new RuntimeException();
+         }
+
+         // There may already be a JTA transaction associated to the thread
+
+         Transaction toResume = null;
+         try
+         {
+            toResume = tm.suspend();
+
+            ok = setupJMSObjects();
+         }
+         finally
+         {
+            if (toResume != null)
+            {
+               tm.resume(toResume);
+            }
+         }
+      }
+      else
+      {
+         ok = setupJMSObjects();
       }
 
       if (ok)
@@ -2240,10 +2256,6 @@ public final class JMSBridgeImpl implements JMSBridge
                if (sl.iterator().hasNext())
                {
                   registry = sl.iterator().next();
-               }
-               else
-               {
-                  registry = ActiveMQRegistryImpl.getInstance();
                }
             }
             catch (Throwable e)

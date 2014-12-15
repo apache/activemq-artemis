@@ -101,4 +101,8 @@ public interface ActiveMQJMSBridgeLogger extends BasicLogger
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 344001, value = "Failed to start source connection" , format = Message.Format.MESSAGE_FORMAT)
    void jmsBridgeSrcConnectError(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 344002, value = "Failed to start JMS Bridge.  QoS Mode: {0} requires a Transaction Manager, none found" , format = Message.Format.MESSAGE_FORMAT)
+   void jmsBridgeTransactionManagerMissing(QualityOfServiceMode qosMode);
 }

@@ -36,6 +36,7 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -65,7 +66,9 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
@@ -83,6 +86,9 @@ public class JMSBridgeImplTest extends UnitTestCase
    private static final String TARGET = RandomUtil.randomString();
 
    private JMSServerManager jmsServer;
+
+   @Rule
+   public ExpectedException thrown = ExpectedException.none();
 
    // Static --------------------------------------------------------
 
@@ -633,6 +639,72 @@ public class JMSBridgeImplTest extends UnitTestCase
       super.tearDown();
    }
 
+   @Test
+   public void testTransactionManagerNotSetForDuplicatesOK() throws Exception
+   {
+
+      ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+      ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+
+      JMSBridgeImpl bridge = new JMSBridgeImpl();
+      Assert.assertNotNull(bridge);
+
+      bridge.setSourceConnectionFactoryFactory(sourceCFF);
+      bridge.setSourceDestinationFactory(sourceDF);
+      bridge.setTargetConnectionFactoryFactory(targetCFF);
+      bridge.setTargetDestinationFactory(targetDF);
+      bridge.setFailureRetryInterval(10);
+      bridge.setMaxRetries(1);
+      bridge.setMaxBatchTime(-1);
+      bridge.setMaxBatchSize(10);
+      bridge.setQualityOfServiceMode(QualityOfServiceMode.DUPLICATES_OK);
+
+      Assert.assertFalse(bridge.isStarted());
+      bridge.start();
+
+      Field field = JMSBridgeImpl.class.getDeclaredField("tm");
+      field.setAccessible(true);
+      assertNull(field.get(bridge));
+
+      bridge.stop();
+      Assert.assertFalse(bridge.isStarted());
+   }
+
+   @Test
+   public void testThrowErrorWhenTMNotSetForOnceOnly() throws Exception
+   {
+      thrown.expect(RuntimeException.class);
+
+      ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+      ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
+      DestinationFactory sourceDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.SOURCE));
+      DestinationFactory targetDF = JMSBridgeImplTest.newDestinationFactory(ActiveMQJMSClient.createQueue(JMSBridgeImplTest.TARGET));
+
+      JMSBridgeImpl bridge = new JMSBridgeImpl();
+      Assert.assertNotNull(bridge);
+
+      bridge.setSourceConnectionFactoryFactory(sourceCFF);
+      bridge.setSourceDestinationFactory(sourceDF);
+      bridge.setTargetConnectionFactoryFactory(targetCFF);
+      bridge.setTargetDestinationFactory(targetDF);
+      bridge.setFailureRetryInterval(10);
+      bridge.setMaxRetries(1);
+      bridge.setMaxBatchTime(-1);
+      bridge.setMaxBatchSize(10);
+      bridge.setQualityOfServiceMode(QualityOfServiceMode.ONCE_AND_ONLY_ONCE);
+
+      Assert.assertFalse(bridge.isStarted());
+      bridge.start();
+
+      Field field = JMSBridgeImpl.class.getDeclaredField("tm");
+      field.setAccessible(true);
+      assertNotNull(field.get(bridge));
+
+      bridge.stop();
+      Assert.assertFalse(bridge.isStarted());
+   }
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
