@@ -82,9 +82,3 @@ The following is a typical `logging.properties for a client`
     formatter.PATTERN=org.jboss.logmanager.formatters.PatternFormatter
     formatter.PATTERN.properties=pattern
     formatter.PATTERN.pattern=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
-
-## Logging With The JBoss Application Server
-
-When ActiveMQ is deployed within the JBoss Application Server version
-7.x or above then it will still use JBoss Logging, refer to the AS7
-documentation on how to configure AS7 logging.

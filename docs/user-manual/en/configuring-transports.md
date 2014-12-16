@@ -30,7 +30,7 @@ Each acceptor defines a way in which connections can be made to the
 ActiveMQ server.
 
 In the above example we're defining an acceptor that uses
-[Netty](http://jboss.org/netty) to listen for connections at port
+[Netty](http://netty.io/) to listen for connections at port
 `5446`.
 
 The `acceptor` element contains a sub-element `factory-class`, this
@@ -160,7 +160,7 @@ etc
 ## Configuring the Netty transport
 
 Out of the box, ActiveMQ currently uses
-[Netty](http://www.jboss.org/netty/), a high performance low level
+[Netty](http://netty.io/), a high performance low level
 network library.
 
 Our Netty transport can be configured in several different ways; to use

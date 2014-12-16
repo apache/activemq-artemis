@@ -7,10 +7,7 @@ directory layout and what all the files are and what they do.
 
 For the remainder of this chapter when we talk about the ActiveMQ server
 we mean the ActiveMQ standalone server, in its default configuration
-with a JMS Service and JNDI service enabled.
-
-When running embedded in JBoss Application Server the layout may be
-slightly different but by-and-large will be the same.
+with a JMS Service enabled.
 
 ## Starting and Stopping the standalone server
 

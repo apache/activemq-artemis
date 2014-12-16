@@ -536,23 +536,8 @@ domain can be configured for each individual ActiveMQ server by setting
 #### MBeanServer configuration
 
 When ActiveMQ is run in standalone, it uses the Java Virtual Machine's
-`Platform MBeanServer` to register its MBeans. This is configured in
-JBoss Microcontainer Beans file (see ?):
-
-    <!-- MBeanServer -->
-    <bean name="MBeanServer" class="javax.management.MBeanServer">
-       <constructor factoryClass="java.lang.management.ManagementFactory"
-                       factoryMethod="getPlatformMBeanServer" />
-    </bean>
-
-When it is integrated in JBoss AS 5+, it uses the Application Server's
-own MBean Server so that it can be managed using AS 5's jmx-console:
-
-    <!-- MBeanServer -->
-    <bean name="MBeanServer" class="javax.management.MBeanServer">
-       <constructor factoryClass="org.jboss.mx.util.MBeanServerLocator"
-                       factoryMethod="locateJBoss" />
-    </bean>
+`Platform MBeanServer` to register its MBeans. By default [Jolokia](http://www.jolokia.org/)
+is also deployed to allow access to the mbean server via rest.
 
 ### Example
 
@@ -995,81 +980,3 @@ messageCounter.getMessageCountDelta());
 
 See ? for an example which shows how to use message counters to retrieve
 information on a JMS `Queue`.
-
-## Administering ActiveMQ Resources Using The JBoss AS Admin Console
-
-Its possible to create and configure ActiveMQ resources via the admin
-console within the JBoss Application Server.
-
-The Admin Console will allow you to create destinations (JMS Topics and
-Queues) and JMS Connection Factories.
-
-Once logged in to the admin console you will see a JMS Manager item in
-the left hand tree. All ActiveMQ resources will be configured via this.
-This will have a child items for JMS Queues, Topics and Connection
-Factories, clicking on each node will reveal which resources are
-currently available. The following sections explain how to create and
-configure each resource in turn.
-
-### JMS Queues
-
-To create a new JMS Queue click on the JMS Queues item to reveal the
-available queues. On the right hand panel you will see an add a new
-resource button, click on this and then choose the default(JMS Queue)
-template and click continue. The important things to fill in here are
-the name of the queue and the JNDI name of the queue. The JNDI name is
-what you will use to look up the queue in JNDI from your client. For
-most queues this will be the only info you will need to provide as
-sensible defaults are provided for the others. You will also see a
-security roles section near the bottom. If you do not provide any roles
-for this queue then the servers default security configuration will be
-used, after you have created the queue these will be shown in the
-configuration. All configuration values, except the name and JNDI name,
-can be changed via the configuration tab after clicking on the queue in
-the admin console. The following section explains these in more detail
-
-After highlighting the configuration you will see the following screen
-
-![ActiveMQ console1.png](images/console1.png)
-
-The name and JNDI name can't be changed, if you want to change these
-recreate the queue with the appropriate settings. The rest of the
-configuration options, apart from security roles, relate to address
-settings for a particular address. The default address settings are
-picked up from the servers configuration, if you change any of these
-settings or create a queue via the console a new Address Settings entry
-will be added. For a full explanation on Address Settings see [Configuring Queues Via Address Settings](queue-attributes.md)
-
-To delete a queue simply click on the delete button beside the queue
-name in the main JMS Queues screen. This will also delete any address
-settings or security settings previously created for the queues address
-
-The last part of the configuration options are security roles. If non
-are provided on creation then the servers default security settings will
-be shown. If these are changed or updated then new security settings are
-created for the address of this queue. For more information on security
-setting see [Security](security.md)
-
-It is also possible via the metrics tab to view statistics for this
-queue. This will show statistics such as message count, consumer count
-etc.
-
-Operations can be performed on a queue via the control tab. This will
-allow you to start and stop the queue, list,move,expire and delete
-messages from the queue and other useful operations. To invoke an
-operation click on the button for the operation you want, this will take
-you to a screen where you can parameters for the operation can be set.
-Once set clicking the ok button will invoke the operation, results
-appear at the bottom of the screen.
-
-### JMS Topics
-
-Creating and configuring JMS Topics is almost identical to creating
-queues. The only difference is that the configuration will be applied to
-the queue representing a subscription.
-
-### JMS Connection Factories
-
-The format for creating connection factories is the same as for JMS
-Queues and topics apart from the configuration being different. For as
-list of all the connection factory settings see the configuration index

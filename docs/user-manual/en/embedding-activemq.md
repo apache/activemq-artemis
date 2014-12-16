@@ -2,8 +2,7 @@
 
 ActiveMQ is designed as set of simple Plain Old Java Objects (POJOs).
 This means ActiveMQ can be instantiated and run in any dependency
-injection framework such as JBoss Microcontainer, Spring or Google
-Guice. It also means that if you have an application that could use
+injection framework such as Spring or Google Guice. It also means that if you have an application that could use
 messaging functionality internally, then it can *directly instantiate*
 ActiveMQ clients and servers in its own application code to perform that
 functionality. We call this *embedding* ActiveMQ.
@@ -189,45 +188,7 @@ embedded with JMS.
 ## Dependency Frameworks
 
 You may also choose to use a dependency injection framework such as
-JBoss Micro Container or Spring Framework. See ? for more details on
-Spring and ActiveMQ, but here's how you would do things with the JBoss
-Micro Container.
+The Spring Framework. See [Spring Integration](spring-integration.md) for more details on
+Spring and ActiveMQ.
 
-ActiveMQ standalone uses JBoss Micro Container as the injection
-framework. `ActiveMQBootstrapServer` and `activemq-beans.xml` which are
-part of the ActiveMQ distribution provide a very complete implementation
-of what's needed to bootstrap the server using JBoss Micro Container.
-
-When using JBoss Micro Container, you need to provide an XML file
-declaring the `ActiveMQServer` and `Configuration` object, you can also
-inject a security manager and a MBean server if you want, but those are
-optional.
-
-A very basic XML Bean declaration for the JBoss Micro Container would
-be:
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <deployment xmlns="urn:jboss:bean-deployer:2.0">
-       <!-- The core configuration -->
-       <bean name="Configuration" 
-             class="org.apache.activemq.core.config.impl.FileConfiguration">
-       </bean>
-
-         <!-- The core server -->
-       <bean name="ActiveMQServer"
-             class="org.apache.activemq.core.server.impl.ActiveMQServerImpl">
-          <constructor>
-             <parameter>
-                <inject bean="Configuration"/>
-             </parameter>
-          </constructor>
-       </bean>
-    </deployment>
-
-`ActiveMQBootstrapServer` provides an easy encapsulation of JBoss Micro
-Container.
-
-``` java
-ActiveMQBootstrapServer bootStrap = new ActiveMQBootstrapServer(new String[] {"activemq-beans.xml"});
-bootStrap.run();
-```
+ActiveMQ standalone uses [Airline](https://github.com/airlift/airline) to bootstrap.

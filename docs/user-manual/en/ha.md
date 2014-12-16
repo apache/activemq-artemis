@@ -866,10 +866,7 @@ need to set an `ExceptionListener` class on the JMS connection. The
 `ExceptionListener` will be called by ActiveMQ in the event that
 connection failure is detected. In your `ExceptionListener`, you would
 close your old JMS connections, potentially look up new connection
-factory instances from JNDI and creating new connections. In this case
-you may well be using
-[HA-JNDI](http://www.jboss.org/community/wiki/JBossHAJNDIImpl) to ensure
-that the new connection factory is looked up from a different server.
+factory instances from JNDI and creating new connections.
 
 For a working example of application-level failover, please see ?.
 
