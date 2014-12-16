@@ -286,7 +286,6 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    {
       setupDLQ(10);
       resourceAdapter = newResourceAdapter();
-      DummyTransactionManager.tm.tx = new DummyTransaction();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
       ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();

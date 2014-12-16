@@ -28,9 +28,11 @@ import org.apache.activemq.service.extensions.transactions.TransactionManagerLoc
 
 public class TransactionManagerLocatorImpl implements TransactionManagerLocator
 {
+   public static TransactionManager tm = new TransactionManagerImple();
+
    @Override
    public TransactionManager getTransactionManager()
    {
-      return new TransactionManagerImple();
+      return tm;
    }
 }

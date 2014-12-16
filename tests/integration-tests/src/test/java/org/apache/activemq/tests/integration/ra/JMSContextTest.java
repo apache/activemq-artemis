@@ -29,6 +29,7 @@ import org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl;
 import org.apache.activemq.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.tests.integration.jms.bridge.TransactionManagerLocatorImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +64,7 @@ public class JMSContextTest extends ActiveMQRATestBase
 
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
       MyBootstrapContext ctx = new MyBootstrapContext();
+      TransactionManagerLocatorImpl.tm = DummyTransactionManager.tm;
       resourceAdapter.start(ctx);
       ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
