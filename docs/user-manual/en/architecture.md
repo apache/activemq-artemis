@@ -135,9 +135,8 @@ agnostic. If you don't want to deploy any JMS Queue or Topic via
 server side XML configuration and don't require a JMS management 
 API on the server side then you can disable this service.
 
-The stand-alone server configuration uses JBoss Microcontainer to
-instantiate and enforce dependencies between the components. JBoss
-Microcontainer is a very lightweight POJO bootstrapper.
+The stand-alone server configuration uses [Airline](https://github.com/airlift/airline)
+for bootstrapping the Broker.
 
 The stand-alone server architecture is shown in figure 3.3 below:
 

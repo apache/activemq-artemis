@@ -30,7 +30,6 @@
 * [Extra Acknowledge Modes](pre-acknowledge.md)
 * [Management](management.md)
 * [Security](security.md)
-* [Application Server Integration and Java EE](appserver-integration.md)
 * [The JMS Bridge](jms-bridge.md)
 * [Client Reconnection and Session Reattachment](client-reconnection.md)
 * [Diverting and Splitting Message Flows](diverts.md)

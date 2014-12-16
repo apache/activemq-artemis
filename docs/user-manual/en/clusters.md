@@ -965,9 +965,7 @@ topologies, let's consider the two most common ones here
 
 ### Symmetric cluster
 
-A symmetric cluster is probably the most common cluster topology, and
-you'll be familiar with if you've had experience of JBoss Application
-Server clustering.
+A symmetric cluster is probably the most common cluster topology.
 
 With a symmetric cluster every node in the cluster is connected to every
 other node in the cluster. In other words every node in the cluster is
