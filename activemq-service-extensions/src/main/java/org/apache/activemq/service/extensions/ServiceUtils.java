@@ -58,11 +58,19 @@ public class ServiceUtils
       if (!transactionManagerLoaded)
       {
          Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class).iterator();
-         if (it.hasNext())
+         while (it.hasNext() && transactionManager == null)
          {
             transactionManager = it.next().getTransactionManager();
          }
-         transactionManagerLoaded = true;
+
+         if (transactionManager != null)
+         {
+            transactionManagerLoaded = true;
+         }
+         else
+         {
+            ActiveMQServiceExtensionLogger.LOGGER.transactionManagerNotFound();
+         }
       }
       return transactionManager;
    }
