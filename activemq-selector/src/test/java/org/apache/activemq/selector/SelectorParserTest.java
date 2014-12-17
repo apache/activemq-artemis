@@ -22,6 +22,7 @@ import org.apache.activemq.selector.filter.Expression;
 import org.apache.activemq.selector.filter.LogicExpression;
 import org.apache.activemq.selector.filter.PropertyExpression;
 import org.apache.activemq.selector.filter.XPathExpression;
+import org.apache.activemq.selector.impl.SelectorParser;
 import org.junit.Assert;
 import org.junit.Test;
 

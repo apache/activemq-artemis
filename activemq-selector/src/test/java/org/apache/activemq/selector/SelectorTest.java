@@ -21,6 +21,7 @@ import java.util.HashMap;
 import org.apache.activemq.selector.filter.BooleanExpression;
 import org.apache.activemq.selector.filter.FilterException;
 import org.apache.activemq.selector.filter.Filterable;
+import org.apache.activemq.selector.impl.SelectorParser;
 import org.junit.Assert;
 import org.junit.Test;
 
