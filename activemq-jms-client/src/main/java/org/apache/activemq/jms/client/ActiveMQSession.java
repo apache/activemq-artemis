@@ -52,7 +52,7 @@ import javax.transaction.xa.XAResource;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.selector.filter.FilterException;
-import org.apache.activemq.selector.SelectorParser;
+import org.apache.activemq.selector.impl.SelectorParser;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientProducer;

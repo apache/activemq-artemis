@@ -21,7 +21,7 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.selector.filter.BooleanExpression;
 import org.apache.activemq.selector.filter.FilterException;
 import org.apache.activemq.selector.filter.Filterable;
-import org.apache.activemq.selector.SelectorParser;
+import org.apache.activemq.selector.impl.SelectorParser;
 import org.apache.activemq.api.core.FilterConstants;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
