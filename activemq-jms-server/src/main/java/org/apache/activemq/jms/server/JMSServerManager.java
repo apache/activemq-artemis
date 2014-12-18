@@ -19,8 +19,6 @@ package org.apache.activemq.jms.server;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.Context;
-
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQComponent;
@@ -56,17 +54,17 @@ public interface JMSServerManager extends ActiveMQComponent
     * @param selectorString
     * @param durable
     * @return true if the queue is created or if it existed and was added to
-    *         JNDI
+    *         the Binding Registry
     * @throws Exception
     *            if problems were encountered creating the queue.
     */
    boolean createQueue(boolean storeConfig, String queueName, String selectorString, boolean durable, String ...bindings) throws Exception;
 
-   boolean addTopicToJndi(final String topicName, final String binding) throws Exception;
+   boolean addTopicToBindingRegistry(final String topicName, final String binding) throws Exception;
 
-   boolean addQueueToJndi(final String queueName, final String binding) throws Exception;
+   boolean addQueueToBindingRegistry(final String queueName, final String binding) throws Exception;
 
-   boolean addConnectionFactoryToJNDI(final String name, final String binding) throws Exception;
+   boolean addConnectionFactoryToBindingRegistry(final String name, final String binding) throws Exception;
 
    /**
     * Creates a JMS Topic
@@ -74,68 +72,68 @@ public interface JMSServerManager extends ActiveMQComponent
     * @param topicName
     *           the name of the topic
     * @param bindings
-    *           the names of the binding for JNDI or BindingRegistry
+    *           the names of the binding for the Binding Registry or BindingRegistry
     * @return true if the topic was created or if it existed and was added to
-    *         JNDI
+    *         the Binding Registry
     * @throws Exception
     *            if a problem occurred creating the topic
     */
    boolean createTopic(boolean storeConfig, String topicName, String ... bindings) throws Exception;
 
    /**
-    * Remove the topic from JNDI or BindingRegistry.
+    * Remove the topic from the Binding Registry or BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
     * @param name
-    *           the name of the destination to remove from JNDI or BindingRegistry
+    *           the name of the destination to remove from the BindingRegistry
     * @return true if removed
     * @throws Exception
     *            if a problem occurred removing the destination
     */
-   boolean removeTopicFromJNDI(String name, String binding) throws Exception;
+   boolean removeTopicFromBindingRegistry(String name, String binding) throws Exception;
 
    /**
-    * Remove the topic from JNDI or BindingRegistry.
+    * Remove the topic from the BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
     * @param name
-    *           the name of the destination to remove from JNDI or BindingRegistry
+    *           the name of the destination to remove from the BindingRegistry
     * @return true if removed
     * @throws Exception
     *            if a problem occurred removing the destination
     */
-   boolean removeTopicFromJNDI(String name) throws Exception;
+   boolean removeTopicFromBindingRegistry(String name) throws Exception;
 
    /**
-    * Remove the queue from JNDI or BindingRegistry.
+    * Remove the queue from the BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
     * @param name
-    *           the name of the destination to remove from JNDI or BindingRegistry
+    *           the name of the destination to remove from the BindingRegistry
     * @return true if removed
     * @throws Exception
     *            if a problem occurred removing the destination
     */
-   boolean removeQueueFromJNDI(String name, String binding) throws Exception;
+   boolean removeQueueFromBindingRegistry(String name, String binding) throws Exception;
 
    /**
-    * Remove the queue from JNDI or BindingRegistry.
+    * Remove the queue from the BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
     * @param name
-    *           the name of the destination to remove from JNDI or BindingRegistry
+    *           the name of the destination to remove from the BindingRegistry
     * @return true if removed
     * @throws Exception
     *            if a problem occurred removing the destination
     */
-   boolean removeQueueFromJNDI(String name) throws Exception;
+   boolean removeQueueFromBindingRegistry(String name) throws Exception;
 
-   boolean removeConnectionFactoryFromJNDI(String name, String binding) throws Exception;
+   boolean removeConnectionFactoryFromBindingRegistry(String name, String binding) throws Exception;
 
-   boolean removeConnectionFactoryFromJNDI(String name) throws Exception;
+   boolean removeConnectionFactoryFromBindingRegistry(String name) throws Exception;
 
    /**
-    * destroys a queue and removes it from JNDI or BindingRegistry
+    * destroys a queue and removes it from the BindingRegistry
     *
     * @param name
     *           the name of the queue to destroy
@@ -146,7 +144,7 @@ public interface JMSServerManager extends ActiveMQComponent
    boolean destroyQueue(String name) throws Exception;
 
    /**
-    * destroys a queue and removes it from JNDI or BindingRegistry.
+    * destroys a queue and removes it from the BindingRegistry.
     * disconnects any consumers connected to the queue.
     *
     * @param name
@@ -157,14 +155,14 @@ public interface JMSServerManager extends ActiveMQComponent
     */
    boolean destroyQueue(String name, boolean removeConsumers) throws Exception;
 
-   String[] getJNDIOnQueue(String queue);
+   String[] getBindingsOnQueue(String queue);
 
-   String[] getJNDIOnTopic(String topic);
+   String[] getBindingsOnTopic(String topic);
 
-   String[] getJNDIOnConnectionFactory(String factoryName);
+   String[] getBindingsOnConnectionFactory(String factoryName);
 
    /**
-    * destroys a topic and removes it from JNDI  or BindingRegistry
+    * destroys a topic and removes it from the BindingRegistry
     *
     * @param name
     *           the name of the topic to destroy
@@ -175,7 +173,7 @@ public interface JMSServerManager extends ActiveMQComponent
    boolean destroyTopic(String name, boolean removeConsumers) throws Exception;
 
    /**
-    * destroys a topic and removes it from JNDI  or BindingRegistry
+    * destroys a topic and removes it from theBindingRegistry
     *
     * @param name
     *           the name of the topic to destroy
@@ -185,11 +183,11 @@ public interface JMSServerManager extends ActiveMQComponent
     */
    boolean destroyTopic(String name) throws Exception;
 
-   /** Call this method to have a CF rebound to JNDI and stored on the Journal
+   /** Call this method to have a CF rebound to the Binding Registry and stored on the Journal
     * @throws Exception */
    ActiveMQConnectionFactory recreateCF(String name,  ConnectionFactoryConfiguration cf) throws Exception;
 
-   void createConnectionFactory(String name, boolean ha, JMSFactoryType cfType, String discoveryGroupName, String ... jndiBindings) throws Exception;
+   void createConnectionFactory(String name, boolean ha, JMSFactoryType cfType, String discoveryGroupName, String ... bindings) throws Exception;
 
    void createConnectionFactory(String name,
                                 boolean ha,
@@ -300,8 +298,6 @@ public interface JMSServerManager extends ActiveMQComponent
 
    String listPreparedTransactionDetailsAsHTML() throws Exception;
 
-   void setContext(final Context context);
-
    ActiveMQServer getActiveMQServer();
 
    void addAddressSettings(String address, AddressSettings addressSettings);
@@ -315,7 +311,7 @@ public interface JMSServerManager extends ActiveMQComponent
    BindingRegistry getRegistry();
 
    /**
-    * Set this property if you want something other than JNDI for your registry
+    * Set this property if you want JMS resources bound to a registry
     *
     * @param registry
     */

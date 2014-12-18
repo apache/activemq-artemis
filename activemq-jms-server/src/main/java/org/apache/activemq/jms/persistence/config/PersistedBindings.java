@@ -25,11 +25,11 @@ import org.apache.activemq.utils.BufferHelper;
 import org.apache.activemq.utils.DataConstants;
 
 /**
- * A PersistedJNDI
+ * A PersistedBinding
  *
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
-public class PersistedJNDI implements EncodingSupport
+public class PersistedBindings implements EncodingSupport
 {
 
    // Constants -----------------------------------------------------
@@ -42,13 +42,13 @@ public class PersistedJNDI implements EncodingSupport
 
    private String name;
 
-   private ArrayList<String> jndi = new ArrayList<String>();
+   private ArrayList<String> bindings = new ArrayList<String>();
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public PersistedJNDI()
+   public PersistedBindings()
    {
    }
 
@@ -56,7 +56,7 @@ public class PersistedJNDI implements EncodingSupport
     * @param type
     * @param name
     */
-   public PersistedJNDI(PersistedType type, String name)
+   public PersistedBindings(PersistedType type, String name)
    {
       super();
       this.type = type;
@@ -69,12 +69,12 @@ public class PersistedJNDI implements EncodingSupport
    {
       type = PersistedType.getType(buffer.readByte());
       name = buffer.readSimpleString().toString();
-      int jndiArraySize = buffer.readInt();
-      jndi = new ArrayList<String>(jndiArraySize);
+      int bindingArraySize = buffer.readInt();
+      bindings = new ArrayList<String>(bindingArraySize);
 
-      for (int i = 0; i < jndiArraySize; i++)
+      for (int i = 0; i < bindingArraySize; i++)
       {
-         jndi.add(buffer.readSimpleString().toString());
+         bindings.add(buffer.readSimpleString().toString());
       }
    }
 
@@ -83,10 +83,10 @@ public class PersistedJNDI implements EncodingSupport
    {
       buffer.writeByte(type.getType());
       BufferHelper.writeAsSimpleString(buffer, name);
-      buffer.writeInt(jndi.size());
-      for (String jndiEl : jndi)
+      buffer.writeInt(bindings.size());
+      for (String bindingsEl : bindings)
       {
-         BufferHelper.writeAsSimpleString(buffer, jndiEl);
+         BufferHelper.writeAsSimpleString(buffer, bindingsEl);
       }
    }
 
@@ -95,14 +95,14 @@ public class PersistedJNDI implements EncodingSupport
    {
       return DataConstants.SIZE_BYTE +
          BufferHelper.sizeOfSimpleString(name) +
-         sizeOfJNDI();
+         sizeOfBindings();
    }
 
-   private int sizeOfJNDI()
+   private int sizeOfBindings()
    {
       int size = DataConstants.SIZE_INT; // for the number of elements written
 
-      for (String str : jndi)
+      for (String str : bindings)
       {
          size += BufferHelper.sizeOfSimpleString(str);
       }
@@ -143,21 +143,21 @@ public class PersistedJNDI implements EncodingSupport
    }
 
    /**
-    * @return the jndi
+    * @return the bindings
     */
-   public List<String> getJndi()
+   public List<String> getBindings()
    {
-      return jndi;
+      return bindings;
    }
 
-   public void addJNDI(String address)
+   public void addBinding(String address)
    {
-      jndi.add(address);
+      bindings.add(address);
    }
 
-   public void deleteJNDI(String address)
+   public void deleteBinding(String address)
    {
-      jndi.remove(address);
+      bindings.remove(address);
    }
 
    // Package protected ---------------------------------------------

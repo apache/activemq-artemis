@@ -66,9 +66,9 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
 
    // ManagedConnectionFactoryMBean implementation ------------------
 
-   public String[] getJNDIBindings()
+   public String[] getRegistryBindings()
    {
-      return jmsManager.getJNDIOnConnectionFactory(name);
+      return jmsManager.getBindingsOnConnectionFactory(name);
    }
 
    public boolean isCompressLargeMessages()
@@ -331,14 +331,14 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
       return cf.getDiscoveryGroupConfiguration();
    }
 
-   public void addJNDI(@Parameter(name = "jndiBinding", desc = "the name of the binding for JNDI") String jndi) throws Exception
+   public void addBinding(@Parameter(name = "binding", desc = "the name of the binding for the Registry") String binding) throws Exception
    {
-      jmsManager.addConnectionFactoryToJNDI(name, jndi);
+      jmsManager.addConnectionFactoryToBindingRegistry(name, binding);
    }
 
-   public void removeJNDI(@Parameter(name = "jndiBinding", desc = "the name of the binding for JNDI") String jndi) throws Exception
+   public void removeBinding(@Parameter(name = "binding", desc = "the name of the binding for the Registry") String binding) throws Exception
    {
-      jmsManager.removeConnectionFactoryFromJNDI(name, jndi);
+      jmsManager.removeConnectionFactoryFromBindingRegistry(name, binding);
    }
 
    public long getCallTimeout()

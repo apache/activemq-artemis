@@ -31,6 +31,7 @@ import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
@@ -155,7 +156,7 @@ public class JMSClusteredTestBase extends ServiceTestBase
       server2 = ActiveMQServers.newActiveMQServer(conf2, mBeanServer2, enablePersistence());
       jmsServer2 = new JMSServerManagerImpl(server2, jmsconfig);
       context2 = new InVMNamingContext();
-      jmsServer2.setContext(context2);
+      jmsServer2.setRegistry(new JndiBindingRegistry(context2));
    }
 
    /**
@@ -202,7 +203,7 @@ public class JMSClusteredTestBase extends ServiceTestBase
       server1 = ActiveMQServers.newActiveMQServer(conf1, mBeanServer1, enablePersistence());
       jmsServer1 = new JMSServerManagerImpl(server1, jmsconfig);
       context1 = new InVMNamingContext();
-      jmsServer1.setContext(context1);
+      jmsServer1.setRegistry(new JndiBindingRegistry(context1));
    }
 
    protected boolean enablePersistence()

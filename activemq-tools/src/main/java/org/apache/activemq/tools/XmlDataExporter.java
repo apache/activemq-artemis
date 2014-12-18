@@ -81,7 +81,7 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 import org.apache.activemq.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
 import org.apache.activemq.utils.Base64;
@@ -124,7 +124,7 @@ public final class XmlDataExporter
 
    private final Map<Pair<PersistedType, String>, PersistedDestination> jmsDestinations = new ConcurrentHashMap<>();
 
-   private final Map<Pair<PersistedType, String>, PersistedJNDI> jmsJNDI = new ConcurrentHashMap<>();
+   private final Map<Pair<PersistedType, String>, PersistedBindings> jmsJNDI = new ConcurrentHashMap<>();
 
 
    long messagesPrinted = 0L;
@@ -392,14 +392,14 @@ public final class XmlDataExporter
             ActiveMQServerLogger.LOGGER.info("Found JMS destination: " + destination.getName());
             jmsDestinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
          }
-         else if (rec == JMSJournalStorageManagerImpl.JNDI_RECORD)
+         else if (rec == JMSJournalStorageManagerImpl.BINDING_RECORD)
          {
-            PersistedJNDI jndi = new PersistedJNDI();
+            PersistedBindings jndi = new PersistedBindings();
             jndi.decode(buffer);
             jndi.setId(id);
             Pair<PersistedType, String> key = new Pair<>(jndi.getType(), jndi.getName());
             StringBuilder builder = new StringBuilder();
-            for (String binding : jndi.getJndi())
+            for (String binding : jndi.getBindings())
             {
                builder.append(binding).append(" ");
             }
@@ -680,8 +680,8 @@ public final class XmlDataExporter
          xmlWriter.writeEndElement();
 
          xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRIES);
-         PersistedJNDI jndi = jmsJNDI.get(new Pair<>(PersistedType.ConnectionFactory, jmsConnectionFactory.getName()));
-         for (String jndiEntry : jndi.getJndi())
+         PersistedBindings jndi = jmsJNDI.get(new Pair<>(PersistedType.ConnectionFactory, jmsConnectionFactory.getName()));
+         for (String jndiEntry : jndi.getBindings())
          {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRY);
             xmlWriter.writeCharacters(jndiEntry);
@@ -719,8 +719,8 @@ public final class XmlDataExporter
 
 
          xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRIES);
-         PersistedJNDI jndi = jmsJNDI.get(new Pair<>(jmsDestination.getType(), jmsDestination.getName()));
-         for (String jndiEntry : jndi.getJndi())
+         PersistedBindings jndi = jmsJNDI.get(new Pair<>(jmsDestination.getType(), jmsDestination.getName()));
+         for (String jndiEntry : jndi.getBindings())
          {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRY);
             xmlWriter.writeCharacters(jndiEntry);

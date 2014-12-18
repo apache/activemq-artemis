@@ -23,6 +23,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -101,7 +102,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
 
       final JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       final InVMNamingContext context = new InVMNamingContext();
-      jmsServer.setContext(context);
+      jmsServer.setRegistry(new JndiBindingRegistry(context));
 
       jmsServer.start();
 

@@ -47,15 +47,4 @@ public class MapBindingRegistry implements BindingRegistry
    public void close()
    {
    }
-
-   public Object getContext()
-   {
-      return registry;
-   }
-
-   @Override
-   public void setContext(Object ctx)
-   {
-      registry = (ConcurrentMap)ctx;
-   }
 }

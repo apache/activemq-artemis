@@ -140,7 +140,6 @@ public abstract class ActiveMQServerTestCase
       {
          // create any new server we need
          ActiveMQServerTestCase.servers.add(ServerManagement.create());
-
          // start the servers if needed
          if (!ActiveMQServerTestCase.servers.get(0).isStarted())
          {

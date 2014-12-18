@@ -73,8 +73,8 @@ public interface ActiveMQJMSServerLogger extends BasicLogger
    void recoveryConnectFailed(String s);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122011, value = "error unbinding {0} from JNDI" , format = Message.Format.MESSAGE_FORMAT)
-   void jndiUnbindError(@Cause Exception e, String key);
+   @Message(id = 122011, value = "error unbinding {0} from Registry" , format = Message.Format.MESSAGE_FORMAT)
+   void bindingsUnbindError(@Cause Exception e, String key);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 122012, value = "JMS Server Manager error" , format = Message.Format.MESSAGE_FORMAT)

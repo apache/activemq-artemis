@@ -60,16 +60,4 @@ public class SpringBindingRegistry implements BindingRegistry
    public void close()
    {
    }
-
-   @Override
-   public Object getContext()
-   {
-      return this.factory;
-   }
-
-   @Override
-   public void setContext(Object ctx)
-   {
-      this.factory = (ConfigurableBeanFactory) ctx;
-   }
 }

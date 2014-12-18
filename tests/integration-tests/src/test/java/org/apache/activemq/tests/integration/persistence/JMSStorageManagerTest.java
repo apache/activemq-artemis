@@ -21,7 +21,7 @@ import org.junit.Test;
 import java.util.List;
 
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 
 /**
@@ -42,11 +42,11 @@ public class JMSStorageManagerTest extends StorageManagerTestBase
       jmsJournal.storeDestination(new PersistedDestination(PersistedType.Queue,
             "jndiPersistQueue", null, true));
 
-      jmsJournal.addJNDI(PersistedType.Queue, "jndiPersistQueue", "jndi-1");
+      jmsJournal.addBindings(PersistedType.Queue, "jndiPersistQueue", "jndi-1");
 
       List<PersistedDestination> destinations = jmsJournal.recoverDestinations();
 
-      List<PersistedJNDI> jndiList = jmsJournal.recoverPersistedJNDI();
+      List<PersistedBindings> jndiList = jmsJournal.recoverPersistedBindings();
 
       assertEquals(1, destinations.size());
 
@@ -66,13 +66,13 @@ public class JMSStorageManagerTest extends StorageManagerTestBase
 
       assertEquals(0, destinations.size());
 
-      jndiList = jmsJournal.recoverPersistedJNDI();
+      jndiList = jmsJournal.recoverPersistedBindings();
 
       assertEquals(1, jndiList.size());
 
-      PersistedJNDI jndi = jndiList.get(0);
+      PersistedBindings jndi = jndiList.get(0);
 
-      List<String> jndis = jndi.getJndi();
+      List<String> jndis = jndi.getBindings();
 
       assertEquals(1, jndis.size());
 

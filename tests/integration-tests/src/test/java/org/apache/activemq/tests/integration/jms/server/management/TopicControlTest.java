@@ -38,6 +38,7 @@ import org.apache.activemq.api.jms.management.TopicControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
@@ -95,7 +96,7 @@ public class TopicControlTest extends ManagementTestBase
       Assert.assertEquals(topic.getTopicName(), topicControl.getName());
       Assert.assertEquals(topic.getAddress(), topicControl.getAddress());
       Assert.assertEquals(topic.isTemporary(), topicControl.isTemporary());
-      Object[] bindings = topicControl.getJNDIBindings();
+      Object[] bindings = topicControl.getRegistryBindings();
       assertEquals(1, bindings.length);
       Assert.assertEquals(topicBinding, bindings[0]);
    }
@@ -607,7 +608,7 @@ public class TopicControlTest extends ManagementTestBase
 
       serverManager = new JMSServerManagerImpl(server);
       serverManager.start();
-      serverManager.setContext(new InVMNamingContext());
+      serverManager.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       serverManager.activated();
 
       clientID = RandomUtil.randomString();

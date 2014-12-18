@@ -30,6 +30,7 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSManagementHelper;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -161,7 +162,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       context = new InVMNamingContext();
 
       serverManager = new JMSServerManagerImpl(server);
-      serverManager.setContext(context);
+      serverManager.setRegistry(new JndiBindingRegistry(context));
       return serverManager;
    }
 

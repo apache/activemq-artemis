@@ -50,6 +50,7 @@ import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.postoffice.QueueBinding;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
@@ -61,7 +62,7 @@ import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
 import org.apache.activemq.jms.persistence.JMSStorageManager;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.integration.management.ManagementControlHelper;
@@ -1073,7 +1074,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       serverManager = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
-      serverManager.setContext(context);
+      serverManager.setRegistry(new JndiBindingRegistry(context));
       serverManager.start();
       serverManager.activated();
 
@@ -1207,31 +1208,31 @@ public class JMSServerControlTest extends ManagementTestBase
          return delegate.recoverConnectionFactories();
       }
 
-      public void addJNDI(PersistedType type, String name, String... address) throws Exception
+      public void addBindings(PersistedType type, String name, String... address) throws Exception
       {
          persistedJNDIMap.putIfAbsent(name, new ArrayList<String>());
          for (String ad : address)
          {
             persistedJNDIMap.get(name).add(ad);
          }
-         delegate.addJNDI(type, name, address);
+         delegate.addBindings(type, name, address);
       }
 
-      public List<PersistedJNDI> recoverPersistedJNDI() throws Exception
+      public List<PersistedBindings> recoverPersistedBindings() throws Exception
       {
-         return delegate.recoverPersistedJNDI();
+         return delegate.recoverPersistedBindings();
       }
 
-      public void deleteJNDI(PersistedType type, String name, String address) throws Exception
+      public void deleteBindings(PersistedType type, String name, String address) throws Exception
       {
          persistedJNDIMap.get(name).remove(address);
-         delegate.deleteJNDI(type, name, address);
+         delegate.deleteBindings(type, name, address);
       }
 
-      public void deleteJNDI(PersistedType type, String name) throws Exception
+      public void deleteBindings(PersistedType type, String name) throws Exception
       {
          persistedJNDIMap.get(name).clear();
-         delegate.deleteJNDI(type, name);
+         delegate.deleteBindings(type, name);
       }
 
       public void start() throws Exception

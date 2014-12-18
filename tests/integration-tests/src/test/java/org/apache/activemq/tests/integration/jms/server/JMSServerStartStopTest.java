@@ -210,7 +210,7 @@ public class JMSServerStartStopTest extends UnitTestCase
 
       liveJMSServer = new JMSServerManagerImpl(liveServer, "server-start-stop-jms-config1.xml");
       addActiveMQComponent(liveJMSServer);
-      liveJMSServer.setContext(null);
+      liveJMSServer.setRegistry(null);
 
       liveJMSServer.start();
    }

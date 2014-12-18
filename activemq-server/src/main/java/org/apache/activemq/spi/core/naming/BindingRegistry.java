@@ -24,17 +24,6 @@ package org.apache.activemq.spi.core.naming;
  */
 public interface BindingRegistry
 {
-   /** The context used by the registry.
-    *   This may be used to setup the JNDI Context on the JNDI Registry.
-    *   We keep it as an object here as the interface needs to be generic
-    *   as this could be reused by others Registries (e.g set/get the Map on MapRegistry)
-    * @return
-    */
-   // XXX Unused?
-   Object getContext();
-
-   void setContext(Object ctx);
-
    Object lookup(String name);
 
    boolean bind(String name, Object obj);

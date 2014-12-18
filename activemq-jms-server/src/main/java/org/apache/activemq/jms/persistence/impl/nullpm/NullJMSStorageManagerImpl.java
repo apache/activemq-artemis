@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.activemq.jms.persistence.JMSStorageManager;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 
 /**
@@ -80,12 +80,12 @@ public class NullJMSStorageManagerImpl implements JMSStorageManager
    }
 
    @Override
-   public void addJNDI(PersistedType type, String name, String ... address) throws Exception
+   public void addBindings(PersistedType type, String name, String... address) throws Exception
    {
    }
 
    @Override
-   public void deleteJNDI(PersistedType type, String name, String address) throws Exception
+   public void deleteBindings(PersistedType type, String name, String address) throws Exception
    {
    }
 
@@ -95,12 +95,12 @@ public class NullJMSStorageManagerImpl implements JMSStorageManager
    }
 
    @Override
-   public void deleteJNDI(PersistedType type, String name) throws Exception
+   public void deleteBindings(PersistedType type, String name) throws Exception
    {
    }
 
    @Override
-   public List<PersistedJNDI> recoverPersistedJNDI() throws Exception
+   public List<PersistedBindings> recoverPersistedBindings() throws Exception
    {
       return Collections.emptyList();
    }

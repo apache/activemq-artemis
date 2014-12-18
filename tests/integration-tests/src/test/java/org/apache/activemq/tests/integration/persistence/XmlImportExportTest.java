@@ -18,6 +18,7 @@ package org.apache.activemq.tests.integration.persistence;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -172,7 +173,7 @@ public class XmlImportExportTest extends ServiceTestBase
       jmsServer = new JMSServerManagerImpl(server);
       addActiveMQComponent(jmsServer);
       namingContext = new InVMContext();
-      jmsServer.setContext(namingContext);
+      jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
       jmsServer.start();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);

@@ -49,6 +49,7 @@ import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServers;
@@ -622,7 +623,7 @@ public class JMSBridgeImplTest extends UnitTestCase
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       InVMNamingContext context = new InVMNamingContext();
       jmsServer = new JMSServerManagerImpl(ActiveMQServers.newActiveMQServer(config, false));
-      jmsServer.setContext(context);
+      jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
       jmsServer.createQueue(false, JMSBridgeImplTest.SOURCE, null, true, "/queue/" + JMSBridgeImplTest.SOURCE);

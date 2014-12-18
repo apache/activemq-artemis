@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.jms.server.impl;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.xa.Xid;
 
@@ -49,7 +47,6 @@ import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
 import org.apache.activemq.core.deployers.impl.XmlDeployer;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.security.Role;
@@ -70,7 +67,7 @@ import org.apache.activemq.jms.client.SelectorTranslator;
 import org.apache.activemq.jms.persistence.JMSStorageManager;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 import org.apache.activemq.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
 import org.apache.activemq.jms.persistence.impl.nullpm.NullJMSStorageManagerImpl;
@@ -93,7 +90,7 @@ import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONObject;
 
 /**
- * A Deployer used to create and add to JNDI queues, topics and connection
+ * A Deployer used to create and add to Bindings queues, topics and connection
  * factories. Typically this would only be used in an app server env.
  * <p>
  * JMS Connection Factories and Destinations can be configured either
@@ -120,11 +117,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    private final Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<String, ActiveMQConnectionFactory>();
 
-   private final Map<String, List<String>> queueJNDI = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> queueBindings = new HashMap<String, List<String>>();
 
-   private final Map<String, List<String>> topicJNDI = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> topicBindings = new HashMap<String, List<String>>();
 
-   private final Map<String, List<String>> connectionFactoryJNDI = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> connectionFactoryBindings = new HashMap<String, List<String>>();
 
    // We keep things cached if objects are created while the JMS is not active
    private final List<Runnable> cachedCommands = new ArrayList<Runnable>();
@@ -143,15 +140,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    private final String configFileName;
 
-   private boolean contextSet;
-
    private JMSConfiguration config;
 
    private Configuration coreConfig;
 
    private JMSStorageManager storage;
 
-   private final Map<String, List<String>> unRecoveredJndi = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> unRecoveredBindings = new HashMap<String, List<String>>();
 
    public JMSServerManagerImpl(final ActiveMQServer server) throws Exception
    {
@@ -269,7 +264,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          // do not clear the cachedCommands - HORNETQ-1047
 
-         recoverJndiBindings();
+         recoverBindings();
       }
       catch (Exception e)
       {
@@ -306,11 +301,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                storage.stop();
             }
 
-            unbindJNDI(queueJNDI);
+            unbindBindings(queueBindings);
 
-            unbindJNDI(topicJNDI);
+            unbindBindings(topicBindings);
 
-            unbindJNDI(connectionFactoryJNDI);
+            unbindBindings(connectionFactoryBindings);
 
             for (String connectionFactory : new HashSet<String>(connectionFactories.keySet()))
             {
@@ -318,12 +313,12 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             }
 
             connectionFactories.clear();
-            connectionFactoryJNDI.clear();
+            connectionFactoryBindings.clear();
 
-            queueJNDI.clear();
+            queueBindings.clear();
             queues.clear();
 
-            topicJNDI.clear();
+            topicBindings.clear();
             topics.clear();
 
             // it could be null if a backup
@@ -352,102 +347,102 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    }
 
-   public void recoverJndiBindings(String name, PersistedType type) throws NamingException
+   public void recoverregistryBindings(String name, PersistedType type) throws NamingException
    {
-      List<String> bindings = unRecoveredJndi.get(name);
+      List<String> bindings = unRecoveredBindings.get(name);
       if ((bindings != null) && (bindings.size() > 0))
       {
-         Map<String, List<String>> mapJNDI;
+         Map<String, List<String>> mapBindings;
          Map<String, ?> objects;
 
          switch (type)
          {
             case Queue:
-               mapJNDI = queueJNDI;
+               mapBindings = queueBindings;
                objects = queues;
                break;
             case Topic:
-               mapJNDI = topicJNDI;
+               mapBindings = topicBindings;
                objects = topics;
                break;
             default:
             case ConnectionFactory:
-               mapJNDI = connectionFactoryJNDI;
+               mapBindings = connectionFactoryBindings;
                objects = connectionFactories;
                break;
          }
 
          Object objectToBind = objects.get(name);
 
-         List<String> jndiList = mapJNDI.get(name);
+         List<String> bindingsList = mapBindings.get(name);
 
          if (objectToBind == null)
          {
             return;
          }
 
-         if (jndiList == null)
+         if (bindingsList == null)
          {
-            jndiList = new ArrayList<String>();
-            mapJNDI.put(name, jndiList);
+            bindingsList = new ArrayList<String>();
+            mapBindings.put(name, bindingsList);
          }
 
-         for (String jndi : bindings)
+         for (String binding : bindings)
          {
-            jndiList.add(jndi);
-            bindToJndi(jndi, objectToBind);
+            bindingsList.add(binding);
+            bindToBindings(binding, objectToBind);
          }
 
-         unRecoveredJndi.remove(name);
+         unRecoveredBindings.remove(name);
       }
    }
 
-   private void recoverJndiBindings() throws Exception
+   private void recoverBindings() throws Exception
    {
       //now its time to add journal recovered stuff
-      List<PersistedJNDI> jndiSpace = storage.recoverPersistedJNDI();
+      List<PersistedBindings> bindingsSpace = storage.recoverPersistedBindings();
 
-      for (PersistedJNDI record : jndiSpace)
+      for (PersistedBindings record : bindingsSpace)
       {
-         Map<String, List<String>> mapJNDI;
+         Map<String, List<String>> mapBindings;
          Map<String, ?> objects;
 
          switch (record.getType())
          {
             case Queue:
-               mapJNDI = queueJNDI;
+               mapBindings = queueBindings;
                objects = queues;
                break;
             case Topic:
-               mapJNDI = topicJNDI;
+               mapBindings = topicBindings;
                objects = topics;
                break;
             default:
             case ConnectionFactory:
-               mapJNDI = connectionFactoryJNDI;
+               mapBindings = connectionFactoryBindings;
                objects = connectionFactories;
                break;
          }
 
          Object objectToBind = objects.get(record.getName());
-         List<String> jndiList = mapJNDI.get(record.getName());
+         List<String> bindingsList = mapBindings.get(record.getName());
 
          if (objectToBind == null)
          {
-            unRecoveredJndi.put(record.getName(), record.getJndi());
+            unRecoveredBindings.put(record.getName(), record.getBindings());
             continue;
          }
 
-         if (jndiList == null)
+         if (bindingsList == null)
          {
-            jndiList = new ArrayList<String>();
-            mapJNDI.put(record.getName(), jndiList);
+            bindingsList = new ArrayList<String>();
+            mapBindings.put(record.getName(), bindingsList);
          }
 
-         for (String jndi : record.getJndi())
+         for (String bindings : record.getBindings())
          {
-            jndiList.add(jndi);
-            bindToJndi(jndi, objectToBind);
+            bindingsList.add(bindings);
+            bindToBindings(bindings, objectToBind);
          }
       }
 
@@ -475,17 +470,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       if (startCalled)
       {
          return;
-      }
-
-      if (registry == null)
-      {
-         if (!contextSet)
-         {
-            if (System.getProperty(Context.INITIAL_CONTEXT_FACTORY) != null)
-            {
-               registry = new JndiBindingRegistry(new InitialContext());
-            }
-         }
       }
 
       deploymentManager = new FileDeploymentManager(server.getConfiguration().getFileDeployerScanPeriod());
@@ -567,17 +551,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       return server.getSecurityRepository().getMatch(addressMatch);
    }
 
-   public synchronized void setContext(final Context context)
-   {
-      if (registry == null || registry instanceof JndiBindingRegistry)
-      {
-         registry = new JndiBindingRegistry(context);
-         registry.setContext(context);
-      }
-
-      contextSet = true;
-   }
-
    public synchronized String getVersion()
    {
       checkInitialised();
@@ -589,7 +562,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                            final String queueName,
                                            final String selectorString,
                                            final boolean durable,
-                                           final String... jndi) throws Exception
+                                           final String... bindings) throws Exception
    {
 
       if (active && queues.get(queueName) != null)
@@ -608,7 +581,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          @Override
          public void runException() throws Exception
          {
-            checkJNDI(jndi);
+            checkBindings(bindings);
 
             if (internalCreateQueue(queueName, selectorString, durable))
             {
@@ -620,22 +593,22 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                   throw new IllegalArgumentException("Queue does not exist");
                }
 
-               String[] usedJNDI = null;
+               String[] usedBindings = null;
 
-               if (jndi != null)
+               if (bindings != null)
                {
-                  ArrayList<String> bindings = new ArrayList<String>();
+                  ArrayList<String> bindingsToAdd = new ArrayList<String>();
 
-                  for (String jndiItem : jndi)
+                  for (String bindingsItem : bindings)
                   {
-                     if (bindToJndi(jndiItem, destination))
+                     if (bindToBindings(bindingsItem, destination))
                      {
-                        bindings.add(jndiItem);
+                        bindingsToAdd.add(bindingsItem);
                      }
                   }
 
-                  usedJNDI = bindings.toArray(new String[bindings.size()]);
-                  addToBindings(queueJNDI, queueName, usedJNDI);
+                  usedBindings = bindingsToAdd.toArray(new String[bindingsToAdd.size()]);
+                  addToBindings(queueBindings, queueName, usedBindings);
                }
 
                if (storeConfig && durable)
@@ -644,9 +617,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                                     queueName,
                                                                     selectorString,
                                                                     durable));
-                  if (usedJNDI != null)
+                  if (usedBindings != null)
                   {
-                     storage.addJNDI(PersistedType.Queue, queueName, usedJNDI);
+                     storage.addBindings(PersistedType.Queue, queueName, usedBindings);
                   }
                }
             }
@@ -657,7 +630,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       return true;
    }
 
-   public synchronized boolean createTopic(final boolean storeConfig, final String topicName, final String... jndi) throws Exception
+   public synchronized boolean createTopic(final boolean storeConfig, final String topicName, final String... bindings) throws Exception
    {
       if (active && topics.get(topicName) != null)
       {
@@ -675,7 +648,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          @Override
          public void runException() throws Exception
          {
-            checkJNDI(jndi);
+            checkBindings(bindings);
 
             if (internalCreateTopic(topicName))
             {
@@ -687,23 +660,23 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                   throw new IllegalArgumentException("Queue does not exist");
                }
 
-               ArrayList<String> bindings = new ArrayList<String>();
+               ArrayList<String> bindingsToAdd = new ArrayList<String>();
 
-               for (String jndiItem : jndi)
+               for (String bindingsItem : bindings)
                {
-                  if (bindToJndi(jndiItem, destination))
+                  if (bindToBindings(bindingsItem, destination))
                   {
-                     bindings.add(jndiItem);
+                     bindingsToAdd.add(bindingsItem);
                   }
                }
 
-               String[] usedJNDI = bindings.toArray(new String[bindings.size()]);
-               addToBindings(topicJNDI, topicName, usedJNDI);
+               String[] usedBindings = bindingsToAdd.toArray(new String[bindingsToAdd.size()]);
+               addToBindings(topicBindings, topicName, usedBindings);
 
                if (storeConfig)
                {
                   storage.storeDestination(new PersistedDestination(PersistedType.Topic, topicName));
-                  storage.addJNDI(PersistedType.Topic, topicName, usedJNDI);
+                  storage.addBindings(PersistedType.Topic, topicName, usedBindings);
                }
             }
          }
@@ -714,11 +687,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    }
 
-   public boolean addTopicToJndi(final String topicName, final String jndiBinding) throws Exception
+   public boolean addTopicToBindingRegistry(final String topicName, final String registryBinding) throws Exception
    {
       checkInitialised();
 
-      checkJNDI(jndiBinding);
+      checkBindings(registryBinding);
 
       ActiveMQTopic destination = topics.get(topicName);
       if (destination == null)
@@ -729,36 +702,36 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       {
          throw new IllegalArgumentException(topicName + " is not a topic");
       }
-      boolean added = bindToJndi(jndiBinding, destination);
+      boolean added = bindToBindings(registryBinding, destination);
 
       if (added)
       {
-         addToBindings(topicJNDI, topicName, jndiBinding);
-         storage.addJNDI(PersistedType.Topic, topicName, jndiBinding);
+         addToBindings(topicBindings, topicName, registryBinding);
+         storage.addBindings(PersistedType.Topic, topicName, registryBinding);
       }
       return added;
    }
 
-   public String[] getJNDIOnQueue(String queue)
+   public String[] getBindingsOnQueue(String queue)
    {
-      return getJNDIList(queueJNDI, queue);
+      return getBindingsList(queueBindings, queue);
    }
 
-   public String[] getJNDIOnTopic(String topic)
+   public String[] getBindingsOnTopic(String topic)
    {
-      return getJNDIList(topicJNDI, topic);
+      return getBindingsList(topicBindings, topic);
    }
 
-   public String[] getJNDIOnConnectionFactory(String factoryName)
+   public String[] getBindingsOnConnectionFactory(String factoryName)
    {
-      return getJNDIList(connectionFactoryJNDI, factoryName);
+      return getBindingsList(connectionFactoryBindings, factoryName);
    }
 
-   public boolean addQueueToJndi(final String queueName, final String jndiBinding) throws Exception
+   public boolean addQueueToBindingRegistry(final String queueName, final String registryBinding) throws Exception
    {
       checkInitialised();
 
-      checkJNDI(jndiBinding);
+      checkBindings(registryBinding);
 
       ActiveMQQueue destination = queues.get(queueName);
       if (destination == null)
@@ -769,56 +742,56 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       {
          throw new IllegalArgumentException(queueName + " is not a queue");
       }
-      boolean added = bindToJndi(jndiBinding, destination);
+      boolean added = bindToBindings(registryBinding, destination);
       if (added)
       {
-         addToBindings(queueJNDI, queueName, jndiBinding);
-         storage.addJNDI(PersistedType.Queue, queueName, jndiBinding);
+         addToBindings(queueBindings, queueName, registryBinding);
+         storage.addBindings(PersistedType.Queue, queueName, registryBinding);
       }
       return added;
    }
 
-   public boolean addConnectionFactoryToJNDI(final String name, final String jndiBinding) throws Exception
+   public boolean addConnectionFactoryToBindingRegistry(final String name, final String registryBinding) throws Exception
    {
       checkInitialised();
 
-      checkJNDI(jndiBinding);
+      checkBindings(registryBinding);
 
       ActiveMQConnectionFactory factory = connectionFactories.get(name);
       if (factory == null)
       {
          throw new IllegalArgumentException("Factory does not exist");
       }
-      if (registry.lookup(jndiBinding) != null)
+      if (registry.lookup(registryBinding) != null)
       {
-         throw ActiveMQJMSServerBundle.BUNDLE.cfJndiExists(name);
+         throw ActiveMQJMSServerBundle.BUNDLE.cfBindingsExists(name);
       }
-      boolean added = bindToJndi(jndiBinding, factory);
+      boolean added = bindToBindings(registryBinding, factory);
       if (added)
       {
-         addToBindings(connectionFactoryJNDI, name, jndiBinding);
-         storage.addJNDI(PersistedType.ConnectionFactory, name, jndiBinding);
+         addToBindings(connectionFactoryBindings, name, registryBinding);
+         storage.addBindings(PersistedType.ConnectionFactory, name, registryBinding);
       }
       return added;
    }
 
    @Override
-   public boolean removeQueueFromJNDI(String name, String jndi) throws Exception
+   public boolean removeQueueFromBindingRegistry(String name, String bindings) throws Exception
    {
       checkInitialised();
 
-      boolean removed = removeFromJNDI(queueJNDI, name, jndi);
+      boolean removed = removeFromBindings(queueBindings, name, bindings);
 
       if (removed)
       {
-         storage.deleteJNDI(PersistedType.Queue, name, jndi);
+         storage.deleteBindings(PersistedType.Queue, name, bindings);
       }
 
       return removed;
    }
 
    @Override
-   public boolean removeQueueFromJNDI(final String name) throws Exception
+   public boolean removeQueueFromBindingRegistry(final String name) throws Exception
    {
       final AtomicBoolean valueReturn = new AtomicBoolean(false);
 
@@ -828,7 +801,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          @Override
          public String toString()
          {
-            return "removeQueueFromJNDI for " + name;
+            return "removeQueueFromBindings for " + name;
          }
 
          @Override
@@ -836,7 +809,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          {
             checkInitialised();
 
-            if (removeFromJNDI(queues, queueJNDI, name))
+            if (removeFromBindings(queues, queueBindings, name))
             {
                storage.deleteDestination(PersistedType.Queue, name);
                valueReturn.set(true);
@@ -848,13 +821,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    }
 
    @Override
-   public boolean removeTopicFromJNDI(String name, String jndi) throws Exception
+   public boolean removeTopicFromBindingRegistry(String name, String bindings) throws Exception
    {
       checkInitialised();
 
-      if (removeFromJNDI(topicJNDI, name, jndi))
+      if (removeFromBindings(topicBindings, name, bindings))
       {
-         storage.deleteJNDI(PersistedType.Topic, name, jndi);
+         storage.deleteBindings(PersistedType.Topic, name, bindings);
          return true;
       }
       else
@@ -864,9 +837,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    }
 
    /* (non-Javadoc)
-   * @see org.apache.activemq.jms.server.JMSServerManager#removeTopicFromJNDI(java.lang.String, java.lang.String)
+   * @see org.apache.activemq.jms.server.JMSServerManager#removeTopicFromBindings(java.lang.String, java.lang.String)
    */
-   public boolean removeTopicFromJNDI(final String name) throws Exception
+   public boolean removeTopicFromBindingRegistry(final String name) throws Exception
    {
       final AtomicBoolean valueReturn = new AtomicBoolean(false);
 
@@ -876,7 +849,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          @Override
          public String toString()
          {
-            return "removeTopicFromJNDI for " + name;
+            return "removeTopicFromBindings for " + name;
          }
 
          @Override
@@ -884,7 +857,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          {
             checkInitialised();
 
-            if (removeFromJNDI(topics, topicJNDI, name))
+            if (removeFromBindings(topics, topicBindings, name))
             {
                storage.deleteDestination(PersistedType.Topic, name);
                valueReturn.set(true);
@@ -896,23 +869,23 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    }
 
    @Override
-   public boolean removeConnectionFactoryFromJNDI(String name, String jndi) throws Exception
+   public boolean removeConnectionFactoryFromBindingRegistry(String name, String bindings) throws Exception
    {
       checkInitialised();
 
-      removeFromJNDI(connectionFactoryJNDI, name, jndi);
+      removeFromBindings(connectionFactoryBindings, name, bindings);
 
-      storage.deleteJNDI(PersistedType.ConnectionFactory, name, jndi);
+      storage.deleteBindings(PersistedType.ConnectionFactory, name, bindings);
 
       return true;
    }
 
    @Override
-   public boolean removeConnectionFactoryFromJNDI(String name) throws Exception
+   public boolean removeConnectionFactoryFromBindingRegistry(String name) throws Exception
    {
       checkInitialised();
 
-      removeFromJNDI(connectionFactories, connectionFactoryJNDI, name);
+      removeFromBindings(connectionFactories, connectionFactoryBindings, name);
 
       storage.deleteConnectionFactory(name);
 
@@ -931,13 +904,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       server.destroyQueue(ActiveMQDestination.createQueueAddressFromName(name), null, !removeConsumers, removeConsumers);
 
       // if the queue has consumers and 'removeConsumers' is false then the queue won't actually be removed
-      // therefore only remove the queue from JNDI, etc. if the queue is actually removed
+      // therefore only remove the queue from Bindings, etc. if the queue is actually removed
       if (this.server.getPostOffice().getBinding(ActiveMQDestination.createQueueAddressFromName(name)) == null)
       {
-         removeFromJNDI(queues, queueJNDI, name);
+         removeFromBindings(queues, queueBindings, name);
 
          queues.remove(name);
-         queueJNDI.remove(name);
+         queueBindings.remove(name);
 
          jmsManagementService.unregisterQueue(name);
 
@@ -982,10 +955,10 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          if (addressControl.getQueueNames().length == 0)
          {
-            removeFromJNDI(topics, topicJNDI, name);
+            removeFromBindings(topics, topicBindings, name);
 
             topics.remove(name);
-            topicJNDI.remove(name);
+            topicBindings.remove(name);
 
             jmsManagementService.unregisterTopic(name);
 
@@ -1009,7 +982,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     final boolean ha,
                                                     final JMSFactoryType cfType,
                                                     final List<String> connectorNames,
-                                                    String... jndiBindings) throws Exception
+                                                    String... registryBindings) throws Exception
    {
       checkInitialised();
       ActiveMQConnectionFactory cf = connectionFactories.get(name);
@@ -1021,7 +994,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             .setConnectorNames(connectorNames)
             .setFactoryType(cfType);
 
-         createConnectionFactory(true, configuration, jndiBindings);
+         createConnectionFactory(true, configuration, registryBindings);
       }
    }
 
@@ -1059,7 +1032,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     final int reconnectAttempts,
                                                     final boolean failoverOnInitialConnection,
                                                     final String groupId,
-                                                    String... jndiBindings) throws Exception
+                                                    String... registryBindings) throws Exception
    {
       checkInitialised();
       ActiveMQConnectionFactory cf = connectionFactories.get(name);
@@ -1100,7 +1073,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             .setFailoverOnInitialConnection(failoverOnInitialConnection)
             .setGroupID(groupId);
 
-         createConnectionFactory(true, configuration, jndiBindings);
+         createConnectionFactory(true, configuration, registryBindings);
       }
    }
 
@@ -1138,7 +1111,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     final int reconnectAttempts,
                                                     final boolean failoverOnInitialConnection,
                                                     final String groupId,
-                                                    final String... jndiBindings) throws Exception
+                                                    final String... registryBindings) throws Exception
    {
       checkInitialised();
       ActiveMQConnectionFactory cf = connectionFactories.get(name);
@@ -1147,7 +1120,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
             .setName(name)
             .setHA(ha)
-            .setBindings(jndiBindings)
+            .setBindings(registryBindings)
             .setDiscoveryGroupName(discoveryGroupName)
             .setFactoryType(cfType)
             .setClientID(clientID)
@@ -1179,7 +1152,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             .setMaxRetryInterval(maxRetryInterval)
             .setReconnectAttempts(reconnectAttempts)
             .setFailoverOnInitialConnection(failoverOnInitialConnection);
-         createConnectionFactory(true, configuration, jndiBindings);
+         createConnectionFactory(true, configuration, registryBindings);
       }
    }
 
@@ -1187,7 +1160,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                                     final boolean ha,
                                                     final JMSFactoryType cfType,
                                                     final String discoveryGroupName,
-                                                    final String... jndiBindings) throws Exception
+                                                    final String... registryBindings) throws Exception
    {
       checkInitialised();
       ActiveMQConnectionFactory cf = connectionFactories.get(name);
@@ -1196,34 +1169,34 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
             .setName(name)
             .setHA(ha)
-            .setBindings(jndiBindings)
+            .setBindings(registryBindings)
             .setDiscoveryGroupName(discoveryGroupName);
-         createConnectionFactory(true, configuration, jndiBindings);
+         createConnectionFactory(true, configuration, registryBindings);
       }
    }
 
    public synchronized ActiveMQConnectionFactory recreateCF(String name, ConnectionFactoryConfiguration cf) throws Exception
    {
-      List<String> jndi = connectionFactoryJNDI.get(name);
+      List<String> bindings = connectionFactoryBindings.get(name);
 
-      if (jndi == null)
+      if (bindings == null)
       {
          throw ActiveMQJMSServerBundle.BUNDLE.cfDoesntExist(name);
       }
 
-      String[] usedJNDI = jndi.toArray(new String[jndi.size()]);
+      String[] usedBindings = bindings.toArray(new String[bindings.size()]);
 
       ActiveMQConnectionFactory realCF = internalCreateCFPOJO(cf);
 
       if (cf.isPersisted())
       {
          storage.storeConnectionFactory(new PersistedConnectionFactory(cf));
-         storage.addJNDI(PersistedType.ConnectionFactory, cf.getName(), usedJNDI);
+         storage.addBindings(PersistedType.ConnectionFactory, cf.getName(), usedBindings);
       }
 
-      for (String jndiElement : usedJNDI)
+      for (String bindingsElement : usedBindings)
       {
-         this.bindToJndi(jndiElement, realCF);
+         this.bindToBindings(bindingsElement, realCF);
       }
 
       return realCF;
@@ -1231,7 +1204,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    public synchronized void createConnectionFactory(final boolean storeConfig,
                                                     final ConnectionFactoryConfiguration cfConfig,
-                                                    final String... jndi) throws Exception
+                                                    final String... bindings) throws Exception
    {
       runAfterActive(new WrappedRunnable()
       {
@@ -1245,30 +1218,30 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          @Override
          public void runException() throws Exception
          {
-            checkJNDI(jndi);
+            checkBindings(bindings);
 
             ActiveMQConnectionFactory cf = internalCreateCF(storeConfig, cfConfig);
 
-            ArrayList<String> bindings = new ArrayList<String>();
+            ArrayList<String> bindingsToAdd = new ArrayList<String>();
 
-            for (String jndiItem : jndi)
+            for (String bindingsItem : bindings)
             {
-               if (bindToJndi(jndiItem, cf))
+               if (bindToBindings(bindingsItem, cf))
                {
-                  bindings.add(jndiItem);
+                  bindingsToAdd.add(bindingsItem);
                }
             }
 
-            String[] usedJNDI = bindings.toArray(new String[bindings.size()]);
-            addToBindings(connectionFactoryJNDI, cfConfig.getName(), usedJNDI);
+            String[] usedBindings = bindingsToAdd.toArray(new String[bindingsToAdd.size()]);
+            addToBindings(connectionFactoryBindings, cfConfig.getName(), usedBindings);
 
             if (storeConfig)
             {
                storage.storeConnectionFactory(new PersistedConnectionFactory(cfConfig));
-               storage.addJNDI(PersistedType.ConnectionFactory, cfConfig.getName(), usedJNDI);
+               storage.addBindings(PersistedType.ConnectionFactory, cfConfig.getName(), usedBindings);
             }
 
-            JMSServerManagerImpl.this.recoverJndiBindings(cfConfig.getName(), PersistedType.ConnectionFactory);
+            JMSServerManagerImpl.this.recoverregistryBindings(cfConfig.getName(), PersistedType.ConnectionFactory);
             sendNotification(JMSNotificationType.CONNECTION_FACTORY_CREATED, cfConfig.getName());
          }
       });
@@ -1300,7 +1273,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       this.storage = newStorage;
    }
 
-   private String[] getJNDIList(final Map<String, List<String>> map, final String name)
+   private String[] getBindingsList(final Map<String, List<String>> map, final String name)
    {
       List<String> result = map.get(name);
       if (result == null)
@@ -1341,7 +1314,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          queues.put(queueName, activeMQQueue);
 
-         this.recoverJndiBindings(queueName, PersistedType.Queue);
+         this.recoverregistryBindings(queueName, PersistedType.Queue);
 
          jmsManagementService.registerQueue(activeMQQueue, queue);
 
@@ -1379,7 +1352,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          topics.put(topicName, activeMQTopic);
 
-         this.recoverJndiBindings(topicName, PersistedType.Topic);
+         this.recoverregistryBindings(topicName, PersistedType.Topic);
 
          jmsManagementService.registerTopic(activeMQTopic);
 
@@ -1541,17 +1514,17 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    protected boolean shutdownConnectionFactory(final String name) throws Exception
    {
       checkInitialised();
-      List<String> jndiBindings = connectionFactoryJNDI.get(name);
+      List<String> registryBindings = connectionFactoryBindings.get(name);
 
       if (registry != null)
       {
-         for (String jndiBinding : jndiBindings)
+         for (String registryBinding : registryBindings)
          {
-            registry.unbind(jndiBinding);
+            registry.unbind(registryBinding);
          }
       }
 
-      connectionFactoryJNDI.remove(name);
+      connectionFactoryBindings.remove(name);
       connectionFactories.remove(name);
 
       jmsManagementService.unregisterConnectionFactory(name);
@@ -1726,7 +1699,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
    }
 
-   private void addToBindings(Map<String, List<String>> map, String name, String... jndi)
+   private void addToBindings(Map<String, List<String>> map, String name, String... bindings)
    {
       List<String> list = map.get(name);
       if (list == null)
@@ -1734,32 +1707,32 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          list = new ArrayList<String>();
          map.put(name, list);
       }
-      for (String jndiItem : jndi)
+      for (String bindingsItem : bindings)
       {
-         list.add(jndiItem);
+         list.add(bindingsItem);
       }
    }
 
-   private void checkJNDI(final String... jndiNames) throws NamingException
+   private void checkBindings(final String... bindingsNames) throws NamingException
    {
-      if (jndiNames != null)
+      if (bindingsNames != null)
       {
-         for (String jndiName : jndiNames)
+         for (String bindingsName : bindingsNames)
          {
-            if (registry != null && registry.lookup(jndiName) != null)
+            if (registry != null && registry.lookup(bindingsName) != null)
             {
-               throw new NamingException(jndiName + " already has an object bound");
+               throw new NamingException(bindingsName + " already has an object bound");
             }
          }
       }
    }
 
-   private boolean bindToJndi(final String jndiName, final Object objectToBind) throws NamingException
+   private boolean bindToBindings(final String bindingsName, final Object objectToBind) throws NamingException
    {
       if (registry != null)
       {
-         registry.unbind(jndiName);
-         registry.bind(jndiName, objectToBind);
+         registry.unbind(bindingsName);
+         registry.bind(bindingsName, objectToBind);
       }
       return true;
    }
@@ -1769,11 +1742,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       if (config == null)
       {
          return;
-      }
-
-      if (config.getContext() != null)
-      {
-         setContext(config.getContext());
       }
 
       List<ConnectionFactoryConfiguration> connectionFactoryConfigurations = config.getConnectionFactoryConfigurations();
@@ -1798,7 +1766,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    /**
     * @param param
     */
-   private void unbindJNDI(Map<String, List<String>> param)
+   private void unbindBindings(Map<String, List<String>> param)
    {
       if (registry != null)
       {
@@ -1812,7 +1780,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                }
                catch (Exception e)
                {
-                  ActiveMQJMSServerLogger.LOGGER.jndiUnbindError(e, key);
+                  ActiveMQJMSServerLogger.LOGGER.bindingsUnbindError(e, key);
                }
             }
          }
@@ -1881,13 +1849,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       storage.start();
    }
 
-   private synchronized boolean removeFromJNDI(final Map<String, ?> keys,
-                                               final Map<String, List<String>> jndiMap,
+   private synchronized boolean removeFromBindings(final Map<String, ?> keys,
+                                               final Map<String, List<String>> bindingsMap,
                                                final String name) throws Exception
    {
       checkInitialised();
-      List<String> jndiBindings = jndiMap.remove(name);
-      if (jndiBindings == null || jndiBindings.size() == 0)
+      List<String> registryBindings = bindingsMap.remove(name);
+      if (registryBindings == null || registryBindings.size() == 0)
       {
          return false;
       }
@@ -1897,31 +1865,31 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       if (registry != null)
       {
-         Iterator<String> iter = jndiBindings.iterator();
+         Iterator<String> iter = registryBindings.iterator();
          while (iter.hasNext())
          {
-            String jndiBinding = iter.next();
-            registry.unbind(jndiBinding);
+            String registryBinding = iter.next();
+            registry.unbind(registryBinding);
             iter.remove();
          }
       }
       return true;
    }
 
-   private synchronized boolean removeFromJNDI(final Map<String, List<String>> jndiMap,
+   private synchronized boolean removeFromBindings(final Map<String, List<String>> bindingsMap,
                                                final String name,
-                                               final String jndi) throws Exception
+                                               final String bindings) throws Exception
    {
       checkInitialised();
-      List<String> jndiBindings = jndiMap.get(name);
-      if (jndiBindings == null || jndiBindings.size() == 0)
+      List<String> registryBindings = bindingsMap.get(name);
+      if (registryBindings == null || registryBindings.size() == 0)
       {
          return false;
       }
 
-      if (jndiBindings.remove(jndi))
+      if (registryBindings.remove(bindings))
       {
-         registry.unbind(jndi);
+         registry.unbind(bindings);
          return true;
       }
       else

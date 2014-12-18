@@ -18,8 +18,6 @@ package org.apache.activemq.jms.server.config;
 
 import java.util.List;
 
-import javax.naming.Context;
-
 /**
  * A JMSConfiguration
  *
@@ -29,10 +27,6 @@ import javax.naming.Context;
  */
 public interface JMSConfiguration
 {
-   JMSConfiguration setContext(Context context);
-
-   Context getContext();
-
    List<JMSQueueConfiguration> getQueueConfigurations();
 
    JMSConfiguration setQueueConfigurations(List<JMSQueueConfiguration> queueConfigurations);

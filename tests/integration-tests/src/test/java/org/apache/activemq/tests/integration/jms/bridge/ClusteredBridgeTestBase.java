@@ -43,6 +43,7 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
@@ -168,7 +169,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
 
          liveContext = new InVMContext();
          liveNode = new JMSServerManagerImpl(server0);
-         liveNode.setContext(liveContext);
+         liveNode.setRegistry(new JndiBindingRegistry(liveContext));
 
          //backup
          Configuration conf = createBasicConfig()
@@ -185,7 +186,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
          Context context = new InVMContext();
 
          backupNode = new JMSServerManagerImpl(backup);
-         backupNode.setContext(context);
+         backupNode.setRegistry(new JndiBindingRegistry(context));
       }
 
       public void start() throws Exception

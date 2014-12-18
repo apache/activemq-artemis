@@ -58,8 +58,8 @@ public interface ActiveMQJMSServerBundle
    @Message(id = 129005, value = "Connector ''{0}'' not found on the main configuration file" , format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException noConnectorNameConfiguredOnCF(String name);
 
-   @Message(id = 129006, value =  "JNDI {0} is already being used by another connection factory", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQAddressExistsException cfJndiExists(String name);
+   @Message(id = 129006, value =  "Binding {0} is already being used by another connection factory", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAddressExistsException cfBindingsExists(String name);
 
    @Message(id = 129007, value = "Error decoding password using codec instance", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException errorDecodingPassword(@Cause Exception e);

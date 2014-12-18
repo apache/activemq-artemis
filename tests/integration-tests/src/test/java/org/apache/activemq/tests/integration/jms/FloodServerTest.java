@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.tests.integration.jms;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
 
@@ -95,7 +96,7 @@ public class FloodServerTest extends UnitTestCase
 
       serverManager = new JMSServerManagerImpl(server);
       initialContext = new InVMNamingContext();
-      serverManager.setContext(initialContext);
+      serverManager.setRegistry(new JndiBindingRegistry(initialContext));
       serverManager.start();
       serverManager.activated();
 

@@ -21,7 +21,7 @@ import java.util.List;
 import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 
 /**
@@ -48,11 +48,11 @@ public interface JMSStorageManager extends ActiveMQComponent
 
    List<PersistedConnectionFactory> recoverConnectionFactories();
 
-   void addJNDI(PersistedType type, String name, String ... address) throws Exception;
+   void addBindings(PersistedType type, String name, String... address) throws Exception;
 
-   List<PersistedJNDI> recoverPersistedJNDI() throws Exception;
+   List<PersistedBindings> recoverPersistedBindings() throws Exception;
 
-   void deleteJNDI(PersistedType type, String name, String address) throws Exception;
+   void deleteBindings(PersistedType type, String name, String address) throws Exception;
 
-   void deleteJNDI(PersistedType type, String name) throws Exception;
+   void deleteBindings(PersistedType type, String name) throws Exception;
 }

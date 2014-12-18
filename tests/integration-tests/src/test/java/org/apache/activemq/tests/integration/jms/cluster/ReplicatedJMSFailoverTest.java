@@ -19,6 +19,7 @@ package org.apache.activemq.tests.integration.jms.cluster;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -55,7 +56,7 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
 
       backupJMSService = new JMSServerManagerImpl(backupService);
 
-      backupJMSService.setContext(ctx2);
+      backupJMSService.setRegistry(new JndiBindingRegistry(ctx2));
 
       backupJMSService.start();
 
@@ -74,7 +75,7 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
 
       liveJMSService = new JMSServerManagerImpl(liveService);
 
-      liveJMSService.setContext(ctx1);
+      liveJMSService.setRegistry(new JndiBindingRegistry(ctx1));
 
       liveJMSService.start();
    }

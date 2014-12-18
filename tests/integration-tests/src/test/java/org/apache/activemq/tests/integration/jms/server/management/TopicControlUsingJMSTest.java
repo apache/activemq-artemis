@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.tests.integration.jms.server.management;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
 
@@ -86,7 +87,8 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
       Assert.assertEquals(topic.getTopicName(), proxy.retrieveAttributeValue("name"));
       Assert.assertEquals(topic.getAddress(), proxy.retrieveAttributeValue("address"));
       Assert.assertEquals(topic.isTemporary(), proxy.retrieveAttributeValue("temporary"));
-      Object[] bindings = (Object[])proxy.retrieveAttributeValue("JNDIBindings");
+      Object[] bindings = (Object[])proxy.retrieveAttributeValue("" +
+                                                                 "RegistryBindings");
       assertEquals(1, bindings.length);
       Assert.assertEquals(topicBinding, bindings[0]);
    }
@@ -448,7 +450,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
 
       serverManager = new JMSServerManagerImpl(server);
       serverManager.start();
-      serverManager.setContext(new InVMNamingContext());
+      serverManager.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       serverManager.activated();
 
       clientID = RandomUtil.randomString();

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.tests.integration.client;
 import org.apache.activemq.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
 
@@ -71,7 +72,7 @@ public class FailureDeadlockTest extends ServiceTestBase
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       server = createServer(false, conf);
       jmsServer = new JMSServerManagerImpl(server);
-      jmsServer.setContext(new NullInitialContext());
+      jmsServer.setRegistry(new JndiBindingRegistry(new NullInitialContext()));
       jmsServer.start();
 
       cf1 =

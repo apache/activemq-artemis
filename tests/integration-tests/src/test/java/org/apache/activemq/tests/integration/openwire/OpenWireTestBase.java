@@ -31,6 +31,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -128,7 +129,7 @@ public class OpenWireTestBase extends ServiceTestBase
       }
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();
-      jmsServer.setContext(namingContext);
+      jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
       jmsServer.start();
 
       registerConnectionFactory();
