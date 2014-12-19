@@ -15,27 +15,44 @@
   ~ limitations under the License.
   -->
 
-<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
-  <id>bin</id>
-  <formats>
-    <format>dir</format>
-    <format>zip</format>
-    <format>tar.gz</format>
-  </formats>
-  <includeBaseDirectory>true</includeBaseDirectory>
+   <id>bin</id>
+   <formats>
+      <format>dir</format>
+      <format>zip</format>
+      <format>tar.gz</format>
+   </formats>
+   <includeBaseDirectory>true</includeBaseDirectory>
    <dependencySets>
       <dependencySet>
          <includes>
             <!-- modules -->
-            <include>org.apache.activemq:*</include>
+            <include>org.apache.activemq:activemq-bootstrap</include>
+            <include>org.apache.activemq:activemq-commons</include>
+            <include>org.apache.activemq:activemq-core-client</include>
+            <include>org.apache.activemq:activemq-dto</include>
+            <include>org.apache.activemq:activemq-jms-client</include>
+            <include>org.apache.activemq:activemq-jms-server</include>
+            <include>org.apache.activemq:activemq-journal</include>
+            <include>org.apache.activemq:activemq-native</include>
+            <include>org.apache.activemq:activemq-amqp-protocol</include>
+            <include>org.apache.activemq:activemq-openwire-protocol</include>
+            <include>org.apache.activemq:activemq-proton-plug</include>
+            <include>org.apache.activemq:activemq-stomp-protocol</include>
+            <include>org.apache.activemq:activemq-ra</include>
+            <include>org.apache.activemq:activemq-selector</include>
+            <include>org.apache.activemq:activemq-server</include>
+            <include>org.apache.activemq:activemq-service-extensions</include>
+            <include>org.apache.activemq:activemq-tools</include>
+            <include>org.apache.activemq:activemq-web</include>
             <include>org.apache.activemq.rest:activemq-rest</include>
             <!-- dependencies -->
             <include>org.jboss.spec.javax.jms:jboss-jms-api_2.0_spec</include>
             <include>org.jboss.logmanager:jboss-logmanager</include>
             <include>org.jboss.logging:jboss-logging</include>
-            <include>org.jboss:jboss-common-core</include>
             <include>io.netty:netty-all</include>
             <include>org.apache.qpid:proton-j</include>
             <include>org.apache.qpid:proton-jms</include>
@@ -47,9 +64,9 @@
             <include>org.eclipse.jetty.aggregate:jetty-all-server</include>
             <include>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</include>
          </includes>
-         <excludes>
-           <exclude>org.apache.activemq:activemq-website</exclude>
-         </excludes>
+         <!--excludes>
+            <exclude>org.apache.activemq:activemq-website</exclude>
+         </excludes-->
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
       </dependencySet>
@@ -66,63 +83,63 @@
             </includes>
          </unpackOptions>
       </dependencySet>
-       <dependencySet>
-           <includes>
-               <include>org.apache.activemq:activemq-website</include>
-           </includes>
-           <excludes>
-               <exclude>org.apache.activemq:activemq-website:jar:javadoc</exclude>
-           </excludes>
-           <outputDirectory>web</outputDirectory>
-           <unpack>true</unpack>
-       </dependencySet>
-       <dependencySet>
-           <includes>
-               <include>org.apache.activemq:activemq-website:jar:javadoc</include>
-           </includes>
-           <outputDirectory>web/api</outputDirectory>
-           <unpack>true</unpack>
-       </dependencySet>
-       <dependencySet>
-           <includes>
-               <include>org.jolokia:jolokia-war:war</include>
-           </includes>
-           <outputDirectory>web</outputDirectory>
-           <unpack>false</unpack>
-       </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.apache.activemq:activemq-website</include>
+         </includes>
+         <excludes>
+            <exclude>org.apache.activemq:activemq-website:jar:javadoc</exclude>
+         </excludes>
+         <outputDirectory>web</outputDirectory>
+         <unpack>true</unpack>
+      </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.apache.activemq:activemq-website:jar:javadoc</include>
+         </includes>
+         <outputDirectory>web/api</outputDirectory>
+         <unpack>true</unpack>
+      </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.jolokia:jolokia-war:war</include>
+         </includes>
+         <outputDirectory>web</outputDirectory>
+         <unpack>false</unpack>
+      </dependencySet>
    </dependencySets>
    <fileSets>
-     <!-- schema -->
-     <fileSet>
-       <directory>../../activemq-server/src/main/resources/schema/</directory>
-       <outputDirectory>schema</outputDirectory>
-       <lineEnding>keep</lineEnding>
-     </fileSet>
-     <fileSet>
-       <directory>../../activemq-jms-server/src/main/resources/schema/</directory>
-       <outputDirectory>schema</outputDirectory>
-       <lineEnding>keep</lineEnding>
-     </fileSet>
-     <!-- resources -->
-     <fileSet>
-       <directory>src/main/resources</directory>
-       <outputDirectory>/</outputDirectory>
-       <lineEnding>keep</lineEnding>
-        <excludes>
-           <exclude>**/target/**</exclude>
-           <exclude>**/**/*.iml</exclude>
-           <exclude>**/**/*.dat</exclude>
-        </excludes>
-     </fileSet>
-     <fileSet>
-       <directory>../../examples</directory>
-       <outputDirectory>web/examples</outputDirectory>
-       <lineEnding>keep</lineEnding>
-       <excludes>
-         <exclude>**/target/**</exclude>
-         <exclude>**/**/*.iml</exclude>
-         <exclude>**/**/*.dat</exclude>
-       </excludes>
-     </fileSet>
-  </fileSets>
+      <!-- schema -->
+      <fileSet>
+         <directory>${activemq.basedir}/activemq-server/src/main/resources/schema/</directory>
+         <outputDirectory>schema</outputDirectory>
+         <lineEnding>keep</lineEnding>
+      </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}/activemq-jms-server/src/main/resources/schema/</directory>
+         <outputDirectory>schema</outputDirectory>
+         <lineEnding>keep</lineEnding>
+      </fileSet>
+      <!-- resources -->
+      <fileSet>
+         <directory>src/main/resources</directory>
+         <outputDirectory>/</outputDirectory>
+         <lineEnding>keep</lineEnding>
+         <excludes>
+            <exclude>**/target/**</exclude>
+            <exclude>**/**/*.iml</exclude>
+            <exclude>**/**/*.dat</exclude>
+         </excludes>
+      </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}/examples</directory>
+         <outputDirectory>web/examples</outputDirectory>
+         <lineEnding>keep</lineEnding>
+         <excludes>
+            <exclude>**/target/**</exclude>
+            <exclude>**/**/*.iml</exclude>
+            <exclude>**/**/*.dat</exclude>
+         </excludes>
+      </fileSet>
+   </fileSets>
 </assembly>

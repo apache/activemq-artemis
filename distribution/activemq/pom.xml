@@ -33,6 +33,7 @@
    <properties>
       <schemaLocation>${project.build.directory}/${project.artifactId}-${project.version}-bin/${project.artifactId}-${project.version}/schema</schemaLocation>
       <configLocation>src/main/resources/config</configLocation>
+      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
    </properties>
 
    <dependencies>
@@ -117,17 +118,32 @@
            <artifactId>activemq-openwire-protocol</artifactId>
            <version>${project.version}</version>
        </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>activemq-native</artifactId>
-           <version>${project.version}</version>
-       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-native</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-website</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-website</artifactId>
+         <version>${project.version}</version>
+         <classifier>javadoc</classifier>
+      </dependency>
 
       <!-- dependencies -->
-       <dependency>
-           <groupId>org.apache.qpid</groupId>
-           <artifactId>proton-jms</artifactId>
-       </dependency>
+      <dependency>
+         <groupId>org.jboss.logmanager</groupId>
+         <artifactId>jboss-logmanager</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>proton-jms</artifactId>
+      </dependency>
        <dependency>
            <groupId>io.airlift</groupId>
            <artifactId>airline</artifactId>
@@ -135,15 +151,6 @@
        <dependency>
            <groupId>org.apache.activemq</groupId>
            <artifactId>activemq-client</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>activemq-client</artifactId>
-       </dependency>
-       <dependency>
-          <groupId>org.apache.activemq</groupId>
-          <artifactId>activemq-website</artifactId>
-          <version>6.0.0-SNAPSHOT</version>
        </dependency>
        <dependency>
           <groupId>org.eclipse.jetty.aggregate</groupId>

@@ -29,7 +29,9 @@
          <plugin>
             <artifactId>maven-resources-plugin</artifactId>
             <executions>
-               <execution>
+               <!-- We don't currently have a 32-bit shared object in the repo which means if this is enabled the 64-bit
+                    shared object won't be copied properly. -->
+               <!--execution>
                   <id>copy-resources-32</id>
                   <phase>validate</phase>
                   <goals>
@@ -41,12 +43,12 @@
                         <resource>
                            <directory>bin/</directory>
                            <includes>
-                              <include>libActiveMQAIO32.so</include>
+                              <include>libactiveMQAIO32.so</include>
                            </includes>
                         </resource>
                      </resources>
                   </configuration>
-               </execution>
+               </execution-->
                <execution>
                   <id>copy-resources-64</id>
                   <phase>validate</phase>
@@ -59,7 +61,7 @@
                         <resource>
                            <directory>bin/</directory>
                            <includes>
-                              <include>libActiveMQAIO64.so</include>
+                              <include>libactivemqAIO64.so</include>
                            </includes>
                         </resource>
                      </resources>
