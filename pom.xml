@@ -41,7 +41,6 @@
          (${activemq.version.versionName}, ${activemq.version.incrementingVersion})
       </ActiveMQ-Version>
       <resteasy.version>3.0.9.Final</resteasy.version>
-      <jackson-databind.version>2.3.1</jackson-databind.version>
       <skipUnitTests>true</skipUnitTests>
       <skipJmsTests>true</skipJmsTests>
       <skipBytemanTests>true</skipBytemanTests>

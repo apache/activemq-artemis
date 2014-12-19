@@ -137,11 +137,6 @@
            <artifactId>activemq-client</artifactId>
        </dependency>
        <dependency>
-           <groupId>com.fasterxml.jackson.core</groupId>
-           <artifactId>jackson-databind</artifactId>
-           <version>${jackson-databind.version}</version>
-       </dependency>
-       <dependency>
            <groupId>org.apache.activemq</groupId>
            <artifactId>activemq-client</artifactId>
        </dependency>

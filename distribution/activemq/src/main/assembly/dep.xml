@@ -44,7 +44,6 @@
             <include>io.airlift:airline</include>
             <include>com.google.guava:guava</include>
             <include>javax.inject:javax.inject</include>
-            <include>com.fasterxml.jackson.core:jackson-*</include>
             <include>org.eclipse.jetty.aggregate:jetty-all-server</include>
             <include>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</include>
          </includes>
