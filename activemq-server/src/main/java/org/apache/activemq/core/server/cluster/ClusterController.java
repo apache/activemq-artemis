@@ -36,6 +36,7 @@ import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.protocol.core.Channel;
 import org.apache.activemq.core.protocol.core.ChannelHandler;
 import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
@@ -162,16 +163,12 @@ public class ClusterController implements ActiveMQComponent
     *
     * @param name the cluster connection name
     * @param dg the discovery group to use
+    * @param config the cluster connection config
     */
-   public void addClusterConnection(SimpleString name, DiscoveryGroupConfiguration dg)
+   public void addClusterConnection(SimpleString name, DiscoveryGroupConfiguration dg, ClusterConnectionConfiguration config)
    {
       ServerLocatorImpl serverLocator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithHA(dg);
-      //if the cluster isn't available we want to hang around until it is
-      serverLocator.setReconnectAttempts(-1);
-      serverLocator.setInitialConnectAttempts(-1);
-      //this is used for replication so need to use the server packet decoder
-      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
-      locators.put(name, serverLocator);
+      configAndAdd(name, serverLocator, config);
    }
 
    /**
@@ -180,9 +177,16 @@ public class ClusterController implements ActiveMQComponent
     * @param name the cluster connection name
     * @param tcConfigs the transport configurations to use
     */
-   public void addClusterConnection(SimpleString name, TransportConfiguration[] tcConfigs)
+   public void addClusterConnection(SimpleString name, TransportConfiguration[] tcConfigs, ClusterConnectionConfiguration config)
    {
       ServerLocatorImpl serverLocator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithHA(tcConfigs);
+      configAndAdd(name, serverLocator, config);
+   }
+
+   private void configAndAdd(SimpleString name, ServerLocatorInternal serverLocator, ClusterConnectionConfiguration config)
+   {
+      serverLocator.setConnectionTTL(config.getConnectionTTL());
+      serverLocator.setClientFailureCheckPeriod(config.getClientFailureCheckPeriod());
       //if the cluster isn't available we want to hang around until it is
       serverLocator.setReconnectAttempts(-1);
       serverLocator.setInitialConnectAttempts(-1);
@@ -455,4 +459,10 @@ public class ClusterController implements ActiveMQComponent
          }
       }
    }
+
+   public ServerLocator getReplicationLocator()
+   {
+      return this.replicationLocator;
+   }
+
 }

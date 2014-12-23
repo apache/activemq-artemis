@@ -34,11 +34,17 @@ public final class ReplicatedBackupUtils
                                                TransportConfiguration backupConnector,
                                                TransportConfiguration backupAcceptor,
                                                Configuration liveConfig,
-                                               TransportConfiguration liveConnector)
+                                               TransportConfiguration liveConnector,
+                                               TransportConfiguration liveAcceptor)
    {
       if (backupAcceptor != null)
       {
          backupConfig.clearAcceptorConfigurations().addAcceptorConfiguration(backupAcceptor);
+      }
+
+      if (liveAcceptor != null)
+      {
+         liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor);
       }
 
       backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector)

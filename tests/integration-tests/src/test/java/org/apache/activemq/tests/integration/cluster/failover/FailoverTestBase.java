@@ -210,7 +210,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
       backupConfig = createDefaultConfig();
       liveConfig = createDefaultConfig();
 
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector);
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
 
       final String suffix = "_backup";
       backupConfig.setBindingsDirectory(backupConfig.getBindingsDirectory() + suffix)
