@@ -75,7 +75,7 @@ public class StoreConfigTest extends JMSTestBase
 
       try
       {
-         jmsServer.addConnectionFactoryToJNDI("np", "/someCF");
+         jmsServer.addConnectionFactoryToBindingRegistry("np", "/someCF");
          fail("Failure expected and the API let duplicates");
       }
       catch (NamingException expected)
@@ -100,10 +100,10 @@ public class StoreConfigTest extends JMSTestBase
 
       jmsServer.start();
 
-      jmsServer.addConnectionFactoryToJNDI("tst", "/newJNDI");
+      jmsServer.addConnectionFactoryToBindingRegistry("tst", "/newJNDI");
       try
       {
-         jmsServer.addConnectionFactoryToJNDI("tst", "/newJNDI");
+         jmsServer.addConnectionFactoryToBindingRegistry("tst", "/newJNDI");
          fail("Failure expected and the API let duplicates");
       }
       catch (NamingException expected)
@@ -176,7 +176,7 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/t2");
       assertNullJNDI("/t.2");
 
-      jmsServer.addTopicToJndi("topicOne", "/tI");
+      jmsServer.addTopicToBindingRegistry("topicOne", "/tI");
 
       jmsServer.stop();
       jmsServer.start();
@@ -189,11 +189,11 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/t.2");
 
 
-      assertTrue(jmsServer.removeTopicFromJNDI("topicOne", "/tI"));
+      assertTrue(jmsServer.removeTopicFromBindingRegistry("topicOne", "/tI"));
 
-      assertFalse(jmsServer.removeTopicFromJNDI("topicOne","nothing"));
-      assertFalse(jmsServer.removeTopicFromJNDI("nothing","nothing"));
-      assertFalse(jmsServer.removeTopicFromJNDI("nothing"));
+      assertFalse(jmsServer.removeTopicFromBindingRegistry("topicOne", "nothing"));
+      assertFalse(jmsServer.removeTopicFromBindingRegistry("nothing", "nothing"));
+      assertFalse(jmsServer.removeTopicFromBindingRegistry("nothing"));
 
       assertNullJNDI("/tI");
       checkDestination("/t1");
@@ -208,7 +208,7 @@ public class StoreConfigTest extends JMSTestBase
       checkDestination("/t.1");
 
 
-      jmsServer.removeTopicFromJNDI("topicOne");
+      jmsServer.removeTopicFromBindingRegistry("topicOne");
 
       assertTrue(jmsServer.createTopic(true, "topicOne", "/topicx.1", "/topicx.2"));
 
@@ -292,7 +292,7 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/q2");
       assertNullJNDI("/q.2");
 
-      jmsServer.addQueueToJndi("queue1", "/qI");
+      jmsServer.addQueueToBindingRegistry("queue1", "/qI");
 
       jmsServer.stop();
       jmsServer.start();
@@ -305,9 +305,9 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/q.2");
 
 
-      assertTrue(jmsServer.removeQueueFromJNDI("queue1", "/q1"));
+      assertTrue(jmsServer.removeQueueFromBindingRegistry("queue1", "/q1"));
 
-      assertFalse(jmsServer.removeQueueFromJNDI("queue1","nothing"));
+      assertFalse(jmsServer.removeQueueFromBindingRegistry("queue1", "nothing"));
 
       assertNullJNDI("/q1");
       checkDestination("/q.1");
@@ -321,7 +321,7 @@ public class StoreConfigTest extends JMSTestBase
       checkDestination("/q.1");
       checkDestination("/qI");
 
-      jmsServer.removeQueueFromJNDI("queue1");
+      jmsServer.removeQueueFromBindingRegistry("queue1");
 
 
       assertTrue(jmsServer.createQueue(true, "queue1", null, true, "/newq1", "/newq.1"));

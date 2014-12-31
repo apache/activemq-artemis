@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.management.Notification;
 
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
@@ -171,7 +172,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
       ctx = new InVMNamingContext();
 
-      serverManager.setContext(ctx);
+      serverManager.setRegistry(new JndiBindingRegistry(ctx));
       serverManager.activated();
    }
 

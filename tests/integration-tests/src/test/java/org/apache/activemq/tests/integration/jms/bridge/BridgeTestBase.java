@@ -44,6 +44,7 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.api.jms.management.TopicControl;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
@@ -122,7 +123,7 @@ public abstract class BridgeTestBase extends UnitTestCase
 
       context0 = new InVMNamingContext();
       jmsServer0 = new JMSServerManagerImpl(server0);
-      jmsServer0.setContext(context0);
+      jmsServer0.setRegistry(new JndiBindingRegistry(context0));
       jmsServer0.start();
 
       params1 = new HashMap<String, Object>();
@@ -138,7 +139,7 @@ public abstract class BridgeTestBase extends UnitTestCase
       context1 = new InVMNamingContext();
 
       jmsServer1 = new JMSServerManagerImpl(server1);
-      jmsServer1.setContext(context1);
+      jmsServer1.setRegistry(new JndiBindingRegistry(context1));
       jmsServer1.start();
 
       createQueue("sourceQueue", 0);

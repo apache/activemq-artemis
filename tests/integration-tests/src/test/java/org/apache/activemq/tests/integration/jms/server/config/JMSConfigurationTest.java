@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.tests.integration.jms.server.config;
 
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -66,7 +67,6 @@ public class JMSConfigurationTest extends ServiceTestBase
       ActiveMQServer coreServer = new ActiveMQServerImpl(coreConfiguration);
 
       JMSConfiguration jmsConfiguration = new JMSConfigurationImpl();
-      jmsConfiguration.setContext(context);
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName());
       List<TransportConfiguration> transportConfigs = new ArrayList<TransportConfiguration>();
       transportConfigs.add(connectorConfig);
@@ -92,6 +92,8 @@ public class JMSConfigurationTest extends ServiceTestBase
       jmsConfiguration.getTopicConfigurations().add(topicConfig);
 
       JMSServerManager server = new JMSServerManagerImpl(coreServer, jmsConfiguration);
+
+      server.setRegistry(new JndiBindingRegistry(context));
       server.start();
 
       for (String binding : cfConfig.getBindings())

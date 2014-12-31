@@ -26,6 +26,7 @@ import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.deployers.DeploymentManager;
 import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
@@ -157,7 +158,7 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
       jmsServer = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
-      jmsServer.setContext(context);
+      jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
    }
 

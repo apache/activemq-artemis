@@ -80,14 +80,14 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
    // TopicControlMBean implementation ------------------------------
 
    @Override
-   public void addJNDI(String jndi) throws Exception
+   public void addBinding(String binding) throws Exception
    {
-      jmsServerManager.addTopicToJndi(managedTopic.getName(), jndi);
+      jmsServerManager.addTopicToBindingRegistry(managedTopic.getName(), binding);
    }
 
-   public String[] getJNDIBindings()
+   public String[] getRegistryBindings()
    {
-      return jmsServerManager.getJNDIOnTopic(managedTopic.getName());
+      return jmsServerManager.getBindingsOnTopic(managedTopic.getName());
    }
 
    public String getName()

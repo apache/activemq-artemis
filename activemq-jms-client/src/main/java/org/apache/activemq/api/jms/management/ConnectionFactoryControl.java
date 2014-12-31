@@ -39,9 +39,9 @@ public interface ConnectionFactoryControl
    String getName();
 
    /**
-    * Returns the JNDI bindings associated  to this connection factory.
+    * Returns the Registry bindings associated  to this connection factory.
     */
-   String[] getJNDIBindings();
+   String[] getRegistryBindings();
 
    /**
     * does ths cf support HA
@@ -380,14 +380,14 @@ public interface ConnectionFactoryControl
    DiscoveryGroupConfiguration getDiscoveryGroupConfiguration();
 
    /**
-    * Add the JNDI binding to this destination
+    * Add the Registry binding to this destination
     */
-   @Operation(desc = "Adds the factory to another JNDI binding")
-   void addJNDI(@Parameter(name = "jndiBinding", desc = "the name of the binding for JNDI") String jndi) throws Exception;
+   @Operation(desc = "Adds the factory to another Registry binding")
+   void addBinding(@Parameter(name = "binding", desc = "the name of the binding for the Registry") String binding) throws Exception;
 
    /**
-    * Remove a JNDI binding
+    * Remove a Registry binding
     */
-   @Operation(desc = "Remove an existing JNDI binding")
-   void removeJNDI(@Parameter(name = "jndiBinding", desc = "the name of the binding for JNDI") String jndi) throws Exception;
+   @Operation(desc = "Remove an existing Registry binding")
+   void removeBinding(@Parameter(name = "binding", desc = "the name of the binding for Registry") String binding) throws Exception;
 }

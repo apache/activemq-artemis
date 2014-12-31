@@ -76,14 +76,14 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    // Static --------------------------------------------------------
 
-   private static String[] convert(final Object[] jndiBindings)
+   private static String[] convert(final Object[] bindings)
    {
-      String[] bindings = new String[jndiBindings.length];
-      for (int i = 0, jndiBindingsLength = jndiBindings.length; i < jndiBindingsLength; i++)
+      String[] theBindings = new String[bindings.length];
+      for (int i = 0, bindingsLength = bindings.length; i < bindingsLength; i++)
       {
-         bindings[i] = jndiBindings[i].toString().trim();
+         theBindings[i] = bindings[i].toString().trim();
       }
-      return bindings;
+      return theBindings;
    }
 
    private static String[] toArray(final String commaSeparatedString)
@@ -217,7 +217,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                                        boolean useDiscovery,
                                        int cfType,
                                        String connectors,
-                                       String jndiBindings,
+                                       String bindings,
                                        String clientID,
                                        long clientFailureCheckPeriod,
                                        long connectionTTL,
@@ -253,7 +253,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                               useDiscovery,
                               cfType,
                               toArray(connectors),
-                              toArray(jndiBindings),
+                              toArray(bindings),
                               clientID,
                               clientFailureCheckPeriod,
                               connectionTTL,
@@ -392,16 +392,16 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    /**
     * Create a JMS ConnectionFactory with the specified name connected to a single live-backup pair of servers.
     * <br>
-    * The ConnectionFactory is bound to JNDI for all the specified bindings Strings.
+    * The ConnectionFactory is bound to the Registry for all the specified bindings Strings.
     */
    public void createConnectionFactory(String name,
                                        boolean ha,
                                        boolean useDiscovery,
                                        int cfType,
                                        String connectors,
-                                       String jndiBindings) throws Exception
+                                       String bindings) throws Exception
    {
-      createConnectionFactory(name, ha, useDiscovery, cfType, toArray(connectors), toArray(jndiBindings));
+      createConnectionFactory(name, ha, useDiscovery, cfType, toArray(connectors), toArray(bindings));
    }
 
    public boolean createQueue(final String name) throws Exception
@@ -409,19 +409,19 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       return createQueue(name, null, null, true);
    }
 
-   public boolean createQueue(final String name, final String jndiBindings) throws Exception
+   public boolean createQueue(final String name, final String bindings) throws Exception
    {
-      return createQueue(name, jndiBindings, null, true);
+      return createQueue(name, bindings, null, true);
    }
 
    @Override
-   public boolean createQueue(String name, String jndiBindings, String selector) throws Exception
+   public boolean createQueue(String name, String bindings, String selector) throws Exception
    {
-      return createQueue(name, jndiBindings, selector, true);
+      return createQueue(name, bindings, selector, true);
    }
 
    public boolean createQueue(@Parameter(name = "name", desc = "Name of the queue to create") String name,
-                              @Parameter(name = "jndiBindings", desc = "comma-separated list of JNDI bindings (use '&comma;' if u need to use commas in your jndi name)") String jndiBindings,
+                              @Parameter(name = "bindings", desc = "comma-separated list of Registry bindings (use '&comma;' if u need to use commas in your bindings name)") String bindings,
                               @Parameter(name = "selector", desc = "the jms selector") String selector,
                               @Parameter(name = "durable", desc = "is the queue persistent and resilient to restart") boolean durable) throws Exception
    {
@@ -432,7 +432,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       try
       {
          return server.createQueue(true, name, selector, durable,
-               JMSServerControlImpl.toArray(jndiBindings));
+               JMSServerControlImpl.toArray(bindings));
       }
       finally
       {
@@ -466,7 +466,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       return createTopic(name, null);
    }
 
-   public boolean createTopic(final String topicName, final String jndiBindings) throws Exception
+   public boolean createTopic(final String topicName, final String bindings) throws Exception
    {
       checkStarted();
 
@@ -474,7 +474,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       try
       {
-         return server.createTopic(true, topicName, JMSServerControlImpl.toArray(jndiBindings));
+         return server.createTopic(true, topicName, JMSServerControlImpl.toArray(bindings));
       }
       finally
       {

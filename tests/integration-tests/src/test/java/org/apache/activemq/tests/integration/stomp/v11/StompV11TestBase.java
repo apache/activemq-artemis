@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.tests.integration.stomp.v11;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
 
@@ -121,7 +122,7 @@ public abstract class StompV11TestBase extends UnitTestCase
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
-      server.setContext(new InVMNamingContext());
+      server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
    }
 

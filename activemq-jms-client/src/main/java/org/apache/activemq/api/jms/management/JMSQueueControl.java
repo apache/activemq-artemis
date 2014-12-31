@@ -74,16 +74,16 @@ public interface JMSQueueControl extends DestinationControl
    // Operations ----------------------------------------------------
 
    /**
-    * Returns the JNDI bindings associated  to this connection factory.
+    * Returns the Registry bindings associated  to this connection factory.
     */
-   @Operation(desc = "Returns the list of JNDI bindings associated")
-   String[] getJNDIBindings();
+   @Operation(desc = "Returns the list of Registry bindings associated")
+   String[] getRegistryBindings();
 
    /**
     * Add the JNDI binding to this destination
     */
-   @Operation(desc = "Adds the queue to another JNDI binding")
-   void addJNDI(@Parameter(name = "jndiBinding", desc = "the name of the binding for JNDI") String jndi) throws Exception;
+   @Operation(desc = "Adds the queue to another Registry binding")
+   void addBinding(@Parameter(name = "binding", desc = "the name of the binding for the registry") String binding) throws Exception;
 
    /**
     * Lists all the JMS messages in this queue matching the specified filter.

@@ -29,6 +29,7 @@ import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
@@ -703,7 +704,7 @@ public class ExtraStompTest extends StompTestBase
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
-      server.setContext(new InVMNamingContext());
+      server.setRegistry(new JndiBindingRegistry((new InVMNamingContext())));
       return server;
    }
 
@@ -810,7 +811,7 @@ public class ExtraStompTest extends StompTestBase
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
-      server.setContext(new InVMNamingContext());
+      server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
    }
 

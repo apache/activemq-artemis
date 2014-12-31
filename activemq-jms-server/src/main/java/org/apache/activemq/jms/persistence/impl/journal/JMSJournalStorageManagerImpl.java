@@ -38,7 +38,7 @@ import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.jms.persistence.JMSStorageManager;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedJNDI;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 import org.apache.activemq.utils.IDGenerator;
 
@@ -56,7 +56,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 
    public static final byte DESTINATION_RECORD = 2;
 
-   public static final byte JNDI_RECORD = 3;
+   public static final byte BINDING_RECORD = 3;
 
    // Attributes ----------------------------------------------------
 
@@ -74,7 +74,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 
    private final Map<Pair<PersistedType, String>, PersistedDestination> destinations = new ConcurrentHashMap<Pair<PersistedType, String>, PersistedDestination>();
 
-   private final Map<Pair<PersistedType, String>, PersistedJNDI> mapJNDI = new ConcurrentHashMap<Pair<PersistedType, String>, PersistedJNDI>();
+   private final Map<Pair<PersistedType, String>, PersistedBindings> mapBindings = new ConcurrentHashMap<Pair<PersistedType, String>, PersistedBindings>();
 
    // Static --------------------------------------------------------
 
@@ -166,87 +166,87 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
       destinations.put(new Pair<PersistedType, String>(destination.getType(), destination.getName()), destination);
    }
 
-   public List<PersistedJNDI> recoverPersistedJNDI() throws Exception
+   public List<PersistedBindings> recoverPersistedBindings() throws Exception
    {
-      ArrayList<PersistedJNDI> list = new ArrayList<PersistedJNDI>(mapJNDI.values());
+      ArrayList<PersistedBindings> list = new ArrayList<PersistedBindings>(mapBindings.values());
       return list;
    }
 
-   public void addJNDI(PersistedType type, String name, String... address) throws Exception
+   public void addBindings(PersistedType type, String name, String... address) throws Exception
    {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
       long tx = idGenerator.generateID();
 
-      PersistedJNDI currentJNDI = mapJNDI.get(key);
-      if (currentJNDI != null)
+      PersistedBindings currentBindings = mapBindings.get(key);
+      if (currentBindings != null)
       {
-         jmsJournal.appendDeleteRecordTransactional(tx, currentJNDI.getId());
+         jmsJournal.appendDeleteRecordTransactional(tx, currentBindings.getId());
       }
       else
       {
-         currentJNDI = new PersistedJNDI(type, name);
+         currentBindings = new PersistedBindings(type, name);
       }
 
-      mapJNDI.put(key, currentJNDI);
+      mapBindings.put(key, currentBindings);
 
       for (String adItem : address)
       {
-         currentJNDI.addJNDI(adItem);
+         currentBindings.addBinding(adItem);
       }
 
 
       long newId = idGenerator.generateID();
 
-      currentJNDI.setId(newId);
+      currentBindings.setId(newId);
 
-      jmsJournal.appendAddRecordTransactional(tx, newId, JNDI_RECORD, currentJNDI);
+      jmsJournal.appendAddRecordTransactional(tx, newId, BINDING_RECORD, currentBindings);
 
       jmsJournal.appendCommitRecord(tx, true);
    }
 
-   public void deleteJNDI(PersistedType type, String name, String address) throws Exception
+   public void deleteBindings(PersistedType type, String name, String address) throws Exception
    {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
       long tx = idGenerator.generateID();
 
-      PersistedJNDI currentJNDI = mapJNDI.get(key);
-      if (currentJNDI == null)
+      PersistedBindings currentBindings = mapBindings.get(key);
+      if (currentBindings == null)
       {
          return;
       }
       else
       {
-         jmsJournal.appendDeleteRecordTransactional(tx, currentJNDI.getId());
+         jmsJournal.appendDeleteRecordTransactional(tx, currentBindings.getId());
       }
 
-      currentJNDI.deleteJNDI(address);
+      currentBindings.deleteBinding(address);
 
-      if (currentJNDI.getJndi().size() == 0)
+      if (currentBindings.getBindings().size() == 0)
       {
-         mapJNDI.remove(key);
+         mapBindings.remove(key);
       }
       else
       {
          long newId = idGenerator.generateID();
-         currentJNDI.setId(newId);
-         jmsJournal.appendAddRecordTransactional(tx, newId, JNDI_RECORD, currentJNDI);
+         currentBindings.setId(newId);
+         jmsJournal.appendAddRecordTransactional(tx, newId, BINDING_RECORD, currentBindings);
       }
 
       jmsJournal.appendCommitRecord(tx, true);
    }
 
 
-   public void deleteJNDI(PersistedType type, String name) throws Exception
+   public void deleteBindings(PersistedType type, String name) throws Exception
    {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
-      PersistedJNDI currentJNDI = mapJNDI.remove(key);
+      PersistedBindings currentBindings = mapBindings.remove(key);
 
-      if (currentJNDI != null)
+      if (currentBindings != null)
       {
-         jmsJournal.appendDeleteRecord(currentJNDI.getId(), true);
+         jmsJournal.appendDeleteRecord(currentBindings.getId(), true);
       }
    }
 
@@ -316,13 +316,13 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
             destination.setId(id);
             destinations.put(new Pair<PersistedType, String>(destination.getType(), destination.getName()), destination);
          }
-         else if (rec == JNDI_RECORD)
+         else if (rec == BINDING_RECORD)
          {
-            PersistedJNDI jndi = new PersistedJNDI();
-            jndi.decode(buffer);
-            jndi.setId(id);
-            Pair<PersistedType, String> key = new Pair<PersistedType, String>(jndi.getType(), jndi.getName());
-            mapJNDI.put(key, jndi);
+            PersistedBindings bindings = new PersistedBindings();
+            bindings.decode(buffer);
+            bindings.setId(id);
+            Pair<PersistedType, String> key = new Pair<PersistedType, String>(bindings.getType(), bindings.getName());
+            mapBindings.put(key, bindings);
          }
          else
          {

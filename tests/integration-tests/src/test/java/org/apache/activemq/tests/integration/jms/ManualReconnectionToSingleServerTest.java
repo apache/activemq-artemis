@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.tests.integration.jms;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
 
@@ -160,7 +161,9 @@ public class ManualReconnectionToSingleServerTest extends ServiceTestBase
       server = createServer(false, conf);
 
       JMSConfiguration configuration = new JMSConfigurationImpl();
-      configuration.setContext(context);
+      serverManager = new JMSServerManagerImpl(server, configuration);
+      serverManager.setRegistry(new JndiBindingRegistry(context));
+
       configuration.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(QUEUE_NAME).setBindings(QUEUE_NAME));
 
       ArrayList<TransportConfiguration> configs = new ArrayList<TransportConfiguration>();
@@ -169,10 +172,9 @@ public class ManualReconnectionToSingleServerTest extends ServiceTestBase
          .setName("cf")
          .setConnectorNames(registerConnectors(server, configs))
          .setBindings("/cf")
-         .setRetryInterval(1000)
+            .setRetryInterval(1000)
          .setReconnectAttempts(-1);
       configuration.getConnectionFactoryConfigurations().add(cfConfig);
-      serverManager = new JMSServerManagerImpl(server, configuration);
       serverManager.start();
 
       listener = new Listener();

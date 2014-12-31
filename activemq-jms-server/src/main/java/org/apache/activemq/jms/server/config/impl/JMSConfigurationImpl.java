@@ -19,8 +19,6 @@ package org.apache.activemq.jms.server.config.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.Context;
-
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
@@ -41,8 +39,6 @@ public class JMSConfigurationImpl implements JMSConfiguration
    private List<TopicConfiguration> topicConfigurations = new ArrayList<TopicConfiguration>();
 
    private String domain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
-
-   private Context context = null;
 
    // JMSConfiguration implementation -------------------------------
 
@@ -80,17 +76,6 @@ public class JMSConfigurationImpl implements JMSConfiguration
    public JMSConfigurationImpl setTopicConfigurations(List<TopicConfiguration> topicConfigurations)
    {
       this.topicConfigurations = topicConfigurations;
-      return this;
-   }
-
-   public Context getContext()
-   {
-      return context;
-   }
-
-   public JMSConfigurationImpl setContext(final Context context)
-   {
-      this.context = context;
       return this;
    }
 

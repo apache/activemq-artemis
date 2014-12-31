@@ -52,6 +52,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
@@ -215,7 +216,7 @@ public abstract class StompTestBase extends UnitTestCase
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
-      server.setContext(new InVMNamingContext());
+      server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
    }
 

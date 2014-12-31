@@ -293,13 +293,13 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest
             return (String)proxy.retrieveAttributeValue("selector");
          }
 
-         public void addJNDI(String jndi) throws Exception
+         public void addBinding(String jndi) throws Exception
          {
             // TODO: Add a test for this
-            proxy.invokeOperation("addJNDI", jndi);
+            proxy.invokeOperation("addBindings", jndi);
          }
 
-         public String[] getJNDIBindings()
+         public String[] getRegistryBindings()
          {
             // TODO: Add a test for this
             return null;

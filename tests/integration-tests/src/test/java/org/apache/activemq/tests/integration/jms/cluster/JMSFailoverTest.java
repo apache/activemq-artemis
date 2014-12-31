@@ -47,6 +47,7 @@ import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -543,7 +544,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
       backupJMSService = new JMSServerManagerImpl(backupService);
 
-      backupJMSService.setContext(ctx2);
+      backupJMSService.setRegistry(new JndiBindingRegistry(ctx2));
 
       backupJMSService.getActiveMQServer().setIdentity("JMSBackup");
       log.info("Starting backup");
@@ -569,7 +570,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
       liveJMSService = new JMSServerManagerImpl(liveService);
 
-      liveJMSService.setContext(ctx1);
+      liveJMSService.setRegistry(new JndiBindingRegistry(ctx1));
 
       liveJMSService.getActiveMQServer().setIdentity("JMSLive");
       log.info("Starting life");

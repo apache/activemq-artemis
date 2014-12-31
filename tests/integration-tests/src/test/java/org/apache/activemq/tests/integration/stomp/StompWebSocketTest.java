@@ -85,7 +85,7 @@ public class StompWebSocketTest extends UnitTestCase
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
-      server.setContext(null);
+      server.setRegistry(null);
       return server;
    }
 

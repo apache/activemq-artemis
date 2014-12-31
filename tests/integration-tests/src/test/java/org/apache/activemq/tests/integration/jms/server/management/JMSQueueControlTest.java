@@ -45,6 +45,7 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
@@ -1229,7 +1230,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       ActiveMQQueue testQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue(testQueueName);
 
       JMSQueueControl queueControl = createManagementControl(testQueue);
-      String[] bindings = queueControl.getJNDIBindings();
+      String[] bindings = queueControl.getRegistryBindings();
 
       String newJndi = "newTestQueueAddJndi";
 
@@ -1237,9 +1238,9 @@ public class JMSQueueControlTest extends ManagementTestBase
       {
          assertFalse(b.equals(newJndi));
       }
-      queueControl.addJNDI(newJndi);
+      queueControl.addBinding(newJndi);
 
-      bindings = queueControl.getJNDIBindings();
+      bindings = queueControl.getRegistryBindings();
       boolean newBindingAdded = false;
       for (String b : bindings)
       {
@@ -1258,7 +1259,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       queueControl = createManagementControl(testQueue);
 
-      bindings = queueControl.getJNDIBindings();
+      bindings = queueControl.getRegistryBindings();
       newBindingAdded = false;
       for (String b : bindings)
       {
@@ -1327,7 +1328,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       serverManager = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
-      serverManager.setContext(context);
+      serverManager.setRegistry(new JndiBindingRegistry(context));
       serverManager.start();
       serverManager.activated();
 

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.tests.integration.jms.connection;
 import org.apache.activemq.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
 
@@ -73,7 +74,7 @@ public class ExceptionListenerTest extends UnitTestCase
          .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory"));
       server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
       jmsServer = new JMSServerManagerImpl(server);
-      jmsServer.setContext(new NullInitialContext());
+      jmsServer.setRegistry(new JndiBindingRegistry(new NullInitialContext()));
       jmsServer.start();
       jmsServer.createQueue(false, ExceptionListenerTest.Q_NAME, null, true, ExceptionListenerTest.Q_NAME);
       cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));

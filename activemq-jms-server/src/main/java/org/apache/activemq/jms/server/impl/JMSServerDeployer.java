@@ -115,12 +115,12 @@ public class JMSServerDeployer extends XmlDeployer
       if (node.getNodeName().equals(JMSServerDeployer.QUEUE_NODE_NAME))
       {
          String queueName = node.getAttributes().getNamedItem(getKeyAttribute()).getNodeValue();
-         jmsServerManager.removeQueueFromJNDI(queueName);
+         jmsServerManager.removeQueueFromBindingRegistry(queueName);
       }
       else if (node.getNodeName().equals(JMSServerDeployer.TOPIC_NODE_NAME))
       {
          String topicName = node.getAttributes().getNamedItem(getKeyAttribute()).getNodeValue();
-         jmsServerManager.removeTopicFromJNDI(topicName);
+         jmsServerManager.removeTopicFromBindingRegistry(topicName);
       }
    }
 

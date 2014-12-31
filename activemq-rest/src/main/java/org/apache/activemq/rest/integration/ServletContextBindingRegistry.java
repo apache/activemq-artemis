@@ -52,14 +52,4 @@ public class ServletContextBindingRegistry implements BindingRegistry
    public void close()
    {
    }
-
-   public Object getContext()
-   {
-      return servletContext;
-   }
-
-   public void setContext(Object o)
-   {
-      servletContext = (ServletContext)o;
-   }
 }

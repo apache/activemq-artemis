@@ -40,6 +40,7 @@ import org.apache.activemq.api.jms.management.JMSConsumerInfo;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.api.jms.management.JMSSessionInfo;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
@@ -89,7 +90,7 @@ public class JMSServerControl2Test extends ManagementTestBase
       context = new InVMNamingContext();
       serverManager = new JMSServerManagerImpl(server);
       addActiveMQComponent(serverManager);
-      serverManager.setContext(context);
+      serverManager.setRegistry(new JndiBindingRegistry(context));
       serverManager.start();
       serverManager.activated();
    }

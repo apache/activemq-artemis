@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -69,7 +70,7 @@ public class ManagementActivationTest extends FailoverTestBase
       super.setUp();
       backupJmsServer = new JMSServerManagerImpl(backupServer.getServer());
       context = new InVMNamingContext();
-      backupJmsServer.setContext(context);
+      backupJmsServer.setRegistry(new JndiBindingRegistry(context));
       backupJmsServer.start();
    }
 
@@ -265,7 +266,7 @@ public class ManagementActivationTest extends FailoverTestBase
       boolean exception = false;
       try
       {
-         backupJmsServer.removeQueueFromJNDI("fakeQueue");
+         backupJmsServer.removeQueueFromBindingRegistry("fakeQueue");
       }
       catch (Exception e)
       {
@@ -287,7 +288,7 @@ public class ManagementActivationTest extends FailoverTestBase
       boolean exception = false;
       try
       {
-         backupJmsServer.removeTopicFromJNDI("fakeTopic");
+         backupJmsServer.removeTopicFromBindingRegistry("fakeTopic");
       }
       catch (Exception e)
       {

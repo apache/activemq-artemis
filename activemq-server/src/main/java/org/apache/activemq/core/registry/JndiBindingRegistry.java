@@ -30,22 +30,6 @@ public class JndiBindingRegistry implements BindingRegistry
 {
    private Context context;
 
-   /**
-    * @return the context
-    */
-   public Object getContext()
-   {
-      return context;
-   }
-
-   /**
-    * @param context the context to set
-    */
-   public void setContext(Object context)
-   {
-      this.context = (Context)context;
-   }
-
    public JndiBindingRegistry(Context context)
    {
       this.context = context;

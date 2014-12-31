@@ -43,6 +43,7 @@ import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.QueueImpl;
@@ -726,7 +727,7 @@ public class PagingOrderTest extends ServiceTestBase
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext context = new InVMNamingContext();
-      jmsServer.setContext(context);
+      jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
       jmsServer.createTopic(true, "tt", "/topic/TT");
@@ -775,7 +776,7 @@ public class PagingOrderTest extends ServiceTestBase
 
       jmsServer = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
-      jmsServer.setContext(context);
+      jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
       AddressSettings settings = server.getAddressSettingsRepository().getMatch("jms.topic.TT");
@@ -803,7 +804,7 @@ public class PagingOrderTest extends ServiceTestBase
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext context = new InVMNamingContext();
-      jmsServer.setContext(context);
+      jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
       server.getActiveMQServerControl().addAddressSettings("jms.queue.Q1",
@@ -858,7 +859,7 @@ public class PagingOrderTest extends ServiceTestBase
 
       jmsServer = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
-      jmsServer.setContext(context);
+      jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
       AddressSettings settings = server.getAddressSettingsRepository().getMatch("jms.queue.Q1");
