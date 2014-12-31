@@ -751,7 +751,7 @@ public final class ClusterManager implements ActiveMQComponent
                                                        config.getClusterNotificationInterval(),
                                                        config.getClusterNotificationAttempts());
 
-         clusterController.addClusterConnection(clusterConnection.getName(), dg);
+         clusterController.addClusterConnection(clusterConnection.getName(), dg, config);
       }
       else
       {
@@ -794,7 +794,7 @@ public final class ClusterManager implements ActiveMQComponent
                                                        config.getClusterNotificationAttempts());
 
 
-         clusterController.addClusterConnection(clusterConnection.getName(), tcConfigs);
+         clusterController.addClusterConnection(clusterConnection.getName(), tcConfigs, config);
       }
 
 
