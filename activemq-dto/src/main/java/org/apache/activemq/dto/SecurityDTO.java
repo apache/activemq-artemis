@@ -16,15 +16,12 @@
  */
 package org.apache.activemq.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "security")
 @XmlAccessorType(XmlAccessType.FIELD)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class SecurityDTO
 {
 }
