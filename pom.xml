@@ -1,6 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>org.apache</groupId>
+      <artifactId>apache</artifactId>
+      <version>16</version>
+   </parent>
    <groupId>org.apache.activemq</groupId>
    <artifactId>activemq-pom</artifactId>
    <packaging>pom</packaging>
@@ -73,6 +78,7 @@
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>false</skipLicenseCheck>
       <skipStyleCheck>false</skipStyleCheck>
+      <geronimo.jms.2.spec.version>1.0.0-SNAPSHOT</geronimo.jms.2.spec.version>
    </properties>
 
    <scm>
@@ -191,9 +197,9 @@
 
          <!-- needed to compile JMS-->
          <dependency>
-            <groupId>org.jboss.spec.javax.jms</groupId>
-            <artifactId>jboss-jms-api_2.0_spec</artifactId>
-            <version>1.0.0.Final</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_2.0_spec</artifactId>
+            <version>${geronimo.jms.2.spec.version}</version>
          </dependency>
 
          <!-- needed to provide JMS injection-->
