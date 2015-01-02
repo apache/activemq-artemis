@@ -17,14 +17,16 @@
 <configuration
       xmlns="urn:activemq"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/activemq-configuration.xsd">
-   <ha-policy>
-      <shared-store>
-         <master>
-            <failback-delay>3456</failback-delay>
-            <failover-on-shutdown>false</failover-on-shutdown>
-         </master>
-      </shared-store>
-   </ha-policy>
+      xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/activemq-server.xsd">
+   <core xmlns="urn:activemq:core">
+      <ha-policy>
+         <shared-store>
+            <master>
+               <failback-delay>3456</failback-delay>
+               <failover-on-shutdown>false</failover-on-shutdown>
+            </master>
+         </shared-store>
+      </ha-policy>
+   </core>
 
 </configuration>

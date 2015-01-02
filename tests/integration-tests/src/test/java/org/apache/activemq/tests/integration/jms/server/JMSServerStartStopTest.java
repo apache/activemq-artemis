@@ -28,11 +28,13 @@ import java.util.Set;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
@@ -196,9 +198,12 @@ public class JMSServerStartStopTest extends UnitTestCase
 
    private void start() throws Exception
    {
-      FileConfiguration fc = new FileConfiguration("server-start-stop-config1.xml");
-
-      fc.start();
+      FileConfiguration fc = new FileConfiguration();
+      FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("server-start-stop-config1.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.addDeployable(fileConfiguration);
+      deploymentManager.readConfiguration();
 
       fc.setJournalDirectory(getJournalDir());
       fc.setBindingsDirectory(getBindingsDir());
@@ -208,7 +213,7 @@ public class JMSServerStartStopTest extends UnitTestCase
 
       ActiveMQServer liveServer = addServer(new ActiveMQServerImpl(fc, sm));
 
-      liveJMSServer = new JMSServerManagerImpl(liveServer, "server-start-stop-jms-config1.xml");
+      liveJMSServer = new JMSServerManagerImpl(liveServer, fileConfiguration);
       addActiveMQComponent(liveJMSServer);
       liveJMSServer.setRegistry(null);
 

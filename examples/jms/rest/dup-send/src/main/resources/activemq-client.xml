@@ -20,13 +20,19 @@ under the License.
 
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+            xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <!-- Connectors -->
-   <connectors>
-      <connector name="netty-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-      </connector>
-   </connectors>
+   <jms xmlns="urn:activemq:jms">
+   </jms>
+
+   <core xmlns="urn:activemq:core">
+
+      <!-- Connectors -->
+      <connectors>
+         <connector name="netty-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         </connector>
+      </connectors>
+   </core>
 
 </configuration>

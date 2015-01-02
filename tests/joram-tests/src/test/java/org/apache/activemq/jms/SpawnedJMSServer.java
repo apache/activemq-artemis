@@ -50,8 +50,7 @@ public class SpawnedJMSServer
       {
          Configuration conf = new ConfigurationImpl()
             .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
-            .setSecurityEnabled(false)
-            .setFileDeploymentEnabled(false);
+            .setSecurityEnabled(false);
 
          conf.getConnectorConfigurations().put("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()));
 

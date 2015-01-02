@@ -36,9 +36,9 @@ public class Stop implements Action
       {
          configuration = "xml:" + System.getProperty("activemq.home").replace("\\", "/") + "/config/non-clustered/bootstrap.xml";
       }
-      BrokerDTO broker = BrokerFactory.createBroker(configuration);
+      BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
 
-      File file = new File(broker.core.configuration).getParentFile();
+      File file = new File(broker.server.configuration).getParentFile();
 
       File stopFile = new File(file, "STOP_ME");
 

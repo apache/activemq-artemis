@@ -22,7 +22,6 @@
 
    <bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start">
        <property name="configResourcePath" value="spring-activemq-config.xml"/>
-       <property name="jmsConfigResourcePath" value="spring-activemq-jms.xml"/>
    </bean>
 
    <bean id="connectionFactory" class="org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory">

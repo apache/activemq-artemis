@@ -36,6 +36,7 @@ import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.api.jms.management.TopicControl;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
@@ -117,12 +118,16 @@ public class LocalTestServer implements Server, Runnable
       javax.management.MBeanServer beanServer = java.lang.management.ManagementFactory.getPlatformMBeanServer();
       FileConfiguration fileConfiguration = new FileConfiguration();
       ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
+      securityManager.getConfiguration().addRole("guest", "guest");
       ActiveMQServerImpl activeMQServer = new ActiveMQServerImpl(fileConfiguration, beanServer, securityManager);
       jmsServerManager = new JMSServerManagerImpl(activeMQServer);
       System.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, "" + getServerID());
       jmsServerManager.setRegistry(new JndiBindingRegistry(getInitialContext()));
 
-      fileConfiguration.start();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager();
+      deploymentManager.addDeployable(fileConfiguration).readConfiguration();
       jmsServerManager.start();
       started = true;
 

@@ -22,7 +22,7 @@
 
    <jms configuration="file:${activemq.home}/config/replicated/activemq-jms.xml"/>
 
-   <basic-security/>
+   <file-security configuration="file:${activemq.home}/config/non-clustered/activemq-users.xml"/>
 
    <web bind="http://localhost:8161" path="web">
        <app url="jolokia" war="jolokia-war-1.2.3.war"/>

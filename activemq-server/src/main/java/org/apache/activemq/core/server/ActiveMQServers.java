@@ -97,9 +97,9 @@ public final class ActiveMQServers
    public static ActiveMQServer newActiveMQServer(Configuration config,
                                                   String defUser, String defPass)
    {
-      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
 
-      securityManager.addUser(defUser, defPass);
+      securityManager.getConfiguration().addUser(defUser, defPass);
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config,
                                                                 ManagementFactory.getPlatformMBeanServer(),
@@ -115,9 +115,9 @@ public final class ActiveMQServers
                                                   String user,
                                                   String password)
    {
-      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
 
-      securityManager.addUser(user, password);
+      securityManager.getConfiguration().addUser(user, password);
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager, enablePersistence);
 

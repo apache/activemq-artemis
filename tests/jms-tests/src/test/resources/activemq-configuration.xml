@@ -16,7 +16,11 @@
 -->
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq ../../../src/schema/activemq-configuration.xsd">
+            xsi:schemaLocation="urn:activemq ../../../src/schema/activemq-server.xsd">
+   <jms xmlns="urn:activemq:jms">
+
+   </jms>
+   <core xmlns="urn:activemq:core">
 
       <!-- Connectors -->
       <connectors>
@@ -51,4 +55,16 @@
      <bindings-directory>target/data/binding</bindings-directory>
      <journal-directory>target/data/journal</journal-directory>
      <large-messages-directory>target/data/largemessages</large-messages-directory>
+
+     <security-settings>
+         <security-setting match="#">
+            <permission type="createDurableQueue" roles="guest,def"/>
+            <permission type="deleteDurableQueue" roles="guest,def"/>
+            <permission type="createNonDurableQueue" roles="guest,def"/>
+            <permission type="deleteNonDurableQueue" roles="guest,def"/>
+            <permission type="consume" roles="guest,def"/>
+            <permission type="send" roles="guest,def"/>
+         </security-setting>
+     </security-settings>
+   </core>
 </configuration>

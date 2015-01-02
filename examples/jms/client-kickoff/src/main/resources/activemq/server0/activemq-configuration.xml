@@ -18,26 +18,32 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+   <jms xmlns="urn:activemq:jms">
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+   </jms>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+   <core xmlns="urn:activemq:core">
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
 
-    <!-- true to expose ActiveMQ resources through JMX -->
-    <jmx-management-enabled>true</jmx-management-enabled>
-   
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-      </acceptor>
-   </acceptors>
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+
+      <!-- true to expose ActiveMQ resources through JMX -->
+      <jmx-management-enabled>true</jmx-management-enabled>
+
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         </acceptor>
+      </acceptors>
+   </core>
 
 </configuration>

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.tests.unit.core.config.impl;
 
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.junit.Test;
 
 import org.junit.Assert;
@@ -54,7 +55,7 @@ public class ConfigurationValidationTest extends UnitTestCase
    @Test
    public void testMinimalConfiguration() throws Exception
    {
-      String xml = "<configuration xmlns='urn:activemq'>" + "</configuration>";
+      String xml = "<core xmlns='urn:activemq:core'>" + "</core>";
       Element element = XMLUtil.stringToElement(xml);
       Assert.assertNotNull(element);
       XMLUtil.validate(element, "schema/activemq-configuration.xsd");
@@ -63,8 +64,10 @@ public class ConfigurationValidationTest extends UnitTestCase
    @Test
    public void testFullConfiguration() throws Exception
    {
-      FileConfiguration fc = new FileConfiguration("ConfigurationTest-full-config.xml");
-      fc.start();
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
 
       Assert.assertEquals(true, fc.isPersistDeliveryCountBeforeDelivery());
    }

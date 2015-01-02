@@ -15,67 +15,75 @@
   ~ limitations under the License.
   -->
 
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
-   
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+   <jms xmlns="urn:activemq:jms">
+      <!--the queue used by the example-->
+      <queue name="exampleQueue"/>
+   </jms>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+   <core xmlns="urn:activemq:core">
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
 
-   <!-- Connectors -->
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
 
-   <connectors>
-      <connector name="netty-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5445"/>
-      </connector>
-      <!-- connector to the server1 -->
-      <connector name="server1-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </connector>
-   </connectors>
-   
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="port" value="5445"/>
-      </acceptor>
-   </acceptors>
-   
-   <cluster-connections>
-      <cluster-connection name="my-cluster">
-         <address>jms</address>
-         <connector-ref>netty-connector</connector-ref>
-         <retry-interval>500</retry-interval>
-         <use-duplicate-detection>true</use-duplicate-detection>
-         <forward-when-no-consumers>true</forward-when-no-consumers>
-         <max-hops>2</max-hops>
-         <static-connectors allow-direct-connections-only="true">
-            <connector-ref>server1-connector</connector-ref>
-         </static-connectors>
-      </cluster-connection>
-   </cluster-connections>
-   
-   <!-- Other config -->
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
 
-   <security-settings>
-      <!--security for example queue-->
-      <security-setting match="jms.queue.exampleQueue">
-         <permission type="createDurableQueue" roles="guest"/>
-         <permission type="deleteDurableQueue" roles="guest"/>
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-         <permission type="consume" roles="guest"/>
-         <permission type="send" roles="guest"/>
-      </security-setting>
-   </security-settings>
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
+      <!-- Connectors -->
+
+      <connectors>
+         <connector name="netty-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <param key="port" value="5445"/>
+         </connector>
+         <!-- connector to the server1 -->
+         <connector name="server1-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <param key="port" value="5446"/>
+         </connector>
+      </connectors>
+
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+            <param key="port" value="5445"/>
+         </acceptor>
+      </acceptors>
+
+      <cluster-connections>
+         <cluster-connection name="my-cluster">
+            <address>jms</address>
+            <connector-ref>netty-connector</connector-ref>
+            <retry-interval>500</retry-interval>
+            <use-duplicate-detection>true</use-duplicate-detection>
+            <forward-when-no-consumers>true</forward-when-no-consumers>
+            <max-hops>2</max-hops>
+            <static-connectors allow-direct-connections-only="true">
+               <connector-ref>server1-connector</connector-ref>
+            </static-connectors>
+         </cluster-connection>
+      </cluster-connections>
+
+      <!-- Other config -->
+
+      <security-settings>
+         <!--security for example queue-->
+         <security-setting match="jms.queue.exampleQueue">
+            <permission type="createDurableQueue" roles="guest"/>
+            <permission type="deleteDurableQueue" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+         </security-setting>
+      </security-settings>
+
+   </core>
 </configuration>

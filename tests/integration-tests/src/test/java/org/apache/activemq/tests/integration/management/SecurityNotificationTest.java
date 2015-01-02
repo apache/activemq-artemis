@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.tests.integration.management;
 import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Before;
 import org.junit.After;
 
@@ -45,7 +46,6 @@ import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
@@ -112,8 +112,8 @@ public class SecurityNotificationTest extends UnitTestCase
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), roles);
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addRole("guest", "roleCanNotCreateQueue");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addRole("guest", "roleCanNotCreateQueue");
 
       SecurityNotificationTest.flush(notifConsumer);
 
@@ -162,10 +162,10 @@ public class SecurityNotificationTest extends UnitTestCase
 
       notifQueue = RandomUtil.randomSimpleString();
 
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("admin", "admin");
-      securityManager.addUser("guest", "guest");
-      securityManager.setDefaultUser("guest");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("admin", "admin");
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
 
       Role role = new Role("notif", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
@@ -173,7 +173,7 @@ public class SecurityNotificationTest extends UnitTestCase
       server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(),
                                               roles);
 
-      securityManager.addRole("admin", "notif");
+      securityManager.getConfiguration().addRole("admin", "notif");
 
       ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ClientSessionFactory sf = createSessionFactory(locator);

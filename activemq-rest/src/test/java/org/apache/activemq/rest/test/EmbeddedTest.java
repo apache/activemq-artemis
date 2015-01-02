@@ -27,9 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.config.impl.FileSecurityConfiguration;
 import org.apache.activemq.rest.HttpHeaderProperty;
 import org.apache.activemq.rest.integration.EmbeddedRestActiveMQJMS;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -51,6 +53,13 @@ public class EmbeddedTest
    {
       server = new EmbeddedRestActiveMQJMS();
       server.getManager().setConfigResourcePath("activemq-rest.xml");
+      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration("activemq-users.properties",
+                                                                                      "activemq-roles.properties",
+                                                                                      "guest",
+                                                                                      false,
+                                                                                      null);
+      securityConfiguration.start();
+      server.getEmbeddedJMS().setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfiguration));
       server.start();
       List<String> connectors = new ArrayList<>();
       connectors.add("in-vm");

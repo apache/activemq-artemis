@@ -21,25 +21,16 @@ import io.airlift.command.Command;
 
 import org.apache.activemq.cli.ActiveMQ;
 import org.apache.activemq.components.ExternalComponent;
-import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.dto.BrokerDTO;
 import org.apache.activemq.dto.ComponentDTO;
 import org.apache.activemq.factory.BrokerFactory;
-import org.apache.activemq.factory.CoreFactory;
-import org.apache.activemq.factory.JmsFactory;
 import org.apache.activemq.factory.SecurityManagerFactory;
+import org.apache.activemq.integration.Broker;
 import org.apache.activemq.integration.bootstrap.ActiveMQBootstrapLogger;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.JMSConfiguration;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
-import javax.management.MBeanServer;
-
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -50,8 +41,9 @@ public class Run implements Action
 
    @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_HOME}/config/non-clustered/bootstrap.xml'")
    String configuration;
-   private JMSServerManager jmsServerManager;
    private ArrayList<ActiveMQComponent> components = new ArrayList<>();
+
+   private Broker server;
 
    @Override
    public Object execute(ActionContext context) throws Exception
@@ -68,32 +60,15 @@ public class Run implements Action
 
       System.out.println("Loading configuration file: " + configuration);
 
-      BrokerDTO broker = BrokerFactory.createBroker(configuration);
+      BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
 
-      addShutdownHook(new File(broker.core.configuration).getParentFile());
-
-      Configuration core = CoreFactory.create(broker.core);
-
-      JMSConfiguration jms = JmsFactory.create(broker.jms);
+      addShutdownHook(new File(broker.server.configuration).getParentFile());
 
       ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
 
-      MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+      server = BrokerFactory.createServer(broker.server, security);
 
-      ActiveMQServerImpl server = new ActiveMQServerImpl(core, mBeanServer, security);
-
-      if (jms != null)
-      {
-         jmsServerManager = new JMSServerManagerImpl(server, jms);
-      }
-      else
-      {
-         jmsServerManager = new JMSServerManagerImpl(server);
-      }
-
-      ActiveMQBootstrapLogger.LOGGER.serverStarting();
-
-      jmsServerManager.start();
+      server.start();
 
       if (broker.web != null)
       {
@@ -139,7 +114,7 @@ public class Run implements Action
                   try
                   {
                      //TODO stop components
-                     jmsServerManager.stop();
+                     server.stop();
                   }
                   catch (Exception e)
                   {

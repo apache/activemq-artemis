@@ -20,41 +20,40 @@ under the License.
 
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+            xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+   <core xmlns="urn:activemq:core">
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
 
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
 
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+            <param key="tcp-no-delay" value="false"/>
+            <param key="tcp-send-buffer-size" value="1048576"/>
+            <param key="tcp-receive-buffer-size" value="1048576"/>
+            <param key="host" value="172.16.8.10"/>
+         </acceptor>
+      </acceptors>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+      <security-enabled>false</security-enabled>
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+      <persistence-enabled>true</persistence-enabled>
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="tcp-no-delay" value="false"/>
-         <param key="tcp-send-buffer-size" value="1048576"/>
-         <param key="tcp-receive-buffer-size" value="1048576"/>
-         <param key="host" value="172.16.8.10"/>
-      </acceptor>
-   </acceptors>
-   
-   <security-enabled>false</security-enabled>
-   
-   <persistence-enabled>true</persistence-enabled>
+      <large-messages-directory>/activemq-data/large-messages</large-messages-directory>
+      <bindings-directory>/activemq-data/bindings</bindings-directory>
+      <journal-directory>/activemq-data/journal</journal-directory>
+      <paging-directory>/activemq-data/paging</paging-directory>
 
-   <large-messages-directory>/activemq-data/large-messages</large-messages-directory>
-   <bindings-directory>/activemq-data/bindings</bindings-directory>
-   <journal-directory>/activemq-data/journal</journal-directory>
-   <paging-directory>/activemq-data/paging</paging-directory>
-   
-   <queues>
-	   <queue name="perfQueue">
-	   	<address>perfAddress</address>
-	   </queue>
-   </queues>
+      <queues>
+         <queue name="perfQueue">
+            <address>perfAddress</address>
+         </queue>
+      </queues>
+   </core>
 
 </configuration>

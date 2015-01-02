@@ -17,6 +17,7 @@
 package org.apache.activemq.core.config.impl;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.junit.Test;
 
@@ -150,9 +151,10 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
    @Override
    protected Configuration createConfiguration() throws Exception
    {
-      FileConfiguration fc = new FileConfiguration("ConfigurationTest-defaults.xml");
-
-      fc.start();
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-defaults.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
 
       return fc;
    }

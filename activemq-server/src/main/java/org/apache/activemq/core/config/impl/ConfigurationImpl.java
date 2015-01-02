@@ -65,8 +65,6 @@ public class ConfigurationImpl implements Configuration
 
    private String name = "ConfigurationImpl::" + System.identityHashCode(this);
 
-   protected boolean fileDeploymentEnabled = ActiveMQDefaultConfiguration.isDefaultFileDeploymentEnabled();
-
    private boolean persistenceEnabled = ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled();
 
    protected long fileDeploymentScanPeriod = ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod();
@@ -222,17 +220,6 @@ public class ConfigurationImpl implements Configuration
    public boolean isClustered()
    {
       return !getClusterConfigurations().isEmpty();
-   }
-
-   public boolean isFileDeploymentEnabled()
-   {
-      return fileDeploymentEnabled;
-   }
-
-   public ConfigurationImpl setFileDeploymentEnabled(final boolean enable)
-   {
-      fileDeploymentEnabled = enable;
-      return this;
    }
 
    public boolean isPersistenceEnabled()
@@ -1360,7 +1347,6 @@ public class ConfigurationImpl implements Configuration
       result = prime * result + ((discoveryGroupConfigurations == null) ? 0 : discoveryGroupConfigurations.hashCode());
       result = prime * result + ((divertConfigurations == null) ? 0 : divertConfigurations.hashCode());
       result = prime * result + (failoverOnServerShutdown ? 1231 : 1237);
-      result = prime * result + (fileDeploymentEnabled ? 1231 : 1237);
       result = prime * result + (int)(fileDeploymentScanPeriod ^ (fileDeploymentScanPeriod >>> 32));
       result = prime * result + ((groupingHandlerConfiguration == null) ? 0 : groupingHandlerConfiguration.hashCode());
       result = prime * result + idCacheSize;
@@ -1527,8 +1513,6 @@ public class ConfigurationImpl implements Configuration
       else if (!divertConfigurations.equals(other.divertConfigurations))
          return false;
       if (failoverOnServerShutdown != other.failoverOnServerShutdown)
-         return false;
-      if (fileDeploymentEnabled != other.fileDeploymentEnabled)
          return false;
       if (fileDeploymentScanPeriod != other.fileDeploymentScanPeriod)
          return false;

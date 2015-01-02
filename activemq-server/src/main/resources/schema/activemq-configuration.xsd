@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>   
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -15,13 +15,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-
-<xsd:schema xmlns="urn:activemq" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:amq="urn:org.apache.activemq"
-            xmlns:csd="http://www.w3.org/2001/XMLSchema"
-            attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:activemq"
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="urn:activemq:core"
+            targetNamespace="urn:activemq:core"
+            attributeFormDefault="unqualified"
+            elementFormDefault="qualified"
             version="1.0">
 
-   <xsd:element name="configuration" type="configurationType" amq:schema="activemq-configuration"/>
+   <xsd:element name="core" type="configurationType"/>
 
    <xsd:complexType name="configurationType">
       <xsd:all>
@@ -35,7 +36,7 @@
 
          <xsd:element name="resolve-protocols" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
-            <xsd:annotation amq:linkend="resolveProtocols">
+            <xsd:annotation>
                <xsd:documentation>
                   If true then the ActiveMQ Server will make use of any Protocol Managers that are in available on the
                   classpath. If false then only the core protocol will be available, unless in Embedded mode where users
@@ -46,7 +47,7 @@
 
          <xsd:element name="clustered" type="xsd:boolean" default="false" maxOccurs="1"
                       minOccurs="0">
-            <xsd:annotation amq:linkend="clusters">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated and its value will be ignored (HQ221038). A ActiveMQ server will
                   be "clustered" when its configuration contain a cluster-configuration.
@@ -55,7 +56,7 @@
          </xsd:element>
 
          <xsd:element name="check-for-live-server" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="hq.check-for-live-server">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored if &lt;ha-policy&gt; is not also
                   used. Whether to check the cluster for a (live) server using our own server ID when starting up. This
@@ -65,16 +66,8 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="file-deployment-enabled" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="using-server.configuration">
-               <xsd:documentation>
-                  true means that the server will load configuration from the configuration files
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
          <xsd:element name="persistence-enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="persistence.enabled">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that the server will use the file based journal for persistence.
                </xsd:documentation>
@@ -82,7 +75,7 @@
          </xsd:element>
 
          <xsd:element name="scheduled-thread-pool-max-size" type="xsd:int" default="5" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="server.scheduled.thread.pool">
+            <xsd:annotation>
                <xsd:documentation>
                   Maximum number of threads to use for the scheduled thread pool
                </xsd:documentation>
@@ -90,7 +83,7 @@
          </xsd:element>
 
          <xsd:element name="thread-pool-max-size" type="xsd:int" default="30" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="server.scheduled.thread.pool">
+            <xsd:annotation>
                <xsd:documentation>
                   Maximum number of threads to use for the thread pool. -1 means 'no limits'.
                </xsd:documentation>
@@ -98,7 +91,7 @@
          </xsd:element>
 
          <xsd:element name="security-enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="security">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that security is enabled
                </xsd:documentation>
@@ -106,7 +99,7 @@
          </xsd:element>
 
          <xsd:element name="security-invalidation-interval" type="xsd:long" default="10000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="security">
+            <xsd:annotation>
                <xsd:documentation>
                   how long (in ms) to wait before invalidating the security cache
                </xsd:documentation>
@@ -114,7 +107,7 @@
          </xsd:element>
 
          <xsd:element name="journal-lock-acquisition-timeout" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="using-server.configuration">
+            <xsd:annotation>
                <xsd:documentation>
                   how long (in ms) to wait to acquire a file lock on the journal
                </xsd:documentation>
@@ -122,7 +115,7 @@
          </xsd:element>
 
          <xsd:element name="wild-card-routing-enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="wildcard-routing">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that the server supports wild card routing
                </xsd:documentation>
@@ -131,8 +124,7 @@
 
          <xsd:element name="management-address" type="xsd:string" default="jms.queue.activemq.management" maxOccurs="1"
                       minOccurs="0">
-            <xsd:annotation amq:linkend="management.core.configuration"
-                            amq:type="SimpleString">
+            <xsd:annotation>
                <xsd:documentation>
                   the name of the management address to send management messages to. It is prefixed with "jms.queue" so
                   that JMS clients can send messages to it.
@@ -142,8 +134,7 @@
 
          <xsd:element name="management-notification-address" type="xsd:string" default="activemq.notifications"
                       maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="management.notifications.core.configuration"
-                            amq:type="SimpleString">
+            <xsd:annotation>
                <xsd:documentation>
                   the name of the address that consumers bind to receive management notifications
                </xsd:documentation>
@@ -152,7 +143,7 @@
 
          <xsd:element name="cluster-user" type="xsd:string" default="ACTIVEMQ.CLUSTER.ADMIN.USER" maxOccurs="1"
                       minOccurs="0">
-            <xsd:annotation amq:linkend="clusters">
+            <xsd:annotation>
                <xsd:documentation>
                   Cluster username. It applies to all cluster configurations.
                </xsd:documentation>
@@ -160,7 +151,7 @@
          </xsd:element>
 
          <xsd:element name="cluster-password" maxOccurs="1" minOccurs="0" type="xsd:string" default="CHANGE ME!!">
-            <xsd:annotation amq:linkend="clusters">
+            <xsd:annotation>
                <xsd:documentation>
                   Cluster password. It applies to all cluster configurations.
                </xsd:documentation>
@@ -201,7 +192,7 @@
 
          <xsd:element name="password-codec" type="xsd:string"
                       default="org.apache.activemq.utils.DefaultSensitiveStringCodec" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuration.masked-password">
+            <xsd:annotation>
                <xsd:documentation>
                   Class name and its parameters for the Decoder used to decode the masked password. Ignored if
                   mask-password is false. The format of this property is a full qualified class name optionally followed
@@ -211,7 +202,7 @@
          </xsd:element>
 
          <xsd:element name="mask-password" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuration.masked-password">
+            <xsd:annotation>
                <xsd:documentation>
                   This option controls whether passwords in server configuration need be masked. If set to "true" the
                   passwords are masked.
@@ -220,7 +211,7 @@
          </xsd:element>
 
          <xsd:element name="log-delegate-factory-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="XXX">
+            <xsd:annotation>
                <xsd:documentation>
                   XXX
                </xsd:documentation>
@@ -228,7 +219,7 @@
          </xsd:element>
 
          <xsd:element name="jmx-management-enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="management.jmx.configuration">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that the management API is available via JMX
                </xsd:documentation>
@@ -236,7 +227,7 @@
          </xsd:element>
 
          <xsd:element name="jmx-domain" type="xsd:string" default="org.apache.activemq" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="management.jmx.configuration">
+            <xsd:annotation>
                <xsd:documentation>
                   the JMX domain used to registered ActiveMQ MBeans in the MBeanServer
                </xsd:documentation>
@@ -244,7 +235,7 @@
          </xsd:element>
 
          <xsd:element name="message-counter-enabled" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.counters">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that message counters are enabled
                </xsd:documentation>
@@ -252,7 +243,7 @@
          </xsd:element>
 
          <xsd:element name="message-counter-sample-period" type="xsd:long" default="10000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.counters">
+            <xsd:annotation>
                <xsd:documentation>
                   the sample period (in ms) to use for message counters
                </xsd:documentation>
@@ -260,7 +251,7 @@
          </xsd:element>
 
          <xsd:element name="message-counter-max-day-history" type="xsd:int" default="10" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.counters" amq:default="(days)">
+            <xsd:annotation>
                <xsd:documentation>
                   how many days to keep message counter history
                </xsd:documentation>
@@ -268,7 +259,7 @@
          </xsd:element>
 
          <xsd:element name="connection-ttl-override" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="connection-ttl.override">
+            <xsd:annotation>
                <xsd:documentation>
                   if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1
                   disables this setting.
@@ -278,7 +269,7 @@
 
          <xsd:element name="async-connection-execution-enabled" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
-            <xsd:annotation amq:linkend="connection-ttl.async-connection-execution">
+            <xsd:annotation>
                <xsd:documentation>
                   should certain incoming packets on the server be handed off to a thread from the thread pool for
                   processing or should they be handled on the remoting thread?
@@ -287,7 +278,7 @@
          </xsd:element>
 
          <xsd:element name="transaction-timeout" type="xsd:long" default="300000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="transaction-config">
+            <xsd:annotation>
                <xsd:documentation>
                   how long (in ms) before a transaction can be removed from the resource manager after create time
                </xsd:documentation>
@@ -295,7 +286,7 @@
          </xsd:element>
 
          <xsd:element name="transaction-timeout-scan-period" type="xsd:long" default="1000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="transaction-config">
+            <xsd:annotation>
                <xsd:documentation>
                   how often (in ms) to scan for timeout transactions
                </xsd:documentation>
@@ -303,7 +294,7 @@
          </xsd:element>
 
          <xsd:element name="message-expiry-scan-period" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.expiry.reaper" >
+            <xsd:annotation>
                <xsd:documentation>
                   how often (in ms) to scan for expired messages
                </xsd:documentation>
@@ -311,7 +302,7 @@
          </xsd:element>
 
          <xsd:element name="message-expiry-thread-priority" type="xsd:int" default="3" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.expiry.reaper">
+            <xsd:annotation>
                <xsd:documentation>
                   the priority of the thread expiring messages
                </xsd:documentation>
@@ -319,7 +310,7 @@
          </xsd:element>
 
          <xsd:element name="id-cache-size" type="xsd:int" default="20000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="duplicate.id.cache">
+            <xsd:annotation>
                <xsd:documentation>
                   the size of the cache for pre-creating message ID's
                </xsd:documentation>
@@ -327,7 +318,7 @@
          </xsd:element>
 
          <xsd:element name="persist-id-cache" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="duplicate.id.cache">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that ID's are persisted to the journal
                </xsd:documentation>
@@ -335,7 +326,7 @@
          </xsd:element>
 
          <xsd:element name="remoting-interceptors" type="class-name-sequenceType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="intercepting-operations">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored. Any interceptor specified here
                   will be considered an "incoming" interceptor. See &lt;remoting-incoming-interceptors&gt; and &lt;remoting-outgoing-interceptors&gt;.
@@ -344,7 +335,7 @@
          </xsd:element>
 
          <xsd:element name="remoting-incoming-interceptors" type="class-name-sequenceType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="intercepting-operations">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor incoming
                   remoting packets
@@ -353,7 +344,7 @@
          </xsd:element>
 
          <xsd:element name="remoting-outgoing-interceptors" type="class-name-sequenceType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="intercepting-operations">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor outcoming
                   remoting packets
@@ -362,7 +353,7 @@
          </xsd:element>
 
          <xsd:element name="backup" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored if &lt;ha-policy&gt; is not also
                   used. It indicates whether this server is a backup server
@@ -371,7 +362,7 @@
          </xsd:element>
 
          <xsd:element name="allow-failback" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.allow-fail-back">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored if &lt;ha-policy&gt; is not also
                   used. Whether a server will automatically stop when a another places a request to take over its place.
@@ -402,7 +393,7 @@
          </xsd:element>
 
          <xsd:element name="failback-delay" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.allow-fail-back">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored if &lt;ha-policy&gt; is not also
                   used. The delay to wait before fail-back occurs on (live's) restart.
@@ -411,7 +402,7 @@
          </xsd:element>
 
          <xsd:element name="failover-on-shutdown" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.allow-fail-back">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored if &lt;ha-policy&gt; is not also
                   used. Will this backup server come live on a normal server shutdown.
@@ -420,7 +411,7 @@
          </xsd:element>
 
          <xsd:element name="scale-down" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.scale-down">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored if &lt;ha-policy&gt; is not also
                   used. Will this server send its messages to another live server in the
@@ -430,7 +421,7 @@
          </xsd:element>
 
          <xsd:element name="shared-store" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.mode.shared">
+            <xsd:annotation>
                <xsd:documentation>
                   DEPRECATED. This option is deprecated, but it will still be honored if &lt;ha-policy&gt; is not also
                   used. 'shared-store' applies to live and backup pairs, and it indicates if the live/backup pair share
@@ -441,7 +432,7 @@
 
          <xsd:element name="persist-delivery-count-before-delivery" type="xsd:boolean" default="false" maxOccurs="1"
                       minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.delivery.count.persistence">
+            <xsd:annotation>
                <xsd:documentation>
                   True means that the delivery count is persisted before delivery. False means that this only happens
                   after a message has been cancelled.
@@ -450,7 +441,7 @@
          </xsd:element>
 
          <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring-transports.connectors">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of remoting connectors configurations to create
                </xsd:documentation>
@@ -489,7 +480,7 @@
          </xsd:element>
 
          <xsd:element maxOccurs="1" minOccurs="0" name="acceptors">
-            <xsd:annotation amq:linkend="configuring-transports.acceptors">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of remoting acceptors to create
                </xsd:documentation>
@@ -528,7 +519,7 @@
          </xsd:element>
 
          <xsd:element maxOccurs="1" minOccurs="0" name="broadcast-groups">
-            <xsd:annotation amq:linkend="clusters">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of broadcast groups to create
                </xsd:documentation>
@@ -541,7 +532,7 @@
          </xsd:element>
 
          <xsd:element maxOccurs="1" minOccurs="0" name="discovery-groups">
-            <xsd:annotation amq:linkend="clusters">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of discovery groups to create
                </xsd:documentation>
@@ -560,7 +551,7 @@
          </xsd:element>
 
          <xsd:element name="diverts" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="diverts">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of diverts to use
                </xsd:documentation>
@@ -575,7 +566,7 @@
 
          <!-- QUEUES -->
          <xsd:element name="queues" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="predefined.queues">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of pre configured queues to create
                </xsd:documentation>
@@ -615,7 +606,7 @@
          </xsd:element>
 
          <xsd:element name="bridges" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="core-bridges">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of bridges to create
                </xsd:documentation>
@@ -628,7 +619,7 @@
          </xsd:element>
 
          <xsd:element name="ha-policy" type="haPolicyType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha-policy">
+            <xsd:annotation>
                <xsd:documentation>
                   The HA policy of this server
                </xsd:documentation>
@@ -636,7 +627,7 @@
          </xsd:element>
 
          <xsd:element name="cluster-connections" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="clusters">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of cluster connections
                </xsd:documentation>
@@ -650,7 +641,7 @@
          </xsd:element>
 
          <xsd:element name="grouping-handler" type="groupingHandlerType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="message-grouping">
+            <xsd:annotation>
                <xsd:documentation>
                   Message Group configuration
                </xsd:documentation>
@@ -658,7 +649,7 @@
          </xsd:element>
 
          <xsd:element name="paging-directory" type="xsd:string" default="data/paging" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="paging.main.config">
+            <xsd:annotation>
                <xsd:documentation>
                   the directory to store paged messages in
                </xsd:documentation>
@@ -666,7 +657,7 @@
          </xsd:element>
 
          <xsd:element name="bindings-directory" type="xsd:string" default="data/bindings" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.bindings.journal">
+            <xsd:annotation>
                <xsd:documentation>
                   the directory to store the persisted bindings to
                </xsd:documentation>
@@ -674,7 +665,7 @@
          </xsd:element>
 
          <xsd:element name="create-bindings-dir" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.bindings.journal">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that the server will create the bindings directory on start up
                </xsd:documentation>
@@ -682,7 +673,7 @@
          </xsd:element>
 
          <xsd:element name="page-max-concurrent-io" type="xsd:int" default="5" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="paging.mode">
+            <xsd:annotation>
                <xsd:documentation>
                   The max number of concurrent reads allowed on paging
                </xsd:documentation>
@@ -690,7 +681,7 @@
          </xsd:element>
 
          <xsd:element name="journal-directory" type="xsd:string" default="data/journal" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-directory">
+            <xsd:annotation>
                <xsd:documentation>
                   the directory to store the journal files in
                </xsd:documentation>
@@ -698,7 +689,7 @@
          </xsd:element>
 
          <xsd:element name="create-journal-dir" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.create-journal-dir">
+            <xsd:annotation>
                <xsd:documentation>
                   true means that the journal directory will be created
                </xsd:documentation>
@@ -706,7 +697,7 @@
          </xsd:element>
 
          <xsd:element name="journal-type" default="ASYNCIO" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-type">
+            <xsd:annotation>
                <xsd:documentation>
                   the type of journal to use
                </xsd:documentation>
@@ -720,7 +711,7 @@
          </xsd:element>
 
          <xsd:element name="journal-buffer-timeout" type="xsd:long" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-buffer-timeout">
+            <xsd:annotation>
                <xsd:documentation>
                   The timeout (in nanoseconds) used to flush internal buffers on the journal. The exact default value
                   depend on whether the journal is ASYNCIO or NIO.
@@ -729,8 +720,7 @@
          </xsd:element>
 
          <xsd:element name="journal-buffer-size" type="xsd:long" default="501760" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-buffer-size"
-                            amq:default="(490 KiB)">
+            <xsd:annotation>
                <xsd:documentation>
                   The size of the internal buffer on the journal in KiB.
                </xsd:documentation>
@@ -738,7 +728,7 @@
          </xsd:element>
 
          <xsd:element name="journal-sync-transactional" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-sync-transactional">
+            <xsd:annotation>
                <xsd:documentation>
                   if true wait for transaction data to be synchronized to the journal before returning response to
                   client
@@ -748,7 +738,7 @@
 
          <xsd:element name="journal-sync-non-transactional" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-sync-non-transactional">
+            <xsd:annotation>
                <xsd:documentation>
                   if true wait for non transaction data to be synced to the journal before returning response to client.
                </xsd:documentation>
@@ -764,8 +754,7 @@
          </xsd:element>
 
          <xsd:element name="journal-file-size" default="10485760" type="xsd:int" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-file-size"
-                            amq:default="(10 * 1024 * 1024 - 10 MiB)">
+            <xsd:annotation>
                <xsd:documentation>
                   the size (in bytes) of each journal file
                </xsd:documentation>
@@ -773,7 +762,7 @@
          </xsd:element>
 
          <xsd:element name="journal-min-files" type="xsd:int" default="2" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-min-files">
+            <xsd:annotation>
                <xsd:documentation>
                   how many journal files to pre-create
                </xsd:documentation>
@@ -781,7 +770,7 @@
          </xsd:element>
 
          <xsd:element name="journal-compact-percentage" type="xsd:int" default="30" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-compact-percentage">
+            <xsd:annotation>
                <xsd:documentation>
                   The percentage of live data on which we consider compacting the journal
                </xsd:documentation>
@@ -789,7 +778,7 @@
          </xsd:element>
 
          <xsd:element name="journal-compact-min-files" type="xsd:int" default="10" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-compact-min-files">
+            <xsd:annotation>
                <xsd:documentation>
                   The minimal number of data files before we can start compacting
                </xsd:documentation>
@@ -797,7 +786,7 @@
          </xsd:element>
 
          <xsd:element name="journal-max-io" type="xsd:int" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="configuring.message.journal.journal-max-io">
+            <xsd:annotation>
                <xsd:documentation>
                   the maximum number of write requests that can be in the AIO queue at any one time. Default is 500 for
                   AIO and 1 for NIO.
@@ -806,7 +795,7 @@
          </xsd:element>
 
          <xsd:element name="perf-blast-pages" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="XXX">
+            <xsd:annotation>
                <xsd:documentation>
                   XXX Only meant to be used by project developers
                </xsd:documentation>
@@ -814,7 +803,7 @@
          </xsd:element>
 
          <xsd:element name="run-sync-speed-test" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="XXX">
+            <xsd:annotation>
                <xsd:documentation>
                   XXX Only meant to be used by project developers
                </xsd:documentation>
@@ -822,7 +811,7 @@
          </xsd:element>
 
          <xsd:element name="server-dump-interval" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="XXX" amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   Interval to log server specific information (e.g. memory usage etc)
                </xsd:documentation>
@@ -830,7 +819,7 @@
          </xsd:element>
 
          <xsd:element name="memory-warning-threshold" type="xsd:int" default="25" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="perf-tuning.memory">
+            <xsd:annotation>
                <xsd:documentation>
                   Percentage of available memory which will trigger a warning log
                </xsd:documentation>
@@ -838,7 +827,7 @@
          </xsd:element>
 
          <xsd:element name="memory-measure-interval" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="perf-tuning.memory" amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   frequency to sample JVM memory in ms (or -1 to disable memory sampling)
                </xsd:documentation>
@@ -847,7 +836,7 @@
 
          <xsd:element name="large-messages-directory" type="xsd:string" default="data/largemessages"
                       maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="large.message.configuring">
+            <xsd:annotation>
                <xsd:documentation>
                   the directory to store large messages
                </xsd:documentation>
@@ -855,7 +844,7 @@
          </xsd:element>
 
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="security.settings.roles">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of security settings
                </xsd:documentation>
@@ -903,7 +892,7 @@
          </xsd:element>
 
          <xsd:element name="address-settings" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="queue-attributes.address-settings">
+            <xsd:annotation>
                <xsd:documentation>
                   a list of address settings
                </xsd:documentation>
@@ -927,7 +916,7 @@
    </xsd:complexType>
 
    <xsd:element name="local-bind-address" type="xsd:string">
-      <xsd:annotation amq:default="wildcard IP address chosen by the kernel">
+      <xsd:annotation>
          <xsd:documentation>
             local bind address that the datagram socket is bound to
          </xsd:documentation>
@@ -935,7 +924,7 @@
    </xsd:element>
 
    <xsd:element name="local-bind-port" type="xsd:int" default="-1">
-      <xsd:annotation amq:default="(anonymous port)">
+      <xsd:annotation>
          <xsd:documentation>
             local port to which the datagram socket is bound to
          </xsd:documentation>
@@ -966,7 +955,7 @@
             </xsd:element>
 
             <xsd:element name="broadcast-period" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:default="(in milliseconds)">
+               <xsd:annotation>
                   <xsd:documentation>
                      period in milliseconds between consecutive broadcasts
                   </xsd:documentation>
@@ -974,7 +963,7 @@
             </xsd:element>
 
             <xsd:element name="jgroups-file" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="clusters.jgroups-file">
+               <xsd:annotation>
                   <xsd:documentation>
                      Name of JGroups configuration file. If specified, the server uses JGroups for broadcasting.
                   </xsd:documentation>
@@ -982,7 +971,7 @@
             </xsd:element>
 
             <xsd:element name="jgroups-channel" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="clusters.jgroups-example">
+               <xsd:annotation>
                   <xsd:documentation>
                      Name of JGroups Channel. If specified, the server uses the named channel for broadcasting.
                   </xsd:documentation>
@@ -1023,7 +1012,7 @@
             </xsd:element>
 
             <xsd:element name="jgroups-file" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="clusters.jgroups-file">
+               <xsd:annotation>
                   <xsd:documentation>
                      Name of a JGroups configuration file. If specified, the server uses JGroups for discovery.
                   </xsd:documentation>
@@ -1031,7 +1020,7 @@
             </xsd:element>
 
             <xsd:element name="jgroups-channel" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="clusters.jgroups-example">
+               <xsd:annotation>
                   <xsd:documentation>
                      Name of a JGroups Channel. If specified, the server uses the named channel for discovery.
                   </xsd:documentation>
@@ -1039,8 +1028,7 @@
             </xsd:element>
 
             <xsd:element name="refresh-timeout" type="xsd:int" default="10000" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="configuration.discovery-group.refresh-timeout"
-                               amq:default="(in milliseconds)">
+               <xsd:annotation>
                   <xsd:documentation>
                      Period the discovery group waits after receiving the last broadcast from a particular server before
                      removing that servers connector pair entry from its list.
@@ -1051,7 +1039,7 @@
             <xsd:element ref="local-bind-address" maxOccurs="1" minOccurs="0"/>
             <xsd:element ref="local-bind-port" maxOccurs="1" minOccurs="0"/>
             <xsd:element name="initial-wait-timeout" type="xsd:int" default="10000" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:default="(milliseconds)" amq:linkend="XXX">
+               <xsd:annotation>
                   <xsd:documentation>
                      time to wait for an initial broadcast to give us at least one node in the cluster
                   </xsd:documentation>
@@ -1147,7 +1135,7 @@
          </xsd:element>
 
          <xsd:element name="min-large-message-size" type="xsd:int" default="102400" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(bytes)">
+            <xsd:annotation>
                <xsd:documentation>
                   Any message larger than this size is considered a large message (to be sent in
                   chunks)
@@ -1156,7 +1144,7 @@
          </xsd:element>
 
          <xsd:element name="check-period" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="connection-ttl" amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   The period (in milliseconds) a bridge's client will check if it failed to receive a ping from the
                   server. -1 disables this check.
@@ -1165,7 +1153,7 @@
          </xsd:element>
 
          <xsd:element name="connection-ttl" type="xsd:long" default="60000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="connection-ttl" amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   how long to keep a connection alive in the absence of any data arriving from the client. This should
                   be greater than the ping period.
@@ -1174,7 +1162,7 @@
          </xsd:element>
 
          <xsd:element name="retry-interval" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(in milliseconds)">
+            <xsd:annotation>
                <xsd:documentation>
                   period (in ms) between successive retries
                </xsd:documentation>
@@ -1230,7 +1218,7 @@
          </xsd:element>
 
          <xsd:element name="confirmation-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="1048576">
-            <xsd:annotation amq:default="(bytes)">
+            <xsd:annotation>
                <xsd:documentation>
                   Once the bridge has received this many bytes, it sends a confirmation
                </xsd:documentation>
@@ -1254,7 +1242,7 @@
          </xsd:element>
 
          <xsd:element name="reconnect-attempts-same-node" default="10" type="xsd:int" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(int, 10)">
+            <xsd:annotation>
                <xsd:documentation>
                   Upon reconnection this configures the number of time the same node on the topology will be retried
                   before reseting the server locator and using the initial connectors
@@ -1315,7 +1303,7 @@
          </xsd:element>
 
          <xsd:element name="check-period" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="connection-ttl" amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   The period (in milliseconds) used to check if the cluster connection has failed to receive pings from
                   another server
@@ -1324,7 +1312,7 @@
          </xsd:element>
 
          <xsd:element name="connection-ttl" type="xsd:long" default="60000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="connection-ttl" amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   how long to keep a connection alive in the absence of any data arriving from the client
                </xsd:documentation>
@@ -1332,7 +1320,7 @@
          </xsd:element>
 
          <xsd:element name="min-large-message-size" type="xsd:int" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="large-messages" amq:default="(bytes)">
+            <xsd:annotation>
                <xsd:documentation>
                   Messages larger than this are considered large-messages
                </xsd:documentation>
@@ -1340,7 +1328,7 @@
          </xsd:element>
 
          <xsd:element name="call-timeout" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   How long to wait for a reply
                </xsd:documentation>
@@ -1412,7 +1400,7 @@
          </xsd:element>
 
          <xsd:element name="confirmation-window-size" type="xsd:int" default="1048576" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="client-reconnection">
+            <xsd:annotation>
                <xsd:documentation>
                   The size (in bytes) of the window used for confirming data from the server connected to.
                </xsd:documentation>
@@ -1420,7 +1408,7 @@
          </xsd:element>
 
          <xsd:element name="call-failover-timeout" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="clusters.cluster-connections" amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.
                </xsd:documentation>
@@ -1428,7 +1416,7 @@
          </xsd:element>
 
          <xsd:element name="notification-interval" type="xsd:long" default="1000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   how often the cluster connection will notify the cluster of its existence right after joining the
                   cluster
@@ -1774,7 +1762,7 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="check-for-live-server" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="hq.check-for-live-server">
+            <xsd:annotation>
                <xsd:documentation>
                   Whether to check the cluster for a (live) server using our own server ID when starting
                   up. This option is only necessary for performing 'fail-back' on replicating
@@ -1821,14 +1809,14 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="restart-backup" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.restart-backup">
+            <xsd:annotation>
                <xsd:documentation>
                   Will this server, if a backup, restart once it has been stopped because of failback or scaling down.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="allow-failback" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.allow-fail-back">
+            <xsd:annotation>
                <xsd:documentation>
                   Whether a server will automatically stop when a another places a request to take over
                   its place. The use case is when a regular server stops and its backup takes over its
@@ -1838,7 +1826,7 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="failback-delay" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.allow-fail-back" amq:default="(in milliseconds)">
+            <xsd:annotation>
                <xsd:documentation>
                   if we have to start as a replicated server this is the delay to wait before fail-back occurs
                </xsd:documentation>
@@ -1882,7 +1870,7 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="restart-backup" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.restart-backup">
+            <xsd:annotation>
                <xsd:documentation>
                   Will this server, if a backup, restart once it has been stopped because of failback or scaling down.
                </xsd:documentation>
@@ -1900,7 +1888,7 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="failover-on-shutdown" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.allow-fail-back">
+            <xsd:annotation>
                <xsd:documentation>
                   Will this backup server come live on a normal server shutdown
                </xsd:documentation>
@@ -1911,7 +1899,7 @@
    <xsd:complexType name="sharedStoreSlavePolicyType">
       <xsd:all>
          <xsd:element name="allow-failback" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.allow-fail-back">
+            <xsd:annotation>
                <xsd:documentation>
                   Whether a server will automatically stop when a another places a request to take over
                   its place. The use case is when a regular server stops and its backup takes over its
@@ -1942,7 +1930,7 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="restart-backup" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.restart-backup">
+            <xsd:annotation>
                <xsd:documentation>
                   Will this server, if a backup, restart once it has been stopped because of failback or scaling down.
                </xsd:documentation>
@@ -1992,7 +1980,7 @@
    <xsd:complexType name="scaleDownType">
       <xsd:sequence>
          <xsd:element name="enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:linkend="ha.scale-down">
+            <xsd:annotation>
                <xsd:documentation>
                   its possible that you only want a server to partake in scale down as a receiver, via a group.
                   In this case set scale-down to false
@@ -2035,7 +2023,7 @@
    <xsd:complexType name="groupingHandlerType">
       <xsd:all>
          <xsd:element name="type" maxOccurs="1" minOccurs="1">
-            <xsd:annotation amq:linkend="message-grouping.type">
+            <xsd:annotation>
                <xsd:documentation>
                   Each cluster should choose 1 node to have a LOCAL grouping handler and all the other nodes should have
                   REMOTE handlers
@@ -2049,21 +2037,21 @@
             </xsd:simpleType>
          </xsd:element>
          <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="1">
-            <xsd:annotation amq:linkend="message-grouping.address">
+            <xsd:annotation>
                <xsd:documentation>
                   A reference to a cluster connection address
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="timeout" type="xsd:int" default="5000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   How long to wait for a decision
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="group-timeout" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   How long a group binding will be used, -1 means for ever. Bindings are removed after this wait
                   elapses. On the remote node this is used to determine how often you should re-query the main
@@ -2072,7 +2060,7 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="reaper-period" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation amq:default="(ms)">
+            <xsd:annotation>
                <xsd:documentation>
                   How often the reaper will be run to check for timed out group bindings. Only valid for LOCAL handlers
                </xsd:documentation>
@@ -2090,14 +2078,14 @@
 
    <xsd:element name="address-setting">
       <xsd:complexType>
-         <xsd:annotation amq:linkend="queue-attributes.address-settings">
+         <xsd:annotation>
             <xsd:documentation>
                Complex type element to configure an address.
             </xsd:documentation>
          </xsd:annotation>
          <xsd:all>
             <xsd:element maxOccurs="1" minOccurs="0" name="dead-letter-address" type="xsd:string">
-               <xsd:annotation amq:linkend="undelivered-messages.configuring">
+               <xsd:annotation>
                   <xsd:documentation>
                      the address to send dead messages to
                   </xsd:documentation>
@@ -2105,7 +2093,7 @@
             </xsd:element>
 
             <xsd:element name="expiry-address" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="message-expiry.configuring">
+               <xsd:annotation>
                   <xsd:documentation>
                      the address to send expired messages to
                   </xsd:documentation>
@@ -2122,7 +2110,7 @@
             </xsd:element>
 
             <xsd:element name="redelivery-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="undelivered-messages.delay">
+               <xsd:annotation>
                   <xsd:documentation>
                      the time (in ms) to wait before redelivering a cancelled message.
                   </xsd:documentation>
@@ -2146,7 +2134,7 @@
             </xsd:element>
 
             <xsd:element name="max-delivery-attempts" type="xsd:int" default="10" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="undelivered-messages.configuring">
+               <xsd:annotation>
                   <xsd:documentation>
                      how many times to attempt to deliver a message before sending to dead letter address
                   </xsd:documentation>
@@ -2154,7 +2142,7 @@
             </xsd:element>
 
             <xsd:element name="max-size-bytes" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="paging">
+               <xsd:annotation>
                   <xsd:documentation>
                      the maximum size (in bytes) to use in paging for an address (-1 means no limits)
                   </xsd:documentation>
@@ -2162,7 +2150,7 @@
             </xsd:element>
 
             <xsd:element name="page-size-bytes" type="xsd:long" default="10485760" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="paging" amq:default="(10 * 1024 * 1024)">
+               <xsd:annotation>
                   <xsd:documentation>
                      the page size (in bytes) to use for an address
                   </xsd:documentation>
@@ -2170,7 +2158,7 @@
             </xsd:element>
 
             <xsd:element name="page-max-cache-size" default="5" type="xsd:int" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="paging">
+               <xsd:annotation>
                   <xsd:documentation>
                      Number of paging files to cache in memory to avoid IO during paging navigation
                   </xsd:documentation>
@@ -2195,7 +2183,7 @@
 
             <xsd:element name="message-counter-history-day-limit" type="xsd:int" default="0" maxOccurs="1"
                          minOccurs="0">
-               <xsd:annotation amq:default="(days)">
+               <xsd:annotation>
                   <xsd:documentation>
                      how many days to keep message counter history for this address
                   </xsd:documentation>
@@ -2203,7 +2191,7 @@
             </xsd:element>
 
             <xsd:element name="last-value-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="last-value-queues">
+               <xsd:annotation>
                   <xsd:documentation>
                      whether to treat the queue as a last value queue
                   </xsd:documentation>
@@ -2211,7 +2199,7 @@
             </xsd:element>
 
             <xsd:element name="redistribution-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:linkend="clusters">
+               <xsd:annotation>
                   <xsd:documentation>
                      how long (in ms) to wait after the last consumer is closed on a queue before redistributing
                      messages.
@@ -2229,7 +2217,7 @@
             </xsd:element>
 
             <xsd:element name="slow-consumer-threshold" type="xsd:long" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:default="-1">
+               <xsd:annotation>
                   <xsd:documentation>
                      The minimum rate of message consumption allowed before a consumer is considered "slow." Measured
                      in messages-per-second.
@@ -2252,7 +2240,7 @@
             </xsd:element>
 
             <xsd:element name="slow-consumer-check-period" type="xsd:long" maxOccurs="1" minOccurs="0">
-               <xsd:annotation amq:default="5">
+               <xsd:annotation>
                   <xsd:documentation>
                      How often to check for slow consumers on a particular queue. Measured in minutes.
                   </xsd:documentation>

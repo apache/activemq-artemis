@@ -42,9 +42,6 @@ import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.deployers.DeploymentManager;
-import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
-import org.apache.activemq.core.deployers.impl.XmlDeployer;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.BindingType;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
@@ -130,15 +127,9 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
    private JMSManagementService jmsManagementService;
 
-   private XmlDeployer jmsDeployer;
-
    private boolean startCalled;
 
    private boolean active;
-
-   private DeploymentManager deploymentManager;
-
-   private final String configFileName;
 
    private JMSConfiguration config;
 
@@ -153,8 +144,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       this.server = server;
 
       this.coreConfig = server.getConfiguration();
-
-      configFileName = null;
    }
 
    /**
@@ -170,18 +159,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
       this.coreConfig = server.getConfiguration();
 
-      configFileName = null;
-
       this.registry = registry;
-   }
-
-   public JMSServerManagerImpl(final ActiveMQServer server, final String configFileName) throws Exception
-   {
-      this.server = server;
-
-      this.coreConfig = server.getConfiguration();
-
-      this.configFileName = configFileName;
    }
 
    public JMSServerManagerImpl(final ActiveMQServer server, final JMSConfiguration configuration) throws Exception
@@ -190,22 +168,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
       this.coreConfig = server.getConfiguration();
 
-      configFileName = null;
-
       config = configuration;
-   }
-
-   /**
-    * Unused
-    */
-   @Deprecated
-   public JMSServerManagerImpl(ActiveMQServer server, String configFilename, JMSStorageManager storageManager)
-   {
-      this.server = server;
-
-      configFileName = null;
-
-      storage = storageManager;
    }
 
    // ActivateCallback implementation -------------------------------------
@@ -234,27 +197,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
          initJournal();
 
-         // start the JMS deployer only if the configuration is not done using the JMSConfiguration object
-         if (config == null)
-         {
-            if (server.getConfiguration().isFileDeploymentEnabled())
-            {
-               jmsDeployer = new JMSServerDeployer(this, deploymentManager);
-
-               if (configFileName != null)
-               {
-                  jmsDeployer.setConfigFileNames(new String[]{configFileName});
-               }
-
-               jmsDeployer.start();
-
-               deploymentManager.start();
-            }
-         }
-         else
-         {
-            deploy();
-         }
+         deploy();
 
          for (Runnable run : cachedCommands)
          {
@@ -283,16 +226,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
             if (!active)
             {
                return;
-            }
-
-            if (jmsDeployer != null)
-            {
-               jmsDeployer.stop();
-            }
-
-            if (deploymentManager != null)
-            {
-               deploymentManager.stop();
             }
 
             // Storage could be null on a shared store backup server before initialization
@@ -329,7 +262,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                jmsManagementService.stop();
             }
 
-            jmsDeployer = null;
             jmsManagementService = null;
 
             active = false;
@@ -472,7 +404,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          return;
       }
 
-      deploymentManager = new FileDeploymentManager(server.getConfiguration().getFileDeployerScanPeriod());
       server.registerActivateCallback(this);
       /**
        * See this method's javadoc.

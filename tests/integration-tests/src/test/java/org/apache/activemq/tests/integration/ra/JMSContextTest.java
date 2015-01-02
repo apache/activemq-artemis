@@ -29,6 +29,7 @@ import org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl;
 import org.apache.activemq.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.integration.jms.bridge.TransactionManagerLocatorImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -51,11 +52,12 @@ public class JMSContextTest extends ActiveMQRATestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      server.getSecurityManager().addUser("testuser", "testpassword");
-      server.getSecurityManager().addUser("guest", "guest");
-      server.getSecurityManager().setDefaultUser("guest");
-      server.getSecurityManager().addRole("testuser", "arole");
-      server.getSecurityManager().addRole("guest", "arole");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("testuser", "testpassword");
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
+      securityManager.getConfiguration().addRole("testuser", "arole");
+      securityManager.getConfiguration().addRole("guest", "arole");
       Role role = new Role("arole", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);

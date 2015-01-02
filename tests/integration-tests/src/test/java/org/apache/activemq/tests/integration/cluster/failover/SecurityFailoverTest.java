@@ -26,7 +26,7 @@ import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
 /**
@@ -112,8 +112,8 @@ public class SecurityFailoverTest extends FailoverTest
          .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
-      ActiveMQSecurityManager securityManager = installSecurity(backupServer);
-      securityManager.setDefaultUser(null);
+      ActiveMQSecurityManagerImpl securityManager = installSecurity(backupServer);
+      securityManager.getConfiguration().setDefaultUser(null);
 
       liveConfig = super.createDefaultConfig()
          .clearAcceptorConfigurations()
@@ -137,15 +137,15 @@ public class SecurityFailoverTest extends FailoverTest
    /**
     * @return
     */
-   protected ActiveMQSecurityManager installSecurity(TestableServer server)
+   protected ActiveMQSecurityManagerImpl installSecurity(TestableServer server)
    {
-      ActiveMQSecurityManager securityManager = server.getServer().getSecurityManager();
-      securityManager.addUser("a", "b");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getServer().getSecurityManager();
+      securityManager.getConfiguration().addUser("a", "b");
       Role role = new Role("arole", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       server.getServer().getSecurityRepository().addMatch("#", roles);
-      securityManager.addRole("a", "arole");
+      securityManager.getConfiguration().addRole("a", "arole");
       return securityManager;
    }
 }

@@ -17,15 +17,18 @@
 <configuration
       xmlns="urn:activemq"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
-   <ha-policy>
-      <replication>
-         <master>
-            <group-name>purple</group-name>
-            <check-for-live-server>true</check-for-live-server>
-            <cluster-name>abcdefg</cluster-name>
-         </master>
-      </replication>
-   </ha-policy>
+      xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+
+   <core xmlns="urn:activemq:core">
+      <ha-policy>
+         <replication>
+            <master>
+               <group-name>purple</group-name>
+               <check-for-live-server>true</check-for-live-server>
+               <cluster-name>abcdefg</cluster-name>
+            </master>
+         </replication>
+      </ha-policy>
+   </core>
 
 </configuration>

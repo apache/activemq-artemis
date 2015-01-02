@@ -25,6 +25,7 @@ import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Test;
 
 /**
@@ -67,8 +68,9 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase
    @Test
    public void testSimpleMessageReceivedOnQueueWithSecuritySucceeds() throws Exception
    {
-      server.getSecurityManager().addUser("testuser", "testpassword");
-      server.getSecurityManager().addRole("testuser", "arole");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("testuser", "testpassword");
+      securityManager.getConfiguration().addRole("testuser", "arole");
       Role role = new Role("arole", false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);

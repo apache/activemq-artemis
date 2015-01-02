@@ -18,44 +18,55 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+   <jms xmlns="urn:activemq:jms">
+      <!--the queue used by the example-->
+      <queue name="exampleQueue"/>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+      <!--the expiry queue where expired messages will be sent-->
+      <queue name="expiryQueue"/>
+   </jms>
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+   <core xmlns="urn:activemq:core">
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
-   
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-      </acceptor>
-   </acceptors>
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
 
-   <!-- Other config -->
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
 
-   <security-settings>
-      <!--security for example queue-->
-      <security-setting match="jms.#">
-         <permission type="createDurableQueue" roles="guest"/>
-         <permission type="deleteDurableQueue" roles="guest"/>
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-         <permission type="consume" roles="guest"/>
-         <permission type="send" roles="guest"/>
-      </security-setting>
-   </security-settings>
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
 
-   <address-settings>
-      <!--override the expiry address for the example-->
-      <address-setting match="jms.queue.exampleQueue">
-         <expiry-address>jms.queue.expiryQueue</expiry-address>
-      </address-setting>
-   </address-settings>
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         </acceptor>
+      </acceptors>
+
+      <!-- Other config -->
+
+      <security-settings>
+         <!--security for example queue-->
+         <security-setting match="jms.#">
+            <permission type="createDurableQueue" roles="guest"/>
+            <permission type="deleteDurableQueue" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+         </security-setting>
+      </security-settings>
+
+      <address-settings>
+         <!--override the expiry address for the example-->
+         <address-setting match="jms.queue.exampleQueue">
+            <expiry-address>jms.queue.expiryQueue</expiry-address>
+         </address-setting>
+      </address-settings>
+
+   </core>
 </configuration>

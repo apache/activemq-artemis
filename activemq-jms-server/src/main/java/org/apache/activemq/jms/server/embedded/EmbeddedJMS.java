@@ -18,11 +18,13 @@ package org.apache.activemq.jms.server.embedded;
 
 import javax.naming.Context;
 
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.registry.MapBindingRegistry;
 import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 
@@ -40,19 +42,9 @@ public class EmbeddedJMS extends EmbeddedActiveMQ
 {
    protected JMSServerManagerImpl serverManager;
    protected BindingRegistry registry;
-   protected String jmsConfigResourcePath;
    protected JMSConfiguration jmsConfiguration;
    protected Context context;
 
-   /**
-    * Classpath resource where JMS config file is.  Defaults to 'activemq-jms.xml'
-    *
-    * @param jmsConfigResourcePath
-    */
-   public void setJmsConfigResourcePath(String jmsConfigResourcePath)
-   {
-      this.jmsConfigResourcePath = jmsConfigResourcePath;
-   }
 
    public BindingRegistry getRegistry()
    {
@@ -113,8 +105,22 @@ public class EmbeddedJMS extends EmbeddedActiveMQ
       {
          serverManager = new JMSServerManagerImpl(activeMQServer, jmsConfiguration);
       }
-      else if (jmsConfigResourcePath == null) serverManager = new JMSServerManagerImpl(activeMQServer);
-      else serverManager = new JMSServerManagerImpl(activeMQServer, jmsConfigResourcePath);
+      else
+      {
+         FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
+         FileDeploymentManager deploymentManager;
+         if (configResourcePath != null)
+         {
+            deploymentManager = new FileDeploymentManager(configResourcePath);
+         }
+         else
+         {
+            deploymentManager = new FileDeploymentManager();
+         }
+         deploymentManager.addDeployable(fileConfiguration);
+         deploymentManager.readConfiguration();
+         serverManager = new JMSServerManagerImpl(activeMQServer, fileConfiguration);
+      }
 
       if (registry == null)
       {

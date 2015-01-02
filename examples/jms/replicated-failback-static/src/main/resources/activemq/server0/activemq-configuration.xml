@@ -18,71 +18,79 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+   <jms xmlns="urn:activemq:jms">
+      <!--the queue used by the example-->
+      <queue name="exampleQueue"/>
+   </jms>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+   <core xmlns="urn:activemq:core">
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
 
-   <cluster-user>exampleUser</cluster-user>
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
 
-   <cluster-password>secret</cluster-password>
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
-   <ha-policy>
-      <replication>
-         <master>
-            <!--we need this for auto failback-->
-            <check-for-live-server>true</check-for-live-server>
-         </master>
-      </replication>
-   </ha-policy>
+      <cluster-user>exampleUser</cluster-user>
 
-   <connectors>
-      <connector name="netty-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5445"/>
-      </connector>
-      <connector name="netty-backup-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </connector>
-   </connectors>
+      <cluster-password>secret</cluster-password>
 
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="port" value="5445"/>
-      </acceptor>
-   </acceptors>
+      <ha-policy>
+         <replication>
+            <master>
+               <!--we need this for auto failback-->
+               <check-for-live-server>true</check-for-live-server>
+            </master>
+         </replication>
+      </ha-policy>
 
-	<cluster-connections>
-		<cluster-connection name="my-cluster">
-			<address>jms</address>
-         <connector-ref>netty-connector</connector-ref>
-         <static-connectors>
-            <connector-ref>netty-backup-connector</connector-ref>
-         </static-connectors>
-		</cluster-connection>
-	</cluster-connections>
-   <!-- Other config -->
+      <connectors>
+         <connector name="netty-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <param key="port" value="5445"/>
+         </connector>
+         <connector name="netty-backup-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <param key="port" value="5446"/>
+         </connector>
+      </connectors>
 
-   <security-settings>
-      <!--security for example queue-->
-      <security-setting match="jms.queue.exampleQueue">
-         <permission type="createDurableQueue" roles="guest"/>
-         <permission type="deleteDurableQueue" roles="guest"/>
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-         <permission type="consume" roles="guest"/>
-         <permission type="send" roles="guest"/>
-      </security-setting>
-   </security-settings>
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+            <param key="port" value="5445"/>
+         </acceptor>
+      </acceptors>
 
+      <cluster-connections>
+         <cluster-connection name="my-cluster">
+            <address>jms</address>
+            <connector-ref>netty-connector</connector-ref>
+            <static-connectors>
+               <connector-ref>netty-backup-connector</connector-ref>
+            </static-connectors>
+         </cluster-connection>
+      </cluster-connections>
+      <!-- Other config -->
+
+      <security-settings>
+         <!--security for example queue-->
+         <security-setting match="jms.queue.exampleQueue">
+            <permission type="createDurableQueue" roles="guest"/>
+            <permission type="deleteDurableQueue" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+         </security-setting>
+      </security-settings>
+
+   </core>
 </configuration>

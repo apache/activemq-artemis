@@ -18,27 +18,34 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <security-enabled>false</security-enabled>
-   <persistence-enabled>true</persistence-enabled>
-   
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="tcp-no-delay" value="false"/>
-         <param key="tcp-send-buffer-size" value="1048576"/>
-         <param key="tcp-receive-buffer-size" value="1048576"/>
-      </acceptor>
-   </acceptors>
-   
-   <queues>
-	   <queue name="perfQueue">
-	   	<address>perfAddress</address>
-	   </queue>
-   </queues>
+   <jms xmlns="urn:activemq:jms">
+      <queue name="perfQueue"/>
+   </jms>
 
+   <core xmlns="urn:activemq:core">
+
+      <security-enabled>false</security-enabled>
+      <persistence-enabled>true</persistence-enabled>
+
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+            <param key="tcp-no-delay" value="false"/>
+            <param key="tcp-send-buffer-size" value="1048576"/>
+            <param key="tcp-receive-buffer-size" value="1048576"/>
+         </acceptor>
+      </acceptors>
+
+      <queues>
+         <queue name="perfQueue">
+            <address>perfAddress</address>
+         </queue>
+      </queues>
+
+   </core>
 </configuration>

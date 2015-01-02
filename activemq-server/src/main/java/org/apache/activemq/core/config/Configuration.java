@@ -132,17 +132,6 @@ public interface Configuration extends Serializable
    Configuration setSharedStore(boolean sharedStore);
 
    /**
-    * Returns whether this server will use files to configure and deploy its resources. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_FILE_DEPLOYMENT_ENABLED}.
-    */
-   boolean isFileDeploymentEnabled();
-
-   /**
-    * Sets whether this server will use files to configure and deploy its resources.
-    */
-   Configuration setFileDeploymentEnabled(boolean enable);
-
-   /**
     * Returns whether this server is using persistence and store data. <br>
     * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSISTENCE_ENABLED}.
     */

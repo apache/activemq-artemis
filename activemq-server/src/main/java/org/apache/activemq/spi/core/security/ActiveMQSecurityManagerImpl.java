@@ -16,15 +16,13 @@
  */
 package org.apache.activemq.spi.core.security;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.security.User;
 
 /**
  * A basic implementation of the ActiveMQSecurityManager. This can be used within an appserver and be deployed by
@@ -34,53 +32,29 @@ import org.apache.activemq.core.server.ActiveMQMessageBundle;
  */
 public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
 {
+   private final SecurityConfiguration configuration;
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   /**
-    * the current valid users
-    */
-   private final Map<String, User> users = new HashMap<String, User>();
-
-   private String defaultUser = null;
-
-   /**
-    * the roles for the users
-    */
-   private final Map<String, List<String>> roles = new HashMap<String, List<String>>();
-
-   // ActiveMQComponent implementation ------------------------------------------
-
-   public void start()
+   public ActiveMQSecurityManagerImpl()
    {
+      configuration = new SecurityConfiguration();
    }
 
-   public void stop()
+   public ActiveMQSecurityManagerImpl(SecurityConfiguration configuration)
    {
-      users.clear();
-
-      roles.clear();
-
-      defaultUser = null;
-   }
-
-   public boolean isStarted()
-   {
-      return true;
+      this.configuration = configuration;
    }
 
    // Public ---------------------------------------------------------------------
 
    public boolean validateUser(final String user, final String password)
    {
-      if (user == null && defaultUser == null)
+      if (user == null && configuration.getDefaultUser() == null)
       {
          return false;
       }
 
-      User theUser = users.get(user == null ? defaultUser : user);
+      String defaultUser = configuration.getDefaultUser();
+      User theUser = configuration.getUser(user == null ? defaultUser : user);
 
       boolean ok = theUser != null && theUser.isValid(user == null ? defaultUser : user, password == null ? defaultUser
                                                                                                          : password);
@@ -94,7 +68,8 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
    {
       if (validateUser(user, password))
       {
-         List<String> availableRoles = this.roles.get(user == null ? defaultUser : user);
+         String defaultUser = configuration.getDefaultUser();
+         List<String> availableRoles = configuration.getRole(user == null ? defaultUser : user);
 
          if (availableRoles == null)
          {
@@ -119,98 +94,8 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
       return false;
    }
 
-   public void addUser(final String user, final String password)
+   public SecurityConfiguration getConfiguration()
    {
-      if (user == null)
-      {
-         throw ActiveMQMessageBundle.BUNDLE.nullUser();
-      }
-      if (password == null)
-      {
-         throw ActiveMQMessageBundle.BUNDLE.nullPassword();
-      }
-      users.put(user, new User(user, password));
-   }
-
-   public void removeUser(final String user)
-   {
-      users.remove(user);
-      roles.remove(user);
-   }
-
-   public void addRole(final String user, final String role)
-   {
-      if (roles.get(user) == null)
-      {
-         roles.put(user, new ArrayList<String>());
-      }
-      roles.get(user).add(role);
-   }
-
-   public void removeRole(final String user, final String role)
-   {
-      if (roles.get(user) == null)
-      {
-         return;
-      }
-      roles.get(user).remove(role);
-   }
-
-   /*
-   * set the default user for null users
-   */
-   public void setDefaultUser(final String username)
-   {
-      defaultUser = username;
-   }
-
-   static class User
-   {
-      final String user;
-
-      final String password;
-
-      User(final String user, final String password)
-      {
-         this.user = user;
-         this.password = password;
-      }
-
-      @Override
-      public boolean equals(final Object o)
-      {
-         if (this == o)
-         {
-            return true;
-         }
-         if (o == null || getClass() != o.getClass())
-         {
-            return false;
-         }
-
-         User user1 = (User)o;
-
-         if (!user.equals(user1.user))
-         {
-            return false;
-         }
-
-         return true;
-      }
-
-      @Override
-      public int hashCode()
-      {
-         return user.hashCode();
-      }
-
-      public boolean isValid(final String user, final String password)
-      {
-         if (user == null)
-         {
-            return false;
-         }
-         return this.user.equals(user) && this.password.equals(password);
-      }
+      return configuration;
    }
 }

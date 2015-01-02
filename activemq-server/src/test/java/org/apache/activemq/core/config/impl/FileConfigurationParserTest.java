@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
@@ -51,11 +52,13 @@ public class FileConfigurationParserTest extends UnitTestCase
       for (int i = 0; i < 6; i++)
       {
          String filename = "InvalidConfigurationTest" + i + ".xml";
-         FileConfiguration fc = new FileConfiguration(filename);
+         FileConfiguration fc = new FileConfiguration();
+         FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
+         deploymentManager.addDeployable(fc);
 
          try
          {
-            fc.start();
+            deploymentManager.readConfiguration();
             fail("parsing should have failed for " + filename);
          }
          catch (java.lang.IllegalStateException e)
@@ -70,8 +73,10 @@ public class FileConfigurationParserTest extends UnitTestCase
    public void testDivertRoutingNameIsNotRequired() throws Exception
    {
       String filename = "divertRoutingNameNotRequired.xml";
-      FileConfiguration fc = new FileConfiguration(filename);
-      fc.start();
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
    }
 
    @Test
@@ -131,9 +136,7 @@ public class FileConfigurationParserTest extends UnitTestCase
    }
 
    private static String firstPart =
-      "<configuration xmlns=\"urn:activemq\"\n" +
-         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-         "xsi:schemaLocation=\"urn:activemq /schema/activemq-configuration.xsd\">\n" +
+      "<core xmlns=\"urn:activemq:core\">" + "\n" +
          "<name>ActiveMQ.main.config</name>" + "\n" +
          "<backup-group-name>abackupgroupname</backup-group-name>" + "\n" +
          "<scale-down-group-name>ascaledowngroupname</scale-down-group-name>" + "\n" +
@@ -197,8 +200,8 @@ public class FileConfigurationParserTest extends UnitTestCase
          + "<message-counter-history-day-limit>10</message-counter-history-day-limit>" + "\n"
          + "<address-full-policy>BLOCK</address-full-policy>" + "\n" +
          "</address-setting>" + "\n" +
-         "</address-settings>";
+         "</address-settings>" + "\n";
 
 
-   private static String lastPart = "</configuration>";
+   private static String lastPart = "</core>";
 }

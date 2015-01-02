@@ -24,15 +24,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.config.HAPolicyConfiguration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.config.impl.FileConfiguration;
+import org.apache.activemq.core.config.impl.FileSecurityConfiguration;
+import org.apache.activemq.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
 import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.JMSConfiguration;
+import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.maven.InVMNodeManagerServer;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
@@ -58,6 +64,10 @@ public class ActiveMQBootstrap
    private ActiveMQServer server;
 
    private Configuration configuration;
+
+   private JMSConfiguration jmsFileConfiguration;
+
+   private SecurityConfiguration securityConfiguration;
 
    private JMSServerManager manager;
 
@@ -89,13 +99,25 @@ public class ActiveMQBootstrap
             //extendPluginClasspath(configurationDir);
             configuration = new FileConfiguration();
             File file = new File(configurationDir + "/" + "activemq-configuration.xml");
-            ((FileConfiguration) configuration).setConfigurationUrl(file.toURI().toURL().toExternalForm());
-            ((FileConfiguration) configuration).start();
+            jmsFileConfiguration = new FileJMSConfiguration();
+            FileDeploymentManager deploymentManager = new FileDeploymentManager(file.toURI().toURL().toExternalForm());
+            deploymentManager.addDeployable((FileConfiguration)configuration);
+            deploymentManager.addDeployable((FileJMSConfiguration) jmsFileConfiguration);
+
+            securityConfiguration = new FileSecurityConfiguration("file://" + configurationDir + "/" + "activemq-users.properties",
+                                                                  "file://" + configurationDir + "/" + "activemq-roles.properties",
+                                                                  "guest",
+                                                                  false,
+                                                                  null);
+            ((FileSecurityConfiguration)securityConfiguration).start();
+            deploymentManager.readConfiguration();
          }
          else
          {
             configuration = new ConfigurationImpl();
             configuration.setJournalType(JournalType.NIO);
+            jmsFileConfiguration = new JMSConfigurationImpl();
+            securityConfiguration = new SecurityConfiguration();
          }
 
          createServer(configuration);
@@ -158,12 +180,12 @@ public class ActiveMQBootstrap
             managerMap.put(nodeId, nodeManager);
          }
          server = new InVMNodeManagerServer(configuration, ManagementFactory.getPlatformMBeanServer(),
-                                            securityManager != null ? securityManager : new ActiveMQSecurityManagerImpl(), nodeManager);
+                                            securityManager != null ? securityManager : new ActiveMQSecurityManagerImpl(securityConfiguration), nodeManager);
       }
       else
       {
          server = new ActiveMQServerImpl(configuration, ManagementFactory.getPlatformMBeanServer(),
-                                         securityManager != null ? securityManager : new ActiveMQSecurityManagerImpl());
+                                         securityManager != null ? securityManager : new ActiveMQSecurityManagerImpl(securityConfiguration));
       }
 
       manager = new JMSServerManagerImpl(server);

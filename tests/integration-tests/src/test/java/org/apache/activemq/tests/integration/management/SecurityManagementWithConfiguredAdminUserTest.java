@@ -98,12 +98,12 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl)server.getSecurityManager();
-      securityManager.addUser(validAdminUser, validAdminPassword);
-      securityManager.addUser(invalidAdminUser, invalidAdminPassword);
+      securityManager.getConfiguration().addUser(validAdminUser, validAdminPassword);
+      securityManager.getConfiguration().addUser(invalidAdminUser, invalidAdminPassword);
 
-      securityManager.addRole(validAdminUser, "admin");
-      securityManager.addRole(validAdminUser, "guest");
-      securityManager.addRole(invalidAdminUser, "guest");
+      securityManager.getConfiguration().addRole(validAdminUser, "admin");
+      securityManager.getConfiguration().addRole(validAdminUser, "guest");
+      securityManager.getConfiguration().addRole(invalidAdminUser, "guest");
 
       Set<Role> adminRole = securityRepository.getMatch(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString());
       adminRole.add(new Role("admin", true, true, true, true, true, true, true));
