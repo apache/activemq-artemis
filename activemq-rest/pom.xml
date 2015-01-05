@@ -75,8 +75,8 @@
          <version>${activemq.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.spec.javax.jms</groupId>
-         <artifactId>jboss-jms-api_2.0_spec</artifactId>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
