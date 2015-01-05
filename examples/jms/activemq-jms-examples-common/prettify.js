@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 function H(){var x=navigator&&navigator.userAgent&&/\bMSIE 6\./.test(navigator.userAgent);H=function(){return x};return x}(function(){function x(b){b=b.split(/ /g);var a={};for(var c=b.length;--c>=0;){var d=b[c];if(d)a[d]=null}return a}var y="break continue do else for if return while ",U=y+"auto case char const default double enum extern float goto int long register short signed sizeof static struct switch typedef union unsigned void volatile ",D=U+"catch class delete false import new operator private protected public this throw true try ",
 I=D+"alignof align_union asm axiom bool concept concept_map const_cast constexpr decltype dynamic_cast explicit export friend inline late_check mutable namespace nullptr reinterpret_cast static_assert static_cast template typeid typename typeof using virtual wchar_t where ",J=D+"boolean byte extends final finally implements import instanceof null native package strictfp super synchronized throws transient ",V=J+"as base by checked decimal delegate descending event fixed foreach from group implicit in interface internal into is lock object out override orderby params readonly ref sbyte sealed stackalloc string select uint ulong unchecked unsafe ushort var ",
 K=D+"debugger eval export function get null set undefined var with Infinity NaN ",L="caller delete die do dump elsif eval exit foreach for goto if import last local my next no our print package redo require sub undef unless until use wantarray while BEGIN END ",M=y+"and as assert class def del elif except exec finally from global import in is lambda nonlocal not or pass print raise try with yield False True None ",N=y+"alias and begin case class def defined elsif end ensure false in module next nil not or redo rescue retry self super then true undef unless until when yield BEGIN END ",
