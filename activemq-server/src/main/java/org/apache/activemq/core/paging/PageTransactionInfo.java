@@ -17,6 +17,7 @@
 package org.apache.activemq.core.paging;
 
 import org.apache.activemq.core.journal.EncodingSupport;
+import org.apache.activemq.core.paging.cursor.PageIterator;
 import org.apache.activemq.core.paging.cursor.PagePosition;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -61,10 +62,8 @@ public interface PageTransactionInfo extends EncodingSupport
    /**
     * This method will hold the position to be delivered later in case this transaction is pending.
     * If the tx is not pending, it will return false, so the caller can deliver it right away
-    * @param cursor
-    * @param cursorPos
     * @return true if the message will be delivered later, false if it should be delivered right away
     */
-   boolean deliverAfterCommit(PageSubscription cursor, PagePosition cursorPos);
+   boolean deliverAfterCommit(PageIterator pageIterator, PageSubscription cursor, PagePosition cursorPos);
 
 }

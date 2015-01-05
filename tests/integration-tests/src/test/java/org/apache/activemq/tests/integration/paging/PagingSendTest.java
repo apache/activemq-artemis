@@ -16,10 +16,17 @@
  */
 package org.apache.activemq.tests.integration.paging;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
@@ -27,9 +34,14 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.utils.LinkedListIterator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +69,9 @@ public class PagingSendTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
+      Configuration config = new ConfigurationImpl();
       server = newActiveMQServer();
+
       server.start();
       waitForServer(server);
       locator = createFactory(isNetty());
@@ -223,5 +237,147 @@ public class PagingSendTest extends ServiceTestBase
       sessionProducer.close();
 
       assertEquals(0, errors.get());
+   }
+
+   @Test
+   public void testPagingDoesNotDuplicateBatchMessages() throws Exception
+   {
+      int batchSize = 20;
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, false);
+
+      // Create a queue
+      SimpleString queueAddr = new SimpleString("testQueue");
+      session.createQueue(queueAddr, queueAddr, null, true);
+
+      // Set up paging on the queue address
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setPageSizeBytes(10 * 1024);
+      /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+       Presumably due to additional meta-data, message headers etc... **/
+      addressSettings.setMaxSizeBytes(16 * 1024);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
+
+      sendMessageBatch(batchSize, session, queueAddr);
+
+      Queue queue = server.locateQueue(queueAddr);
+
+      checkBatchMessagesAreNotPagedTwice(queue);
+
+      for (int i = 0; i < 10; i++)
+      {
+         // execute the same count a couple times. This is to make sure the iterators have no impact regardless
+         // the number of times they are called
+         assertEquals(batchSize, processCountThroughIterator(queue));
+      }
+
+   }
+
+   @Test
+   public void testPagingDoesNotDuplicateBatchMessagesAfterPagingStarted() throws Exception
+   {
+      int batchSize = 20;
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, false);
+
+      // Create a queue
+      SimpleString queueAddr = new SimpleString("testQueue");
+      session.createQueue(queueAddr, queueAddr, null, true);
+
+      // Set up paging on the queue address
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setPageSizeBytes(10 * 1024);
+      /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+       Presumably due to additional meta-data, message headers etc... **/
+      addressSettings.setMaxSizeBytes(16 * 1024);
+      server.getAddressSettingsRepository().addMatch("#", addressSettings);
+
+      int numberOfMessages = 0;
+      // ensure the server is paging
+      while (!server.getPagingManager().getPageStore(queueAddr).isPaging())
+      {
+         sendMessageBatch(batchSize, session, queueAddr);
+         numberOfMessages += batchSize;
+
+      }
+
+      sendMessageBatch(batchSize, session, queueAddr);
+      numberOfMessages += batchSize;
+
+      Queue queue = server.locateQueue(queueAddr);
+      checkBatchMessagesAreNotPagedTwice(queue);
+
+      for (int i = 0; i < 10; i++)
+      {
+         // execute the same count a couple times. This is to make sure the iterators have no impact regardless
+         // the number of times they are called
+         assertEquals(numberOfMessages, processCountThroughIterator(queue));
+      }
+   }
+
+   public List<String> sendMessageBatch(int batchSize, ClientSession session, SimpleString queueAddr) throws ActiveMQException
+   {
+      List<String> messageIds = new ArrayList<String>();
+      ClientProducer producer = session.createProducer(queueAddr);
+      for (int i = 0; i < batchSize; i++)
+      {
+         Message message = session.createMessage(true);
+         message.getBodyBuffer().writeBytes(new byte[1024]);
+         String id = UUID.randomUUID().toString();
+         message.putStringProperty("id", id);
+         message.putIntProperty("seq", i); // this is to make the print-data easier to debug
+         messageIds.add(id);
+         producer.send(message);
+      }
+      session.commit();
+
+      return messageIds;
+   }
+
+   /**
+    * checks that there are no message duplicates in the page.  Any IDs found in the ignoreIds field will not be tested
+    * this allows us to test only those messages that have been sent after the address has started paging (ignoring any
+    * duplicates that may have happened before this point).
+    */
+   public void checkBatchMessagesAreNotPagedTwice(Queue queue) throws Exception
+   {
+      LinkedListIterator<MessageReference> pageIterator = queue.totalIterator();
+
+      Set<String> messageOrderSet = new HashSet<String>();
+
+      int duplicates = 0;
+      while (pageIterator.hasNext())
+      {
+         MessageReference reference = pageIterator.next();
+
+         String id = reference.getMessage().getStringProperty("id");
+
+         // If add(id) returns true it means that this id was already added to this set.  Hence a duplicate is found.
+         if (!messageOrderSet.add(id))
+         {
+            duplicates++;
+         }
+      }
+      assertTrue(duplicates == 0);
+   }
+
+   /**
+    * checks that there are no message duplicates in the page.  Any IDs found in the ignoreIds field will not be tested
+    * this allows us to test only those messages that have been sent after the address has started paging (ignoring any
+    * duplicates that may have happened before this point).
+    */
+   protected int processCountThroughIterator(Queue queue) throws Exception
+   {
+      LinkedListIterator<MessageReference> pageIterator = queue.totalIterator();
+
+      int count = 0;
+      while (pageIterator.hasNext())
+      {
+         MessageReference reference = pageIterator.next();
+         count++;
+      }
+      return count;
    }
 }

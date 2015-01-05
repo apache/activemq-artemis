@@ -39,6 +39,7 @@ import org.apache.activemq.core.paging.PagedMessage;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.paging.cursor.PageCache;
 import org.apache.activemq.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.core.paging.cursor.PageIterator;
 import org.apache.activemq.core.paging.cursor.PagePosition;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
@@ -55,7 +56,6 @@ import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.LinkedListIterator;
 
 /**
  * A PageCursorImpl
@@ -98,9 +98,6 @@ final class PageSubscriptionImpl implements PageSubscription
    private final Executor executor;
 
    private final AtomicLong deliveredCount = new AtomicLong(0);
-
-   // We only store the position for redeliveries. They will be read from the SoftCache again during delivery.
-   private final java.util.Queue<PagePosition> redeliveries = new LinkedList<PagePosition>();
 
    PageSubscriptionImpl(final PageCursorProvider cursorProvider,
                         final PagingStore pageStore,
@@ -378,7 +375,7 @@ final class PageSubscriptionImpl implements PageSubscription
    }
 
    @Override
-   public LinkedListIterator<PagedReference> iterator()
+   public PageIterator iterator()
    {
       return new CursorIterator();
    }
@@ -583,12 +580,9 @@ final class PageSubscriptionImpl implements PageSubscription
    }
 
    @Override
-   public void redeliver(final PagePosition position)
+   public void redeliver(final PageIterator iterator, final PagePosition position)
    {
-      synchronized (redeliveries)
-      {
-         redeliveries.add(position);
-      }
+      iterator.redeliver(position);
 
       synchronized (consumedPages)
       {
@@ -1245,7 +1239,7 @@ final class PageSubscriptionImpl implements PageSubscription
 
    }
 
-   private class CursorIterator implements LinkedListIterator<PagedReference>
+   private class CursorIterator implements PageIterator
    {
       private PagePosition position = null;
 
@@ -1255,6 +1249,9 @@ final class PageSubscriptionImpl implements PageSubscription
 
       private volatile PagedReference lastRedelivery = null;
 
+      // We only store the position for redeliveries. They will be read from the SoftCache again during delivery.
+      private final java.util.Queue<PagePosition> redeliveries = new LinkedList<PagePosition>();
+
       /**
        * next element taken on hasNext test.
        * it has to be delivered on next next operation
@@ -1263,6 +1260,14 @@ final class PageSubscriptionImpl implements PageSubscription
 
       public CursorIterator()
       {
+      }
+
+      public void redeliver(PagePosition reference)
+      {
+         synchronized (redeliveries)
+         {
+            redeliveries.add(reference);
+         }
       }
 
       public void repeat()
@@ -1390,7 +1395,7 @@ final class PageSubscriptionImpl implements PageSubscription
                   }
                   else
                   {
-                     if (tx.deliverAfterCommit(PageSubscriptionImpl.this, message.getPosition()))
+                     if (tx.deliverAfterCommit(CursorIterator.this, PageSubscriptionImpl.this, message.getPosition()))
                      {
                         valid = false;
                         ignored = false;
