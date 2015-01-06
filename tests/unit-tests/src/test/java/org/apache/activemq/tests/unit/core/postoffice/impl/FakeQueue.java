@@ -25,7 +25,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
@@ -60,7 +59,7 @@ public class FakeQueue implements Queue
    }
 
    @Override
-   public void setConsumersRefCount(ActiveMQServer server)
+   public void setConsumersRefCount(ReferenceCounter referenceCounter)
    {
 
    }
@@ -424,6 +423,12 @@ public class FakeQueue implements Queue
    public boolean isTemporary()
    {
       // no-op
+      return false;
+   }
+
+   @Override
+   public boolean isAutoCreated()
+   {
       return false;
    }
 

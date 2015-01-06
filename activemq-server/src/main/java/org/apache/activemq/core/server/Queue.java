@@ -49,6 +49,8 @@ public interface Queue extends Bindable
 
    boolean isTemporary();
 
+   boolean isAutoCreated();
+
    void addConsumer(Consumer consumer) throws Exception;
 
    void removeConsumer(Consumer consumer);
@@ -62,7 +64,7 @@ public interface Queue extends Bindable
     * on shared subscriptions where the queue needs to be deleted when all the
     * consumers are closed.
     */
-   void setConsumersRefCount(ActiveMQServer server);
+   void setConsumersRefCount(ReferenceCounter referenceCounter);
 
    ReferenceCounter getConsumersRefCount();
 

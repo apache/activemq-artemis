@@ -1635,6 +1635,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       policy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY"
          : "KILL";
       settings.put("slowConsumerPolicy", policy);
+      settings.put("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues());
+      settings.put("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues());
 
       JSONObject jsonObject = new JSONObject(settings);
       return jsonObject.toString();
@@ -1658,7 +1660,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final String addressFullMessagePolicy,
                                   final long slowConsumerThreshold,
                                   final long slowConsumerCheckPeriod,
-                                  final String slowConsumerPolicy) throws Exception
+                                  final String slowConsumerPolicy,
+                                  final boolean autoCreateJmsQueues,
+                                  final boolean autoDeleteJmsQueues) throws Exception
    {
       checkStarted();
 
@@ -1721,6 +1725,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       {
          addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
       }
+      addressSettings.setAutoCreateJmsQueues(autoCreateJmsQueues);
+      addressSettings.setAutoDeleteJmsQueues(autoDeleteJmsQueues);
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));

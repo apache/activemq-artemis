@@ -16,46 +16,14 @@
  */
 package org.apache.activemq.core.server;
 
-import java.util.List;
-
 import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.utils.ReferenceCounter;
 
 /**
- *
- * A BindingQueryResult
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
+ * @author Clebert Suconic
  */
-public class BindingQueryResult
+
+public interface AutoCreatedQueueManager extends ReferenceCounter
 {
-   private boolean exists;
-
-   private List<SimpleString> queueNames;
-
-   private boolean autoCreateJmsQueues;
-
-   public BindingQueryResult(final boolean exists, final List<SimpleString> queueNames, final boolean autoCreateJmsQueues)
-   {
-      this.exists = exists;
-
-      this.queueNames = queueNames;
-
-      this.autoCreateJmsQueues = autoCreateJmsQueues;
-   }
-
-   public boolean isExists()
-   {
-      return exists;
-   }
-
-   public boolean isAutoCreateJmsQueues()
-   {
-      return autoCreateJmsQueues;
-   }
-
-   public List<SimpleString> getQueueNames()
-   {
-      return queueNames;
-   }
+   SimpleString getQueueName();
 }

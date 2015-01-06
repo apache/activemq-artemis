@@ -177,6 +177,13 @@ public interface ActiveMQServer extends ActiveMQComponent
                      boolean durable,
                      boolean temporary) throws Exception;
 
+   Queue createQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filter,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated) throws Exception;
+
    Queue deployQueue(SimpleString address,
                      SimpleString queueName,
                      SimpleString filterString,

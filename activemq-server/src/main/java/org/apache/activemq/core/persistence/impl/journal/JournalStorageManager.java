@@ -2014,7 +2014,8 @@ public class JournalStorageManager implements StorageManager
 
       PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding(queue.getName(),
                                                                                           binding.getAddress(),
-                                                                                          filterString);
+                                                                                          filterString,
+                                                                                          queue.isAutoCreated());
 
       readLock();
       try
@@ -3027,6 +3028,8 @@ public class JournalStorageManager implements StorageManager
 
       public SimpleString filterString;
 
+      public boolean autoCreated;
+
       public PersistentQueueBindingEncoding()
       {
       }
@@ -3041,16 +3044,20 @@ public class JournalStorageManager implements StorageManager
             address +
             ", filterString=" +
             filterString +
+            ", autoCreated=" +
+            autoCreated +
             "]";
       }
 
       public PersistentQueueBindingEncoding(final SimpleString name,
                                             final SimpleString address,
-                                            final SimpleString filterString)
+                                            final SimpleString filterString,
+                                            final boolean autoCreated)
       {
          this.name = name;
          this.address = address;
          this.filterString = filterString;
+         this.autoCreated = autoCreated;
       }
 
       public long getId()
@@ -3083,11 +3090,17 @@ public class JournalStorageManager implements StorageManager
          return name;
       }
 
+      public boolean isAutoCreated()
+      {
+         return autoCreated;
+      }
+
       public void decode(final ActiveMQBuffer buffer)
       {
          name = buffer.readSimpleString();
          address = buffer.readSimpleString();
          filterString = buffer.readNullableSimpleString();
+         autoCreated = buffer.readBoolean();
       }
 
       public void encode(final ActiveMQBuffer buffer)
@@ -3095,12 +3108,13 @@ public class JournalStorageManager implements StorageManager
          buffer.writeSimpleString(name);
          buffer.writeSimpleString(address);
          buffer.writeNullableSimpleString(filterString);
+         buffer.writeBoolean(autoCreated);
       }
 
       public int getEncodeSize()
       {
          return SimpleString.sizeofString(name) + SimpleString.sizeofString(address) +
-            SimpleString.sizeofNullableString(filterString);
+            SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN;
       }
    }
 

@@ -34,6 +34,7 @@ import javax.jms.XAConnection;
 import javax.jms.XASession;
 
 import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
@@ -113,6 +114,10 @@ public class SessionTest extends ActiveMQServerTestCase
    @Test
    public void testCreateNonExistentQueue() throws Exception
    {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoCreateJmsQueues(false);
+      getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
+
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try
@@ -147,6 +152,10 @@ public class SessionTest extends ActiveMQServerTestCase
    @Test
    public void testCreateQueueWhileTopicWithSameNameExists() throws Exception
    {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoCreateJmsQueues(false);
+      getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
+
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try

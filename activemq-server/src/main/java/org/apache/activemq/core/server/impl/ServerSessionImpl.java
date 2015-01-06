@@ -37,6 +37,7 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
+import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.core.exception.ActiveMQXAException;
 import org.apache.activemq.core.filter.Filter;
@@ -549,7 +550,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          securityStore.check(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
-      Queue queue = server.createQueue(address, name, filterString, durable, temporary);
+      // any non-temporary JMS queue created via this method should be marked as auto-created
+      if (!temporary && address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name))
+      {
+         server.createQueue(address, name, filterString, durable, temporary, true);
+      }
+      else
+      {
+         server.createQueue(address, name, filterString, durable, temporary);
+      }
 
       if (temporary)
       {
@@ -676,6 +685,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
    public QueueQueryResult executeQueueQuery(final SimpleString name) throws Exception
    {
+      boolean autoCreateJmsQueues = name.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateJmsQueues();
+
       if (name == null)
       {
          throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
@@ -699,16 +710,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                                          queue.isTemporary(),
                                          filterString,
                                          queue.getConsumerCount(),
-                                         queue.getMessageCount());
+                                         queue.getMessageCount(),
+                                         autoCreateJmsQueues);
       }
       // make an exception for the management address (see HORNETQ-29)
       else if (name.equals(managementAddress))
       {
-         response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1);
+         response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateJmsQueues);
+      }
+      else if (autoCreateJmsQueues)
+      {
+         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false);
       }
       else
       {
-         response = new QueueQueryResult();
+         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false);
       }
 
       return response;
@@ -716,6 +732,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
    public BindingQueryResult executeBindingQuery(final SimpleString address) throws Exception
    {
+      boolean autoCreateJmsQueues = address.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsQueues();
+
       if (address == null)
       {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
@@ -726,7 +744,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       // make an exception for the management address (see HORNETQ-29)
       if (address.equals(managementAddress))
       {
-         return new BindingQueryResult(true, names);
+         return new BindingQueryResult(true, names, autoCreateJmsQueues);
       }
 
       Bindings bindings = postOffice.getMatchingBindings(address);
@@ -739,7 +757,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          }
       }
 
-      return new BindingQueryResult(!names.isEmpty(), names);
+      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues);
    }
 
    public void forceConsumerDelivery(final long consumerID, final long sequence) throws Exception

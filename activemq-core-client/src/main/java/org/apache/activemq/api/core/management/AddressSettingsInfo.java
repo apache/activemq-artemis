@@ -60,6 +60,10 @@ public final class AddressSettingsInfo
 
    private final String slowConsumerPolicy;
 
+   private final boolean autoCreateJmsQueues;
+
+   private final boolean autoDeleteJmsQueues;
+
    // Static --------------------------------------------------------
 
    public static AddressSettingsInfo from(final String jsonString) throws Exception
@@ -80,7 +84,9 @@ public final class AddressSettingsInfo
                                      object.getBoolean("sendToDLAOnNoRoute"),
                                      object.getLong("slowConsumerThreshold"),
                                      object.getLong("slowConsumerCheckPeriod"),
-                                     object.getString("slowConsumerPolicy"));
+                                     object.getString("slowConsumerPolicy"),
+                                     object.getBoolean("autoCreateJmsQueues"),
+                                     object.getBoolean("autoDeleteJmsQueues"));
    }
 
    // Constructors --------------------------------------------------
@@ -100,7 +106,9 @@ public final class AddressSettingsInfo
                               boolean sendToDLAOnNoRoute,
                               long slowConsumerThreshold,
                               long slowConsumerCheckPeriod,
-                              String slowConsumerPolicy)
+                              String slowConsumerPolicy,
+                              boolean autoCreateJmsQueues,
+                              boolean autoDeleteJmsQueues)
    {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
@@ -118,6 +126,8 @@ public final class AddressSettingsInfo
       this.slowConsumerThreshold = slowConsumerThreshold;
       this.slowConsumerCheckPeriod = slowConsumerCheckPeriod;
       this.slowConsumerPolicy = slowConsumerPolicy;
+      this.autoCreateJmsQueues = autoCreateJmsQueues;
+      this.autoDeleteJmsQueues = autoDeleteJmsQueues;
    }
 
    // Public --------------------------------------------------------
@@ -205,6 +215,16 @@ public final class AddressSettingsInfo
    public String getSlowConsumerPolicy()
    {
       return slowConsumerPolicy;
+   }
+
+   public boolean isAutoCreateJmsQueues()
+   {
+      return autoCreateJmsQueues;
+   }
+
+   public boolean isAutoDeleteJmsQueues()
+   {
+      return autoDeleteJmsQueues;
    }
 }
 

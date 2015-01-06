@@ -415,7 +415,14 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
                ClientSession.AddressQuery query = clientSession.addressQuery(address);
                if (!query.isExists())
                {
-                  throw new InvalidDestinationException("Destination " + address + " does not exist");
+                  if (query.isAutoCreateJmsQueues())
+                  {
+                     clientSession.createQueue(address, address, true);
+                  }
+                  else
+                  {
+                     throw new InvalidDestinationException("Destination " + address + " does not exist");
+                  }
                }
                else
                {

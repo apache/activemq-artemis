@@ -62,7 +62,7 @@ public class NonExistentQueueTest extends JMSTestBase
    @Test
    public void sendToNonExistantDestination() throws Exception
    {
-      Destination destination = ActiveMQJMSClient.createQueue("DoesNotExist");
+      Destination destination = ActiveMQJMSClient.createTopic("DoesNotExist");
       TransportConfiguration transportConfiguration = new TransportConfiguration(InVMConnectorFactory.class.getName());
       ConnectionFactory localConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
                                                                                                     transportConfiguration);
