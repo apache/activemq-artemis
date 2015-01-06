@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.paging.PageTransactionInfo;
 import org.apache.activemq.core.paging.PagingManager;
+import org.apache.activemq.core.paging.cursor.PageIterator;
 import org.apache.activemq.core.paging.cursor.PagePosition;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.persistence.StorageManager;
@@ -58,7 +58,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
 
    private final AtomicInteger numberOfPersistentMessages = new AtomicInteger(0);
 
-   private List<Pair<PageSubscription, PagePosition>> lateDeliveries;
+   private List<LateDelivery> lateDeliveries;
 
    // Static --------------------------------------------------------
 
@@ -146,9 +146,9 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
       if (lateDeliveries != null)
       {
          // This is to make sure deliveries that were touched before the commit arrived will be delivered
-         for (Pair<PageSubscription, PagePosition> pos : lateDeliveries)
+         for (LateDelivery pos : lateDeliveries)
          {
-            pos.getA().redeliver(pos.getB());
+            pos.getSubscription().redeliver(pos.getIterator(), pos.getPagePosition());
          }
          lateDeliveries.clear();
       }
@@ -225,9 +225,9 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
 
       if (lateDeliveries != null)
       {
-         for (Pair<PageSubscription, PagePosition> pos : lateDeliveries)
+         for (LateDelivery pos : lateDeliveries)
          {
-            pos.getA().lateDeliveryRollback(pos.getB());
+            pos.getSubscription().lateDeliveryRollback(pos.getPagePosition());
          }
          lateDeliveries = null;
       }
@@ -245,12 +245,12 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    }
 
    @Override
-   public synchronized boolean deliverAfterCommit(PageSubscription cursor, PagePosition cursorPos)
+   public synchronized boolean deliverAfterCommit(PageIterator iterator, PageSubscription cursor, PagePosition cursorPos)
    {
       if (committed && useRedelivery)
       {
          cursor.addPendingDelivery(cursorPos);
-         cursor.redeliver(cursorPos);
+         cursor.redeliver(iterator, cursorPos);
          return true;
       }
       else if (committed)
@@ -267,10 +267,10 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
          useRedelivery = true;
          if (lateDeliveries == null)
          {
-            lateDeliveries = new LinkedList<Pair<PageSubscription, PagePosition>>();
+            lateDeliveries = new LinkedList<>();
          }
          cursor.addPendingDelivery(cursorPos);
-         lateDeliveries.add(new Pair<PageSubscription, PagePosition>(cursor, cursorPos));
+         lateDeliveries.add(new LateDelivery(cursor, cursorPos, iterator));
          return true;
       }
    }
@@ -282,6 +282,41 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
+
+   /** a Message shouldn't be delivered until it's committed
+    *  For that reason the page-refernce will be written right away
+    *  But in certain cases we can only deliver after the commit
+    *  For that reason we will perform a late delivery
+    *  through the method redeliver.
+    */
+   private static class LateDelivery
+   {
+      final PageSubscription subscription;
+      final PagePosition pagePosition;
+      final PageIterator iterator;
+
+      public LateDelivery(PageSubscription subscription, PagePosition pagePosition, PageIterator iterator)
+      {
+         this.subscription = subscription;
+         this.pagePosition = pagePosition;
+         this.iterator = iterator;
+      }
+
+      public PageSubscription getSubscription()
+      {
+         return subscription;
+      }
+
+      public PagePosition getPagePosition()
+      {
+         return pagePosition;
+      }
+
+      public PageIterator getIterator()
+      {
+         return iterator;
+      }
+   }
 
 
    private static class UpdatePageTXOperation extends TransactionOperationAbstract

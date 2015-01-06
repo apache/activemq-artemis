@@ -125,12 +125,12 @@ public interface PageSubscription
     * To be used on redeliveries
     * @param position
     */
-   void redeliver(PagePosition position);
+   void redeliver(PageIterator iterator, PagePosition position);
 
    void printDebug();
 
    /**
-    * @param minPage
+    * @param page
     * @return
     */
    boolean isComplete(long page);
