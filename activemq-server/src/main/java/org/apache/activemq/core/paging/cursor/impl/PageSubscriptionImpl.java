@@ -1247,6 +1247,8 @@ final class PageSubscriptionImpl implements PageSubscription
 
       private volatile boolean isredelivery = false;
 
+      private PagedReference currentDelivery = null;
+
       private volatile PagedReference lastRedelivery = null;
 
       // We only store the position for redeliveries. They will be read from the SoftCache again during delivery.
@@ -1298,9 +1300,9 @@ final class PageSubscriptionImpl implements PageSubscription
 
          if (cachedNext != null)
          {
-            PagedReference retPos = cachedNext;
+            currentDelivery = cachedNext;
             cachedNext = null;
-            return retPos;
+            return currentDelivery;
          }
 
          try
@@ -1310,7 +1312,8 @@ final class PageSubscriptionImpl implements PageSubscription
                position = getStartPosition();
             }
 
-            return moveNext();
+            currentDelivery = moveNext();
+            return currentDelivery;
          }
          catch (RuntimeException e)
          {
@@ -1473,10 +1476,13 @@ final class PageSubscriptionImpl implements PageSubscription
       public void remove()
       {
          deliveredCount.incrementAndGet();
-         PageCursorInfo info = PageSubscriptionImpl.this.getPageInfo(position);
-         if (info != null)
+         if (currentDelivery != null)
          {
-            info.remove(position);
+            PageCursorInfo info = PageSubscriptionImpl.this.getPageInfo(currentDelivery.getPosition());
+            if (info != null)
+            {
+               info.remove(currentDelivery.getPosition());
+            }
          }
       }
 

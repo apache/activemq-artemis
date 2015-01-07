@@ -17,6 +17,7 @@
 package org.apache.activemq.core.postoffice;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -94,5 +95,7 @@ public interface PostOffice extends ActiveMQComponent
    void startExpiryScanner();
 
    boolean isAddressBound(final SimpleString address) throws Exception;
+
+   Set<SimpleString> getAddresses();
 
 }

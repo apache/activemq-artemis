@@ -62,6 +62,7 @@ import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.QueueBinding;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
@@ -1681,7 +1682,8 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .setThreadPoolMaxSize(10)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty)))
-         .setHAPolicyConfiguration(haPolicyConfiguration);
+         .setHAPolicyConfiguration(haPolicyConfiguration)
+         .setResolveProtocols(false);
 
       ActiveMQServer server;
 
@@ -1707,6 +1709,8 @@ public abstract class ClusterTestBase extends ServiceTestBase
             server = createServer(false, configuration);
          }
       }
+
+      server.addProtocolManagerFactory(new CoreProtocolManagerFactory());
 
       server.setIdentity(this.getClass().getSimpleName() + "/Live(" + node + ")");
       servers[node] = server;

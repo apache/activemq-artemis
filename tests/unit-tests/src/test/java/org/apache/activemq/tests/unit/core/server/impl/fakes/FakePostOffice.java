@@ -17,6 +17,7 @@
 package org.apache.activemq.tests.unit.core.server.impl.fakes;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
@@ -41,6 +42,12 @@ public class FakePostOffice implements PostOffice
    {
 
       return false;
+   }
+
+   @Override
+   public Set<SimpleString> getAddresses()
+   {
+      return null;
    }
 
    @Override

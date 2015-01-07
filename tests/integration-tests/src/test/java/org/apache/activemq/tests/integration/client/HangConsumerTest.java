@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.tests.integration.client;
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.junit.Before;
 import org.junit.After;
@@ -24,7 +23,6 @@ import org.junit.Test;
 
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -274,9 +272,8 @@ public class HangConsumerTest extends ServiceTestBase
          }
 
          @Override
-         public List<MessageReference> cancelScheduledMessages()
+         public void deliverScheduledMessages()
          {
-            return null;
          }
       }
 

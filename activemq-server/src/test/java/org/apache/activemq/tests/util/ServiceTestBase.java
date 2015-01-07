@@ -972,7 +972,7 @@ public abstract class ServiceTestBase extends UnitTestCase
    protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception
    {
       final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
-      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(getJournalDir(), null);
+      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalDirectory(), null);
 
       JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(),
                                                     config.getJournalMinFiles(),

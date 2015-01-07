@@ -1483,9 +1483,9 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public List<MessageReference> cancelScheduledMessages()
+      public void deliverScheduledMessages()
       {
-         return null;
+
       }
 
       @Override

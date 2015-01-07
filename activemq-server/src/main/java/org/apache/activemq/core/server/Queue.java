@@ -176,6 +176,10 @@ public interface Queue extends Bindable
 
    boolean checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 
+   /**
+    * It will iterate thorugh memory only (not paging)
+    * @return
+    */
    LinkedListIterator<MessageReference> iterator();
 
    LinkedListIterator<MessageReference> totalIterator();
@@ -228,7 +232,10 @@ public interface Queue extends Bindable
 
    void incrementMesssagesAdded();
 
-   List<MessageReference> cancelScheduledMessages();
+   /**
+    * cancels scheduled messages and send them to the head of the queue.
+    */
+   void deliverScheduledMessages();
 
    void postAcknowledge(MessageReference ref);
 

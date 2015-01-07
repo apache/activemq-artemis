@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.core.postoffice.impl;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -149,6 +151,15 @@ public class SimpleAddressManager implements AddressManager
    {
       nameMap.clear();
       mappings.clear();
+   }
+
+
+   @Override
+   public Set<SimpleString> getAddresses()
+   {
+      Set<SimpleString> addresses = new HashSet<>();
+      addresses.addAll(mappings.keySet());
+      return addresses;
    }
 
    protected void removeBindingInternal(final SimpleString address, final SimpleString bindableName)
