@@ -282,35 +282,6 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageSendAndReceiveTransacted() throws Exception
-   {
-      setupDLQ(10);
-      resourceAdapter = newResourceAdapter();
-      MyBootstrapContext ctx = new MyBootstrapContext();
-      resourceAdapter.start(ctx);
-      ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
-      mcf.setResourceAdapter(resourceAdapter);
-      ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
-      QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
-      Session s = queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
-      MessageProducer mp = s.createProducer(q);
-      MessageConsumer consumer = s.createConsumer(q);
-      Message message = s.createTextMessage("test");
-      mp.send(message);
-      s.commit();
-      queueConnection.start();
-      TextMessage textMessage = (TextMessage) consumer.receive(1000);
-      assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
-      s.rollback();
-      textMessage = (TextMessage) consumer.receive(1000);
-      assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
-      s.commit();
-   }
-
-   @Test
    public void testMultipleSessionsThrowsException() throws Exception
    {
       resourceAdapter = newResourceAdapter();
@@ -425,94 +396,6 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
 
       JMSContext jmsctx = qraConnectionFactory.createContext(JMSContext.DUPS_OK_ACKNOWLEDGE);
       assertEquals(JMSContext.DUPS_OK_ACKNOWLEDGE, jmsctx.getSessionMode());
-
-   }
-
-
-   @Test
-   public void testQueueSessionAckModeJTA() throws Exception
-   {
-      testQueuSessionAckMode(true);
-   }
-
-   @Test
-   public void testQueueSessionAckModeNoJTA() throws Exception
-   {
-      testQueuSessionAckMode(false);
-   }
-
-   public void testQueuSessionAckMode(boolean inTx) throws Exception
-   {
-      if (inTx)
-      {
-         DummyTransactionManager.tm.tx = new DummyTransaction();
-      }
-      QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
-
-      Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      if (inTx)
-      {
-         assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
-      }
-      else
-      {
-         assertEquals(Session.AUTO_ACKNOWLEDGE, s.getAcknowledgeMode());
-      }
-      s.close();
-
-      s = queueConnection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-      if (inTx)
-      {
-         assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
-      }
-      else
-      {
-         assertEquals(Session.DUPS_OK_ACKNOWLEDGE, s.getAcknowledgeMode());
-      }
-      s.close();
-
-      //exception should be thrown if ack mode is SESSION_TRANSACTED or
-      //CLIENT_ACKNOWLEDGE when in a JTA else ackmode should bee ignored
-      try
-      {
-         s = queueConnection.createSession(false, Session.SESSION_TRANSACTED);
-         if (inTx)
-         {
-            assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
-         }
-         else
-         {
-            fail("didn't get expected exception creating session with SESSION_TRANSACTED mode ");
-         }
-         s.close();
-      }
-      catch (JMSException e)
-      {
-         if (inTx)
-         {
-            fail("shouldn't throw exception " + e);
-         }
-      }
-
-      try
-      {
-         s = queueConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         if (inTx)
-         {
-            assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
-         }
-         else
-         {
-            fail("didn't get expected exception creating session with CLIENT_ACKNOWLEDGE mode");
-         }
-      }
-      catch (JMSException e)
-      {
-         if (inTx)
-         {
-            fail("shouldn't throw exception " + e);
-         }
-      }
 
    }
 
