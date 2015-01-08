@@ -917,14 +917,14 @@
                   <exclude>docs/user-manual/target/**/*.log</exclude>
                   <exclude>**/resources/webapps/WebServerComponentTest.txt</exclude>
                   <exclude>integration/activemq-jboss-as-integration/target/checkstyle-cachefile</exclude>
-                  <exclude>integration/activemq-twitter-integration/target/checkstyle-cachefile</exclude>
                   <exclude>integration/activemq-jboss-as-integration/target/**/*.lst</exclude>
-                  <exclude>integration/activemq-twitter-integration/target/**/*.lst</exclude>
                   <exclude>etc/org.eclipse.*</exclude>
                   <exclude>docs/user-manual/en/*.json</exclude>
+                  <exclude>**/target/</exclude>
                   <exclude>**/*.bindings</exclude>
                   <exclude>**/*.lock</exclude>
                   <exclude>**/META-INF/services/*</exclude>
+                  <exclude>**/*.iml</exclude>
                </excludes>
             </configuration>
             <executions>
