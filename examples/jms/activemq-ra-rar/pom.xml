@@ -47,12 +47,12 @@ under the License.
                <artifactId>activemq-jms-client</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>org.jboss.spec.javax.jms</groupId>
-               <artifactId>jboss-jms-api_2.0_spec</artifactId>
+              <groupId>org.apache.geronimo.specs</groupId>
+              <artifactId>geronimo-jms_2.0_spec</artifactId>
             </exclusion>
             <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-ejb_3.0_spec</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.0_spec</artifactId>
             </exclusion>
             <exclusion>
                <groupId>jboss.jbossts.jts</groupId>

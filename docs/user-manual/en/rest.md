@@ -266,9 +266,9 @@ WEB-INF/classes directory!
              <version>2.3.0-SNAPSHOT</version>
           </dependency>
           <dependency>
-             <groupId>org.jboss.spec.javax.jms</groupId>
-             <artifactId>jboss-jms-api_2.0_spec</artifactId>
-             <version>1.0.0.Final</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_2.0_spec</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
           </dependency>
           <dependency>
              <groupId>org.apache.activemq.rest</groupId>

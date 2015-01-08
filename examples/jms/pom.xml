@@ -35,6 +35,7 @@ under the License.
 
    <properties>
       <udp-address>231.7.7.7</udp-address>
+      <geronimo.jms.2.spec.version>1.0.0-SNAPSHOT</geronimo.jms.2.spec.version>
    </properties>
 
    <profiles>
