@@ -910,7 +910,7 @@
             <version>0.11</version>
             <configuration>
                <excludes>
-                  <exclude>distribution/activemq/src/main/resources/licenses/**</exclude>
+                  <exclude>**/src/main/resources/licenses/</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>**/banner.txt</exclude>
                   <exclude>docs/quickstart-guide/target/**/*.log</exclude>
