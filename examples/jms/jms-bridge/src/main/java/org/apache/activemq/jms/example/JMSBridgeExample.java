@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.jms.example;
 
-import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import org.apache.activemq.jms.bridge.JMSBridge;
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
@@ -77,13 +76,12 @@ public class JMSBridgeExample
                null,
                5000,
                10,
-               QualityOfServiceMode.ONCE_AND_ONLY_ONCE,
+               QualityOfServiceMode.DUPLICATES_OK,
                1,
                -1,
                null,
                null,
                true);
-      jmsBridge.setTransactionManager(new TransactionManagerImple());
 
       Connection sourceConnection = null;
       Connection targetConnection = null;

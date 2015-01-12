@@ -42,11 +42,6 @@ under the License.
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.jboss.jbossts.jts</groupId>
-         <artifactId>jbossjts-jacorb</artifactId>
-         <version>4.17.4.Final</version>
-      </dependency>
    </dependencies>
 
    <build>

@@ -49,11 +49,6 @@ under the License.
          <version>${netty.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-jms-api</artifactId>
-         <version>1.1.0.GA</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq.examples.jms</groupId>
          <artifactId>activemq-jms-examples-common</artifactId>
          <version>${project.version}</version>
@@ -127,11 +122,6 @@ under the License.
                         <groupId>io.netty</groupId>
                         <artifactId>netty-all</artifactId>
                         <version>${netty.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.jboss.javaee</groupId>
-                        <artifactId>jboss-jms-api</artifactId>
-                        <version>1.1.0.GA</version>
                      </dependency>
                   </dependencies>
                </plugin>

@@ -49,11 +49,6 @@ under the License.
          <version>${netty.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-jms-api</artifactId>
-         <version>1.1.0.GA</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
@@ -130,9 +125,8 @@ under the License.
                         <version>${netty.version}</version>
                      </dependency>
                      <dependency>
-                        <groupId>org.jboss.javaee</groupId>
-                        <artifactId>jboss-jms-api</artifactId>
-                        <version>1.1.0.GA</version>
+                         <groupId>org.apache.geronimo.specs</groupId>
+                         <artifactId>geronimo-jms_2.0_spec</artifactId>
                      </dependency>
                   </dependencies>
                </plugin>

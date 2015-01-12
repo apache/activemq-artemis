@@ -30,8 +30,6 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import com.arjuna.ats.jta.TransactionManager;
-
 import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
