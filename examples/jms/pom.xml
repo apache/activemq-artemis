@@ -128,7 +128,6 @@ under the License.
             <module>xa-heuristic</module>
             <module>xa-receive</module>
             <module>xa-send</module>
-            <module>xa-with-jta</module>
          </modules>
       </profile>
       <profile>

@@ -51,12 +51,8 @@ under the License.
               <artifactId>geronimo-jms_2.0_spec</artifactId>
             </exclusion>
             <exclusion>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>jboss.jbossts.jts</groupId>
-               <artifactId>jbossjts-jacorb</artifactId>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-ejb_3.0_spec</artifactId>
             </exclusion>
          </exclusions>
       </dependency>

@@ -20,10 +20,10 @@ on your client classpath.
 ## JMS Client
 
 If you are using JMS on the client side, then you will also need to
-include `activemq-jms-client.jar` and `jboss-jms-api.jar`.
+include `activemq-jms-client.jar` and `geronimo-jms_2.0_spec.jar`.
 
 > **Note**
 >
-> `jboss-jms-api.jar` just contains Java EE API interface classes needed
+> `geronimo-jms_2.0_spec.jar` just contains Java EE API interface classes needed
 > for the `javax.jms.*` classes. If you already have a jar with these
 > interface classes on your classpath, you will not need it.
