@@ -72,6 +72,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAddMetaData
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAddMetaDataMessageV2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
@@ -81,6 +82,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionForceConsum
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionIndividualAcknowledgeMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
@@ -230,7 +232,15 @@ public class ServerSessionPacketHandler implements ChannelHandler
                   {
                      // We send back queue information on the queue as a response- this allows the queue to
                      // be automatically recreated on failover
-                     response = new SessionQueueQueryResponseMessage(session.executeQueueQuery(request.getQueueName()));
+                     QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName());
+                     if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2))
+                     {
+                        response = new SessionQueueQueryResponseMessage_V2(queueQueryResult);
+                     }
+                     else
+                     {
+                        response = new SessionQueueQueryResponseMessage(queueQueryResult);
+                     }
                   }
 
                   break;
@@ -277,7 +287,14 @@ public class ServerSessionPacketHandler implements ChannelHandler
                   requiresResponse = true;
                   SessionQueueQueryMessage request = (SessionQueueQueryMessage)packet;
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
-                  response = new SessionQueueQueryResponseMessage(result);
+                  if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2))
+                  {
+                     response = new SessionQueueQueryResponseMessage_V2(result);
+                  }
+                  else
+                  {
+                     response = new SessionQueueQueryResponseMessage(result);
+                  }
                   break;
                }
                case SESS_BINDINGQUERY:
@@ -285,7 +302,14 @@ public class ServerSessionPacketHandler implements ChannelHandler
                   requiresResponse = true;
                   SessionBindingQueryMessage request = (SessionBindingQueryMessage)packet;
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress());
-                  response = new SessionBindingQueryResponseMessage(result.isExists(), result.getQueueNames());
+                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2))
+                  {
+                     response = new SessionBindingQueryResponseMessage_V2(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues());
+                  }
+                  else
+                  {
+                     response = new SessionBindingQueryResponseMessage(result.isExists(), result.getQueueNames());
+                  }
                   break;
                }
                case SESS_ACKNOWLEDGE:

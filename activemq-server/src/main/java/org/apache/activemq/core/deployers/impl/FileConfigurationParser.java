@@ -152,6 +152,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
    private static final String SLOW_CONSUMER_POLICY_NODE_NAME = "slow-consumer-policy";
 
+   private static final String AUTO_CREATE_JMS_QUEUES = "auto-create-jms-queues";
+
+   private static final String AUTO_DELETE_JMS_QUEUES = "auto-delete-jms-queues";
+
    // Attributes ----------------------------------------------------
 
    private boolean validateAIO = false;
@@ -1138,6 +1142,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
                                                                  value);
             SlowConsumerPolicy policy = Enum.valueOf(SlowConsumerPolicy.class, value);
             addressSettings.setSlowConsumerPolicy(policy);
+         }
+         else if (AUTO_CREATE_JMS_QUEUES.equalsIgnoreCase(name))
+         {
+            addressSettings.setAutoCreateJmsQueues(XMLUtil.parseBoolean(child));
+         }
+         else if (AUTO_DELETE_JMS_QUEUES.equalsIgnoreCase(name))
+         {
+            addressSettings.setAutoDeleteJmsQueues(XMLUtil.parseBoolean(child));
          }
       }
       return setting;

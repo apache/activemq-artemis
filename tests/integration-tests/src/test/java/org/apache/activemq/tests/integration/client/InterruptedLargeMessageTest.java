@@ -506,6 +506,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                PageSubscription pageSubscription,
                                boolean durable,
                                boolean temporary,
+                               boolean autoCreated,
                                ScheduledExecutorService scheduledExecutor,
                                PostOffice postOffice,
                                StorageManager storageManager,
@@ -519,6 +520,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                   pageSubscription,
                   durable,
                   temporary,
+                  autoCreated,
                   scheduledExecutor,
                   postOffice,
                   storageManager,
@@ -570,7 +572,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                   Filter filter,
                                   PageSubscription pageSubscription,
                                   boolean durable,
-                                  boolean temporary)
+                                  boolean temporary,
+                                  boolean autoCreated)
          {
 
             return new NoPostACKQueue(persistenceID,
@@ -580,6 +583,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                       pageSubscription,
                                       durable,
                                       temporary,
+                                      autoCreated,
                                       scheduledExecutor,
                                       postOffice,
                                       storageManager,

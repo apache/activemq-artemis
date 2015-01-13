@@ -49,7 +49,7 @@
       <activemq.version.majorVersion>6</activemq.version.majorVersion>
       <activemq.version.minorVersion>0</activemq.version.minorVersion>
       <activemq.version.microVersion>0</activemq.version.microVersion>
-      <activemq.version.incrementingVersion>125,124,123,122</activemq.version.incrementingVersion>
+      <activemq.version.incrementingVersion>126,125,124,123,122</activemq.version.incrementingVersion>
       <activemq.version.versionSuffix>SNAPSHOT</activemq.version.versionSuffix>
       <activemq.version.versionTag>SNAPSHOT</activemq.version.versionTag>
       <ActiveMQ-Version>

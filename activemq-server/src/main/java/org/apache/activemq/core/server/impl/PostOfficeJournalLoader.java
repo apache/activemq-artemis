@@ -46,6 +46,7 @@ import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.NodeManager;
@@ -155,7 +156,13 @@ public class PostOfficeJournalLoader implements JournalLoader
                                                 filter,
                                                 subscription,
                                                 true,
-                                                false);
+                                                false,
+                                                queueBindingInfo.isAutoCreated());
+
+         if (queueBindingInfo.isAutoCreated())
+         {
+            queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(((PostOfficeImpl)postOffice).getServer(), queueBindingInfo.getQueueName()));
+         }
 
          Binding binding = new LocalQueueBinding(queueBindingInfo.getAddress(), queue, nodeManager.getNodeId());
 

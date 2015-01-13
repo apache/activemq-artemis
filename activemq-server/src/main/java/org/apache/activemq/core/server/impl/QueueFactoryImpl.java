@@ -75,7 +75,8 @@ public class QueueFactoryImpl implements QueueFactory
                             final Filter filter,
                             final PageSubscription pageSubscription,
                             final boolean durable,
-                            final boolean temporary)
+                            final boolean temporary,
+                            final boolean autoCreated)
    {
       AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
 
@@ -89,6 +90,7 @@ public class QueueFactoryImpl implements QueueFactory
                                     pageSubscription,
                                     durable,
                                     temporary,
+                                    autoCreated,
                                     scheduledExecutor,
                                     postOffice,
                                     storageManager,
@@ -104,6 +106,7 @@ public class QueueFactoryImpl implements QueueFactory
                                pageSubscription,
                                durable,
                                temporary,
+                               autoCreated,
                                scheduledExecutor,
                                postOffice,
                                storageManager,

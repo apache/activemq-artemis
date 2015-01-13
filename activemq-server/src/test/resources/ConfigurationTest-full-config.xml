@@ -271,6 +271,8 @@
          <slow-consumer-threshold>10</slow-consumer-threshold>
          <slow-consumer-check-period>5</slow-consumer-check-period>
          <slow-consumer-policy>NOTIFY</slow-consumer-policy>
+         <auto-create-jms-queues>true</auto-create-jms-queues>
+         <auto-delete-jms-queues>true</auto-delete-jms-queues>
       </address-setting>
       <address-setting match="a2">
          <dead-letter-address>a2.1</dead-letter-address>
@@ -283,6 +285,8 @@
          <slow-consumer-threshold>20</slow-consumer-threshold>
          <slow-consumer-check-period>15</slow-consumer-check-period>
          <slow-consumer-policy>KILL</slow-consumer-policy>
+         <auto-create-jms-queues>false</auto-create-jms-queues>
+         <auto-delete-jms-queues>false</auto-delete-jms-queues>
       </address-setting>
    </address-settings>
    <connector-services>

@@ -2258,6 +2258,23 @@
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
+
+            <xsd:element name="auto-create-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create JMS queues when a producer sends or a consumer connects to a
+                     queue
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
          </xsd:all>
 
          <xsd:attribute name="match" type="xsd:string" use="required">

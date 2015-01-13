@@ -43,29 +43,28 @@ public class QueueQueryResult
 
    private boolean temporary;
 
+   private boolean autoCreateJmsQueues;
+
    public QueueQueryResult(final SimpleString name,
                                            final SimpleString address,
                                            final boolean durable,
                                            final boolean temporary,
                                            final SimpleString filterString,
                                            final int consumerCount,
-                                           final long messageCount)
+                                           final long messageCount,
+                                           final boolean autoCreateJmsQueues)
    {
-      this(name, address, durable, temporary, filterString, consumerCount, messageCount, true);
+      this(name, address, durable, temporary, filterString, consumerCount, messageCount, autoCreateJmsQueues, true);
    }
 
-   public QueueQueryResult()
-   {
-      this(null, null, false, false, null, 0, 0, false);
-   }
-
-   private QueueQueryResult(final SimpleString name,
+   public QueueQueryResult(final SimpleString name,
                                             final SimpleString address,
                                             final boolean durable,
                                             final boolean temporary,
                                             final SimpleString filterString,
                                             final int consumerCount,
                                             final long messageCount,
+                                            final boolean autoCreateJmsQueues,
                                             final boolean exists)
    {
       this.durable = durable;
@@ -81,6 +80,8 @@ public class QueueQueryResult
       this.address = address;
 
       this.name = name;
+
+      this.autoCreateJmsQueues = autoCreateJmsQueues;
 
       this.exists = exists;
    }
@@ -123,6 +124,11 @@ public class QueueQueryResult
    public boolean isTemporary()
    {
       return temporary;
+   }
+
+   public boolean isAutoCreateJmsQueues()
+   {
+      return autoCreateJmsQueues;
    }
 
 }

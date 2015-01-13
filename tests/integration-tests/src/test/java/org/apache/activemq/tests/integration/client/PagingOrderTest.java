@@ -749,7 +749,9 @@ public class PagingOrderTest extends ServiceTestBase
                                                           "PAGE",
                                                           -1,
                                                           10,
-                                                          "KILL");
+                                                          "KILL",
+                                                          true,
+                                                          true);
 
       ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
                                                                                                                         new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -824,7 +826,9 @@ public class PagingOrderTest extends ServiceTestBase
                                                           "PAGE",
                                                           -1,
                                                           10,
-                                                          "KILL");
+                                                          "KILL",
+                                                          true,
+                                                          true);
 
       jmsServer.createQueue(true, "Q1", null, true, "/queue/Q1");
 

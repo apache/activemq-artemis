@@ -61,7 +61,6 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.Consumer;
 import org.apache.activemq.core.server.HandleStatus;
 import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
@@ -130,6 +129,8 @@ public class QueueImpl implements Queue
    private final boolean durable;
 
    private final boolean temporary;
+
+   private final boolean autoCreated;
 
    private final PostOffice postOffice;
 
@@ -315,6 +316,7 @@ public class QueueImpl implements Queue
                     final Filter filter,
                     final boolean durable,
                     final boolean temporary,
+                    final boolean autoCreated,
                     final ScheduledExecutorService scheduledExecutor,
                     final PostOffice postOffice,
                     final StorageManager storageManager,
@@ -328,6 +330,7 @@ public class QueueImpl implements Queue
            null,
            durable,
            temporary,
+           autoCreated,
            scheduledExecutor,
            postOffice,
            storageManager,
@@ -342,6 +345,7 @@ public class QueueImpl implements Queue
                     final PageSubscription pageSubscription,
                     final boolean durable,
                     final boolean temporary,
+                    final boolean autoCreated,
                     final ScheduledExecutorService scheduledExecutor,
                     final PostOffice postOffice,
                     final StorageManager storageManager,
@@ -361,6 +365,8 @@ public class QueueImpl implements Queue
       this.durable = durable;
 
       this.temporary = temporary;
+
+      this.autoCreated = autoCreated;
 
       this.postOffice = postOffice;
 
@@ -425,11 +431,11 @@ public class QueueImpl implements Queue
    }
 
    // Queue implementation ----------------------------------------------------------------------------------------
-   public synchronized void setConsumersRefCount(final ActiveMQServer server)
+   public synchronized void setConsumersRefCount(final ReferenceCounter referenceCounter)
    {
       if (refCountForConsumers == null)
       {
-         this.refCountForConsumers = new TransientQueueManagerImpl(server, this.name);
+         this.refCountForConsumers = referenceCounter;
       }
    }
 
@@ -447,6 +453,11 @@ public class QueueImpl implements Queue
    public boolean isTemporary()
    {
       return temporary;
+   }
+
+   public boolean isAutoCreated()
+   {
+      return autoCreated;
    }
 
    public SimpleString getName()

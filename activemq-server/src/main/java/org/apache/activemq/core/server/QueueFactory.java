@@ -39,7 +39,8 @@ public interface QueueFactory
                      Filter filter,
                      PageSubscription pageSubscription,
                      boolean durable,
-                     boolean temporary);
+                     boolean temporary,
+                     boolean autoCreated);
 
    /**
     * This is required for delete-all-reference to work correctly with paging

@@ -42,7 +42,6 @@ import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
@@ -1054,6 +1053,12 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
+      public boolean isAutoCreated()
+      {
+         return false;
+      }
+
+      @Override
       public void addConsumer(Consumer consumer) throws Exception
       {
 
@@ -1072,7 +1077,7 @@ public class ScheduledDeliveryHandlerTest extends Assert
       }
 
       @Override
-      public void setConsumersRefCount(ActiveMQServer server)
+      public void setConsumersRefCount(ReferenceCounter referenceCounter)
       {
 
       }

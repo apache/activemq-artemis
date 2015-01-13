@@ -32,9 +32,9 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
  */
 public class SessionBindingQueryResponseMessage extends PacketImpl
 {
-   private boolean exists;
+   protected boolean exists;
 
-   private List<SimpleString> queueNames;
+   protected List<SimpleString> queueNames;
 
    public SessionBindingQueryResponseMessage(final boolean exists, final List<SimpleString> queueNames)
    {
@@ -48,6 +48,11 @@ public class SessionBindingQueryResponseMessage extends PacketImpl
    public SessionBindingQueryResponseMessage()
    {
       super(SESS_BINDINGQUERY_RESP);
+   }
+
+   public SessionBindingQueryResponseMessage(byte v2)
+   {
+      super(v2);
    }
 
    @Override
