@@ -28,7 +28,7 @@ import java.util.Iterator;
  *
  *
  */
-public interface LinkedListIterator<E> extends Iterator<E>
+public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable
 {
    void repeat();
 

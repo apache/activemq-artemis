@@ -362,9 +362,9 @@ public class FakeQueue implements Queue
    }
 
    @Override
-   public List<MessageReference> cancelScheduledMessages()
+   public void deliverScheduledMessages()
    {
-      return null;
+
    }
 
    @Override

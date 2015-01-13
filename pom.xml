@@ -414,7 +414,7 @@
    <repositories>
       <repository>
          <snapshots>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
             <updatePolicy>never</updatePolicy>
          </snapshots>
          <releases>

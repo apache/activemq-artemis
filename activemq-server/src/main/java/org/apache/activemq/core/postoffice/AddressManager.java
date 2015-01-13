@@ -17,6 +17,7 @@
 package org.apache.activemq.core.postoffice;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.transaction.Transaction;
@@ -50,4 +51,6 @@ public interface AddressManager
    Binding getBinding(SimpleString queueName);
 
    Map<SimpleString, Binding> getBindings();
+
+   Set<SimpleString> getAddresses();
 }

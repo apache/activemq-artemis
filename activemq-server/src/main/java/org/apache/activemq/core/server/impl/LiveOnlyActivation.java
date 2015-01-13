@@ -187,7 +187,8 @@ public class LiveOnlyActivation extends Activation
       ScaleDownHandler scaleDownHandler = new ScaleDownHandler(activeMQServer.getPagingManager(),
             activeMQServer.getPostOffice(),
             activeMQServer.getNodeManager(),
-            activeMQServer.getClusterManager().getClusterController());
+            activeMQServer.getClusterManager().getClusterController(),
+            activeMQServer.getStorageManager());
       ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = ((PostOfficeImpl) activeMQServer.getPostOffice()).getDuplicateIDCaches();
       Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<>();
       for (SimpleString address : duplicateIDCaches.keySet())
