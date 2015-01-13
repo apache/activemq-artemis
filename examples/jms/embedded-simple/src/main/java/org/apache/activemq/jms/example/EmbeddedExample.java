@@ -57,7 +57,6 @@ public class EmbeddedExample extends ActiveMQExample
          System.out.println("Started Embedded JMS Server");
 
          JMSServerManager jmsServerManager = jmsServer.getJMSServerManager();
-         jmsServerManager.addQueueToJndi("exampleQueue", "queue/exampleQueue");
          List<String> connectors = new ArrayList<String>();
          connectors.add("in-vm");
          jmsServerManager.createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
