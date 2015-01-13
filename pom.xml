@@ -916,6 +916,7 @@
                   <exclude>etc/org.eclipse.*</exclude>
                   <exclude>docs/user-manual/en/*.json</exclude>
                   <exclude>**/target/</exclude>
+                  <exclude>**/data/</exclude>
                   <exclude>**/*.bindings</exclude>
                   <exclude>**/*.lock</exclude>
                   <exclude>**/META-INF/services/*</exclude>
