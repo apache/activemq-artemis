@@ -38,23 +38,9 @@ public interface JMSQueueControl extends DestinationControl
    String getExpiryAddress();
 
    /**
-    * Sets the expiry address associated to this queue to the specified expiryAddress.
-    * @deprecated: it's non persisted. Use the proper address settings
-    */
-   @Deprecated
-   void setExpiryAddress(@Parameter(name = "expiryAddress", desc = "Expiry address of the queue") String expiryAddress) throws Exception;
-
-   /**
     * Returns the dead-letter address associated to this queue.
     */
    String getDeadLetterAddress();
-
-   /**
-    * Sets the dead-letter address associated to this queue to the specified deadLetterAddress.
-    * @deprecated: it's non persisted. Use the proper address settings
-    */
-   @Deprecated
-   void setDeadLetterAddress(@Parameter(name = "deadLetterAddress", desc = "Dead-letter address of the queue") String deadLetterAddress) throws Exception;
 
    /**
     * Returns the number of scheduled messages in this queue.

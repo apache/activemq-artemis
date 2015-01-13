@@ -138,8 +138,6 @@ public class FileConfigurationParserTest extends UnitTestCase
    private static String firstPart =
       "<core xmlns=\"urn:activemq:core\">" + "\n" +
          "<name>ActiveMQ.main.config</name>" + "\n" +
-         "<backup-group-name>abackupgroupname</backup-group-name>" + "\n" +
-         "<scale-down-group-name>ascaledowngroupname</scale-down-group-name>" + "\n" +
          "<log-delegate-factory-class-name>org.apache.activemq.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
          "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
          "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +

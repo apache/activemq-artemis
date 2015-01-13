@@ -31,7 +31,6 @@
       <management-notification-address>Whatever</management-notification-address>
       <cluster-user>Frog</cluster-user>
       <cluster-password>Wombat</cluster-password>
-      <replication-clustername>cluster-connection1</replication-clustername>
       <jmx-management-enabled>false</jmx-management-enabled>
       <jmx-domain>gro.qtenroh</jmx-domain>
       <log-delegate-factory-class-name>ocelot</log-delegate-factory-class-name>
@@ -45,8 +44,6 @@
       <message-expiry-thread-priority>8</message-expiry-thread-priority>
       <id-cache-size>127</id-cache-size>
       <persist-id-cache>true</persist-id-cache>
-      <backup>true</backup>
-      <shared-store>true</shared-store>
       <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
       <paging-directory>pagingdir</paging-directory>
       <bindings-directory>somedir</bindings-directory>
@@ -68,10 +65,10 @@
       <memory-warning-threshold>95</memory-warning-threshold>
       <memory-measure-interval>54321</memory-measure-interval>
 
-      <remoting-interceptors>
+      <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2</class-name>
-      </remoting-interceptors>
+      </remoting-incoming-interceptors>
 
       <connectors>
          <connector name="connector1">

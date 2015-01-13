@@ -18,8 +18,10 @@
       xmlns="urn:activemq"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
-
    <core xmlns="urn:activemq:core">
+      <discovery-groups>
+         <discovery-group name="wahey"/>
+      </discovery-groups>
       <ha-policy>
          <replication>
             <slave>
@@ -33,11 +35,10 @@
                   <!--a grouping of servers that can be scaled down to-->
                   <group-name>boo!</group-name>
                   <!--either a discovery group-->
-                  <discovery-group>wahey</discovery-group>
+                  <discovery-group-ref discovery-group-name="wahey"/>
                </scale-down>
             </slave>
          </replication>
       </ha-policy>
    </core>
-
 </configuration>

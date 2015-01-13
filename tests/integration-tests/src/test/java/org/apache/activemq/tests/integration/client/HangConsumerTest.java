@@ -428,7 +428,7 @@ public class HangConsumerTest extends ServiceTestBase
       HangInterceptor hangInt = new HangInterceptor();
       try
       {
-         locator.addInterceptor(hangInt);
+         locator.addIncomingInterceptor(hangInt);
 
          ClientSessionFactory factory = locator.createSessionFactory();
          ClientSession session = factory.createSession(false, false, false);

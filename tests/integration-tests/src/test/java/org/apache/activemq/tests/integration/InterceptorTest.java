@@ -667,7 +667,7 @@ public class InterceptorTest extends ServiceTestBase
          Assert.assertEquals("orange", message.getStringProperty(InterceptorTest.key));
       }
 
-      sf.getServerLocator().removeInterceptor(interceptor);
+      sf.getServerLocator().removeIncomingInterceptor(interceptor);
 
       for (int i = 0; i < numMessages; i++)
       {
@@ -982,7 +982,7 @@ public class InterceptorTest extends ServiceTestBase
          Assert.assertEquals(4, message.getIntProperty("d").intValue());
       }
 
-      sf.getServerLocator().removeInterceptor(interceptor2);
+      sf.getServerLocator().removeIncomingInterceptor(interceptor2);
 
       for (int i = 0; i < numMessages; i++)
       {

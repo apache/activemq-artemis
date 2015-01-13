@@ -48,41 +48,10 @@ public interface Configuration extends Serializable
    Configuration setName(String name);
 
    /**
-    * returns the name used to group of live/backup servers
-    *
-    * @return the name of the group
-    *
-    * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.HAPolicy#getBackupGroupName()}
-    */
-   @Deprecated
-   String getBackupGroupName();
-
-   /**
-    * Used to configure groups of live/backup servers.
-    *
-    * @param nodeGroupName the node group name
-    *
-    * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   Configuration setBackupGroupName(String nodeGroupName);
-
-   /**
     * Returns whether this server is clustered. <br>
     * {@code true} if {@link #getClusterConfigurations()} is not empty.
     */
    boolean isClustered();
-
-   /**
-    * Returns whether a backup will automatically stop when a live server is restarting (i.e.
-    * failing back).
-    *
-    * @return {@code true} if the backup will stop when the live server restarts
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   boolean isAllowFailBack();
 
    /**
     * Returns whether delivery count is persisted before messages are delivered to the consumers. <br>
@@ -95,41 +64,6 @@ public interface Configuration extends Serializable
     * Sets whether delivery count is persisted before messages are delivered to consumers.
     */
    Configuration setPersistDeliveryCountBeforeDelivery(boolean persistDeliveryCountBeforeDelivery);
-
-   /**
-    * Returns {@code true} if this server is a backup, {@code false} if it is a live server. <br>
-    * If a backup server has been activated, returns {@code false}. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_BACKUP}.
-    *
-    * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.HAPolicy#isBackup()}
-    */
-   @Deprecated
-   boolean isBackup();
-
-   /**
-    * Formerly set whether this server is a backup or not.
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   Configuration setBackup(boolean backup);
-
-   /**
-    * Returns whether this server shares its data store with a corresponding live or backup server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SHARED_STORE}.
-    *
-    * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.HAPolicy#isSharedStore()}
-    */
-   @Deprecated
-   boolean isSharedStore();
-
-   /**
-    * Formerly set whether this server shares its data store with a backup or live server.
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   Configuration setSharedStore(boolean sharedStore);
 
    /**
     * Returns whether this server is using persistence and store data. <br>
@@ -225,17 +159,6 @@ public interface Configuration extends Serializable
 
    /**
     * Returns the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
-    * the server from clients).  Invoking this method is the same as invoking <code>getIncomingInterceptorClassNames().</code>
-    *
-    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
-    * {@link #getIncomingInterceptorClassNames()} and
-    * {@link #getOutgoingInterceptorClassNames()}
-    */
-   @Deprecated
-   List<String> getInterceptorClassNames();
-
-   /**
-    * Returns the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
     * the server from clients).
     */
    List<String> getIncomingInterceptorClassNames();
@@ -245,21 +168,6 @@ public interface Configuration extends Serializable
     * clients from the server).
     */
    List<String> getOutgoingInterceptorClassNames();
-
-   /**
-    * Sets the list of interceptors classes used by this server for incoming messages (i.e. those
-    * being delivered to the server from clients). Invoking this method is the same as invoking
-    * <code>setIncomingInterceptorClassNames(List)</code> <br />
-    * Classes must implement {@link org.apache.activemq.api.core.Interceptor}.
-    * <p/>
-    * Deprecated but not immediately deleted, as embedded users may be using this file.
-    *
-    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
-    * {@link #setIncomingInterceptorClassNames(List)} and
-    * {@link #setOutgoingInterceptorClassNames(List)}
-    */
-   @Deprecated
-   Configuration setInterceptorClassNames(List<String> interceptors);
 
    /**
     * Sets the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
@@ -451,30 +359,6 @@ public interface Configuration extends Serializable
     * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CLUSTER_PASSWORD}.
     */
    String getClusterPassword();
-
-   /**
-    * Should we notify any clients on close that they should failover.
-    *
-    * @return true if clients should failover
-    * @see #setFailoverOnServerShutdown(boolean)
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   boolean isFailoverOnServerShutdown();
-
-   /**
-    * Sets whether to allow clients to failover on server shutdown.
-    * <p/>
-    * When a live server is restarted after failover the backup will shutdown if
-    * {@link org.apache.activemq.core.server.cluster.ha.HAPolicy#isAllowAutoFailBack()} is true. This is not regarded as a normal shutdown. In this
-    * case {@code failoverOnServerShutdown} is ignored, and the server will behave as if it was set
-    * to {@code true}.
-    *
-    * @deprecated you should replace by using the correct {@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   Configuration setFailoverOnServerShutdown(boolean failoverOnServerShutdown);
 
    /**
     * Sets the cluster password for this server.
@@ -898,48 +782,6 @@ public interface Configuration extends Serializable
    List<ConnectorServiceConfiguration> getConnectorServiceConfigurations();
 
    /**
-    * Returns the delay to wait before fail-back occurs on restart.
-    *
-    * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.BackupPolicy#getFailbackDelay()}
-    */
-   @Deprecated
-   long getFailbackDelay();
-
-   /**
-    * Sets the fail-back delay.
-    *
-    * @deprecated replaced by {@link org.apache.activemq.core.server.cluster.ha.BackupPolicy#setFailbackDelay(long)}
-    */
-   @Deprecated
-   Configuration setFailbackDelay(long delay);
-
-   /**
-    * Whether to check if the cluster already has a (live) node with our node-ID.
-    * <p/>
-    * If the cluster does contain a server using this server's node-ID, then this server will assume
-    * that fail-over has occurred and will try to trigger a fail-back.
-    * <p/>
-    * Enabling this check will slow down a server start-up slightly.
-    *
-    * @return true if we want to make the check
-    */
-   @Deprecated
-   boolean isCheckForLiveServer();
-
-   /**
-    * Sets whether to check if the cluster already has a (live) node with our node-ID.
-    * <p/>
-    * If the cluster does contain a server using this server's node-ID, then this server will assume
-    * that fail-over has occurred and will try to trigger a fail-back.
-    * <p/>
-    * Enabling this check will slow down a server start-up slightly.
-    *
-    * @param checkForLiveServer true if we want to make the check
-    */
-   @Deprecated
-   Configuration setCheckForLiveServer(boolean checkForLiveServer);
-
-   /**
     * The default password decoder
     */
    Configuration setPasswordCodec(String codec);
@@ -959,29 +801,6 @@ public interface Configuration extends Serializable
     */
    boolean isMaskPassword();
 
-   /**
-    * Name of the cluster configuration to use for replication.
-    * <p/>
-    * Only applicable for servers with more than one cluster configuration. This value is only used
-    * by replicating backups and live servers that attempt fail-back.
-    *
-    * @param clusterName
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-
-   @Deprecated
-   Configuration setReplicationClustername(String clusterName);
-
-   /**
-    * @return name of the cluster configuration to use
-    * @see #setReplicationClustername(String)
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   String getReplicationClustername();
-
    /*
    * Whether or not that ActiveMQ should use all protocols available on the classpath. If false only the core protocol will
    * be set, any other protocols will need to be set directly on the ActiveMQServer
@@ -994,28 +813,6 @@ public interface Configuration extends Serializable
    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_RESOLVE_PROTOCOLS}.
    * */
    boolean isResolveProtocols();
-
-   /**
-    * How many backup journals to keep after failback occurs.
-    * <p/>
-    * This value is only used by replicating backups after a live server has failed back. Beofre the backup restarts
-    * it will copy its journals into another directory to keep.
-    *
-    * @param maxSavedReplicatedJournalsSize
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   Configuration setMaxSavedReplicatedJournalSize(int maxSavedReplicatedJournalsSize);
-
-   /**
-    * @return the number of backup journals to keep after failback has occurred
-    * @see #setMaxSavedReplicatedJournalSize(int)
-    *
-    * @deprecated you should replace by using the correct{@link org.apache.activemq.core.server.cluster.ha.HAPolicy}
-    */
-   @Deprecated
-   int getMaxSavedReplicatedJournalsSize();
 
    Configuration copy() throws Exception;
 

@@ -100,19 +100,9 @@ public interface QueueControl
    String getExpiryAddress();
 
    /**
-    * Sets the expiry address associated to this queue to the specified expiryAddress.
-    */
-   void setExpiryAddress(@Parameter(name = "expiryAddress", desc = "Expiry address of the queue") String expiryAddress) throws Exception;
-
-   /**
     * Returns the dead-letter address associated to this queue.
     */
    String getDeadLetterAddress();
-
-   /**
-    * Sets the dead-letter address associated to this queue to the specified deadLetterAddress.
-    */
-   void setDeadLetterAddress(@Parameter(name = "deadLetterAddress", desc = "Dead-letter address of the queue") String deadLetterAddress) throws Exception;
 
    // Operations ----------------------------------------------------
 

@@ -313,17 +313,6 @@ public class ConnectionFactoryProperties
       this.clientID = clientID;
    }
 
-   /**
-    * This is for backward compatibility with the JBoss Application Server.
-    * @see <a
-    *      href="https://github.com/jbossas/jboss-as/blob/master/messaging/src/main/java/org/jboss/as/messaging/jms/ConnectionFactoryAttributes.java">ConnectionFactoryAttributes.java</a>
-    */
-   @Deprecated
-   public void setClientId(final String clientID)
-   {
-      setClientID(clientID);
-   }
-
    public Integer getDupsOKBatchSize()
    {
       if (ConnectionFactoryProperties.trace)

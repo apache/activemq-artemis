@@ -362,19 +362,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    }
 
-   /**
-    * Use {@link #addressQuery(org.apache.activemq.api.core.SimpleString)} instead
-    *
-    * @param address
-    * @return
-    * @throws org.apache.activemq.api.core.ActiveMQException
-    */
-   @Deprecated
-   public BindingQuery bindingQuery(final SimpleString address) throws ActiveMQException
-   {
-      return (BindingQuery) addressQuery(address);
-   }
-
    public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
    {
       checkClosed();

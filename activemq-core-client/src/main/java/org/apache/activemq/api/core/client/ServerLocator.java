@@ -690,18 +690,6 @@ public interface ServerLocator extends AutoCloseable
    ServerLocator setInitialMessagePacketSize(int size);
 
    /**
-    * Adds an interceptor which will be executed <em>after packets are received from the server</em>. Invoking this
-    * method is the same as invoking <code>addIncomingInterceptor(Interceptor).</code>
-    *
-    * @param interceptor an Interceptor
-    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
-    * {@link #addIncomingInterceptor(Interceptor)} and
-    * {@link #addOutgoingInterceptor(Interceptor)}
-    */
-   @Deprecated
-   void addInterceptor(Interceptor interceptor);
-
-   /**
     * Adds an interceptor which will be executed <em>after packets are received from the server</em>.
     *
     * @param interceptor an Interceptor
@@ -716,19 +704,6 @@ public interface ServerLocator extends AutoCloseable
     * @return this ServerLocator
     */
    ServerLocator addOutgoingInterceptor(Interceptor interceptor);
-
-   /**
-    * Removes an interceptor. Invoking this method is the same as invoking
-    * <code>removeIncomingInterceptor(Interceptor).</code>
-    *
-    * @param interceptor interceptor to remove
-    * @return <code>true</code> if the interceptor is removed from this factory, <code>false</code> else
-    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
-    * {@link #removeIncomingInterceptor(Interceptor)} and
-    * {@link #removeOutgoingInterceptor(Interceptor)}
-    */
-   @Deprecated
-   boolean removeInterceptor(Interceptor interceptor);
 
    /**
     * Removes an incoming interceptor.

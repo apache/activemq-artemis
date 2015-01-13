@@ -143,30 +143,15 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return coreQueueControl.getDeadLetterAddress();
    }
 
-   public void setDeadLetterAddress(final String deadLetterAddress) throws Exception
-   {
-      coreQueueControl.setDeadLetterAddress(deadLetterAddress);
-   }
-
    public String getExpiryAddress()
    {
       return coreQueueControl.getExpiryAddress();
-   }
-
-   public void setExpiryAddress(final String expiryAddress) throws Exception
-   {
-      coreQueueControl.setExpiryAddress(expiryAddress);
    }
 
    @Override
    public void addBinding(String binding) throws Exception
    {
       jmsServerManager.addQueueToBindingRegistry(managedQueue.getName(), binding);
-   }
-
-   public void removeBinding(String binding) throws Exception
-   {
-      jmsServerManager.removeQueueFromBindingRegistry(managedQueue.getName(), binding);
    }
 
    public String[] getRegistryBindings()
