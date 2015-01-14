@@ -118,7 +118,12 @@ under the License.
            InitialContext sourceContext = createContext(sourceServer);
            InitialContext targetContext = createContext(targetServer);
         </pre>
-        <li>We then create a JMS Bridge and start it, Note, the Bridge needs a transaction manager, in this instance we will use the JBoss TM</li>
+        <li>We then create a JMS Bridge and start it, Note, for certain quality of service modes such as
+            ONCE_AND_ONCE_ONLY and AT_LEAST_ONCE a Transaction Manager is required to ensure Messages are delivered
+            accordingly.  A Transaction Manager can be either loaded via implementation of TransactionManagerLocator intefer
+            and loaded via standard a ServiceLoader or by explicitly setting an instance of a Transaction Manager on the
+            bridge using setTranscationManager(TransactionManager tm) method.  In this example we'll be using the DUPLICATES_OK
+            quality of service so there is no need for a Transaction Manager.
         <pre class="prettyprint">
             JMSBridge jmsBridge = new JMSBridgeImpl(
                new JNDIConnectionFactoryFactory(sourceJndiParams, "source/ConnectionFactory"),
@@ -132,13 +137,12 @@ under the License.
                null,
                5000,
                10,
-               QualityOfServiceMode.ONCE_AND_ONLY_ONCE,
+               QualityOfServiceMode.DUPLICATES_OK,
                1,
                -1,
                null,
                null,
                true);
-            jmsBridge.setTransactionManager(new TransactionManagerImple());
             ....
         jmsBridge.start();
         </pre>

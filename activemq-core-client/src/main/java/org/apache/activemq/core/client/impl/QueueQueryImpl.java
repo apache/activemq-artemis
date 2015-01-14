@@ -38,6 +38,8 @@ public class QueueQueryImpl implements ClientSession.QueueQuery
 
    private final SimpleString name;
 
+   private final boolean autoCreateJmsQueues;
+
    public QueueQueryImpl(final boolean durable,
                          final boolean temporary,
                          final int consumerCount,
@@ -47,7 +49,19 @@ public class QueueQueryImpl implements ClientSession.QueueQuery
                          final SimpleString name,
                          final boolean exists)
    {
+      this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, false);
+   }
 
+   public QueueQueryImpl(final boolean durable,
+                         final boolean temporary,
+                         final int consumerCount,
+                         final long messageCount,
+                         final SimpleString filterString,
+                         final SimpleString address,
+                         final SimpleString name,
+                         final boolean exists,
+                         final boolean autoCreateJmsQueues)
+   {
       this.durable = durable;
       this.temporary = temporary;
       this.consumerCount = consumerCount;
@@ -56,6 +70,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery
       this.address = address;
       this.name = name;
       this.exists = exists;
+      this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
    public SimpleString getName()
@@ -86,6 +101,11 @@ public class QueueQueryImpl implements ClientSession.QueueQuery
    public boolean isDurable()
    {
       return durable;
+   }
+
+   public boolean isAutoCreateJmsQueues()
+   {
+      return autoCreateJmsQueues;
    }
 
    public boolean isTemporary()

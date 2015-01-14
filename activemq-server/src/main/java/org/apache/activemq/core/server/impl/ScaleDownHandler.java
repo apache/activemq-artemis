@@ -20,11 +20,13 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
@@ -42,7 +44,9 @@ import org.apache.activemq.core.paging.PagingManager;
 import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.paging.cursor.PagedReference;
+import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.Binding;
+import org.apache.activemq.core.postoffice.Bindings;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
@@ -56,6 +60,7 @@ import org.apache.activemq.core.server.cluster.ClusterController;
 import org.apache.activemq.core.transaction.ResourceManager;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperation;
+import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.LinkedListIterator;
 
 public class ScaleDownHandler
@@ -64,20 +69,22 @@ public class ScaleDownHandler
    final PostOffice postOffice;
    private NodeManager nodeManager;
    private final ClusterController clusterController;
+   private final StorageManager storageManager;
    private String targetNodeId;
 
-   public ScaleDownHandler(PagingManager pagingManager, PostOffice postOffice, NodeManager nodeManager, ClusterController clusterController)
+   public ScaleDownHandler(PagingManager pagingManager, PostOffice postOffice, NodeManager nodeManager, ClusterController clusterController, StorageManager storageManager)
    {
       this.pagingManager = pagingManager;
       this.postOffice = postOffice;
       this.nodeManager = nodeManager;
       this.clusterController = clusterController;
+      this.storageManager = storageManager;
    }
 
    public long scaleDown(ClientSessionFactory sessionFactory,
                          ResourceManager resourceManager,
                          Map<SimpleString,
-                         List<Pair<byte[], Long>>> duplicateIDMap,
+                            List<Pair<byte[], Long>>> duplicateIDMap,
                          SimpleString managementAddress,
                          SimpleString targetNodeId) throws Exception
    {
@@ -91,218 +98,239 @@ public class ScaleDownHandler
       return num;
    }
 
-   private long scaleDownMessages(ClientSessionFactory sessionFactory, SimpleString nodeId) throws Exception
+   public long scaleDownMessages(ClientSessionFactory sessionFactory, SimpleString nodeId) throws Exception
    {
       long messageCount = 0;
       targetNodeId = nodeId != null ? nodeId.toString() : getTargetNodeId(sessionFactory);
 
-      ClientSession session = sessionFactory.createSession(false, true, true);
-      Map<String, Long> queueIDs = new HashMap<>();
-      ClientProducer producer = session.createProducer();
-
-      List<SimpleString> addresses = new ArrayList<>();
-      for (Map.Entry<SimpleString, Binding> entry : postOffice.getAllBindings().entrySet())
+      try (ClientSession session = sessionFactory.createSession(false, true, true))
       {
-         if (entry.getValue() instanceof LocalQueueBinding)
-         {
-            SimpleString address = entry.getValue().getAddress();
+         ClientProducer producer = session.createProducer();
 
-            // There is a special case involving store-and-forward queues used for clustering.
-            // If this queue is supposed to forward messages to the server that I'm scaling down to I need to handle these messages differently.
-            boolean storeAndForward = false;
-            if (address.toString().startsWith("sf."))
+         // perform a loop per address
+         for (SimpleString address : postOffice.getAddresses())
+         {
+            ActiveMQServerLogger.LOGGER.debug("Scaling down address " + address);
+            Bindings bindings = postOffice.getBindingsForAddress(address);
+
+            // It will get a list of queues on this address, ordered by the number of messages
+            Set<Queue> queues = new TreeSet<>(new OrderQueueByNumberOfReferencesComparator());
+            for (Binding binding : bindings.getBindings())
             {
-               // these get special treatment later
-               storeAndForward = true;
+               if (binding instanceof LocalQueueBinding)
+               {
+                  Queue queue = ((LocalQueueBinding) binding).getQueue();
+                  // as part of scale down we will cancel any scheduled message and pass it to theWhile we scan for the queues we will also cancel any scheduled messages and deliver them right away
+                  queue.deliverScheduledMessages();
+                  queues.add(queue);
+               }
             }
 
-            // this means we haven't inspected this address before
-            if (!addresses.contains(address))
+
+            if (address.toString().startsWith("sf."))
             {
-               addresses.add(address);
+               messageCount += scaleDownSNF(address, queues, producer);
+            }
+            else
+            {
+               messageCount += scaleDownRegularMessages(address, queues, session, producer);
+            }
 
-               PagingStore store = pagingManager.getPageStore(address);
+         }
+      }
 
-               // compile a list of all the relevant queues and queue iterators for this address
-               List<Queue> queues = new ArrayList<>();
-               Map<SimpleString, LinkedListIterator<MessageReference>> queueIterators = new HashMap<>();
-               for (Binding binding : postOffice.getBindingsForAddress(address).getBindings())
+      return messageCount;
+   }
+
+   public long scaleDownRegularMessages(final SimpleString address, final Set<Queue> queues, final ClientSession clientSession, final ClientProducer producer) throws Exception
+   {
+      ActiveMQServerLogger.LOGGER.debug("Scaling down messages on address " + address);
+      long messageCount = 0;
+
+      final HashMap<Queue, QueuesXRefInnerManager> controls = new HashMap<Queue, QueuesXRefInnerManager>();
+
+      PagingStore pageStore = pagingManager.getPageStore(address);
+
+      Transaction tx = new TransactionImpl(storageManager);
+
+      pageStore.disableCleanup();
+
+      try
+      {
+
+         for (Queue queue : queues)
+         {
+            controls.put(queue, new QueuesXRefInnerManager(clientSession, queue, pageStore));
+         }
+
+         // compile a list of all the relevant queues and queue iterators for this address
+         for (Queue loopQueue : queues)
+         {
+            ActiveMQServerLogger.LOGGER.debug("Scaling down messages on address " + address + " / performing loop on queue " + loopQueue);
+
+            try (LinkedListIterator<MessageReference> messagesIterator = loopQueue.totalIterator())
+            {
+
+               while (messagesIterator.hasNext())
                {
-                  if (binding instanceof LocalQueueBinding)
+                  MessageReference messageReference = messagesIterator.next();
+                  Message message = messageReference.getMessage().copy();
+
+                  ActiveMQServerLogger.LOGGER.debug("Reading message " + message + " from queue " + loopQueue);
+                  Set<QueuesXRefInnerManager> queuesFound = new HashSet<>();
+
+                  for (Map.Entry<Queue, QueuesXRefInnerManager> controlEntry : controls.entrySet())
                   {
-                     Queue queue = ((LocalQueueBinding) binding).getQueue();
-                     //remove the scheduled messages and reset on the actual message ready for sending
-                     //we may set the time multiple times on a message but it will always be the same.
-                     //set the ref scheduled time to 0 so it is in the queue ready for resending
-                     List<MessageReference> messageReferences = queue.cancelScheduledMessages();
-                     for (MessageReference ref : messageReferences)
+                     if (controlEntry.getKey() == loopQueue)
                      {
-                        ref.getMessage().putLongProperty(MessageImpl.HDR_SCHEDULED_DELIVERY_TIME, ref.getScheduledDeliveryTime());
-                        ref.setScheduledDeliveryTime(0);
+                        // no need to lookup on itself, we just add it
+                        queuesFound.add(controlEntry.getValue());
                      }
-                     queue.addHead(messageReferences);
-                     queues.add(queue);
-                     queueIterators.put(queue.getName(), queue.totalIterator());
+                     else if (controlEntry.getValue().lookup(messageReference))
+                     {
+                        ActiveMQServerLogger.LOGGER.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID());
+                        queuesFound.add(controlEntry.getValue());
+                     }
+                  }
+
+                  // get the ID for every queue that contains the message
+                  ByteBuffer buffer = ByteBuffer.allocate(queuesFound.size() * 8);
+
+
+                  for (QueuesXRefInnerManager control : queuesFound)
+                  {
+                     long queueID = control.getQueueID();
+                     buffer.putLong(queueID);
+                  }
+
+
+                  message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
+
+                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+                  {
+                     if (messageReference.isPaged())
+                     {
+                        ActiveMQServerLogger.LOGGER.debug("*********************<<<<< Scaling down pdgmessage " + message);
+                     }
+                     else
+                     {
+                        ActiveMQServerLogger.LOGGER.debug("*********************<<<<< Scaling down message " + message);
+                     }
+                  }
+
+                  producer.send(address, message);
+                  messageCount++;
+
+                  messagesIterator.remove();
+
+                  // We need to perform the ack / removal after sending, otherwise the message could been removed before the send is finished
+                  for (QueuesXRefInnerManager queueFound : queuesFound)
+                  {
+                     ackMessageOnQueue(tx, queueFound.getQueue(), messageReference);
+                  }
+
+               }
+            }
+         }
+
+         tx.commit();
+
+
+         for (QueuesXRefInnerManager controlRemoved : controls.values())
+         {
+            controlRemoved.close();
+         }
+
+         return messageCount;
+      }
+      finally
+      {
+         pageStore.enableCleanup();
+         pageStore.getCursorProvider().scheduleCleanup();
+      }
+   }
+
+   private long scaleDownSNF(final SimpleString address, final Set<Queue> queues, final ClientProducer producer) throws Exception
+   {
+      long messageCount = 0;
+
+      final String propertyEnd;
+
+      // If this SNF is towards our targetNodeId
+      boolean queueOnTarget = address.toString().endsWith(targetNodeId);
+
+      if (queueOnTarget)
+      {
+         propertyEnd = targetNodeId;
+      }
+      else
+      {
+         propertyEnd = address.toString().substring(address.toString().lastIndexOf("."));
+      }
+
+      Transaction tx = new TransactionImpl(storageManager);
+
+      for (Queue queue : queues)
+      {
+         // using auto-closeable
+         try (LinkedListIterator<MessageReference> messagesIterator = queue.totalIterator())
+         {
+            // loop through every message of this queue
+            while (messagesIterator.hasNext())
+            {
+               MessageReference messageRef = messagesIterator.next();
+               Message message = messageRef.getMessage().copy();
+
+               /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
+                * address on the scale-down target server.  However, we have to take the existing _HQ_ROUTE_TOsf.*
+                * property and put its value into the _HQ_ROUTE_TO property so the message is routed properly.
+                */
+
+               byte[] oldRouteToIDs = null;
+
+               List<SimpleString> propertiesToRemove = new ArrayList<>();
+               message.removeProperty(MessageImpl.HDR_ROUTE_TO_IDS);
+               for (SimpleString propName : message.getPropertyNames())
+               {
+                  if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
+                  {
+                     if (propName.toString().endsWith(propertyEnd))
+                     {
+                        oldRouteToIDs = message.getBytesProperty(propName);
+                     }
+                     propertiesToRemove.add(propName);
                   }
                }
 
-               // sort into descending order - order is based on the number of references in the queue
-               Collections.sort(queues, new OrderQueueByNumberOfReferencesComparator());
+               // TODO: what if oldRouteToIDs == null ??
 
-               // loop through every queue on this address
-               List<SimpleString> checkedQueues = new ArrayList<>();
-               for (Queue bigLoopQueue : queues)
+               for (SimpleString propertyToRemove : propertiesToRemove)
                {
-                  checkedQueues.add(bigLoopQueue.getName());
-
-                  LinkedListIterator<MessageReference> bigLoopMessageIterator = bigLoopQueue.totalIterator();
-                  try
-                  {
-                     // loop through every message of this queue
-                     while (bigLoopMessageIterator.hasNext())
-                     {
-                        MessageReference bigLoopRef = bigLoopMessageIterator.next();
-                        Message message = bigLoopRef.getMessage().copy();
-
-                        if (storeAndForward)
-                        {
-                           if (address.toString().endsWith(targetNodeId))
-                           {
-                              /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
-                               * address on the scale-down target server.  However, we have to take the existing _HQ_ROUTE_TOsf.*
-                               * property and put its value into the _HQ_ROUTE_TO property so the message is routed properly.
-                               */
-
-                              byte[] oldRouteToIDs = null;
-
-                              List<SimpleString> propertiesToRemove = new ArrayList<>();
-                              message.removeProperty(MessageImpl.HDR_ROUTE_TO_IDS);
-                              for (SimpleString propName : message.getPropertyNames())
-                              {
-                                 if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
-                                 {
-                                    if (propName.toString().endsWith(targetNodeId))
-                                    {
-                                       oldRouteToIDs = message.getBytesProperty(propName);
-                                    }
-                                    propertiesToRemove.add(propName);
-                                 }
-                              }
-
-                              for (SimpleString propertyToRemove : propertiesToRemove)
-                              {
-                                 message.removeProperty(propertyToRemove);
-                              }
-
-                              message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, oldRouteToIDs);
-                           }
-                           else
-                           {
-                              /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
-                               * store-and-forward address on the scale-down target server.  In this case we use a special property
-                               * for the queue ID so that the scale-down target server can route it appropriately.
-                               */
-                              byte[] oldRouteToIDs = null;
-
-                              List<SimpleString> propertiesToRemove = new ArrayList<>();
-                              message.removeProperty(MessageImpl.HDR_ROUTE_TO_IDS);
-                              for (SimpleString propName : message.getPropertyNames())
-                              {
-                                 if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
-                                 {
-                                    if (propName.toString().endsWith(address.toString().substring(address.toString().lastIndexOf("."))))
-                                    {
-                                       oldRouteToIDs = message.getBytesProperty(propName);
-                                    }
-                                    propertiesToRemove.add(propName);
-                                 }
-                              }
-
-                              for (SimpleString propertyToRemove : propertiesToRemove)
-                              {
-                                 message.removeProperty(propertyToRemove);
-                              }
-
-                              message.putBytesProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS, oldRouteToIDs);
-                           }
-
-                           ActiveMQServerLogger.LOGGER.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
-                           producer.send(message.getAddress(), message);
-                           messageCount++;
-                           bigLoopQueue.deleteReference(message.getMessageID());
-                        }
-                        else
-                        {
-                           List<Queue> queuesWithMessage = new ArrayList<>();
-                           queuesWithMessage.add(bigLoopQueue);
-                           long messageId = message.getMessageID();
-
-                           getQueuesWithMessage(store, queues, queueIterators, checkedQueues, bigLoopQueue, queuesWithMessage, bigLoopRef, messageId);
-
-                           // get the ID for every queue that contains the message
-                           ByteBuffer buffer = ByteBuffer.allocate(queuesWithMessage.size() * 8);
-                           StringBuilder logMessage = new StringBuilder();
-                           logMessage.append("Scaling down message ").append(messageId).append(" to ");
-                           for (Queue queue : queuesWithMessage)
-                           {
-                              long queueID;
-                              String queueName = queue.getName().toString();
-
-                              if (queueIDs.containsKey(queueName))
-                              {
-                                 queueID = queueIDs.get(queueName);
-                              }
-                              else
-                              {
-                                 queueID = createQueueIfNecessaryAndGetID(session, queue, address);
-                                 queueIDs.put(queueName, queueID);  // store it so we don't have to look it up every time
-                              }
-
-                              logMessage.append(queueName).append("(").append(queueID).append(")").append(", ");
-                              buffer.putLong(queueID);
-                           }
-
-                           logMessage.delete(logMessage.length() - 2, logMessage.length());  // trim off the trailing comma and space
-                           ActiveMQServerLogger.LOGGER.debug(logMessage.append(" on address ").append(address));
-
-                           message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
-                           //we need this incase we are sending back to the source server of the message, this basically
-                           //acts like the bridge and ignores dup detection
-                           if (message.containsProperty(MessageImpl.HDR_DUPLICATE_DETECTION_ID))
-                           {
-                              byte[] bytes = new byte[24];
-
-                              ByteBuffer bb = ByteBuffer.wrap(bytes);
-                              bb.put(nodeManager.getUUID().asBytes());
-                              bb.putLong(messageId);
-
-                              message.putBytesProperty(MessageImpl.HDR_BRIDGE_DUPLICATE_ID, bb.array());
-                           }
-
-                           producer.send(address, message);
-                           messageCount++;
-
-                           // delete the reference from all queues which contain it
-                           bigLoopQueue.deleteReference(messageId);
-                           for (Queue queue : queuesWithMessage)
-                           {
-                              queue.deleteReference(messageId);
-                           }
-                        }
-                     }
-                  }
-                  finally
-                  {
-                     bigLoopMessageIterator.close();
-                     queueIterators.get(bigLoopQueue.getName()).close();
-                  }
+                  message.removeProperty(propertyToRemove);
                }
+
+               if (queueOnTarget)
+               {
+                  message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, oldRouteToIDs);
+               }
+               else
+               {
+                  message.putBytesProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS, oldRouteToIDs);
+               }
+
+               ActiveMQServerLogger.LOGGER.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
+               producer.send(message.getAddress(), message);
+
+               messageCount++;
+
+               messagesIterator.remove();
+
+               ackMessageOnQueue(tx, queue, messageRef);
             }
          }
       }
 
-      producer.close();
-      session.close();
+      tx.commit();
 
       return messageCount;
    }
@@ -324,6 +352,8 @@ public class ScaleDownHandler
          Transaction transaction = resourceManager.getTransaction(xid);
          session.start(xid, XAResource.TMNOFLAGS);
          List<TransactionOperation> allOperations = transaction.getAllOperations();
+
+         // Get the information of the Prepared TXs so it could replay the TXs
          Map<ServerMessage, Pair<List<Long>, List<Long>>> queuesToSendTo = new HashMap<>();
          for (TransactionOperation operation : allOperations)
          {
@@ -387,6 +417,7 @@ public class ScaleDownHandler
                }
             }
          }
+
          ClientProducer producer = session.createProducer();
          for (Map.Entry<ServerMessage, Pair<List<Long>, List<Long>>> entry : queuesToSendTo.entrySet())
          {
@@ -436,78 +467,6 @@ public class ScaleDownHandler
       }
       session.close();
    }
-
-   /**
-    * Loop through every *other* queue on this address to see if it also contains this message.
-    * Skip queues with filters that don't match as matching messages will never be in there.
-    * Also skip queues that we've already checked in the "big" loop.
-    */
-   private void getQueuesWithMessage(PagingStore store, List<Queue> queues, Map<SimpleString, LinkedListIterator<MessageReference>> queueIterators, List<SimpleString> checkedQueues, Queue bigLoopQueue, List<Queue> queuesWithMessage, MessageReference bigLoopRef, long messageId) throws Exception
-   {
-      for (Queue queue : queues)
-      {
-         if (!checkedQueues.contains(queue.getName()) &&
-            ((queue.getFilter() == null &&
-               bigLoopQueue.getFilter() == null) ||
-               (queue.getFilter() != null &&
-                  queue.getFilter().equals(bigLoopQueue.getFilter()))))
-         {
-            // an optimization for paged messages, eliminates the need to (potentially) scan the whole queue
-            if (bigLoopRef.isPaged())
-            {
-               PageSubscription subscription = store.getCursorProvider().getSubscription(queue.getID());
-               if (subscription.contains((PagedReference) bigLoopRef))
-               {
-                  queuesWithMessage.add(queue);
-               }
-            }
-            else
-            {
-               LinkedListIterator<MessageReference> queueIterator = queueIterators.get(queue.getName());
-               boolean first = true;
-               long initialMessageID = 0;
-               while (queueIterator.hasNext())
-               {
-                  Message m = queueIterator.next().getMessage();
-                  if (first)
-                  {
-                     initialMessageID = m.getMessageID();
-                     first = false;
-                  }
-                  if (m.getMessageID() == messageId)
-                  {
-                     queuesWithMessage.add(queue);
-                     break;
-                  }
-               }
-
-               /**
-                * if we've reached the end then reset the iterator and go through again until we
-                * get back to the place where we started
-                */
-               if (!queueIterator.hasNext())
-               {
-                  queueIterator = queue.totalIterator();
-                  queueIterators.put(queue.getName(), queueIterator);
-                  while (queueIterator.hasNext())
-                  {
-                     Message m = queueIterator.next().getMessage();
-                     if (m.getMessageID() == initialMessageID)
-                     {
-                        break;
-                     }
-                     else if (m.getMessageID() == messageId)
-                     {
-                        queuesWithMessage.add(queue);
-                        break;
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
-
    /**
     * Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
     * send directly to a queue, we have to send to an address instead but not all the queues related to the
@@ -557,11 +516,159 @@ public class ScaleDownHandler
 
          if (queue1 == queue2) return EQUAL;
 
-         if (queue1.getMessageCount() == queue2.getMessageCount()) return EQUAL;
+         if (queue1.getMessageCount() == queue2.getMessageCount())
+         {
+            // if it's the same count we will use the ID as a tie breaker:
+
+            long tieBreak = queue2.getID() - queue1.getID();
+
+            if (tieBreak > 0) return AFTER;
+            else if (tieBreak < 0) return BEFORE;
+            else return EQUAL; // EQUAL here shouldn't really happen... but lets do the check anyways
+
+         }
          if (queue1.getMessageCount() > queue2.getMessageCount()) return BEFORE;
          if (queue1.getMessageCount() < queue2.getMessageCount()) return AFTER;
 
          return result;
       }
    }
+
+
+   private void ackMessageOnQueue(Transaction tx, Queue queue, MessageReference messageRef) throws Exception
+   {
+      queue.acknowledge(tx, messageRef);
+   }
+
+   /**
+    * this class will control iterations while
+    * looking over for messages relations
+    */
+   private class QueuesXRefInnerManager
+   {
+      private final Queue queue;
+      private LinkedListIterator<MessageReference> memoryIterator;
+      private MessageReference lastRef = null;
+      private final PagingStore store;
+
+      /**
+       * ClientSession used for looking up and creating queues
+       */
+      private final ClientSession clientSession;
+
+      private long targetQueueID = -1;
+
+
+      QueuesXRefInnerManager(final ClientSession clientSession, final Queue queue, final PagingStore store)
+      {
+         this.queue = queue;
+         this.store = store;
+         this.clientSession = clientSession;
+      }
+
+      public Queue getQueue()
+      {
+         return queue;
+      }
+
+      public long getQueueID() throws Exception
+      {
+
+         if (targetQueueID < 0)
+         {
+            targetQueueID = createQueueIfNecessaryAndGetID(clientSession, queue, queue.getAddress());
+         }
+         return targetQueueID;
+      }
+
+      public void close()
+      {
+         if (memoryIterator != null)
+         {
+            memoryIterator.close();
+         }
+      }
+
+      public boolean lookup(MessageReference reference) throws Exception
+      {
+
+         if (reference.isPaged())
+         {
+            PageSubscription subscription = store.getCursorProvider().getSubscription(queue.getID());
+            if (subscription.contains((PagedReference) reference))
+            {
+               return true;
+            }
+         }
+         else
+         {
+
+            if (lastRef != null && lastRef.getMessage().equals(reference.getMessage()))
+            {
+               lastRef = null;
+               memoryIterator.remove();
+               return true;
+            }
+
+            int numberOfScans = 2;
+
+            if (memoryIterator == null)
+            {
+               // If we have a brand new iterator, and we can't find something
+               numberOfScans = 1;
+            }
+
+            MessageReference initialRef = null;
+            for (int i = 0; i < numberOfScans; i++)
+            {
+               ActiveMQServerLogger.LOGGER.debug("iterating on queue " + queue + " while looking for reference " + reference);
+               memoryIterator = queue.iterator();
+
+               while (memoryIterator.hasNext())
+               {
+                  lastRef = memoryIterator.next();
+
+                  ActiveMQServerLogger.LOGGER.debug("Iterating on message " + lastRef);
+
+                  if (lastRef.getMessage().equals(reference.getMessage()))
+                  {
+                     memoryIterator.remove();
+                     lastRef = null;
+                     return true;
+                  }
+
+                  if (initialRef == null)
+                  {
+                     lastRef = initialRef;
+                  }
+                  else
+                  {
+                     if (initialRef.equals(lastRef))
+                     {
+                        if (!memoryIterator.hasNext())
+                        {
+                           // if by coincidence we are at the end of the iterator, we just reset the iterator
+                           lastRef = null;
+                           memoryIterator.close();
+                           memoryIterator = null;
+                        }
+                        return false;
+                     }
+                  }
+               }
+            }
+
+         }
+
+         // if we reached two iterations without finding anything.. we just go away by cleaning everything up
+         lastRef = null;
+         memoryIterator.close();
+         memoryIterator = null;
+
+         return false;
+      }
+
+   }
+
+
 }

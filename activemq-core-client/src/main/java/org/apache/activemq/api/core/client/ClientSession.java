@@ -48,6 +48,12 @@ public interface ClientSession extends XAResource, AutoCloseable
        * Returns the names of the queues bound to the binding.
        */
       List<SimpleString> getQueueNames();
+
+      /**
+       * Returns <code>true</code> if auto-creation for this address is enabled and if the address queried is for a JMS
+       * queue, <code>false</code> else.
+       */
+      boolean isAutoCreateJmsQueues();
    }
 
    /**
@@ -80,6 +86,12 @@ public interface ClientSession extends XAResource, AutoCloseable
        * Returns <code>true</code> if the queue is durable, <code>false</code> else.
        */
       boolean isDurable();
+
+      /**
+       * Returns <code>true</code> if auto-creation for this queue is enabled and if the queue queried is a JMS queue,
+       * <code>false</code> else.
+       */
+      boolean isAutoCreateJmsQueues();
 
       /**
        * Returns the number of consumers attached to the queue.

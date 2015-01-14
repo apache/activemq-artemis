@@ -1193,9 +1193,18 @@ public class ActiveMQServerImpl implements ActiveMQServer
                             final boolean durable,
                             final boolean temporary) throws Exception
    {
-      return createQueue(address, queueName, filterString, durable, temporary, false, false);
+      return createQueue(address, queueName, filterString, durable, temporary, false, false, false);
    }
 
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
+                            final boolean durable,
+                            final boolean temporary,
+                            final boolean autoCreated) throws Exception
+   {
+      return createQueue(address, queueName, filterString, durable, temporary, false, false, autoCreated);
+   }
 
    /**
     * Creates a transient queue. A queue that will exist as long as there are consumers.
@@ -1214,7 +1223,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
                                  final SimpleString filterString,
                                  boolean durable) throws Exception
    {
-      Queue queue = createQueue(address, name, filterString, durable, !durable, true, !durable);
+      Queue queue = createQueue(address, name, filterString, durable, !durable, true, !durable, false);
 
       if (!queue.getAddress().equals(address))
       {
@@ -1263,7 +1272,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    {
       ActiveMQServerLogger.LOGGER.deployQueue(queueName);
 
-      return createQueue(address, queueName, filterString, durable, temporary, true, false);
+      return createQueue(address, queueName, filterString, durable, temporary, true, false, false);
    }
 
    public void destroyQueue(final SimpleString queueName) throws Exception
@@ -1981,7 +1990,8 @@ public class ActiveMQServerImpl implements ActiveMQServer
                              final boolean durable,
                              final boolean temporary,
                              final boolean ignoreIfExists,
-                             final boolean transientQueue) throws Exception
+                             final boolean transientQueue,
+                             final boolean autoCreated) throws Exception
    {
       QueueBinding binding = (QueueBinding) postOffice.getBinding(queueName);
 
@@ -2021,11 +2031,16 @@ public class ActiveMQServerImpl implements ActiveMQServer
                                                    filter,
                                                    pageSubscription,
                                                    durable,
-                                                   temporary);
+                                                   temporary,
+                                                   autoCreated);
 
       if (transientQueue)
       {
-         queue.setConsumersRefCount(this);
+         queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queueName));
+      }
+      else if (autoCreated)
+      {
+         queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(this, queueName));
       }
 
       binding = new LocalQueueBinding(address, queue, nodeManager.getNodeId());

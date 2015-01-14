@@ -1366,4 +1366,8 @@ public interface ActiveMQServerLogger extends BasicLogger
    @Message(id = 224064, value = "Setting <{0}> is invalid with this HA Policy Configuration. Please use <ha-policy> exclusively or remove. Ignoring <{0}> value.", format = Message.Format.MESSAGE_FORMAT)
    void incompatibleWithHAPolicyChosen(String parameter);
 
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224065, value = "Failed to remove auto-created queue {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorRemovingAutoCreatedQueue(@Cause Exception e, SimpleString bindingName);
+
 }

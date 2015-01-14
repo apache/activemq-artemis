@@ -24,15 +24,17 @@ import org.apache.activemq.api.core.client.ClientSession;
 
 public class AddressQueryImpl implements ClientSession.AddressQuery, ClientSession.BindingQuery
 {
-
    private final boolean exists;
 
    private final ArrayList<SimpleString> queueNames;
 
-   public AddressQueryImpl(final boolean exists, final List<SimpleString> queueNames)
+   private final boolean autoCreateJmsQueues;
+
+   public AddressQueryImpl(final boolean exists, final List<SimpleString> queueNames, final boolean autoCreateJmsQueues)
    {
       this.exists = exists;
       this.queueNames = new ArrayList<SimpleString>(queueNames);
+      this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
    public List<SimpleString> getQueueNames()
@@ -43,5 +45,10 @@ public class AddressQueryImpl implements ClientSession.AddressQuery, ClientSessi
    public boolean isExists()
    {
       return exists;
+   }
+
+   public boolean isAutoCreateJmsQueues()
+   {
+      return autoCreateJmsQueues;
    }
 }

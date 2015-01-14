@@ -32,21 +32,21 @@ import org.apache.activemq.core.server.QueueQueryResult;
  */
 public class SessionQueueQueryResponseMessage extends PacketImpl
 {
-   private SimpleString name;
+   protected SimpleString name;
 
-   private boolean exists;
+   protected boolean exists;
 
-   private boolean durable;
+   protected boolean durable;
 
-   private int consumerCount;
+   protected int consumerCount;
 
-   private long messageCount;
+   protected long messageCount;
 
-   private SimpleString filterString;
+   protected SimpleString filterString;
 
-   private SimpleString address;
+   protected SimpleString address;
 
-   private boolean temporary;
+   protected boolean temporary;
 
    public SessionQueueQueryResponseMessage(final QueueQueryResult result)
    {
@@ -57,6 +57,11 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
    public SessionQueueQueryResponseMessage()
    {
       this(null, null, false, false, null, 0, 0, false);
+   }
+
+   public SessionQueueQueryResponseMessage(byte v2)
+   {
+      super(v2);
    }
 
    private SessionQueueQueryResponseMessage(final SimpleString name,

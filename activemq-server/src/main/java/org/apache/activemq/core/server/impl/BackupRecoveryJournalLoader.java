@@ -90,7 +90,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
    @Override
    public void postLoad(Journal messageJournal, ResourceManager resourceManager, Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception
    {
-      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController);
+      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController, parentServer.getStorageManager());
       locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
 
       try (ClientSessionFactory sessionFactory = locator.createSessionFactory())

@@ -43,4 +43,6 @@ public interface QueueBindingInfo
 
    SimpleString getFilterString();
 
+   boolean isAutoCreated();
+
 }

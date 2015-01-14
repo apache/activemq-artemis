@@ -861,6 +861,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return notificationLock;
    }
 
+   public Set<SimpleString> getAddresses()
+   {
+      return addressManager.getAddresses();
+   }
+
    public void sendQueueInfoToQueue(final SimpleString queueName, final SimpleString address) throws Exception
    {
       // We send direct to the queue so we can send it to the same queue that is bound to the notifications address -

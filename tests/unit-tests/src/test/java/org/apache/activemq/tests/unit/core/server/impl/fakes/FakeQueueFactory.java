@@ -49,7 +49,8 @@ public class FakeQueueFactory implements QueueFactory
                             final Filter filter,
                             final PageSubscription subscription,
                             final boolean durable,
-                            final boolean temporary)
+                            final boolean temporary,
+                            final boolean autoCreated)
    {
       return new QueueImpl(persistenceID,
                            address,
@@ -58,6 +59,7 @@ public class FakeQueueFactory implements QueueFactory
                            subscription,
                            durable,
                            temporary,
+                           autoCreated,
                            scheduledExecutor,
                            postOffice,
                            null,

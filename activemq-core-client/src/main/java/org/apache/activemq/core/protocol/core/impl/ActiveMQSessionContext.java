@@ -60,7 +60,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.RollbackMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAcknowledgeMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAddMetaDataMessageV2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionCloseMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
@@ -72,7 +72,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionIndividualA
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsFailMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
@@ -231,12 +231,10 @@ public class ActiveMQSessionContext extends SessionContext
    public ClientSession.QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException
    {
       SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
-      SessionQueueQueryResponseMessage response = (SessionQueueQueryResponseMessage) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP);
+      SessionQueueQueryResponseMessage_V2 response = (SessionQueueQueryResponseMessage_V2) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V2);
 
       return response.toQueueQuery();
-
    }
-
 
    public ClientConsumerInternal createConsumer(SimpleString queueName, SimpleString filterString,
                                                 int windowSize, int maxRate, int ackBatchSize, boolean browseOnly,
@@ -252,7 +250,7 @@ public class ActiveMQSessionContext extends SessionContext
                                                                               browseOnly,
                                                                               true);
 
-      SessionQueueQueryResponseMessage queueInfo = (SessionQueueQueryResponseMessage) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP);
+      SessionQueueQueryResponseMessage_V2 queueInfo = (SessionQueueQueryResponseMessage_V2) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V2);
 
       // The actual windows size that gets used is determined by the user since
       // could be overridden on the queue settings
@@ -283,10 +281,10 @@ public class ActiveMQSessionContext extends SessionContext
 
    public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
    {
-      SessionBindingQueryResponseMessage response =
-         (SessionBindingQueryResponseMessage) sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP);
+      SessionBindingQueryResponseMessage_V2 response =
+         (SessionBindingQueryResponseMessage_V2) sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V2);
 
-      return new AddressQueryImpl(response.isExists(), response.getQueueNames());
+      return new AddressQueryImpl(response.isExists(), response.getQueueNames(), response.isAutoCreateJmsQueues());
    }
 
 

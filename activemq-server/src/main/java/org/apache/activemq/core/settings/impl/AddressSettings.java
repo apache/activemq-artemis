@@ -56,6 +56,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_LAST_VALUE_QUEUE = false;
 
+   public static final boolean DEFAULT_AUTO_CREATE_QUEUES = true;
+
+   public static final boolean DEFAULT_AUTO_DELETE_QUEUES = true;
+
    public static final long DEFAULT_REDISTRIBUTION_DELAY = -1;
 
    public static final long DEFAULT_EXPIRY_DELAY = -1;
@@ -106,6 +110,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private SlowConsumerPolicy slowConsumerPolicy = null;
 
+   private Boolean autoCreateJmsQueues = null;
+
+   private Boolean autoDeleteJmsQueues = null;
+
    public AddressSettings(AddressSettings other)
    {
       this.addressFullMessagePolicy = other.addressFullMessagePolicy;
@@ -127,12 +135,34 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.slowConsumerThreshold = other.slowConsumerThreshold;
       this.slowConsumerCheckPeriod = other.slowConsumerCheckPeriod;
       this.slowConsumerPolicy = other.slowConsumerPolicy;
+      this.autoCreateJmsQueues = other.autoCreateJmsQueues;
+      this.autoDeleteJmsQueues = other.autoDeleteJmsQueues;
    }
 
    public AddressSettings()
    {
    }
 
+
+   public boolean isAutoCreateJmsQueues()
+   {
+      return autoCreateJmsQueues != null ? autoCreateJmsQueues : AddressSettings.DEFAULT_AUTO_CREATE_QUEUES;
+   }
+
+   public void setAutoCreateJmsQueues(final boolean autoCreateJmsQueues)
+   {
+      this.autoCreateJmsQueues = autoCreateJmsQueues;
+   }
+
+   public boolean isAutoDeleteJmsQueues()
+   {
+      return autoDeleteJmsQueues != null ? autoDeleteJmsQueues : AddressSettings.DEFAULT_AUTO_DELETE_QUEUES;
+   }
+
+   public void setAutoDeleteJmsQueues(final boolean autoDeleteJmsQueues)
+   {
+      this.autoDeleteJmsQueues = autoDeleteJmsQueues;
+   }
 
    public boolean isLastValueQueue()
    {
@@ -398,6 +428,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       {
          slowConsumerPolicy = merged.slowConsumerPolicy;
       }
+      if (autoCreateJmsQueues == null)
+      {
+         autoCreateJmsQueues = merged.autoCreateJmsQueues;
+      }
+      if (autoDeleteJmsQueues == null)
+      {
+         autoDeleteJmsQueues = merged.autoDeleteJmsQueues;
+      }
    }
 
    @Override
@@ -458,6 +496,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       {
          slowConsumerPolicy = null;
       }
+
+      autoCreateJmsQueues = BufferHelper.readNullableBoolean(buffer);
+
+      autoDeleteJmsQueues = BufferHelper.readNullableBoolean(buffer);
    }
 
    @Override
@@ -482,7 +524,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(sendToDLAOnNoRoute) +
          BufferHelper.sizeOfNullableLong(slowConsumerCheckPeriod) +
          BufferHelper.sizeOfNullableLong(slowConsumerThreshold) +
-         BufferHelper.sizeOfNullableSimpleString(slowConsumerPolicy != null ? slowConsumerPolicy.toString() : null);
+         BufferHelper.sizeOfNullableSimpleString(slowConsumerPolicy != null ? slowConsumerPolicy.toString() : null) +
+         BufferHelper.sizeOfNullableBoolean(autoCreateJmsQueues) +
+         BufferHelper.sizeOfNullableBoolean(autoDeleteJmsQueues);
    }
 
    @Override
@@ -526,6 +570,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableLong(buffer, slowConsumerCheckPeriod);
 
       buffer.writeNullableSimpleString(slowConsumerPolicy != null ? new SimpleString(slowConsumerPolicy.toString()) : null);
+
+      BufferHelper.writeNullableBoolean(buffer, autoCreateJmsQueues);
+
+      BufferHelper.writeNullableBoolean(buffer, autoDeleteJmsQueues);
    }
 
    /* (non-Javadoc)
@@ -556,6 +604,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((slowConsumerThreshold == null) ? 0 : slowConsumerThreshold.hashCode());
       result = prime * result + ((slowConsumerCheckPeriod == null) ? 0 : slowConsumerCheckPeriod.hashCode());
       result = prime * result + ((slowConsumerPolicy == null) ? 0 : slowConsumerPolicy.hashCode());
+      result = prime * result + ((autoCreateJmsQueues == null) ? 0 : autoCreateJmsQueues.hashCode());
+      result = prime * result + ((autoDeleteJmsQueues == null) ? 0 : autoDeleteJmsQueues.hashCode());
       return result;
    }
 
@@ -705,6 +755,20 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       else if (!slowConsumerPolicy.equals(other.slowConsumerPolicy))
          return false;
+      if (autoCreateJmsQueues == null)
+      {
+         if (other.autoCreateJmsQueues != null)
+            return false;
+      }
+      else if (!autoCreateJmsQueues.equals(other.autoCreateJmsQueues))
+         return false;
+      if (autoDeleteJmsQueues == null)
+      {
+         if (other.autoDeleteJmsQueues != null)
+            return false;
+      }
+      else if (!autoDeleteJmsQueues.equals(other.autoDeleteJmsQueues))
+         return false;
       return true;
    }
 
@@ -751,6 +815,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          slowConsumerCheckPeriod +
          ", slowConsumerPolicy=" +
          slowConsumerPolicy +
+         ", autoCreateJmsQueues=" +
+         autoCreateJmsQueues +
+         ", autoDeleteJmsQueues=" +
+         autoDeleteJmsQueues +
          "]";
    }
 }

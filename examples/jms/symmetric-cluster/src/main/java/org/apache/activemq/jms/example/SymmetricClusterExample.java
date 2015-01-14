@@ -82,8 +82,10 @@ public class SymmetricClusterExample extends ActiveMQExample
          // connection factory directly we avoid having to worry about a JNDI look-up.
          // In an app server environment you could use HA-JNDI to lookup from the clustered JNDI servers without
          // having to know about a specific one.
-         UDPBroadcastGroupConfiguration udpCfg = new UDPBroadcastGroupConfiguration("231.7.7.7", 9876, null, -1);
-         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, udpCfg);
+         UDPBroadcastGroupConfiguration udpCfg = new UDPBroadcastGroupConfiguration();
+         udpCfg.setGroupAddress("231.7.7.7").setGroupPort(9876);
+         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration();
+         groupConfiguration.setBroadcastEndpointFactoryConfiguration(udpCfg);
 
          ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.CF);
 

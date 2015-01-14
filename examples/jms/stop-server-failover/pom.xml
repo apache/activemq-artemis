@@ -75,8 +75,6 @@ under the License.
                      <goal>start</goal>
                   </goals>
                   <configuration>
-                     <jndiPort>1199</jndiPort>
-                     <jndiRmiPort>1198</jndiRmiPort>
                      <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                      <fork>true</fork>
                      <systemProperties>

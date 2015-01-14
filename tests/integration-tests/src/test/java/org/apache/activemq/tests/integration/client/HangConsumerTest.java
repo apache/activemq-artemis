@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.tests.integration.client;
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.junit.Before;
 import org.junit.After;
@@ -24,7 +23,6 @@ import org.junit.Test;
 
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -244,6 +242,7 @@ public class HangConsumerTest extends ServiceTestBase
                                     final PageSubscription pageSubscription,
                                     final boolean durable,
                                     final boolean temporary,
+                                    final boolean autoCreated,
                                     final ScheduledExecutorService scheduledExecutor,
                                     final PostOffice postOffice,
                                     final StorageManager storageManager,
@@ -257,6 +256,7 @@ public class HangConsumerTest extends ServiceTestBase
                pageSubscription,
                durable,
                temporary,
+               autoCreated,
                scheduledExecutor,
                postOffice,
                storageManager,
@@ -274,9 +274,8 @@ public class HangConsumerTest extends ServiceTestBase
          }
 
          @Override
-         public List<MessageReference> cancelScheduledMessages()
+         public void deliverScheduledMessages()
          {
-            return null;
          }
       }
 
@@ -297,7 +296,8 @@ public class HangConsumerTest extends ServiceTestBase
                                   final Filter filter,
                                   final PageSubscription pageSubscription,
                                   final boolean durable,
-                                  final boolean temporary)
+                                  final boolean temporary,
+                                  final boolean autoCreated)
          {
             queue = new MyQueueWithBlocking(persistenceID,
                address,
@@ -306,6 +306,7 @@ public class HangConsumerTest extends ServiceTestBase
                pageSubscription,
                durable,
                temporary,
+               autoCreated,
                scheduledExecutor,
                postOffice,
                storageManager,
@@ -404,7 +405,7 @@ public class HangConsumerTest extends ServiceTestBase
 
 
       // Forcing a situation where the server would unexpectedly create a duplicated queue. The server should still start normally
-      LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE, new QueueImpl(queueID, QUEUE, QUEUE, null, true, false, null, null, null, null, null), server.getNodeID());
+      LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE, new QueueImpl(queueID, QUEUE, QUEUE, null, true, false, false, null, null, null, null, null), server.getNodeID());
       server.getStorageManager().addQueueBinding(txID, newBinding);
       server.getStorageManager().commitBindings(txID);
 

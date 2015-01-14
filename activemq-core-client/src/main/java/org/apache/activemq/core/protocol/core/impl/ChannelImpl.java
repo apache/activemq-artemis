@@ -161,6 +161,10 @@ public final class ChannelImpl implements Channel
             return version >= 125;
          case PacketImpl.DISCONNECT_V2:
             return version >= 125;
+         case PacketImpl.SESS_QUEUEQUERY_RESP_V2:
+            return version >= 126;
+         case PacketImpl.SESS_BINDINGQUERY_RESP_V2:
+            return version >= 126;
          default:
             return true;
       }

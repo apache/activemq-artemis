@@ -20,7 +20,6 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -507,6 +506,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                PageSubscription pageSubscription,
                                boolean durable,
                                boolean temporary,
+                               boolean autoCreated,
                                ScheduledExecutorService scheduledExecutor,
                                PostOffice postOffice,
                                StorageManager storageManager,
@@ -520,6 +520,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                   pageSubscription,
                   durable,
                   temporary,
+                  autoCreated,
                   scheduledExecutor,
                   postOffice,
                   storageManager,
@@ -534,9 +535,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          }
 
          @Override
-         public List<MessageReference> cancelScheduledMessages()
+         public void deliverScheduledMessages()
          {
-            return null;
          }
       }
 
@@ -572,7 +572,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                   Filter filter,
                                   PageSubscription pageSubscription,
                                   boolean durable,
-                                  boolean temporary)
+                                  boolean temporary,
+                                  boolean autoCreated)
          {
 
             return new NoPostACKQueue(persistenceID,
@@ -582,6 +583,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                       pageSubscription,
                                       durable,
                                       temporary,
+                                      autoCreated,
                                       scheduledExecutor,
                                       postOffice,
                                       storageManager,

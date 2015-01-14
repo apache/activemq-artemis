@@ -95,6 +95,8 @@ entry that would be found in the `activemq-configuration.xml` file.
           <slow-consumer-threshold>-1</slow-consumer-threshold>
           <slow-consumer-policy>NOTIFY</slow-consumer-policy>
           <slow-consumer-check-period>5</slow-consumer-check-period>
+          <auto-create-queues>true</auto-create-queues>
+          <auto-delete-queues>true</auto-delete-queues>
        </address-setting>
     </address-settings>
 
@@ -176,3 +178,13 @@ on this notification.
 `slow-consumer-check-period`. How often to check for slow consumers on a
 particular queue. Measured in minutes. Default is 5. See ? for more
 information about slow consumer detection.
+
+`auto-create-jms-queues`. Whether or not the broker should automatically
+create a JMS queue when a JMS message is sent to a queue whose name fits
+the address `match` (remember, a JMS queue is just a core queue which has
+the same address and queue name) or a JMS consumer tries to connect to a
+queue whose name fits the address `match`. Queues which are auto-created
+are durable, non-temporary, and non-transient.
+
+`auto-delete-jms-queues`. Whether or not to the broker should automatically
+delete auto-created JMS queues when they have both 0 consumers and 0 messages.

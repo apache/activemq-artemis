@@ -507,6 +507,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       long slowConsumerThreshold = 5;
       long slowConsumerCheckPeriod = 10;
       String slowConsumerPolicy = SlowConsumerPolicy.KILL.toString();
+      boolean autoCreateJmsQueues = false;
+      boolean autoDeleteJmsQueues = false;
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -525,7 +527,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase
                                        addressFullMessagePolicy,
                                        slowConsumerThreshold,
                                        slowConsumerCheckPeriod,
-                                       slowConsumerPolicy);
+                                       slowConsumerPolicy,
+                                       autoCreateJmsQueues,
+                                       autoDeleteJmsQueues);
 
 
       boolean ex = false;
@@ -548,7 +552,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase
                                           addressFullMessagePolicy,
                                           slowConsumerThreshold,
                                           slowConsumerCheckPeriod,
-                                          slowConsumerPolicy);
+                                          slowConsumerPolicy,
+                                          autoCreateJmsQueues,
+                                          autoDeleteJmsQueues);
       }
       catch (Exception expected)
       {
@@ -578,6 +584,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       assertEquals(slowConsumerThreshold, info.getSlowConsumerThreshold());
       assertEquals(slowConsumerCheckPeriod, info.getSlowConsumerCheckPeriod());
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
+      assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
+      assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
 
       serverControl.addAddressSettings(addressMatch,
                                        DLA,
@@ -596,7 +604,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase
                                        addressFullMessagePolicy,
                                        slowConsumerThreshold,
                                        slowConsumerCheckPeriod,
-                                       slowConsumerPolicy);
+                                       slowConsumerPolicy,
+                                       autoCreateJmsQueues,
+                                       autoDeleteJmsQueues);
 
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
@@ -618,6 +628,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       assertEquals(slowConsumerThreshold, info.getSlowConsumerThreshold());
       assertEquals(slowConsumerCheckPeriod, info.getSlowConsumerCheckPeriod());
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
+      assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
+      assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
 
 
       ex = false;
@@ -640,7 +652,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase
                                           addressFullMessagePolicy,
                                           slowConsumerThreshold,
                                           slowConsumerCheckPeriod,
-                                          slowConsumerPolicy);
+                                          slowConsumerPolicy,
+                                          autoCreateJmsQueues,
+                                          autoDeleteJmsQueues);
       }
       catch (Exception e)
       {

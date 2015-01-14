@@ -39,6 +39,7 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_ADD_ME
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_ADD_METADATA2;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP;
+import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP_V2;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_CLOSE;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_COMMIT;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_CONSUMER_CLOSE;
@@ -52,6 +53,7 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_PRODUC
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_PRODUCER_REQUEST_CREDITS;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_QUEUEQUERY;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_QUEUEQUERY_RESP;
+import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_QUEUEQUERY_RESP_V2;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_CONTINUATION;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_ROLLBACK;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_SEND_CONTINUATION;
@@ -107,6 +109,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAddMetaData
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAddMetaDataMessageV2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionCloseMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionCommitMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
@@ -120,6 +123,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCre
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage;
+import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V2;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
@@ -251,6 +255,11 @@ public abstract class PacketDecoder implements Serializable
             packet = new SessionQueueQueryResponseMessage();
             break;
          }
+         case SESS_QUEUEQUERY_RESP_V2:
+         {
+            packet = new SessionQueueQueryResponseMessage_V2();
+            break;
+         }
          case CREATE_QUEUE:
          {
             packet = new CreateQueueMessage();
@@ -274,6 +283,11 @@ public abstract class PacketDecoder implements Serializable
          case SESS_BINDINGQUERY_RESP:
          {
             packet = new SessionBindingQueryResponseMessage();
+            break;
+         }
+         case SESS_BINDINGQUERY_RESP_V2:
+         {
+            packet = new SessionBindingQueryResponseMessage_V2();
             break;
          }
          case SESS_XA_START:

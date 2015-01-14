@@ -49,6 +49,8 @@ public interface Queue extends Bindable
 
    boolean isTemporary();
 
+   boolean isAutoCreated();
+
    void addConsumer(Consumer consumer) throws Exception;
 
    void removeConsumer(Consumer consumer);
@@ -62,7 +64,7 @@ public interface Queue extends Bindable
     * on shared subscriptions where the queue needs to be deleted when all the
     * consumers are closed.
     */
-   void setConsumersRefCount(ActiveMQServer server);
+   void setConsumersRefCount(ReferenceCounter referenceCounter);
 
    ReferenceCounter getConsumersRefCount();
 
@@ -176,6 +178,10 @@ public interface Queue extends Bindable
 
    boolean checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 
+   /**
+    * It will iterate thorugh memory only (not paging)
+    * @return
+    */
    LinkedListIterator<MessageReference> iterator();
 
    LinkedListIterator<MessageReference> totalIterator();
@@ -228,7 +234,10 @@ public interface Queue extends Bindable
 
    void incrementMesssagesAdded();
 
-   List<MessageReference> cancelScheduledMessages();
+   /**
+    * cancels scheduled messages and send them to the head of the queue.
+    */
+   void deliverScheduledMessages();
 
    void postAcknowledge(MessageReference ref);
 

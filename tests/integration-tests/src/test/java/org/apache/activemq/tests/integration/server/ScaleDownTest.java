@@ -30,8 +30,6 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.ScaleDownConfiguration;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -119,13 +117,13 @@ public class ScaleDownTest extends ClusterTestBase
       final String queueName2 = "testQueue2";
 
       // create 2 queues on each node mapped to the same address
-      createQueue(0, addressName, queueName1, null, false);
-      createQueue(0, addressName, queueName2, null, false);
-      createQueue(1, addressName, queueName1, null, false);
-      createQueue(1, addressName, queueName2, null, false);
+      createQueue(0, addressName, queueName1, null, true);
+      createQueue(0, addressName, queueName2, null, true);
+      createQueue(1, addressName, queueName1, null, true);
+      createQueue(1, addressName, queueName2, null, true);
 
       // send messages to node 0
-      send(0, addressName, TEST_SIZE, false, null);
+      send(0, addressName, TEST_SIZE, true, null);
 
       // consume a message from queue 2
       addConsumer(1, 0, queueName2, null, false);
@@ -375,32 +373,28 @@ public class ScaleDownTest extends ClusterTestBase
       final String addressName = "testAddress";
       final String queueName = "testQueue";
 
-      createQueue(0, addressName, queueName, null, false);
-      createQueue(1, addressName, queueName, null, false);
+      createQueue(0, addressName, queueName, null, true);
+      createQueue(1, addressName, queueName, null, true);
 
       ClientSessionFactory sf = sfs[0];
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) servers[0].getStorageManager());
 
-      fileMessage.setMessageID(1005);
-      fileMessage.setDurable(true);
-
-      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      byte[] buffer = new byte[2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE];
+      for (int i = 0; i < buffer.length; i++)
       {
-         fileMessage.addBytes(new byte[]{UnitTestCase.getSamplebyte(i)});
+         buffer[i] = getSamplebyte(i);
       }
 
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+      for (int nmsg = 0; nmsg < 10; nmsg++)
+      {
+         ClientMessage message = session.createMessage(true);
+         message.getBodyBuffer().writeBytes(buffer);
+         producer.send(message);
+         session.commit();
+      }
 
-      fileMessage.releaseResources();
-
-      producer.send(fileMessage);
-
-      fileMessage.deleteFile();
-
-      session.commit();
 
       servers[0].stop();
 
@@ -409,19 +403,23 @@ public class ScaleDownTest extends ClusterTestBase
       ClientConsumer consumer = addClientConsumer(session.createConsumer(queueName));
       session.start();
 
-      ClientMessage msg = consumer.receive(250);
-
-      Assert.assertNotNull(msg);
-
-      Assert.assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
-
-      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+      for (int nmsg = 0; nmsg < 10; nmsg++)
       {
-         Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg.getBodyBuffer().readByte());
-      }
+         ClientMessage msg = consumer.receive(250);
 
-      msg.acknowledge();
-      session.commit();
+         Assert.assertNotNull(msg);
+
+         Assert.assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
+
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
+         {
+            byte byteRead = msg.getBodyBuffer().readByte();
+            Assert.assertEquals(msg + " Is different", UnitTestCase.getSamplebyte(i), byteRead);
+         }
+
+         msg.acknowledge();
+         session.commit();
+      }
    }
 
    @Test

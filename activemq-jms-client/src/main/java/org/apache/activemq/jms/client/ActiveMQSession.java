@@ -326,7 +326,14 @@ public class ActiveMQSession implements QueueSession, TopicSession
 
             if (!response.isExists())
             {
-               throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+               if (response.isAutoCreateJmsQueues())
+               {
+                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), true);
+               }
+               else
+               {
+                  throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
+               }
             }
 
             connection.addKnownDestination(jbd.getSimpleAddress());
@@ -730,7 +737,14 @@ public class ActiveMQSession implements QueueSession, TopicSession
 
             if (!response.isExists())
             {
-               throw new InvalidDestinationException("Queue " + dest.getName() + " does not exist");
+               if (response.isAutoCreateJmsQueues())
+               {
+                  session.createQueue(dest.getSimpleAddress(), dest.getSimpleAddress(), true);
+               }
+               else
+               {
+                  throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
+               }
             }
 
             connection.addKnownDestination(dest.getSimpleAddress());
@@ -902,10 +916,17 @@ public class ActiveMQSession implements QueueSession, TopicSession
 
       try
       {
-         AddressQuery message = session.addressQuery(new SimpleString(jbq.getAddress()));
-         if (!message.isExists())
+         AddressQuery response = session.addressQuery(new SimpleString(jbq.getAddress()));
+         if (!response.isExists())
          {
-            throw new InvalidDestinationException(jbq.getAddress() + " does not exist");
+            if (response.isAutoCreateJmsQueues())
+            {
+               session.createQueue(jbq.getSimpleAddress(), jbq.getSimpleAddress(), true);
+            }
+            else
+            {
+               throw new InvalidDestinationException("Destination " + jbq.getName() + " does not exist");
+            }
          }
       }
       catch (ActiveMQException e)
@@ -1239,13 +1260,13 @@ public class ActiveMQSession implements QueueSession, TopicSession
 
       QueueQuery response = session.queueQuery(queue.getSimpleAddress());
 
-      if (response.isExists())
+      if (!response.isExists() && !response.isAutoCreateJmsQueues())
       {
-         return queue;
+         return null;
       }
       else
       {
-         return null;
+         return queue;
       }
    }
 
