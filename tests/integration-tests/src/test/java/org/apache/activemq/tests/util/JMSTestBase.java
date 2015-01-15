@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
@@ -44,6 +45,8 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.service.extensions.ServiceUtils;
+import org.apache.activemq.tests.integration.ra.DummyTransactionManager;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.junit.After;
 import org.junit.Assert;
@@ -149,6 +152,9 @@ public class JMSTestBase extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
+
+      // Load Arjuna TM if one is not already set.
+      if (ServiceUtils.getTransactionManager() == null) useRealTransactionManager();
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
@@ -293,6 +299,16 @@ public class JMSTestBase extends ServiceTestBase
       {
          throw new JMSRuntimeException(cause.getMessage(), cause.getErrorCode(), cause);
       }
+   }
+
+   protected void useRealTransactionManager()
+   {
+      ServiceUtils.setTransactionManager((javax.transaction.TransactionManager) new TransactionManagerImple());
+   }
+
+   protected void useDummyTransactionManager()
+   {
+      ServiceUtils.setTransactionManager(new DummyTransactionManager());
    }
 
    protected final void receiveMessages(JMSConsumer consumer, final int start, final int msgCount, final boolean ack)

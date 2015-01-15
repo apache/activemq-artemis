@@ -75,6 +75,12 @@ public class ServiceUtils
       return transactionManager;
    }
 
+   public static void setTransactionManager(TransactionManager tm)
+   {
+      transactionManager = tm;
+      transactionManagerLoaded = (transactionManager != null);
+   }
+
    private static void setActiveMQXAResourceWrapperFactory(Iterable<ActiveMQXAResourceWrapperFactory> iterable)
    {
       if (iterable.iterator().hasNext())
