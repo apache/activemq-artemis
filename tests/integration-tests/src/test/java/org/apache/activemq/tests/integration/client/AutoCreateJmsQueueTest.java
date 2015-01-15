@@ -32,6 +32,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -77,9 +78,9 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    @Test
    public void testAutoCreateOnSendToQueueSecurity() throws Exception
    {
-      server.getSecurityManager().addUser("guest", "guest");
-      server.getSecurityManager().setDefaultUser("guest");
-      server.getSecurityManager().addRole("guest", "rejectAll");
+      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addRole("guest", "rejectAll");
       Role role = new Role("rejectAll", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
@@ -171,9 +172,9 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      server.getSecurityManager().addUser("guest", "guest");
-      server.getSecurityManager().setDefaultUser("guest");
-      server.getSecurityManager().addRole("guest", "allowAll");
+      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addRole("guest", "allowAll");
       Role role = new Role("allowAll", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);

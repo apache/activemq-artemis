@@ -35,7 +35,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
-import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
+import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.DestinationSettings;
 import org.apache.activemq.rest.queue.PostMessage;
@@ -66,8 +66,7 @@ public class TopicDestinationsResource
 
       try
       {
-         JMSServerConfigParserImpl parser = new JMSServerConfigParserImpl();
-         TopicConfiguration topic = parser.parseTopicConfiguration(document.getDocumentElement());
+         TopicConfiguration topic = FileJMSConfiguration.parseTopicConfiguration(document.getDocumentElement());
          ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(topic.getName());
          String topicName = activeMQTopic.getAddress();
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);

@@ -17,16 +17,19 @@
 <configuration
       xmlns="urn:activemq"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
-   <ha-policy>
-      <replication>
-         <slave>
-            <group-name>tiddles</group-name>
-            <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
-            <cluster-name>33rrrrr</cluster-name>
-            <restart-backup>false</restart-backup>
-         </slave>
-      </replication>
-   </ha-policy>
+      xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+
+   <core xmlns="urn:activemq:core">
+      <ha-policy>
+         <replication>
+            <slave>
+               <group-name>tiddles</group-name>
+               <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
+               <cluster-name>33rrrrr</cluster-name>
+               <restart-backup>false</restart-backup>
+            </slave>
+         </replication>
+      </ha-policy>
+   </core>
 
 </configuration>

@@ -18,86 +18,94 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <bindings-directory>${build.directory}/server1/data/messaging/bindings</bindings-directory>
+   <jms xmlns="urn:activemq:jms">
+      <!--the queue used by the example-->
+      <queue name="exampleQueue"/>
+   </jms>
 
-   <journal-directory>${build.directory}/server1/data/messaging/journal</journal-directory>
+   <core xmlns="urn:activemq:core">
 
-   <large-messages-directory>${build.directory}/server1/data/messaging/largemessages</large-messages-directory>
+      <bindings-directory>${build.directory}/server1/data/messaging/bindings</bindings-directory>
 
-   <paging-directory>${build.directory}/server1/data/messaging/paging</paging-directory>
+      <journal-directory>${build.directory}/server1/data/messaging/journal</journal-directory>
 
-   <cluster-user>exampleUser</cluster-user>
+      <large-messages-directory>${build.directory}/server1/data/messaging/largemessages</large-messages-directory>
 
-   <cluster-password>secret</cluster-password>
+      <paging-directory>${build.directory}/server1/data/messaging/paging</paging-directory>
 
-   <ha-policy>
-      <replication>
-         <slave>
-            <allow-failback>true</allow-failback>
-         </slave>
-      </replication>
-   </ha-policy>
+      <cluster-user>exampleUser</cluster-user>
 
-   <!-- Connectors -->
-   <connectors>
-      <connector name="netty-live-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5445"/>
-      </connector>
-      <connector name="netty-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </connector>
-   </connectors>
+      <cluster-password>secret</cluster-password>
 
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </acceptor>
-   </acceptors>
+      <ha-policy>
+         <replication>
+            <slave>
+               <allow-failback>true</allow-failback>
+            </slave>
+         </replication>
+      </ha-policy>
 
-    <broadcast-groups>
-		<broadcast-group name="bg-group1">
-			<group-address>${udp-address:231.7.7.7}</group-address>
-			<group-port>9876</group-port>
-			<broadcast-period>1000</broadcast-period>
-         <connector-ref>netty-connector</connector-ref>
-		</broadcast-group>
-	</broadcast-groups>
+      <!-- Connectors -->
+      <connectors>
+         <connector name="netty-live-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <param key="port" value="5445"/>
+         </connector>
+         <connector name="netty-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <param key="port" value="5446"/>
+         </connector>
+      </connectors>
 
-	<discovery-groups>
-		<discovery-group name="dg-group1">
-			<group-address>${udp-address:231.7.7.7}</group-address>
-			<group-port>9876</group-port>
-			<refresh-timeout>60000</refresh-timeout>
-		</discovery-group>
-	</discovery-groups>
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+            <param key="port" value="5446"/>
+         </acceptor>
+      </acceptors>
 
-	<cluster-connections>
-		<cluster-connection name="my-cluster">
-			<address>jms</address>
-         <connector-ref>netty-connector</connector-ref>
-			<discovery-group-ref discovery-group-name="dg-group1"/>
-		</cluster-connection>
-	</cluster-connections>
-   <!-- Other config -->
+      <broadcast-groups>
+         <broadcast-group name="bg-group1">
+            <group-address>${udp-address:231.7.7.7}</group-address>
+            <group-port>9876</group-port>
+            <broadcast-period>1000</broadcast-period>
+            <connector-ref>netty-connector</connector-ref>
+         </broadcast-group>
+      </broadcast-groups>
 
-   <security-settings>
-      <!--security for example queue-->
-      <security-setting match="jms.queue.exampleQueue">
-         <permission type="createDurableQueue" roles="guest"/>
-         <permission type="deleteDurableQueue" roles="guest"/>
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-         <permission type="consume" roles="guest"/>
-         <permission type="send" roles="guest"/>
-      </security-setting>
-   </security-settings>
+      <discovery-groups>
+         <discovery-group name="dg-group1">
+            <group-address>${udp-address:231.7.7.7}</group-address>
+            <group-port>9876</group-port>
+            <refresh-timeout>60000</refresh-timeout>
+         </discovery-group>
+      </discovery-groups>
 
+      <cluster-connections>
+         <cluster-connection name="my-cluster">
+            <address>jms</address>
+            <connector-ref>netty-connector</connector-ref>
+            <discovery-group-ref discovery-group-name="dg-group1"/>
+         </cluster-connection>
+      </cluster-connections>
+      <!-- Other config -->
+
+      <security-settings>
+         <!--security for example queue-->
+         <security-setting match="jms.queue.exampleQueue">
+            <permission type="createDurableQueue" roles="guest"/>
+            <permission type="deleteDurableQueue" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+         </security-setting>
+      </security-settings>
+
+   </core>
 </configuration>

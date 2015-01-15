@@ -41,6 +41,7 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -485,8 +486,9 @@ public class InterceptorTest extends ServiceTestBase
    {
 
       SimpleString ANOTHER_QUEUE = QUEUE.concat("another");
-      server.getSecurityManager().addUser("dumb", "dumber");
-      server.getSecurityManager().addUser("an", "other");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("dumb", "dumber");
+      securityManager.getConfiguration().addUser("an", "other");
 
       server.getRemotingService().addIncomingInterceptor(new InterceptUserOnCreateQueue());
 
@@ -540,9 +542,9 @@ public class InterceptorTest extends ServiceTestBase
    @Test
    public void testInterceptUsernameOnConsumer() throws Exception
    {
-
-      server.getSecurityManager().addUser("dumb", "dumber");
-      server.getSecurityManager().addUser("an", "other");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("dumb", "dumber");
+      securityManager.getConfiguration().addUser("an", "other");
 
       server.getRemotingService().addIncomingInterceptor(new InterceptUserOnCreateConsumer());
 

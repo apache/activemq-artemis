@@ -619,7 +619,6 @@ public class JMSBridgeImplTest extends UnitTestCase
       super.setUp();
 
       Configuration config = createBasicConfig()
-         .setFileDeploymentEnabled(false)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       InVMNamingContext context = new InVMNamingContext();
       jmsServer = new JMSServerManagerImpl(ActiveMQServers.newActiveMQServer(config, false));

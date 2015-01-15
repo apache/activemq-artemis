@@ -18,10 +18,25 @@ package org.apache.activemq.dto;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "basic-security")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BasicSecurityDTO extends SecurityDTO
 {
+   @XmlElement(required = true)
+   public String users;
+
+   @XmlElement(required = true)
+   public String roles;
+
+   @XmlElement(name = "default-user")
+   public String defaultUser;
+
+   @XmlElement(name = "mask-password")
+   public Boolean maskPassword = false;
+
+   @XmlElement
+   public String passwordCodec;
 }

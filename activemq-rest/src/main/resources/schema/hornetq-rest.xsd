@@ -15,8 +15,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<xsd:schema xmlns="urn:activemq" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:activemq">
+<xsd:schema xmlns="urn:activemq:rest" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:activemq:rest">
 
     <xsd:element name="rest-messaging">
         <xsd:complexType>

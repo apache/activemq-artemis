@@ -29,9 +29,9 @@ public class SecurityManagerFactory
    {
       if (config != null)
       {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/security/");
-         ActiveMQSecurityManager manager = (ActiveMQSecurityManager)finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
-         return manager;
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/security/");
+         SecurityHandler securityHandler = (SecurityHandler)finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
+         return securityHandler.createSecurityManager(config);
       }
       else
       {

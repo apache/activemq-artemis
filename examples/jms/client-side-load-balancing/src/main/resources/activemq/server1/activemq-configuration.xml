@@ -18,75 +18,78 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+   <jms xmlns="urn:activemq:jms">
+      <!--the queue used by the example-->
+      <queue name="exampleQueue"/>
+   </jms>
+   <core xmlns="urn:activemq:core">
+      <bindings-directory>${build.directory}/server1/data/messaging/bindings</bindings-directory>
 
-   
+      <journal-directory>${build.directory}/server1/data/messaging/journal</journal-directory>
 
-   <bindings-directory>${build.directory}/server1/data/messaging/bindings</bindings-directory>
+      <large-messages-directory>${build.directory}/server1/data/messaging/largemessages</large-messages-directory>
 
-   <journal-directory>${build.directory}/server1/data/messaging/journal</journal-directory>
+      <paging-directory>${build.directory}/server1/data/messaging/paging</paging-directory>
 
-   <large-messages-directory>${build.directory}/server1/data/messaging/largemessages</large-messages-directory>
+      <!-- Connectors -->
+      <connectors>
+         <connector name="netty-connector">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+            <param key="port" value="5446"/>
+         </connector>
+      </connectors>
 
-   <paging-directory>${build.directory}/server1/data/messaging/paging</paging-directory>
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+            <param key="port" value="5446"/>
+         </acceptor>
+      </acceptors>
 
-   <!-- Connectors -->
-   <connectors>
-      <connector name="netty-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </connector>
-   </connectors>
-   
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </acceptor>
-   </acceptors>
-   
-   <!-- Clustering configuration -->
-   <broadcast-groups>
-      <broadcast-group name="my-broadcast-group">
-         <group-address>${udp-address:231.7.7.7}</group-address>
-         <group-port>9876</group-port>
-         <broadcast-period>100</broadcast-period>
-         <connector-ref>netty-connector</connector-ref>
-      </broadcast-group>
-   </broadcast-groups>
-   
-   <discovery-groups>
-      <discovery-group name="my-discovery-group">
-         <group-address>${udp-address:231.7.7.7}</group-address>
-         <group-port>9876</group-port>
-         <refresh-timeout>10000</refresh-timeout>
-      </discovery-group>
-   </discovery-groups>
+      <!-- Clustering configuration -->
+      <broadcast-groups>
+         <broadcast-group name="my-broadcast-group">
+            <group-address>${udp-address:231.7.7.7}</group-address>
+            <group-port>9876</group-port>
+            <broadcast-period>100</broadcast-period>
+            <connector-ref>netty-connector</connector-ref>
+         </broadcast-group>
+      </broadcast-groups>
 
-   <cluster-connections>
-      <cluster-connection name="my-cluster">
-	  <address>jms</address>
-          <connector-ref>netty-connector</connector-ref>
-          <max-hops>0</max-hops>
-	  <discovery-group-ref discovery-group-name="my-discovery-group"/>
-      </cluster-connection>
-   </cluster-connections>
-      
-   <!-- Other config -->
+      <discovery-groups>
+         <discovery-group name="my-discovery-group">
+            <group-address>${udp-address:231.7.7.7}</group-address>
+            <group-port>9876</group-port>
+            <refresh-timeout>10000</refresh-timeout>
+         </discovery-group>
+      </discovery-groups>
 
-   <security-settings>
-      <!--security for example queue-->
-      <security-setting match="jms.queue.exampleQueue">
-         <permission type="createDurableQueue" roles="guest"/>
-         <permission type="deleteDurableQueue" roles="guest"/>
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-         <permission type="consume" roles="guest"/>
-         <permission type="send" roles="guest"/>
-      </security-setting>
-   </security-settings>
-   
+      <cluster-connections>
+         <cluster-connection name="my-cluster">
+            <address>jms</address>
+            <connector-ref>netty-connector</connector-ref>
+            <max-hops>0</max-hops>
+            <discovery-group-ref discovery-group-name="my-discovery-group"/>
+         </cluster-connection>
+      </cluster-connections>
+
+      <!-- Other config -->
+
+      <security-settings>
+         <!--security for example queue-->
+         <security-setting match="jms.queue.exampleQueue">
+            <permission type="createDurableQueue" roles="guest"/>
+            <permission type="deleteDurableQueue" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+         </security-setting>
+      </security-settings>
+   </core>
+
 </configuration>

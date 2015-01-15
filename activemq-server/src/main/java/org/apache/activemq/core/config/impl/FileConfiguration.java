@@ -16,14 +16,16 @@
  */
 package org.apache.activemq.core.config.impl;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
+import java.util.Map;
 
+import org.apache.activemq.core.deployers.Deployable;
 import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.utils.XMLUtil;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.w3c.dom.Element;
+
+import javax.management.MBeanServer;
 
 /**
  * A {@code FileConfiguration} reads configuration values from a file.
@@ -31,53 +33,22 @@ import org.w3c.dom.Element;
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
-public final class FileConfiguration extends ConfigurationImpl
+public final class FileConfiguration extends ConfigurationImpl implements Deployable
 {
    private static final long serialVersionUID = -4766689627675039596L;
-   // Constants ------------------------------------------------------------------------
 
-   private static final String DEFAULT_CONFIGURATION_URL = "activemq-configuration.xml";
+   private static final String CONFIGURATION_SCHEMA_URL = "schema/activemq-configuration.xsd";
+
+   private static final String CONFIGURATION_SCHEMA_ROOT_ELEMENT = "core";
 
    // For a bridge confirmations must be activated or send acknowledgments won't return
    public static final int DEFAULT_CONFIRMATION_WINDOW_SIZE = 1024 * 1024;
 
-   public FileConfiguration()
+   private boolean parsed = false;
+
+   @Override
+   public void parse(Element config) throws Exception
    {
-      configurationUrl = DEFAULT_CONFIGURATION_URL;
-   }
-
-   public FileConfiguration(String configurationUrl)
-   {
-      this.configurationUrl = configurationUrl;
-   }
-
-   private String configurationUrl = DEFAULT_CONFIGURATION_URL;
-
-   private boolean started;
-
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
-         return;
-      }
-
-
-      URL url = getClass().getClassLoader().getResource(configurationUrl);
-
-      if (url == null)
-      {
-         // The URL is outside of the classloader. Trying a pure url now
-         url = new URL(configurationUrl);
-      }
-
-      ActiveMQServerLogger.LOGGER.debug("Loading server configuration from " + url);
-
-      Reader reader = new InputStreamReader(url.openStream());
-      String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
-      xml = XMLUtil.replaceSystemProps(xml);
-      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
-
       FileConfigurationParser parser = new FileConfigurationParser();
 
       // https://jira.jboss.org/browse/HORNETQ-478 - We only want to validate AIO when
@@ -85,24 +56,32 @@ public final class FileConfiguration extends ConfigurationImpl
       //     and we don't want to do it when deploying activemq-queues.xml which uses the same parser and XML format
       parser.setValidateAIO(true);
 
-      parser.parseMainConfig(e, this);
+      parser.parseMainConfig(config, this);
 
-      started = true;
-
+      parsed = true;
    }
 
-   public synchronized void stop() throws Exception
+   @Override
+   public boolean isParsed()
    {
-      started = false;
+      return parsed;
    }
 
-   public String getConfigurationUrl()
+   @Override
+   public String getRootElement()
    {
-      return configurationUrl;
+      return CONFIGURATION_SCHEMA_ROOT_ELEMENT;
    }
 
-   public void setConfigurationUrl(final String configurationUrl)
+   @Override
+   public void buildService(ActiveMQSecurityManager securityManager, MBeanServer mBeanServer, Map<String, Deployable> deployables, Map<String, ActiveMQComponent> components)
    {
-      this.configurationUrl = configurationUrl;
+      components.put(getRootElement(), new ActiveMQServerImpl(this, mBeanServer, securityManager));
+   }
+
+   @Override
+   public String getSchema()
+   {
+      return CONFIGURATION_SCHEMA_URL;
    }
 }

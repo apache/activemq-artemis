@@ -17,7 +17,8 @@
 <configuration
    xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:activemq ../../src/config/common/schema/activemq-configuration.xsd">
+   xsi:schemaLocation="urn:activemq ../../src/config/common/schema/activemq-server.xsd">
+   <core xmlns="urn:activemq:core">
       <name>SomeNameForUseOnTheApplicationServer</name>
       <scheduled-thread-pool-max-size>12345</scheduled-thread-pool-max-size>
       <thread-pool-max-size>54321</thread-pool-max-size>
@@ -247,5 +248,5 @@
          <message-counter-history-day-limit>8</message-counter-history-day-limit>
       </address-setting>
    </address-settings>
-
+   </core>
 </configuration>

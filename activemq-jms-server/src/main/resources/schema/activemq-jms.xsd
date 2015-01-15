@@ -16,14 +16,13 @@
   limitations under the License.
 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="urn:activemq"
-            xmlns="urn:activemq"
-            xmlns:amq="urn:org.apache.activemq"
+            xmlns="urn:activemq:jms"
+            targetNamespace="urn:activemq:jms"
             elementFormDefault="qualified"
             attributeFormDefault="unqualified"
             version="1.0">
 
-   <xsd:element name="configuration" amq:schema="activemq-jms-configuration">
+   <xsd:element name="jms">
       <xsd:complexType>
          <xsd:sequence>
             <xsd:element name="jmx-domain" type="xsd:string" default="org.apache.activemq"

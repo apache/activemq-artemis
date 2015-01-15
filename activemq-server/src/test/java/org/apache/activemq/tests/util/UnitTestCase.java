@@ -335,7 +335,6 @@ public abstract class UnitTestCase extends CoreUnitTestCase
    protected Configuration createDefaultConfig(final Map<String, Object> params, final String... acceptors) throws Exception
    {
       ConfigurationImpl configuration = createBasicConfig(-1)
-         .setFileDeploymentEnabled(false)
          .setJMXManagementEnabled(false)
          .clearAcceptorConfigurations();
 

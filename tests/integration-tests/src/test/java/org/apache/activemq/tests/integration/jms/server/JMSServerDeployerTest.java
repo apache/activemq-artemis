@@ -24,13 +24,10 @@ import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.deployers.DeploymentManager;
-import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
 import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.impl.JMSServerDeployer;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
@@ -39,7 +36,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Element;
 
 /**
  * A JMSServerDeployerTest
@@ -62,22 +58,9 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
    private Context context;
 
-   private DeploymentManager deploymentManager;
-
    private Configuration config;
 
    // Public --------------------------------------------------------
-
-   @Test
-   public void testValidateEmptyConfiguration() throws Exception
-   {
-      JMSServerDeployer deployer = new JMSServerDeployer(jmsServer, deploymentManager);
-
-      String xml = "<configuration xmlns='urn:activemq'> " + "</configuration>";
-
-      Element rootNode = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
-      deployer.validate(rootNode);
-   }
 
    @Test
    public void testDeployUnusualQueueNames() throws Exception
@@ -154,8 +137,6 @@ public class JMSServerDeployerTest extends ServiceTestBase
 
       ActiveMQServer server = createServer(false, config);
 
-      deploymentManager = new FileDeploymentManager(config.getFileDeployerScanPeriod());
-
       jmsServer = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
       jmsServer.setRegistry(new JndiBindingRegistry(context));
@@ -169,7 +150,6 @@ public class JMSServerDeployerTest extends ServiceTestBase
       jmsServer.stop();
       jmsServer = null;
       context = null;
-      deploymentManager = null;
       config = null;
 
       super.tearDown();

@@ -30,7 +30,6 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.activemq.core.security.CheckType;
 import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.ActiveMQServerLogger;
 
 /**
@@ -43,7 +42,7 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
  * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
-public class JAASSecurityManager implements ActiveMQSecurityManager, ActiveMQComponent
+public class JAASSecurityManager implements ActiveMQSecurityManager
 {
    // Static --------------------------------------------------------
 
@@ -52,8 +51,6 @@ public class JAASSecurityManager implements ActiveMQSecurityManager, ActiveMQCom
    private final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private String configurationName;
-
-   private boolean started;
 
    private CallbackHandler callbackHandler;
 
@@ -120,62 +117,6 @@ public class JAASSecurityManager implements ActiveMQSecurityManager, ActiveMQCom
          }
       }
       return authenticated;
-   }
-
-   public void addRole(final String user, final String role)
-   {
-      // NO-OP
-   }
-
-   public void addUser(final String user, final String password)
-   {
-      // NO-OP
-   }
-
-   public void removeRole(final String user, final String role)
-   {
-      // NO-OP
-   }
-
-   public void removeUser(final String user)
-   {
-      // NO-OP
-   }
-
-   public void setDefaultUser(final String username)
-   {
-      // NO-OP
-   }
-
-   // ActiveMQComponent implementation -----------------------------
-
-   /**
-    * lifecycle method, needs to be called
-    *
-    * @throws Exception
-    */
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
-         return;
-      }
-
-      started = true;
-   }
-
-   public synchronized void stop()
-   {
-      if (!started)
-      {
-         return;
-      }
-      started = false;
-   }
-
-   public synchronized boolean isStarted()
-   {
-      return started;
    }
 
    private Subject getAuthenticatedSubject(final String user, final String password) throws LoginException

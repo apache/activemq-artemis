@@ -18,31 +18,38 @@ specific language governing permissions and limitations
 under the License.
 -->
 
- <configuration xmlns="urn:activemq"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+   <jms xmlns="urn:activemq:jms">
+      <topic name="topic"/>
+   </jms>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+   <core xmlns="urn:activemq:core">
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
 
-   <acceptors>
-      <acceptor name="netty">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-      </acceptor>
-   </acceptors>
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
 
-   <security-settings>
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+
+      <acceptors>
+         <acceptor name="netty">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         </acceptor>
+      </acceptors>
+
+      <security-settings>
          <security-setting match="jms.#">
             <permission type="consume" roles="guest"/>
             <permission type="send" roles="guest"/>
             <permission type="createNonDurableQueue" roles="guest"/>
             <permission type="deleteNonDurableQueue" roles="guest"/>
          </security-setting>
-    </security-settings>
+      </security-settings>
+   </core>
 </configuration>
  

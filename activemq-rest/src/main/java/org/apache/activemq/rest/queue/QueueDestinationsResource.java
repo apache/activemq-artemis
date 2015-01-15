@@ -35,7 +35,7 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.jms.client.ActiveMQQueue;
 import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
+import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.PushConsumerResource;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
@@ -65,8 +65,7 @@ public class QueueDestinationsResource
 
       try
       {
-         JMSServerConfigParserImpl parser = new JMSServerConfigParserImpl();
-         JMSQueueConfiguration queue = parser.parseQueueConfiguration(document.getDocumentElement());
+         JMSQueueConfiguration queue = FileJMSConfiguration.parseQueueConfiguration(document.getDocumentElement());
          ActiveMQQueue activeMQQueue = ActiveMQDestination.createQueue(queue.getName());
          String queueName = activeMQQueue.getAddress();
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);

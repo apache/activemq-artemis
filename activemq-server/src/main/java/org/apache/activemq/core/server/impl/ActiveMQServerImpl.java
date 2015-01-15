@@ -52,13 +52,6 @@ import org.apache.activemq.core.config.ConfigurationUtils;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.config.DivertConfiguration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.deployers.Deployer;
-import org.apache.activemq.core.deployers.DeploymentManager;
-import org.apache.activemq.core.deployers.impl.AddressSettingsDeployer;
-import org.apache.activemq.core.deployers.impl.BasicUserCredentialsDeployer;
-import org.apache.activemq.core.deployers.impl.FileDeploymentManager;
-import org.apache.activemq.core.deployers.impl.QueueDeployer;
-import org.apache.activemq.core.deployers.impl.SecurityDeployer;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.filter.impl.FilterImpl;
 import org.apache.activemq.core.journal.IOCriticalErrorListener;
@@ -232,13 +225,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
    private volatile ConnectorsService connectorsService;
 
    private MemoryManager memoryManager;
-
-   private volatile DeploymentManager deploymentManager;
-
-   private Deployer basicUserCredentialsDeployer;
-   private Deployer addressSettingsDeployer;
-   private Deployer queueDeployer;
-   private Deployer securityDeployer;
 
    private final Map<String, ServerSession> sessions = new ConcurrentHashMap<String, ServerSession>();
 
@@ -661,16 +647,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
       //before we stop any components deactivate any callbacks
       callDeActiveCallbacks();
 
-      // Stop the deployers
-      if (configuration.isFileDeploymentEnabled())
-      {
-         stopComponent(basicUserCredentialsDeployer);
-         stopComponent(addressSettingsDeployer);
-         stopComponent(queueDeployer);
-         stopComponent(securityDeployer);
-         stopComponent(deploymentManager);
-      }
-
       stopComponent(backupManager);
       activation.preStorageClose();
       stopComponent(pagingManager);
@@ -688,7 +664,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
          managementService.unregisterServer();
       stopComponent(managementService);
 
-      stopComponent(securityManager);
       stopComponent(resourceManager);
 
       stopComponent(postOffice);
@@ -991,11 +966,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
    public HierarchicalRepository<AddressSettings> getAddressSettingsRepository()
    {
       return addressSettingsRepository;
-   }
-
-   public DeploymentManager getDeploymentManager()
-   {
-      return deploymentManager;
    }
 
    public ResourceManager getResourceManager()
@@ -1633,11 +1603,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
       // Create the hard-wired components
 
-      if (configuration.isFileDeploymentEnabled())
-      {
-         deploymentManager = new FileDeploymentManager(configuration.getFileDeployerScanPeriod());
-      }
-
       callPreActiveCallbacks();
 
       // startReplication();
@@ -1711,23 +1676,10 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
       if (!scalingDown)
       {
-         if (configuration.isFileDeploymentEnabled())
-         {
-            addressSettingsDeployer = new AddressSettingsDeployer(deploymentManager, addressSettingsRepository);
-
-            addressSettingsDeployer.start();
-         }
-
          deployAddressSettingsFromConfiguration();
       }
 
       storageManager.start();
-
-
-      if (securityManager != null)
-      {
-         securityManager.start();
-      }
 
       postOffice.start();
 
@@ -1736,21 +1688,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
       managementService.start();
 
       resourceManager.start();
-
-      // Deploy all security related config
-      if (configuration.isFileDeploymentEnabled())
-      {
-         basicUserCredentialsDeployer = new BasicUserCredentialsDeployer(deploymentManager, securityManager);
-
-         basicUserCredentialsDeployer.start();
-
-         if (securityManager != null)
-         {
-            securityDeployer = new SecurityDeployer(deploymentManager, securityRepository);
-
-            securityDeployer.start();
-         }
-      }
 
       deploySecurityFromConfiguration();
 
@@ -1794,16 +1731,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
       // Deploy the rest of the stuff
 
       // Deploy any predefined queues
-      if (configuration.isFileDeploymentEnabled())
-      {
-         queueDeployer = new QueueDeployer(deploymentManager, this);
-
-         queueDeployer.start();
-      }
-      else
-      {
-         deployQueuesFromConfiguration();
-      }
+      deployQueuesFromConfiguration();
 
 
       // We need to call this here, this gives any dependent server a chance to deploy its own addresses

@@ -17,12 +17,12 @@
 <configuration
    xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/activemq-configuration.xsd">
+   xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/activemq-server.xsd">
+   <core xmlns="urn:activemq:core">
       <name>SomeNameForUseOnTheApplicationServer</name>
       <resolve-protocols>false</resolve-protocols>
       <clustered>true</clustered>
       <check-for-live-server>false</check-for-live-server>
-      <file-deployment-enabled>true</file-deployment-enabled>
       <persistence-enabled>false</persistence-enabled>
       <scheduled-thread-pool-max-size>12345</scheduled-thread-pool-max-size>
       <thread-pool-max-size>54321</thread-pool-max-size>
@@ -250,48 +250,49 @@
       <memory-warning-threshold>95</memory-warning-threshold>
       <memory-measure-interval>54321</memory-measure-interval>
       <large-messages-directory>largemessagesdir</large-messages-directory>
-    <security-settings>
-      <security-setting match="a1">
-         <permission type="createNonDurableQueue" roles="a1.1"/>
-      </security-setting>
-      <security-setting match="a2">
-         <permission type="deleteNonDurableQueue" roles="a2.1"/>
-      </security-setting>
-   </security-settings>
+       <security-settings>
+         <security-setting match="a1">
+            <permission type="createNonDurableQueue" roles="a1.1"/>
+         </security-setting>
+         <security-setting match="a2">
+            <permission type="deleteNonDurableQueue" roles="a2.1"/>
+         </security-setting>
+      </security-settings>
 
-   <address-settings>
-      <address-setting match="a1">
-         <dead-letter-address>a1.1</dead-letter-address>
-         <expiry-address>a1.2</expiry-address>
-         <redelivery-delay>1</redelivery-delay>
-         <max-size-bytes>81781728121878</max-size-bytes>
-         <page-size-bytes>81738173872337</page-size-bytes>
-         <page-max-cache-size>10</page-max-cache-size>
-         <message-counter-history-day-limit>4</message-counter-history-day-limit>
-         <slow-consumer-threshold>10</slow-consumer-threshold>
-         <slow-consumer-check-period>5</slow-consumer-check-period>
-         <slow-consumer-policy>NOTIFY</slow-consumer-policy>
-         <auto-create-jms-queues>true</auto-create-jms-queues>
-         <auto-delete-jms-queues>true</auto-delete-jms-queues>
-      </address-setting>
-      <address-setting match="a2">
-         <dead-letter-address>a2.1</dead-letter-address>
-         <expiry-address>a2.2</expiry-address>
-         <redelivery-delay>5</redelivery-delay>
-         <max-size-bytes>932489234928324</max-size-bytes>
-         <page-size-bytes>7126716262626</page-size-bytes>
-         <page-max-cache-size>20</page-max-cache-size>
-         <message-counter-history-day-limit>8</message-counter-history-day-limit>
-         <slow-consumer-threshold>20</slow-consumer-threshold>
-         <slow-consumer-check-period>15</slow-consumer-check-period>
-         <slow-consumer-policy>KILL</slow-consumer-policy>
-         <auto-create-jms-queues>false</auto-create-jms-queues>
-         <auto-delete-jms-queues>false</auto-delete-jms-queues>
-      </address-setting>
-   </address-settings>
-   <connector-services>
-      <connector-service>
-         <factory-class>org.foo</factory-class>
-      </connector-service>
-   </connector-services>
+      <address-settings>
+         <address-setting match="a1">
+            <dead-letter-address>a1.1</dead-letter-address>
+            <expiry-address>a1.2</expiry-address>
+            <redelivery-delay>1</redelivery-delay>
+            <max-size-bytes>81781728121878</max-size-bytes>
+            <page-size-bytes>81738173872337</page-size-bytes>
+            <page-max-cache-size>10</page-max-cache-size>
+            <message-counter-history-day-limit>4</message-counter-history-day-limit>
+            <slow-consumer-threshold>10</slow-consumer-threshold>
+            <slow-consumer-check-period>5</slow-consumer-check-period>
+            <slow-consumer-policy>NOTIFY</slow-consumer-policy>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-delete-jms-queues>true</auto-delete-jms-queues>
+         </address-setting>
+         <address-setting match="a2">
+            <dead-letter-address>a2.1</dead-letter-address>
+            <expiry-address>a2.2</expiry-address>
+            <redelivery-delay>5</redelivery-delay>
+            <max-size-bytes>932489234928324</max-size-bytes>
+            <page-size-bytes>7126716262626</page-size-bytes>
+            <page-max-cache-size>20</page-max-cache-size>
+            <message-counter-history-day-limit>8</message-counter-history-day-limit>
+            <slow-consumer-threshold>20</slow-consumer-threshold>
+            <slow-consumer-check-period>15</slow-consumer-check-period>
+            <slow-consumer-policy>KILL</slow-consumer-policy>
+            <auto-create-jms-queues>false</auto-create-jms-queues>
+            <auto-delete-jms-queues>false</auto-delete-jms-queues>
+         </address-setting>
+      </address-settings>
+      <connector-services>
+         <connector-service>
+            <factory-class>org.foo</factory-class>
+         </connector-service>
+      </connector-services>
+   </core>
 </configuration>

@@ -85,7 +85,6 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
       }
 
       ConfigurationImpl configuration = createBasicConfig(-1)
-         .setFileDeploymentEnabled(false)
          .setJMXManagementEnabled(false)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap))

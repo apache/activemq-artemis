@@ -16,18 +16,14 @@
  */
 package org.apache.activemq.tests.integration.jms.server.config;
 
+import org.apache.activemq.core.config.FileDeploymentManager;
+import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
 import org.junit.Test;
-
-import java.io.InputStream;
-import java.net.URL;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.jms.server.JMSServerConfigParser;
-import org.apache.activemq.jms.server.config.JMSConfiguration;
 import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
-import org.apache.activemq.jms.server.impl.JMSServerConfigParserImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
@@ -58,15 +54,12 @@ public class JMSServerConfigParserTest extends ServiceTestBase
          // anything so the parsing will work
          .addConnectorConfiguration("netty", new TransportConfiguration());
 
-      JMSServerConfigParser parser = new JMSServerConfigParserImpl();
-
       String conf = "activemq-jms-for-JMSServerDeployerTest.xml";
-      URL confURL = Thread.currentThread().getContextClassLoader().getResource(conf);
 
-      InputStream stream = confURL.openStream();
-
-      JMSConfiguration jmsconfig = parser.parseConfiguration(stream);
-      stream.close();
+      FileJMSConfiguration jmsconfig = new FileJMSConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(conf);
+      deploymentManager.addDeployable(jmsconfig);
+      deploymentManager.readConfiguration();
 
       assertEquals(1, jmsconfig.getQueueConfigurations().size());
 

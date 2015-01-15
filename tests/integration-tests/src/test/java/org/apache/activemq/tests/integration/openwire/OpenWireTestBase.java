@@ -39,6 +39,7 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -88,24 +89,25 @@ public class OpenWireTestBase extends ServiceTestBase
 
       if (enableSecurity)
       {
-         server.getSecurityManager().addRole("openwireSender", "sender");
-         server.getSecurityManager().addUser("openwireSender", "SeNdEr");
+         ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+         securityManager.getConfiguration().addRole("openwireSender", "sender");
+         securityManager.getConfiguration().addUser("openwireSender", "SeNdEr");
          //sender cannot receive
          Role senderRole = new Role("sender", true, false, false, false, true, true, false);
 
-         server.getSecurityManager().addRole("openwireReceiver", "receiver");
-         server.getSecurityManager().addUser("openwireReceiver", "ReCeIvEr");
+         securityManager.getConfiguration().addRole("openwireReceiver", "receiver");
+         securityManager.getConfiguration().addUser("openwireReceiver", "ReCeIvEr");
          //receiver cannot send
          Role receiverRole = new Role("receiver", false, true, false, false, true, true, false);
 
-         server.getSecurityManager().addRole("openwireGuest", "guest");
-         server.getSecurityManager().addUser("openwireGuest", "GuEsT");
+         securityManager.getConfiguration().addRole("openwireGuest", "guest");
+         securityManager.getConfiguration().addUser("openwireGuest", "GuEsT");
 
          //guest cannot do anything
          Role guestRole = new Role("guest", false, false, false, false, false, false, false);
 
-         server.getSecurityManager().addRole("openwireDestinationManager", "manager");
-         server.getSecurityManager().addUser("openwireDestinationManager", "DeStInAtIoN");
+         securityManager.getConfiguration().addRole("openwireDestinationManager", "manager");
+         securityManager.getConfiguration().addUser("openwireDestinationManager", "DeStInAtIoN");
 
          //guest cannot do anything
          Role destRole = new Role("manager", false, false, false, false, true, true, false);

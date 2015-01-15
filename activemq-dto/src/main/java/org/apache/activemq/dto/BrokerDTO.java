@@ -27,15 +27,12 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BrokerDTO
 {
-
-   @XmlElementRef
-   public CoreDTO core;
-
-   @XmlElementRef(required = false)
-   public JmsDTO jms;
-
    @XmlElementRef
    public SecurityDTO security;
+
+   @XmlElementRef
+   public ServerDTO server;
+
 
    @XmlElementRef(required = false)
    public WebServerDTO web;

@@ -79,7 +79,6 @@ public class ConfigurationImplTest extends UnitTestCase
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterPassword(), conf.getClusterPassword()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled(), conf.isPersistenceEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultFileDeploymentEnabled(), conf.isFileDeploymentEnabled());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery(),
                           conf.isPersistDeliveryCountBeforeDelivery());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod(), conf.getFileDeployerScanPeriod());
@@ -189,10 +188,6 @@ public class ConfigurationImplTest extends UnitTestCase
          b = RandomUtil.randomBoolean();
          conf.setEnabledAsyncConnectionExecution(b);
          Assert.assertEquals(b, conf.isAsyncConnectionExecutionEnabled());
-
-         b = RandomUtil.randomBoolean();
-         conf.setFileDeploymentEnabled(b);
-         Assert.assertEquals(b, conf.isFileDeploymentEnabled());
 
          b = RandomUtil.randomBoolean();
          conf.setPersistenceEnabled(b);
@@ -401,10 +396,6 @@ public class ConfigurationImplTest extends UnitTestCase
       b = RandomUtil.randomBoolean();
       conf.setEnabledAsyncConnectionExecution(b);
       Assert.assertEquals(b, conf.isAsyncConnectionExecutionEnabled());
-
-      b = RandomUtil.randomBoolean();
-      conf.setFileDeploymentEnabled(b);
-      Assert.assertEquals(b, conf.isFileDeploymentEnabled());
 
       b = RandomUtil.randomBoolean();
       conf.setPersistenceEnabled(b);

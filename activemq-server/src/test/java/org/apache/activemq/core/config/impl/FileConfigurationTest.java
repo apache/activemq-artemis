@@ -27,6 +27,7 @@ import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.config.HAPolicyConfiguration;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.core.security.Role;
@@ -48,9 +49,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
       // Check they match the values from the test file
       Assert.assertEquals("SomeNameForUseOnTheApplicationServer", conf.getName());
       Assert.assertEquals(false, conf.isPersistenceEnabled());
-      Assert.assertEquals(true, conf.isFileDeploymentEnabled());
       Assert.assertEquals(true, conf.isClustered());
-      Assert.assertEquals(true, conf.isFileDeploymentEnabled());
       Assert.assertEquals(12345, conf.getScheduledThreadPoolMaxSize());
       Assert.assertEquals(54321, conf.getThreadPoolMaxSize());
       Assert.assertEquals(false, conf.isSecurityEnabled());
@@ -355,26 +354,13 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
    }
 
-   @Test
-   public void testSetGetConfigurationURL()
-   {
-      final String file = "ghuuhhu";
-
-      FileConfiguration fc = new FileConfiguration();
-
-      fc.setConfigurationUrl(file);
-
-      Assert.assertEquals(file, fc.getConfigurationUrl());
-
-   }
-
    @Override
    protected Configuration createConfiguration() throws Exception
    {
-      FileConfiguration fc = new FileConfiguration("ConfigurationTest-full-config.xml");
-
-      fc.start();
-
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
       return fc;
    }
 }

@@ -51,7 +51,6 @@ import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.apache.activemq.core.config.impl.Validators;
 import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.core.journal.impl.JournalConstants;
@@ -81,11 +80,6 @@ import org.w3c.dom.NodeList;
  */
 public final class FileConfigurationParser extends XMLConfigurationUtil
 {
-
-   // Constants -----------------------------------------------------
-
-   private static final String CONFIGURATION_SCHEMA_URL = "schema/activemq-configuration.xsd";
-
    // Security Parsing
    public static final String SECURITY_ELEMENT_NAME = "security-setting";
 
@@ -193,7 +187,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
    public void parseMainConfig(final Element e, final Configuration config) throws Exception
    {
-      XMLUtil.validate(e, FileConfigurationParser.CONFIGURATION_SCHEMA_URL);
 
       config.setName(getString(e, "name", config.getName(), Validators.NO_CHECK));
 
@@ -456,9 +449,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
 
       config.setResolveProtocols(getBoolean(e, "resolve-protocols", config.isResolveProtocols()));
-
-      // Defaults to true when using FileConfiguration
-      config.setFileDeploymentEnabled(getBoolean(e, "file-deployment-enabled", config instanceof FileConfiguration));
 
       config.setPersistenceEnabled(getBoolean(e, "persistence-enabled",
                                               config.isPersistenceEnabled()));

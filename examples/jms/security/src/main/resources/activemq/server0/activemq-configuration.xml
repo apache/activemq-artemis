@@ -18,55 +18,66 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+   <jms xmlns="urn:activemq:jms">
+      <topic name="genericTopic"/>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+      <topic name="news.europe.europeTopic"/>
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+      <topic name="news.us.usTopic"/>
+   </jms>
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
-   
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-      </acceptor>
-   </acceptors>
+   <core xmlns="urn:activemq:core">
 
-   <!-- Other config -->
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
 
-   <security-settings>
-      <!-- any user can have full control of generic topics -->
-      <security-setting match="jms.topic.#">
-         <permission type="createDurableQueue" roles="user"/>
-         <permission type="deleteDurableQueue" roles="user"/>
-         <permission type="createNonDurableQueue" roles="user"/>
-         <permission type="deleteNonDurableQueue" roles="user"/>
-         <permission type="send" roles="user"/>
-         <permission type="consume" roles="user"/>
-      </security-setting>
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
 
-      <security-setting match="jms.topic.news.europe.#">
-         <permission type="createDurableQueue" roles="user"/>
-         <permission type="deleteDurableQueue" roles="user"/>
-         <permission type="createNonDurableQueue" roles="user"/>
-         <permission type="deleteNonDurableQueue" roles="user"/>
-         <permission type="send" roles="europe-user"/>
-         <permission type="consume" roles="news-user"/>
-      </security-setting>
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
 
-      <security-setting match="jms.topic.news.us.#">
-         <permission type="createDurableQueue" roles="user"/>
-         <permission type="deleteDurableQueue" roles="user"/>
-         <permission type="createNonDurableQueue" roles="user"/>
-         <permission type="deleteNonDurableQueue" roles="user"/>
-         <permission type="send" roles="us-user"/>
-         <permission type="consume" roles="news-user"/>
-      </security-setting>
-   </security-settings>
-   
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         </acceptor>
+      </acceptors>
+
+      <!-- Other config -->
+
+      <security-settings>
+         <!-- any user can have full control of generic topics -->
+         <security-setting match="jms.topic.#">
+            <permission type="createDurableQueue" roles="user"/>
+            <permission type="deleteDurableQueue" roles="user"/>
+            <permission type="createNonDurableQueue" roles="user"/>
+            <permission type="deleteNonDurableQueue" roles="user"/>
+            <permission type="send" roles="user"/>
+            <permission type="consume" roles="user"/>
+         </security-setting>
+
+         <security-setting match="jms.topic.news.europe.#">
+            <permission type="createDurableQueue" roles="user"/>
+            <permission type="deleteDurableQueue" roles="user"/>
+            <permission type="createNonDurableQueue" roles="user"/>
+            <permission type="deleteNonDurableQueue" roles="user"/>
+            <permission type="send" roles="europe-user"/>
+            <permission type="consume" roles="news-user"/>
+         </security-setting>
+
+         <security-setting match="jms.topic.news.us.#">
+            <permission type="createDurableQueue" roles="user"/>
+            <permission type="deleteDurableQueue" roles="user"/>
+            <permission type="createNonDurableQueue" roles="user"/>
+            <permission type="deleteNonDurableQueue" roles="user"/>
+            <permission type="send" roles="us-user"/>
+            <permission type="consume" roles="news-user"/>
+         </security-setting>
+      </security-settings>
+
+   </core>
 </configuration>

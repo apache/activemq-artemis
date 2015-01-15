@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.core.config.impl;
 
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
@@ -423,9 +424,11 @@ public class HAPolicyConfigurationTest extends UnitTestCase
 
    protected Configuration createConfiguration(String fileName) throws Exception
    {
-      FileConfiguration fc = new FileConfiguration(fileName);
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(fileName);
+      deploymentManager.addDeployable(fc);
 
-      fc.start();
+      deploymentManager.readConfiguration();
 
       // we need this otherwise the data folder will be located under activemq-server and not on the temporary directory
       fc.setPagingDirectory(getTestDir() + "/" + fc.getPagingDirectory());

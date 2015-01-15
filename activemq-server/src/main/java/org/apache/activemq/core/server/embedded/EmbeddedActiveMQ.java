@@ -19,6 +19,7 @@ package org.apache.activemq.core.server.embedded;
 import javax.management.MBeanServer;
 
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
@@ -97,8 +98,10 @@ public class EmbeddedActiveMQ
       if (configuration == null)
       {
          if (configResourcePath == null) configResourcePath = "activemq-configuration.xml";
-         FileConfiguration config = new FileConfiguration(configResourcePath);
-         config.start();
+         FileDeploymentManager deploymentManager = new FileDeploymentManager(configResourcePath);
+         FileConfiguration config = new FileConfiguration();
+         deploymentManager.addDeployable(config);
+         deploymentManager.readConfiguration();
          configuration = config;
       }
       if (securityManager == null)

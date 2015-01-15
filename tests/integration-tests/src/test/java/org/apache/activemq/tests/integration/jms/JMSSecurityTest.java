@@ -22,6 +22,7 @@ import javax.jms.JMSSecurityRuntimeException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +49,8 @@ public class JMSSecurityTest extends JMSTestBase
    @Test
    public void testSecurityOnJMSContext() throws Exception
    {
-
-      server.getSecurityManager().addUser("IDo", "Exist");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("IDo", "Exist");
       try
       {
          JMSContext ctx = cf.createContext("Idont", "exist");
@@ -66,8 +67,8 @@ public class JMSSecurityTest extends JMSTestBase
    @Test
    public void testCreateQueueConnection() throws Exception
    {
-
-      server.getSecurityManager().addUser("IDo", "Exist");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("IDo", "Exist");
       try
       {
          QueueConnection queueC = ((QueueConnectionFactory)cf).createQueueConnection("IDont", "Exist");

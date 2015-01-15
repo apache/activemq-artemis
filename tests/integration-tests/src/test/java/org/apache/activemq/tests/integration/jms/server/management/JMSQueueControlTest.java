@@ -1322,8 +1322,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       super.setUp();
 
       Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-         .setFileDeploymentEnabled(false);
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       server = createServer(this.getName().contains("WithRealData"), conf, mbeanServer);
 
       serverManager = new JMSServerManagerImpl(server);

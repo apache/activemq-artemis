@@ -18,55 +18,66 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq ../../../../src/schema/activemq-configuration.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq ../../../../src/schema/activemq-server.xsd">
 
-   <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+   <jms xmlns="urn:activemq:jms">
+      <!--the queue used by the example-->
+      <queue name="exampleQueue"/>
 
-   <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+      <!--the notifications topic used by the example-->
+      <topic name="notificationsTopic"/>
+   </jms>
 
-   <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+   <core xmlns="urn:activemq:core">
 
-   <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
+      <bindings-directory>${build.directory}/server0/data/messaging/bindings</bindings-directory>
+
+      <journal-directory>${build.directory}/server0/data/messaging/journal</journal-directory>
+
+      <large-messages-directory>${build.directory}/server0/data/messaging/largemessages</large-messages-directory>
+
+      <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
 
-   <management-notification-address>jms.topic.notificationsTopic</management-notification-address>
-   
-   <!-- Netty standard TCP acceptor -->
-   <acceptors>
-      <acceptor name="netty">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-      </acceptor>
-   </acceptors>
+      <management-notification-address>jms.topic.notificationsTopic</management-notification-address>
 
-   <!--  Other configs -->      
+      <!-- Netty standard TCP acceptor -->
+      <acceptors>
+         <acceptor name="netty">
+            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         </acceptor>
+      </acceptors>
 
-   <security-settings>
-      <!--security for example queue-->
-      <security-setting match="jms.queue.exampleQueue">
-         <permission type="createDurableQueue" roles="guest"/>
-         <permission type="deleteDurableQueue" roles="guest"/>
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-         <permission type="consume" roles="guest"/>
-         <permission type="send" roles="guest"/>
-      </security-setting>
+      <!--  Other configs -->
 
-      <!--security for notification queue-->
-      <security-setting match="jms.topic.notificationsTopic">
-         <permission type="consume" roles="guest"/>
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-      </security-setting>
+      <security-settings>
+         <!--security for example queue-->
+         <security-setting match="jms.queue.exampleQueue">
+            <permission type="createDurableQueue" roles="guest"/>
+            <permission type="deleteDurableQueue" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+         </security-setting>
 
-      <!-- security settings for JMS temporary queue -->
-      <security-setting match="queuetempjms.*">
-         <permission type="createNonDurableQueue" roles="guest"/>
-         <permission type="deleteNonDurableQueue" roles="guest"/>
-         <permission type="consume" roles="guest"/>
-         <permission type="send" roles="guest"/>
-      </security-setting>
-   </security-settings>
+         <!--security for notification queue-->
+         <security-setting match="jms.topic.notificationsTopic">
+            <permission type="consume" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+         </security-setting>
 
+         <!-- security settings for JMS temporary queue -->
+         <security-setting match="queuetempjms.*">
+            <permission type="createNonDurableQueue" roles="guest"/>
+            <permission type="deleteNonDurableQueue" roles="guest"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+         </security-setting>
+      </security-settings>
+
+   </core>
 </configuration>

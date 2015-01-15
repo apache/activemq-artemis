@@ -17,34 +17,35 @@
 <configuration
       xmlns="urn:activemq"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/activemq-configuration.xsd">
-   <ha-policy>
-      <replication>
-         <colocated>
-            <backup-request-retries>44</backup-request-retries>
-            <backup-request-retry-interval>33</backup-request-retry-interval>
-            <max-backups>3</max-backups>
-            <request-backup>false</request-backup>
-            <backup-port-offset>33</backup-port-offset>
-            <master>
-               <group-name>purple</group-name>
-               <check-for-live-server>true</check-for-live-server>
-               <cluster-name>abcdefg</cluster-name>
-            </master>
-            <slave>
-               <group-name>tiddles</group-name>
-               <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
-               <cluster-name>33rrrrr</cluster-name>
-               <restart-backup>false</restart-backup>
-               <scale-down>
-                  <!--a grouping of servers that can be scaled down to-->
-                  <group-name>boo!</group-name>
-                  <!--either a discovery group-->
-                  <discovery-group>wahey</discovery-group>
-               </scale-down>
-            </slave>
-         </colocated>
-      </replication>
-   </ha-policy>
-
+      xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/activemq-server.xsd">
+   <core xmlns="urn:activemq:core">
+      <ha-policy>
+         <replication>
+            <colocated>
+               <backup-request-retries>44</backup-request-retries>
+               <backup-request-retry-interval>33</backup-request-retry-interval>
+               <max-backups>3</max-backups>
+               <request-backup>false</request-backup>
+               <backup-port-offset>33</backup-port-offset>
+               <master>
+                  <group-name>purple</group-name>
+                  <check-for-live-server>true</check-for-live-server>
+                  <cluster-name>abcdefg</cluster-name>
+               </master>
+               <slave>
+                  <group-name>tiddles</group-name>
+                  <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
+                  <cluster-name>33rrrrr</cluster-name>
+                  <restart-backup>false</restart-backup>
+                  <scale-down>
+                     <!--a grouping of servers that can be scaled down to-->
+                     <group-name>boo!</group-name>
+                     <!--either a discovery group-->
+                     <discovery-group>wahey</discovery-group>
+                  </scale-down>
+               </slave>
+            </colocated>
+         </replication>
+      </ha-policy>
+   </core>
 </configuration>

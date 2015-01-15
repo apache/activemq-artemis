@@ -46,7 +46,7 @@ import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.spi.core.security.JAASSecurityManager;
 import org.apache.activemq.tests.util.CreateMessage;
 import org.apache.activemq.tests.util.ServiceTestBase;
@@ -85,9 +85,9 @@ public class SecurityTest extends ServiceTestBase
    public void testCreateSessionWithNullUserPass() throws Exception
    {
       ActiveMQServer server = createServer();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("guest", "guest");
-      securityManager.setDefaultUser("guest");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
 
@@ -140,8 +140,8 @@ public class SecurityTest extends ServiceTestBase
    public void testCreateSessionWithCorrectUserWrongPass() throws Exception
    {
       ActiveMQServer server = createServer();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("newuser", "apass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
 
@@ -164,8 +164,8 @@ public class SecurityTest extends ServiceTestBase
    public void testCreateSessionWithCorrectUserCorrectPass() throws Exception
    {
       ActiveMQServer server = createServer();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("newuser", "apass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
 
@@ -187,13 +187,13 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
@@ -207,13 +207,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       try
@@ -238,13 +238,13 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, true, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
@@ -258,13 +258,13 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
@@ -291,13 +291,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
@@ -311,13 +311,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       try
@@ -342,13 +342,13 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, true, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
@@ -362,13 +362,13 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
@@ -397,9 +397,9 @@ public class SecurityTest extends ServiceTestBase
 
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
 
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
 
-      securityManager.addUser("auser", "pass");
+      securityManager.getConfiguration().addUser("auser", "pass");
 
       Role role = new Role("arole", true, true, true, false, false, false, false);
 
@@ -409,7 +409,7 @@ public class SecurityTest extends ServiceTestBase
 
       securityRepository.addMatch(SecurityTest.addressA, roles);
 
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
 
       locator.setBlockOnNonDurableSend(true);
 
@@ -462,13 +462,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       locator.setBlockOnNonDurableSend(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
@@ -496,13 +496,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
@@ -520,18 +520,18 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
-      securityManager.addUser("guest", "guest");
-      securityManager.addRole("guest", "guest");
-      securityManager.setDefaultUser("guest");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().addRole("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
       Role role = new Role("arole", false, true, false, false, false, false, false);
       Role sendRole = new Role("guest", true, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(sendRole);
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
@@ -549,18 +549,18 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
-      securityManager.addUser("guest", "guest");
-      securityManager.addRole("guest", "guest");
-      securityManager.setDefaultUser("guest");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().addRole("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Role sendRole = new Role("guest", true, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(sendRole);
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
@@ -592,11 +592,11 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
-      securityManager.addUser("guest", "guest");
-      securityManager.addRole("guest", "guest");
-      securityManager.setDefaultUser("guest");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().addRole("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Role sendRole = new Role("guest", true, false, true, false, false, false, false);
       Role receiveRole = new Role("receiver", false, true, false, false, false, false, false);
@@ -605,7 +605,7 @@ public class SecurityTest extends ServiceTestBase
       roles.add(role);
       roles.add(receiveRole);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
@@ -625,12 +625,12 @@ public class SecurityTest extends ServiceTestBase
          fail("Invalid Exception type:" + e.getType());
       }
 
-      securityManager.addRole("auser", "receiver");
+      securityManager.getConfiguration().addRole("auser", "receiver");
 
       session.createConsumer(SecurityTest.queueA);
 
       // Removing the Role... the check should be cached, so the next createConsumer shouldn't fail
-      securityManager.removeRole("auser", "receiver");
+      securityManager.getConfiguration().removeRole("auser", "receiver");
 
       session.createConsumer(SecurityTest.queueA);
 
@@ -649,11 +649,11 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
-      securityManager.addUser("guest", "guest");
-      securityManager.addRole("guest", "guest");
-      securityManager.setDefaultUser("guest");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().addRole("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Role sendRole = new Role("guest", true, false, true, false, false, false, false);
       Role receiveRole = new Role("receiver", false, true, false, false, false, false, false);
@@ -662,7 +662,7 @@ public class SecurityTest extends ServiceTestBase
       roles.add(role);
       roles.add(receiveRole);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession senSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
@@ -682,14 +682,14 @@ public class SecurityTest extends ServiceTestBase
          fail("Invalid Exception type:" + e.getType());
       }
 
-      securityManager.addRole("auser", "receiver");
+      securityManager.getConfiguration().addRole("auser", "receiver");
 
       session.createConsumer(SecurityTest.queueA);
 
       // Removing the Role... the check should be cached... but we used
       // setSecurityInvalidationInterval(0), so the
       // next createConsumer should fail
-      securityManager.removeRole("auser", "receiver");
+      securityManager.getConfiguration().removeRole("auser", "receiver");
 
       try
       {
@@ -718,11 +718,11 @@ public class SecurityTest extends ServiceTestBase
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
-      securityManager.addUser("guest", "guest");
-      securityManager.addRole("guest", "guest");
-      securityManager.setDefaultUser("guest");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
+      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().addRole("guest", "guest");
+      securityManager.getConfiguration().setDefaultUser("guest");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       System.out.println("guest:" + role);
       Role sendRole = new Role("guest", true, false, true, false, false, false, false);
@@ -734,7 +734,7 @@ public class SecurityTest extends ServiceTestBase
       roles.add(role);
       roles.add(receiveRole);
       securityRepository.addMatch(SecurityTest.addressA, roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
 
       ClientSession senSession = cf.createSession(false, true, true);
@@ -755,14 +755,14 @@ public class SecurityTest extends ServiceTestBase
          fail("Invalid Exception type:" + e.getType());
       }
 
-      securityManager.addRole("auser", "receiver");
+      securityManager.getConfiguration().addRole("auser", "receiver");
 
       session.createConsumer(SecurityTest.queueA);
 
       // Removing the Role... the check should be cached... but we used
       // setSecurityInvalidationInterval(0), so the
       // next createConsumer should fail
-      securityManager.removeRole("auser", "guest");
+      securityManager.getConfiguration().removeRole("auser", "guest");
 
       ClientSession sendingSession = cf.createSession("auser", "pass", false, false, false, false, 0);
       ClientProducer prod = sendingSession.createProducer(SecurityTest.addressA);
@@ -818,13 +818,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(configuration.getManagementAddress().toString(), roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       locator.setBlockOnNonDurableSend(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
@@ -840,13 +840,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(configuration.getManagementAddress().toString(), roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(configuration.getManagementAddress().toString(), SecurityTest.queueA, true);
@@ -875,13 +875,13 @@ public class SecurityTest extends ServiceTestBase
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("auser", "pass");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       securityRepository.addMatch(configuration.getManagementAddress().toString(), roles);
-      securityManager.addRole("auser", "arole");
+      securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(configuration.getManagementAddress().toString(), SecurityTest.queueA, true);
@@ -978,21 +978,21 @@ public class SecurityTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer();
       server.start();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("all", "all");
-      securityManager.addUser("bill", "activemq");
-      securityManager.addUser("andrew", "activemq1");
-      securityManager.addUser("frank", "activemq2");
-      securityManager.addUser("sam", "activemq3");
-      securityManager.addRole("all", "all");
-      securityManager.addRole("bill", "user");
-      securityManager.addRole("andrew", "europe-user");
-      securityManager.addRole("andrew", "user");
-      securityManager.addRole("frank", "us-user");
-      securityManager.addRole("frank", "news-user");
-      securityManager.addRole("frank", "user");
-      securityManager.addRole("sam", "news-user");
-      securityManager.addRole("sam", "user");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("all", "all");
+      securityManager.getConfiguration().addUser("bill", "activemq");
+      securityManager.getConfiguration().addUser("andrew", "activemq1");
+      securityManager.getConfiguration().addUser("frank", "activemq2");
+      securityManager.getConfiguration().addUser("sam", "activemq3");
+      securityManager.getConfiguration().addRole("all", "all");
+      securityManager.getConfiguration().addRole("bill", "user");
+      securityManager.getConfiguration().addRole("andrew", "europe-user");
+      securityManager.getConfiguration().addRole("andrew", "user");
+      securityManager.getConfiguration().addRole("frank", "us-user");
+      securityManager.getConfiguration().addRole("frank", "news-user");
+      securityManager.getConfiguration().addRole("frank", "user");
+      securityManager.getConfiguration().addRole("sam", "news-user");
+      securityManager.getConfiguration().addRole("sam", "user");
       Role all = new Role("all", true, true, true, true, true, true, true);
       HierarchicalRepository<Set<Role>> repository = server.getSecurityRepository();
       Set<Role> add = new HashSet<Role>();
@@ -1117,21 +1117,21 @@ public class SecurityTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer();
       server.start();
-      ActiveMQSecurityManager securityManager = server.getSecurityManager();
-      securityManager.addUser("all", "all");
-      securityManager.addUser("bill", "activemq");
-      securityManager.addUser("andrew", "activemq1");
-      securityManager.addUser("frank", "activemq2");
-      securityManager.addUser("sam", "activemq3");
-      securityManager.addRole("all", "all");
-      securityManager.addRole("bill", "user");
-      securityManager.addRole("andrew", "europe-user");
-      securityManager.addRole("andrew", "user");
-      securityManager.addRole("frank", "us-user");
-      securityManager.addRole("frank", "news-user");
-      securityManager.addRole("frank", "user");
-      securityManager.addRole("sam", "news-user");
-      securityManager.addRole("sam", "user");
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("all", "all");
+      securityManager.getConfiguration().addUser("bill", "activemq");
+      securityManager.getConfiguration().addUser("andrew", "activemq1");
+      securityManager.getConfiguration().addUser("frank", "activemq2");
+      securityManager.getConfiguration().addUser("sam", "activemq3");
+      securityManager.getConfiguration().addRole("all", "all");
+      securityManager.getConfiguration().addRole("bill", "user");
+      securityManager.getConfiguration().addRole("andrew", "europe-user");
+      securityManager.getConfiguration().addRole("andrew", "user");
+      securityManager.getConfiguration().addRole("frank", "us-user");
+      securityManager.getConfiguration().addRole("frank", "news-user");
+      securityManager.getConfiguration().addRole("frank", "user");
+      securityManager.getConfiguration().addRole("sam", "news-user");
+      securityManager.getConfiguration().addRole("sam", "user");
       Role all = new Role("all", true, true, true, true, true, true, true);
       HierarchicalRepository<Set<Role>> repository = server.getSecurityRepository();
       Set<Role> add = new HashSet<Role>();
