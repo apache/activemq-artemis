@@ -17,7 +17,10 @@
 
 package org.apache.activemq.tests.integration.ra;
 
+import javax.jms.Connection;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
+import javax.jms.JMSProducer;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -29,6 +32,10 @@ import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.activemq.api.core.client.ClientConsumer;
+import org.apache.activemq.api.core.client.ClientMessage;
+import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.security.Role;
@@ -38,7 +45,7 @@ import org.apache.activemq.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.tests.integration.jms.bridge.TransactionManagerLocatorImpl;
+import org.apache.activemq.service.extensions.ServiceUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,12 +61,6 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    protected ActiveMQRAManagedConnectionFactory mcf;
    ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
 
-   static
-   {
-      DummyTransactionManager dummyTransactionManager = new DummyTransactionManager();
-      TransactionManagerLocatorImpl.tm = dummyTransactionManager;
-   }
-
    @Override
    public boolean useSecurity()
    {
@@ -70,6 +71,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    @Before
    public void setUp() throws Exception
    {
+      useDummyTransactionManager();
       super.setUp();
       ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("testuser", "testpassword");
       ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
@@ -96,7 +98,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    @After
    public void tearDown() throws Exception
    {
-      ((DummyTransactionManager) TransactionManagerLocatorImpl.tm).tx = null;
+      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = null;
       if (resourceAdapter != null)
       {
          resourceAdapter.stop();
@@ -212,6 +214,30 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    }
 
    @Test
+   public void testSimpleSendNoXAJMSContext() throws Exception
+   {
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
+
+      try (ClientSessionFactory sf = locator.createSessionFactory();
+           ClientSession session = sf.createSession();
+           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
+           JMSContext jmsctx = qraConnectionFactory.createContext();
+      )
+      {
+         session.start();
+         // These next 4 lines could be written in a single line however it makes difficult for debugging
+         JMSProducer producer = jmsctx.createProducer();
+         producer.setProperty("strvalue", "hello");
+         TextMessage msgsend = jmsctx.createTextMessage("hello");
+         producer.send(q, msgsend);
+
+         ClientMessage msg = consVerify.receive(1000);
+         assertNotNull(msg);
+         assertEquals("hello", msg.getStringProperty("strvalue"));
+      }
+   }
+
+   @Test
    public void testQueueSessionAckModeJTA() throws Exception
    {
       testQueuSessionAckMode(true);
@@ -223,8 +249,47 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
       testQueuSessionAckMode(false);
    }
 
+   @Test
+   public void testSimpleMessageSendAndReceive() throws Exception
+   {
+      QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
+      Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
+      MessageProducer mp = s.createProducer(q);
+      MessageConsumer consumer = s.createConsumer(q);
+      Message message = s.createTextMessage("test");
+      mp.send(message);
+      queueConnection.start();
+      TextMessage textMessage = (TextMessage) consumer.receive(1000);
+      assertNotNull(textMessage);
+      assertEquals(textMessage.getText(), "test");
+   }
+
+   @Test
+   public void testSimpleSendNoXAJMS1() throws Exception
+   {
+      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
+      try (ClientSessionFactory sf = locator.createSessionFactory();
+           ClientSession session = sf.createSession();
+           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
+           Connection conn = qraConnectionFactory.createConnection();
+      )
+      {
+         Session jmsSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         session.start();
+         MessageProducer producer = jmsSess.createProducer(q);
+         // These next 4 lines could be written in a single line however it makes difficult for debugging
+         TextMessage msgsend = jmsSess.createTextMessage("hello");
+         msgsend.setStringProperty("strvalue", "hello");
+         producer.send(msgsend);
+
+         ClientMessage msg = consVerify.receive(1000);
+         assertNotNull(msg);
+         assertEquals("hello", msg.getStringProperty("strvalue"));
+      }
+   }
    private void setDummyTX()
    {
-      ((DummyTransactionManager) TransactionManagerLocatorImpl.tm).tx = new DummyTransaction();
+      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
    }
 }

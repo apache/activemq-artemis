@@ -19,7 +19,6 @@ package org.apache.activemq.tests.integration.ra;
 import javax.jms.Connection;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
-import javax.jms.JMSProducer;
 import javax.jms.JMSSecurityException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -39,10 +38,6 @@ import javax.transaction.xa.Xid;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.core.security.Role;
@@ -112,7 +107,6 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    @After
    public void tearDown() throws Exception
    {
-      DummyTransactionManager.tm.tx = null;
       if (resourceAdapter != null)
       {
          resourceAdapter.stop();
@@ -120,70 +114,6 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
 
       qraConnectionManager.stop();
       super.tearDown();
-   }
-
-   @Test
-   public void testSimpleMessageSendAndReceive() throws Exception
-   {
-      QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
-      Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
-      MessageProducer mp = s.createProducer(q);
-      MessageConsumer consumer = s.createConsumer(q);
-      Message message = s.createTextMessage("test");
-      mp.send(message);
-      queueConnection.start();
-      TextMessage textMessage = (TextMessage) consumer.receive(1000);
-      assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
-   }
-
-   @Test
-   public void testSimpleSendNoXAJMSContext() throws Exception
-   {
-      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
-
-      try (ClientSessionFactory sf = locator.createSessionFactory();
-           ClientSession session = sf.createSession();
-           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
-           JMSContext jmsctx = qraConnectionFactory.createContext();
-      )
-      {
-         session.start();
-         // These next 4 lines could be written in a single line however it makes difficult for debugging
-         JMSProducer producer = jmsctx.createProducer();
-         producer.setProperty("strvalue", "hello");
-         TextMessage msgsend = jmsctx.createTextMessage("hello");
-         producer.send(q, msgsend);
-
-         ClientMessage msg = consVerify.receive(1000);
-         assertNotNull(msg);
-         assertEquals("hello", msg.getStringProperty("strvalue"));
-      }
-   }
-
-   @Test
-   public void testSimpleSendNoXAJMS1() throws Exception
-   {
-      Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
-      try (ClientSessionFactory sf = locator.createSessionFactory();
-           ClientSession session = sf.createSession();
-           ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
-           Connection conn = qraConnectionFactory.createConnection();
-      )
-      {
-         Session jmsSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         session.start();
-         MessageProducer producer = jmsSess.createProducer(q);
-         // These next 4 lines could be written in a single line however it makes difficult for debugging
-         TextMessage msgsend = jmsSess.createTextMessage("hello");
-         msgsend.setStringProperty("strvalue", "hello");
-         producer.send(msgsend);
-
-         ClientMessage msg = consVerify.receive(1000);
-         assertNotNull(msg);
-         assertEquals("hello", msg.getStringProperty("strvalue"));
-      }
    }
 
    @Test

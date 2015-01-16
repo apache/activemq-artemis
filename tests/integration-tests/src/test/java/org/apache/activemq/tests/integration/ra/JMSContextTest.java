@@ -30,6 +30,7 @@ import org.apache.activemq.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.service.extensions.ServiceUtils;
 import org.apache.activemq.tests.integration.jms.bridge.TransactionManagerLocatorImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +52,7 @@ public class JMSContextTest extends ActiveMQRATestBase
    @Before
    public void setUp() throws Exception
    {
+      useDummyTransactionManager();
       super.setUp();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
@@ -142,7 +144,7 @@ public class JMSContextTest extends ActiveMQRATestBase
    @Test
    public void sessionTransactedTestNoActiveJTATx() throws Exception
    {
-      DummyTransactionManager.tm.tx = new DummyTransaction();
+      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
       JMSContext context = qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
    }
@@ -164,7 +166,7 @@ public class JMSContextTest extends ActiveMQRATestBase
    @Test
    public void clientAckTestNoActiveJTATx() throws Exception
    {
-      DummyTransactionManager.tm.tx = new DummyTransaction();
+      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
       JMSContext context = qraConnectionFactory.createContext(JMSContext.CLIENT_ACKNOWLEDGE);
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
    }
