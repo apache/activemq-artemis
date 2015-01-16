@@ -120,7 +120,7 @@ public class ActiveMQBootstrap
             securityConfiguration = new SecurityConfiguration();
          }
 
-         createServer(configuration);
+         createServer(configuration, jmsFileConfiguration);
 
          if (waitOnStart)
          {
@@ -168,7 +168,7 @@ public class ActiveMQBootstrap
       }
    }
 
-   private void createServer(Configuration configuration) throws Exception
+   private void createServer(Configuration configuration, JMSConfiguration jmsFileConfiguration) throws Exception
    {
       if (nodeId != null && !nodeId.equals("") && !nodeId.equals("null"))
       {
@@ -188,7 +188,7 @@ public class ActiveMQBootstrap
                                          securityManager != null ? securityManager : new ActiveMQSecurityManagerImpl(securityConfiguration));
       }
 
-      manager = new JMSServerManagerImpl(server);
+      manager = new JMSServerManagerImpl(server, jmsFileConfiguration);
       manager.start();
    }
 
@@ -259,7 +259,7 @@ public class ActiveMQBootstrap
          {
             try
             {
-               createServer(configuration);
+               createServer(configuration, jmsFileConfiguration);
                restartFile.delete();
             }
             catch (Exception e)
