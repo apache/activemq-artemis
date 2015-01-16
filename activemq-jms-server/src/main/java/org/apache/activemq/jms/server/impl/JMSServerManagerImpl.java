@@ -593,11 +593,14 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 
                ArrayList<String> bindingsToAdd = new ArrayList<String>();
 
-               for (String bindingsItem : bindings)
+               if (bindings != null)
                {
-                  if (bindToBindings(bindingsItem, destination))
+                  for (String bindingsItem : bindings)
                   {
-                     bindingsToAdd.add(bindingsItem);
+                     if (bindToBindings(bindingsItem, destination))
+                     {
+                        bindingsToAdd.add(bindingsItem);
+                     }
                   }
                }
 
