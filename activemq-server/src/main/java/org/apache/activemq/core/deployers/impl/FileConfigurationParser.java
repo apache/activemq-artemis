@@ -42,7 +42,6 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.core.config.CoreQueueConfiguration;
 import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.config.HAPolicyConfiguration;
 import org.apache.activemq.core.config.ScaleDownConfiguration;
 import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
@@ -192,253 +191,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       NodeList haPolicyNodes = e.getElementsByTagName("ha-policy");
 
-      boolean containsHAPolicy = false;
-
       if (haPolicyNodes.getLength() > 0)
       {
          parseHAPolicyConfiguration((Element) haPolicyNodes.item(0), config);
-         containsHAPolicy = true;
-         // remove <ha-policy> from the DOM so later when we look for deprecated elements using parameterExists() we don't get false positives
-         e.removeChild(haPolicyNodes.item(0));
-      }
-
-      NodeList elems = e.getElementsByTagName("clustered");
-      if (elems != null && elems.getLength() > 0)
-      {
-         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("clustered");
-      }
-
-      // these are combined because they are both required for setting the correct HAPolicyConfiguration
-      if (parameterExists(e, "backup") || parameterExists(e, "shared-store"))
-      {
-         boolean backup = getBoolean(e, "backup", false);
-         boolean sharedStore = getBoolean(e, "shared-store", true);
-
-         if (containsHAPolicy)
-         {
-            if (parameterExists(e, "backup"))
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("backup");
-            }
-
-            if (parameterExists(e, "shared-store"))
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("shared-store");
-            }
-         }
-         else
-         {
-            if (parameterExists(e, "backup"))
-            {
-               ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("backup");
-            }
-
-            if (parameterExists(e, "shared-store"))
-            {
-               ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("shared-store");
-            }
-
-            if (backup && sharedStore)
-            {
-               config.setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
-            }
-            else if (backup && !sharedStore)
-            {
-               config.setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
-            }
-            else if (!backup && sharedStore)
-            {
-               config.setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
-            }
-            else if (!backup && !sharedStore)
-            {
-               config.setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
-            }
-         }
-      }
-
-      HAPolicyConfiguration haPolicyConfig = config.getHAPolicyConfiguration();
-
-      if (parameterExists(e, "check-for-live-server"))
-      {
-         if (containsHAPolicy)
-         {
-            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("check-for-live-server");
-         }
-         else
-         {
-            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("check-for-live-server");
-
-            if (haPolicyConfig instanceof ReplicatedPolicyConfiguration)
-            {
-               ReplicatedPolicyConfiguration hapc = (ReplicatedPolicyConfiguration) haPolicyConfig;
-               hapc.setCheckForLiveServer(getBoolean(e, "check-for-live-server", hapc.isCheckForLiveServer()));
-            }
-         }
-      }
-
-      if (parameterExists(e, "allow-failback"))
-      {
-         if (containsHAPolicy)
-         {
-            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("allow-failback");
-         }
-         else
-         {
-            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("allow-failback");
-
-            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
-            {
-               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
-               hapc.setAllowFailBack(getBoolean(e, "allow-failback", hapc.isAllowFailBack()));
-            }
-            else if (haPolicyConfig instanceof SharedStoreSlavePolicyConfiguration)
-            {
-               SharedStoreSlavePolicyConfiguration hapc = (SharedStoreSlavePolicyConfiguration) haPolicyConfig;
-               hapc.setAllowFailBack(getBoolean(e, "allow-failback", hapc.isAllowFailBack()));
-            }
-            else
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("check-for-live-server");
-            }
-         }
-      }
-
-      if (parameterExists(e, "backup-group-name"))
-      {
-         if (containsHAPolicy)
-         {
-            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("backup-group-name");
-         }
-         else
-         {
-            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("backup-group-name");
-
-            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
-            {
-               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
-               hapc.setGroupName(getString(e, "backup-group-name", hapc.getGroupName(), Validators.NO_CHECK));
-            }
-            else if (haPolicyConfig instanceof ReplicatedPolicyConfiguration)
-            {
-               ReplicatedPolicyConfiguration hapc = (ReplicatedPolicyConfiguration) haPolicyConfig;
-               hapc.setGroupName(getString(e, "backup-group-name", hapc.getGroupName(), Validators.NO_CHECK));
-            }
-            else
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("backup-group-name");
-            }
-         }
-      }
-
-      if (parameterExists(e, "failback-delay"))
-      {
-         if (containsHAPolicy)
-         {
-            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("failback-delay");
-         }
-         else
-         {
-            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("failback-delay");
-
-            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
-            {
-               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
-               hapc.setFailbackDelay(getLong(e, "failback-delay", hapc.getFailbackDelay(), Validators.GT_ZERO));
-            }
-            else if (haPolicyConfig instanceof SharedStoreMasterPolicyConfiguration)
-            {
-               SharedStoreMasterPolicyConfiguration hapc = (SharedStoreMasterPolicyConfiguration) haPolicyConfig;
-               hapc.setFailbackDelay(getLong(e, "failback-delay", hapc.getFailbackDelay(), Validators.GT_ZERO));
-            }
-            else if (haPolicyConfig instanceof SharedStoreSlavePolicyConfiguration)
-            {
-               SharedStoreSlavePolicyConfiguration hapc = (SharedStoreSlavePolicyConfiguration) haPolicyConfig;
-               hapc.setFailbackDelay(getLong(e, "failback-delay", hapc.getFailbackDelay(), Validators.GT_ZERO));
-            }
-            else
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failback-delay");
-            }
-         }
-      }
-
-      if (parameterExists(e, "failover-on-shutdown"))
-      {
-         if (containsHAPolicy)
-         {
-            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("failover-on-shutdown");
-         }
-         else
-         {
-            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("failover-on-shutdown");
-
-            if (haPolicyConfig instanceof SharedStoreMasterPolicyConfiguration)
-            {
-               SharedStoreMasterPolicyConfiguration hapc = (SharedStoreMasterPolicyConfiguration) haPolicyConfig;
-               hapc.setFailoverOnServerShutdown(getBoolean(e, "failover-on-shutdown", hapc.isFailoverOnServerShutdown()));
-            }
-            else if (haPolicyConfig instanceof SharedStoreSlavePolicyConfiguration)
-            {
-               SharedStoreSlavePolicyConfiguration hapc = (SharedStoreSlavePolicyConfiguration) haPolicyConfig;
-               hapc.setFailoverOnServerShutdown(getBoolean(e, "failover-on-shutdown", hapc.isFailoverOnServerShutdown()));
-            }
-            else
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("failover-on-shutdown");
-            }
-         }
-      }
-
-      if (parameterExists(e, "replication-clustername"))
-      {
-         if (containsHAPolicy)
-         {
-            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("replication-clustername");
-         }
-         else
-         {
-            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("replication-clustername");
-
-            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
-            {
-               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
-               hapc.setClusterName(getString(e, "replication-clustername", null, Validators.NO_CHECK));
-            }
-            else if (haPolicyConfig instanceof ReplicatedPolicyConfiguration)
-            {
-               ReplicatedPolicyConfiguration hapc = (ReplicatedPolicyConfiguration) haPolicyConfig;
-               hapc.setClusterName(getString(e, "replication-clustername", null, Validators.NO_CHECK));
-            }
-            else
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("replication-clustername");
-            }
-         }
-      }
-
-      if (parameterExists(e, "max-saved-replicated-journals-size"))
-      {
-         if (containsHAPolicy)
-         {
-            ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicy("max-saved-replicated-journals-size");
-         }
-         else
-         {
-            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("max-saved-replicated-journals-size");
-
-            if (haPolicyConfig instanceof ReplicaPolicyConfiguration)
-            {
-               ReplicaPolicyConfiguration hapc = (ReplicaPolicyConfiguration) haPolicyConfig;
-               hapc.setMaxSavedReplicatedJournalsSize(getInteger(e, "max-saved-replicated-journals-size",
-                     hapc.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
-
-            }
-            else
-            {
-               ActiveMQServerLogger.LOGGER.incompatibleWithHAPolicyChosen("max-saved-replicated-journals-size");
-            }
-         }
       }
 
       //if we aren already set then set to default
@@ -1435,13 +1190,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
          scaleDownConfiguration.setEnabled(getBoolean(scaleDownElement, "enabled", scaleDownConfiguration.isEnabled()));
 
-         String scaleDownDiscoveryGroup = getString(scaleDownElement, "discovery-group", scaleDownConfiguration.getDiscoveryGroup(), Validators.NO_CHECK);
+         NodeList discoveryGroupRef = scaleDownElement.getElementsByTagName("discovery-group-ref");
 
-         scaleDownConfiguration.setDiscoveryGroup(scaleDownDiscoveryGroup);
+         if (discoveryGroupRef.item(0) != null)
+         {
+            scaleDownConfiguration.setDiscoveryGroup(discoveryGroupRef.item(0).getAttributes().getNamedItem("discovery-group-name").getNodeValue());
+         }
 
-         String scaleDownDiscoveryGroupName = getString(scaleDownElement, "group-name", scaleDownConfiguration.getGroupName(), Validators.NO_CHECK);
+         String scaleDownGroupName = getString(scaleDownElement, "group-name", scaleDownConfiguration.getGroupName(), Validators.NO_CHECK);
 
-         scaleDownConfiguration.setGroupName(scaleDownDiscoveryGroupName);
+         scaleDownConfiguration.setGroupName(scaleDownGroupName);
 
          NodeList scaleDownConnectorNode = scaleDownElement.getElementsByTagName("connectors");
 

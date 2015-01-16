@@ -57,15 +57,6 @@ public interface ClientSession extends XAResource, AutoCloseable
    }
 
    /**
-    * @deprecated Use {@link org.apache.activemq.api.core.client.ClientSession.AddressQuery} instead
-    */
-   @Deprecated
-   public interface BindingQuery extends AddressQuery
-   {
-
-   }
-
-   /**
     * Information returned by a queue query
     *
     * @see ClientSession#queueQuery(SimpleString)

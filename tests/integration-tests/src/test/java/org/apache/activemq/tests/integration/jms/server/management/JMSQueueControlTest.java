@@ -439,7 +439,10 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       Assert.assertNull(queueControl.getExpiryAddress());
 
-      queueControl.setExpiryAddress(expiryAddress);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setExpiryAddress(new SimpleString(expiryAddress));
+      server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
+
       Assert.assertEquals(expiryAddress, queueControl.getExpiryAddress());
    }
 
@@ -469,7 +472,11 @@ public class JMSQueueControlTest extends ManagementTestBase
       String expiryQueueName = RandomUtil.randomString();
       ActiveMQQueue expiryQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue(expiryQueueName);
       serverManager.createQueue(false, expiryQueueName, null, true, expiryQueueName);
-      queueControl.setExpiryAddress(expiryQueue.getAddress());
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setExpiryAddress(new SimpleString(expiryQueue.getAddress()));
+      server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
+//      queueControl.setExpiryAddress(expiryQueue.getAddress());
 
       JMSQueueControl expiryQueueControl = ManagementControlHelper.createJMSQueueControl(expiryQueue, mbeanServer);
 
@@ -595,7 +602,10 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       Assert.assertNull(queueControl.getDeadLetterAddress());
 
-      queueControl.setDeadLetterAddress(deadLetterAddress);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(new SimpleString(deadLetterAddress));
+      server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
+
       Assert.assertEquals(deadLetterAddress, queueControl.getDeadLetterAddress());
    }
 
@@ -605,6 +615,10 @@ public class JMSQueueControlTest extends ManagementTestBase
       String deadLetterQueue = RandomUtil.randomString();
       serverManager.createQueue(false, deadLetterQueue, null, true, deadLetterQueue);
       ActiveMQQueue dlq = (ActiveMQQueue) ActiveMQJMSClient.createQueue(deadLetterQueue);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(new SimpleString(dlq.getAddress()));
+      server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
 
       Connection conn = createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -623,7 +637,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       Assert.assertEquals(2, getMessageCount(queueControl));
       Assert.assertEquals(0, getMessageCount(dlqControl));
 
-      queueControl.setDeadLetterAddress(dlq.getAddress());
+//      queueControl.setDeadLetterAddress(dlq.getAddress());
 
       boolean movedToDeadLetterAddress = queueControl.sendMessageToDeadLetterAddress(message.getJMSMessageID());
       Assert.assertTrue(movedToDeadLetterAddress);
@@ -669,6 +683,10 @@ public class JMSQueueControlTest extends ManagementTestBase
       serverManager.createQueue(false, deadLetterQueue, null, true, deadLetterQueue);
       ActiveMQQueue dlq = (ActiveMQQueue) ActiveMQJMSClient.createQueue(deadLetterQueue);
 
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(new SimpleString(dlq.getAddress()));
+      server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
+
       Connection conn = createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -682,7 +700,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       Assert.assertEquals(2, getMessageCount(queueControl));
       Assert.assertEquals(0, getMessageCount(dlqControl));
 
-      queueControl.setDeadLetterAddress(dlq.getAddress());
+//      queueControl.setDeadLetterAddress(dlq.getAddress());
 
       int deadMessageCount = queueControl.sendMessagesToDeadLetterAddress(filter);
       Assert.assertEquals(1, deadMessageCount);

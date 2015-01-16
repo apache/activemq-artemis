@@ -1315,13 +1315,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return discoveryGroupConfiguration;
    }
 
-   @Override
-   @Deprecated
-   public void addInterceptor(final Interceptor interceptor)
-   {
-      addIncomingInterceptor(interceptor);
-   }
-
    public ServerLocatorImpl addIncomingInterceptor(final Interceptor interceptor)
    {
       incomingInterceptors.add(interceptor);
@@ -1332,13 +1325,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    {
       outgoingInterceptors.add(interceptor);
       return this;
-   }
-
-   @Override
-   @Deprecated
-   public boolean removeInterceptor(final Interceptor interceptor)
-   {
-      return removeIncomingInterceptor(interceptor);
    }
 
    public boolean removeIncomingInterceptor(final Interceptor interceptor)

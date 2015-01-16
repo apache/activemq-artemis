@@ -68,7 +68,6 @@ public class WrongRoleFileConfigurationParserTest extends UnitTestCase
          "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
          "xsi:schemaLocation=\"urn:activemq /schema/activemq-configuration.xsd\">\n" +
          "<name>ActiveMQ.main.config</name>" + "\n" +
-         "<backup-group-name>anodegroupname</backup-group-name>" + "\n" +
          "<log-delegate-factory-class-name>org.apache.activemq.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
          "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
          "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +

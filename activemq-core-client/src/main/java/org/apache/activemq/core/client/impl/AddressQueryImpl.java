@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientSession;
 
-public class AddressQueryImpl implements ClientSession.AddressQuery, ClientSession.BindingQuery
+public class AddressQueryImpl implements ClientSession.AddressQuery
 {
    private final boolean exists;
 

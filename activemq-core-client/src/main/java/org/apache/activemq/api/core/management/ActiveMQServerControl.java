@@ -39,18 +39,6 @@ public interface ActiveMQServerControl
    boolean isStarted();
 
    /**
-    * Returns the list of interceptors used by this server. Invoking this method is the same as invoking
-    * <code>getIncomingInterceptorClassNames().</code>
-    *
-    * @see org.apache.activemq.api.core.Interceptor
-    * @deprecated As of ActiveMQ 2.3.0.Final, replaced by
-    * {@link #getIncomingInterceptorClassNames()} and
-    * {@link #getOutgoingInterceptorClassNames()}
-    */
-   @Deprecated
-   String[] getInterceptorClassNames();
-
-   /**
     * Returns the list of interceptors used by this server for incoming messages.
     *
     * @see org.apache.activemq.api.core.Interceptor

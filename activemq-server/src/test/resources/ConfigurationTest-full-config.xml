@@ -21,8 +21,6 @@
    <core xmlns="urn:activemq:core">
       <name>SomeNameForUseOnTheApplicationServer</name>
       <resolve-protocols>false</resolve-protocols>
-      <clustered>true</clustered>
-      <check-for-live-server>false</check-for-live-server>
       <persistence-enabled>false</persistence-enabled>
       <scheduled-thread-pool-max-size>12345</scheduled-thread-pool-max-size>
       <thread-pool-max-size>54321</thread-pool-max-size>
@@ -34,9 +32,6 @@
       <management-notification-address>Whatever</management-notification-address>
       <cluster-user>Frog</cluster-user>
       <cluster-password>32a10275cf4ab4e9</cluster-password>
-      <replication-clustername>cluster-connection1</replication-clustername>
-      <scale-down-clustername>cluster-connection2</scale-down-clustername>
-      <max-saved-replicated-journals-size>5</max-saved-replicated-journals-size>
       <password-codec>org.apache.activemq.utils.DefaultSensitiveStringCodec</password-codec>
       <mask-password>true</mask-password>
       <log-delegate-factory-class-name>com.foo</log-delegate-factory-class-name>
@@ -53,18 +48,14 @@
       <message-expiry-thread-priority>8</message-expiry-thread-priority>
       <id-cache-size>127</id-cache-size>
       <persist-id-cache>true</persist-id-cache>
-      <remoting-interceptors>
+      <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2</class-name>
-      </remoting-interceptors>
-      <backup>true</backup>
-      <allow-failback>true</allow-failback>
-      <backup-group-name>backupGroupName</backup-group-name>
-      <scale-down-group-name>scaleDownGroupName</scale-down-group-name>
-      <failback-delay>15000</failback-delay>
-      <failover-on-shutdown>false</failover-on-shutdown>
-      <scale-down>false</scale-down>
-      <shared-store>false</shared-store>
+      </remoting-incoming-interceptors>
+      <remoting-outgoing-interceptors>
+         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1</class-name>
+         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2</class-name>
+      </remoting-outgoing-interceptors>
       <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
       <connectors>
          <connector name="connector1">
@@ -185,7 +176,7 @@
                <!--a grouping of servers that can be scaled down to-->
                <group-name>boo!</group-name>
                <!--either a discovery group-->
-               <discovery-group>wahey</discovery-group>
+               <discovery-group-ref discovery-group-name="dg1"/>
             </scale-down>
          </live-only>
 

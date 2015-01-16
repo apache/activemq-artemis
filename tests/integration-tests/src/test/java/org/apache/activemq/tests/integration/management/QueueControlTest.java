@@ -141,7 +141,10 @@ public class QueueControlTest extends ManagementTestBase
       session.createQueue(address, queue, null, false);
 
       QueueControl queueControl = createManagementControl(address, queue);
-      queueControl.setDeadLetterAddress(deadLetterAddress);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(new SimpleString(deadLetterAddress));
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       Assert.assertEquals(deadLetterAddress, queueControl.getDeadLetterAddress());
 
@@ -186,7 +189,10 @@ public class QueueControlTest extends ManagementTestBase
       session.createQueue(address, queue, null, false);
 
       QueueControl queueControl = createManagementControl(address, queue);
-      queueControl.setExpiryAddress(expiryAddress);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setExpiryAddress(new SimpleString(expiryAddress));
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       Assert.assertEquals(expiryAddress, queueControl.getExpiryAddress());
 
@@ -1425,7 +1431,10 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, messages.length);
       long messageID = (Long) messages[0].get("messageID");
 
-      queueControl.setExpiryAddress(expiryAddress.toString());
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setExpiryAddress(expiryAddress);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
       boolean expired = queueControl.expireMessage(messageID);
       Assert.assertTrue(expired);
       Assert.assertEquals(0, getMessageCount(queueControl));
@@ -1464,7 +1473,9 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(2, messages.length);
       long messageID = (Long) messages[0].get("messageID");
 
-      queueControl.setDeadLetterAddress(deadLetterAddress.toString());
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(deadLetterAddress);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       Assert.assertEquals(0, getMessageCount(deadLetterQueueControl));
       boolean movedToDeadLetterAddress = queueControl.sendMessageToDeadLetterAddress(messageID);

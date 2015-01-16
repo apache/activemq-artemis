@@ -81,7 +81,9 @@ public class ReplicatedFailoverTest extends FailoverTest
 
          crash(session);
 
-         liveServer.getServer().getConfiguration().setCheckForLiveServer(true);
+         ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+
+         replicatedPolicyConfiguration.setCheckForLiveServer(true);
 
          liveServer.start();
 
@@ -95,7 +97,9 @@ public class ReplicatedFailoverTest extends FailoverTest
 
          crash(session);
 
-         liveServer.getServer().getConfiguration().setCheckForLiveServer(true);
+         replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+
+         replicatedPolicyConfiguration.setCheckForLiveServer(true);
 
          liveServer.start();
 

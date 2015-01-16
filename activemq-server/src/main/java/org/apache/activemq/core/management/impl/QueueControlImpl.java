@@ -324,29 +324,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
       }
    }
 
-   public void setDeadLetterAddress(final String deadLetterAddress) throws Exception
-   {
-      checkStarted();
-
-      clearIO();
-      try
-      {
-         AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
-
-         if (addressSettings != null && deadLetterAddress != null)
-         {
-            addressSettings = new AddressSettings(addressSettings);
-            addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(deadLetterAddress));
-            addressSettingsRepository.addMatch(address, addressSettings);
-         }
-
-      }
-      finally
-      {
-         blockOnIO();
-      }
-   }
-
    public String getExpiryAddress()
    {
       checkStarted();
@@ -364,29 +341,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
          {
             return null;
          }
-      }
-      finally
-      {
-         blockOnIO();
-      }
-   }
-
-   public void setExpiryAddress(final String expiryAddress) throws Exception
-   {
-      checkStarted();
-
-      clearIO();
-      try
-      {
-         AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
-
-         if (addressSettings != null && expiryAddress != null)
-         {
-            addressSettings = new AddressSettings(addressSettings);
-            addressSettings.setExpiryAddress(SimpleString.toSimpleString(expiryAddress));
-            addressSettingsRepository.addMatch(address, addressSettings);
-         }
-
       }
       finally
       {

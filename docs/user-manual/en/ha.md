@@ -554,7 +554,7 @@ this would look like:
     <ha-policy>
        <live-only>
           <scale-down>
-             <discovery-group>my-discovery-group</discovery-group>
+             <discovery-group-ref discovery-group-name="my-discovery-group"/>
           </scale-down>
        </live-only>
     </ha-policy>
@@ -612,7 +612,7 @@ typical configuration would look like:
                    <!--a grouping of servers that can be scaled down to-->
                    <group-name>boo!</group-name>
                    <!--either a discovery group-->
-                   <discovery-group>wahey</discovery-group>
+                   <discovery-group-ref discovery-group-name="wahey"/>
                 </scale-down>
              </slave>
           </colocated>

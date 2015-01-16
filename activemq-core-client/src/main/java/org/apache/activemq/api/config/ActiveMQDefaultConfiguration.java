@@ -216,12 +216,6 @@ public final class ActiveMQDefaultConfiguration
    // true means that ID's are persisted to the journal
    private static boolean DEFAULT_PERSIST_ID_CACHE = true;
 
-   // DEPRECATED. This option is deprecated, but it will still be honored if <ha-policy> is not also used. It indicates whether this server is a backup server
-   private static boolean DEFAULT_BACKUP = false;
-
-   // DEPRECATED. This option is deprecated, but it will still be honored if <ha-policy> is not also used. 'shared-store' applies to live and backup pairs, and it indicates if the live/backup pair share storage or if the data is replicated among them.
-   private static boolean DEFAULT_SHARED_STORE = false;
-
    // True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled.
    private static boolean DEFAULT_PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY = false;
 
@@ -620,22 +614,6 @@ public final class ActiveMQDefaultConfiguration
    public static boolean isDefaultPersistIdCache()
    {
       return DEFAULT_PERSIST_ID_CACHE;
-   }
-
-   /**
-    * DEPRECATED. This option is deprecated, but it will still be honored if <ha-policy> is not also used. It indicates whether this server is a backup server
-    */
-   public static boolean isDefaultBackup()
-   {
-      return DEFAULT_BACKUP;
-   }
-
-   /**
-    * DEPRECATED. This option is deprecated, but it will still be honored if <ha-policy> is not also used. 'shared-store' applies to live and backup pairs, and it indicates if the live/backup pair share storage or if the data is replicated among them.
-    */
-   public static boolean isDefaultSharedStore()
-   {
-      return DEFAULT_SHARED_STORE;
    }
 
    /**

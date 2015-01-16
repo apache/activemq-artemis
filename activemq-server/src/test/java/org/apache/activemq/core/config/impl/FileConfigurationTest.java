@@ -241,7 +241,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
       LiveOnlyPolicyConfiguration lopc = (LiveOnlyPolicyConfiguration) pc;
       assertNotNull(lopc.getScaleDownConfiguration());
       assertEquals(lopc.getScaleDownConfiguration().getGroupName(), "boo!");
-      assertEquals(lopc.getScaleDownConfiguration().getDiscoveryGroup(), "wahey");
+      assertEquals(lopc.getScaleDownConfiguration().getDiscoveryGroup(), "dg1");
 
       for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations())
       {
