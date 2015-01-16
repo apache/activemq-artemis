@@ -243,20 +243,12 @@ public class ActiveMQBootstrap
          {
             try
             {
-               if (!spawned)
-               {
-                  manager.getActiveMQServer()
-                     .stop(true);
-                  manager.stop();
-                  manager = null;
-                  server = null;
-                  killFile.delete();
-               }
-               else
-               {
-                  killFile.delete();
-                  Runtime.getRuntime().halt(777);
-               }
+               manager.getActiveMQServer()
+                  .stop(true);
+               manager.stop();
+               manager = null;
+               server = null;
+               killFile.delete();
             }
             catch (Exception e)
             {
