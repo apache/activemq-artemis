@@ -25,6 +25,8 @@
       <scheduled-thread-pool-max-size>12345</scheduled-thread-pool-max-size>
       <thread-pool-max-size>54321</thread-pool-max-size>
       <security-enabled>false</security-enabled>
+      <graceful-shutdown-enabled>true</graceful-shutdown-enabled>
+      <graceful-shutdown-timeout>12345</graceful-shutdown-timeout>
       <security-invalidation-interval>5423</security-invalidation-interval>
       <journal-lock-acquisition-timeout>123</journal-lock-acquisition-timeout>
       <wild-card-routing-enabled>true</wild-card-routing-enabled>

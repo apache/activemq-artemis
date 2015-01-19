@@ -78,6 +78,10 @@ public class ConfigurationImpl implements Configuration
 
    private boolean securityEnabled = ActiveMQDefaultConfiguration.isDefaultSecurityEnabled();
 
+   private boolean gracefulShutdownEnabled = ActiveMQDefaultConfiguration.isDefaultGracefulShutdownEnabled();
+
+   private long gracefulShutdownTimeout = ActiveMQDefaultConfiguration.getDefaultGracefulShutdownTimeout();
+
    protected boolean jmxManagementEnabled = ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled();
 
    protected String jmxDomain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
@@ -735,6 +739,28 @@ public class ConfigurationImpl implements Configuration
    public ConfigurationImpl setSecurityEnabled(final boolean enabled)
    {
       securityEnabled = enabled;
+      return this;
+   }
+
+   public boolean isGracefulShutdownEnabled()
+   {
+      return gracefulShutdownEnabled;
+   }
+
+   public ConfigurationImpl setGracefulShutdownEnabled(final boolean enabled)
+   {
+      gracefulShutdownEnabled = enabled;
+      return this;
+   }
+
+   public long getGracefulShutdownTimeout()
+   {
+      return gracefulShutdownTimeout;
+   }
+
+   public ConfigurationImpl setGracefulShutdownTimeout(final long timeout)
+   {
+      gracefulShutdownTimeout = timeout;
       return this;
    }
 

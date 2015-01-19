@@ -144,6 +144,10 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
                           conf.getMessageExpiryThreadPriority());
 
       Assert.assertTrue(conf.getHAPolicyConfiguration() instanceof LiveOnlyPolicyConfiguration);
+
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultGracefulShutdownEnabled(), conf.isGracefulShutdownEnabled());
+
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultGracefulShutdownTimeout(), conf.getGracefulShutdownTimeout());
    }
 
    // Protected ---------------------------------------------------------------------------------------------

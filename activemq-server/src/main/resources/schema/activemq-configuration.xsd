@@ -69,6 +69,22 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="graceful-shutdown-enabled" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  true means that graceful shutdown is enabled
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="graceful-shutdown-timeout" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how long (in ms) to wait for clients to disconnect before shutting down the server
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="security-enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
