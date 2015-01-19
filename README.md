@@ -195,6 +195,18 @@ of well formatted commit messages to the README.md.  This is required
 to enable developers to quickly identify what the commit is intended to 
 do and why the commit was added.
 ```
+### Adding New Dependencies
+
+Due to incompatibilities between some open source licenses and the Apache v2.0 license (that this project is licensed under)
+care must be taken when adding new dependencies to the project.  The Apache Software Foundation 3rd party
+ licensing policy has more information here: http://www.apache.org/legal/3party.html
+
+To keep track of all licenses in ActiveMQ6, new dependencies must be added in either the top level pom.xml or in test/pom.xml
+(depending on whether this is a test only dependency or if it is used in the main code base).  The dependency should be
+added under the dependency management section with version and labelled with a comment highlighting the license for the
+dependency version.  See existing dependencies in the main pom.xml for examples.  The dependency can then be added to
+individual ActiveMQ6 modules *without* the version specified (the version is implied from the dependency management
+section of the top level pom).  This allows ActiveMQ6 developers to keep track of all dependencies and licenses.
 
 ### Core Contributers
 
