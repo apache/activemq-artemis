@@ -21,9 +21,9 @@
       <artifactId>activemq-pom</artifactId>
       <version>6.0.0-SNAPSHOT</version>
    </parent>
+
    <name>ActiveMQ6 Tests POM</name>
    <modelVersion>4.0.0</modelVersion>
-
    <groupId>org.apache.activemq.tests</groupId>
    <artifactId>activemq-tests-pom</artifactId>
    <packaging>pom</packaging>
@@ -31,6 +31,49 @@
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
+
+   <dependencyManagement>
+      <dependencies>
+         <!-- ## XA Dependencies ## -->
+         <dependency>
+            <groupId>org.jboss.jbossts.jts</groupId>
+            <artifactId>jbossjts-jacorb</artifactId>
+            <version>4.17.13.Final</version>
+            <!-- License: LGPL -->
+         </dependency>
+         <!-- ## End XA Dependencies ## -->
+
+         <!--## Security Dependencies ## -->
+         <dependency>
+            <groupId>org.jboss.security</groupId>
+            <artifactId>jboss-security-spi</artifactId>
+            <version>2.0.3.SP1</version>
+            <!-- License: LGPL -->
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.security</groupId>
+            <artifactId>jbosssx</artifactId>
+            <version>2.0.3.SP1</version>
+            <!-- License: LGPL -->
+         </dependency>
+         <!-- ## End Security Dependencies ## -->
+
+         <!--## JMS Dependencies ## -->
+         <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-jaspi</artifactId>
+            <version>2.0.0</version>
+            <!-- License: Apache: 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>apache-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.0.jboss</version>
+            <!-- License: Apache: 2.0 -->
+         </dependency>
+         <!-- End JMS Dependencies -->
+      </dependencies>
+   </dependencyManagement>
 
    <build>
       <plugins>

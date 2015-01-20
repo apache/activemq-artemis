@@ -81,7 +81,6 @@
       <dependency>
          <groupId>org.jboss.security</groupId>
          <artifactId>jbosssx</artifactId>
-         <version>2.0.3.SP1</version>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
