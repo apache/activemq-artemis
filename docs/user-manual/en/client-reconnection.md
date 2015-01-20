@@ -36,7 +36,7 @@ to the client, and the client can then free up space in the buffer.
 
 If you are using JMS and you're using the JMS service on the server to
 load your JMS connection factory instances into JNDI then this parameter
-can be configured in `activemq-jms.xml` using the element
+can be configured in the jms configuration using the element
 `confirmation-window-size` a. If you're using JMS but not using JNDI
 then you can set these values directly on the
 `ActiveMQConnectionFactory` instance using the appropriate setter

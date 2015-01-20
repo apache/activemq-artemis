@@ -126,8 +126,8 @@ The standard stand-alone messaging server configuration comprises a core
 messaging server and a JMS service.
 
 The role of the JMS Service is to deploy any JMS Queue, Topic and
-ConnectionFactory instances from any server side `activemq-jms.xml`
-configuration files. It also provides a simple management API for
+ConnectionFactory instances from any server side JMS
+configuration. It also provides a simple management API for
 creating and destroying Queues and Topics
 which can be accessed via JMX or the connection. It is a separate
 service to the ActiveMQ core server, since the core server is JMS
