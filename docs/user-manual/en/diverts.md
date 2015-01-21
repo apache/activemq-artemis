@@ -37,8 +37,8 @@ geographically distributed servers, creating your global messaging mesh.
 Diverts are defined as xml in the `activemq-configuration.xml` file.
 There can be zero or more diverts in the file.
 
-Please see ? for a full working example showing you how to configure and
-use diverts.
+Please see the examples for a full working example showing you how to
+configure and use diverts.
 
 Let's take a look at some divert examples:
 

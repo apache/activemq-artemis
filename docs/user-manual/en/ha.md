@@ -101,7 +101,6 @@ same data directories, all data synchronization is done over the
 network. Therefore all (persistent) data received by the live server
 will be duplicated to the backup.
 
-c
 
 Notice that upon start-up the backup server will first need to
 synchronize all existing data from the live server before becoming
@@ -229,22 +228,92 @@ The backup server must be similarly configured but as a `slave`
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Replication for `master`:
 
-  name                      Description
-  ------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  `check-for-live-server`   Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers.
-  `cluster-name`            Name of the cluster configuration to use for replication. This setting is only necessary if you configure multiple cluster connections. If configured then the connector configuration of the cluster configuration with this name will be used when connecting to the cluster to discover if a live server is already running, see `check-for-live-server`. If unset then the default cluster connections configuration is used (the first one configured)
-  `group-name`              If set, backup servers will only pair with live servers with matching group-name
+<table summary="HA Replication Master Policy" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>`check-for-live-server`</td>
+        <td>Whether to check the cluster for a (live) server using our own server ID
+        when starting up. This option is only necessary for performing 'fail-back'
+        on replicating servers.</td>
+    </tr>
+    <tr>
+        <td>`cluster-name`</td>
+        <td>Name of the cluster configuration to use for replication. This setting is
+        only necessary if you configure multiple cluster connections. If configured then
+        the connector configuration of the cluster configuration with this name will be
+        used when connecting to the cluster to discover if a live server is already running,
+        see `check-for-live-server`. If unset then the default cluster connections configuration
+        is used (the first one configured).</td>
+    </tr>
+    <tr>
+        <td>`group-name`</td>
+        <td>Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers.</td>
+    </tr>
+    <tr>
+        <td>`check-for-live-server`</td>
+        <td>If set, backup servers will only pair with live servers with matching group-name.</td>
+    </tr>
+    </tbody>
+</table>
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Replication for `slave`:
 
-  name                                   Description
-  -------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  `cluster-name`                         Name of the cluster configuration to use for replication. This setting is only necessary if you configure multiple cluster connections. If configured then the connector configuration of the cluster configuration with this name will be used when connecting to the cluster to discover if a live server is already running, see `check-for-live-server`. If unset then the default cluster connections configuration is used (the first one configured)
-  `group-name`                           If set, backup servers will only pair with live servers with matching group-name
-  `max-saved-replicated-journals-size`   This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back.
-  `allow-failback`                       Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over
-  `failback-delay`                       delay to wait before fail-back occurs on (failed over live's) restart
+<table summary="HA Replication Slave Policy" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>`cluster-name`</td>
+        <td>Name of the cluster configuration to use for replication.
+        This setting is only necessary if you configure multiple cluster
+        connections. If configured then the connector configuration of
+        the cluster configuration with this name will be used when
+        connecting to the cluster to discover if a live server is already
+        running, see `check-for-live-server`. If unset then the default
+        cluster connections configuration is used (the first one configured)</td>
+    </tr>
+    <tr>
+        <td>`group-name`</td>
+        <td>If set, backup servers will only pair with live servers with matching group-name</td>
+    </tr>
+    <tr>
+        <td>`max-saved-replicated-journals-size`</td>
+        <td>This specifies how many times a replicated backup server
+        can restart after moving its files on start. Once there are
+        this number of backup journal files the server will stop permanently
+        after if fails back.</td>
+    </tr>
+    <tr>
+        <td>`allow-failback`</td>
+        <td>Whether a server will automatically stop when a another places a
+        request to take over its place. The use case is when the backup has
+        failed over</td>
+    </tr>
+    <tr>
+        <td>`failback-delay`</td>
+        <td>delay to wait before fail-back occurs on (failed over live's) restart</td>
+    </tr>
+    </tbody>
+</table>
 
 ### Shared Store
 
@@ -410,19 +479,79 @@ automatically by setting the following property in the
 The following table lists all the `ha-policy` configuration elements for
 HA strategy shared store for `master`:
 
-  name                            Description
-  ------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  `failback-delay`                If a backup server is detected as being live, via the lock file, then the live server will wait announce itself as a backup and wait this amount of time (in ms) before starting as a live
-  `failover-on-server-shutdown`   If set to true then when this server is stopped normally the backup will become live assuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md)
+<table summary="HA Shared Store Master Policy" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>`failback-delay`</td>
+        <td>If a backup server is detected as being live,
+        via the lock file, then the live server will wait
+        announce itself as a backup and wait this amount
+        of time (in ms) before starting as a live</td>
+    </tr>
+    <tr>
+        <td>`failover-on-server-shutdown`</td>
+        <td>If set to true then when this server is stopped
+        normally the backup will become live assuming failover.
+        If false then the backup server will remain passive.
+        Note that if false you want failover to occur the you
+        can use the the management API as explained at [Management](management.md)</td>
+    </tr>
+    </tbody>
+</table>
 
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Shared Store for `slave`:
 
-  name                            Description
-  ------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  `failover-on-server-shutdown`   In the case of a backup that has become live. then when set to true then when this server is stopped normally the backup will become liveassuming failover. If false then the backup server will remain passive. Note that if false you want failover to occur the you can use the the management API as explained at [Management](management.md)
-  `allow-failback`                Whether a server will automatically stop when a another places a request to take over its place. The use case is when the backup has failed over.
-  `failback-delay`                After failover and the slave has become live, this is set on the new live server. When starting If a backup server is detected as being live, via the lock file, then the live server will wait announce itself as a backup and wait this amount of time (in ms) before starting as a live, however this is unlikely since this backup has just stopped anyway. It is also used as the delay after failback before this backup will restart (if `allow-failback` is set to true.
+<table summary="HA Replication Slave Policy" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>`failover-on-server-shutdown`</td>
+        <td>In the case of a backup that has become live. then
+        when set to true then when this server is stopped normally
+        the backup will become liveassuming failover. If false then
+        the backup server will remain passive. Note that if false
+        you want failover to occur the you can use the the management
+        API as explained at [Management](management.md)</td>
+    </tr>
+    <tr>
+        <td>`allow-failback`</td>
+        <td>Whether a server will automatically stop when a another
+        places a request to take over its place. The use case is
+        when the backup has failed over.</td>
+    </tr>
+    <tr>
+        <td>`failback-delay`</td>
+        <td>After failover and the slave has become live, this is
+        set on the new live server. When starting If a backup server
+        is detected as being live, via the lock file, then the live
+        server will wait announce itself as a backup and wait this
+        amount of time (in ms) before starting as a live, however
+        this is unlikely since this backup has just stopped anyway.
+        It is also used as the delay after failback before this backup
+        will restart (if `allow-failback` is set to true.</td>
+    </tr>
+    </tbody>
+</table>
 
 #### Colocated Backup Servers
 
@@ -500,15 +629,42 @@ server will notify the target server of which directories to use. If
 replication is configured then directories will be inherited from the
 creating server but have the new backups name appended.
 
-The following table lists all the `ha-policy` configuration elements:
+The following table lists all the `ha-policy` configuration elements for colocated policy:
 
-  name                              Description
-  --------------------------------- ---------------------------------------------------------------------------------------
-  `request-backup`                  If true then the server will request a backup on another node
-  `backup-request-retries`          How many times the live server will try to request a backup, -1 means for ever.
-  `backup-request-retry-interval`   How long to wait for retries between attempts to request a backup server.
-  `max-backups`                     Whether or not this live server will accept backup requests from other live servers.
-  `backup-port-offset`              The offset to use for the Connectors and Acceptors when creating a new backup server.
+<table summary="HA Replication Colocation Policy" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>`request-backup`</td>
+        <td>If true then the server will request a backup on another node</td>
+    </tr>
+    <tr>
+        <td>`backup-request-retries`</td>
+        <td>How many times the live server will try to request a backup, -1 means for ever.</td>
+    </tr>
+    <tr>
+        <td>`backup-request-retry-interval`</td>
+        <td>How long to wait for retries between attempts to request a backup server.</td>
+    </tr>
+    <tr>
+        <td>`max-backups`</td>
+        <td>How many backups a live server can create</td>
+    </tr>
+    <tr>
+        <td>`backup-port-offset`</td>
+        <td>The offset to use for the Connectors and Acceptors when creating a new backup server.</td>
+    </tr>
+    </tbody>
+</table>
 
 ### Scaling Down
 
@@ -846,12 +1002,30 @@ happened by either the `failedOver` flag passed in on the
 error code on the `javax.jms.JMSException` which will be one of the
 following:
 
-  error code   Description
-  ------------ ---------------------------------------------------------------------------
-  FAILOVER     Failover has occurred and we have successfully reattached or reconnected.
-  DISCONNECT   No failover has occurred and we are disconnected.
+JMSException error codes
 
-  : JMSException error codes
+<table summary="HA Replication Colocation Policy" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Error code</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>FAILOVER</td>
+        <td>Failover has occurred and we have successfully reattached or reconnected.</td>
+    </tr>
+    <tr>
+        <td>DISCONNECT</td>
+        <td>No failover has occurred and we are disconnected.</td>
+    </tr>
+    </tbody>
+</table>
 
 ### Application-Level Failover
 

@@ -35,6 +35,7 @@ import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
 ...
 
 EmbeddedActiveMQ embedded = new EmbeddedActiveMQ();
+
 embedded.start();
 
 ClientSessionFactory nettyFactory =  ActiveMQClient.createClientSessionFactory(
@@ -182,7 +183,7 @@ jmsServer.setJmsConfiguration(jmsConfig);
 jmsServer.start();
 ```
 
-Please see ? for an example which shows how to setup and run ActiveMQ
+Please see the examples for an example which shows how to setup and run ActiveMQ
 embedded with JMS.
 
 ## Dependency Frameworks

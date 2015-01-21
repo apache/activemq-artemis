@@ -10,13 +10,13 @@ please the JMS javadoc for
 
 Filter expressions are used in several places in ActiveMQ
 
--   Predefined Queues. When pre-defining a queue, either in
-    `activemq-configuration.xml` or `activemq-jms.xml` a filter
+-   Predefined Queues. When pre-defining a queue, in
+    `activemq-configuration.xml` in either the core or jms configuration a filter
     expression can be defined for a queue. Only messages that match the
     filter expression will enter the queue.
 
 -   Core bridges can be defined with an optional filter expression, only
-    matching messages will be bridged (see [Core Bridges]9core-bridges.md)).
+    matching messages will be bridged (see [Core Bridges](core-bridges.md)).
 
 -   Diverts can be defined with an optional filter expression, only
     matching messages will be diverted (see [Diverts](diverts.md)).
