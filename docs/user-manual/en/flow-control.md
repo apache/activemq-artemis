@@ -109,7 +109,7 @@ If the connection factory is directly instantiated, the consumer window
 size is specified by `ActiveMQConnectionFactory.setConsumerWindowSize()`
 method.
 
-Please see ? for an example which shows how to configure ActiveMQ to
+Please see the examples for an example which shows how to configure ActiveMQ to
 prevent consumer buffering when dealing with slow consumers.
 
 ## Rate limited flow control
