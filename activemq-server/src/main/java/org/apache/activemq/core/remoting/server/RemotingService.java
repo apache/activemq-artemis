@@ -23,6 +23,7 @@ import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.core.security.ActiveMQPrincipal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
@@ -42,6 +43,8 @@ public interface RemotingService
    RemotingConnection removeConnection(Object remotingConnectionID);
 
    Set<RemotingConnection> getConnections();
+
+   ReusableLatch getConnectionCountLatch();
 
    void addIncomingInterceptor(Interceptor interceptor);
 
@@ -65,6 +68,11 @@ public interface RemotingService
     * @param principal
     */
    void allowInvmSecurityOverride(ActiveMQPrincipal principal);
+
+   /**
+    * Pauses the acceptors so that no more connections can be made to the server
+    */
+   void pauseAcceptors();
 
    /**
     * Freezes and then disconnects all connections except the given one and tells the client where else

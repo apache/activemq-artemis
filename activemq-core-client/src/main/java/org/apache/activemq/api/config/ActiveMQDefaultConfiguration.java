@@ -153,6 +153,12 @@ public final class ActiveMQDefaultConfiguration
    // true means that security is enabled
    private static boolean DEFAULT_SECURITY_ENABLED = true;
 
+   // true means that graceful shutdown is enabled
+   private static boolean DEFAULT_GRACEFUL_SHUTDOWN_ENABLED = false;
+
+   // how long (in ms) to wait before forcing the server to stop even if clients are still connected (i.e circumventing graceful shutdown)
+   private static long DEFAULT_GRACEFUL_SHUTDOWN_TIMEOUT = -1;
+
    // how long (in ms) to wait before invalidating the security cache
    private static long DEFAULT_SECURITY_INVALIDATION_INTERVAL = 10000;
 
@@ -446,6 +452,22 @@ public final class ActiveMQDefaultConfiguration
    public static boolean isDefaultSecurityEnabled()
    {
       return DEFAULT_SECURITY_ENABLED;
+   }
+
+   /**
+    * true means that graceful shutdown is enabled
+    */
+   public static boolean isDefaultGracefulShutdownEnabled()
+   {
+      return DEFAULT_GRACEFUL_SHUTDOWN_ENABLED;
+   }
+
+   /**
+    * true means that graceful shutdown is enabled
+    */
+   public static long getDefaultGracefulShutdownTimeout()
+   {
+      return DEFAULT_GRACEFUL_SHUTDOWN_TIMEOUT;
    }
 
    /**

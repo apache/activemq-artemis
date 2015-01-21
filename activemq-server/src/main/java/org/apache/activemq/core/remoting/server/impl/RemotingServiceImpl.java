@@ -68,6 +68,7 @@ import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConfigurationHelper;
 import org.apache.activemq.utils.ActiveMQThreadFactory;
+import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
@@ -96,6 +97,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    private final Map<String, Acceptor> acceptors = new HashMap<String, Acceptor>();
 
    private final Map<Object, ConnectionEntry> connections = new ConcurrentHashMap<Object, ConnectionEntry>();
+
+   private final ReusableLatch connectionCountLatch = new ReusableLatch(0);
 
    private final ActiveMQServer server;
 
@@ -355,11 +358,10 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
-   public synchronized void freeze(final String scaleDownNodeID, final CoreRemotingConnection connectionToKeepOpen)
+   public synchronized void pauseAcceptors()
    {
       if (!started)
          return;
-      failureCheckAndFlushThread.close(false);
 
       for (Acceptor acceptor : acceptors.values())
       {
@@ -372,6 +374,13 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor();
          }
       }
+   }
+
+   public synchronized void freeze(final String scaleDownNodeID, final CoreRemotingConnection connectionToKeepOpen)
+   {
+      if (!started)
+         return;
+      failureCheckAndFlushThread.close(false);
       HashMap<Object, ConnectionEntry> connectionEntries = new HashMap<Object, ConnectionEntry>(connections);
 
       // Now we ensure that no connections will process any more packets after this method is
@@ -392,6 +401,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          {
             conn.disconnect(scaleDownNodeID, false);
             connections.remove(entry.getKey());
+            connectionCountLatch.countDown();
          }
       }
    }
@@ -444,6 +454,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       acceptors.clear();
 
       connections.clear();
+      connectionCountLatch.setCount(0);
 
       if (managementService != null)
       {
@@ -497,6 +508,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    public RemotingConnection removeConnection(final Object remotingConnectionID)
    {
       ConnectionEntry entry = connections.remove(remotingConnectionID);
+      connectionCountLatch.countDown();
 
       if (entry != null)
       {
@@ -520,6 +532,11 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
 
       return conns;
+   }
+
+   public synchronized ReusableLatch getConnectionCountLatch()
+   {
+      return connectionCountLatch;
    }
 
    // ConnectionLifeCycleListener implementation -----------------------------------
@@ -551,6 +568,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
 
       connections.put(connection.getID(), entry);
+      connectionCountLatch.countUp();
    }
 
    public void connectionDestroyed(final Object connectionID)
@@ -587,6 +605,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          if (empty)
          {
             connections.remove(connectionID);
+            connectionCountLatch.countDown();
 
             conn.connection.destroy();
          }

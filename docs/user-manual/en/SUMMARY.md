@@ -37,6 +37,7 @@
 * [Duplicate Message Detection](duplicate-detection.md)
 * [Clusters](clusters.md)
 * [High Availability and Failover](ha.md)
+* [Graceful Server Shutdown](graceful-shutdown.md)
 * [Libaio Native Libraries](libaio.md)
 * [Thread management](thread-pooling.md)
 * [Logging](logging.md)

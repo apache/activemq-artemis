@@ -132,6 +132,28 @@ public interface Configuration extends Serializable
    Configuration setSecurityEnabled(boolean enabled);
 
    /**
+    * Returns whether graceful shutdown is enabled for this server. <br>
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
+    */
+   boolean isGracefulShutdownEnabled();
+
+   /**
+    * Sets whether security is enabled for this server.
+    */
+   Configuration setGracefulShutdownEnabled(boolean enabled);
+
+   /**
+    * Returns the graceful shutdown timeout for this server. <br>
+    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_GRACEFUL_SHUTDOWN_TIMEOUT}.
+    */
+   long getGracefulShutdownTimeout();
+
+   /**
+    * Sets the graceful shutdown timeout
+    */
+   Configuration setGracefulShutdownTimeout(long timeout);
+
+   /**
     * Returns whether this server is manageable using JMX or not. <br>
     * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
     */

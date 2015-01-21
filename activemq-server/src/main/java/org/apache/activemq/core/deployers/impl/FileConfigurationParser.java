@@ -219,6 +219,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       config.setSecurityEnabled(getBoolean(e, "security-enabled", config.isSecurityEnabled()));
 
+      config.setGracefulShutdownEnabled(getBoolean(e, "graceful-shutdown-enabled", config.isGracefulShutdownEnabled()));
+
+      config.setGracefulShutdownTimeout(getLong(e, "graceful-shutdown-timeout",
+                                                config.getGracefulShutdownTimeout(), Validators.MINUS_ONE_OR_GE_ZERO));
+
       config.setJMXManagementEnabled(getBoolean(e, "jmx-management-enabled", config.isJMXManagementEnabled()));
 
       config.setJMXDomain(getString(e, "jmx-domain", config.getJMXDomain(), Validators.NOT_NULL_OR_EMPTY));

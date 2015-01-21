@@ -1087,6 +1087,22 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
+            <a href="graceful-shutdown.md" title="Graceful Server Shutdown">graceful-shutdown-enabled</a>
+        </td>
+        <td>xsd:boolean</td>
+        <td>true means that graceful shutdown is enabled</td>
+        <td>true</td>
+    </tr>
+    <tr>
+        <td>
+            <a href="graceful-shutdown.md" title="Graceful Server Shutdown">graceful-shutdown-timeout</a>
+        </td>
+        <td>xsd:long</td>
+        <td>how long (in ms) to wait for all clients to disconnect before forcefully disconnecting the clients and proceeding with the shutdown process (-1 means no timeout)</td>
+        <td>-1</td>
+    </tr>
+    <tr>
+        <td>
             <a href="message-grouping.md" title="Chapter 28. Message Grouping">grouping-handler</a>
         </td>
         <td>Complex element</td>

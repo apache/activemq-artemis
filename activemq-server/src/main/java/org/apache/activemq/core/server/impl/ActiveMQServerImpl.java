@@ -625,6 +625,25 @@ public class ActiveMQServerImpl implements ActiveMQServer
          }
          stopComponent(clusterManager);
 
+         if (remotingService != null)
+         {
+            remotingService.pauseAcceptors();
+         }
+
+         // allows for graceful shutdown
+         if (remotingService != null && configuration.isGracefulShutdownEnabled())
+         {
+            long timeout = configuration.getGracefulShutdownTimeout();
+            if (timeout == -1)
+            {
+               remotingService.getConnectionCountLatch().await();
+            }
+            else
+            {
+               remotingService.getConnectionCountLatch().await(timeout);
+            }
+         }
+
          freezeConnections();
       }
 
