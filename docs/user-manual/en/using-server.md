@@ -80,7 +80,8 @@ JVM will use the environment variable `LD_LIBRARY_PATH`.
 ActiveMQ can take a system property on the command line for configuring
 logging.
 
-For more information on configuring logging, please see ?.
+For more information on configuring logging, please see the section on
+[Logging](logging.md).
 
 ## Configuration files
 
@@ -112,7 +113,7 @@ files.
     ConnectionFactorys from this file into JNDI. If you're not using
     JMS, or you don't need to deploy JMS objects on the server side,
     then you don't need this file. For more information on using JMS,
-    please see ?.
+    please see the section on [Logging](logging.md).
 
 > **Note**
 >
@@ -149,7 +150,6 @@ The bootstrap file is very simple. Let's take a look at an example:
     <broker xmlns="http://activemq.org/schema">
 
        <file:core configuration="${activemq.home}/config/stand-alone/non-clustered/activemq-configuration.xml"></core>
-       <file:jms configuration="${activemq.home}/config/stand-alone/non-clustered/activemq-jms.xml"></jms>
 
        <basic-security/>
 
@@ -157,15 +157,8 @@ The bootstrap file is very simple. Let's take a look at an example:
 
 -   core - Instantiates a core server using the configuration file from the
     `configuration` attribute. This is the main broker POJO necessary to
-    do all the real messaging work.
-
--   jms - This deploys any JMS Objects such as JMS Queues, Topics and
-    ConnectionFactory instances from the `activemq-jms.xml` file
-    specified. It also provides a simple management API for manipulating
-    JMS Objects. On the whole it just translates and delegates its work
-    to the core server. If you don't need to deploy JMS Queues, Topics
-    and ConnectionFactories from server side configuration and don't
-    require the JMS management interface this can be disabled.
+    do all the real messaging work.  In addition all JMS objects such as:
+    Queues, Topics and ConnectionFactory instances are configured here.
 
 ## The main configuration file.
 

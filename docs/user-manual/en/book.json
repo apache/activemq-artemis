@@ -1,12 +1,11 @@
 {
-  "title": "ActiveMQ Documentation",
-  "description": "ActiveMQ User Guide and Reference Documentation",
-  "github": "apache/activemq-6",
-  "githubHost": "https://github.com/",
-
-  "links": {
-    "home": "http://activemq.apache.org/",
-    "issues": "http://activemq.apache.org/",
-    "contribute": "http://activemq.apache.org/contributing.html"
-  }
+    "title": "ActiveMQ Documentation",
+    "description": "ActiveMQ User Guide and Reference Documentation",
+    "github": "apache/activemq-6",
+    "githubHost": "https://github.com/",
+    "links": {
+        "home": "http://activemq.apache.org/",
+        "issues": "http://activemq.apache.org/",
+        "contribute": "http://activemq.apache.org/contributing.html"
+    }
 }

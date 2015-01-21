@@ -27,7 +27,7 @@ Shown are the required params for the connector service:
 
 -   `queue`. The name of the ActiveMQ queue to send message to.
 
-As well as these required paramaters there are the following optional
+As well as these required parameters there are the following optional
 parameters
 
 -   `host`. The host name on which the vertx target container is
@@ -42,7 +42,7 @@ parameters
     Default is `activemq`.
 
 -   `vertx-address`. The vertx address to listen to. default is
-    org.apache.activemq.
+    `org.apache.activemq`.
 
 ## Configuring a Vertx Outgoing Connector Service
 
