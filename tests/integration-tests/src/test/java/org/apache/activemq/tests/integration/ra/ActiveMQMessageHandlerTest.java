@@ -903,7 +903,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
             {
                try
                {
-                  System.out.println("pausing for 2 secs");
+                  IntegrationTestLogger.LOGGER.info("pausing for 2 secs");
                   Thread.sleep(2000);
                }
                catch (InterruptedException e)
