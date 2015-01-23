@@ -5,7 +5,7 @@ settings, address settings and when creating consumers.
 
 The syntax is similar to that used by [AMQP](http://www.amqp.org).
 
-A ActiveMQ wildcard expression contains words delimited by the character
+An ActiveMQ wildcard expression contains words delimited by the character
 '`.`' (full stop).
 
 The special characters '`#`' and '`*`' also have special meaning and can

@@ -5,9 +5,8 @@ be more comfortable using JMS.
 
 JMS is a very popular API standard for messaging, and most messaging
 systems provide a JMS API. If you are completely new to JMS we suggest
-you follow the[Sun JMS
-tutorial](http://docs.oracle.com/javaee/1.3/jms/tutorial) - a full JMS
-tutorial is out of scope for this guide.
+you follow the [Oracle JMS tutorial](http://docs.oracle.com/javaee/7/tutorial/partmessaging.htm) -
+a full JMS tutorial is out of scope for this guide.
 
 ActiveMQ also ships with a wide range of examples, many of which
 demonstrate JMS API usage. A good place to start would be to play around
@@ -34,7 +33,7 @@ single `MessageConsumer` consuming the order message from the queue.
 
 The queue will be a `durable` queue, i.e. it will survive a server
 restart or crash. We also want to pre-deploy the queue, i.e. specify the
-queue in the server JMS configuration so it is created automatically
+queue in the server configuration so it is created automatically
 without us having to explicitly create it from the client.
 
 JNDI Configuration
@@ -47,9 +46,9 @@ they see fit assuming the implementation fits the API. ActiveMQ does not
 have a JNDI server. Rather, it uses a client-side JNDI implementation
 that relies on special properties set in the environment to construct
 the appropriate JMS objects. In other words, no objects are stored in
-JNDI on the ActiveMQ server. There are simply instantiated on the client
-based on the provided configuration. Let's look at the different kinds
-of administered objects and how to configure them.
+JNDI on the ActiveMQ server, instead they are simply instantiated on the
+client based on the provided configuration. Let's look at the different
+kinds of administered objects and how to configure them.
 
 > **Note**
 >
@@ -217,31 +216,31 @@ properties. Here are the different options for the `type`:
 <table>
   <tr>
     <th>type</th>
-    <th>interface</th> 
+    <th>interface</th>
   </tr>
   <tr>
     <td>CF (default)</td>
-    <td>javax.jms.ConnectionFactory</td> 
-  </tr>    
+    <td>javax.jms.ConnectionFactory</td>
+  </tr>
   <tr>
     <td>XA_CF</td>
-    <td>javax.jms.XAConnectionFactory</td> 
+    <td>javax.jms.XAConnectionFactory</td>
   </tr>
   <tr>
     <td>QUEUE_CF</td>
-    <td>javax.jms.QueueConnectionFactory</td> 
+    <td>javax.jms.QueueConnectionFactory</td>
   </tr>
   <tr>
     <td>QUEUE_XA_CF</td>
-    <td>javax.jms.XAQueueConnectionFactory</td> 
+    <td>javax.jms.XAQueueConnectionFactory</td>
   </tr>
   <tr>
     <td>TOPIC_CF</td>
-    <td>javax.jms.TopicConnectionFactory</td> 
+    <td>javax.jms.TopicConnectionFactory</td>
   </tr>
   <tr>
     <td>TOPIC_XA_CF</td>
-    <td>javax.jms.XATopicConnectionFactory</td> 
+    <td>javax.jms.XATopicConnectionFactory</td>
   </tr>
 </table>
 
@@ -349,8 +348,9 @@ With ActiveMQ you can do exactly that. ActiveMQ supports the direct
 instantiation of JMS Queue, Topic and ConnectionFactory instances, so
 you don't have to use JNDI at all.
 
-For a full working example of direct instantiation please see the JMS
-examples in ?.
+>For a full working example of direct instantiation please look at the
+>"Instantiate JMS Objects Directly" example under the JMS section of the
+>examples.  See the [Examples](examples.md) section for more info.
 
 Here's our simple example, rewritten to not use JNDI at all:
 
@@ -359,7 +359,7 @@ Utility class, note we need to provide connection parameters and specify
 which transport we are using, for more information on connectors please
 see [Configuring the Transport](configuring-transports.md).
 
-``` java                  
+``` java
 TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName());
 
 ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,transportConfiguration);
