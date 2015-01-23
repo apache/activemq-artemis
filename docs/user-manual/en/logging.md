@@ -7,14 +7,44 @@ the console and to a file.
 
 There are 6 loggers available which are as follows:
 
-  Logger                                      Logger Description
-  ------------------------------------------- ----------------------------------------------------
-  org.jboss.logging                           Logs any calls not handled by the ActiveMQ loggers
-  org.apache.activemq.core.server             Logs the core server
-  org.apache.activemq.utils                   Logs utility calls
-  org.apache.activemq.journal                 Logs Journal calls
-  org.apache.activemq.jms                     Logs JMS calls
-  org.apache.activemq.integration.bootstrap   Logs bootstrap calls
+<table summary="Loggers" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Logger</th>
+        <th>Logger Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>org.jboss.logging</td>
+        <td>Logs any calls not handled by the ActiveMQ loggers</td>
+    </tr>
+    <tr>
+        <td>org.apache.activemq.core.server</td>
+        <td>Logs the core server</td>
+    </tr>
+    <tr>
+        <td>org.apache.activemq.utils</td>
+        <td>Logs utility calls</td>
+    </tr>
+    <tr>
+        <td>org.apache.activemq.journal</td>
+        <td>Logs Journal calls</td>
+    </tr>
+    <tr>
+        <td>org.apache.activemq.jms</td>
+        <td>Logs JMS calls</td>
+    </tr>
+    <tr>
+        <td>org.apache.activemq.integration.bootstrap </td>
+        <td>Logs bootstrap calls</td>
+    </tr>
+    </tbody>
+</table>
 
   : Global Configuration Properties
 
@@ -27,12 +57,12 @@ add the following dependencies.
     <dependency>
        <groupId>org.jboss.logmanager</groupId>
        <artifactId>jboss-logmanager</artifactId>
-       <version>1.3.1.Final</version>
+       <version>1.5.3.Final</version>
     </dependency>
     <dependency>
        <groupId>org.apache.activemq</groupId>
        <artifactId>activemq-core-client</artifactId>
-       <version>2.3.0.Final</version>
+       <version>6.0.0</version>
     </dependency>
 
 There are 2 properties you need to set when starting your java program,

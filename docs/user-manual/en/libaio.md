@@ -79,7 +79,7 @@ In the distribution, in the `native-src` directory, execute the shell
 script `bootstrap`. This script will invoke `automake` and `make` what
 will create all the make files and the native library.
 
-    someUser@someBox:/messaging-distribution/native-src$ ./bootstrap 
+    someUser@someBox:/messaging-distribution/native-src$ ./bootstrap
     checking for a BSD-compatible install... /usr/bin/install -c
     checking whether build environment is sane... yes
     checking for a thread-safe mkdir -p... /bin/mkdir -p

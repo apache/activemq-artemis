@@ -32,7 +32,7 @@ large messages are stored.
 
     <configuration xmlns="urn:activemq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+       xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
     ...
     <large-messages-directory>/data/large-messages</large-messages-directory>
     ...
@@ -88,7 +88,7 @@ by default:
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
     java.naming.provider.url=tcp://localhost:5445
     connection.ConnectionFactory.minLargeMessageSize=250000
-                
+
 
 If the connection factory is being instantiated directly, the minimum
 large message size is specified by
@@ -113,7 +113,7 @@ If the compressed size of a large message is below `
 messages. This means that the message won't be written into the server's
 large-message data directory, thus reducing the disk I/O.
 
-### 
+###
 
 If JNDI is used to instantiate and look up the connection factory, large
 message compression can be configured in the JNDI context environment,
@@ -151,11 +151,38 @@ messages or `java.io.OutputStream` for receiving them.
 The following table shows a list of methods available at `ClientMessage`
 which are also available through JMS by the use of object properties.
 
-  Name                              Description                                                                                                                        JMS Equivalent Property
-  --------------------------------- ---------------------------------------------------------------------------------------------------------------------------------- -------------------------
-  setBodyInputStream(InputStream)   Set the InputStream used to read a message body when sending it.                                                                   JMS\_HQ\_InputStream
-  setOutputStream(OutputStream)     Set the OutputStream that will receive the body of a message. This method does not block.                                          JMS\_HQ\_OutputStream
-  saveOutputStream(OutputStream)    Save the body of the message to the `OutputStream`. It will block until the entire content is transferred to the `OutputStream`.   JMS\_HQ\_SaveStream
+<table summary="Server Configuration" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>JMS Equivalent</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>setBodyInputStream(InputStream)</td>
+        <td>Set the InputStream used to read a message body when sending it.</td>
+        <td>JMS_HQ_InputStream</td>
+    </tr>
+    <tr>
+        <td>setOutputStream(OutputStream)</td>
+        <td>Set the OutputStream that will receive the body of a message. This method does not block.</td>
+        <td>JMS_HQ_OutputStream</td>
+    </tr>
+    <tr>
+        <td>saveOutputStream(OutputStream)</td>
+        <td>Save the body of the message to the `OutputStream`. It will block until the entire content is transferred to the `OutputStream`.</td>
+        <td>JMS_HQ_SaveStream</td>
+    </tr>
+    </tbody>
+</table>
 
   : org.apache.activemq.api.core.client.ClientMessage API
 
@@ -166,12 +193,12 @@ ClientMessage msg = consumer.receive(...);
 
 
 // This will block here until the stream was transferred
-msg.saveOutputStream(someOutputStream); 
+msg.saveOutputStream(someOutputStream);
 
 ClientMessage msg2 = consumer.receive(...);
 
 // This will not wait the transfer to finish
-msg.setOutputStream(someOtherOutputStream); 
+msg.setOutputStream(someOtherOutputStream);
 ```
 
 Set the input stream when sending a core message:
@@ -212,13 +239,13 @@ JMS_HQ_SaveStream on messages being received in a blocking way.
 
 ``` java
 BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
-                
+
 File outputFile = new File("huge_message_received.dat");
-                
+
 FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-                
+
 BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
-                
+
 // This will block until the entire content is saved on disk
 messageReceived.setObjectProperty("JMS_HQ_SaveStream", bufferedOutput);
 ```
@@ -246,7 +273,7 @@ On the Core API just get the bytes of the body as you normally would.
 
 ``` java
 ClientMessage msg = consumer.receive();
-         
+
 byte[] bytes = new byte[1024];
 for (int i = 0 ;  i < msg.getBodySize(); i += bytes.length)
 {
@@ -266,10 +293,10 @@ for (int i = 0; i < rm.getBodyLength(); i += 1024)
 {
    int numberOfBytes = rm.readBytes(data);
    // Do whatever you want with the data
-}        
+}
 ```
 
 ## Large message example
 
-Please see ? for an example which shows how large message is configured
+Please see the [examples](examples.md) chapter for an example which shows how large message is configured
 and used with JMS.

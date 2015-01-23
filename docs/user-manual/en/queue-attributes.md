@@ -10,7 +10,7 @@ attribute has.
 Queues can be predefined via configuration at a core level or at a JMS
 level. Firstly let's look at a JMS level.
 
-The following shows a queue predefined in the `activemq-jms.xml`
+The following shows a queue predefined in the jms element of the `activemq-configuration.xml`
 configuration file.
 
     <queue name="selectorQueue">

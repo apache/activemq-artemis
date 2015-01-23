@@ -84,5 +84,4 @@ the exception the message is individually acked.
 
 ## Example
 
-See ? for an example which shows how to use pre-acknowledgement mode
-with JMS.
+See the [examples](examples.md) chapter for an example which shows how to use pre-acknowledgement mode with JMS.

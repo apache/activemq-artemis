@@ -84,13 +84,7 @@ which is available in the context by default:
 
 ## Example
 
-See ? for an example which shows how message groups are configured and
-used with JMS.
-
-## Example
-
-See ? for an example which shows how message groups are configured via a
-connection factory.
+See the [examples](examples.md} chapter for an example which shows how message groups are configured and used with JMS and via a connection factory.
 
 ## Clustered Grouping
 
@@ -186,5 +180,4 @@ Some best practices should be followed when using clustered grouping:
 
 ## Clustered Grouping Example
 
-See ? for an example of how to configure message groups with a ActiveMQ
-cluster
+See the [examples](examples.md) chapter for an example of how to configure message groups with a ActiveMQ Cluster.

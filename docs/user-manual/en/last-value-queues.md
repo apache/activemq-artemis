@@ -34,14 +34,14 @@ TextMessage message = session.createTextMessage("1st message with Last-Value pro
 message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
 producer.send(message);
 
-// send 2nd message with Last-Value property set to STOCK_NAME             
+// send 2nd message with Last-Value property set to STOCK_NAME
 message = session.createTextMessage("2nd message with Last-Value property set");
 message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
 producer.send(message);
-       
+
 ...
-       
-// only the 2nd message will be received: it is the latest with 
+
+// only the 2nd message will be received: it is the latest with
 // the Last-Value property set
 TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 System.out.format("Received message: %s\n", messageReceived.getText());
@@ -49,5 +49,5 @@ System.out.format("Received message: %s\n", messageReceived.getText());
 
 ## Example
 
-See ? for an example which shows how last value queues are configured
+See the [examples](examples.md) chapter for an example which shows how last value queues are configured
 and used with JMS.

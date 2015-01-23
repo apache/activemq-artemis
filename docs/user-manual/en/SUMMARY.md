@@ -1,7 +1,10 @@
+# Summary
+
+* [Introduction](README.md)
 * [Legal Notice](notice.md)
 * [Preface](preface.md)
 * [Project Info](project-info/project-info.md)
-* [Messaging Concepts](messaging-concepts/messaging-concepts.md) 
+* [Messaging Concepts](messaging-concepts.md)
 * [Architecture](architecture.md)
 * [Using the Server](using-server.md)
 * [Using JMS](using-jms.md)
@@ -51,3 +54,4 @@
 * [Tools](tools.md)
 * [Performance Tuning](perf-tuning.md)
 * [Configuration Reference](configuration-index.md)
+

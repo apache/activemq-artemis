@@ -14,7 +14,7 @@ other than the standard JDK classes! This is because we use some of the
 netty buffer classes internally.
 
 This allows ActiveMQ to be easily embedded in your own project, or
-instantiated in any dependency injection framework such as Spring or 
+instantiated in any dependency injection framework such as Spring or
 Google Guice.
 
 Each ActiveMQ server has its own ultra high performance persistent
@@ -131,8 +131,8 @@ configuration. It also provides a simple management API for
 creating and destroying Queues and Topics
 which can be accessed via JMX or the connection. It is a separate
 service to the ActiveMQ core server, since the core server is JMS
-agnostic. If you don't want to deploy any JMS Queue or Topic via 
-server side XML configuration and don't require a JMS management 
+agnostic. If you don't want to deploy any JMS Queue or Topic via
+server side XML configuration and don't require a JMS management
 API on the server side then you can disable this service.
 
 The stand-alone server configuration uses [Airline](https://github.com/airlift/airline)
