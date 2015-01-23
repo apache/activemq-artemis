@@ -19,7 +19,6 @@ package org.apache.activemq.tests.integration.jms.bridge;
 
 import javax.transaction.TransactionManager;
 
-import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import org.apache.activemq.service.extensions.transactions.TransactionManagerLocator;
 
 /**
@@ -28,11 +27,16 @@ import org.apache.activemq.service.extensions.transactions.TransactionManagerLoc
 
 public class TransactionManagerLocatorImpl implements TransactionManagerLocator
 {
-   public static TransactionManager tm = new TransactionManagerImple();
+   public static TransactionManager tm = null;
 
    @Override
    public TransactionManager getTransactionManager()
    {
       return tm;
+   }
+
+   public void setTransactionManager(TransactionManager transactionManager)
+   {
+      tm = transactionManager;
    }
 }

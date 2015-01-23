@@ -46,6 +46,7 @@ import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.service.extensions.ServiceUtils;
+import org.apache.activemq.tests.integration.jms.bridge.TransactionManagerLocatorImpl;
 import org.apache.activemq.tests.integration.ra.DummyTransactionManager;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.junit.After;
@@ -59,7 +60,6 @@ import org.junit.Before;
  */
 public class JMSTestBase extends ServiceTestBase
 {
-
    protected ActiveMQServer server;
 
    protected JMSServerManagerImpl jmsServer;
@@ -153,9 +153,6 @@ public class JMSTestBase extends ServiceTestBase
    {
       super.setUp();
 
-      // Load Arjuna TM if one is not already set.
-      if (ServiceUtils.getTransactionManager() == null) useRealTransactionManager();
-
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
       Configuration conf = createDefaultConfig(true)
@@ -236,6 +233,9 @@ public class JMSTestBase extends ServiceTestBase
       MBeanServerFactory.releaseMBeanServer(mbeanServer);
 
       mbeanServer = null;
+
+      TransactionManagerLocatorImpl.tm = null;
+      ServiceUtils.setTransactionManager(null);
 
       super.tearDown();
    }
@@ -331,4 +331,5 @@ public class JMSTestBase extends ServiceTestBase
          throw new JMSRuntimeException(cause.getMessage(), cause.getErrorCode(), cause);
       }
    }
+
 }

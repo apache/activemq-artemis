@@ -406,8 +406,7 @@ public final class JMSBridgeImpl implements JMSBridge
       boolean ok;
 
       // Check to see if the QoSMode requires a TM
-      if (qualityOfServiceMode.equals(QualityOfServiceMode.AT_MOST_ONCE) ||
-         qualityOfServiceMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
+      if (qualityOfServiceMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE) && sourceCff != targetCff)
       {
          if (tm == null)
          {

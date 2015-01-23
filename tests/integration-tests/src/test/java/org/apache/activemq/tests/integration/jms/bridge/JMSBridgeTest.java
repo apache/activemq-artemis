@@ -39,7 +39,9 @@ import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.jms.client.ActiveMQMessage;
+import org.apache.activemq.service.extensions.ServiceUtils;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.integration.ra.DummyTransactionManager;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
 import org.junit.Test;
@@ -407,7 +409,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -447,6 +448,7 @@ public class JMSBridgeTest extends BridgeTestBase
          checkAllMessageReceivedInOrder(cf1, targetQueue, NUM_MESSAGES, 1, false);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES - 1, false);
+
       }
       finally
       {
@@ -759,7 +761,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -848,7 +849,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -936,7 +936,6 @@ public class JMSBridgeTest extends BridgeTestBase
          bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory,
                                     targetQueueFactory, "guest", mask, "guest", mask, null, 5000,
                                     10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.setUseMaskedPassword(true);
 
@@ -1023,7 +1022,6 @@ public class JMSBridgeTest extends BridgeTestBase
          bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory,
                                     targetQueueFactory, "guest", mask, "guest", mask, null, 5000,
                                     10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.setUseMaskedPassword(true);
          bridge.setPasswordCodec(codec.getClass().getName() + ";key=bridgekey");
@@ -1138,7 +1136,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(mgr);
          bridge.start();
 
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, false, largeMessage);
@@ -1214,7 +1211,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -1268,7 +1264,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     "subTest",
                                     "clientid123",
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -1333,7 +1328,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     on);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -1541,7 +1535,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     messageIDInHeader);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -1716,7 +1709,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -1802,6 +1794,7 @@ public class JMSBridgeTest extends BridgeTestBase
       {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
+         ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
       try
@@ -1823,7 +1816,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -1896,6 +1888,7 @@ public class JMSBridgeTest extends BridgeTestBase
       {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
+         ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
       try
@@ -1917,7 +1910,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -2010,7 +2002,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -2079,6 +2070,7 @@ public class JMSBridgeTest extends BridgeTestBase
       {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
+         ServiceUtils.setTransactionManager(newTransactionManager());
       }
       try
       {
@@ -2101,7 +2093,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -2155,6 +2146,7 @@ public class JMSBridgeTest extends BridgeTestBase
       if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
       {
          factInUse0 = cff0xa;
+         ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
       try
@@ -2178,7 +2170,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -2233,6 +2224,7 @@ public class JMSBridgeTest extends BridgeTestBase
       {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
+         ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
       try
@@ -2258,7 +2250,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -2293,6 +2284,7 @@ public class JMSBridgeTest extends BridgeTestBase
       if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
       {
          factInUse0 = cff0xa;
+         ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
       try
@@ -2318,7 +2310,6 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     null,
                                     false);
-         bridge.setTransactionManager(newTransactionManager());
 
          bridge.start();
 
@@ -2350,8 +2341,9 @@ public class JMSBridgeTest extends BridgeTestBase
    @Test
    public void testSetTMClass() throws Exception
    {
-      JMSBridgeImpl bridge = null;
+      TransactionManagerLocatorImpl.tm = new DummyTransactionManager();
 
+      JMSBridgeImpl bridge = null;
       try
       {
          bridge = new JMSBridgeImpl(cff0,
@@ -2365,7 +2357,7 @@ public class JMSBridgeTest extends BridgeTestBase
                                     null,
                                     3000,
                                     10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
+                                    QualityOfServiceMode.ONCE_AND_ONLY_ONCE,
                                     10000,
                                     3000,
                                     null,
@@ -2421,7 +2413,6 @@ public class JMSBridgeTest extends BridgeTestBase
       return newTransactionManager();
    }
 
-
    // Inner classes -------------------------------------------------------------------
 
    private static class StressSender implements Runnable
@@ -2455,5 +2446,4 @@ public class JMSBridgeTest extends BridgeTestBase
       }
 
    }
-
 }
