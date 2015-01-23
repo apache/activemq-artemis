@@ -37,7 +37,7 @@ Global paging parameters are specified on the main configuration file
 
     <configuration xmlns="urn:activemq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+       xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
     ...
     <paging-directory>/somewhere/paging-directory</paging-directory>
     ...
@@ -76,14 +76,42 @@ configuration file (`activemq-configuration.xml`).
 
 This is the list of available parameters on the address settings.
 
-  Property Name           Description                                                                                                                                                                                                                                                                                                                                                                                                        Default
-  ----------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ ----------------------------------
-  `max-size-bytes`        What's the max memory the address could have before entering on page mode.                                                                                                                                                                                                                                                                                                                                         -1 (disabled)
-  `page-size-bytes`       The size of each page file used on the paging system                                                                                                                                                                                                                                                                                                                                                               10MiB (10 \* 1024 \* 1024 bytes)
-  `address-full-policy`   This must be set to PAGE for paging to enable. If the value is PAGE then further messages will be paged to disk. If the value is DROP then further messages will be silently dropped. If the value is FAIL then the messages will be dropped and the client message producers will receive an exception. If the value is BLOCK then client message producers will block when they try and send further messages.   PAGE
-  `page-max-cache-size`   The system will keep up to \<`page-max-cache-size` page files in memory to optimize IO during paging navigation.                                                                                                                                                                                                                                                                                                   5
-
-  : Paging Address Settings
+<table summary="Server Configuration" border="1">
+    <colgroup>
+        <col/>
+        <col/>
+        <col/>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Property Name</th>
+        <th>Description</th>
+        <th>Default</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>`max-size-bytes`</td>
+        <td>What's the max memory the address could have before entering on page mode.</td>
+        <td>-1 (disabled)</td>
+    </tr>
+    <tr>
+        <td>`page-size-bytes`</td>
+        <td>The size of each page file used on the paging system</td>
+        <td>10MiB (10 \* 1024 \* 1024 bytes)</td>
+    </tr>
+    <tr>
+        <td>`address-full-policy`</td>
+        <td>This must be set to PAGE for paging to enable. If the value is PAGE then further messages will be paged to disk. If the value is DROP then further messages will be silently dropped. If the value is FAIL then the messages will be dropped and the client message producers will receive an exception. If the value is BLOCK then client message producers will block when they try and send further messages.</td>
+        <td>PAGE</td>
+    </tr>
+    <tr>
+        <td>`page-max-cache-size`</td>
+        <td>The system will keep up to \<`page-max-cache-size` page files in memory to optimize IO during paging navigation.</td>
+        <td>5</td>
+    </tr>
+    </tbody>
+</table>
 
 ## Dropping messages
 
@@ -147,4 +175,4 @@ undesirable state.
 
 ## Example
 
-See ? for an example which shows how to use paging with ActiveMQ.
+See the [examples]9examples.md) chapter for an example which shows how to use paging with ActiveMQ.

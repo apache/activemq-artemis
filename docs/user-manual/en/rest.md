@@ -140,39 +140,12 @@ Maven pom.xml that can build your WAR for this case.
        </dependencies>
     </project>
 
-> **Note**
->
-> JBoss AS 7 loads classes differently than previous versions. To work
-> properly in AS 7 the WAR will need this in its MANIFEST.MF:
->
->     Dependencies: org.apache.activemq, org.jboss.netty
->
-> You can add this to the`<plugins>` section of the pom.xml to create
-> this entry automatically:
->
->     <plugin>
->        <groupId>org.apache.maven.plugins</groupId>
->        <artifactId>maven-war-plugin</artifactId>
->        <configuration>
->           <archive>
->              <manifestEntries>
->                 <Dependencies>org.apache.activemq, org.jboss.netty</Dependencies>
->              </manifestEntries>
->           </archive>
->        </configuration>
->     </plugin>
-
 It is worth noting that when deploying a WAR in a Java EE application
 server like AS7 the URL for the resulting application will include the
 name of the WAR by default. For example, if you've constructed a WAR as
 described above named "activemq-rest.war" then clients will access it
 at, e.g. http://localhost:8080/activemq-rest/[queues|topics]. We'll see
 more about this later.
-
-> **Note**
->
-> It is possible to put the WAR file at the "root context" of AS7, but
-> that is beyond the scope of this documentation.
 
 ### Bootstrapping ActiveMQ Along with REST
 

@@ -85,7 +85,7 @@ tuning:
     reached the server by the time the call to send() returns, don't set
     durable messages to be sent blocking, instead use asynchronous send
     acknowledgements to get your acknowledgements of send back in a
-    separate stream, see [Guarantees of sends and commits](send-guarantees.md) 
+    separate stream, see [Guarantees of sends and commits](send-guarantees.md)
     for more information on this.
 
 -   Use pre-acknowledge mode. With pre-acknowledge mode, messages are
@@ -104,7 +104,7 @@ tuning:
 -   Sync transactions lazily. Setting `journal-sync-transactional` to
     `false` in `activemq-configuration.xml` can give you better
     transactional persistent performance at the expense of some
-    possibility of loss of transactions on failure. See  [Guarantees of sends and commits](send-guarantees.md) 
+    possibility of loss of transactions on failure. See  [Guarantees of sends and commits](send-guarantees.md)
     for more information.
 
 -   Sync non transactional lazily. Setting
@@ -115,10 +115,10 @@ tuning:
     for more information.
 
 -   Send messages non blocking. Setting `block-on-durable-send` and
-    `block-on-non-durable-send` to `false` in `activemq-jms.xml` (if
+    `block-on-non-durable-send` to `false` in the jms config (if
     you're using JMS and JNDI) or directly on the ServerLocator. This
     means you don't have to wait a whole network round trip for every
-    message sent. See  [Guarantees of sends and commits](send-guarantees.md) 
+    message sent. See  [Guarantees of sends and commits](send-guarantees.md)
     for more information.
 
 -   If you have very fast consumers, you can increase
@@ -148,7 +148,7 @@ tuning:
 
 -   TCP buffer sizes. If you have a fast network and fast machines you
     may get a performance boost by increasing the TCP send and receive
-    buffer sizes. See the [Configuring the Transport](configuring-transports.md) 
+    buffer sizes. See the [Configuring the Transport](configuring-transports.md)
     for more information on this.
 
     > **Note**
@@ -179,7 +179,7 @@ tuning:
     `activemq-configuration.xml` and JMS connection factory
     (`ThroughputConnectionFactory`) in `activemq-jms.xml`which can be
     used to give the very best throughput, especially for small
-    messages. See the [Configuring the Transport](configuring-transports.md) 
+    messages. See the [Configuring the Transport](configuring-transports.md)
     for more information on this.
 
 ## Tuning the VM

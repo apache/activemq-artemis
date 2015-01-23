@@ -216,7 +216,7 @@ messages with a given property.)
 
     Message counters can be listed for a queue with the
     `listMessageCounter()` and `listMessageCounterHistory()` methods
-    (see Message Counters section). The message counters can also be 
+    (see Message Counters section). The message counters can also be
     reset for a single queue using the `resetMessageCounter()` method.
 
 -   Retrieving the queue attributes
@@ -329,7 +329,7 @@ using the `JMSServerControl` class (with the ObjectName
     curly braces. For example `{key=10}, {key=20}`. In that case, the
     first `key` will be associated to the first transport configuration
     and the second `key` will be associated to the second transport
-    configuration (see [Configuring Transports](configuring-transports.md) 
+    configuration (see [Configuring Transports](configuring-transports.md)
     for a list of the transport parameters)
 
 -   Listing, creating, destroying queues
@@ -541,8 +541,21 @@ is also deployed to allow access to the mbean server via rest.
 
 ### Example
 
-See ? for an example which shows how to use a remote connection to JMX
+See the [chapters](examples.md) chapter for an example which shows how to use a remote connection to JMX
 and MBean proxies to manage ActiveMQ.
+
+### Exposing JMX using Jolokia
+
+The default Broker configuration ships with the [Jolokia](http://www.jolokia.org)
+http agent deployed as a Web Application. Jolokia is a remote
+JMX over HTTP bridge that exposed mBeans, for a full guids as
+to how to use refer to [Jolokia Documentation](http://www.jolokia.org/documentation.html),
+however a simple example to query thebrokers version would
+be to use a brower and go to the URL http://localhost:8161/jolokia/read/org.apache.activemq:module=Core,type=Server/Version.
+
+This would give you back something like the following:
+
+    {"timestamp":1422019706,"status":200,"request":{"mbean":"org.apache.activemq:module=Core,type=Server","attribute":"Version","type":"read"},"value":"6.0.0.SNAPSHOT (Active Hornet, 126)"}
 
 ## Using Management Via Core API
 
@@ -685,8 +698,8 @@ steps are the same (see Configuring Core Management section).
 
 ### Example
 
-See ? for an example which shows how to use JMS messages to manage
-ActiveMQ server.
+See the [examples](examples.md) chapter for an example which shows
+how to use JMS messages to manage the ActiveMQ server.
 
 ## Management Notifications
 
@@ -787,8 +800,7 @@ notificationConsumer.setMessageListener(new MessageListener()
 ```
 ### Example
 
-See ? for an example which shows how to use a JMS `MessageListener` to
-receive management notifications from ActiveMQ server.
+See the [examples](examples.md) chapter for an example which shows how to use a JMS `MessageListener` to receive management notifications from ActiveMQ server.
 
 ### Notification Types and Headers
 
@@ -967,10 +979,10 @@ JMSQueueControlMBean queueControl = (JMSQueueControl)MBeanServerInvocationHandle
    on,
    JMSQueueControl.class,
    false);
-// message counters are retrieved as a JSON String                                                                                                      
+// message counters are retrieved as a JSON String
 String counters = queueControl.listMessageCounter();
 // use the MessageCounterInfo helper class to manipulate message counters more easily
-MessageCounterInfo messageCounter = MessageCounterInfo.fromJSON(counters);         
+MessageCounterInfo messageCounter = MessageCounterInfo.fromJSON(counters);
 System.out.format("%s message(s) in the queue (since last sample: %s)\n",
 messageCounter.getMessageCount(),
 messageCounter.getMessageCountDelta());
@@ -978,5 +990,4 @@ messageCounter.getMessageCountDelta());
 
 ### Example
 
-See ? for an example which shows how to use message counters to retrieve
-information on a JMS `Queue`.
+See the [examples](examples.md) chapter for an example which shows how to use message counters to retrieve information on a JMS `Queue`.

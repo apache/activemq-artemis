@@ -21,7 +21,7 @@ message:
 
 JMS MessageProducer allows to set a TimeToLive for the messages it sent:
 
-    // messages sent by this producer will be retained for 5s (5000ms) before expiration           
+    // messages sent by this producer will be retained for 5s (5000ms) before expiration
     producer.setTimeToLive(5000);
 
 Expired messages which are consumed from an expiry address have the
@@ -76,5 +76,4 @@ The reaper thread can be configured with the following properties in
 
 ## Example
 
-See ? for an example which shows how message expiry is configured and
-used with JMS.
+See the [examples.md](examples.md) chapter for an example which shows how message expiry is configured and used with JMS.

@@ -123,7 +123,7 @@ ActiveMQ can also be configured to page messages to disk in low memory
 situations. This is discussed in [Paging](paging.md).
 
 If no persistence is required at all, ActiveMQ can also be configured
-not to persist any data at all to storage as discussed in the Configuring 
+not to persist any data at all to storage as discussed in the Configuring
 HornetQ for Zero Persistence section.
 
 ## Configuring the bindings journal

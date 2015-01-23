@@ -188,16 +188,10 @@ by the parameters passed to its constructor.
     to register the JMS Bridge MBean (must be unique)
 
 The "transactionManager" property points to a JTA transaction manager
-implementation. ActiveMQ doesn't ship with such an implementation, but
-one is available in the JBoss Community. If you are running ActiveMQ in
-standalone mode and wish to use a JMS bridge simply download the latest
-version of JBossTS from http://www.jboss.org/jbosstm/downloads and add
-it to ActiveMQ's classpath. If you are running ActiveMQ with JBoss AS
-then you won't need to do this as JBoss AS ships with a JTA transaction
-manager already. The bean definition for the transaction manager would
-look something like this:
-
-    <bean name="RealTransactionManager" class="com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple"/>
+implementation and should be set if you need to use the 'ONCE_AND_ONCE_ONLY'
+Quality of Service. ActiveMQ doesn't ship with such an implementation, but
+if you are running within an Application Server you can inject the Transaction
+Manager that is shipped.
 
 ## Source and Target Connection Factories
 
@@ -258,12 +252,8 @@ server instance then this can be achieved by sending and acknowledging
 the messages in the same local transaction. If the source and
 destination are on different servers this is achieved by enlisting the
 sending and consuming sessions in a JTA transaction. The JTA transaction
-is controlled by JBoss Transactions JTA \* implementation which is a
-fully recovering transaction manager, thus providing a very high degree
-of durability. If JTA is required then both supplied connection
-factories need to be XAConnectionFactory implementations. This is likely
-to be the slowest mode since it requires extra persistence for the
-transaction logging.
+is controlled by a JTA Transaction Manager which will need to be set
+via the settransactionManager method on the Bridge.
 
 This mode is only available for durable messages.
 
