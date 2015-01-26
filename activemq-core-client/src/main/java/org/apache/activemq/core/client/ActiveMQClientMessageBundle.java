@@ -97,8 +97,8 @@ public interface ActiveMQClientMessageBundle
    @Message(id = 119013, value =  "Timed out waiting to receive cluster topology. Group:{0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQConnectionTimedOutException connectionTimedOutOnReceiveTopology(DiscoveryGroup discoveryGroup);
 
-   @Message(id = 119014, value =  "Timed out waiting for response when sending packet {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQConnectionTimedOutException timedOutSendingPacket(Byte type);
+   @Message(id = 119014, value =  "Timed out after waiting {0} ms for response when sending packet {1}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQConnectionTimedOutException timedOutSendingPacket(long timeout, Byte type);
 
    @Message(id = 119015, value =  "The connection was disconnected because of server shutdown", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQDisconnectedException disconnected();

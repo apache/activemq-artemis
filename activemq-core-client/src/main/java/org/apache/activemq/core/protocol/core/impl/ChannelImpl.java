@@ -403,7 +403,7 @@ public final class ChannelImpl implements Channel
 
             if (response == null)
             {
-               throw ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(packet.getType());
+               throw ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(connection.getBlockingCallTimeout(), packet.getType());
             }
 
             if (response.getType() == PacketImpl.EXCEPTION)
