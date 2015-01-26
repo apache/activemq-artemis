@@ -136,7 +136,7 @@ public class ConsumerStuckTest extends ServiceTestBase
 
          long timeStart = System.currentTimeMillis();
 
-         while (timeout > System.currentTimeMillis() && server.getSessions().size() != 0 && server.getConnectionCount() != 0)
+         while (timeout > System.currentTimeMillis() && (server.getSessions().size() != 0 || server.getConnectionCount() != 0))
          {
             Thread.sleep(10);
          }
