@@ -789,7 +789,6 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                   if (conn != null)
                   {
                      conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
-                     removeConnection(id);
                   }
                }
 

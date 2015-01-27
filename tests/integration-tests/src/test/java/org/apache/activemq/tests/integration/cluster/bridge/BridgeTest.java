@@ -54,6 +54,7 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
@@ -310,13 +311,13 @@ public class BridgeTest extends ServiceTestBase
                ignoreSends && packet instanceof SessionSendLargeMessage ||
                ignoreSends && packet instanceof SessionSendContinuationMessage && !((SessionSendContinuationMessage) packet).isContinues())
             {
-               System.out.println("Ignored");
+               IntegrationTestLogger.LOGGER.info("IGNORED: " + packet);
                latch.countDown();
                return false;
             }
             else
             {
-               System.out.println(packet);
+               IntegrationTestLogger.LOGGER.info(packet);
                return true;
             }
          }
@@ -359,9 +360,8 @@ public class BridgeTest extends ServiceTestBase
          .setReconnectAttemptsOnSameNode(-1)
          .setUseDuplicateDetection(false)
          .setConfirmationWindowSize(numMessages * messageSize / 2)
-         .setStaticConnectors(connectorConfig);
-
-      bridgeConfiguration.setCallTimeout(500);
+         .setStaticConnectors(connectorConfig)
+         .setCallTimeout(5000);
 
       List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
       bridgeConfigs.add(bridgeConfiguration);
@@ -423,6 +423,8 @@ public class BridgeTest extends ServiceTestBase
 
       assertTrue("where is the countDown?", myInterceptor.latch.await(30, TimeUnit.SECONDS));
       myInterceptor.ignoreSends = false;
+      server1.getRemotingService().removeIncomingInterceptor(myInterceptor);
+      IntegrationTestLogger.LOGGER.info("No longer ignoring packets.");
 
       for (int i = 0; i < numMessages; i++)
       {
