@@ -3,32 +3,33 @@
 Messages can be delivered unsuccessfully (e.g. if the transacted session
 used to consume them is rolled back). Such a message goes back to its
 queue ready to be redelivered. However, this means it is possible for a
-message to be delivered again and again without any success and remain
-in the queue, clogging the system.
+message to be delivered again and again without success thus remaining
+in the queue indefinitely, clogging the system.
 
 There are 2 ways to deal with these undelivered messages:
 
 -   Delayed redelivery.
 
-    It is possible to delay messages redelivery to let the client some
-    time to recover from transient failures and not overload its network
-    or CPU resources
+    It is possible to delay messages redelivery.  This gives the client some
+    time to recover from any transient failures and to prevent overloading
+    its network or CPU resources.
 
 -   Dead Letter Address.
 
     It is also possible to configure a dead letter address so that after
     a specified number of unsuccessful deliveries, messages are removed
-    from the queue and will not be delivered again
+    from their queue and sent to the dead letter address.  These messages
+    will not be delivered again from this queue.
 
 Both options can be combined for maximum flexibility.
 
 ## Delayed Redelivery
 
-Delaying redelivery can often be useful in the case that clients
-regularly fail or rollback. Without a delayed redelivery, the system can
-get into a "thrashing" state, with delivery being attempted, the client
-rolling back, and delivery being re-attempted ad infinitum in quick
-succession, consuming valuable CPU and network resources.
+Delaying redelivery can often be useful in cases where clients regularly
+fail or rollback. Without a delayed redelivery, the system can get into a
+"thrashing" state, with delivery being attempted, the client rolling back,
+and delivery being re-attempted ad infinitum in quick succession,
+consuming valuable CPU and network resources.
 
 ### Configuring Delayed Redelivery
 
@@ -54,10 +55,22 @@ By default, there is no redelivery delay (`redelivery-delay`is set to
 Other subsequent messages will be delivery regularly, only the cancelled
 message will be sent asynchronously back to the queue after the delay.
 
-You can specify a multiplier that will take effect on top of the
-redelivery-delay with a max-redelivery-delay to be taken into account.
+You can specify a multiplier (the `redelivery-delay-multiplier`) that will
+take effect on top of the `redelivery-delay`.  Each time a message is redelivered
+the delay period will be equal to the previous delay * `redelivery-delay-multiplier`.
+A max-redelivery-delay can be set to prevent the delay from becoming too large.
+The max-redelivery-delay is defaulted to redelivery-delay \* 10.
 
-The max-redelivery-delay is defaulted to redelivery-delay \* 10
+Example:
+
+    - redelivery-delay=5000, redelivery-delay-multiplier=2, max-redelivery-delay=15000
+
+    1. Delivery Attempt 1. (Unsuccessful)
+    2. Wait Delay Period: 5000
+    3. Delivery Attempt 2. (Unsuccessful)
+    4. Wait Delay Period: 10000                   // (5000  * 2) < max-delay-period.  Use 10000
+    5. Delivery Attempt 3: (Unsuccessful)
+    6. Wait Delay Period: 15000                   // (10000 * 2) > max-delay-period:  Use max-delay-delivery
 
 Address wildcards can be used to configure redelivery delay for a set of
 addresses (see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md)), so you don't have to specify redelivery delay
@@ -73,17 +86,17 @@ and used with JMS.
 To prevent a client infinitely receiving the same undelivered message
 (regardless of what is causing the unsuccessful deliveries), messaging
 systems define *dead letter addresses*: after a specified unsuccessful
-delivery attempts, the message is removed from the queue and send
-instead to a dead letter address.
+delivery attempts, the message is removed from its queue and sent
+to a dead letter address.
 
 Any such messages can then be diverted to queue(s) where they can later
 be perused by the system administrator for action to be taken.
 
 ActiveMQ's addresses can be assigned a dead letter address. Once the
 messages have been unsuccessfully delivered for a given number of
-attempts, they are removed from the queue and sent to the dead letter
-address. These *dead letter* messages can later be consumed for further
-inspection.
+attempts, they are removed from their queue and sent to the relevant 
+dead letter address. These *dead letter* messages can later be consumed
+from the dead letter address for further inspection.
 
 ### Configuring Dead Letter Addresses
 
@@ -102,7 +115,7 @@ If a `dead-letter-address` is not specified, messages will removed after
 By default, messages are redelivered 10 times at the maximum. Set
 `max-delivery-attempts` to -1 for infinite redeliveries.
 
-For example, a dead letter can be set globally for a set of matching
+A `dead letter address` can be set globally for a set of matching
 addresses and you can set `max-delivery-attempts` to -1 for a specific
 address setting to allow infinite redeliveries only for this address.
 
@@ -126,8 +139,8 @@ the following properties:
 
 ### Example
 
-See ? for an example which shows how dead letter is configured and used
-with JMS.
+See: Dead Letter section of the [Examples](examples.md) for an example
+that shows how dead letter is configured and used with JMS.
 
 ## Delivery Count Persistence
 
@@ -148,8 +161,8 @@ knowledge of that and will deliver the message with `redelivered` set to
 `false` while it should be `true`.
 
 As this behavior breaks strict JMS semantics, ActiveMQ allows to persist
-delivery count before message delivery but disabled it by default for
-performance implications.
+delivery count before message delivery but this feature is disabled by default
+due to performance implications.
 
 To enable it, set `persist-delivery-count-before-delivery` to `true` in
 `activemq-configuration.xml`:
