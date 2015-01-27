@@ -154,7 +154,7 @@
        </dependency>
        <dependency>
           <groupId>org.eclipse.jetty.aggregate</groupId>
-          <artifactId>jetty-all-server</artifactId>
+          <artifactId>jetty-all</artifactId>
        </dependency>
        <dependency>
           <groupId>org.apache.geronimo.specs</groupId>
