@@ -562,6 +562,14 @@ public class JMSServerControlTest extends ManagementTestBase
 
          Assert.assertNull(fakeJMSStorageManager.destinationMap.get(queueName));
 
+         long timeout = System.currentTimeMillis() + 1000;
+         while (timeout > System.currentTimeMillis() && !((ActiveMQMessageConsumer)cons).isClosed())
+         {
+            Thread.sleep(1);
+         }
+
+         Assert.assertTrue(((ActiveMQMessageConsumer)cons).isClosed());
+
          try
          {
             cons.receive(5000);
