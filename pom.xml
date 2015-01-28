@@ -385,8 +385,8 @@
          <!-- ## Jetty web Dependencies ##-->
          <dependency>
             <groupId>org.eclipse.jetty.aggregate</groupId>
-            <artifactId>jetty-all-server</artifactId>
-            <version>7.6.9.v20130131</version>
+            <artifactId>jetty-all</artifactId>
+            <version>8.1.16.v20140903</version>
             <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
         </dependency>
         <dependency>
