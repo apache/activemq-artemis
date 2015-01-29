@@ -400,8 +400,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          if (!conn.isClient())
          {
             conn.disconnect(scaleDownNodeID, false);
-            connections.remove(entry.getKey());
-            connectionCountLatch.countDown();
+            removeConnection(entry.getKey());
          }
       }
    }
@@ -508,10 +507,10 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    public RemotingConnection removeConnection(final Object remotingConnectionID)
    {
       ConnectionEntry entry = connections.remove(remotingConnectionID);
-      connectionCountLatch.countDown();
 
       if (entry != null)
       {
+         connectionCountLatch.countDown();
          return entry.connection;
       }
       else
@@ -604,8 +603,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          // so we need to keep them for ttl, in case re-attachment occurs
          if (empty)
          {
-            connections.remove(connectionID);
-            connectionCountLatch.countDown();
+            removeConnection(connectionID);
 
             conn.connection.destroy();
          }
@@ -789,6 +787,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                   if (conn != null)
                   {
                      conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
+                     removeConnection(id);
                   }
                }
 
