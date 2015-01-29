@@ -54,7 +54,7 @@ specified. If the user has any of those roles, he/she will be granted
 that permission for that set of addresses.
 
 Let's take a simple example, here's a security block from
-`activemq-configuration.xml` or `activemq-queues.xml` file:
+`activemq-configuration.xml` file:
 
     <security-setting match="globalqueues.europe.#">
        <permission type="createDurableQueue" roles="admin"/>
@@ -67,7 +67,7 @@ Let's take a simple example, here's a security block from
 
 The '`#`' character signifies "any sequence of words". Words are
 delimited by the '`.`' character. For a full description of the wildcard
-syntax please see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md). 
+syntax please see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md).
 The above security block applies to any address
 that starts with the string "globalqueues.europe.":
 
@@ -132,159 +132,45 @@ For more information on configuring the SSL transport, please see [Configuring t
 ## Basic user credentials
 
 ActiveMQ ships with a security manager implementation that reads user
-credentials, i.e. user names, passwords and role information from an xml
-file on the classpath called `activemq-users.xml`. This is the default
-security manager.
+credentials, i.e. user names, passwords and role information from properties
+files on the classpath called `activemq-users.properties` and `activemq-roles.properties`. This is the default security manager.
 
 If you wish to use this security manager, then users, passwords and
-roles can easily be added into this file.
+roles can easily be added into these files.
 
-Let's take a look at an example file:
+To configure this manager then it needs to be added to the `bootstrap.xml` configuration.
+Lets take a look at what this might look like:
 
-    <configuration xmlns="urn:activemq"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="urn:activemq ../schemas/activemq-users.xsd ">
+    <basic-security>
+      <users>file:${activemq.home}/config/non-clustered/activemq-users.properties</users>
+      <roles>file:${activemq.home}/config/non-clustered/activemq-roles.properties</roles>
+      <default-user>guest</default-user>
+    </basic-security>
 
-       <defaultuser name="guest" password="guest">
-          <role name="guest"/>
-       </defaultuser>
+The first 2 elements `users` and `roles` define what properties files should be used to load in the users and passwords.
 
-       <user name="tim" password="marmite">
-          <role name="admin"/>
-       </user>
-
-       <user name="andy" password="doner_kebab">
-          <role name="admin"/>
-          <role name="guest"/>
-       </user>
-
-       <user name="jeff" password="camembert">
-          <role name="europe-users"/>
-          <role name="guest"/>
-       </user>
-
-    </configuration>
-
-The first thing to note is the element `defaultuser`. This defines what
+The next thing to note is the element `defaultuser`. This defines what
 user will be assumed when the client does not specify a
 username/password when creating a session. In this case they will be the
-user `guest` and have the role also called `guest`. Multiple roles can
-be specified for a default user.
+user `guest`. Multiple roles can be specified for a default user in the
+`activemq-roles.properties`.
 
-We then have three more users, the user `tim` has the role `admin`. The
-user `andy` has the roles `admin` and `guest`, and the user `jeff` has
-the roles `europe-users` and `guest`.
+Lets now take alook at the `activemq-users.properties` file, this is basically
+just a set of key value pairs that define the users and their password, like so:
 
-## Changing the security manager
+    bill=activemq
+    andrew=activemq1
+    frank=activemq2
+    sam=activemq3
 
-If you do not want to use the default security manager then you can
-specify a different one by editing the file `activemq-beans.xml` (or
-`activemq-jboss-beans.xml` if you're running JBoss Application Server)
-and changing the class for the `ActiveMQSecurityManager` bean.
+The `activemq-roles.properties` defines what groups these users belong too
+where the key is the user and the value is a comma seperated list of the groups
+the user belongs to, like so:
 
-Let's take a look at a snippet from the default beans file:
-
-               
-    <bean name="ActiveMQSecurityManager" class="org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl">
-       <start ignored="true"/>
-       <stop ignored="true"/>
-    </bean>
-
-The class
-`org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl` is
-the default security manager that is used by the standalone server.
-
-ActiveMQ ships with two other security manager implementations you can
-use off-the-shelf; one a JAAS security manager and another for
-integrating with JBoss Application Sever security, alternatively you
-could write your own implementation by implementing the
-`org.apache.activemq.spi.core.security.ActiveMQSecurityManager`
-interface, and specifying the classname of your implementation in the
-file `activemq-beans.xml` (or `activemq-jboss-beans.xml` if you're
-running JBoss Application Server).
-
-These two implementations are discussed in the next two sections.
-
-## JAAS Security Manager
-
-JAAS stands for 'Java Authentication and Authorization Service' and is a
-standard part of the Java platform. It provides a common API for
-security authentication and authorization, allowing you to plugin your
-pre-built implementations.
-
-To configure the JAAS security manager to work with your pre-built JAAS
-infrastructure you need to specify the security manager as a
-`JAASSecurityManager` in the beans file. Here's an example:
-
-    <bean name="ActiveMQSecurityManager" class="org.apache.activemq.integration.jboss.security.JAASSecurityManager">
-       <start ignored="true"/>
-       <stop ignored="true"/>
-
-       <property name="ConfigurationName">org.apache.activemq.jms.example.ExampleLoginModule</property>
-       <property name="Configuration">
-          <inject bean="ExampleConfiguration"/>
-       </property>
-       <property name="CallbackHandler">
-          <inject bean="ExampleCallbackHandler"/>
-       </property>
-    </bean>
-
-Note that you need to feed the JAAS security manager with three
-properties:
-
--   ConfigurationName: the name of the `LoginModule` implementation that
-    JAAS must use
-
--   Configuration: the `Configuration` implementation used by JAAS
-
--   CallbackHandler: the `CallbackHandler` implementation to use if user
-    interaction are required
-
-## Example
-
-See ? for an example which shows how ActiveMQ can be configured to use
-JAAS.
-
-## JBoss AS Security Manager
-
-The JBoss AS security manager is used when running ActiveMQ inside the
-JBoss Application server. This allows tight integration with the JBoss
-Application Server's security model.
-
-The class name of this security manager is
-`org.apache.activemq.integration.jboss.security.JBossASSecurityManager`
-
-Take a look at one of the default `activemq-jboss-beans.xml` files for
-JBoss Application Server that are bundled in the distribution for an
-example of how this is configured.
-
-### Configuring Client Login
-
-JBoss can be configured to allow client login, basically this is when a
-JEE component such as a Servlet or EJB sets security credentials on the
-current security context and these are used throughout the call. If you
-would like these credentials to be used by ActiveMQ when sending or
-consuming messages then set `allowClientLogin` to true. This will bypass
-ActiveMQ authentication and propagate the provided Security Context. If
-you would like ActiveMQ to authenticate using the propagated security
-then set the `authoriseOnClientLogin` to true also.
-
-There is more info on using the JBoss client login module
-[here](http://community.jboss.org/wiki/ClientLoginModule)
-
-> **Note**
->
-> If messages are sent non blocking then there is a chance that these
-> could arrive on the server after the calling thread has completed
-> meaning that the security context has been cleared. If this is the
-> case then messages will need to be sent blocking
-
-### Changing the Security Domain
-
-The name of the security domain used by the JBoss AS security manager
-defaults to `java:/jaas/activemq
-          `. This can be changed by specifying `securityDomainName`
-(e.g. java:/jaas/myDomain).
+    bill=user
+    andrew=europe-user,user
+    frank=us-user,news-user,user
+    sam=news-user,user
 
 ## Changing the username/password for clustering
 
