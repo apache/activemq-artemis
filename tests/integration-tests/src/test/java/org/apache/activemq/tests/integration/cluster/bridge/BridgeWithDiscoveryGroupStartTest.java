@@ -27,7 +27,7 @@ import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -121,13 +121,13 @@ public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
          ArrayList<String> list = new ArrayList<String>();
          list.add(server1tc.getName());
 
-         UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration().setGroupAddress(groupAddress).setGroupPort(port);
+         UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
 
          BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration()
             .setName("bg1")
             .setBroadcastPeriod(250)
             .setConnectorInfos(list)
-            .setEndpointFactoryConfiguration(endpoint);
+            .setEndpointFactory(endpoint);
 
          server0.getConfiguration().getBroadcastGroupConfigurations().add(bcConfig);
 
@@ -135,7 +135,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
             .setName("dg1")
             .setRefreshTimeout(5000)
             .setDiscoveryInitialWaitTimeout(5000)
-            .setBroadcastEndpointFactoryConfiguration(endpoint);
+            .setBroadcastEndpointFactory(endpoint);
 
          server0.getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
 

@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
@@ -303,7 +303,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       ActiveMQConnectionFactory factory = adapter.getDefaultActiveMQConnectionFactory();
       long initWait = factory.getDiscoveryGroupConfiguration().getDiscoveryInitialWaitTimeout();
       long refresh = factory.getDiscoveryGroupConfiguration().getRefreshTimeout();
-      int port = ((UDPBroadcastGroupConfiguration) factory.getDiscoveryGroupConfiguration().getBroadcastEndpointFactoryConfiguration()).getGroupPort();
+      int port = ((UDPBroadcastEndpointFactory) factory.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory()).getGroupPort();
 
       // defaults
       assertEquals(10000L, refresh);
@@ -445,7 +445,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       spec.setDestination(MDBQUEUE);
       ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
-      UDPBroadcastGroupConfiguration udpDg = (UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration();
+      UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
       assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
       assertEquals(udpDg.getGroupPort(), 1234);
       assertEquals(dc.getRefreshTimeout(), 1L);
@@ -475,7 +475,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       spec.setDiscoveryRefreshTimeout(1L);
       ActiveMQConnectionFactory fac = qResourceAdapter.createActiveMQConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
-      UDPBroadcastGroupConfiguration udpDg = (UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration();
+      UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
       assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
       assertEquals(udpDg.getGroupPort(), 1234);
       assertEquals(dc.getRefreshTimeout(), 1L);

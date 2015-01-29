@@ -38,7 +38,7 @@ public final class BroadcastGroupConfiguration implements Serializable
 
    private long broadcastPeriod = ActiveMQDefaultConfiguration.getDefaultBroadcastPeriod();
 
-   private BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = null;
+   private BroadcastEndpointFactory endpointFactory = null;
 
    private List<String> connectorInfos = null;
 
@@ -79,14 +79,14 @@ public final class BroadcastGroupConfiguration implements Serializable
       return this;
    }
 
-   public BroadcastEndpointFactoryConfiguration getEndpointFactoryConfiguration()
+   public BroadcastEndpointFactory getEndpointFactory()
    {
-      return endpointFactoryConfiguration;
+      return endpointFactory;
    }
 
-   public BroadcastGroupConfiguration setEndpointFactoryConfiguration(BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration)
+   public BroadcastGroupConfiguration setEndpointFactory(BroadcastEndpointFactory endpointFactory)
    {
-      this.endpointFactoryConfiguration = endpointFactoryConfiguration;
+      this.endpointFactory = endpointFactory;
       return this;
    }
 
@@ -97,7 +97,7 @@ public final class BroadcastGroupConfiguration implements Serializable
       int result = 1;
       result = prime * result + (int)(broadcastPeriod ^ (broadcastPeriod >>> 32));
       result = prime * result + ((connectorInfos == null) ? 0 : connectorInfos.hashCode());
-      result = prime * result + ((endpointFactoryConfiguration == null) ? 0 : endpointFactoryConfiguration.hashCode());
+      result = prime * result + ((endpointFactory == null) ? 0 : endpointFactory.hashCode());
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       return result;
    }
@@ -121,12 +121,12 @@ public final class BroadcastGroupConfiguration implements Serializable
       }
       else if (!connectorInfos.equals(other.connectorInfos))
          return false;
-      if (endpointFactoryConfiguration == null)
+      if (endpointFactory == null)
       {
-         if (other.endpointFactoryConfiguration != null)
+         if (other.endpointFactory != null)
             return false;
       }
-      else if (!endpointFactoryConfiguration.equals(other.endpointFactoryConfiguration))
+      else if (!endpointFactory.equals(other.endpointFactory))
          return false;
       if (name == null)
       {

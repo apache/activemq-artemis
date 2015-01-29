@@ -26,8 +26,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.common.example.ActiveMQExample;
@@ -82,10 +81,10 @@ public class SymmetricClusterExample extends ActiveMQExample
          // connection factory directly we avoid having to worry about a JNDI look-up.
          // In an app server environment you could use HA-JNDI to lookup from the clustered JNDI servers without
          // having to know about a specific one.
-         UDPBroadcastGroupConfiguration udpCfg = new UDPBroadcastGroupConfiguration();
+         UDPBroadcastEndpointFactory udpCfg = new UDPBroadcastEndpointFactory();
          udpCfg.setGroupAddress("231.7.7.7").setGroupPort(9876);
          DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration();
-         groupConfiguration.setBroadcastEndpointFactoryConfiguration(udpCfg);
+         groupConfiguration.setBroadcastEndpointFactory(udpCfg);
 
          ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.CF);
 

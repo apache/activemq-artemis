@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.core.cluster.DiscoveryEntry;
 import org.apache.activemq.core.cluster.DiscoveryGroup;
 import org.apache.activemq.core.cluster.DiscoveryListener;
@@ -169,12 +169,11 @@ public class DiscoveryBaseTest extends UnitTestCase
                                              final InetAddress groupAddress,
                                              final int groupPort) throws Exception
    {
-      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastGroupConfiguration()
+      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastEndpointFactory()
          .setGroupAddress(groupAddress.getHostAddress())
          .setGroupPort(groupPort)
          .setLocalBindAddress(localAddress != null ? localAddress.getHostAddress() : null)
-         .setLocalBindPort(localPort)
-         .createBroadcastEndpointFactory());
+         .setLocalBindPort(localPort));
    }
 
    protected DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
@@ -186,11 +185,10 @@ public class DiscoveryBaseTest extends UnitTestCase
    protected DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
                                               final InetAddress groupAddress, final int groupPort, final long timeout, NotificationService notif) throws Exception
    {
-      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastGroupConfiguration()
+      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastEndpointFactory()
          .setGroupAddress(groupAddress.getHostAddress())
          .setGroupPort(groupPort)
-         .setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : null)
-         .createBroadcastEndpointFactory(), notif);
+         .setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : null), notif);
    }
 
    protected final class FakeNodeManager extends NodeManager

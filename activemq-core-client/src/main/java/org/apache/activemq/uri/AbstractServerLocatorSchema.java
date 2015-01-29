@@ -14,32 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.uri;
+
+import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.utils.uri.URISchema;
+
+import java.net.URI;
+import java.util.Map;
 
 /**
- * This interface is needed for making a DiscoveryGroupConfiguration backward
- * compatible with version 2.2 clients. It is used to extract from new
- * {@link org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration} the four
- * UDP attributes in order to form a version 2.2 DiscoveryGroupConfiguration
- * in time of serialization.
- *
- * @see DiscoveryGroupConfiguration#readObject(java.io.ObjectInputStream)
- * @see DiscoveryGroupConfiguration#writeObject(java.io.ObjectOutputStream)
- *
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         12/13/12
  */
-public interface DiscoveryGroupConfigurationCompatibilityHelper
+public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator>
 {
-// XXX No javadocs
-   String getLocalBindAddress();
-
-// XXX No javadocs
-   int getLocalBindPort();
-
-// XXX No javadocs
-   String getGroupAddress();
-
-// XXX No javadocs
-   int getGroupPort();
+   protected ConnectionOptions newConnectionOptions(URI uri, Map<String, String> query) throws Exception
+   {
+      return setData(uri, new ConnectionOptions(), query);
+   }
 }

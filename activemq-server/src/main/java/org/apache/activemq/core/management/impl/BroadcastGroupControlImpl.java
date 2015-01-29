@@ -19,7 +19,7 @@ package org.apache.activemq.core.management.impl;
 import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.cluster.BroadcastGroup;
@@ -130,9 +130,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try
       {
-         if (configuration.getEndpointFactoryConfiguration() instanceof UDPBroadcastGroupConfiguration)
+         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory)
          {
-            return ((UDPBroadcastGroupConfiguration)configuration.getEndpointFactoryConfiguration()).getGroupAddress();
+            return ((UDPBroadcastEndpointFactory)configuration.getEndpointFactory()).getGroupAddress();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
       }
@@ -147,9 +147,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try
       {
-         if (configuration.getEndpointFactoryConfiguration() instanceof UDPBroadcastGroupConfiguration)
+         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory)
          {
-            return ((UDPBroadcastGroupConfiguration)configuration.getEndpointFactoryConfiguration()).getGroupPort();
+            return ((UDPBroadcastEndpointFactory)configuration.getEndpointFactory()).getGroupPort();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
       }
@@ -164,9 +164,9 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try
       {
-         if (configuration.getEndpointFactoryConfiguration() instanceof UDPBroadcastGroupConfiguration)
+         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory)
          {
-            return ((UDPBroadcastGroupConfiguration)configuration.getEndpointFactoryConfiguration()).getLocalBindPort();
+            return ((UDPBroadcastEndpointFactory)configuration.getEndpointFactory()).getLocalBindPort();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
       }

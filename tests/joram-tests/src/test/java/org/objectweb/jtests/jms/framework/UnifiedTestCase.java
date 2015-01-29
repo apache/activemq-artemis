@@ -171,8 +171,9 @@ public abstract class UnifiedTestCase extends JMSTestCase
 
          Hashtable props = new Hashtable<>();
          props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-         props.put(ActiveMQInitialContextFactory.CONNECTION_FACTORY_NAMES, UnifiedTestCase.CF_NAME + ", " + UnifiedTestCase.QCF_NAME + ", " + UnifiedTestCase.TCF_NAME);
-         props.put(Context.PROVIDER_URL, "tcp://127.0.0.1:5445");
+         props.put("connectionFactory." + UnifiedTestCase.CF_NAME, "tcp://127.0.0.1:5445");
+         props.put("connectionFactory." + UnifiedTestCase.QCF_NAME, "tcp://127.0.0.1:5445?type=QUEUE_CF");
+         props.put("connectionFactory." + UnifiedTestCase.TCF_NAME, "tcp://127.0.0.1:5445?type=TOPIC_CF");
          props.put("queue." + UnifiedTestCase.DESTINATION_NAME, UnifiedTestCase.DESTINATION_NAME);
          props.put("queue." + UnifiedTestCase.QUEUE_NAME, UnifiedTestCase.QUEUE_NAME);
          props.put("topic." + UnifiedTestCase.TOPIC_NAME, UnifiedTestCase.TOPIC_NAME);

@@ -16,13 +16,40 @@
  */
 package org.apache.activemq.api.core;
 
-import java.io.Serializable;
-
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         9/25/12
- */
-public interface BroadcastEndpointFactoryConfiguration extends Serializable
+* @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
+*/
+public class JGroupsFileBroadcastEndpointFactory implements BroadcastEndpointFactory
 {
-   BroadcastEndpointFactory createBroadcastEndpointFactory();
+   private String file;
+
+   private String channelName;
+
+   @Override
+   public BroadcastEndpoint createBroadcastEndpoint() throws Exception
+   {
+      return new JGroupsFileBroadcastEndpoint(file, channelName).initChannel();
+   }
+
+   public String getFile()
+   {
+      return file;
+   }
+
+   public JGroupsFileBroadcastEndpointFactory setFile(String file)
+   {
+      this.file = file;
+      return this;
+   }
+
+   public String getChannelName()
+   {
+      return channelName;
+   }
+
+   public JGroupsFileBroadcastEndpointFactory setChannelName(String channelName)
+   {
+      this.channelName = channelName;
+      return this;
+   }
 }

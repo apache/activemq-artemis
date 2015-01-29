@@ -28,7 +28,9 @@ public class ConnectionFactoryParser extends URIFactory<ActiveMQConnectionFactor
 {
    public ConnectionFactoryParser()
    {
+      registerSchema(new TCPSchema());
       registerSchema(new UDPSchema());
       registerSchema(new JGroupsSchema());
+      registerSchema(new InVMSchema());
    }
 }

@@ -26,49 +26,9 @@ import org.apache.activemq.api.jms.JMSFactoryType;
  * @author clebertsuconic
  */
 
-public class ConnectionOptions
+public class JMSConnectionOptions extends ConnectionOptions
 {
-
-   private boolean ha;
-
    private JMSFactoryType factoryType = JMSFactoryType.CF;
-
-   private String host;
-
-   private int port;
-
-   public ConnectionOptions setHost(String host)
-   {
-      this.host = host;
-      return this;
-   }
-
-   public String getHost()
-   {
-      return host;
-   }
-
-
-   public ConnectionOptions setPort(int port)
-   {
-      this.port = port;
-      return this;
-   }
-
-   public int getPort()
-   {
-      return port;
-   }
-
-   public boolean isHa()
-   {
-      return ha;
-   }
-
-   public void setHa(boolean ha)
-   {
-      this.ha = ha;
-   }
 
    public JMSFactoryType getFactoryTypeEnum()
    {
@@ -96,7 +56,7 @@ public class ConnectionOptions
       {
          if (type == null)
          {
-            return null;
+            return JMSFactoryType.CF;
          }
          else
          {
@@ -112,8 +72,7 @@ public class ConnectionOptions
    @Override
    public String toString()
    {
-      return "ConnectionOptions{" +
-         "ha=" + ha +
+      return "JMSConnectionOptions{" +
          ", factoryType=" + factoryType +
          '}';
    }

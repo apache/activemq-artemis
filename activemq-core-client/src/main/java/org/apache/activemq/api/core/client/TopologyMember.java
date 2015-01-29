@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.api.core.client;
 
-import java.io.Serializable;
-
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
@@ -27,7 +25,7 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
  * Each TopologyMember represents a single server and possibly any backup server that may take over
  * its duties (using the nodeId of the original server).
  */
-public interface TopologyMember extends Serializable
+public interface TopologyMember
 {
    /**
     * Returns the {@code backup-group-name} of the live server and backup servers associated with

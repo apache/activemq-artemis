@@ -33,16 +33,24 @@ import javax.jms.XATopicConnection;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.net.URI;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
 import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.uri.ConnectionFactoryParser;
+import org.apache.activemq.uri.ServerLocatorParser;
 
 /**
  * ActiveMQ implementation of a JMS ConnectionFactory.
@@ -50,11 +58,9 @@ import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public class ActiveMQConnectionFactory implements Serializable, Referenceable, ConnectionFactory, XAConnectionFactory
+public class ActiveMQConnectionFactory implements Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory
 {
-   private static final long serialVersionUID = -2810634789345348326L;
-
-   private final ServerLocator serverLocator;
+   private ServerLocator serverLocator;
 
    private String clientID;
 
@@ -62,7 +68,58 @@ public class ActiveMQConnectionFactory implements Serializable, Referenceable, C
 
    private int transactionBatchSize = ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
 
-   private boolean readOnly;
+   private  boolean readOnly;
+
+   public void writeExternal(ObjectOutput out) throws IOException
+   {
+      ConnectionFactoryParser parser = new ConnectionFactoryParser();
+      String scheme;
+      if (serverLocator.getDiscoveryGroupConfiguration() != null)
+      {
+         if (serverLocator.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory)
+         {
+            scheme = "udp";
+         }
+         else
+         {
+            scheme = "jgroups";
+         }
+      }
+      else
+      {
+         scheme = "tcp";
+      }
+      try
+      {
+         URI uri = parser.createSchema(scheme, this);
+         out.writeUTF(uri.toASCIIString());
+      }
+      catch (Exception e)
+      {
+         if (e instanceof IOException)
+         {
+            throw (IOException) e;
+         }
+         throw new IOException(e);
+      }
+   }
+
+   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+   {
+      String url = in.readUTF();
+      ConnectionFactoryParser parser = new ConnectionFactoryParser();
+      ServerLocatorParser locatorParser = new ServerLocatorParser();
+      try
+      {
+         URI uri = new URI(url);
+         serverLocator = locatorParser.newObject(uri);
+         parser.populateObject(uri, this);
+      }
+      catch (Exception e)
+      {
+         throw new InvalidObjectException(e.getMessage());
+      }
+   }
 
    public ActiveMQConnectionFactory()
    {
@@ -559,7 +616,6 @@ public class ActiveMQConnectionFactory implements Serializable, Referenceable, C
 
    public synchronized int getInitialConnectAttempts()
    {
-      checkWrite();
       return serverLocator.getInitialConnectAttempts();
    }
 

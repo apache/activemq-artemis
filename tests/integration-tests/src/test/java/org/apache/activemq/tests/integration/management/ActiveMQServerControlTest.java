@@ -42,6 +42,7 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
@@ -1019,7 +1020,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       conf.setSecurityEnabled(false);
       conf.getAcceptorConfigurations().clear();
       HashMap<String, Object> params = new HashMap<String, Object>();
-      params.put("server-id", "2");
+      params.put(TransportConstants.SERVER_ID_PROP_NAME, "2");
       conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
       ActiveMQServer server2 = ActiveMQServers.newActiveMQServer(conf, null, true);
       this.conf.getConnectorConfigurations().clear();

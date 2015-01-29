@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.api.core;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.apache.activemq.api.core.client.ActiveMQClient;
@@ -48,29 +45,9 @@ public final class DiscoveryGroupConfiguration implements Serializable
    private long discoveryInitialWaitTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
 
    /*
-   * The localBindAddress is needed so we can be backward compatible with 2.2 clients
-   * */
-   private transient String localBindAddress = null;
-
-   /*
-   * The localBindPort is needed so we can be backward compatible with 2.2 clients
-   * */
-   private transient int localBindPort = -1;
-
-   /*
-   * The groupAddress is needed so we can be backward compatible with 2.2 clients
-   * */
-   private String groupAddress = null;
-
-   /*
-   * The groupPort is needed so we can be backward compatible with 2.2 clients
-   * */
-   private int groupPort = -1;
-
-   /*
    * This is the actual object used by the class, it has to be transient so we can handle deserialization with a 2.2 client
    * */
-   private transient BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration;
+   private BroadcastEndpointFactory endpointFactory;
 
    public DiscoveryGroupConfiguration()
    {
@@ -121,49 +98,15 @@ public final class DiscoveryGroupConfiguration implements Serializable
       return this;
    }
 
-   public BroadcastEndpointFactoryConfiguration getBroadcastEndpointFactoryConfiguration()
+   public BroadcastEndpointFactory getBroadcastEndpointFactory()
    {
-      return endpointFactoryConfiguration;
+      return endpointFactory;
    }
 
-   public DiscoveryGroupConfiguration setBroadcastEndpointFactoryConfiguration(BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration)
+   public DiscoveryGroupConfiguration setBroadcastEndpointFactory(BroadcastEndpointFactory endpointFactory)
    {
-      this.endpointFactoryConfiguration = endpointFactoryConfiguration;
-      if (endpointFactoryConfiguration instanceof DiscoveryGroupConfigurationCompatibilityHelper)
-      {
-         DiscoveryGroupConfigurationCompatibilityHelper dgcch = (DiscoveryGroupConfigurationCompatibilityHelper) endpointFactoryConfiguration;
-         localBindAddress = dgcch.getLocalBindAddress();
-         localBindPort = dgcch.getLocalBindPort();
-         groupAddress = dgcch.getGroupAddress();
-         groupPort = dgcch.getGroupPort();
-      }
+      this.endpointFactory = endpointFactory;
       return this;
-   }
-
-   private void writeObject(ObjectOutputStream out) throws IOException
-   {
-      out.defaultWriteObject();
-      if (groupPort < 0)
-      {
-         out.writeObject(endpointFactoryConfiguration);
-      }
-   }
-
-   private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
-   {
-      in.defaultReadObject();
-      if (groupPort < 0)
-      {
-         endpointFactoryConfiguration = (BroadcastEndpointFactoryConfiguration) in.readObject();
-      }
-      else
-      {
-         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
-            .setGroupAddress(groupAddress)
-            .setGroupPort(groupPort)
-            .setLocalBindAddress(localBindAddress)
-            .setLocalBindPort(localBindPort);
-      }
    }
 
    @Override

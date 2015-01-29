@@ -18,13 +18,13 @@
 package org.apache.activemq.utils.uri;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author clebertsuconic
  */
-
 public class URIFactory<T>
 {
 
@@ -48,9 +48,23 @@ public class URIFactory<T>
       schemaFactory.setFactory(this);
    }
 
-   public void removeSchema(final String schemaName)
+   public void removeSchema(final SchemaConstants schemaName)
    {
       schemas.remove(schemaName);
+   }
+
+   public T newObject(String uriString) throws Exception
+   {
+      URI uri = normalise(uriString);
+      URISchema<T> schemaFactory = schemas.get(uri.getScheme());
+
+      if (schemaFactory == null)
+      {
+         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
+      }
+
+
+      return schemaFactory.newObject(uri);
    }
 
    public T newObject(URI uri) throws Exception
@@ -66,5 +80,72 @@ public class URIFactory<T>
       return schemaFactory.newObject(uri);
    }
 
+   public void populateObject(URI uri, T bean) throws Exception
+   {
+      URISchema<T> schemaFactory = schemas.get(uri.getScheme());
 
+      if (schemaFactory == null)
+      {
+         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
+      }
+
+      schemaFactory.populateObject(uri, bean);
+   }
+
+   public URI createSchema(String scheme, T bean) throws Exception
+   {
+      URISchema<T> schemaFactory = schemas.get(scheme);
+
+      if (schemaFactory == null)
+      {
+         throw new NullPointerException("Schema " + scheme + " not found");
+      }
+      return schemaFactory.newURI(bean);
+   }
+
+   /*
+   * this method is used to change a string with multiple URI's in it into a valid URI.
+   * for instance it is possible to have the following String
+   * (tcp://localhost:5445,tcp://localhost:5545,tcp://localhost:5555)?somequery
+   * This is an invalid URI so will be changed so that the first URI is used and the
+   * extra ones added as part of the URI fragment, like so
+   * tcp://localhost:5445?someQuery#tcp://localhost:5545,tcp://localhost:5555.
+   *
+   * It is the job of the URISchema implementation to handle these fragments as needed.
+   * */
+   private URI normalise(String uri) throws URISyntaxException
+   {
+      if (uri.startsWith("("))
+      {
+         String[] split = uri.split("\\)");
+         String[] connectorURIS = split[0].substring(split[0].indexOf('(') + 1).split(",");
+         String factoryQuery = split.length > 1 ? split[1] : "";
+         StringBuilder builder = new StringBuilder(connectorURIS[0]);
+         if (factoryQuery != null && factoryQuery.length() > 0)
+         {
+            if (connectorURIS[0].contains("?"))
+            {
+               builder.append("&").append(factoryQuery.substring(1));
+            }
+            else
+            {
+               builder.append(factoryQuery);
+            }
+         }
+         if (connectorURIS.length > 1)
+         {
+            builder.append("#");
+            for (int i = 1; i < connectorURIS.length; i++)
+            {
+               if (i > 1)
+               {
+                  builder.append(",");
+               }
+               builder.append(connectorURIS[i]);
+            }
+         }
+         return new URI(builder.toString());
+      }
+      return new URI(uri);
+   }
 }

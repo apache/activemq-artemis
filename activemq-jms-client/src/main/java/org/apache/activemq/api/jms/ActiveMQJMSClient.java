@@ -29,6 +29,9 @@ import org.apache.activemq.jms.client.ActiveMQTopicConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQXAConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQXAQueueConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQXATopicConnectionFactory;
+import org.apache.activemq.uri.ConnectionFactoryParser;
+
+import java.net.URI;
 
 /**
  * A utility class for creating ActiveMQ client-side JMS managed resources.
@@ -37,6 +40,16 @@ import org.apache.activemq.jms.client.ActiveMQXATopicConnectionFactory;
  */
 public class ActiveMQJMSClient
 {
+   /**
+    * Creates a ActiveMQConnectionFactory;
+    *
+    * @return the ActiveMQConnectionFactory
+    */
+   public static ActiveMQConnectionFactory createConnectionFactory(final String url) throws Exception
+   {
+      ConnectionFactoryParser parser = new ConnectionFactoryParser();
+      return parser.newObject(new URI(url));
+   }
 
    /**
     * Creates a ActiveMQConnectionFactory that receives cluster topology updates from the cluster as

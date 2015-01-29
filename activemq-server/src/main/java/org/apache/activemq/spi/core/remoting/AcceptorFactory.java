@@ -17,7 +17,6 @@
 package org.apache.activemq.spi.core.remoting;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 

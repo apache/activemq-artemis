@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +23,7 @@ import java.util.List;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
@@ -52,9 +48,9 @@ import org.junit.Test;
 public class SessionFactoryTest extends ServiceTestBase
 {
    private final DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
-      .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-         .setGroupAddress(getUDPDiscoveryAddress())
-         .setGroupPort(getUDPDiscoveryPort()));
+      .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
+                                         .setGroupAddress(getUDPDiscoveryAddress())
+                                         .setGroupPort(getUDPDiscoveryPort()));
 
    private ActiveMQServer liveService;
 
@@ -67,34 +63,6 @@ public class SessionFactoryTest extends ServiceTestBase
       super.setUp();
 
       startServer();
-   }
-
-   @Test
-   public void testSerializable() throws Exception
-   {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
-
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-      ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-      oos.writeObject(locator);
-
-      oos.close();
-
-      byte[] bytes = baos.toByteArray();
-
-      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-
-      ObjectInputStream ois = new ObjectInputStream(bais);
-
-      ServerLocator csi = (ServerLocator) ois.readObject();
-
-      Assert.assertNotNull(csi);
-
-      csi.close();
-
-      locator.close();
    }
 
    @Test
@@ -576,10 +544,10 @@ public class SessionFactoryTest extends ServiceTestBase
          .setName(bcGroupName)
          .setBroadcastPeriod(broadcastPeriod)
          .setConnectorInfos(Arrays.asList(liveTC.getName()))
-         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-            .setGroupAddress(getUDPDiscoveryAddress())
-            .setGroupPort(getUDPDiscoveryPort())
-            .setLocalBindPort(localBindPort));
+         .setEndpointFactory(new UDPBroadcastEndpointFactory()
+                                   .setGroupAddress(getUDPDiscoveryAddress())
+                                   .setGroupPort(getUDPDiscoveryPort())
+                                   .setLocalBindPort(localBindPort));
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
       bcConfigs1.add(bcConfig1);

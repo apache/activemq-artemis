@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.spi.core.remoting;
 
-import java.io.Serializable;
-
 /**
  * @author Clebert Suconic
  */
-public interface ClientProtocolManagerFactory extends Serializable
+public interface ClientProtocolManagerFactory
 {
 
    ClientProtocolManager newProtocolManager();

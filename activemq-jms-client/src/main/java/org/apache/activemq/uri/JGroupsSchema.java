@@ -17,14 +17,17 @@
 
 package org.apache.activemq.uri;
 
+import java.io.NotSerializableException;
 import java.net.URI;
 import java.util.Map;
-import java.util.UUID;
 
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.api.core.JGroupsPropertiesBroadcastEndpointFactory;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.utils.uri.SchemaConstants;
 import org.apache.activemq.utils.uri.URISchema;
 
 /**
@@ -36,34 +39,48 @@ public class JGroupsSchema extends AbstractCFSchema
    @Override
    public String getSchemaName()
    {
-      return "jgroups";
+      return SchemaConstants.JGROUPS;
    }
-
 
    @Override
    public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query) throws Exception
    {
-      ConnectionOptions options = newConectionOptions(uri, query);
+      JMSConnectionOptions options = newConectionOptions(uri, query);
 
-      System.out.println("authority = " + uri.getAuthority() + " path = " + uri.getPath());
+      DiscoveryGroupConfiguration dcConfig = JGroupsServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query);
 
-      JGroupsBroadcastGroupConfiguration jgroupsConfig = new JGroupsBroadcastGroupConfiguration(uri.getAuthority(), uri.getPath() != null ? uri.getPath() : UUID.randomUUID().toString());
-
-      URISchema.setData(uri, jgroupsConfig, query);
-
-
-      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setBroadcastEndpointFactoryConfiguration(jgroupsConfig);
-
-      URISchema.setData(uri, dcConfig, query);
-
-
+      ActiveMQConnectionFactory factory;
       if (options.isHa())
       {
-         return ActiveMQJMSClient.createConnectionFactoryWithHA(dcConfig, options.getFactoryTypeEnum());
+         factory = ActiveMQJMSClient.createConnectionFactoryWithHA(dcConfig, options.getFactoryTypeEnum());
       }
       else
       {
-         return ActiveMQJMSClient.createConnectionFactoryWithoutHA(dcConfig, options.getFactoryTypeEnum());
+         factory =  ActiveMQJMSClient.createConnectionFactoryWithoutHA(dcConfig, options.getFactoryTypeEnum());
       }
+      return URISchema.setData(uri, factory, query);
+   }
+
+   @Override
+   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception
+   {
+      DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
+      BroadcastEndpointFactory endpoint =  dgc.getBroadcastEndpointFactory();
+      String auth;
+      if (endpoint instanceof JGroupsFileBroadcastEndpointFactory)
+      {
+         auth = ((JGroupsFileBroadcastEndpointFactory) endpoint).getChannelName();
+      }
+      else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory)
+      {
+         auth = ((JGroupsPropertiesBroadcastEndpointFactory) endpoint).getChannelName();
+      }
+      else
+      {
+         throw new NotSerializableException(endpoint + "not serializable");
+      }
+      String query = URISchema.getData(null, bean, dgc, endpoint);
+      dgc.setBroadcastEndpointFactory(endpoint);
+      return new URI(SchemaConstants.JGROUPS, null,  auth, -1, null, query, null);
    }
 }

@@ -109,6 +109,12 @@ public class URIParserTest
       {
          return setData(uri, new Fruit(getSchemaName()), query);
       }
+
+      @Override
+      protected URI internalNewURI(FruitBase bean)
+      {
+         return null;
+      }
    }
 
    class FruitBaseSchema extends URISchema<FruitBase>
@@ -124,6 +130,12 @@ public class URIParserTest
       public FruitBase internalNewObject(URI uri, Map<String, String> query) throws Exception
       {
          return setData(uri, new FruitBase(getSchemaName()), query);
+      }
+
+      @Override
+      protected URI internalNewURI(FruitBase bean)
+      {
+         return null;
       }
    }
 

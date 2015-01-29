@@ -22,7 +22,7 @@ import javax.naming.Context;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
@@ -126,10 +126,10 @@ public class JMSServerDeployerTest extends ServiceTestBase
          .setName("mygroup")
          .setRefreshTimeout(5432)
          .setDiscoveryInitialWaitTimeout(5432)
-         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-                                                      .setGroupAddress("243.7.7.7")
-                                                      .setGroupPort(12345)
-                                                      .setLocalBindAddress("172.16.8.10"));
+         .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
+                                            .setGroupAddress("243.7.7.7")
+                                            .setGroupPort(12345)
+                                            .setLocalBindAddress("172.16.8.10"));
 
       config = createBasicConfig()
          .addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()))

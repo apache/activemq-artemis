@@ -17,11 +17,31 @@
 
 package org.apache.activemq.uri;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.XAQueueConnectionFactory;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.api.core.JGroupsPropertiesBroadcastEndpointFactory;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQTopicConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQXAQueueConnectionFactory;
+import org.apache.activemq.jms.client.ActiveMQXATopicConnectionFactory;
+import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,13 +53,212 @@ public class ConnectionFactoryURITest
 {
    ConnectionFactoryParser parser = new ConnectionFactoryParser();
 
+   @Test
+   public void testQUEUE_XA_CF() throws Exception
+   {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("tcp://localhost:3030?ha=true&type=QUEUE_XA_CF"));
+
+      Assert.assertTrue(ActiveMQXAQueueConnectionFactory.class.getName().equals(factory.getClass().getName()));
+   }
+
+   @Test
+   public void testTOPICXA_CF() throws Exception
+   {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("tcp://localhost:3030?ha=true&type=TOPIC_XA_CF"));
+
+      Assert.assertTrue(ActiveMQXATopicConnectionFactory.class.getName().equals(factory.getClass().getName()));
+   }
+   @Test
+
+   public void testQUEUE_CF() throws Exception
+   {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("tcp://localhost:3030?ha=true&type=QUEUE_CF"));
+
+      Assert.assertTrue(ActiveMQQueueConnectionFactory.class.getName().equals(factory.getClass().getName()));
+   }
+
+   @Test
+   public void testTOPIC_CF() throws Exception
+   {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("tcp://localhost:3030?ha=true&type=TOPIC_CF"));
+
+      Assert.assertTrue(ActiveMQTopicConnectionFactory.class.getName().equals(factory.getClass().getName()));
+   }
+
+   @Test
+   public void testCF() throws Exception
+   {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("tcp://localhost:3030?ha=true&type=CF"));
+
+      Assert.assertTrue(ActiveMQJMSConnectionFactory.class.getName().equals(factory.getClass().getName()));
+   }
+
+   @Test
+   public void testNoCF() throws Exception
+   {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("tcp://localhost:3030?ha=true"));
+
+      Assert.assertTrue(ActiveMQJMSConnectionFactory.class.getName().equals(factory.getClass().getName()));
+   }
+
+   @Test
+   public void testTCPAllProperties() throws Exception
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("tcp://localhost:3030?ha=true");
+      BeanUtilsBean bean = new BeanUtilsBean();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+      populate(sb, bean, factory);
+      ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()));
+      checkEquals(bean, factory, factory2);
+   }
+
+   @Test
+   public void testTCPAllNettyConnectorProperties() throws Exception
+   {
+      Map<String, Object> props = new HashMap<>();
+      Set<String> allowableConnectorKeys = TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
+      StringBuilder sb = new StringBuilder();
+      sb.append("tcp://localhost:3030?ha=true");
+      populateConnectorParams(props, allowableConnectorKeys, sb);
+      ActiveMQConnectionFactory factory = parser.newObject(new URI(sb.toString()));
+
+      Map<String, Object> params = factory.getStaticConnectors()[0].getParams();
+      Assert.assertEquals(params.get("host"), "localhost");
+      Assert.assertEquals(params.get("port"), 3030);
+      for (Map.Entry<String, Object> entry : params.entrySet())
+      {
+         if (!entry.getKey().equals("host") && !entry.getKey().equals("port"))
+         {
+            Assert.assertEquals(entry.getValue(), props.get(entry.getKey()));
+         }
+      }
+   }
+
+
+   @Test
+   public void testTCPAllNettyConnectorPropertiesMultiple() throws Exception
+   {
+      Map<String, Object> props = new HashMap<>();
+      Set<String> allowableConnectorKeys = TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
+      StringBuilder sb = new StringBuilder();
+      sb.append("(tcp://localhost0:5445?");//localhost1:5446,localhost2:5447,localhost3:5448)&ha=true");
+      populateConnectorParams(props, allowableConnectorKeys, sb);
+      Map<String, Object> props2 = new HashMap<>();
+      sb.append(",tcp://localhost1:5446?");
+      populateConnectorParams(props2, allowableConnectorKeys, sb);
+      Map<String, Object> props3 = new HashMap<>();
+      sb.append(",tcp://localhost2:5447?");
+      populateConnectorParams(props3, allowableConnectorKeys, sb);
+      sb.append(")?ha=true&clientID=myID");
+
+      ActiveMQConnectionFactory factory = parser.newObject(sb.toString());
+
+      TransportConfiguration[] staticConnectors = factory.getStaticConnectors();
+      Assert.assertEquals(3, staticConnectors.length);
+      checkTC(props, staticConnectors[0],0);
+      checkTC(props2, staticConnectors[1],1);
+      checkTC(props3, staticConnectors[2],2);
+   }
+
+   private void checkTC(Map<String, Object> props, TransportConfiguration staticConnector, int offfSet)
+   {
+      TransportConfiguration connector = staticConnector;
+      Assert.assertEquals(connector.getParams().get("host"), "localhost" + offfSet);
+      Assert.assertEquals(connector.getParams().get("port"), (5445 + offfSet));
+      Map<String, Object> params = connector.getParams();
+      for (Map.Entry<String, Object> entry : params.entrySet())
+      {
+         if (!entry.getKey().equals("host") && !entry.getKey().equals("port"))
+         {
+            Assert.assertEquals(entry.getValue(), props.get(entry.getKey()));
+         }
+      }
+   }
+
+   private void populateConnectorParams(Map<String, Object> props, Set<String> allowableConnectorKeys, StringBuilder sb)
+   {
+      for (String allowableConnectorKey : allowableConnectorKeys)
+      {
+         if (!allowableConnectorKey.equals("host") && !allowableConnectorKey.equals("port"))
+         {
+            String value = RandomUtil.randomString();
+            props.put(allowableConnectorKey, value);
+            sb.append("&").append(allowableConnectorKey).append("=").append(value);
+         }
+      }
+   }
+
+   @Test
+   public void testTCPURI() throws Exception
+   {
+      TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName());
+      HashMap<String, Object> params = new HashMap<>();
+      params.put("host", "localhost1");
+      params.put("port", 5446);
+      TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
+      HashMap<String, Object> params2 = new HashMap<>();
+      params2.put("host", "localhost2");
+      params2.put("port", 5447);
+      TransportConfiguration tc3 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
+      ActiveMQConnectionFactory connectionFactoryWithHA = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, tc, tc2, tc3);
+      URI tcp = parser.createSchema("tcp", connectionFactoryWithHA);
+      ActiveMQConnectionFactory factory = parser.newObject(tcp);
+      BeanUtilsBean bean = new BeanUtilsBean();
+      checkEquals(bean, connectionFactoryWithHA, factory);
+   }
 
    @Test
    public void testUDP() throws Exception
    {
       ActiveMQConnectionFactory factory = parser.newObject(new URI("udp://localhost:3030?ha=true&type=QUEUE_XA_CF"));
 
-      Assert.assertTrue(factory instanceof XAQueueConnectionFactory);
+      Assert.assertTrue(ActiveMQXAQueueConnectionFactory.class.getName().equals(factory.getClass().getName()));
+   }
+
+   @Test
+   public void testUDPAllProperties() throws Exception
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("udp://localhost:3030?ha=true");
+      BeanUtilsBean bean = new BeanUtilsBean();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+      populate(sb, bean, factory);
+      ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()));
+      checkEquals(bean, factory, factory2);
+   }
+
+   @Test
+   public void testUDPURI() throws Exception
+   {
+      DiscoveryGroupConfiguration discoveryGroupConfiguration = new DiscoveryGroupConfiguration();
+      UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory();
+      endpoint.setGroupPort(3333).setGroupAddress("wahey").setLocalBindPort(555).setLocalBindAddress("uhuh");
+      discoveryGroupConfiguration.setName("foo")
+            .setRefreshTimeout(12345)
+            .setDiscoveryInitialWaitTimeout(5678)
+            .setBroadcastEndpointFactory(endpoint);
+      ActiveMQConnectionFactory connectionFactoryWithHA = ActiveMQJMSClient.createConnectionFactoryWithHA(discoveryGroupConfiguration, JMSFactoryType.CF);
+      URI tcp = parser.createSchema("udp", connectionFactoryWithHA);
+      ActiveMQConnectionFactory factory = parser.newObject(tcp);
+      DiscoveryGroupConfiguration dgc = factory.getDiscoveryGroupConfiguration();
+      Assert.assertNotNull(dgc);
+      BroadcastEndpointFactory befc = dgc.getBroadcastEndpointFactory();
+      Assert.assertNotNull(befc);
+      Assert.assertTrue(befc instanceof UDPBroadcastEndpointFactory);
+      UDPBroadcastEndpointFactory ubgc = (UDPBroadcastEndpointFactory) befc;
+      Assert.assertEquals(ubgc.getGroupAddress(), "wahey");
+      Assert.assertEquals(ubgc.getGroupPort(), 3333);
+      //these 2 are transient
+      Assert.assertEquals(ubgc.getLocalBindAddress(), null);
+      Assert.assertEquals(ubgc.getLocalBindPort(), -1);
+      Assert.assertEquals(dgc.getName(), "foo");
+      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5678);
+      Assert.assertEquals(dgc.getRefreshTimeout(), 12345);
+
+
+      BeanUtilsBean bean = new BeanUtilsBean();
+      checkEquals(bean, connectionFactoryWithHA, factory);
    }
 
    @Test
@@ -47,14 +266,149 @@ public class ConnectionFactoryURITest
    {
       ActiveMQConnectionFactory factory = parser.newObject(new URI("udp://localhost:3030?ha=true&type=QUEUE_XA_CFInvalid"));
 
-      Assert.assertTrue(factory instanceof ConnectionFactory);
+      Assert.assertTrue(ActiveMQJMSConnectionFactory.class.getName().equals(factory.getClass().getName()));
    }
 
    @Test
-   public void testJGroups() throws Exception
+   public void testJGroupsFile() throws Exception
    {
-      ActiveMQConnectionFactory factory = parser.newObject(new URI("jgroups://test.xml?test=33"));
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("jgroups://channel-name?file=/path/to/some/file/channel-file.xml&test=33"));
 
-//      Assert.assertTrue(factory instanceof ConnectionFactory);
+      Assert.assertTrue(ActiveMQJMSConnectionFactory.class.getName().equals(factory.getClass().getName()));
+      JGroupsFileBroadcastEndpointFactory broadcastEndpointFactory = (JGroupsFileBroadcastEndpointFactory) factory.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
+      Assert.assertEquals(broadcastEndpointFactory.getFile(), "/path/to/some/file/channel-file.xml");
+      Assert.assertEquals(broadcastEndpointFactory.getChannelName(), "channel-name");
+   }
+
+   @Test
+   public void testJGroupsKeyValue() throws Exception
+   {
+      ActiveMQConnectionFactory factory = parser.newObject(new URI("jgroups://channel-name?properties=param=value;param2=value2&test=33"));
+
+      Assert.assertTrue(ActiveMQJMSConnectionFactory.class.getName().equals(factory.getClass().getName()));
+      JGroupsPropertiesBroadcastEndpointFactory broadcastEndpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) factory.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
+      Assert.assertEquals(broadcastEndpointFactory.getProperties(), "param=value;param2=value2");
+      Assert.assertEquals(broadcastEndpointFactory.getChannelName(), "channel-name");
+   }
+
+   @Test
+   public void testJGroupsAllProperties() throws Exception
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("jgroups://?file=param=value;param=value&channelName=channelName&ha=true");
+      BeanUtilsBean bean = new BeanUtilsBean();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+      populate(sb, bean, factory);
+      ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()));
+      checkEquals(bean, factory, factory2);
+   }
+
+
+   @Test
+   public void testJGroupsFileURI() throws Exception
+   {
+      DiscoveryGroupConfiguration discoveryGroupConfiguration = new DiscoveryGroupConfiguration();
+      JGroupsFileBroadcastEndpointFactory endpointFactory = new JGroupsFileBroadcastEndpointFactory()
+            .setChannelName("channel-name")
+            .setFile("channel-file.xml");
+      discoveryGroupConfiguration.setName("foo")
+            .setRefreshTimeout(12345)
+            .setDiscoveryInitialWaitTimeout(5678)
+            .setBroadcastEndpointFactory(endpointFactory);
+      ActiveMQConnectionFactory connectionFactoryWithHA = ActiveMQJMSClient.createConnectionFactoryWithHA(discoveryGroupConfiguration, JMSFactoryType.CF);
+      URI tcp = parser.createSchema("jgroups", connectionFactoryWithHA);
+      ActiveMQConnectionFactory factory = parser.newObject(tcp);
+      DiscoveryGroupConfiguration dgc = factory.getDiscoveryGroupConfiguration();
+      Assert.assertNotNull(dgc);
+      BroadcastEndpointFactory befc = dgc.getBroadcastEndpointFactory();
+      Assert.assertNotNull(befc);
+      Assert.assertTrue(befc instanceof JGroupsFileBroadcastEndpointFactory);
+      Assert.assertEquals(dgc.getName(), "foo");
+      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5678);
+      Assert.assertEquals(dgc.getRefreshTimeout(), 12345);
+      JGroupsFileBroadcastEndpointFactory fileBroadcastEndpointFactory = (JGroupsFileBroadcastEndpointFactory) befc;
+      Assert.assertEquals(fileBroadcastEndpointFactory.getFile(), "channel-file.xml");
+      Assert.assertEquals(fileBroadcastEndpointFactory.getChannelName(), "channel-name");
+
+
+      BeanUtilsBean bean = new BeanUtilsBean();
+      checkEquals(bean, connectionFactoryWithHA, factory);
+   }
+
+   @Test
+   public void testJGroupsPropertiesURI() throws Exception
+   {
+      DiscoveryGroupConfiguration discoveryGroupConfiguration = new DiscoveryGroupConfiguration();
+      JGroupsPropertiesBroadcastEndpointFactory endpointFactory = new JGroupsPropertiesBroadcastEndpointFactory()
+            .setChannelName("channel-name")
+            .setProperties("param=val,param2-val2");
+      discoveryGroupConfiguration.setName("foo")
+            .setRefreshTimeout(12345)
+            .setDiscoveryInitialWaitTimeout(5678)
+            .setBroadcastEndpointFactory(endpointFactory);
+      ActiveMQConnectionFactory connectionFactoryWithHA = ActiveMQJMSClient.createConnectionFactoryWithHA(discoveryGroupConfiguration, JMSFactoryType.CF);
+      URI tcp = parser.createSchema("jgroups", connectionFactoryWithHA);
+      ActiveMQConnectionFactory factory = parser.newObject(tcp);
+      DiscoveryGroupConfiguration dgc = factory.getDiscoveryGroupConfiguration();
+      Assert.assertNotNull(dgc);
+      BroadcastEndpointFactory broadcastEndpointFactory = dgc.getBroadcastEndpointFactory();
+      Assert.assertNotNull(broadcastEndpointFactory);
+      Assert.assertTrue(broadcastEndpointFactory instanceof JGroupsPropertiesBroadcastEndpointFactory);
+      Assert.assertEquals(dgc.getName(), "foo");
+      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5678);
+      Assert.assertEquals(dgc.getRefreshTimeout(), 12345);
+      JGroupsPropertiesBroadcastEndpointFactory propertiesBroadcastEndpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
+      Assert.assertEquals(propertiesBroadcastEndpointFactory.getProperties(), "param=val,param2-val2");
+      Assert.assertEquals(propertiesBroadcastEndpointFactory.getChannelName(), "channel-name");
+
+      BeanUtilsBean bean = new BeanUtilsBean();
+      checkEquals(bean, connectionFactoryWithHA, factory);
+   }
+
+   private void populate(StringBuilder sb, BeanUtilsBean bean, ActiveMQConnectionFactory factory) throws IllegalAccessException, InvocationTargetException
+   {
+      PropertyDescriptor[] descriptors = bean.getPropertyUtils().getPropertyDescriptors(factory);
+      for (PropertyDescriptor descriptor : descriptors)
+      {
+         if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null)
+         {
+            if (descriptor.getPropertyType() == String.class)
+            {
+               String value = RandomUtil.randomString();
+               bean.setProperty(factory, descriptor.getName(), value);
+               sb.append("&").append(descriptor.getName()).append("=").append(value);
+            }
+            else if (descriptor.getPropertyType() == int.class)
+            {
+               int value = RandomUtil.randomPositiveInt();
+               bean.setProperty(factory, descriptor.getName(), value);
+               sb.append("&").append(descriptor.getName()).append("=").append(value);
+            }
+            else if (descriptor.getPropertyType() == long.class)
+            {
+               long value = RandomUtil.randomPositiveLong();
+               bean.setProperty(factory, descriptor.getName(), value);
+               sb.append("&").append(descriptor.getName()).append("=").append(value);
+            }
+            else if (descriptor.getPropertyType() == double.class)
+            {
+               double value = RandomUtil.randomDouble();
+               bean.setProperty(factory, descriptor.getName(), value);
+               sb.append("&").append(descriptor.getName()).append("=").append(value);
+            }
+         }
+      }
+   }
+
+   private void checkEquals(BeanUtilsBean bean, ActiveMQConnectionFactory factory, ActiveMQConnectionFactory factory2) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+   {
+      PropertyDescriptor[] descriptors = bean.getPropertyUtils().getPropertyDescriptors(factory);
+      for (PropertyDescriptor descriptor : descriptors)
+      {
+         if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null)
+         {
+            Assert.assertEquals(descriptor.getName() + " incorrect", bean.getProperty(factory, descriptor.getName()),bean.getProperty(factory2, descriptor.getName()));
+         }
+      }
    }
 }

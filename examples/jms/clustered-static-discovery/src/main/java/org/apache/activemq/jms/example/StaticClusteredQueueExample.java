@@ -62,7 +62,7 @@ public class StaticClusteredQueueExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI from server 3
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-         properties.put("java.naming.provider.url", args[3]);
+         properties.put("connectionFactory.ConnectionFactory", args[3]);
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 

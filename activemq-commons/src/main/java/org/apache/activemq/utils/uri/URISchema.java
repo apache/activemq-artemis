@@ -14,15 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.utils.uri;
 
+import java.beans.PropertyDescriptor;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
@@ -38,6 +40,16 @@ public abstract class URISchema<T>
    public T newObject(URI uri) throws Exception
    {
       return newObject(uri, null);
+   }
+
+   public void populateObject(URI uri, T bean) throws Exception
+   {
+      setData(uri, bean, parseQuery(uri.getQuery(), null));
+   }
+
+   public URI newURI(T bean) throws Exception
+   {
+      return internalNewURI(bean);
    }
 
    private URIFactory<T> parentFactory;
@@ -101,6 +113,8 @@ public abstract class URISchema<T>
    }
 
    protected abstract T internalNewObject(URI uri, Map<String, String> query) throws Exception;
+
+   protected abstract URI internalNewURI(T bean) throws Exception;
 
    private static final BeanUtilsBean beanUtils = new BeanUtilsBean();
 
@@ -184,5 +198,75 @@ public abstract class URISchema<T>
          beanUtils.populate(obj, query);
       }
       return obj;
+   }
+
+   public static void setData(URI uri, HashMap<String, Object> properties, Set<String> allowableProperties, Map<String, String> query)
+   {
+      if (allowableProperties.contains("host"))
+      {
+         properties.put("host", uri.getHost());
+      }
+      if (allowableProperties.contains("port"))
+      {
+         properties.put("port", uri.getPort());
+      }
+      if (allowableProperties.contains("userInfo"))
+      {
+         properties.put("userInfo", uri.getUserInfo());
+      }
+      for (Map.Entry<String, String> entry : query.entrySet())
+      {
+         if (allowableProperties.contains(entry.getKey()))
+         {
+            properties.put(entry.getKey(), entry.getValue());
+         }
+      }
+   }
+
+   public static String getData(List<String> ignored, Object... beans) throws Exception
+   {
+      StringBuilder sb = new StringBuilder();
+      synchronized (beanUtils)
+      {
+         for (Object bean : beans)
+         {
+            if (bean != null)
+            {
+               PropertyDescriptor[] descriptors = beanUtils.getPropertyUtils().getPropertyDescriptors(bean);
+               for (PropertyDescriptor descriptor : descriptors)
+               {
+                  if (descriptor.getReadMethod() != null && descriptor.getWriteMethod() != null && isWriteable(descriptor, ignored))
+                  {
+                     String value = beanUtils.getProperty(bean, descriptor.getName());
+                     if (value != null)
+                     {
+                        sb.append("&").append(descriptor.getName()).append("=").append(value);
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return sb.toString();
+   }
+
+   private static boolean isWriteable(PropertyDescriptor descriptor, List<String> ignored)
+   {
+      if (ignored != null && ignored.contains(descriptor.getName()))
+      {
+         return false;
+      }
+      Class<?> type = descriptor.getPropertyType();
+      return (type == Double.class) ||
+             (type == double.class) ||
+             (type == Long.class) ||
+             (type == long.class) ||
+             (type == Integer.class) ||
+             (type == int.class) ||
+             (type == Float.class) ||
+             (type == float.class) ||
+             (type == Boolean.class) ||
+             (type == boolean.class) ||
+             (type == String.class);
    }
 }

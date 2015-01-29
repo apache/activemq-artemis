@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.api.core;
 
-import java.io.Serializable;
 
+import java.io.Serializable;
 
 public interface BroadcastEndpointFactory extends Serializable
 {

@@ -17,15 +17,14 @@
 
 package org.apache.activemq.uri;
 
-import java.io.PrintStream;
 import java.net.URI;
 import java.util.Map;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.utils.uri.SchemaConstants;
 import org.apache.activemq.utils.uri.URISchema;
 
 /**
@@ -37,29 +36,35 @@ public class UDPSchema extends AbstractCFSchema
    @Override
    public String getSchemaName()
    {
-      return "udp";
+      return SchemaConstants.UDP;
    }
-
 
    @Override
    public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query) throws Exception
    {
-      ConnectionOptions options = newConectionOptions(uri, query);
+      JMSConnectionOptions options = newConectionOptions(uri, query);
 
-      DiscoveryGroupConfiguration dgc = URISchema.setData(uri, new DiscoveryGroupConfiguration(), query)
-         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-                                                      .setGroupAddress(getHost(uri))
-                                                      .setGroupPort(getPort(uri))
-                                                      .setLocalBindAddress(query.containsKey(TransportConstants.LOCAL_ADDRESS_PROP_NAME) ? (String) query.get(TransportConstants.LOCAL_ADDRESS_PROP_NAME) : null)
-                                                      .setLocalBindPort(query.containsKey(TransportConstants.LOCAL_PORT_PROP_NAME) ? Integer.parseInt((String) query.get(TransportConstants.LOCAL_PORT_PROP_NAME)) : -1));
+      DiscoveryGroupConfiguration dgc = UDPServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri));
 
+      ActiveMQConnectionFactory factory;
       if (options.isHa())
       {
-         return ActiveMQJMSClient.createConnectionFactoryWithHA(dgc, options.getFactoryTypeEnum());
+         factory = ActiveMQJMSClient.createConnectionFactoryWithHA(dgc, options.getFactoryTypeEnum());
       }
       else
       {
-         return ActiveMQJMSClient.createConnectionFactoryWithoutHA(dgc, options.getFactoryTypeEnum());
+         factory =  ActiveMQJMSClient.createConnectionFactoryWithoutHA(dgc, options.getFactoryTypeEnum());
       }
+      return URISchema.setData(uri, factory, query);
+   }
+
+   @Override
+   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception
+   {
+      DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
+      UDPBroadcastEndpointFactory endpoint = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
+      String query = URISchema.getData(UDPServerLocatorSchema.IGNORED, bean, dgc, endpoint);
+      dgc.setBroadcastEndpointFactory(endpoint);
+      return new URI(SchemaConstants.UDP, null,  endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
    }
 }

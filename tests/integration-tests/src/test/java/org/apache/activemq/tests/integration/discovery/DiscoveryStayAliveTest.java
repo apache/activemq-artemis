@@ -25,7 +25,7 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.BroadcastEndpoint;
 import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.core.cluster.DiscoveryGroup;
 import org.apache.activemq.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.tests.util.RandomUtil;
@@ -99,8 +99,8 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest
 
       BroadcastGroupImpl bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"),
                                                      RandomUtil.randomString(),
-                                                     1, scheduledExecutorService, new UDPBroadcastGroupConfiguration().setGroupAddress(address1).
-                                                        setGroupPort(groupPort).createBroadcastEndpointFactory());
+                                                     1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
+                                                        setGroupPort(groupPort));
 
       bg.start();
 
@@ -109,8 +109,8 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest
 
       for (int i = 0; i < 10; i++)
       {
-         BroadcastEndpointFactory factoryEndpoint = new UDPBroadcastGroupConfiguration().setGroupAddress(address1).
-            setGroupPort(groupPort).createBroadcastEndpointFactory();
+         BroadcastEndpointFactory factoryEndpoint = new UDPBroadcastEndpointFactory().setGroupAddress(address1).
+            setGroupPort(groupPort);
          sendBadData(factoryEndpoint);
 
          Thread.sleep(100);

@@ -25,9 +25,10 @@ import java.io.Serializable;
 
 import javax.jms.Queue;
 
-import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
@@ -93,20 +94,22 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
          String channelName1 = "channel1";
          String channelName2 = "channel2";
 
-         JGroupsBroadcastGroupConfiguration jgroupsBroadcastCfg1 = new JGroupsBroadcastGroupConfiguration(channel, channelName1);
-         JGroupsBroadcastGroupConfiguration jgroupsBroadcastCfg2 = new JGroupsBroadcastGroupConfiguration(jgroupsConfigString, channelName2);
+         BroadcastEndpointFactory jgroupsBroadcastCfg1 = new ChannelBroadcastEndpointFactory(channel, channelName1);
+         BroadcastEndpointFactory jgroupsBroadcastCfg2 = new JGroupsFileBroadcastEndpointFactory()
+               .setChannelName(channelName2)
+               .setFile(jgroupsConfigString);
 
          DiscoveryGroupConfiguration dcConfig1 = new DiscoveryGroupConfiguration()
             .setName("dg1")
             .setRefreshTimeout(5000)
             .setDiscoveryInitialWaitTimeout(5000)
-            .setBroadcastEndpointFactoryConfiguration(jgroupsBroadcastCfg1);
+            .setBroadcastEndpointFactory(jgroupsBroadcastCfg1);
 
          DiscoveryGroupConfiguration dcConfig2 = new DiscoveryGroupConfiguration()
             .setName("dg2")
             .setRefreshTimeout(5000)
             .setDiscoveryInitialWaitTimeout(5000)
-            .setBroadcastEndpointFactoryConfiguration(jgroupsBroadcastCfg2);
+            .setBroadcastEndpointFactory(jgroupsBroadcastCfg2);
 
          jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig1.getName(), dcConfig1);
          jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig2.getName(), dcConfig2);
@@ -160,8 +163,8 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
       byte[] x = serialize(jmsCf2);
       ActiveMQConnectionFactory jmsCf2Copy = deserialize(x, ActiveMQConnectionFactory.class);
       assertNotNull(jmsCf2Copy);
-      BroadcastEndpointFactoryConfiguration broadcastEndpoint = jmsCf2Copy.getDiscoveryGroupConfiguration().getBroadcastEndpointFactoryConfiguration();
-      assertTrue(broadcastEndpoint instanceof JGroupsBroadcastGroupConfiguration);
+      BroadcastEndpointFactory broadcastEndpoint = jmsCf2Copy.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
+      assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpointFactory);
    }
 
    @Override

@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ObjectNameBuilder;
@@ -236,9 +236,9 @@ public class ClusterConnectionControlTest extends ManagementTestBase
          .setName(discoveryGroupName)
          .setRefreshTimeout(500)
          .setDiscoveryInitialWaitTimeout(0)
-         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-                                                      .setGroupAddress("230.1.2.3")
-                                                      .setGroupPort(6745));
+         .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
+                                            .setGroupAddress("230.1.2.3")
+                                            .setGroupPort(6745));
 
       Configuration conf_1 = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig)

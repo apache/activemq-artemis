@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.core.remoting.impl.invm;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 
 /**
  * A TransportConstants

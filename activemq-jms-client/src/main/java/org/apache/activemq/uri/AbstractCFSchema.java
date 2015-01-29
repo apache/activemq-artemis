@@ -31,15 +31,15 @@ import org.apache.activemq.utils.uri.URISchema;
 public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory>
 {
 
-   protected ConnectionOptions newConectionOptions(URI uri, Map<String, String> query) throws Exception
+   protected JMSConnectionOptions newConectionOptions(URI uri, Map<String, String> query) throws Exception
    {
       String type = query.get("type");
       // We do this check here to guarantee proper logging
-      if (ConnectionOptions.convertCFType(type) == null)
+      if (JMSConnectionOptions.convertCFType(type) == null)
       {
          ActiveMQClientLogger.LOGGER.invalidCFType(type, uri.toString());
       }
-      return setData(uri, new ConnectionOptions(), query);
+      return setData(uri, new JMSConnectionOptions(), query);
    }
 
 }

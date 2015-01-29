@@ -17,7 +17,6 @@
 package org.apache.activemq.core.remoting.impl.netty;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
