@@ -71,9 +71,6 @@ public class DuplicateCacheTest extends StorageManagerTestBase
       cache.deleteFromCache(id);
 
       assertFalse(cache.contains(id));
-
-      cache.deleteFromCache(id);
-
    }
 
 
