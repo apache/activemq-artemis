@@ -1201,15 +1201,15 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
             ClientMessage message = holder.consumer.receive(WAIT_TIMEOUT);
 
-            message.acknowledge();
-
-            consumers[consumerIDs[count]].session.commit();
-
             Assert.assertNotNull("consumer " + consumerIDs[count] + " did not receive message " + i, message);
 
             Assert.assertEquals("consumer " + consumerIDs[count] + " message " + i,
                                 i,
                                 message.getObjectProperty(ClusterTestBase.COUNT_PROP));
+
+            message.acknowledge();
+
+            consumers[consumerIDs[count]].session.commit();
 
          }
 
