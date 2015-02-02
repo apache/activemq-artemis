@@ -208,8 +208,8 @@ public class SessionTest extends ServiceTestBase
       clientSession.createConsumer(queueName);
       clientSession.createConsumer(queueName);
       ClientProducer cp = clientSession.createProducer("a1");
-      cp.send(clientSession.createMessage(false));
-      cp.send(clientSession.createMessage(false));
+      cp.send(clientSession.createMessage(true));
+      cp.send(clientSession.createMessage(true));
 
       flushQueue();
 
