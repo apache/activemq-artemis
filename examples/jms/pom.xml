@@ -78,8 +78,6 @@ under the License.
             <module>http-transport</module>
             <module>interceptor</module>
             <module>instantiate-connection-factory</module>
-            <!--todo reenable once the HQ plugin v1.1.0 is available-->
-            <!--<module>jaas</module>-->
             <module>jms-bridge</module>
             <module>jmx</module>
             <module>large-message</module>

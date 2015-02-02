@@ -16,20 +16,9 @@
  */
 package org.apache.activemq.tests.integration.security;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-import java.io.IOException;
-import java.security.acl.Group;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.api.core.ActiveMQException;
@@ -47,10 +36,8 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.spi.core.security.JAASSecurityManager;
 import org.apache.activemq.tests.util.CreateMessage;
 import org.apache.activemq.tests.util.ServiceTestBase;
-import org.jboss.security.SimpleGroup;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -894,85 +881,6 @@ public class SecurityTest extends ServiceTestBase
 
    }
 
-   /*
-    * basic JAAS tests
-    */
-
-   @Test
-   public void testJaasCreateSessionSucceeds() throws Exception
-   {
-      String domainName = SimpleLogingModule.class.getName();
-      Configuration configuration = createDefaultConfig(false)
-         .setSecurityEnabled(true);
-      JAASSecurityManager securityManager = new JAASSecurityManager();
-      ActiveMQServer server = createServer(false, configuration, securityManager);
-
-      securityManager.setConfigurationName(domainName);
-      securityManager.setCallbackHandler(new CallbackHandler()
-      {
-         public void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException
-         {
-            // empty callback, auth info are directly passed as options to the login module
-         }
-      });
-      Map<String, Object> options = new HashMap<String, Object>();
-      options.put("authenticated", Boolean.TRUE);
-      securityManager.setConfiguration(new SimpleConfiguration(domainName, options));
-      server.start();
-      ClientSessionFactory cf = createSessionFactory(locator);
-
-      try
-      {
-         ClientSession session = cf.createSession(false, true, true);
-
-         session.close();
-      }
-      catch (ActiveMQException e)
-      {
-         Assert.fail("should not throw exception");
-      }
-
-   }
-
-   @Test
-   public void testJaasCreateSessionFails() throws Exception
-   {
-      String domainName = SimpleLogingModule.class.getName();
-      Configuration configuration = createDefaultConfig(false)
-         .setSecurityEnabled(true);
-      JAASSecurityManager securityManager = new JAASSecurityManager();
-      ActiveMQServer server = createServer(false, configuration, securityManager);
-
-      securityManager.setConfigurationName(domainName);
-      securityManager.setCallbackHandler(new CallbackHandler()
-      {
-         public void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException
-         {
-            // empty callback, auth info are directly passed as options to the login module
-         }
-      });
-      Map<String, Object> options = new HashMap<String, Object>();
-      options.put("authenticated", Boolean.FALSE);
-      securityManager.setConfiguration(new SimpleConfiguration(domainName, options));
-      server.start();
-      ClientSessionFactory cf = createSessionFactory(locator);
-
-      try
-      {
-         cf.createSession(false, true, true);
-         Assert.fail("should not throw exception");
-      }
-      catch (ActiveMQSecurityException se)
-      {
-         //ok
-      }
-      catch (ActiveMQException e)
-      {
-         fail("Invalid Exception type:" + e.getType());
-      }
-
-   }
-
    @Test
    public void testComplexRoles() throws Exception
    {
@@ -1350,84 +1258,6 @@ public class SecurityTest extends ServiceTestBase
       catch (ActiveMQException e)
       {
          fail("Invalid Exception type:" + e.getType());
-      }
-   }
-
-   public static class SimpleLogingModule implements LoginModule
-   {
-      private Map<String, ?> options;
-
-      private Subject subject;
-
-      public SimpleLogingModule()
-      {
-      }
-
-      public boolean abort() throws LoginException
-      {
-         return true;
-      }
-
-      public boolean commit() throws LoginException
-      {
-         return true;
-      }
-
-      public void initialize(final Subject subject, final CallbackHandler callbackHandler,
-                             final Map<String, ?> sharedState, final Map<String, ?> options)
-      {
-         this.subject = subject;
-         this.options = options;
-      }
-
-      public boolean login() throws LoginException
-      {
-         boolean authenticated = (Boolean) options.get("authenticated");
-         if (authenticated)
-         {
-            Group roles = new SimpleGroup("Roles");
-            roles.addMember(new JAASSecurityManager.SimplePrincipal((String) options.get("role")));
-            subject.getPrincipals().add(roles);
-         }
-         return authenticated;
-
-      }
-
-      public Subject getSubject()
-      {
-         return subject;
-      }
-
-      public boolean logout() throws LoginException
-      {
-         return true;
-      }
-   }
-
-   public static class SimpleConfiguration extends javax.security.auth.login.Configuration
-   {
-      private final Map<String, ?> options;
-
-      private final String loginModuleName;
-
-      public SimpleConfiguration(final String loginModuleName, final Map<String, ?> options)
-      {
-         this.loginModuleName = loginModuleName;
-         this.options = options;
-      }
-
-      @Override
-      public AppConfigurationEntry[] getAppConfigurationEntry(final String name)
-      {
-         AppConfigurationEntry entry =
-            new AppConfigurationEntry(loginModuleName, AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                                      options);
-         return new AppConfigurationEntry[]{entry};
-      }
-
-      @Override
-      public void refresh()
-      {
       }
    }
 }
