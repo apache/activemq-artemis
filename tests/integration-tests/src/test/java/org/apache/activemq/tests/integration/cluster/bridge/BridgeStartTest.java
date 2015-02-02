@@ -587,7 +587,7 @@ public class BridgeStartTest extends ServiceTestBase
 
          for (int i = 0; i < numMessages; i++)
          {
-            ClientMessage message = consumer1.receive(1000);
+            ClientMessage message = consumer1.receive(3000);
 
             Assert.assertNotNull(message);
 
