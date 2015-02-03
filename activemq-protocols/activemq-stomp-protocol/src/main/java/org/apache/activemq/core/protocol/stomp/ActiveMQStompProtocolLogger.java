@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.core.protocol.stomp;
 
+import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
@@ -41,7 +42,7 @@ import org.jboss.logging.annotations.MessageLogger;
  */
 
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQStompProtocolLogger
+public interface ActiveMQStompProtocolLogger extends BasicLogger
 {
    /**
     * The default logger.

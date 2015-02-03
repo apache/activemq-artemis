@@ -1234,7 +1234,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    }
 
 
-   public Queue locateQueue(SimpleString queueName) throws Exception
+   public Queue locateQueue(SimpleString queueName)
    {
       Binding binding = postOffice.getBinding(queueName);
 

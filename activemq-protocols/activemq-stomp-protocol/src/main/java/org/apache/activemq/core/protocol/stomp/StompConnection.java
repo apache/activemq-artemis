@@ -27,7 +27,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.core.remoting.CloseListener;
@@ -245,10 +247,36 @@ public final class StompConnection implements RemotingConnection
 
    public void checkDestination(String destination) throws ActiveMQStompException
    {
+      if (autoCreateQueueIfPossible(destination))
+      {
+         return;
+      }
+
       if (!manager.destinationExists(destination))
       {
          throw BUNDLE.destinationNotExist(destination);
       }
+   }
+
+   public boolean autoCreateQueueIfPossible(String queue) throws ActiveMQStompException
+   {
+      boolean autoCreated = false;
+
+      if (queue.startsWith(ResourceNames.JMS_QUEUE) && manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateJmsQueues() && manager.getServer().locateQueue(new SimpleString(queue)) == null)
+      {
+         SimpleString queueName = new SimpleString(queue);
+         try
+         {
+            manager.getServer().createQueue(queueName, queueName, null, true, false, true);
+         }
+         catch (Exception e)
+         {
+            throw new ActiveMQStompException(e.getMessage(), e);
+         }
+         autoCreated = true;
+      }
+
+      return autoCreated;
    }
 
    @Override
@@ -689,6 +717,7 @@ public final class StompConnection implements RemotingConnection
    void subscribe(String destination, String selector, String ack,
                   String id, String durableSubscriptionName, boolean noLocal) throws ActiveMQStompException
    {
+      autoCreateQueueIfPossible(destination);
       if (noLocal)
       {
          String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";

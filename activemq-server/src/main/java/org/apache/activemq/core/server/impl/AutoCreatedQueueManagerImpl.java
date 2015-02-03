@@ -24,7 +24,7 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.utils.ReferenceCounterUtil;
 
 /**
- * @author Clebert Suconic
+ * @author Justin Bertram
  */
 
 public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager

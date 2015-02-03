@@ -30,8 +30,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -145,6 +149,40 @@ public class StompTest extends StompTestBase
       long tnow = System.currentTimeMillis();
       long tmsg = message.getJMSTimestamp();
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1000);
+   }
+
+   @Test
+   public void testSendMessageToNonExistentQueue() throws Exception
+   {
+      String nonExistantQueue = RandomUtil.randomString();
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      frame = "SEND\n" + "destination:" + getQueuePrefix() + nonExistantQueue + "\n\n" + "Hello World" + Stomp.NULL;
+
+      sendFrame(frame);
+      receiveFrame(1000);
+
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(nonExistantQueue));
+      TextMessage message = (TextMessage) consumer.receive(1000);
+      Assert.assertNotNull(message);
+      Assert.assertEquals("Hello World", message.getText());
+      // Assert default priority 4 is used when priority header is not set
+      Assert.assertEquals("getJMSPriority", 4, message.getJMSPriority());
+
+      // Make sure that the timestamp is valid - should
+      // be very close to the current time.
+      long tnow = System.currentTimeMillis();
+      long tmsg = message.getJMSTimestamp();
+      Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
+
+      // closing the consumer here should trigger auto-deletion
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
+      consumer.close();
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
    }
 
    /*
@@ -1084,6 +1122,63 @@ public class StompTest extends StompTestBase
       Assert.assertTrue(frame.startsWith("RECEIPT"));
 
       sendMessage(getName(), topic);
+
+      frame = receiveFrame(1000);
+      log.info("Received frame: " + frame);
+      Assert.assertNull("No message should have been received since subscription was removed", frame);
+
+
+      frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
+      sendFrame(frame);
+   }
+
+   @Test
+   public void testSubscribeToNonExistantQueue() throws Exception
+   {
+      String nonExistantQueue = RandomUtil.randomString();
+
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(100000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      frame = "SUBSCRIBE\n" + "destination:" +
+         getQueuePrefix() +
+         nonExistantQueue +
+         "\n" +
+         "receipt: 12\n" +
+         "\n\n" +
+         Stomp.NULL;
+      sendFrame(frame);
+      // wait for SUBSCRIBE's receipt
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("RECEIPT"));
+
+      sendMessage(getName(), ActiveMQJMSClient.createQueue(nonExistantQueue));
+
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("MESSAGE"));
+      Assert.assertTrue(frame.indexOf("destination:") > 0);
+      Assert.assertTrue(frame.indexOf(getName()) > 0);
+
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
+
+      frame = "UNSUBSCRIBE\n" + "destination:" +
+         getQueuePrefix() +
+         nonExistantQueue +
+         "\n" +
+         "receipt: 1234\n" +
+         "\n\n" +
+         Stomp.NULL;
+      sendFrame(frame);
+      // wait for UNSUBSCRIBE's receipt
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("RECEIPT"));
+
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
+
+      sendMessage(getName(), ActiveMQJMSClient.createQueue(nonExistantQueue));
 
       frame = receiveFrame(1000);
       log.info("Received frame: " + frame);
