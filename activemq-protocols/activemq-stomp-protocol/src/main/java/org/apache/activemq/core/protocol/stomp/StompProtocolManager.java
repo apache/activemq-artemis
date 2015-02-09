@@ -500,4 +500,9 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
             break;
       }
    }
+
+   public ActiveMQServer getServer()
+   {
+      return server;
+   }
 }

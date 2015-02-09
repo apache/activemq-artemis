@@ -114,6 +114,7 @@ public abstract class StompTestBase extends UnitTestCase
       if (autoCreateServer)
       {
          server = createServer();
+         addServer(server.getActiveMQServer());
          server.start();
          connectionFactory = createConnectionFactory();
          createBootstrap();
@@ -231,9 +232,8 @@ public abstract class StompTestBase extends UnitTestCase
          if (group != null)
          {
             channel.close();
-            group.shutdown();
+            group.shutdownGracefully(0, 5000, TimeUnit.MILLISECONDS);
          }
-         server.stop();
       }
       super.tearDown();
    }

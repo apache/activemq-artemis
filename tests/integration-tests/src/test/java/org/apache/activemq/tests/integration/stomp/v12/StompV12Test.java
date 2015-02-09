@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.tests.integration.stomp.util.StompClientConnection;
@@ -400,6 +401,10 @@ public class StompV12Test extends StompV11TestBase
    @Test
    public void testHeaderRepetitive() throws Exception
    {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoCreateJmsQueues(false);
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
+
       connV12.connect(defUser, defPass);
       ClientStompFrame frame = connV12.createFrame("SEND");
 
@@ -2617,8 +2622,11 @@ public class StompV12Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageToNonExistentJmsQueue() throws Exception
+   public void testSendMessageToNonExistentJmsQueueWithoutAutoCreation() throws Exception
    {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAutoCreateJmsQueues(false);
+      server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
       connV12.connect(defUser, defPass);
 
       ClientStompFrame frame = connV12.createFrame("SEND");
@@ -2630,6 +2638,26 @@ public class StompV12Test extends StompV11TestBase
       frame = connV12.sendFrame(frame);
 
       assertTrue(frame.getCommand().equals("ERROR"));
+      assertEquals("1234", frame.getHeader("receipt-id"));
+      System.out.println("message: " + frame.getHeader("message"));
+
+      connV12.disconnect();
+   }
+
+   @Test
+   public void testSendMessageToNonExistentJmsQueueWithAutoCreation() throws Exception
+   {
+      connV12.connect(defUser, defPass);
+
+      ClientStompFrame frame = connV12.createFrame("SEND");
+      String guid = UUID.randomUUID().toString();
+      frame.addHeader("destination", "jms.queue.NonExistentQueue" + guid);
+      frame.addHeader("receipt", "1234");
+      frame.setBody("Hello World");
+
+      frame = connV12.sendFrame(frame);
+
+      assertTrue(frame.getCommand().equals("RECEIPT"));
       assertEquals("1234", frame.getHeader("receipt-id"));
       System.out.println("message: " + frame.getHeader("message"));
 

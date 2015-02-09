@@ -190,7 +190,7 @@ public interface ActiveMQServer extends ActiveMQComponent
                      boolean durable,
                      boolean temporary) throws Exception;
 
-   Queue locateQueue(SimpleString queueName) throws Exception;
+   Queue locateQueue(SimpleString queueName);
 
    void destroyQueue(SimpleString queueName) throws Exception;
 
