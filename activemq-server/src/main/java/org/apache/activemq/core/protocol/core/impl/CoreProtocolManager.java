@@ -234,9 +234,9 @@ class CoreProtocolManager implements ProtocolManager
                {
                   try
                   {
-                     final Pair<TransportConfiguration, TransportConfiguration> connectorPair =
-                        new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(),
-                                                                                 topologyMember.getBackup());
+                     final Pair<TransportConfiguration, TransportConfiguration> connectorPair = BackwardsCompatibilityUtils
+                        .getTCPair(channel0.getConnection().getClientVersion(), topologyMember);
+
                      final String nodeID = topologyMember.getNodeId();
                      // Using an executor as most of the notifications on the Topology
                      // may come from a channel itself
