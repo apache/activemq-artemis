@@ -276,7 +276,7 @@ public class PacketImpl implements Packet
 
    public ActiveMQBuffer encode(final RemotingConnection connection)
    {
-      ActiveMQBuffer buffer = connection.createBuffer(PacketImpl.INITIAL_PACKET_SIZE);
+      ActiveMQBuffer buffer = connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE);
 
       // The standard header fields
 
@@ -331,11 +331,6 @@ public class PacketImpl implements Packet
    public boolean isRequiresConfirmations()
    {
       return true;
-   }
-
-   public boolean isAsyncExec()
-   {
-      return false;
    }
 
    @Override

@@ -56,12 +56,6 @@ public class SessionXACommitMessage extends PacketImpl
    }
 
    @Override
-   public boolean isAsyncExec()
-   {
-      return true;
-   }
-
-   @Override
    public void encodeRest(final ActiveMQBuffer buffer)
    {
       XidCodecSupport.encodeXid(xid, buffer);

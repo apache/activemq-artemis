@@ -280,7 +280,7 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public ActiveMQBuffer createBuffer(int size)
+   public ActiveMQBuffer createTransportBuffer(int size)
    {
       return ActiveMQBuffers.dynamicBuffer(size);
    }

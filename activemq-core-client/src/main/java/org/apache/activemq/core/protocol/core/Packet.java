@@ -85,6 +85,4 @@ public interface Packet
     * @return true if confirmation is required
     */
    boolean isRequiresConfirmations();
-
-   boolean isAsyncExec();
 }

@@ -46,7 +46,9 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper
 
    public ResetLimitWrappedActiveMQBuffer(final int limit, final ActiveMQBuffer buffer, final MessageInternal message)
    {
-      super(buffer.byteBuf());
+      // a wrapped inside a wrapper will increase the stack size.
+      // we fixed this here due to some profiling testing
+      super(unwrap(buffer.byteBuf()));
 
       this.limit = limit;
 

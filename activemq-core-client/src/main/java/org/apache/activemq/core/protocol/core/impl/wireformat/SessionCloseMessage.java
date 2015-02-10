@@ -49,10 +49,4 @@ public class SessionCloseMessage extends PacketImpl
       // TODO
       return 0;
    }
-
-   @Override
-   public boolean isAsyncExec()
-   {
-      return true;
-   }
 }

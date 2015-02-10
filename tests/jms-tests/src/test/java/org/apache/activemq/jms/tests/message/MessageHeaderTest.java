@@ -1391,7 +1391,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#createBuffer(byte[])
+       * @see org.apache.activemq.api.core.client.ClientSession#createTransportBuffer(byte[])
        */
       public ActiveMQBuffer createBuffer(final byte[] bytes)
       {
@@ -1400,7 +1400,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#createBuffer(int)
+       * @see org.apache.activemq.api.core.client.ClientSession#createTransportBuffer(int)
        */
       public ActiveMQBuffer createBuffer(final int size)
       {

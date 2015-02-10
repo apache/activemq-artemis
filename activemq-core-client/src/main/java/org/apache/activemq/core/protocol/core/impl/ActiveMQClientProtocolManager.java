@@ -482,7 +482,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
       {
          // no need to send handshake on inVM as inVM is not using the NettyProtocolHandling
          String handshake = "HORNETQ";
-         ActiveMQBuffer amqbuffer = connection.createBuffer(handshake.length());
+         ActiveMQBuffer amqbuffer = connection.createTransportBuffer(handshake.length());
          amqbuffer.writeBytes(handshake.getBytes());
          transportConnection.write(amqbuffer);
       }
