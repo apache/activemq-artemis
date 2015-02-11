@@ -44,9 +44,11 @@ import org.apache.activemq.tests.util.SpawnedVMSupport;
  */
 public class ClientCrashTest extends ClientTestBase
 {
-   static final int PING_PERIOD = 2000;
+   // using short values so this test can run fast
+   static final int PING_PERIOD = 100;
 
-   static final int CONNECTION_TTL = 6000;
+   // using short values so this test can run fast
+   static final int CONNECTION_TTL = 1000;
 
    // Constants -----------------------------------------------------
 
@@ -76,18 +78,22 @@ public class ClientCrashTest extends ClientTestBase
    {
       assertActiveConnections(1);
 
-      // spawn a JVM that creates a Core client, which sends a message
-      Process p = SpawnedVMSupport.spawnVM(CrashClient.class.getName());
-
       ClientSession session = sf.createSession(false, true, true);
       session.createQueue(ClientCrashTest.QUEUE, ClientCrashTest.QUEUE, null, false);
+
+      // spawn a JVM that creates a Core client, which sends a message
+      // It has to be spawned after the queue was created.
+      // if the client is too fast you race the send before the queue was created, missing a message
+      Process p = SpawnedVMSupport.spawnVM(CrashClient.class.getName());
+
       ClientConsumer consumer = session.createConsumer(ClientCrashTest.QUEUE);
       ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE);
+
 
       session.start();
 
       // receive a message from the queue
-      Message messageFromClient = consumer.receive(500000);
+      Message messageFromClient = consumer.receive(5000);
       Assert.assertNotNull("no message received", messageFromClient);
       Assert.assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
@@ -155,7 +161,7 @@ public class ClientCrashTest extends ClientTestBase
       session.start();
 
       // receive a message from the queue
-      ClientMessage messageFromClient = consumer.receive(10000);
+      ClientMessage messageFromClient = consumer.receive(timeout);
       Assert.assertNotNull("no message received", messageFromClient);
       Assert.assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
