@@ -99,6 +99,7 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 import org.apache.activemq.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.utils.VersionLoader;
 
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.EXCEPTION;
@@ -628,7 +629,7 @@ public class ActiveMQSessionContext extends SessionContext
    {
       Packet createRequest = new CreateSessionMessage(name,
                                                       sessionChannel.getID(),
-                                                      getServerVersion(),
+                                                      VersionLoader.getVersion().getIncrementingVersion(),
                                                       username,
                                                       password,
                                                       minLargeMessageSize,
