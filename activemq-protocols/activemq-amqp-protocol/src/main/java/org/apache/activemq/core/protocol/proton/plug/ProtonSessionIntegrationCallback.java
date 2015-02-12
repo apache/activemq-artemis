@@ -150,8 +150,28 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    @Override
    public boolean queueQuery(String queueName) throws Exception
    {
+      boolean queryResult = false;
+
       QueueQueryResult queueQuery = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
-      return queueQuery.isExists();
+
+      if (queueQuery.isExists())
+      {
+         queryResult = true;
+      }
+      else
+      {
+         if (queueQuery.isAutoCreateJmsQueues())
+         {
+            serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), null, false, true);
+            queryResult = true;
+         }
+         else
+         {
+            queryResult = false;
+         }
+      }
+
+      return queryResult;
    }
 
    @Override
