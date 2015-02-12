@@ -159,6 +159,21 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest
             return (String)proxy.retrieveAttributeValue("expiryAddress");
          }
 
+         public String getFirstMessageAsJSON() throws Exception
+         {
+            return (String)proxy.retrieveAttributeValue("firstMessageAsJSON");
+         }
+
+         public Long getFirstMessageTimestamp() throws Exception
+         {
+            return (Long)proxy.retrieveAttributeValue("firstMessageTimestamp");
+         }
+
+         public Long getFirstMessageAge() throws Exception
+         {
+            return (Long)proxy.retrieveAttributeValue("firstMessageAge");
+         }
+
          public long getMessageCount()
          {
             return ((Number)proxy.retrieveAttributeValue("messageCount")).longValue();
