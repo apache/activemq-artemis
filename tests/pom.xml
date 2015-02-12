@@ -43,21 +43,6 @@
          </dependency>
          <!-- ## End XA Dependencies ## -->
 
-         <!--## Security Dependencies ## -->
-         <dependency>
-            <groupId>org.jboss.security</groupId>
-            <artifactId>jboss-security-spi</artifactId>
-            <version>2.0.3.SP1</version>
-            <!-- License: LGPL -->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.security</groupId>
-            <artifactId>jbosssx</artifactId>
-            <version>2.0.3.SP1</version>
-            <!-- License: LGPL -->
-         </dependency>
-         <!-- ## End Security Dependencies ## -->
-
          <!--## JMS Dependencies ## -->
          <dependency>
             <groupId>org.apache.geronimo.components</groupId>
@@ -66,9 +51,9 @@
             <!-- License: Apache: 2.0 -->
          </dependency>
          <dependency>
-            <groupId>apache-logging</groupId>
+            <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.1.0.jboss</version>
+            <version>1.2</version>
             <!-- License: Apache: 2.0 -->
          </dependency>
          <!-- End JMS Dependencies -->
