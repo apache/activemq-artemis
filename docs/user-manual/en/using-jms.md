@@ -64,38 +64,27 @@ A JMS connection factory is used by the client to make connections to
 the server. It knows the location of the server it is connecting to, as
 well as many other configuration parameters.
 
-By default, a `javax.naming.Context` instance created using the
-`org.apache.activemq.jndi.ActiveMQInitialContextFactory` will
-automatically have the following connection factories available for
-lookup:
-
--   `ConnectionFactory`
-
--   `XAConnectionFactory`
-
--   `QueueConnectionFactory`
-
--   `TopicConnectionFactory`
-
 Here's a simple example of the JNDI context environment for a client
 looking up a connection factory to access an *embedded* instance of
 ActiveMQ:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    connectionFactory.invmConnectionFactory=vm://0
 
-It's really as simple as that. As noted previously, any JNDI context
-created with the `ActiveMQInitialContextFactory` will have a set of
-default connection factories available. Therefore, only the
-`java.naming.factory.initial` property is required to access an embedded
-broker.
+In this instance we have created a connection factory that is bound to
+`invmConnectionFactory`, any entry with prefix `connectionFactory.` will
+  create a connection factory.
 
 In certain situations there could be multiple server instances running
 within a particular JVM. In that situation each server would typically
 have an InVM acceptor with a unique server-ID. A client using JMS and
-JNDI can account for this by specifying a
-`javax.naming.Context.PROVIDER_URL` (`String` value of
-"java.naming.provider.url") in the JNDI environment like `vm://2` where
-`2` is the server-ID for acceptor.
+JNDI can account for this by specifying a connction factory for each
+server, like so:
+
+    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    connectionFactory.invmConnectionFactory0=vm://0
+    connectionFactory.invmConnectionFactory1=vm://1
+    connectionFactory.invmConnectionFactory2=vm://2
 
 Here is a list of all the supported URL schemes:
 
@@ -108,19 +97,17 @@ Here is a list of all the supported URL schemes:
 -   `jgroups`
 
 Most clients won't be connecting to an embedded broker. Clients will
-most commonly connect across a network a remote broker. In that case the
-client can use the `javax.naming.Context.PROVIDER_URL` (`String` value
-of "java.naming.provider.url") in the JNDI environment to specify where
-to connect. Here's a simple example of a client configuring a connection
-factory to connect to a remote broker running on myhost:5445:
+most commonly connect across a network a remote broker. Here's a simple
+example of a client configuring a connection factory to connect to a
+remote broker running on myhost:5445:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://myhost:5445
+    connectionFactory.ConnectionFactory=tcp://myhost:5445
 
 In the example above the client is using the `tcp` scheme for the
 provider URL. A client may also specify multiple comma-delimited
 host:port combinations in the URL (e.g.
-`tcp://remote-host1:5445,remote-host2:5445`). Whether there is one or
+`(tcp://remote-host1:5445,remote-host2:5445)`). Whether there is one or
 many host:port combinations in the URL they are treated as the *initial
 connector(s)* for the underlying connection.
 
@@ -132,12 +119,23 @@ Each scheme has a specific set of properties which can be set using the
 traditional URL query string format (e.g.
 `scheme://host:port?key1=value1&key2=value2`) to customize the
 underlying transport mechanism. For example, if a client wanted to
-connect to a remote server using TCP and SSL it would use a
-`Context.PROVIDER_URL` of `tcp://remote-host:5445?ssl-enabled=true`.
+connect to a remote server using TCP and SSL it would create a connection
+factory like so, `tcp://remote-host:5445?ssl-enabled=true`.
 
 All the properties available for the `tcp` scheme are described in [the
 documentation regarding the Netty
 transport](#configuring-transports.netty).
+
+Note if you are using the `tcp` scheme and multiple addresses then a query
+can be applied to all the url's or just to an individual connector, so where
+you have
+
+-   `(tcp://remote-host1:5445?httpEnabled=true,remote-host2:5445?httpEnabled=true)?clientID=1234`
+
+then the `httpEnabled` property is only set on the individual connectors where as the `clientId`
+is set on the actual connection factory. Any connector specific properties set on the whole
+URI will be applied to all the connectors.
+
 
 The `udp` scheme supports 4 properties:
 
@@ -169,48 +167,23 @@ The `udp` scheme supports 4 properties:
     value for this parameter is 10000 milliseconds.
 
 Lastly, the `jgroups` scheme is supported which provides an alternative
-to the `udp` scheme for server discovery. The URL pattern is as follows
-`jgroups://<jgroups-xml-conf-filename>` where
-`<jgroups-xml-conf-filename>` refers to an XML file on the classpath
-that contains the JGroups configuration.
+to the `udp` scheme for server discovery. The URL pattern is either
+`jgroups://channelName?file=jgroups-xml-conf-filename`
+where`jgroups-xml-conf-filename` refers to an XML file on the classpath
+that contains the JGroups configuration or it can be
+`jgroups://channelName?properties=some-jgroups-properties`. In both instance the
+`channelName` is the name given to the jgroups channel created.
 
 The `refresh-timeout` and `discovery-initial-wait-timeout` properties
 are supported just like with `udp`.
 
-Although a `javax.naming.Context` instance created using the
-`org.apache.activemq.jndi.ActiveMQInitialContextFactory` will
-automatically have some connection factories present, it is possible for
-a client to specify its own connection factories. This is done using the
-`org.apache.activemq.jndi.ActiveMQInitialContextFactory.CONNECTION_FACTORY_NAMES`
-property (String value of "connectionFactoryNames"). The value for this
-property is a comma delimited String of all the connection factories the
-client wishes to create. For example:
+The default type for the default connection factory is of type `javax.jms.ConnectionFactory`.
+This can be changed by setting the type like so
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
-    connectionFactoryNames=myConnectionFactory
+    java.naming.provider.url=tcp://localhost:5445?type=CF
 
-In this example, the client is creating a connection factory named
-"myConnectionFactory." This replaces all the default connection
-factories so that only the "myConnectionFactory" connection factory is
-available to the client.
-
-Aside from the underlying transport, the underlying connection factory
-implementation can also be configured using special properties. To
-configure a particular connection factory the client would follow this
-pattern for the property name to set in the environment:
-`connection.<connection-factory-name>.<property-name>`. For example, if
-the client wanted to customize the default connection factory
-"ConnectionFactory" to support high-availability then it would do this:
-
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://myhost:5445
-    connection.ConnectionFactory.ha=true
-
-Any property available on the underlying
-`org.apache.activemq.jms.client.ActiveMQConnectionFactory` can be set
-this way in addition to the `ha` (boolean) and `type` (String)
-properties. Here are the different options for the `type`:
+In this example it is still set to the default, below shows a list of types that can be set.
 
 #### Configuration for Connection Factory Types
 <table>

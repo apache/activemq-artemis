@@ -856,7 +856,7 @@ public final class ClusterManager implements ActiveMQComponent
       if (group == null)
       {
          group = new BroadcastGroupImpl(nodeManager, config.getName(),
-                                        config.getBroadcastPeriod(), scheduledExecutor, config.getEndpointFactoryConfiguration().createBroadcastEndpointFactory());
+                                        config.getBroadcastPeriod(), scheduledExecutor, config.getEndpointFactory());
 
          for (String connectorInfo : config.getConnectorInfos())
          {

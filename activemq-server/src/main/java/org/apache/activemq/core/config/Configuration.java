@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.core.config;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +34,7 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public interface Configuration extends Serializable
+public interface Configuration
 {
    /**
     * To be used on dependency management on the application server

@@ -36,10 +36,8 @@ import org.apache.activemq.core.client.ActiveMQClientLogger;
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> Created 18 Nov 2008 08:44:30
  */
-public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFactoryConfiguration, DiscoveryGroupConfigurationCompatibilityHelper
+public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFactory
 {
-   private static final long serialVersionUID = 1052413739064253955L;
-
    private transient String localBindAddress = null;
 
    private transient int localBindPort = -1;
@@ -48,24 +46,17 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
 
    private int groupPort = -1;
 
-   public UDPBroadcastGroupConfiguration()
+   public UDPBroadcastEndpointFactory()
    {
    }
 
-   public BroadcastEndpointFactory createBroadcastEndpointFactory()
+   public BroadcastEndpoint createBroadcastEndpoint() throws Exception
    {
-      return new BroadcastEndpointFactory()
-      {
-         @Override
-         public BroadcastEndpoint createBroadcastEndpoint() throws Exception
-         {
-            return new UDPBroadcastEndpoint()
-               .setGroupAddress(groupAddress != null ? InetAddress.getByName(groupAddress) : null)
-               .setGroupPort(groupPort)
-               .setLocalBindAddress(localBindAddress != null ? InetAddress.getByName(localBindAddress) : null)
-               .setLocalBindPort(localBindPort);
-         }
-      };
+      return new UDPBroadcastEndpoint()
+         .setGroupAddress(groupAddress != null ? InetAddress.getByName(groupAddress) : null)
+         .setGroupPort(groupPort)
+         .setLocalBindAddress(localBindAddress != null ? InetAddress.getByName(localBindAddress) : null)
+         .setLocalBindPort(localBindPort);
    }
 
    public String getGroupAddress()
@@ -73,7 +64,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
       return groupAddress;
    }
 
-   public UDPBroadcastGroupConfiguration setGroupAddress(String groupAddress)
+   public UDPBroadcastEndpointFactory setGroupAddress(String groupAddress)
    {
       this.groupAddress = groupAddress;
       return this;
@@ -84,7 +75,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
       return groupPort;
    }
 
-   public UDPBroadcastGroupConfiguration setGroupPort(int groupPort)
+   public UDPBroadcastEndpointFactory setGroupPort(int groupPort)
    {
       this.groupPort = groupPort;
       return this;
@@ -95,7 +86,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
       return localBindPort;
    }
 
-   public UDPBroadcastGroupConfiguration setLocalBindPort(int localBindPort)
+   public UDPBroadcastEndpointFactory setLocalBindPort(int localBindPort)
    {
       this.localBindPort = localBindPort;
       return this;
@@ -106,7 +97,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
       return localBindAddress;
    }
 
-   public UDPBroadcastGroupConfiguration setLocalBindAddress(String localBindAddress)
+   public UDPBroadcastEndpointFactory setLocalBindAddress(String localBindAddress)
    {
       this.localBindAddress = localBindAddress;
       return this;
@@ -324,7 +315,7 @@ public final class UDPBroadcastGroupConfiguration implements BroadcastEndpointFa
          return false;
       if (getClass() != obj.getClass())
          return false;
-      UDPBroadcastGroupConfiguration other = (UDPBroadcastGroupConfiguration) obj;
+      UDPBroadcastEndpointFactory other = (UDPBroadcastEndpointFactory) obj;
       if (groupAddress == null)
       {
          if (other.groupAddress != null)

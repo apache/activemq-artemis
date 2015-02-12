@@ -39,11 +39,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
@@ -1873,13 +1874,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
 
       if (discoveryAddress != null || jgroupsFileName != null || jgroupsLocatorClassName != null)
       {
-         BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = null;
+         BroadcastEndpointFactory endpointFactory = null;
 
          if (jgroupsLocatorClassName != null)
          {
             String jchannelRefName = raProperties.getJgroupsChannelRefName();
             JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
-            endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(jchannel, jgroupsChannel);
+            endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
          }
          else if (discoveryAddress != null)
          {
@@ -1892,7 +1893,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
 
             String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress()
                : raProperties.getDiscoveryLocalBindAddress();
-            endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+            endpointFactory = new UDPBroadcastEndpointFactory()
                .setGroupAddress(discoveryAddress)
                .setGroupPort(discoveryPort)
                .setLocalBindAddress(localBindAddress)
@@ -1900,7 +1901,9 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
          }
          else if (jgroupsFileName != null)
          {
-            endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(jgroupsFileName, jgroupsChannel);
+            endpointFactory = new JGroupsFileBroadcastEndpointFactory()
+                  .setChannelName(jgroupsChannel)
+                  .setFile(jgroupsFileName);
          }
          Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout()
             : raProperties.getDiscoveryRefreshTimeout();
@@ -1920,7 +1923,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
          DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
             .setRefreshTimeout(refreshTimeout)
             .setDiscoveryInitialWaitTimeout(initialTimeout)
-            .setBroadcastEndpointFactoryConfiguration(endpointFactoryConfiguration);
+            .setBroadcastEndpointFactory(endpointFactory);
 
          if (ActiveMQRALogger.LOGGER.isDebugEnabled())
          {
@@ -2008,7 +2011,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
 
       if (connectorClassName == null)
       {
-         BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = null;
+         BroadcastEndpointFactory endpointFactory = null;
          if (discoveryAddress != null)
          {
             Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort()
@@ -2020,7 +2023,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
 
             String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress()
                : raProperties.getDiscoveryLocalBindAddress();
-            endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+            endpointFactory = new UDPBroadcastEndpointFactory()
                .setGroupAddress(discoveryAddress)
                .setGroupPort(discoveryPort)
                .setLocalBindAddress(localBindAddress)
@@ -2028,7 +2031,9 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
          }
          else if (jgroupsFileName != null)
          {
-            endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(jgroupsFileName, jgroupsChannel);
+            endpointFactory = new JGroupsFileBroadcastEndpointFactory()
+                  .setChannelName(jgroupsChannel)
+                  .setFile(jgroupsFileName);
          }
          else
          {
@@ -2037,9 +2042,9 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
             {
                String jgroupsChannelRefName = raProperties.getJgroupsChannelRefName();
                JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClass, jgroupsChannelRefName);
-               endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(jchannel, jgroupsChannel);
+               endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
             }
-            if (endpointFactoryConfiguration == null)
+            if (endpointFactory == null)
             {
                throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ActiveMQ ResourceAdapter Connection Factory");
             }
@@ -2061,7 +2066,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
          DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
             .setRefreshTimeout(refreshTimeout)
             .setDiscoveryInitialWaitTimeout(initialTimeout)
-            .setBroadcastEndpointFactoryConfiguration(endpointFactoryConfiguration);
+            .setBroadcastEndpointFactory(endpointFactory);
 
          groupConfiguration.setRefreshTimeout(refreshTimeout);
 

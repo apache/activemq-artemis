@@ -41,6 +41,13 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-core-client</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
+         <type>test-jar</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-core-client</artifactId>
+         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
@@ -50,6 +57,13 @@
          <groupId>javax.inject</groupId>
          <artifactId>javax.inject</artifactId>
       </dependency>
+
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+
    </dependencies>
 
    <profiles>

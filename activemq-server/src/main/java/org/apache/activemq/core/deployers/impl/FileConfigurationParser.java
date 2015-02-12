@@ -27,14 +27,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
@@ -1268,15 +1268,17 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       // TODO: validate if either jgroups or UDP is being filled
 
-      BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration;
+      BroadcastEndpointFactory endpointFactory;
 
       if (jgroupsFile != null)
       {
-         endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(jgroupsFile, jgroupsChannel);
+         endpointFactory = new JGroupsFileBroadcastEndpointFactory()
+               .setFile(jgroupsFile)
+               .setChannelName(jgroupsChannel);
       }
       else
       {
-         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+         endpointFactory = new UDPBroadcastEndpointFactory()
             .setGroupAddress(groupAddress)
             .setGroupPort(groupPort)
             .setLocalBindAddress(localAddress)
@@ -1287,7 +1289,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setName(name)
          .setBroadcastPeriod(broadcastPeriod)
          .setConnectorInfos(connectorNames)
-         .setEndpointFactoryConfiguration(endpointFactoryConfiguration);
+         .setEndpointFactory(endpointFactory);
 
       mainConfig.getBroadcastGroupConfigurations().add(config);
    }
@@ -1317,14 +1319,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       String jgroupsChannel = getString(e, "jgroups-channel", null, Validators.NO_CHECK);
 
       // TODO: validate if either jgroups or UDP is being filled
-      BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration;
+      BroadcastEndpointFactory endpointFactory;
       if (jgroupsFile != null)
       {
-         endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(jgroupsFile, jgroupsChannel);
+         endpointFactory = new JGroupsFileBroadcastEndpointFactory()
+               .setFile(jgroupsFile)
+               .setChannelName(jgroupsChannel);
       }
       else
       {
-         endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+         endpointFactory = new UDPBroadcastEndpointFactory()
             .setGroupAddress(groupAddress)
             .setGroupPort(groupPort)
             .setLocalBindAddress(localBindAddress)
@@ -1335,7 +1339,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setName(name)
          .setRefreshTimeout(refreshTimeout)
          .setDiscoveryInitialWaitTimeout(discoveryInitialWaitTimeout)
-         .setBroadcastEndpointFactoryConfiguration(endpointFactoryConfiguration);
+         .setBroadcastEndpointFactory(endpointFactory);
 
       if (mainConfig.getDiscoveryGroupConfigurations().containsKey(name))
       {

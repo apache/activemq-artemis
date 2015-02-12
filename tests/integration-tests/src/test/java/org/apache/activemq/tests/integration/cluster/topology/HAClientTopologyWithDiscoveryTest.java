@@ -17,7 +17,7 @@
 package org.apache.activemq.tests.integration.cluster.topology;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 
@@ -65,9 +65,9 @@ public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase
    protected ServerLocator createHAServerLocator()
    {
       ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration()
-                                                                          .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-                                                                                                                       .setGroupAddress(groupAddress)
-                                                                                                                       .setGroupPort(groupPort)));
+                                                                          .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
+                                                                                                             .setGroupAddress(groupAddress)
+                                                                                                             .setGroupPort(groupPort)));
       locator.setBlockOnNonDurableSend(true);
       locator.setBlockOnDurableSend(true);
       addServerLocator(locator);

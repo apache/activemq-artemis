@@ -415,6 +415,13 @@
             <version>2.0.0</version>
             <!-- License: Apache 2.0 -->
          </dependency>
+
+         <!-- for URL reflection. Using Populate on URI Factory at activemq-commons -->
+         <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.2</version>
+         </dependency>
       </dependencies>
    </dependencyManagement>
 

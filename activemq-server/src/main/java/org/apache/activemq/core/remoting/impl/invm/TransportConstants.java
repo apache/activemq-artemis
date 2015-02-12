@@ -16,46 +16,20 @@
  */
 package org.apache.activemq.core.remoting.impl.invm;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 
 /**
  * A TransportConstants
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
+ * @author ClebertSuconic
  *
  */
 public final class TransportConstants
 {
-   public static final String SERVER_ID_PROP_NAME = "server-id";
+   public static final String SERVER_ID_PROP_NAME = "serverId";
 
    public static final int DEFAULT_SERVER_ID = 0;
-
-   public static final Set<String> ALLOWABLE_CONNECTOR_KEYS;
-
-   public static final Set<String> ALLOWABLE_ACCEPTOR_KEYS;
-
-   static
-   {
-      Set<String> allowableAcceptorKeys = new HashSet<String>();
-      allowableAcceptorKeys.add(TransportConstants.SERVER_ID_PROP_NAME);
-      allowableAcceptorKeys.add(org.apache.activemq.core.remoting.impl.netty.TransportConstants.CLUSTER_CONNECTION);
-      allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
-      allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
-
-      ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
-
-      Set<String> allowableConnectorKeys = new HashSet<String>();
-      allowableConnectorKeys.add(TransportConstants.SERVER_ID_PROP_NAME);
-      allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
-      allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
-
-      ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
-   }
 
    private TransportConstants()
    {

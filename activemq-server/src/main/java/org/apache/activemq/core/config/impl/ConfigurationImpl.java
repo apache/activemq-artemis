@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +52,7 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
  * @author <a href="mailto:ataylor@redhat.com>Andy Taylor</a>
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
-public class ConfigurationImpl implements Configuration
+public class ConfigurationImpl implements Configuration, Serializable
 {
    // Constants ------------------------------------------------------------------------------
 

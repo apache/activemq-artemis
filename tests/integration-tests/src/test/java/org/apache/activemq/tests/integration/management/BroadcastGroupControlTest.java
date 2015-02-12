@@ -25,7 +25,7 @@ import org.junit.Assert;
 
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -50,10 +50,10 @@ public class BroadcastGroupControlTest extends ManagementTestBase
          .setName(RandomUtil.randomString())
          .setBroadcastPeriod(RandomUtil.randomPositiveInt())
          .setConnectorInfos(connectorInfos)
-         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-            .setGroupAddress("231.7.7.7")
-            .setGroupPort(1199)
-            .setLocalBindPort(1198));
+         .setEndpointFactory(new UDPBroadcastEndpointFactory()
+                                   .setGroupAddress("231.7.7.7")
+                                   .setGroupPort(1199)
+                                   .setLocalBindPort(1198));
    }
 
    public static Pair<String, String> randomPair()
@@ -82,7 +82,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
 
       BroadcastGroupControl broadcastGroupControl = createManagementControl(broadcastGroupConfig.getName());
 
-      UDPBroadcastGroupConfiguration udpCfg = (UDPBroadcastGroupConfiguration) broadcastGroupConfig.getEndpointFactoryConfiguration();
+      UDPBroadcastEndpointFactory udpCfg = (UDPBroadcastEndpointFactory) broadcastGroupConfig.getEndpointFactory();
       Assert.assertEquals(broadcastGroupConfig.getName(), broadcastGroupControl.getName());
       Assert.assertEquals(udpCfg.getGroupAddress(), broadcastGroupControl.getGroupAddress());
       Assert.assertEquals(udpCfg.getGroupPort(), broadcastGroupControl.getGroupPort());

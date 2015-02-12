@@ -162,66 +162,66 @@ public class NettyConnector extends AbstractConnector
 
    private final ConnectionLifeCycleListener listener;
 
-   private final boolean sslEnabled;
+   private boolean sslEnabled = TransportConstants.DEFAULT_SSL_ENABLED;
 
-   private final boolean httpEnabled;
+   private boolean httpEnabled;
 
-   private final long httpMaxClientIdleTime;
+   private long httpMaxClientIdleTime;
 
-   private final long httpClientIdleScanPeriod;
+   private long httpClientIdleScanPeriod;
 
-   private final boolean httpRequiresSessionId;
+   private boolean httpRequiresSessionId;
 
    // if true, after the connection, the connector will send
    // a HTTP GET request (+ Upgrade: activemq-remoting) that
    // will be handled by the server's http server.
-   private final boolean httpUpgradeEnabled;
+   private boolean httpUpgradeEnabled;
 
-   private final boolean useServlet;
+   private boolean useServlet;
 
-   private final String host;
+   private String host;
 
-   private final int port;
+   private int port;
 
-   private final String localAddress;
+   private String localAddress;
 
-   private final int localPort;
+   private int localPort;
 
-   private final String keyStoreProvider;
+   private String keyStoreProvider;
 
-   private final String keyStorePath;
+   private String keyStorePath;
 
-   private final String keyStorePassword;
+   private String keyStorePassword;
 
-   private final String trustStoreProvider;
+   private String trustStoreProvider;
 
-   private final String trustStorePath;
+   private String trustStorePath;
 
-   private final String trustStorePassword;
+   private String trustStorePassword;
 
-   private final String enabledCipherSuites;
+   private String enabledCipherSuites;
 
-   private final String enabledProtocols;
+   private String enabledProtocols;
 
-   private final boolean tcpNoDelay;
+   private boolean tcpNoDelay;
 
-   private final int tcpSendBufferSize;
+   private int tcpSendBufferSize;
 
-   private final int tcpReceiveBufferSize;
+   private int tcpReceiveBufferSize;
 
-   private final long batchDelay;
+   private long batchDelay;
 
-   private final ConcurrentMap<Object, Connection> connections = new ConcurrentHashMap<Object, Connection>();
+   private ConcurrentMap<Object, Connection> connections = new ConcurrentHashMap<Object, Connection>();
 
-   private final String servletPath;
+   private String servletPath;
 
-   private final int nioRemotingThreads;
+   private int nioRemotingThreads;
 
-   private final boolean useNioGlobalWorkerPool;
+   private boolean useNioGlobalWorkerPool;
 
-   private final ScheduledExecutorService scheduledThreadPool;
+   private ScheduledExecutorService scheduledThreadPool;
 
-   private final Executor closeExecutor;
+   private Executor closeExecutor;
 
    private BatchFlusher flusher;
 

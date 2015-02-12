@@ -60,7 +60,6 @@ import org.apache.activemq.spi.core.remoting.TopologyResponseHandler;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.ConfigurationHelper;
 import org.apache.activemq.utils.ConfirmationWindowWarning;
 import org.apache.activemq.utils.ExecutorFactory;
 import org.apache.activemq.utils.OrderedExecutorFactory;
@@ -1265,19 +1264,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private void checkTransportKeys(final ConnectorFactory factory, final TransportConfiguration tc)
    {
-      if (tc.getParams() != null)
-      {
-         Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), tc.getParams().keySet());
-
-         if (!invalid.isEmpty())
-         {
-            String msg = "The following keys are invalid for configuring a connector: " +
-               ConfigurationHelper.stringSetToCommaListString(invalid);
-
-            throw new IllegalStateException(msg);
-
-         }
-      }
    }
 
    /**

@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.tests.integration.discovery;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
@@ -30,10 +26,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.api.core.BroadcastEndpoint;
 import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.core.cluster.DiscoveryEntry;
 import org.apache.activemq.core.cluster.DiscoveryGroup;
@@ -102,7 +98,7 @@ public class DiscoveryTest extends DiscoveryBaseTest
 
       bg = new BroadcastGroupImpl(new FakeNodeManager(nodeID),
                                   RandomUtil.randomString(),
-                                  0, null, new UDPBroadcastGroupConfiguration().setGroupAddress(address1).setGroupPort(groupPort).createBroadcastEndpointFactory());
+                                  0, null, new UDPBroadcastEndpointFactory().setGroupAddress(address1).setGroupPort(groupPort));
 
       bg.start();
 
@@ -132,7 +128,9 @@ public class DiscoveryTest extends DiscoveryBaseTest
       final String nodeID = RandomUtil.randomString();
 
       bg = new BroadcastGroupImpl(new FakeNodeManager(nodeID), "broadcast", 100, null,
-                                  new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "tst").createBroadcastEndpointFactory());
+                                  new JGroupsFileBroadcastEndpointFactory()
+                                       .setChannelName("tst")
+                                       .setFile(TEST_JGROUPS_CONF_FILE));
 
       bg.start();
 
@@ -141,7 +139,9 @@ public class DiscoveryTest extends DiscoveryBaseTest
       bg.addConnector(live1);
 
       dg = new DiscoveryGroup(nodeID + "1", "broadcast", 5000L,
-                              new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "tst").createBroadcastEndpointFactory(),
+                              new JGroupsFileBroadcastEndpointFactory()
+                              .setChannelName("tst")
+                              .setFile(TEST_JGROUPS_CONF_FILE),
                               null);
 
       dg.start();
@@ -160,9 +160,9 @@ public class DiscoveryTest extends DiscoveryBaseTest
    @Test
    public void testJGropusChannelReferenceCounting() throws Exception
    {
-      JGroupsBroadcastGroupConfiguration jgroupsConfig =
-         new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "tst");
-      BroadcastEndpointFactory factory = jgroupsConfig.createBroadcastEndpointFactory();
+      BroadcastEndpointFactory factory = new JGroupsFileBroadcastEndpointFactory()
+                                             .setChannelName("tst")
+                                             .setFile(TEST_JGROUPS_CONF_FILE);
       BroadcastEndpoint broadcaster = factory.createBroadcastEndpoint();
       broadcaster.openBroadcaster();
 
@@ -222,9 +222,9 @@ public class DiscoveryTest extends DiscoveryBaseTest
    @Test
    public void testJGropusChannelReferenceCounting1() throws Exception
    {
-      JGroupsBroadcastGroupConfiguration jgroupsConfig =
-         new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "tst");
-      BroadcastEndpointFactory factory = jgroupsConfig.createBroadcastEndpointFactory();
+      BroadcastEndpointFactory factory = new JGroupsFileBroadcastEndpointFactory()
+                                             .setChannelName("tst")
+                                             .setFile(TEST_JGROUPS_CONF_FILE);
       BroadcastEndpoint broadcaster = factory.createBroadcastEndpoint();
       broadcaster.openBroadcaster();
 
@@ -293,9 +293,9 @@ public class DiscoveryTest extends DiscoveryBaseTest
    @Test
    public void testJGropusChannelReferenceCounting2() throws Exception
    {
-      JGroupsBroadcastGroupConfiguration jgroupsConfig =
-         new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "tst");
-      BroadcastEndpointFactory factory = jgroupsConfig.createBroadcastEndpointFactory();
+      BroadcastEndpointFactory factory = new JGroupsFileBroadcastEndpointFactory()
+                                             .setChannelName("tst")
+                                             .setFile(TEST_JGROUPS_CONF_FILE);
       BroadcastEndpoint broadcaster = factory.createBroadcastEndpoint();
       broadcaster.openBroadcaster();
 
@@ -374,13 +374,14 @@ public class DiscoveryTest extends DiscoveryBaseTest
       BroadcastEndpoint client = null;
       try
       {
-         JGroupsBroadcastGroupConfiguration jgroupsConfig =
-            new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "tst");
-         broadcaster = jgroupsConfig.createBroadcastEndpointFactory().createBroadcastEndpoint();
+         JGroupsFileBroadcastEndpointFactory endpointFactory = new JGroupsFileBroadcastEndpointFactory()
+               .setChannelName("tst")
+               .setFile(TEST_JGROUPS_CONF_FILE);
+         broadcaster = endpointFactory.createBroadcastEndpoint();
 
          broadcaster.openBroadcaster();
 
-         client = jgroupsConfig.createBroadcastEndpointFactory().createBroadcastEndpoint();
+         client = endpointFactory.createBroadcastEndpoint();
 
          client.openClient();
 
@@ -1179,27 +1180,5 @@ public class DiscoveryTest extends DiscoveryBaseTest
       Assert.assertEquals(bg.getName(), notif.getProperties()
          .getSimpleStringProperty(new SimpleString("name"))
          .toString());
-   }
-
-   /**
-    * https://issues.jboss.org/browse/HORNETQ-1389
-    * @throws Exception
-    */
-   @Test
-   public void testJGroupsBroadcastGroupConfigurationSerializable() throws Exception
-   {
-      JGroupsBroadcastGroupConfiguration jgroupsConfig =
-         new JGroupsBroadcastGroupConfiguration(TEST_JGROUPS_CONF_FILE, "somChannel");
-      ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-      ObjectOutputStream objectOut = new ObjectOutputStream(byteOut);
-      objectOut.writeObject(jgroupsConfig);
-
-      byte[] serializedData = byteOut.toByteArray();
-      ByteArrayInputStream byteIn = new ByteArrayInputStream(serializedData);
-      ObjectInputStream objectIn = new ObjectInputStream(byteIn);
-
-      Object object = objectIn.readObject();
-      assertNotNull(object);
-      assertTrue(object instanceof JGroupsBroadcastGroupConfiguration);
    }
 }

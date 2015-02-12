@@ -122,8 +122,7 @@ public abstract class PTPTestCase extends JMSTestCase
 
          Hashtable props = new Hashtable<>();
          props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-         props.put(ActiveMQInitialContextFactory.CONNECTION_FACTORY_NAMES, PTPTestCase.QCF_NAME);
-         props.put(Context.PROVIDER_URL, "tcp://127.0.0.1:5445");
+         props.put("connectionFactory." +  PTPTestCase.QCF_NAME, "tcp://127.0.0.1:5445?type=QUEUE_CF");
          props.put("queue." + PTPTestCase.QUEUE_NAME, PTPTestCase.QUEUE_NAME);
          Context ctx = new InitialContext(props);
 

@@ -27,36 +27,37 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
  * A TransportConstants
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
+ * @author ClebertSuconic
  */
 public class TransportConstants
 {
-   public static final String SSL_ENABLED_PROP_NAME = "ssl-enabled";
+   public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
-   public static final String HTTP_ENABLED_PROP_NAME = "http-enabled";
+   public static final String HTTP_ENABLED_PROP_NAME = "httpEnabled";
 
-   public static final String HTTP_CLIENT_IDLE_PROP_NAME = "http-client-idle-time";
+   public static final String HTTP_CLIENT_IDLE_PROP_NAME = "httpClientIdleTime";
 
-   public static final String HTTP_CLIENT_IDLE_SCAN_PERIOD = "http-client-idle-scan-period";
+   public static final String HTTP_CLIENT_IDLE_SCAN_PERIOD = "httpClientIdleScanPeriod";
 
-   public static final String HTTP_RESPONSE_TIME_PROP_NAME = "http-response-time";
+   public static final String HTTP_RESPONSE_TIME_PROP_NAME = "httpResponseTime";
 
-   public static final String HTTP_SERVER_SCAN_PERIOD_PROP_NAME = "http-server-scan-period";
+   public static final String HTTP_SERVER_SCAN_PERIOD_PROP_NAME = "httpServerScanPeriod";
 
-   public static final String HTTP_REQUIRES_SESSION_ID = "http-requires-session-id";
+   public static final String HTTP_REQUIRES_SESSION_ID = "httpRequiresSessionId";
 
-   public static final String HTTP_UPGRADE_ENABLED_PROP_NAME = "http-upgrade-enabled";
+   public static final String HTTP_UPGRADE_ENABLED_PROP_NAME = "httpUpgradeEnabled";
 
-   public static final String HTTP_UPGRADE_ENDPOINT_PROP_NAME = "http-upgrade-endpoint";
+   public static final String HTTP_UPGRADE_ENDPOINT_PROP_NAME = "httpPpgradeEndpoint";
 
-   public static final String USE_SERVLET_PROP_NAME = "use-servlet";
+   public static final String USE_SERVLET_PROP_NAME = "useServlet";
 
-   public static final String SERVLET_PATH = "servlet-path";
+   public static final String SERVLET_PATH = "servletPath";
 
-   public static final String USE_NIO_PROP_NAME = "use-nio";
+   public static final String USE_NIO_PROP_NAME = "useNio";
 
-   public static final String USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME = "use-nio-global-worker-pool";
+   public static final String USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME = "useNioGlobalWorkerPool";
 
-   public static final String USE_INVM_PROP_NAME = "use-invm";
+   public static final String USE_INVM_PROP_NAME = "useInvm";
 
    public static final String PROTOCOL_PROP_NAME = "protocol";
 
@@ -66,27 +67,27 @@ public class TransportConstants
 
    public static final String PORT_PROP_NAME = "port";
 
-   public static final String LOCAL_ADDRESS_PROP_NAME = "local-address";
+   public static final String LOCAL_ADDRESS_PROP_NAME = "localAddress";
 
-   public static final String LOCAL_PORT_PROP_NAME = "local-port";
+   public static final String LOCAL_PORT_PROP_NAME = "localPort";
 
-   public static final String KEYSTORE_PROVIDER_PROP_NAME = "key-store-provider";
+   public static final String KEYSTORE_PROVIDER_PROP_NAME = "keyStoreProvider";
 
-   public static final String KEYSTORE_PATH_PROP_NAME = "key-store-path";
+   public static final String KEYSTORE_PATH_PROP_NAME = "keyStorePath";
 
-   public static final String KEYSTORE_PASSWORD_PROP_NAME = "key-store-password";
+   public static final String KEYSTORE_PASSWORD_PROP_NAME = "keyStorePassword";
 
-   public static final String TRUSTSTORE_PROVIDER_PROP_NAME = "trust-store-provider";
+   public static final String TRUSTSTORE_PROVIDER_PROP_NAME = "trustStoreProvider";
 
-   public static final String TRUSTSTORE_PATH_PROP_NAME = "trust-store-path";
+   public static final String TRUSTSTORE_PATH_PROP_NAME = "trustStorePath";
 
-   public static final String TRUSTSTORE_PASSWORD_PROP_NAME = "trust-store-password";
+   public static final String TRUSTSTORE_PASSWORD_PROP_NAME = "trustStorePassword";
 
-   public static final String ENABLED_CIPHER_SUITES_PROP_NAME = "enabled-cipher-suites";
+   public static final String ENABLED_CIPHER_SUITES_PROP_NAME = "enabledCipherSuites";
 
-   public static final String ENABLED_PROTOCOLS_PROP_NAME = "enabled-protocols";
+   public static final String ENABLED_PROTOCOLS_PROP_NAME = "enabledProtocols";
 
-   public static final String NEED_CLIENT_AUTH_PROP_NAME = "need-client-auth";
+   public static final String NEED_CLIENT_AUTH_PROP_NAME = "needClientAuth";
 
    public static final String BACKLOG_PROP_NAME = "backlog";
 
@@ -102,21 +103,21 @@ public class TransportConstants
     * @see <a href="http://docs.oracle.com/javase/6/docs/technotes/guides/net/socketOpt.html">Oracle
     * doc on tcpNoDelay</a>
     */
-   public static final String TCP_NODELAY_PROPNAME = "tcp-no-delay";
+   public static final String TCP_NODELAY_PROPNAME = "tcpNoDelay";
 
-   public static final String TCP_SENDBUFFER_SIZE_PROPNAME = "tcp-send-buffer-size";
+   public static final String TCP_SENDBUFFER_SIZE_PROPNAME = "tcpSendBufferSize";
 
-   public static final String TCP_RECEIVEBUFFER_SIZE_PROPNAME = "tcp-receive-buffer-size";
+   public static final String TCP_RECEIVEBUFFER_SIZE_PROPNAME = "tcpReceiveBufferSize";
 
-   public static final String NIO_REMOTING_THREADS_PROPNAME = "nio-remoting-threads";
+   public static final String NIO_REMOTING_THREADS_PROPNAME = "nioRemotingThreads";
 
-   public static final String BATCH_DELAY = "batch-delay";
+   public static final String BATCH_DELAY = "batchDelay";
 
-   public static final String DIRECT_DELIVER = "direct-deliver";
+   public static final String DIRECT_DELIVER = "directDeliver";
 
-   public static final String CLUSTER_CONNECTION = "cluster-connection";
+   public static final String CLUSTER_CONNECTION = "clusterConnection";
 
-   public static final String STOMP_CONSUMERS_CREDIT = "stomp-consumer-credits";
+   public static final String STOMP_CONSUMERS_CREDIT = "stompConsumerCredits";
 
    public static final int STOMP_DEFAULT_CONSUMERS_CREDIT = 10 * 1024; // 10K
 

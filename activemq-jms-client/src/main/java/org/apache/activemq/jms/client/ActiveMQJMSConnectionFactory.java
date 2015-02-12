@@ -67,5 +67,4 @@ public class ActiveMQJMSConnectionFactory extends ActiveMQConnectionFactory impl
    {
       super(ha, initialConnectors);
    }
-
 }

@@ -64,7 +64,7 @@ public class SoakReceiver
                SoakParams params = SoakBase.getParams(fileName);
 
                Hashtable<String, String> jndiProps = new Hashtable<String, String>();
-               jndiProps.put("java.naming.provider.url", jndiURL);
+               jndiProps.put("connectionFactory.ConnectionFactory", jndiURL);
                jndiProps.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 
                final SoakReceiver receiver = new SoakReceiver(jndiProps, params);

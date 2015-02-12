@@ -38,7 +38,7 @@ import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
@@ -1787,19 +1787,19 @@ public abstract class ClusterTestBase extends ServiceTestBase
       List<String> connectorPairs = new ArrayList<String>();
       connectorPairs.add(connector.getName());
 
-      UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration().setGroupAddress(groupAddress).setGroupPort(port);
+      UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
 
       BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration()
          .setName("bg1")
          .setBroadcastPeriod(200)
          .setConnectorInfos(connectorPairs)
-         .setEndpointFactoryConfiguration(endpoint);
+         .setEndpointFactory(endpoint);
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration()
          .setName("dg1")
          .setRefreshTimeout(1000)
          .setDiscoveryInitialWaitTimeout(1000)
-         .setBroadcastEndpointFactoryConfiguration(endpoint);
+         .setBroadcastEndpointFactory(endpoint);
 
       Configuration configuration = createBasicConfig(node)
          .setJournalMaxIO_AIO(1000)
@@ -1858,19 +1858,19 @@ public abstract class ClusterTestBase extends ServiceTestBase
       List<String> connectorPairs = new ArrayList<String>();
       connectorPairs.add(connector.getName());
 
-      UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration().setGroupAddress(groupAddress).setGroupPort(port);
+      UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
 
       BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration()
          .setName("bg1")
          .setBroadcastPeriod(1000)
          .setConnectorInfos(connectorPairs)
-         .setEndpointFactoryConfiguration(endpoint);
+         .setEndpointFactory(endpoint);
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration()
          .setName("dg1")
          .setRefreshTimeout(5000)
          .setDiscoveryInitialWaitTimeout(5000)
-         .setBroadcastEndpointFactoryConfiguration(endpoint);
+         .setBroadcastEndpointFactory(endpoint);
 
       Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node)
          .clearAcceptorConfigurations()

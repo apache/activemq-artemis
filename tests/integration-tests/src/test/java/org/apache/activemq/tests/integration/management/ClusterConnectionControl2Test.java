@@ -33,7 +33,7 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
@@ -133,17 +133,17 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
          .setName(discoveryName)
          .setBroadcastPeriod(250)
          .setConnectorInfos(connectorInfos)
-         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-            .setGroupAddress(groupAddress)
-            .setGroupPort(groupPort));
+         .setEndpointFactory(new UDPBroadcastEndpointFactory()
+                                   .setGroupAddress(groupAddress)
+                                   .setGroupPort(groupPort));
 
       DiscoveryGroupConfiguration discoveryGroupConfig = new DiscoveryGroupConfiguration()
          .setName(discoveryName)
          .setRefreshTimeout(0)
          .setDiscoveryInitialWaitTimeout(0)
-         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-            .setGroupAddress(groupAddress)
-            .setGroupPort(groupPort));
+         .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
+                                            .setGroupAddress(groupAddress)
+                                            .setGroupPort(groupPort));
 
       clusterConnectionConfig_0 = new ClusterConnectionConfiguration()
          .setName(clusterName)

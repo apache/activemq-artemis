@@ -34,7 +34,7 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
@@ -169,9 +169,9 @@ public class ActiveMQConnectionFactoryTest extends UnitTestCase
    public void testDiscoveryConstructor() throws Exception
    {
       DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
-         .setBroadcastEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-                                                      .setGroupAddress(groupAddress)
-                                                      .setGroupPort(groupPort));
+         .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
+                                            .setGroupAddress(groupAddress)
+                                            .setGroupPort(groupPort));
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.CF);
       assertFactoryParams(cf,
                           null,
@@ -734,10 +734,10 @@ public class ActiveMQConnectionFactoryTest extends UnitTestCase
          .setName(bcGroupName)
          .setBroadcastPeriod(broadcastPeriod)
          .setConnectorInfos(connectorNames)
-         .setEndpointFactoryConfiguration(new UDPBroadcastGroupConfiguration()
-                                             .setGroupAddress(groupAddress)
-                                             .setGroupPort(groupPort)
-                                             .setLocalBindPort(localBindPort));
+         .setEndpointFactory(new UDPBroadcastEndpointFactory()
+                                   .setGroupAddress(groupAddress)
+                                   .setGroupPort(groupPort)
+                                   .setLocalBindPort(localBindPort));
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
       bcConfigs1.add(bcConfig1);

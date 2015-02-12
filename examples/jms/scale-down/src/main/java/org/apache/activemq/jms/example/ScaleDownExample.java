@@ -56,21 +56,13 @@ public class ScaleDownExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI for both servers
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-         properties.put("java.naming.provider.url", args[0]);
-         properties.put("connection.ConnectionFactory.ha", true);
-         properties.put("connection.ConnectionFactory.retryInterval", 1000);
-         properties.put("connection.ConnectionFactory.retryIntervalMultiplier", 1.0);
-         properties.put("connection.ConnectionFactory.reconnectAttempts", -1);
+         properties.put("connectionFactory.ConnectionFactory", args[0] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          initialContext = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-         properties.put("java.naming.provider.url", args[1]);
-         properties.put("connection.ConnectionFactory.ha", true);
-         properties.put("connection.ConnectionFactory.retryInterval", 1000);
-         properties.put("connection.ConnectionFactory.retryIntervalMultiplier", 1.0);
-         properties.put("connection.ConnectionFactory.reconnectAttempts", -1);
+         properties.put("connectionFactory.ConnectionFactory", args[1] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          initialContext1 = new InitialContext(properties);
 
          // Step 2. Look up the JMS resources from JNDI

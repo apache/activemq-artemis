@@ -17,7 +17,6 @@
 package org.apache.activemq.core.remoting.impl.invm;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -47,10 +46,4 @@ public class InVMAcceptorFactory implements AcceptorFactory
    {
       return new InVMAcceptor(clusterConnection, configuration, handler, listener, threadPool);
    }
-
-   public Set<String> getAllowableProperties()
-   {
-      return TransportConstants.ALLOWABLE_ACCEPTOR_KEYS;
-   }
-
 }

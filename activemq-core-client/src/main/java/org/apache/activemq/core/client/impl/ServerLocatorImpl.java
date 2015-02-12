@@ -72,13 +72,8 @@ import org.apache.activemq.utils.UUIDGenerator;
  *
  * @author Tim Fox
  */
-public final class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListener, Serializable
+public final class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListener
 {
-   /*needed for backward compatibility*/
-   @SuppressWarnings("unused")
-   private final Set<ClusterTopologyListener> topologyListeners = new HashSet<ClusterTopologyListener>();
-
-   /*end of compatibility fixes*/
    private enum STATE
    {
       INITIALIZED, CLOSED, CLOSING
@@ -398,7 +393,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private static DiscoveryGroup createDiscoveryGroup(String nodeID, DiscoveryGroupConfiguration config) throws Exception
    {
       DiscoveryGroup group = new DiscoveryGroup(nodeID, config.getName(),
-                                                config.getRefreshTimeout(), config.getBroadcastEndpointFactoryConfiguration().createBroadcastEndpointFactory(), null);
+                                                config.getRefreshTimeout(), config.getBroadcastEndpointFactory(), null);
       return group;
    }
 

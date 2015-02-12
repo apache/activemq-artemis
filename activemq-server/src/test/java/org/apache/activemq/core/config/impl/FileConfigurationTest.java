@@ -22,7 +22,7 @@ import org.apache.activemq.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.core.config.Configuration;
@@ -141,7 +141,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
       Assert.assertEquals(2, conf.getBroadcastGroupConfigurations().size());
       for (BroadcastGroupConfiguration bc : conf.getBroadcastGroupConfigurations())
       {
-         UDPBroadcastGroupConfiguration udpBc = (UDPBroadcastGroupConfiguration) bc.getEndpointFactoryConfiguration();
+         UDPBroadcastEndpointFactory udpBc = (UDPBroadcastEndpointFactory) bc.getEndpointFactory();
          if (bc.getName().equals("bg1"))
          {
             Assert.assertEquals("bg1", bc.getName());
@@ -165,16 +165,16 @@ public class FileConfigurationTest extends ConfigurationImplTest
       Assert.assertEquals(2, conf.getDiscoveryGroupConfigurations().size());
       DiscoveryGroupConfiguration dc = conf.getDiscoveryGroupConfigurations().get("dg1");
       Assert.assertEquals("dg1", dc.getName());
-      Assert.assertEquals("192.168.0.120", ((UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration()).getGroupAddress());
-      assertEquals("172.16.8.10", ((UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration()).getLocalBindAddress());
-      Assert.assertEquals(11999, ((UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration()).getGroupPort());
+      Assert.assertEquals("192.168.0.120", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupAddress());
+      assertEquals("172.16.8.10", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getLocalBindAddress());
+      Assert.assertEquals(11999, ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupPort());
       Assert.assertEquals(12345, dc.getRefreshTimeout());
 
       dc = conf.getDiscoveryGroupConfigurations().get("dg2");
       Assert.assertEquals("dg2", dc.getName());
-      Assert.assertEquals("192.168.0.121", ((UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration()).getGroupAddress());
-      assertEquals("172.16.8.11", ((UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration()).getLocalBindAddress());
-      Assert.assertEquals(12999, ((UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration()).getGroupPort());
+      Assert.assertEquals("192.168.0.121", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupAddress());
+      assertEquals("172.16.8.11", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getLocalBindAddress());
+      Assert.assertEquals(12999, ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupPort());
       Assert.assertEquals(23456, dc.getRefreshTimeout());
 
       Assert.assertEquals(2, conf.getDivertConfigurations().size());

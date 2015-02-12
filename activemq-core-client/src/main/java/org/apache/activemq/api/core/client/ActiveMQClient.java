@@ -21,6 +21,9 @@ import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy;
 import org.apache.activemq.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.uri.ServerLocatorParser;
+
+import java.net.URI;
 
 /**
  * Utility class for creating ActiveMQ {@link ClientSessionFactory} objects.
@@ -111,6 +114,17 @@ public final class ActiveMQClient
    public static final boolean DEFAULT_HA = false;
 
    public static final String DEFAULT_CORE_PROTOCOL = "CORE";
+
+   /**
+    * Creates a ActiveMQConnectionFactory;
+    *
+    * @return the ActiveMQConnectionFactory
+    */
+   public static ServerLocator createServerLocator(final String url) throws Exception
+   {
+      ServerLocatorParser parser = new ServerLocatorParser();
+      return parser.newObject(new URI(url));
+   }
 
    /**
     * Create a ServerLocator which creates session factories using a static list of transportConfigurations, the ServerLocator is not updated automatically

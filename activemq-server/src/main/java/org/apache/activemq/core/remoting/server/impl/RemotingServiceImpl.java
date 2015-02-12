@@ -242,21 +242,6 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
             AcceptorFactory factory = (AcceptorFactory) clazz.newInstance();
 
-            // Check valid properties
-
-            if (info.getParams() != null)
-            {
-               Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), info.getParams()
-                  .keySet());
-
-               if (!invalid.isEmpty())
-               {
-                  ActiveMQServerLogger.LOGGER.invalidAcceptorKeys(ConfigurationHelper.stringSetToCommaListString(invalid));
-
-                  continue;
-               }
-            }
-
             Map<String, ProtocolManager> supportedProtocols = new ConcurrentHashMap();
 
             String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null,

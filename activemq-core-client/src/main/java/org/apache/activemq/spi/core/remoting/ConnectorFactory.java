@@ -17,7 +17,6 @@
 package org.apache.activemq.spi.core.remoting;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -50,15 +49,6 @@ public interface ConnectorFactory extends TransportConfigurationHelper
                              Executor threadPool,
                              ScheduledExecutorService scheduledThreadPool,
                              ClientProtocolManager protocolManager);
-
-   /**
-    * Returns the allowable properties for this connector.
-    * <p>
-    * This will differ between different connector implementations.
-    *
-    * @return the allowable properties.
-    */
-   Set<String> getAllowableProperties();
 
    /**
     * Indicates if connectors from this factory are reliable or not. If a connector is reliable then connection

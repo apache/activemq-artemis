@@ -21,6 +21,7 @@ import java.util.HashMap;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
@@ -42,7 +43,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
 
       primaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       HashMap<String, Object> params = new HashMap();
-      params.put("server-id", "1");
+      params.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
       secondaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
       Configuration conf = createSecondaryDefaultConfig(true, true);
 
@@ -77,7 +78,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
 
       if (secondary)
       {
-         invmMap.put("server-id", "1");
+         invmMap.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
          nettyMap.put("port", "5545");
          primaryConnectorName = "invm";
          secondaryConnectorName = "invm2";

@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
@@ -279,7 +279,7 @@ public class ResourceAdapterTest extends ServiceTestBase
       ActiveMQConnectionFactory defaultFactory = ra.getDefaultActiveMQConnectionFactory();
       Assert.assertNotSame(factory, defaultFactory);
       DiscoveryGroupConfiguration dc = factory.getServerLocator().getDiscoveryGroupConfiguration();
-      UDPBroadcastGroupConfiguration udpDg = (UDPBroadcastGroupConfiguration) dc.getBroadcastEndpointFactoryConfiguration();
+      UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
       Assert.assertEquals(udpDg.getLocalBindAddress(), "newAddress");
       Assert.assertEquals(udpDg.getGroupAddress(), "myhost");
       Assert.assertEquals(udpDg.getGroupPort(), 5678);

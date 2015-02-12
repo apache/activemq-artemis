@@ -17,7 +17,6 @@
 package org.apache.activemq.core.remoting.impl.netty;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -45,10 +44,5 @@ public class NettyAcceptorFactory implements AcceptorFactory
                                   final Map<String, ProtocolManager> protocolMap)
    {
       return new NettyAcceptor(name, connection, configuration, handler, listener, scheduledThreadPool, protocolMap);
-   }
-
-   public Set<String> getAllowableProperties()
-   {
-      return TransportConstants.ALLOWABLE_ACCEPTOR_KEYS;
    }
 }

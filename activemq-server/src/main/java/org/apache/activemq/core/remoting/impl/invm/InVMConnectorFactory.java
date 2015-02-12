@@ -17,7 +17,6 @@
 package org.apache.activemq.core.remoting.impl.invm;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -46,11 +45,6 @@ public class InVMConnectorFactory implements ConnectorFactory
       InVMConnector connector = new InVMConnector(configuration, handler, listener, closeExecutor, threadPool, protocolManager);
 
       return connector;
-   }
-
-   public Set<String> getAllowableProperties()
-   {
-      return TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
    }
 
    @Override
