@@ -432,38 +432,6 @@
       </dependencies>
    </dependencyManagement>
 
-   <repositories>
-      <repository>
-         <snapshots>
-            <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
-         </snapshots>
-         <releases>
-            <enabled>true</enabled>
-            <updatePolicy>interval:10080</updatePolicy>
-         </releases>
-         <id>jboss.release</id>
-         <name>JBoss releases</name>
-         <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-      </repository>
-   </repositories>
-   <pluginRepositories>
-      <pluginRepository>
-         <snapshots>
-            <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
-         </snapshots>
-         <releases>
-            <enabled>true</enabled>
-            <updatePolicy>interval:10080</updatePolicy>
-         </releases>
-         <id>jboss.release</id>
-         <name>JBoss releases</name>
-         <url>https://repository.jboss.org/nexus/content/groups/public</url>
-      </pluginRepository>
-   </pluginRepositories>
-
-
    <profiles>
       <profile>
          <id>default</id>
