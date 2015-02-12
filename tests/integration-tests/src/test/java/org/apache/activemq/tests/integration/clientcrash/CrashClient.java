@@ -59,8 +59,9 @@ public class CrashClient
          ClientSession session = sf.createSession(false, true, true);
          ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE);
 
+         // it has to be durable otherwise it may race dying before the client is killed
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                             false,
+                                                             true,
                                                              0,
                                                              System.currentTimeMillis(),
                                                              (byte)1);

@@ -35,6 +35,18 @@ public class ChannelBufferWrapper implements ActiveMQBuffer
    protected ByteBuf buffer; // NO_UCD (use final)
    private final boolean releasable;
 
+   public static ByteBuf unwrap(ByteBuf buffer)
+   {
+      ByteBuf parent;
+      while ((parent = buffer.unwrap()) != null &&
+              parent != buffer) // this last part is just in case the semantic
+      {                         // ever changes where unwrap is returning itself
+         buffer = parent;
+      }
+
+      return buffer;
+   }
+
    public ChannelBufferWrapper(final ByteBuf buffer)
    {
       this(buffer, false);

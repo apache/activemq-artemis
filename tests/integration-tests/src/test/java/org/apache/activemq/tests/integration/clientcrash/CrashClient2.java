@@ -59,7 +59,7 @@ public class CrashClient2
          ClientSession session = sf.createSession(true, true, 1000000);
          ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE2);
 
-         ClientMessage message = session.createMessage(false);
+         ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeString(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT);
 
          producer.send(message);

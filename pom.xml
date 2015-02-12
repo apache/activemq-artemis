@@ -79,7 +79,12 @@
        see https://intellij-support.jetbrains.com/entries/23395793
 
        Also see: http://youtrack.jetbrains.com/issue/IDEA-125696
-     -->
+
+
+       For profiling add this line and use jmc (Java Mission Control) to evaluate the results:
+           -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=delay=30s,duration=120s,filename=/tmp/myrecording.jfr
+
+      -->
  
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration=file:${activemq.basedir}/tests/config/logging.properties

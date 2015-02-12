@@ -767,7 +767,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
             if (subscriptionName == null)
             {
                if (durability != ConsumerDurability.NON_DURABLE)
-                  throw new RuntimeException();
+                  throw new RuntimeException("Subscription name cannot be null for durable topic consumer");
                // Non durable sub
 
                queueName = new SimpleString(UUID.randomUUID().toString());
@@ -782,7 +782,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
             {
                // Durable sub
                if (durability != ConsumerDurability.DURABLE)
-                  throw new RuntimeException();
+                  throw new RuntimeException("Subscription name must be null for non-durable topic consumer");
                if (connection.getClientID() == null)
                {
                   throw new IllegalStateException("Cannot create durable subscription - client ID has not been set");

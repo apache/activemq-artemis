@@ -74,7 +74,7 @@ public class NettyConnectionTest extends UnitTestCase
 
       final int size = 1234;
 
-      ActiveMQBuffer buff = conn.createBuffer(size);
+      ActiveMQBuffer buff = conn.createTransportBuffer(size);
       buff.writeByte((byte) 0x00); // Netty buffer does lazy initialization.
       Assert.assertEquals(size, buff.capacity());
 

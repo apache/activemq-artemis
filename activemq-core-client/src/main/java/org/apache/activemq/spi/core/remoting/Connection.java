@@ -36,7 +36,7 @@ public interface Connection
     * @param size the size of buffer to create
     * @return the new buffer.
     */
-   ActiveMQBuffer createBuffer(int size);
+   ActiveMQBuffer createTransportBuffer(int size);
 
 
    RemotingConnection getProtocolConnection();
