@@ -101,7 +101,7 @@
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>false</skipLicenseCheck>
       <skipStyleCheck>false</skipStyleCheck>
-      <geronimo.jms.2.spec.version>1.0.0-SNAPSHOT</geronimo.jms.2.spec.version>
+      <geronimo.jms.2.spec.version>1.0-alpha-1</geronimo.jms.2.spec.version>
    </properties>
 
    <scm>
