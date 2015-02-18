@@ -112,7 +112,7 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       try
       {
          URI uri = new URI(url);
-         serverLocator = locatorParser.newObject(uri);
+         serverLocator = locatorParser.newObject(uri, null);
          parser.populateObject(uri, this);
       }
       catch (Exception e)

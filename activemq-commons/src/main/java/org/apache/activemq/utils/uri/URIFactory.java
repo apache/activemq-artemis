@@ -25,12 +25,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author clebertsuconic
  */
-public class URIFactory<T>
+public class URIFactory<T, P>
 {
 
    private URI defaultURI;
 
-   private final Map<String, URISchema<T>> schemas = new ConcurrentHashMap<>();
+   private final Map<String, URISchema<T, P>> schemas = new ConcurrentHashMap<>();
 
    public URI getDefaultURI()
    {
@@ -42,7 +42,7 @@ public class URIFactory<T>
       this.defaultURI = uri;
    }
 
-   public void registerSchema(URISchema<T> schemaFactory)
+   public void registerSchema(URISchema<T, P> schemaFactory)
    {
       schemas.put(schemaFactory.getSchemaName(), schemaFactory);
       schemaFactory.setFactory(this);
@@ -53,23 +53,14 @@ public class URIFactory<T>
       schemas.remove(schemaName);
    }
 
-   public T newObject(String uriString) throws Exception
+   public URI expandURI(String uriString) throws Exception
    {
-      URI uri = normalise(uriString);
-      URISchema<T> schemaFactory = schemas.get(uri.getScheme());
-
-      if (schemaFactory == null)
-      {
-         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
-      }
-
-
-      return schemaFactory.newObject(uri);
+      return normalise(uriString);
    }
 
-   public T newObject(URI uri) throws Exception
+   public T newObject(URI uri, P param) throws Exception
    {
-      URISchema<T> schemaFactory = schemas.get(uri.getScheme());
+      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
 
       if (schemaFactory == null)
       {
@@ -77,12 +68,12 @@ public class URIFactory<T>
       }
 
 
-      return schemaFactory.newObject(uri);
+      return schemaFactory.newObject(uri, param);
    }
 
    public void populateObject(URI uri, T bean) throws Exception
    {
-      URISchema<T> schemaFactory = schemas.get(uri.getScheme());
+      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
 
       if (schemaFactory == null)
       {
@@ -94,7 +85,7 @@ public class URIFactory<T>
 
    public URI createSchema(String scheme, T bean) throws Exception
    {
-      URISchema<T> schemaFactory = schemas.get(scheme);
+      URISchema<T, P> schemaFactory = schemas.get(scheme);
 
       if (schemaFactory == null)
       {
@@ -144,8 +135,8 @@ public class URIFactory<T>
                builder.append(connectorURIS[i]);
             }
          }
-         return new URI(builder.toString());
+         return new URI(builder.toString().replace(";", "&"));
       }
-      return new URI(uri);
+      return new URI(uri.replace(";", "&"));
    }
 }

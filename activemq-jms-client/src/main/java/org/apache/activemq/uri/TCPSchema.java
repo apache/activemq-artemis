@@ -18,11 +18,14 @@ package org.apache.activemq.uri;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.utils.uri.SchemaConstants;
 import org.apache.activemq.utils.uri.URISchema;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,21 +40,26 @@ public class TCPSchema extends AbstractCFSchema
    }
 
    @Override
-   protected ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query) throws Exception
+   protected ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       JMSConnectionOptions options = newConectionOptions(uri, query);
 
-      TransportConfiguration[] configurations = TCPServerLocatorSchema.getTransportConfigurations(uri, query);
+      List<TransportConfiguration> configurations =
+            TCPTransportConfigurationSchema.getTransportConfigurations(uri, query, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, name, NettyConnectorFactory.class.getName());
+
+      TransportConfiguration[] tcs = new TransportConfiguration[configurations.size()];
+
+      configurations.toArray(tcs);
 
       ActiveMQConnectionFactory factory;
 
       if (options.isHa())
       {
-         factory = ActiveMQJMSClient.createConnectionFactoryWithHA(options.getFactoryTypeEnum(), configurations);
+         factory = ActiveMQJMSClient.createConnectionFactoryWithHA(options.getFactoryTypeEnum(), tcs);
       }
       else
       {
-         factory =  ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), configurations);
+         factory =  ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), tcs);
       }
 
       return URISchema.setData(uri, factory, query);

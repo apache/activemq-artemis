@@ -33,13 +33,13 @@ import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
  * @author clebertsuconic
  */
 
-public abstract class URISchema<T>
+public abstract class URISchema<T, P>
 {
    public abstract String getSchemaName();
 
-   public T newObject(URI uri) throws Exception
+   public T newObject(URI uri, P param) throws Exception
    {
-      return newObject(uri, null);
+      return newObject(uri, null, param);
    }
 
    public void populateObject(URI uri, T bean) throws Exception
@@ -52,15 +52,15 @@ public abstract class URISchema<T>
       return internalNewURI(bean);
    }
 
-   private URIFactory<T> parentFactory;
+   private URIFactory<T, P> parentFactory;
 
 
-   void setFactory(URIFactory<T> factory)
+   void setFactory(URIFactory<T, P> factory)
    {
       this.parentFactory = parentFactory;
    }
 
-   protected URIFactory<T> getFactory()
+   protected URIFactory<T, P> getFactory()
    {
       return parentFactory;
    }
@@ -78,7 +78,7 @@ public abstract class URISchema<T>
 
    protected URI getDefaultURI()
    {
-      URIFactory<T> factory = getFactory();
+      URIFactory<T, P> factory = getFactory();
       if (factory == null)
       {
          return null;
@@ -107,12 +107,12 @@ public abstract class URISchema<T>
     * @return
     * @throws Exception
     */
-   public T newObject(URI uri, Map<String, String> propertyOverrides) throws Exception
+   public  T newObject(URI uri, Map<String, String> propertyOverrides, P param) throws Exception
    {
-      return internalNewObject(uri, parseQuery(uri.getQuery(), propertyOverrides));
+      return internalNewObject(uri, parseQuery(uri.getQuery(), propertyOverrides), param);
    }
 
-   protected abstract T internalNewObject(URI uri, Map<String, String> query) throws Exception;
+   protected abstract T internalNewObject(URI uri, Map<String, String> query, P param) throws Exception;
 
    protected abstract URI internalNewURI(T bean) throws Exception;
 
@@ -204,15 +204,15 @@ public abstract class URISchema<T>
    {
       if (allowableProperties.contains("host"))
       {
-         properties.put("host", uri.getHost());
+         properties.put("host", "" + uri.getHost());
       }
       if (allowableProperties.contains("port"))
       {
-         properties.put("port", uri.getPort());
+         properties.put("port", "" + uri.getPort());
       }
       if (allowableProperties.contains("userInfo"))
       {
-         properties.put("userInfo", uri.getUserInfo());
+         properties.put("userInfo", "" + uri.getUserInfo());
       }
       for (Map.Entry<String, String> entry : query.entrySet())
       {

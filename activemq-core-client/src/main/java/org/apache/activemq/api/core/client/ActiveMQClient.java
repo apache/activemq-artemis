@@ -123,7 +123,7 @@ public final class ActiveMQClient
    public static ServerLocator createServerLocator(final String url) throws Exception
    {
       ServerLocatorParser parser = new ServerLocatorParser();
-      return parser.newObject(new URI(url));
+      return parser.newObject(new URI(url), null);
    }
 
    /**

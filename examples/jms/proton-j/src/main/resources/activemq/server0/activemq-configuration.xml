@@ -40,10 +40,7 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="proton-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="port" value="5672"/>
-         </acceptor>
+         <acceptor name="proton-acceptor">tcp://localhost:5672</acceptor>
       </acceptors>
 
       <queues>

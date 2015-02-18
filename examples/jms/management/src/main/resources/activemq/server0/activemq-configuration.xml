@@ -42,9 +42,7 @@ under the License.
 
       <!-- Netty standard TCP acceptor -->
       <acceptors>
-         <acceptor name="netty">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         </acceptor>
+         <acceptor name="netty">tcp://localhost:5445</acceptor>
       </acceptors>
 
       <security-settings>

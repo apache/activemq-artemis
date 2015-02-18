@@ -26,24 +26,12 @@ under the License.
    </jms>
    <core xmlns="urn:activemq:core">
       <connectors>
-         <connector name="netty-connector">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-            <param key="tcp-no-delay" value="false"/>
-            <param key="tcp-send-buffer-size" value="1048576"/>
-            <param key="tcp-receive-buffer-size" value="1048576"/>
-            <param key="host" value="localhost"/>
-         </connector>
+         <connector name="netty-connector">tcp://localhost:5445?tcpNoDelay=false;tcpSendBufferSize=1048576?tcpReceiveBufferSize=1048576</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="tcp-no-delay" value="false"/>
-            <param key="tcp-send-buffer-size" value="1048576"/>
-            <param key="tcp-receive-buffer-size" value="1048576"/>
-            <param key="host" value="localhost"/>
-         </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:5445?tcpNoDelay=false;tcpSendBufferSize=1048576?tcpReceiveBufferSize=1048576 </acceptor>
       </acceptors>
 
       <security-enabled>false</security-enabled>

@@ -145,39 +145,14 @@ public class FileConfigurationParserTest extends UnitTestCase
          "<large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>" + "\n" +
          "<paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>" + "\n" +
          "<connectors>" + "\n" +
-         "<connector name=\"netty\">" + "\n" +
-         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
-         "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${activemq.remoting.netty.port:5445}\"/>" + "\n" +
-         "</connector>" + "\n" +
-         "<connector name=\"netty-throughput\">" + "\n" +
-         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>" + "\n" +
-         "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${activemq.remoting.netty.batch.port:5455}\"/>" + "\n" +
-         "<param key=\"batch-delay\" value=\"50\"/>" + "\n" +
-         "</connector>" + "\n" +
-         "<connector name=\"in-vm\">" + "\n" +
-         "<factory-class>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</factory-class>" + "\n" +
-         "<param key=\"server-id\" value=\"${activemq.server-id:0}\"/>" + "\n" +
-         "</connector>" + "\n" +
+         "<connector name=\"netty\">tcp://localhost:5445</connector>" + "\n" +
+         "<connector name=\"netty-throughput\">tcp://localhost:5545</connector>" + "\n" +
+         "<connector name=\"in-vm\">vm://0</connector>" + "\n" +
          "</connectors>" + "\n" +
          "<acceptors>" + "\n" +
-         "<acceptor name=\"netty\">" + "\n" +
-         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
-         "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${activemq.remoting.netty.port:5445}\"/>" + "\n" +
-         "</acceptor>" + "\n" +
-         "<acceptor name=\"netty-throughput\">" + "\n" +
-         "<factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>" + "\n" +
-         "<param key=\"host\"  value=\"${jboss.bind.address:localhost}\"/>" + "\n" +
-         "<param key=\"port\"  value=\"${activemq.remoting.netty.batch.port:5455}\"/>" + "\n" +
-         "<param key=\"batch-delay\" value=\"50\"/>" + "\n" +
-         "<param key=\"direct-deliver\" value=\"false\"/>" + "\n" +
-         "</acceptor>" + "\n" +
-         "<acceptor name=\"in-vm\">" + "\n" +
-         "<factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>" + "\n" +
-         "<param key=\"server-id\" value=\"0\"/>" + "\n" +
-         "</acceptor>" + "\n" +
+         "<acceptor name=\"netty\">tcp://localhost:5545</acceptor>" + "\n" +
+         "<acceptor name=\"netty-throughput\">tcp://localhost:5545</acceptor>" + "\n" +
+         "<acceptor name=\"in-vm\">vm://0</acceptor>" + "\n" +
          "</acceptors>" + "\n" +
          "<security-settings>" + "\n" +
          "<security-setting match=\"#\">" + "\n" +

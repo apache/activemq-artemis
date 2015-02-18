@@ -25,8 +25,9 @@ import java.util.Map;
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
-public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator>
+public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String>
 {
+
    protected ConnectionOptions newConnectionOptions(URI uri, Map<String, String> query) throws Exception
    {
       return setData(uri, new ConnectionOptions(), query);

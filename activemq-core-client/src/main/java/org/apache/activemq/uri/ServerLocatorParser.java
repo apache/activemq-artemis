@@ -22,7 +22,7 @@ import org.apache.activemq.utils.uri.URIFactory;
 /**
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
-public class ServerLocatorParser extends URIFactory<ServerLocator>
+public class ServerLocatorParser extends URIFactory<ServerLocator, String>
 {
    public ServerLocatorParser()
    {

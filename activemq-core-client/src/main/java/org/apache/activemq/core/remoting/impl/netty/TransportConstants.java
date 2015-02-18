@@ -187,7 +187,7 @@ public class TransportConstants
 
    public static final Set<String> ALLOWABLE_ACCEPTOR_KEYS;
 
-   public static final String CONNECTION_TTL = "connection-ttl";
+   public static final String CONNECTION_TTL = "connectionTtl";
 
    public static final String STOMP_ENABLE_MESSAGE_ID = "stomp-enable-message-id";
 

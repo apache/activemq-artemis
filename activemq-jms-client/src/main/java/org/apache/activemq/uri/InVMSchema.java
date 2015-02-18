@@ -36,10 +36,12 @@ public class InVMSchema extends AbstractCFSchema
    }
 
    @Override
-   protected ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query) throws Exception
+   protected ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       JMSConnectionOptions options = newConectionOptions(uri, query);
-      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), InVMServerLocatorSchema.createTransportConfiguration(uri));
+      ActiveMQConnectionFactory factory =
+            ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(),
+                                                               InVMTransportConfigurationSchema.createTransportConfiguration(uri, name, "org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
       return URISchema.setData(uri, factory, query);
    }
 

@@ -37,34 +37,13 @@ under the License.
       <large-messages-directory>${data.dir:../data}/large-messages</large-messages-directory>
 
       <connectors>
-         <connector name="netty">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-            <param key="host"  value="${activemq.remoting.netty.host:localhost}"/>
-            <param key="port"  value="${activemq.remoting.netty.port:5445}"/>
-         </connector>
-
-         <connector name="netty-throughput">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-            <param key="host"  value="${activemq.remoting.netty.host:localhost}"/>
-            <param key="port"  value="${activemq.remoting.netty.batch.port:5455}"/>
-            <param key="batch-delay" value="50"/>
-         </connector>
+         <connector name="netty">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}</connector>
+         <connector name="netty-throughput">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.batch.port:5455}?batchDelay=50</connector>
       </connectors>
 
       <acceptors>
-         <acceptor name="netty">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="host"  value="${activemq.remoting.netty.host:localhost}"/>
-            <param key="port"  value="${activemq.remoting.netty.port:5445}"/>
-         </acceptor>
-
-         <acceptor name="netty-throughput">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="host"  value="${activemq.remoting.netty.host:localhost}"/>
-            <param key="port"  value="${activemq.remoting.netty.batch.port:5455}"/>
-            <param key="batch-delay" value="50"/>
-            <param key="direct-deliver" value="false"/>
-         </acceptor>
+         <acceptor name="netty">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}</acceptor>
+         <acceptor name="netty-throughput">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.batch.port:5455}?batchDelay=50;directDeliver=false</acceptor>
       </acceptors>
 
       <broadcast-groups>

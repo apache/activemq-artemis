@@ -37,12 +37,7 @@ under the License.
       <paging-directory>${build.directory}/server1/data/messaging/paging</paging-directory>
 
       <acceptors>
-         <acceptor name="netty">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <!-- the server accepts connections on all the server addresses -->
-            <param key="host" value="localhost"/>
-            <param key="port" value="5455"/>
-         </acceptor>
+         <acceptor name="netty">tcp://localhost:5455</acceptor>
       </acceptors>
 
       <security-settings>

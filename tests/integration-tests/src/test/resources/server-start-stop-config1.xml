@@ -23,17 +23,13 @@
    <core xmlns="urn:activemq:core">
 
       <connectors>
-         <connector name="netty-connector">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         </connector>
+         <connector name="netty-connector">tcp://localhost:5445</connector>
       </connectors>
 
       <journal-directory>/tmp/activemq-unit-test/start-stop-data</journal-directory>
 
       <acceptors>
-         <acceptor name="netty-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
       </acceptors>
 
       <security-enabled>false</security-enabled>

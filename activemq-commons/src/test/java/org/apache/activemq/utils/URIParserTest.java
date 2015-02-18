@@ -41,7 +41,7 @@ public class URIParserTest
    public void testSchemaFruit() throws Throwable
    {
       FruitParser parser = new FruitParser();
-      Fruit fruit = (Fruit)parser.newObject(new URI("fruit://some:guy@fair-market:3030?color=green&fluentName=something"));
+      Fruit fruit = (Fruit)parser.newObject(new URI("fruit://some:guy@fair-market:3030?color=green&fluentName=something"), null);
 
       Assert.assertEquals("fruit", fruit.getName());
       Assert.assertEquals(3030, fruit.getPort());
@@ -62,7 +62,7 @@ public class URIParserTest
    public void testSchemaNoHosPropertyt() throws Throwable
    {
       FruitParser parser = new FruitParser();
-      FruitBase fruit = parser.newObject(new URI("base://some:guy@fair-market:3030?color=green&fluentName=something"));
+      FruitBase fruit = parser.newObject(new URI("base://some:guy@fair-market:3030?color=green&fluentName=something"), null);
       Assert.assertEquals("base", fruit.getName());
       Assert.assertEquals("green", fruit.getColor());
       Assert.assertEquals("something", fruit.getFluentName());
@@ -77,7 +77,7 @@ public class URIParserTest
    public void testSchemaNoHostOnURL() throws Throwable
    {
       FruitParser parser = new FruitParser();
-      Fruit fruit = (Fruit)parser.newObject(new URI("fruit://some:guy@port?color=green&fluentName=something"));
+      Fruit fruit = (Fruit)parser.newObject(new URI("fruit://some:guy@port?color=green&fluentName=something"), null);
 
       System.out.println("fruit:" + fruit);
       Assert.assertEquals("fruit", fruit.getName());
@@ -86,7 +86,7 @@ public class URIParserTest
    }
 
 
-   class FruitParser extends URIFactory<FruitBase>
+   class FruitParser extends URIFactory<FruitBase, String>
    {
       FruitParser()
       {
@@ -95,7 +95,7 @@ public class URIParserTest
       }
    }
 
-   class FruitSchema extends URISchema<FruitBase>
+   class FruitSchema extends URISchema<FruitBase, String>
    {
       @Override
       public String getSchemaName()
@@ -105,7 +105,7 @@ public class URIParserTest
 
 
       @Override
-      public FruitBase internalNewObject(URI uri, Map<String, String> query) throws Exception
+      public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception
       {
          return setData(uri, new Fruit(getSchemaName()), query);
       }
@@ -117,7 +117,7 @@ public class URIParserTest
       }
    }
 
-   class FruitBaseSchema extends URISchema<FruitBase>
+   class FruitBaseSchema extends URISchema<FruitBase, String>
    {
       @Override
       public String getSchemaName()
@@ -127,7 +127,7 @@ public class URIParserTest
 
 
       @Override
-      public FruitBase internalNewObject(URI uri, Map<String, String> query) throws Exception
+      public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception
       {
          return setData(uri, new FruitBase(getSchemaName()), query);
       }

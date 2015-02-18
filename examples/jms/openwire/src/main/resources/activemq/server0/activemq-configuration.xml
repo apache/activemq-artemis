@@ -38,21 +38,13 @@ under the License.
       <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
       <connectors>
-         <connector name="netty-connector">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         </connector>
+         <connector name="netty-connector">tcp://localhost:5445</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         </acceptor>
-         <acceptor name="openwire-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="protocols" value="OPENWIRE"/>
-            <param key="port" value="61616"/>
-         </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
+         <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
       </acceptors>
 
       <!-- Other config -->

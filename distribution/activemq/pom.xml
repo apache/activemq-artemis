@@ -165,6 +165,14 @@
           <artifactId>jolokia-war</artifactId>
           <type>war</type>
        </dependency>
+      <dependency>
+         <groupId>commons-beanutils</groupId>
+         <artifactId>commons-beanutils</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging</artifactId>
+      </dependency>
    </dependencies>
 
    <profiles>
