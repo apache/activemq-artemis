@@ -324,33 +324,7 @@
             </xsd:annotation>
             <xsd:complexType>
                <xsd:sequence>
-                  <xsd:element name="connector" maxOccurs="unbounded" minOccurs="0">
-                     <xsd:complexType>
-                        <xsd:sequence>
-                           <xsd:element maxOccurs="1" minOccurs="1" name="factory-class" type="xsd:string">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    Name of the ConnectorFactory implementation
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:element>
-                           <xsd:element name="param" type="paramType" maxOccurs="unbounded" minOccurs="0">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    A key-value pair used to configure the connector. A connector can have many param's
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:element>
-                        </xsd:sequence>
-                        <xsd:attribute name="name" type="xsd:ID" use="required">
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 Name of the connector
-                              </xsd:documentation>
-                           </xsd:annotation>
-                        </xsd:attribute>
-                     </xsd:complexType>
-                  </xsd:element>
+                  <xsd:element name="connector" type="transportType" maxOccurs="unbounded"/>
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
@@ -363,33 +337,7 @@
             </xsd:annotation>
             <xsd:complexType>
                <xsd:sequence>
-                  <xsd:element name="acceptor" maxOccurs="unbounded" minOccurs="1">
-                     <xsd:complexType>
-                        <xsd:sequence>
-                           <xsd:element name="factory-class" type="xsd:string" maxOccurs="1" minOccurs="1">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    Name of the AcceptorFactory implementation
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:element>
-                           <xsd:element name="param" type="paramType" maxOccurs="unbounded" minOccurs="0">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    A key-value pair used to configure the acceptor. An acceptor can have many param
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:element>
-                        </xsd:sequence>
-                        <xsd:attribute name="name" type="xsd:string" use="optional">
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 Name of the acceptor
-                              </xsd:documentation>
-                           </xsd:annotation>
-                        </xsd:attribute>
-                     </xsd:complexType>
-                  </xsd:element>
+                  <xsd:element name="acceptor" type="transportType" maxOccurs="unbounded"/>
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
@@ -2191,4 +2139,13 @@
          </xsd:annotation>
       </xsd:attribute>
    </xsd:complexType>
+
+   <xsd:complexType name="transportType">
+       <xsd:simpleContent>
+         <xsd:extension base="xsd:string">
+           <xsd:attribute name="name" type="xsd:string">
+           </xsd:attribute>
+         </xsd:extension>
+       </xsd:simpleContent>
+     </xsd:complexType>
 </xsd:schema>

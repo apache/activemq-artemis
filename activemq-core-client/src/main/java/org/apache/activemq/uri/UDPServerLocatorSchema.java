@@ -46,11 +46,11 @@ public class UDPServerLocatorSchema extends AbstractServerLocatorSchema
    }
 
    @Override
-   protected ServerLocator internalNewObject(URI uri, Map<String, String> query) throws Exception
+   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       ConnectionOptions options = newConnectionOptions(uri, query);
 
-      DiscoveryGroupConfiguration dgc = getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri));
+      DiscoveryGroupConfiguration dgc = getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri), name);
 
       if (options.isHa())
       {
@@ -72,7 +72,7 @@ public class UDPServerLocatorSchema extends AbstractServerLocatorSchema
       return new URI(SchemaConstants.UDP, null,  endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
    }
 
-   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri, Map<String, String> query, String host, int port) throws Exception
+   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri, Map<String, String> query, String host, int port, String name) throws Exception
    {
       UDPBroadcastEndpointFactory endpointFactoryConfiguration = new UDPBroadcastEndpointFactory()
                .setGroupAddress(host)
@@ -81,6 +81,7 @@ public class UDPServerLocatorSchema extends AbstractServerLocatorSchema
       URISchema.setData(uri, endpointFactoryConfiguration, query);
 
       DiscoveryGroupConfiguration dgc = URISchema.setData(uri, new DiscoveryGroupConfiguration(), query)
+            .setName(name)
          .setBroadcastEndpointFactory(endpointFactoryConfiguration);
 
       URISchema.setData(uri, dgc, query);

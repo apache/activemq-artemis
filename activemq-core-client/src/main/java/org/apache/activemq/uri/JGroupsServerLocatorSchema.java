@@ -41,11 +41,11 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema
    }
 
    @Override
-   protected ServerLocator internalNewObject(URI uri, Map<String, String> query) throws Exception
+   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       ConnectionOptions options = newConnectionOptions(uri, query);
 
-      DiscoveryGroupConfiguration dcConfig = getDiscoveryGroupConfiguration(uri, query);
+      DiscoveryGroupConfiguration dcConfig = getDiscoveryGroupConfiguration(uri, query, name);
 
       if (options.isHa())
       {
@@ -80,7 +80,7 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema
       return new URI(SchemaConstants.JGROUPS, null,  auth, -1, null, query, null);
    }
 
-   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri, Map<String, String> query) throws Exception
+   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri, Map<String, String> query, String name) throws Exception
    {
       BroadcastEndpointFactory endpointFactory;
       if (query.containsKey("file"))
@@ -94,7 +94,7 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema
 
       URISchema.setData(uri, endpointFactory, query);
 
-      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setBroadcastEndpointFactory(endpointFactory);
+      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName(name).setBroadcastEndpointFactory(endpointFactory);
 
       URISchema.setData(uri, dcConfig, query);
       return dcConfig;

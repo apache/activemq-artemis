@@ -60,6 +60,8 @@ import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.uri.AcceptorTransportConfigurationParser;
+import org.apache.activemq.uri.ConnectorTransportConfigurationParser;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.utils.PasswordMaskingUtil;
 import org.apache.activemq.utils.SensitiveDataCodec;
@@ -373,7 +375,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          Element connectorNode = (Element) connectorNodes.item(i);
 
-         TransportConfiguration connectorConfig = parseTransportConfiguration(connectorNode, config);
+         TransportConfiguration connectorConfig = parseConnectorTransportConfiguration(connectorNode, config);
 
          if (connectorConfig.getName() == null)
          {
@@ -398,7 +400,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       {
          Element acceptorNode = (Element) acceptorNodes.item(i);
 
-         TransportConfiguration acceptorConfig = parseTransportConfiguration(acceptorNode, config);
+         TransportConfiguration acceptorConfig = parseAcceptorTransportConfiguration(acceptorNode, config);
 
          config.getAcceptorConfigurations().add(acceptorConfig);
       }
@@ -939,15 +941,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setDurable(durable);
    }
 
-   private TransportConfiguration parseTransportConfiguration(final Element e, final Configuration mainConfig)
+   private TransportConfiguration parseAcceptorTransportConfiguration(final Element e, final Configuration mainConfig) throws Exception
    {
       Node nameNode = e.getAttributes().getNamedItem("name");
 
       String name = nameNode != null ? nameNode.getNodeValue() : null;
 
-      String clazz = getString(e, "factory-class", null, Validators.NOT_NULL_OR_EMPTY);
+      String uri = e.getChildNodes().item(0).getNodeValue();
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
+
+      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+
+      Map<String, Object> params = configurations.get(0).getParams();
 
       if (mainConfig.isMaskPassword())
       {
@@ -959,24 +965,34 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
 
-      NodeList paramsNodes = e.getElementsByTagName("param");
+      return configurations.get(0);
+   }
 
-      for (int i = 0; i < paramsNodes.getLength(); i++)
+   private TransportConfiguration parseConnectorTransportConfiguration(final Element e, final Configuration mainConfig) throws Exception
+   {
+      Node nameNode = e.getAttributes().getNamedItem("name");
+
+      String name = nameNode != null ? nameNode.getNodeValue() : null;
+
+      String uri = e.getChildNodes().item(0).getNodeValue();
+
+      ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
+
+      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+
+      Map<String, Object> params = configurations.get(0).getParams();
+
+      if (mainConfig.isMaskPassword())
       {
-         Node paramNode = paramsNodes.item(i);
+         params.put(ActiveMQDefaultConfiguration.getPropMaskPassword(), mainConfig.isMaskPassword());
 
-         NamedNodeMap attributes = paramNode.getAttributes();
-
-         Node nkey = attributes.getNamedItem("key");
-
-         String key = nkey.getTextContent();
-
-         Node nValue = attributes.getNamedItem("value");
-
-         params.put(key, nValue.getTextContent());
+         if (mainConfig.getPasswordCodec() != null)
+         {
+            params.put(ActiveMQDefaultConfiguration.getPropPasswordCodec(), mainConfig.getPasswordCodec());
+         }
       }
 
-      return new TransportConfiguration(clazz, params, name);
+      return configurations.get(0);
    }
 
    private static final ArrayList<String> POLICY_LIST = new ArrayList<>();

@@ -40,11 +40,11 @@ public class UDPSchema extends AbstractCFSchema
    }
 
    @Override
-   public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query) throws Exception
+   public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       JMSConnectionOptions options = newConectionOptions(uri, query);
 
-      DiscoveryGroupConfiguration dgc = UDPServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri));
+      DiscoveryGroupConfiguration dgc = UDPServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri), name);
 
       ActiveMQConnectionFactory factory;
       if (options.isHa())

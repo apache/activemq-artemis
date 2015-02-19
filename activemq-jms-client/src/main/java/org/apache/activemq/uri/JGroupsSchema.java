@@ -43,11 +43,11 @@ public class JGroupsSchema extends AbstractCFSchema
    }
 
    @Override
-   public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query) throws Exception
+   public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       JMSConnectionOptions options = newConectionOptions(uri, query);
 
-      DiscoveryGroupConfiguration dcConfig = JGroupsServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query);
+      DiscoveryGroupConfiguration dcConfig = JGroupsServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query, name);
 
       ActiveMQConnectionFactory factory;
       if (options.isHa())

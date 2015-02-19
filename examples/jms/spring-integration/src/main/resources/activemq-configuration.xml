@@ -32,9 +32,7 @@ under the License.
       <persistence-enabled>false</persistence-enabled>
 
       <acceptors>
-         <acceptor name="in-vm">
-            <factory-class>org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory</factory-class>
-         </acceptor>
+         <acceptor name="in-vm">vm://0</acceptor>
       </acceptors>
 
       <!-- Other config -->

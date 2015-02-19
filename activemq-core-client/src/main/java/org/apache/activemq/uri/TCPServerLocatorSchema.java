@@ -25,9 +25,6 @@ import org.apache.activemq.utils.uri.SchemaConstants;
 import org.apache.activemq.utils.uri.URISchema;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,52 +39,24 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema
       return SchemaConstants.TCP;
    }
 
+
    @Override
-   protected ServerLocator internalNewObject(URI uri, Map<String, String> query) throws Exception
+   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       ConnectionOptions options = newConnectionOptions(uri, query);
 
-      TransportConfiguration[] configurations = getTransportConfigurations(uri, query);
-
+      List<TransportConfiguration> configurations =
+            TCPTransportConfigurationSchema.getTransportConfigurations(uri, query, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, name, NettyConnectorFactory.class.getName());
+      TransportConfiguration[] tcs = new TransportConfiguration[configurations.size()];
+      configurations.toArray(tcs);
       if (options.isHa())
       {
-         return ActiveMQClient.createServerLocatorWithHA(configurations);
+         return ActiveMQClient.createServerLocatorWithHA(tcs);
       }
       else
       {
-         return ActiveMQClient.createServerLocatorWithoutHA(configurations);
+         return ActiveMQClient.createServerLocatorWithoutHA(tcs);
       }
-   }
-
-   public static TransportConfiguration[] getTransportConfigurations(URI uri, Map<String, String> query) throws URISyntaxException
-   {
-      HashMap<String, Object> props = new HashMap<>();
-
-      URISchema.setData(uri, props, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, query);
-      List<TransportConfiguration> transportConfigurations = new ArrayList<>();
-
-      transportConfigurations.add(new TransportConfiguration(NettyConnectorFactory.class.getName(),
-                                                                    props,
-                                                                    uri.toString()));
-      String connectors = uri.getFragment();
-
-      if (connectors != null)
-      {
-         String[] split = connectors.split(",");
-         for (String s : split)
-         {
-            URI extraUri = new URI(s);
-            HashMap<String, Object> newProps = new HashMap<>();
-            URISchema.setData(extraUri, newProps, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, query);
-            URISchema.setData(extraUri, newProps, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, URISchema.parseQuery(extraUri.getQuery(), null));
-            transportConfigurations.add(new TransportConfiguration(NettyConnectorFactory.class.getName(),
-                                                                   newProps,
-                                                                   extraUri.toString()));
-         }
-      }
-      TransportConfiguration[] configurations = new TransportConfiguration[transportConfigurations.size()];
-      transportConfigurations.toArray(configurations);
-      return configurations;
    }
 
    @Override

@@ -107,7 +107,7 @@ public abstract class StompTestBase extends UnitTestCase
    // -------------------------------------------------------------------------
    @Override
    @Before
-   public void setUp() throws Exception
+   public void  setUp() throws Exception
    {
       super.setUp();
       priorityQueue = new ArrayBlockingQueue(1000);

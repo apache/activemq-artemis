@@ -24,7 +24,6 @@ import org.apache.activemq.utils.uri.URISchema;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,19 +38,14 @@ public class InVMServerLocatorSchema extends AbstractServerLocatorSchema
    }
 
    @Override
-   protected ServerLocator internalNewObject(URI uri, Map<String, String> query) throws Exception
+   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
-      TransportConfiguration tc = createTransportConfiguration(uri);
+      TransportConfiguration tc = InVMTransportConfigurationSchema.createTransportConfiguration(uri, name, "org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
       ServerLocator factory = ActiveMQClient.createServerLocatorWithoutHA(tc);
       return URISchema.setData(uri, factory, query);
    }
 
-   public static TransportConfiguration createTransportConfiguration(URI uri)
-   {
-      Map<String, Object> inVmTransportConfig = new HashMap<>();
-      inVmTransportConfig.put("serverId", uri.getHost());
-      return new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory", inVmTransportConfig);
-   }
+
 
    @Override
    protected URI internalNewURI(ServerLocator bean) throws Exception

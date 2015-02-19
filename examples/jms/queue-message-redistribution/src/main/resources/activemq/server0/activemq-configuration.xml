@@ -40,18 +40,12 @@ under the License.
 
       <!-- Connectors -->
       <connectors>
-         <connector name="netty-connector">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-            <param key="port" value="5445"/>
-         </connector>
+         <connector name="netty-connector">tcp://localhost:5445</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="port" value="5445"/>
-         </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
       </acceptors>
 
       <!-- Clustering configuration -->

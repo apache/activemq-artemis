@@ -28,7 +28,7 @@ import org.apache.activemq.utils.uri.URISchema;
  * @author clebertsuconic
  */
 
-public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory>
+public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory, String>
 {
 
    protected JMSConnectionOptions newConectionOptions(URI uri, Map<String, String> query) throws Exception

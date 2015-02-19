@@ -60,7 +60,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
             String jndiName = key.substring(connectionFactoryPrefix.length());
             try
             {
-               ActiveMQConnectionFactory factory = createConnectionFactory((String) environment.get(key));
+               ActiveMQConnectionFactory factory = createConnectionFactory((String) environment.get(key), jndiName);
                data.put(jndiName, factory);
             }
             catch (Exception e)
@@ -175,9 +175,9 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
    /**
     * Factory method to create a new connection factory from the given environment
     */
-   protected ActiveMQConnectionFactory createConnectionFactory(String uri) throws Exception
+   protected ActiveMQConnectionFactory createConnectionFactory(String uri, String name) throws Exception
    {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
-      return parser.newObject(uri);
+      return parser.newObject(parser.expandURI(uri), name);
    }
 }

@@ -19,10 +19,7 @@
             xsi:schemaLocation="urn:activemq schema/activemq-configuration.xsd">
 
    <connectors>
-      <connector name="netty-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5645"/>
-      </connector>
+      <connector name="netty-connector">tcp://localhost:5645</connector>
    </connectors>
 
    <paging-directory>/tmp/activemq-unit-test/live2/paging</paging-directory>
@@ -31,10 +28,7 @@
    <large-messages-directory>/tmp/activemq-unit-test/live2/largemessages</large-messages-directory>
    
    <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="port" value="5645"/>
-      </acceptor>
+      <acceptor name="netty-acceptor">tcp://localhost:5645</acceptor>
    </acceptors>
 
     <broadcast-groups>

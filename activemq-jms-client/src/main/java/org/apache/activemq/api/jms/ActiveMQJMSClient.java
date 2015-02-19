@@ -31,8 +31,6 @@ import org.apache.activemq.jms.client.ActiveMQXAQueueConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQXATopicConnectionFactory;
 import org.apache.activemq.uri.ConnectionFactoryParser;
 
-import java.net.URI;
-
 /**
  * A utility class for creating ActiveMQ client-side JMS managed resources.
  *
@@ -45,10 +43,10 @@ public class ActiveMQJMSClient
     *
     * @return the ActiveMQConnectionFactory
     */
-   public static ActiveMQConnectionFactory createConnectionFactory(final String url) throws Exception
+   public static ActiveMQConnectionFactory createConnectionFactory(final String url, String name) throws Exception
    {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
-      return parser.newObject(new URI(url));
+      return parser.newObject(parser.expandURI(url), name);
    }
 
    /**

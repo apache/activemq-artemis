@@ -107,34 +107,30 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
       TransportConfiguration tc = conf.getConnectorConfigurations().get("connector1");
       Assert.assertNotNull(tc);
-      Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestConnectorFactory1", tc.getFactoryClassName());
-      Assert.assertEquals("v1", tc.getParams().get("a1"));
-      Assert.assertEquals("123", tc.getParams().get("a2"));
-      Assert.assertEquals("345", tc.getParams().get("a3"));
-      Assert.assertEquals("v4", tc.getParams().get("a4"));
+      Assert.assertEquals("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory", tc.getFactoryClassName());
+      Assert.assertEquals("mylocal", tc.getParams().get("localAddress"));
+      Assert.assertEquals("99", tc.getParams().get("localPort"));
+      Assert.assertEquals("localhost1", tc.getParams().get("host"));
+      Assert.assertEquals("5678", tc.getParams().get("port"));
 
       tc = conf.getConnectorConfigurations().get("connector2");
       Assert.assertNotNull(tc);
-      Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestConnectorFactory2", tc.getFactoryClassName());
-      Assert.assertEquals("w1", tc.getParams().get("b1"));
-      Assert.assertEquals("234", tc.getParams().get("b2"));
+      Assert.assertEquals("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory", tc.getFactoryClassName());
+      Assert.assertEquals("5", tc.getParams().get("serverId"));
 
       Assert.assertEquals(2, conf.getAcceptorConfigurations().size());
       for (TransportConfiguration ac : conf.getAcceptorConfigurations())
       {
-         if (ac.getFactoryClassName().equals("org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory1"))
+         if (ac.getFactoryClassName().equals("org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory"))
          {
-            Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory1",
-                                ac.getFactoryClassName());
-            Assert.assertEquals("y1", ac.getParams().get("d1"));
-            Assert.assertEquals("456", ac.getParams().get("d2"));
+            Assert.assertEquals("456", ac.getParams().get("tcpNoDelay"));
+            Assert.assertEquals("44", ac.getParams().get("connectionTtl"));
          }
          else
          {
-            Assert.assertEquals("org.apache.activemq.tests.unit.core.config.impl.TestAcceptorFactory2",
+            Assert.assertEquals("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory",
                                 ac.getFactoryClassName());
-            Assert.assertEquals("z1", ac.getParams().get("e1"));
-            Assert.assertEquals("567", ac.getParams().get("e2"));
+            Assert.assertEquals("0", ac.getParams().get("serverId"));
          }
       }
 

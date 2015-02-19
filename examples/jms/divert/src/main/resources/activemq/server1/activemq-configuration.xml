@@ -43,10 +43,7 @@ under the License.
       <!-- Acceptors -->
 
       <acceptors>
-         <acceptor name="netty-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="port" value="5446"/>
-         </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:5446</acceptor>
       </acceptors>
 
       <!-- Other config -->

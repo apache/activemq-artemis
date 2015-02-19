@@ -50,9 +50,7 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
       </acceptors>
 
       <!-- Other config -->

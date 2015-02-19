@@ -40,15 +40,10 @@ under the License.
       <!-- Acceptors -->
       <acceptors>
          <!-- a regular Netty acceptor used by the JMS client -->
-         <acceptor name="netty-acceptor">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
          <!-- the stomp-acceptor is configured for the Stomp over Web Sockets and -->
          <!-- will listen on port 61614)              -->
-         <acceptor name="stomp-websocket">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            <param key="port" value="61614"/>
-         </acceptor>
+         <acceptor name="stomp-websocket">tcp://localhost:61614</acceptor>
       </acceptors>
 
       <!-- Other config -->

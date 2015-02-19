@@ -37,9 +37,7 @@ under the License.
       <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
       <acceptors>
-         <acceptor name="netty">
-            <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         </acceptor>
+         <acceptor name="netty">tcp://localhost:5445</acceptor>
       </acceptors>
 
       <security-settings>
