@@ -20,7 +20,7 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.INTERCEPTOR_REJ
 
 /**
  * An outgoing interceptor returned false.
- * @see org.apache.activemq.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq.api.core.Interceptor)
+ * See org.apache.activemq.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq.api.core.Interceptor)
  * @author Justin Bertram
  */
 // XXX I doubt any reader will make much sense of this Javadoc's text.

@@ -26,10 +26,8 @@ public class FactoryFinder
 {
    /**
     * The strategy that the FactoryFinder uses to find load and instantiate Objects
-    * can be changed out by calling the
-    * {@link org.apache.activemq.utils.FactoryFinder#setObjectFactory(org.apache.activemq.utils.FactoryFinder.ObjectFactory)}
-    * method with a custom implementation of ObjectFactory.
-    * <p/>
+    * can be changed out by calling the setObjectFactory method with a custom implementation of ObjectFactory.
+    *
     * The default ObjectFactory is typically changed out when running in a specialized container
     * environment where service discovery needs to be done via the container system.  For example,
     * in an OSGi scenario.
@@ -38,7 +36,11 @@ public class FactoryFinder
    {
       /**
        * @param path the full service path
-       * @return
+       * @throws IllegalAccessException illegal access
+       * @throws InstantiationException on instantiation error
+       * @throws IOException On IO Error
+       * @throws ClassNotFoundException On class not found error
+       * @return Object
        */
       Object create(String path) throws IllegalAccessException, InstantiationException, IOException, ClassNotFoundException;
 
@@ -162,6 +164,10 @@ public class FactoryFinder
     * @param key is the key to add to the path to find a text file containing
     *            the factory name
     * @return a newly created instance
+    * @throws IllegalAccessException On illegal access
+    * @throws InstantiationException On can not instantiate exception
+    * @throws IOException On IOException
+    * @throws ClassNotFoundException When class not on class path
     */
    public Object newInstance(String key) throws IllegalAccessException, InstantiationException, IOException, ClassNotFoundException
    {

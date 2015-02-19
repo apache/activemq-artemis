@@ -879,6 +879,8 @@ public class Base64
     * Encodes or decodes two files from the command line;
     * <strong>feel free to delete this method (in fact you probably should)
     * if you're embedding this code into a larger program.</strong>
+    *
+    * @param args Input args
     */
    public static final void main(final String[] args)
    {
@@ -1131,6 +1133,7 @@ public class Base64
     * Does not GZip-compress data.
     *
     * @param source The data to convert
+    * @return Base64 String
     * @since 1.4
     */
    public static String encodeBytes(final byte[] source)
@@ -1153,6 +1156,7 @@ public class Base64
     *
     * @param source  The data to convert
     * @param options Specified options
+    * @return Encoded String
     * @see Base64#GZIP
     * @see Base64#DONT_BREAK_LINES
     * @since 2.0
@@ -1169,6 +1173,7 @@ public class Base64
     * @param source The data to convert
     * @param off    Offset in array where conversion should begin
     * @param len    Length of data to convert
+    * @return Encoded String
     * @since 1.4
     */
    public static String encodeBytes(final byte[] source, final int off, final int len)
@@ -1193,6 +1198,7 @@ public class Base64
     * @param off     Offset in array where conversion should begin
     * @param len     Length of data to convert
     * @param options options alphabet type is pulled from this (standard, url-safe, ordered)
+    * @return Encoded String
     * @see Base64#GZIP
     * @see Base64#DONT_BREAK_LINES
     * @since 2.0
@@ -1395,6 +1401,7 @@ public class Base64
     * @param source The Base64 encoded data
     * @param off    The offset of where to begin decoding
     * @param len    The length of characters to decode
+    * @param options Specified options
     * @return decoded data
     * @since 1.3
     */
@@ -2230,6 +2237,7 @@ public class Base64
        * at a time.
        *
        * @param theByte the byte to write
+       * @throws java.io.IOException Throws IOException
        * @since 1.3
        */
       @Override
@@ -2291,6 +2299,7 @@ public class Base64
        * @param off      offset for array
        * @param len      max number of bytes to read into array
        * @since 1.3
+       * @throws java.io.IOException Throws IOException
        */
       @Override
       public void write(final byte[] theBytes, final int off, final int len) throws java.io.IOException
@@ -2312,6 +2321,7 @@ public class Base64
       /**
        * Method added by PHIL. [Thanks, PHIL. -Rob]
        * This pads the buffer without closing the stream.
+       * @throws java.io.IOException On IO Exception
        */
       public void flushBase64() throws java.io.IOException
       {
@@ -2333,7 +2343,9 @@ public class Base64
       /**
        * Flushes and closes (I think, in the superclass) the stream.
        *
+       * @throws java.io.IOException Throws IOException
        * @since 1.3
+       *
        */
       @Override
       public void close() throws java.io.IOException
@@ -2353,7 +2365,7 @@ public class Base64
        * Suspends encoding of the stream.
        * May be helpful if you need to embed a piece of
        * base640-encoded data in a stream.
-       *
+       * @throws java.io.IOException On IO Exception
        * @since 1.5.1
        */
       public void suspendEncoding() throws java.io.IOException

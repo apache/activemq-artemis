@@ -40,11 +40,13 @@ public interface ActiveMQBuffer
 
    /**
     * Returns the number of bytes this buffer can contain.
+    *
+    * @return the number of bytes this buffer can contain.
     */
    int capacity();
 
    /**
-    * Returns the {@code readerIndex} of this buffer.
+    * @return the {@code readerIndex} of this buffer.
     */
    int readerIndex();
 
@@ -55,17 +57,19 @@ public interface ActiveMQBuffer
     *         if the specified {@code readerIndex} is
     *            less than {@code 0} or
     *            greater than {@code this.writerIndex}
+    * @param readerIndex The reader's index The reader infex
     */
    void readerIndex(int readerIndex);
 
    /**
-    * Returns the {@code writerIndex} of this buffer.
+    * @return the {@code writerIndex} of this buffer.
     */
    int writerIndex();
 
    /**
     * Sets the {@code writerIndex} of this buffer.
     *
+    * @param writerIndex The writer's index
     * @throws IndexOutOfBoundsException
     *         if the specified {@code writerIndex} is
     *            less than {@code this.readerIndex} or
@@ -118,6 +122,8 @@ public interface ActiveMQBuffer
     * buf.setIndex(2, 4);
     * </pre>
     *
+    * @param readerIndex The reader's index
+    * @param writerIndex The writer's index
     * @throws IndexOutOfBoundsException
     *         if the specified {@code readerIndex} is less than 0,
     *         if the specified {@code writerIndex} is less than the specified
@@ -127,28 +133,22 @@ public interface ActiveMQBuffer
    void setIndex(int readerIndex, int writerIndex);
 
    /**
-    * Returns the number of readable bytes which is equal to
-    * {@code (this.writerIndex - this.readerIndex)}.
+    * @return the number of readable bytes which is equal to {@code (this.writerIndex - this.readerIndex)}.
     */
    int readableBytes();
 
    /**
-    * Returns the number of writable bytes which is equal to
-    * {@code (this.capacity - this.writerIndex)}.
+    * @return the number of writable bytes which is equal to {@code (this.capacity - this.writerIndex)}.
     */
    int writableBytes();
 
    /**
-    * Returns {@code true}
-    * if and only if {@code (this.writerIndex - this.readerIndex)} is greater
-    * than {@code 0}.
+    * @return {@code true} if and only if {@code (this.writerIndex - this.readerIndex)} is greater than {@code 0}.
     */
    boolean readable();
 
    /**
-    * Returns {@code true}
-    * if and only if {@code (this.capacity - this.writerIndex)} is greater
-    * than {@code 0}.
+    * @return {@code true}if and only if {@code (this.capacity - this.writerIndex)} is greater than {@code 0}.
     */
    boolean writable();
 
@@ -214,6 +214,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @return The byte at the specified index
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 1} is greater than {@code this.capacity}
@@ -225,6 +227,8 @@ public interface ActiveMQBuffer
     * buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return an unsigned byte at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 1} is greater than {@code this.capacity}
@@ -236,6 +240,8 @@ public interface ActiveMQBuffer
     * this buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return a 16-bit short integer at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 2} is greater than {@code this.capacity}
@@ -247,6 +253,8 @@ public interface ActiveMQBuffer
     * {@code index} in this buffer.  This method does not modify
     * {@code readerIndex} or {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return an unsigned 16-bit short integer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 2} is greater than {@code this.capacity}
@@ -258,6 +266,8 @@ public interface ActiveMQBuffer
     * this buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return a 32-bit integer at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 4} is greater than {@code this.capacity}
@@ -269,6 +279,8 @@ public interface ActiveMQBuffer
     * in this buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index The index into this buffer
+    * @return an unsigned 32-bit integer at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 4} is greater than {@code this.capacity}
@@ -280,6 +292,8 @@ public interface ActiveMQBuffer
     * this buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return a 64-bit long integer at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 8} is greater than {@code this.capacity}
@@ -297,6 +311,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * the source buffer (i.e. {@code this}).
     *
+    * @param index Index into the buffer
+    * @param dst The destination buffer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         if {@code index + dst.writableBytes} is greater than
@@ -315,7 +331,8 @@ public interface ActiveMQBuffer
     * the source buffer (i.e. {@code this}).
     *
     * @param length the number of bytes to transfer
-    *
+    * @param index Index into the buffer
+    * @param dst The destination buffer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0},
     *         if {@code index + length} is greater than
@@ -330,8 +347,10 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex}
     * of both the source (i.e. {@code this}) and the destination.
     *
-    * @param dstIndex the first index of the destination
-    * @param length   the number of bytes to transfer
+    * @param dst The destination bufferIndex the first index of the destination
+    * @param length  The number of bytes to transfer
+    * @param index Index into the buffer
+    * @param dstIndex The index into the destination bufferThe destination buffer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0},
@@ -349,6 +368,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer
     *
+    * @param index Index into the buffer
+    * @param dst The destination buffer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         if {@code index + dst.length} is greater than
@@ -362,8 +383,10 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex}
     * of this buffer.
     *
-    * @param dstIndex the first index of the destination
-    * @param length   the number of bytes to transfer
+    * @param dstIndex The first index of the destination
+    * @param length   The number of bytes to transfer
+    * @param index Index into the buffer
+    * @param dst The destination buffer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0},
@@ -382,6 +405,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer while the destination's {@code position} will be increased.
     *
+    * @param index Index into the buffer
+    * @param dst The destination buffer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         if {@code index + dst.remaining()} is greater than
@@ -394,6 +419,8 @@ public interface ActiveMQBuffer
     * this buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return a char at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 2} is greater than {@code this.capacity}
@@ -405,6 +432,8 @@ public interface ActiveMQBuffer
     * this buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return a float at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 4} is greater than {@code this.capacity}
@@ -416,6 +445,8 @@ public interface ActiveMQBuffer
     * this buffer.  This method does not modify {@code readerIndex} or
     * {@code writerIndex} of this buffer.
     *
+    * @param index Index into the buffer
+    * @return a double at the specified absolute {@code index}
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 8} is greater than {@code this.capacity}
@@ -428,6 +459,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param value The specified byte
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 1} is greater than {@code this.capacity}
@@ -440,6 +473,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param value The specified 16-bit short integer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 2} is greater than {@code this.capacity}
@@ -452,6 +487,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param value The specified 32-bit integer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 4} is greater than {@code this.capacity}
@@ -464,6 +501,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param value The specified 64-bit long integer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 8} is greater than {@code this.capacity}
@@ -481,6 +520,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * the source buffer (i.e. {@code this}).
     *
+    * @param index Index into the buffer
+    * @param src The source buffer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         if {@code index + src.readableBytes} is greater than
@@ -499,6 +540,8 @@ public interface ActiveMQBuffer
     * the source buffer (i.e. {@code this}).
     *
     * @param length the number of bytes to transfer
+    * @param index Index into the buffer
+    * @param src The source buffer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0},
@@ -514,8 +557,10 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex}
     * of both the source (i.e. {@code this}) and the destination.
     *
-    * @param srcIndex the first index of the source
-    * @param length   the number of bytes to transfer
+    * @param src The source bufferIndex the first index of the source
+    * @param length  The number of bytes to transfer
+    * @param index Index into the buffer
+    * @param srcIndex The source buffer index
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0},
@@ -533,6 +578,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param src The source buffer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         if {@code index + src.length} is greater than
@@ -545,6 +592,11 @@ public interface ActiveMQBuffer
     * the specified absolute {@code index}.
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
+    *
+    * @param index Index into the buffer
+    * @param src The source buffer
+    * @param srcIndex The source buffer index
+    * @param length The number of bytes to transfer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0},
@@ -562,6 +614,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param src The source buffer
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         if {@code index + src.remaining()} is greater than
@@ -575,6 +629,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param value The specified char
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 2} is greater than {@code this.capacity}
@@ -587,6 +643,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param value The specified float
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 4} is greater than {@code this.capacity}
@@ -599,6 +657,8 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @param index Index into the buffer
+    * @param value The specified double
     * @throws IndexOutOfBoundsException
     *         if the specified {@code index} is less than {@code 0} or
     *         {@code index + 8} is greater than {@code this.capacity}
@@ -609,6 +669,7 @@ public interface ActiveMQBuffer
     * Gets a byte at the current {@code readerIndex} and increases
     * the {@code readerIndex} by {@code 1} in this buffer.
     *
+    * @return a byte at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 1}
     */
@@ -618,6 +679,7 @@ public interface ActiveMQBuffer
     * Gets an unsigned byte at the current {@code readerIndex} and increases
     * the {@code readerIndex} by {@code 1} in this buffer.
     *
+    * @return an unsigned byte at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 1}
     */
@@ -627,6 +689,7 @@ public interface ActiveMQBuffer
     * Gets a 16-bit short integer at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 2} in this buffer.
     *
+    * @return a 16-bit short integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 2}
     */
@@ -636,6 +699,7 @@ public interface ActiveMQBuffer
     * Gets an unsigned 16-bit short integer at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 2} in this buffer.
     *
+    * @return an unsigned 16-bit short integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 2}
     */
@@ -645,6 +709,7 @@ public interface ActiveMQBuffer
     * Gets a 32-bit integer at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 4} in this buffer.
     *
+    * @return a 32-bit integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 4}
     */
@@ -654,6 +719,7 @@ public interface ActiveMQBuffer
     * Gets an unsigned 32-bit integer at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 4} in this buffer.
     *
+    * @return an unsigned 32-bit integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 4}
     */
@@ -663,6 +729,7 @@ public interface ActiveMQBuffer
     * Gets a 64-bit integer at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 8} in this buffer.
     *
+    * @return a 64-bit integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 8}
     */
@@ -672,6 +739,7 @@ public interface ActiveMQBuffer
     * Gets a char at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 2} in this buffer.
     *
+    * @return a char at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 2}
     */
@@ -681,6 +749,7 @@ public interface ActiveMQBuffer
     * Gets a float at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 4} in this buffer.
     *
+    * @return a float at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 4}
     */
@@ -690,6 +759,7 @@ public interface ActiveMQBuffer
     * Gets a double at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 8} in this buffer.
     *
+    * @return a double at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 8}
     */
@@ -699,6 +769,7 @@ public interface ActiveMQBuffer
     * Gets a boolean at the current {@code readerIndex}
     * and increases the {@code readerIndex} by {@code 1} in this buffer.
     *
+    * @return a boolean at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException
     *         if {@code this.readableBytes} is less than {@code 1}
     */
@@ -706,26 +777,36 @@ public interface ActiveMQBuffer
 
    /**
     * Gets a SimpleString (potentially {@code null}) at the current {@code readerIndex}
+    *
+    * @return a SimpleString (potentially {@code null}) at the current {@code readerIndex}
     */
    SimpleString readNullableSimpleString();
 
    /**
     * Gets a String (potentially {@code null}) at the current {@code readerIndex}
+    *
+    * @return a String (potentially {@code null}) at the current {@code readerIndex}
     */
    String readNullableString();
 
    /**
     * Gets a non-null SimpleString at the current {@code readerIndex}
+    *
+    * @return a non-null SimpleString at the current {@code readerIndex}
     */
    SimpleString readSimpleString();
 
    /**
     * Gets a non-null String at the current {@code readerIndex}
+    *
+    * @return a non-null String at the current {@code readerIndex}
     */
    String readString();
 
    /**
     * Gets a UTF-8 String at the current {@code readerIndex}
+    *
+    * @return a UTF-8 String at the current {@code readerIndex}
     */
    String readUTF();
 
@@ -737,7 +818,7 @@ public interface ActiveMQBuffer
     * {@code 0} and {@code length} respectively.
     *
     * @param length the number of bytes to transfer
-    *
+
     * @return the newly created buffer which contains the transferred bytes
     *
     * @throws IndexOutOfBoundsException
@@ -769,6 +850,7 @@ public interface ActiveMQBuffer
     * the transferred bytes while {@link #readBytes(ActiveMQBuffer, int, int)}
     * does not.
     *
+    * @param dst The destination buffer
     * @throws IndexOutOfBoundsException
     *         if {@code dst.writableBytes} is greater than
     *            {@code this.readableBytes}
@@ -784,6 +866,8 @@ public interface ActiveMQBuffer
     * destination by the number of the transferred bytes (= {@code length})
     * while {@link #readBytes(ActiveMQBuffer, int, int)} does not.
     *
+    * @param dst The destination buffer
+    * @param length The number of bytes to transfer
     * @throws IndexOutOfBoundsException
     *         if {@code length} is greater than {@code this.readableBytes} or
     *         if {@code length} is greater than {@code dst.writableBytes}
@@ -795,8 +879,9 @@ public interface ActiveMQBuffer
     * the current {@code readerIndex} and increases the {@code readerIndex}
     * by the number of the transferred bytes (= {@code length}).
     *
-    * @param dstIndex the first index of the destination
+    * @param dstIndex The destination buffer index
     * @param length   the number of bytes to transfer
+    * @param dst The destination buffer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code dstIndex} is less than {@code 0},
@@ -811,6 +896,7 @@ public interface ActiveMQBuffer
     * the current {@code readerIndex} and increases the {@code readerIndex}
     * by the number of the transferred bytes (= {@code dst.length}).
     *
+    * @param dst The destination buffer
     * @throws IndexOutOfBoundsException
     *         if {@code dst.length} is greater than {@code this.readableBytes}
     */
@@ -821,8 +907,9 @@ public interface ActiveMQBuffer
     * the current {@code readerIndex} and increases the {@code readerIndex}
     * by the number of the transferred bytes (= {@code length}).
     *
-    * @param dstIndex the first index of the destination
+    * @param dstIndex The destination bufferIndex
     * @param length   the number of bytes to transfer
+    * @param dst The destination buffer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code dstIndex} is less than {@code 0},
@@ -837,6 +924,7 @@ public interface ActiveMQBuffer
     * reaches its limit, and increases the {@code readerIndex} by the
     * number of the transferred bytes.
     *
+    * @param dst The destination buffer
     * @throws IndexOutOfBoundsException
     *         if {@code dst.remaining()} is greater than
     *            {@code this.readableBytes}
@@ -847,6 +935,7 @@ public interface ActiveMQBuffer
     * Increases the current {@code readerIndex} by the specified
     * {@code length} in this buffer.
     *
+    * @param length The number of bytes to skip
     * @throws IndexOutOfBoundsException
     *         if {@code length} is greater than {@code this.readableBytes}
     */
@@ -856,6 +945,7 @@ public interface ActiveMQBuffer
     * Sets the specified byte at the current {@code writerIndex}
     * and increases the {@code writerIndex} by {@code 1} in this buffer.
     *
+    * @param value The specified byte
     * @throws IndexOutOfBoundsException
     *         if {@code this.writableBytes} is less than {@code 1}
     */
@@ -866,6 +956,7 @@ public interface ActiveMQBuffer
     * {@code writerIndex} and increases the {@code writerIndex} by {@code 2}
     * in this buffer.
     *
+    * @param value The specified 16-bit short integer
     * @throws IndexOutOfBoundsException
     *         if {@code this.writableBytes} is less than {@code 2}
     */
@@ -875,6 +966,7 @@ public interface ActiveMQBuffer
     * Sets the specified 32-bit integer at the current {@code writerIndex}
     * and increases the {@code writerIndex} by {@code 4} in this buffer.
     *
+    * @param value The specified 32-bit integer
     * @throws IndexOutOfBoundsException
     *         if {@code this.writableBytes} is less than {@code 4}
     */
@@ -885,6 +977,7 @@ public interface ActiveMQBuffer
     * {@code writerIndex} and increases the {@code writerIndex} by {@code 8}
     * in this buffer.
     *
+    * @param value The specified 64-bit long integer
     * @throws IndexOutOfBoundsException
     *         if {@code this.writableBytes} is less than {@code 8}
     */
@@ -894,6 +987,7 @@ public interface ActiveMQBuffer
     * Sets the specified char at the current {@code writerIndex}
     * and increases the {@code writerIndex} by {@code 2} in this buffer.
     *
+    * @param chr The specified char
     * @throws IndexOutOfBoundsException
     *         if {@code this.writableBytes} is less than {@code 2}
     */
@@ -903,6 +997,7 @@ public interface ActiveMQBuffer
     * Sets the specified float at the current {@code writerIndex}
     * and increases the {@code writerIndex} by {@code 4} in this buffer.
     *
+    * @param value The specified float
     * @throws IndexOutOfBoundsException
     *         if {@code this.writableBytes} is less than {@code 4}
     */
@@ -912,6 +1007,7 @@ public interface ActiveMQBuffer
     * Sets the specified double at the current {@code writerIndex}
     * and increases the {@code writerIndex} by {@code 8} in this buffer.
     *
+    * @param value The specified double
     * @throws IndexOutOfBoundsException
     *         if {@code this.writableBytes} is less than {@code 8}
     */
@@ -919,31 +1015,42 @@ public interface ActiveMQBuffer
 
    /**
     * Sets the specified boolean at the current {@code writerIndex}
+    * @param val The specified boolean
     */
    void writeBoolean(boolean val);
 
    /**
     * Sets the specified SimpleString (potentially {@code null}) at the current {@code writerIndex}
+    *
+    * @param val The specified SimpleString
     */
    void writeNullableSimpleString(SimpleString val);
 
    /**
     * Sets the specified String (potentially {@code null}) at the current {@code writerIndex}
+    *
+    * @param val The specified String
     */
    void writeNullableString(String val);
 
    /**
     * Sets the specified non-null SimpleString at the current {@code writerIndex}
+    *
+    * @param val The specified non-null SimpleString
     */
    void writeSimpleString(SimpleString val);
 
    /**
     * Sets the specified non-null String at the current {@code writerIndex}
+    *
+    * @param val The specified non-null String
     */
    void writeString(String val);
 
    /**
     * Sets the specified UTF-8 String at the current {@code writerIndex}
+    *
+    * @param utf The specified UTF-8 String
     */
 
    void writeUTF(String utf);
@@ -958,7 +1065,7 @@ public interface ActiveMQBuffer
     * {@link #writeBytes(ActiveMQBuffer, int, int)} does not.
     *
     * @param length the number of bytes to transfer
-    *
+    * @param src The source buffer
     * @throws IndexOutOfBoundsException
     *         if {@code length} is greater than {@code this.writableBytes} or
     *         if {@code length} is greater then {@code src.readableBytes}
@@ -972,6 +1079,7 @@ public interface ActiveMQBuffer
     *
     * @param srcIndex the first index of the source
     * @param length   the number of bytes to transfer
+    * @param src The source buffer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code srcIndex} is less than {@code 0},
@@ -986,6 +1094,7 @@ public interface ActiveMQBuffer
     * the current {@code writerIndex} and increases the {@code writerIndex}
     * by the number of the transferred bytes (= {@code src.length}).
     *
+    * @param src The source buffer
     * @throws IndexOutOfBoundsException
     *         if {@code src.length} is greater than {@code this.writableBytes}
     */
@@ -998,6 +1107,7 @@ public interface ActiveMQBuffer
     *
     * @param srcIndex the first index of the source
     * @param length   the number of bytes to transfer
+    * @param src The source buffer
     *
     * @throws IndexOutOfBoundsException
     *         if the specified {@code srcIndex} is less than {@code 0},
@@ -1013,6 +1123,7 @@ public interface ActiveMQBuffer
     * reaches its limit, and increases the {@code writerIndex} by the
     * number of the transferred bytes.
     *
+    * @param src The source buffer
     * @throws IndexOutOfBoundsException
     *         if {@code src.remaining()} is greater than
     *            {@code this.writableBytes}
@@ -1026,6 +1137,7 @@ public interface ActiveMQBuffer
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
     *
+    * @return a copy of this buffer's readable bytes.
     */
    ActiveMQBuffer copy();
 
@@ -1034,6 +1146,10 @@ public interface ActiveMQBuffer
     * the returned buffer or this buffer does not affect each other at all.
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
+    *
+    * @param index Index into the buffer
+    * @param length The number of bytes to copy
+    * @return a copy of this buffer's readable bytes.
     */
    ActiveMQBuffer copy(int index, int length);
 
@@ -1044,6 +1160,8 @@ public interface ActiveMQBuffer
     * identical to {@code buf.slice(buf.readerIndex(), buf.readableBytes())}.
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
+    *
+    * @return a slice of this buffer's readable bytes
     */
    ActiveMQBuffer slice();
 
@@ -1053,6 +1171,10 @@ public interface ActiveMQBuffer
     * they maintain separate indexes and marks.
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
+    *
+    * @param index Index into the buffer
+    * @param length The number of bytes
+    * @return a slice of this buffer's sub-region.
     */
    ActiveMQBuffer slice(int index, int length);
 
@@ -1063,6 +1185,8 @@ public interface ActiveMQBuffer
     * This method is identical to {@code buf.slice(0, buf.capacity())}.
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
+    *
+    * @return a buffer which shares the whole region of this buffer.
     */
    ActiveMQBuffer duplicate();
 
@@ -1073,6 +1197,8 @@ public interface ActiveMQBuffer
     * {@code buf.toByteBuffer(buf.readerIndex(), buf.readableBytes())}.
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
+    *
+    * @return A converted NIO ByteBuffer
     */
    ByteBuffer toByteBuffer();
 
@@ -1082,6 +1208,10 @@ public interface ActiveMQBuffer
     * they have separate indexes and marks.
     * This method does not modify {@code readerIndex} or {@code writerIndex} of
     * this buffer.
+    *
+    * @param index Index into the buffer
+    * @param length The number of bytes
+    * @return A converted NIO Buffer
     */
    ByteBuffer toByteBuffer(int index, int length);
 }

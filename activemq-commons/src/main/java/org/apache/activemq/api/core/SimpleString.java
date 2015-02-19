@@ -52,6 +52,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * If {@code string} is {@code null}, the return value will be {@code null} too.
     *
     * @param string String used to instantiate a SimpleString.
+    * @return A new SimpleString
     */
    public static SimpleString toSimpleString(final String string)
    {
@@ -267,7 +268,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * Splits this SimpleString into an array of SimpleString using the char param as the delimiter.
     * i.e. "a.b" would return "a" and "b" if . was the delimiter
     *
-    * @param delim
+    * @param delim The delimiter to split this SimpleString on.
+    * @return An array of SimpleStrings
     */
    public SimpleString[] split(final char delim)
    {
@@ -419,10 +421,10 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * This method performs a similar function to {@link String#getChars(int, int, char[], int)}.
     * This is mainly used by the Parsers on Filters
     *
-    * @param srcBegin
-    * @param srcEnd
-    * @param dst
-    * @param dstPos
+    * @param srcBegin The srcBegin
+    * @param srcEnd The srcEnd
+    * @param dst The destination array
+    * @param dstPos The destination position
     */
    public void getChars(final int srcBegin, final int srcEnd, final char[] dst, final int dstPos)
    {

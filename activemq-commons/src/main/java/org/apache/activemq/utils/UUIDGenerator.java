@@ -61,6 +61,8 @@ public final class UUIDGenerator
 
    /**
     * Method used for accessing the singleton generator instance.
+    *
+    * @return Instance of UUID Generator
     */
    public static UUIDGenerator getInstance()
    {
@@ -77,7 +79,9 @@ public final class UUIDGenerator
     * the UUIDs. This way the initialization cost is only taken once; access
     * need not be synchronized (or in cases where it has to, SecureRandom takes
     * care of it); it might even be good for getting really 'random' stuff to
-    * get shared access...
+    * get shared access..
+    *
+    * @return A Random number generator.
     */
    public Random getRandomNumberGenerator()
    {
@@ -135,6 +139,8 @@ public final class UUIDGenerator
    /**
     * If running java 6 or above, returns {@link NetworkInterface#getHardwareAddress()}, else return {@code null}.
     * The first hardware address is returned when iterating all the NetworkInterfaces
+    *
+    * @return A byte array containing teh hardware address.
     */
    public static byte[] getHardwareAddress()
    {

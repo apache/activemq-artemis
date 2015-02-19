@@ -20,7 +20,6 @@ package org.apache.activemq.api.core;
  * A PropertyConversionException is thrown by {@code org.apache.activemq.api.core.Message} methods when a
  * property can not be converted to the expected type.
  * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @see org.apache.activemq.api.core.Message
  */
 public final class ActiveMQPropertyConversionException extends RuntimeException
 {

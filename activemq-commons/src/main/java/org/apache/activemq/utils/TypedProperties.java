@@ -1152,11 +1152,11 @@ public final class TypedProperties
    }
 
    /**
-    * Helper for {@link MapMessage#setObjectProperty(String, Object)}
+    * Helper for MapMessage#setObjectProperty(String, Object)
     *
-    * @param key
-    * @param value
-    * @param properties
+    * @param key The SimpleString key
+    * @param value The Object value
+    * @param properties The typed properties
     */
    public static void setObjectProperty(final SimpleString key, final Object value, final TypedProperties properties)
    {
