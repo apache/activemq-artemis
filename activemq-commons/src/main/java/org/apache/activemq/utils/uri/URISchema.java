@@ -102,10 +102,10 @@ public abstract class URISchema<T, P>
    /**
     * It will create a new Object for the URI selected schema.
     * the propertyOverrides is used to replace whatever was defined on the URL string
-    * @param uri
-    * @param propertyOverrides
-    * @return
-    * @throws Exception
+    * @param uri The URI
+    * @param propertyOverrides  used to replace whatever was defined on the URL string
+    * @return new Object
+    * @throws Exception On error
     */
    public  T newObject(URI uri, Map<String, String> propertyOverrides, P param) throws Exception
    {

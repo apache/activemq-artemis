@@ -216,7 +216,7 @@ public final class UUID
    /**
     * Creates a 128bit number from the String representation of {@link UUID}.
     *
-    * @param uuid
+    * @param uuid The UUID
     * @return byte array that can be used to recreate a UUID instance from the given String
     * representation
     */

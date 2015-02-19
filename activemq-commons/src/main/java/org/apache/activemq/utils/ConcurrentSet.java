@@ -24,7 +24,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
- * @param <E>
+ * @param <E> The generic class
  */
 public interface ConcurrentSet<E> extends Set<E>
 {
