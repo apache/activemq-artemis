@@ -15,11 +15,7 @@ ActiveMQ provides native support for Stomp. To be able to send and
 receive Stomp messages, you must configure a `NettyAcceptor` with a
 `protocols` parameter set to have `stomp`:
 
-    <acceptor name="stomp-acceptor">
-       <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-       <param key="protocols"  value="STOMP"/>
-       <param key="port"  value="61613"/>
-    </acceptor>
+    <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP</acceptor>
 
 With this configuration, ActiveMQ will accept Stomp connections on the
 port `61613` (which is the default port of the Stomp brokers).
@@ -74,18 +70,13 @@ a connection-ttl value of 1 minute (see chapter on
 [connection-ttl](#connection-ttl) for more information. This value can
 be overridden using connection-ttl-override.
 
-If you need a specific connection-ttl for your stomp connections without
-affecting the connection-ttl-override setting, you can configure your
-stomp acceptor with the "connection-ttl" property, which is used to set
+If you need a specific connectionTtl for your stomp connections without
+affecting the connectionTtlOverride setting, you can configure your
+stomp acceptor with the "connectionTtl" property, which is used to set
 the ttl for connections that are created from that acceptor. For
 example:
 
-    <acceptor name="stomp-acceptor">
-       <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-       <param key="protocols"  value="STOMP"/>
-       <param key="port"  value="61613"/>
-       <param key="connection-ttl"  value="20000"/>
-    </acceptor>
+    <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;connectionTtl=20000</acceptor>
 
 The above configuration will make sure that any stomp connection that is
 created from that acceptor will have its connection-ttl set to 20
@@ -158,14 +149,9 @@ messages have no properties like JMSMessageID by default. However this
 may bring some inconvenience to clients who wants an ID for their
 purpose. ActiveMQ Stomp provides a parameter to enable message ID on
 each incoming Stomp message. If you want each Stomp message to have a
-unique ID, just set the `stomp-enable-message-id` to true. For example:
+unique ID, just set the `stompEnableMessageId` to true. For example:
 
-    <acceptor name="stomp-acceptor">
-       <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-       <param key="protocols" value="STOMP"/>
-       <param key="port" value="61613"/>
-       <param key="stomp-enable-message-id" value="true"/>
-    </acceptor>
+    <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;stompEnableMessageId=true</acceptor>
 
 When the server starts with the above setting, each stomp message sent
 through this acceptor will have an extra property added. The property
@@ -183,28 +169,23 @@ default is `false`.
 Stomp clients may send very large bodys of frames which can exceed the
 size of ActiveMQ server's internal buffer, causing unexpected errors. To
 prevent this situation from happening, ActiveMQ provides a stomp
-configuration attribute `stomp-min-large-message-size`. This attribute
+configuration attribute `stompMinLargeMessageSize`. This attribute
 can be configured inside a stomp acceptor, as a parameter. For example:
 
-       <acceptor name="stomp-acceptor">
-       <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-       <param key="protocols" value="STOMP"/>
-       <param key="port" value="61613"/>
-       <param key="stomp-min-large-message-size" value="10240"/>
-    </acceptor>
+       <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;stompMinLargeMessageSize=10240</acceptor>
 
 The type of this attribute is integer. When this attributed is
 configured, ActiveMQ server will check the size of the body of each
 Stomp frame arrived from connections established with this acceptor. If
 the size of the body is equal or greater than the value of
-`stomp-min-large-message`, the message will be persisted as a large
+`stompMinLargeMessageSize`, the message will be persisted as a large
 message. When a large message is delievered to a stomp consumer, the
 HorentQ server will automatically handle the conversion from a large
 message to a normal message, before sending it to the client.
 
 If a large message is compressed, the server will uncompressed it before
 sending it to stomp clients. The default value of
-`stomp-min-large-message-size` is the same as the default value of
+`stompMinLargeMessageSize` is the same as the default value of
 [min-large-message-size](#large-messages.core.config).
 
 ### Stomp Over Web Sockets
@@ -216,11 +197,7 @@ support Web Sockets can send and receive Stomp messages from ActiveMQ.
 To enable Stomp over Web Sockets, you must configure a `NettyAcceptor`
 with a `protocol` parameter set to `stomp_ws`:
 
-    <acceptor name="stomp-ws-acceptor">
-       <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-       <param key="protocols" value="STOMP_WS"/>
-       <param key="port" value="61614"/>
-    </acceptor>
+    <acceptor name="stomp-ws-acceptor">tcp://localhost:61614?protocols=STOMP_WS</acceptor>
 
 With this configuration, ActiveMQ will accept Stomp connections over Web
 Sockets on the port `61614` with the URL path `/stomp`. Web browser can
@@ -269,11 +246,7 @@ ActiveMQ supports the [AMQP
 specification. To enable AMQP you must configure a Netty Acceptor to
 receive AMQP clients, like so:
 
-    <acceptor name="stomp-acceptor">
-    <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-    <param key="protocols"  value="AMQP"/>
-    <param key="port"  value="5672"/>
-    </acceptor>
+    <acceptor name="stomp-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
             
 
 ActiveMQ will then accept AMQP 1.0 clients on port 5672 which is the
@@ -331,11 +304,7 @@ ActiveMQ now supports the
 ActiveMQ JMS client can talk directly to a ActiveMQ server. To enable
 OpenWire support you must configure a Netty Acceptor, like so:
 
-    <acceptor name="openwire-acceptor">
-    <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-    <param key="protocols"  value="OPENWIRE"/>
-    <param key="port"  value="61616"/>
-    </acceptor>
+    <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
             
 
 The ActiveMQ server will then listens on port 61616 for incoming

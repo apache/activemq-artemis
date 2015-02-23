@@ -37,25 +37,11 @@ under the License.
            <code>
       &lt;!-- Connector --&gt;
 
-      &lt;connector name=&quot;netty-ssl-connector&quot;&gt;
-         &lt;factory-class&gt;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory&lt;/factory-class&gt;
-         &lt;param key=&quot;activemq.remoting.netty.host&quot; value=&quot;localhost&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.trust-store-path&quot; value=&quot;server0/activemq.example.truststore&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.trust-store-password&quot; value=&quot;activemqexample&quot; type=&quot;String&quot;/&gt;
-      &lt;/connector&gt;
+      &lt;connector name=&quot;netty-ssl-connector&quot;&gt;tcp://localhost:5500?sslEnabled=true;keyStorePath=activemq/server0/activemq.example.keystore;keyStorePassword=activemqexample&lt;/connector&gt;
 
       &lt;!-- Acceptor --&gt;
 
-      &lt;acceptor name=&quot;netty-ssl-acceptor&quot;&gt;
-         &lt;factory-class&gt;org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
-         &lt;param key=&quot;activemq.remoting.netty.host&quot; value=&quot;localhost&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.port&quot; value=&quot;5500&quot; type=&quot;Integer&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.ssl-enabled&quot; value=&quot;true&quot; type=&quot;Boolean&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.key-store-path&quot; value=&quot;activemq.example.keystore&quot; type=&quot;String&quot;/&gt;
-         &lt;param key=&quot;activemq.remoting.netty.key-store-password&quot; value=&quot;activemqexample&quot; type=&quot;String&quot;/&gt;
-      &lt;/acceptor&gt;
+      &lt;acceptor name=&quot;netty-ssl-acceptor&quot;&gt;tcp://localhost:5500?sslEnabled=true;keyStorePath=activemq/server0/activemq.example.keystore;keyStorePassword=activemqexample&lt;/acceptor&gt;
 
            </code>
         </pre>

@@ -32,10 +32,7 @@ under the License.
      <p>The example will start a ActiveMQ server configured with Stomp over Web Sockets and JMS. Web browsers clients and
        Java application will exchange message using a JMS Topic.</p></para>
      <pre class="prettyprint">
-&lt;acceptor name="stomp-websocket">
-   &lt;factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class>
-   &lt;param key="port" value="61614"/>
-&lt;/acceptor></pre>
+&lt;acceptor name="stomp-websocket">tcp://localhost:61614&lt;/acceptor></pre>
      
      <h2>Example step-by-step</h2>
 
