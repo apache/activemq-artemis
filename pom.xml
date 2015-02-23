@@ -443,37 +443,10 @@
 
    <profiles>
       <profile>
-         <id>default</id>
+         <id>distro</id>
          <activation>
             <activeByDefault>true</activeByDefault>
          </activation>
-         <modules>
-            <module>activemq-dto</module>
-            <module>activemq-web</module>
-            <module>activemq-website</module>
-            <module>activemq-bootstrap</module>
-            <module>activemq-commons</module>
-            <module>activemq-selector</module>
-            <module>activemq-core-client</module>
-            <module>activemq-server</module>
-            <module>activemq-jms-client</module>
-            <module>activemq-jms-server</module>
-            <module>activemq-journal</module>
-            <module>activemq-native</module>
-            <module>activemq-ra</module>
-            <module>activemq-rest</module>
-            <module>activemq-tools</module>
-            <module>activemq-service-extensions</module>
-            <module>activemq-maven-plugin</module>
-            <!-- <module>integration/activemq-jboss-as-integration</module> -->
-            <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
-            <module>tests</module>
-         </modules>
-      </profile>
-      <profile>
-         <id>distro</id>
          <modules>
             <module>activemq-dto</module>
             <module>activemq-web</module>
@@ -624,15 +597,6 @@
          </modules>
          <properties>
             <skipTests>true</skipTests>
-         </properties>
-      </profile>
-      <profile>
-         <id>jdk8</id>
-         <activation>
-            <jdk>1.8</jdk>
-         </activation>
-         <properties>
-            <javadoc.opts>-Xdoclint:none</javadoc.opts>
          </properties>
       </profile>
    </profiles>
@@ -793,19 +757,39 @@
 
       <plugins>
          <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-enforcer-plugin</artifactId>
+           <version>1.4</version>
+           <executions>
+             <execution>
+               <id>enforce-java</id>
+               <goals>
+                 <goal>enforce</goal>
+               </goals>
+               <configuration>
+                 <rules>
+                   <requireJavaVersion>
+                     <version>1.8.0</version>
+                   </requireJavaVersion>
+                 </rules>
+               </configuration>
+             </execution>
+           </executions>
+         </plugin>
+         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
                <showWarnings>true</showWarnings>
-               <source>1.7</source>
-               <target>1.7</target>
+               <source>1.8</source>
+               <target>1.8</target>
             </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
-               <additionalparam>${javadoc.opts}</additionalparam>
+               <additionalparam>-Xdoclint:none</additionalparam>
             </configuration>
          </plugin>
          <plugin>
@@ -993,7 +977,7 @@
                <aggregate>true</aggregate>
                <excludePackageNames>com.restfully.*:org.jboss.resteasy.examples.*:org.jboss.resteasy.tests.*
                </excludePackageNames>
-               <additionalparam>${javadoc.opts}</additionalparam>
+               <additionalparam>-Xdoclint:none</additionalparam>
             </configuration>
          </plugin>
          <plugin>
