@@ -93,44 +93,11 @@ files.
     configuration file. All the parameters in this file are described in
     ?. Please see ? for more information on this file.
 
--   `activemq-queues.xml`. This file contains predefined queues, queue
-    settings and security settings. The file is optional - all this
-    configuration can also live in `activemq-configuration.xml`. In
-    fact, the default configuration sets do not have a
-    `activemq-queues.xml` file. The purpose of allowing queues to be
-    configured in these files is to allow you to manage your queue
-    configuration over many files instead of being forced to maintain it
-    in a single file. There can be many `activemq-queues.xml` files on
-    the classpath. All will be loaded if found.
-
--   `activemq-users.xml` ActiveMQ ships with a basic security manager
-    implementation which obtains user credentials from the
-    `activemq-users.xml` file. This file contains user, password and
-    role information. For more information on security, please see ?.
-
--   `activemq-jms.xml` The distro configuration by default includes a
-    server side JMS service which mainly deploys JMS Queues, Topics and
-    ConnectionFactorys from this file into JNDI. If you're not using
-    JMS, or you don't need to deploy JMS objects on the server side,
-    then you don't need this file. For more information on using JMS,
-    please see the section on [Logging](logging.md).
-
-> **Note**
->
-> The property `file-deployment-enabled` in the
-> `activemq-configuration.xml` configuration when set to false means
-> that the other configuration files are not loaded. This is true by
-> default.
-
 It is also possible to use system property substitution in all the
 configuration files. by replacing a value with the name of a system
 property. Here is an example of this with a connector configuration:
 
-    <connector name="netty">
-       <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-       <param key="host" value="${activemq.remoting.netty.host:localhost}"/>
-       <param key="port" value="${activemq.remoting.netty.port:5445}"/>
-    </connector>
+    <connector name="netty">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}</connector>
 
 Here you can see we have replaced 2 values with system properties
 `activemq.remoting.netty.host` and `activemq.remoting.netty.port`. These

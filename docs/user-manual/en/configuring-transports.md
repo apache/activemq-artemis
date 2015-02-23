@@ -14,12 +14,7 @@ One of the most important concepts in ActiveMQ transports is the
 defined in xml in the configuration file `activemq-configuration.xml`.
 
     <acceptors>
-       <acceptor name="netty">
-          <factory-class>
-             org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory
-          </factory-class>
-          <param key="port" value="5446"/>
-       </acceptor>
+       <acceptor name="netty">tcp://localhost:5446</acceptor>
     </acceptors>
 
 Acceptors are always defined inside an `acceptors` element. There can be
@@ -33,26 +28,20 @@ In the above example we're defining an acceptor that uses
 [Netty](http://netty.io/) to listen for connections at port
 `5446`.
 
-The `acceptor` element contains a sub-element `factory-class`, this
-element defines the factory used to create acceptor instances. In this
-case we're using Netty to listen for connections so we use the Netty
-implementation of an `AcceptorFactory` to do this. Basically, the
-`factory-class` element determines which pluggable transport we're going
-to use to do the actual listening.
+The `acceptor` element contains a `URI` that defines the kind of Acceptor
+to create along with its configuration. The `schema` part of the `URI`
+defines the Acceptor type which can either be `tcp` or `vm` which is
+`Netty` or an In VM Acceptor respectively. For `Netty` teh host and the
+port of the `URI` define what host and port the Acceptor will bind to. For
+In VM the `Authority` part of the `URI` defines a unique server id.
 
-The `acceptor` element can also be configured with zero or more `param`
-sub-elements. Each `param` element defines a key-value pair. These
-key-value pairs are used to configure the specific transport, the set of
+The `acceptor` can also be configured with a set of key, value pairs
+used to configure the specific transport, the set of
 valid key-value pairs depends on the specific transport be used and are
-passed straight through to the underlying transport.
+passed straight through to the underlying transport. These are set on the
+`URI` as part of the query, like so:
 
-Examples of key-value pairs for a particular transport would be, say, to
-configure the IP address to bind to, or the port to listen at.
-
-Note that unlike versions before 2.4 an Acceptor can now support
-multiple protocols. By default this will be all available protocols but
-can be limited by either the now deprecated `protocol` param or by
-setting a comma seperated list to the newly added `protocols` parameter.
+    <acceptor name="netty">tcp://localhost:5446?sslEnabled=true;key-store-path=/path</acceptor>
 
 ## Understanding Connectors
 
@@ -64,12 +53,7 @@ Let's look at a connector defined in our `activemq-configuration.xml`
 file:
 
     <connectors>
-       <connector name="netty">
-          <factory-class>
-             org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory
-          </factory-class>
-          <param key="port" value="5446"/>
-       </connector>
+       <connector name="netty">tcp://localhost:5446</connector>
     </connectors>
 
 Connectors can be defined inside a `connectors` element. There can be
@@ -98,7 +82,7 @@ couple of reasons for this:
     simple example:
 
         java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-        java.naming.provider.url=tcp://myhost:5445
+        connectionFactory.MyConnectionFactory=tcp://myhost:5445
 
 ## Configuring the transport directly from the client side.
 
@@ -171,7 +155,7 @@ We believe this caters for the vast majority of transport requirements.
 
 ## Single Port Support
 
-As of version 2.4 ActiveMQ now supports using a single port for all
+ActiveMQ supports using a single port for all
 protocols, ActiveMQ will automatically detect which protocol is being
 used CORE, AMQP, STOMP or OPENWIRE and use the appropriate ActiveMQ
 handler. It will also detect whether protocols such as HTTP or Web
@@ -180,8 +164,8 @@ Sockets are being used and also use the appropriate decoders
 It is possible to limit which protocols are supported by using the
 `protocols` parameter on the Acceptor like so:
 
-        <param key="protocols" value="CORE,AMQP"/>
-                
+        <connector name="netty">tcp://localhost:5446?protocols=CORE,AMQP</connector>
+
 
 > **Note**
 >
@@ -210,6 +194,11 @@ All the valid Netty transport keys are defined in the class
 parameters can be used either with acceptors or connectors, some only
 work with acceptors. The following parameters can be used to configure
 Netty for simple TCP:
+
+> **Note**
+>
+> The `host` and `port` parameters are only used in the core API, in
+> XML configuration these are set in the URI host and port.
 
 -   `use-nio`. If this is `true` then Java non blocking NIO will be
     used. If set to `false` then old blocking Java IO will be used.
@@ -245,13 +234,13 @@ Netty for simple TCP:
     connector) or to listen on (when configuring an acceptor). The
     default value for this property is `5445`.
 
--   `tcp-no-delay`. If this is `true` then [Nagle's
+-   `tcpNoDelay`. If this is `true` then [Nagle's
     algorithm](http://en.wikipedia.org/wiki/Nagle%27s_algorithm) will be
     disabled. This is a [Java (client) socket
     option](http://docs.oracle.com/javase/7/docs/technotes/guides/net/socketOpt.html).
     The default value for this property is `true`.
 
--   `tcp-send-buffer-size`. This parameter determines the size of the
+-   `tcpSendBufferSize`. This parameter determines the size of the
     TCP send buffer in bytes. The default value for this property is
     `32768` bytes (32KiB).
 
@@ -270,18 +259,18 @@ Netty for simple TCP:
     For fast networks you may want to increase the buffer sizes from the
     defaults.
 
--   `tcp-receive-buffer-size`. This parameter determines the size of the
+-   `tcpReceiveBufferSize`. This parameter determines the size of the
     TCP receive buffer in bytes. The default value for this property is
     `32768` bytes (32KiB).
 
--   `batch-delay`. Before writing packets to the transport, ActiveMQ can
+-   `batchDelay`. Before writing packets to the transport, ActiveMQ can
     be configured to batch up writes for a maximum of `batch-delay`
     milliseconds. This can increase overall throughput for very small
     messages. It does so at the expense of an increase in average
     latency for message transfer. The default value for this property is
     `0` ms.
 
--   `direct-deliver`. When a message arrives on the server and is
+-   `directDeliver`. When a message arrives on the server and is
     delivered to waiting consumers, by default, the delivery is done on
     the same thread as that on which the message arrived. This gives
     good latency in environments with relatively small messages and a
@@ -293,7 +282,7 @@ Netty for simple TCP:
     throughput set `direct-deliver` to `false
                             `.
 
--   `nio-remoting-threads`. When configured to use NIO, ActiveMQ will,
+-   `nioRemotingThreads`. When configured to use NIO, ActiveMQ will,
     by default, use a number of threads equal to three times the number
     of cores (or hyper-threads) as reported by
     `Runtime.getRuntime().availableProcessors()` for processing incoming
@@ -302,14 +291,14 @@ Netty for simple TCP:
     parameter is `-1` which means use the value from
     `Runtime.getRuntime().availableProcessors()` \* 3.
 
--   `local-address`. When configured a Netty Connector it is possible to
+-   `localAddress`. When configured a Netty Connector it is possible to
     specify which local address the client will use when connecting to
     the remote address. This is typically used in the Application Server
     or when running Embedded to control which address is used for
     outbound connections. If the local-address is not set then the
     connector will use any local address available
 
--   `local-port`. When configured a Netty Connector it is possible to
+-   `localPort`. When configured a Netty Connector it is possible to
     specify which local port the client will use when connecting to the
     remote address. This is typically used in the Application Server or
     when running Embedded to control which port is used for outbound
@@ -328,11 +317,11 @@ Please see the examples for a full working example of using Netty SSL.
 Netty SSL uses all the same properties as Netty TCP but adds the
 following additional properties:
 
--   `ssl-enabled`
+-   `sslEnabled`
 
     Must be `true` to enable SSL. Default is `false`.
 
--   `key-store-path`
+-   `keyStorePath`
 
     When used on an `acceptor` this is the path to the SSL key store on
     the server which holds the server's certificates (whether
@@ -350,7 +339,7 @@ following additional properties:
     ActiveMQ-specific system property is useful if another component on
     client is already making use of the standard, Java system property.
 
--   `key-store-password`
+-   `keyStorePassword`
 
     When used on an `acceptor` this is the password for the server-side
     keystore.
@@ -367,7 +356,7 @@ following additional properties:
     another component on client is already making use of the standard,
     Java system property.
 
--   `trust-store-path`
+-   `trustStorePath`
 
     When used on an `acceptor` this is the path to the server-side SSL
     key store that holds the keys of all the clients that the server
@@ -385,7 +374,7 @@ following additional properties:
     ActiveMQ-specific system property is useful if another component on
     client is already making use of the standard, Java system property.
 
--   `trust-store-password`
+-   `trustStorePassword`
 
     When used on an `acceptor` this is the password for the server-side
     trust store. This is only relevant for an `acceptor` if you are
@@ -402,19 +391,19 @@ following additional properties:
     another component on client is already making use of the standard,
     Java system property.
 
--   `enabled-cipher-suites`
+-   `enabledCipherSuites`
 
     Whether used on an `acceptor` or `connector` this is a comma
     separated list of cipher suites used for SSL communication. The
     default value is `null` which means the JVM's default will be used.
 
--   `enabled-protocols`
+-   `enabledProtocols`
 
     Whether used on an `acceptor` or `connector` this is a comma
     separated list of protocols used for SSL communication. The default
     value is `null` which means the JVM's default will be used.
 
--   `need-client-auth`
+-   `needClientAuth`
 
     This property is only for an `acceptor`. It tells a client
     connecting to this acceptor that 2-way SSL is required. Valid values
@@ -430,22 +419,22 @@ Please see the examples for a full working example of using Netty HTTP.
 Netty HTTP uses the same properties as Netty TCP but adds the following
 additional properties:
 
--   `http-enabled`. This is now no longer needed as of version 2.4. With
+-   `httpEnabled`. This is now no longer needed as of version 2.4. With
     single port support ActiveMQ will now automatically detect if http
     is being used and configure itself.
 
--   `http-client-idle-time`. How long a client can be idle before
+-   `httpClientIdleTime`. How long a client can be idle before
     sending an empty http request to keep the connection alive
 
--   `http-client-idle-scan-period`. How often, in milliseconds, to scan
+-   `httpClientIdleScanPeriod`. How often, in milliseconds, to scan
     for idle clients
 
--   `http-response-time`. How long the server can wait before sending an
+-   `httpResponseTime`. How long the server can wait before sending an
     empty http response to keep the connection alive
 
--   `http-server-scan-period`. How often, in milliseconds, to scan for
+-   `httpServerScanPeriod`. How often, in milliseconds, to scan for
     clients needing responses
 
--   `http-requires-session-id`. If true the client will wait after the
+-   `httpRequiresSessionId`. If true the client will wait after the
     first call to receive a session id. Used the http connector is
     connecting to servlet acceptor (not recommended)

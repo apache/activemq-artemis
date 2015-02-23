@@ -36,10 +36,7 @@ under the License.
 <p>This is totally optional and you don't need to follow this convention. You can use any port you chose including ActiveMQ's 5445 default port</p>
      <pre class="prettyprint">
      <code>
-         &lt;acceptor name="proton-acceptor"&gt;
-         &lt;factory-class&gt;org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory&lt;/factory-class&gt;
-         &lt;param key="port" value="5672"/&gt;
-         &lt;/acceptor&gt;
+         &lt;acceptor name="proton-acceptor"&gt;tcp://localhost:5672&lt;/acceptor&gt;
      </code>
      </pre>
 <h2>Example step-by-step</h2>

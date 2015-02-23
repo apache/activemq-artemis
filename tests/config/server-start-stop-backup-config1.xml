@@ -16,42 +16,35 @@
 -->
 <configuration xmlns="urn:activemq"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+         xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
    
-   
-   <backup>true</backup>
-   
-   <journal-directory>/tmp/activemq-unit-test/start-stop-data-backup</journal-directory>
-   
-   <!-- Connectors -->
+   <core xmlns="urn:activemq:core">
 
-   <connectors>
-      <connector name="netty-connector">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </connector>
-   </connectors>      
+      <journal-directory>/tmp/activemq-unit-test/start-stop-data-backup</journal-directory>
 
-   <!-- Acceptors -->
-   <acceptors>
-      <acceptor name="netty-acceptor">
-         <factory-class>org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-         <param key="port" value="5446"/>
-      </acceptor>
-   </acceptors>
-   
+      <!-- Connectors -->
 
-   <security-enabled>false</security-enabled>
-   
-   <queues>
-	   <queue name="myQueue">
-	   	<address>myAddress</address>
-	   </queue>
-	   
-	   <queue name="jms.queue.myJMSQueue">
-	   	<address>jms.queue.myJMSAddress</address>
-	   </queue>
-   </queues>
+      <connectors>
+         <connector name="netty-connector">tcp://localhost:5446</connector>
+      </connectors>
 
+      <!-- Acceptors -->
+      <acceptors>
+         <acceptor name="netty-acceptor">tcp://localhost:5446</acceptor>
+      </acceptors>
+
+
+      <security-enabled>false</security-enabled>
+
+      <queues>
+         <queue name="myQueue">
+            <address>myAddress</address>
+         </queue>
+
+         <queue name="jms.queue.myJMSQueue">
+            <address>jms.queue.myJMSAddress</address>
+         </queue>
+      </queues>
+   </core>
 </configuration>
 
