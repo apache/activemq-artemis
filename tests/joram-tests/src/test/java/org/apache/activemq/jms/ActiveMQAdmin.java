@@ -75,7 +75,7 @@ public class ActiveMQAdmin implements Admin
       {
          Hashtable<String, String> env = new Hashtable<String, String>();
          env.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-         env.put("java.naming.provider.url", "tcp://localhost:5445");
+         env.put("java.naming.provider.url", "tcp://localhost:61616");
          context = new InitialContext(env);
       }
       catch (NamingException e)

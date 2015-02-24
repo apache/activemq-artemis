@@ -99,15 +99,15 @@ Here is a list of all the supported URL schemes:
 Most clients won't be connecting to an embedded broker. Clients will
 most commonly connect across a network a remote broker. Here's a simple
 example of a client configuring a connection factory to connect to a
-remote broker running on myhost:5445:
+remote broker running on myhost:61616:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    connectionFactory.ConnectionFactory=tcp://myhost:5445
+    connectionFactory.ConnectionFactory=tcp://myhost:61616
 
 In the example above the client is using the `tcp` scheme for the
 provider URL. A client may also specify multiple comma-delimited
 host:port combinations in the URL (e.g.
-`(tcp://remote-host1:5445,remote-host2:5445)`). Whether there is one or
+`(tcp://remote-host1:61616,remote-host2:61616)`). Whether there is one or
 many host:port combinations in the URL they are treated as the *initial
 connector(s)* for the underlying connection.
 
@@ -120,7 +120,7 @@ traditional URL query string format (e.g.
 `scheme://host:port?key1=value1&key2=value2`) to customize the
 underlying transport mechanism. For example, if a client wanted to
 connect to a remote server using TCP and SSL it would create a connection
-factory like so, `tcp://remote-host:5445?ssl-enabled=true`.
+factory like so, `tcp://remote-host:61616?ssl-enabled=true`.
 
 All the properties available for the `tcp` scheme are described in [the
 documentation regarding the Netty
@@ -130,7 +130,7 @@ Note if you are using the `tcp` scheme and multiple addresses then a query
 can be applied to all the url's or just to an individual connector, so where
 you have
 
--   `(tcp://remote-host1:5445?httpEnabled=true,remote-host2:5445?httpEnabled=true)?clientID=1234`
+-   `(tcp://remote-host1:61616?httpEnabled=true,remote-host2:61616?httpEnabled=true)?clientID=1234`
 
 then the `httpEnabled` property is only set on the individual connectors where as the `clientId`
 is set on the actual connection factory. Any connector specific properties set on the whole
@@ -181,7 +181,7 @@ The default type for the default connection factory is of type `javax.jms.Connec
 This can be changed by setting the type like so
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445?type=CF
+    java.naming.provider.url=tcp://localhost:61616?type=CF
 
 In this example it is still set to the default, below shows a list of types that can be set.
 
@@ -233,7 +233,7 @@ And if the client wanted to bind this queue to "queues/OrderQueue" then
 the JNDI properties would be configured like so:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://myhost:5445
+    java.naming.provider.url=tcp://myhost:61616
     queue.queues/OrderQueue=OrderQueue
 
 It is also possible to look-up JMS destinations which haven't been
@@ -256,7 +256,7 @@ initialized using those properties:
 InitialContext ic = new InitialContext();
 
 //Now we'll look up the connection factory from which we can create
-//connections to myhost:5445:
+//connections to myhost:61616:
 
 ConnectionFactory cf = (ConnectionFactory)ic.lookup("ConnectionFactory");
 

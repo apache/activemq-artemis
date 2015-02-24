@@ -140,7 +140,7 @@ public class ReattachExample extends ActiveMQExample
    {
       Hashtable<String, Object> properties = new Hashtable<String, Object>();
       properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:5446");
+      properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
       InitialContext initialContext = new InitialContext(properties);
       ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 

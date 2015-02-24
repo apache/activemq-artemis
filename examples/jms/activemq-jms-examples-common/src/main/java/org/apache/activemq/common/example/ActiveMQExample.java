@@ -159,7 +159,7 @@ public abstract class ActiveMQExample
          {
             HashMap<String, Object> params = new HashMap<String, Object>();
             params.put("host", "localhost");
-            params.put("port", 5445 + id);
+            params.put("port", 61616 + id);
             TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
             ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
             cf.createConnection().close();
@@ -180,7 +180,7 @@ public abstract class ActiveMQExample
       ClientSession session = ((ActiveMQConnection) connection).getInitialSession();
       TransportConfiguration transportConfiguration = session.getSessionFactory().getConnectorConfiguration();
       String port = (String) transportConfiguration.getParams().get("port");
-      return Integer.valueOf(port) - 5445;
+      return Integer.valueOf(port) - 61616;
    }
 
    protected Connection getServerConnection(int server, Connection... connections)
@@ -190,7 +190,7 @@ public abstract class ActiveMQExample
          ClientSession session = ((ActiveMQConnection) connection).getInitialSession();
          TransportConfiguration transportConfiguration = session.getSessionFactory().getConnectorConfiguration();
          String port = (String) transportConfiguration.getParams().get("port");
-         if(Integer.valueOf(port) == server + 5445)
+         if(Integer.valueOf(port) == server + 61616)
          {
             return connection;
          }

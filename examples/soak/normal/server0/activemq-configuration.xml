@@ -26,12 +26,12 @@ under the License.
    </jms>
    <core xmlns="urn:activemq:core">
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5445?tcpNoDelay=false;tcpSendBufferSize=1048576?tcpReceiveBufferSize=1048576</connector>
+         <connector name="netty-connector">tcp://localhost:61616?tcpNoDelay=false;tcpSendBufferSize=1048576?tcpReceiveBufferSize=1048576</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5445?tcpNoDelay=false;tcpSendBufferSize=1048576?tcpReceiveBufferSize=1048576 </acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616?tcpNoDelay=false;tcpSendBufferSize=1048576?tcpReceiveBufferSize=1048576 </acceptor>
       </acceptors>
 
       <security-enabled>false</security-enabled>

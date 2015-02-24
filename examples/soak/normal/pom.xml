@@ -114,7 +114,7 @@ under the License.
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
                            <args>
-                              <param>tcp://localhost:5445</param>
+                              <param>tcp://localhost:61616</param>
                            </args>
                         </configuration>
                      </execution>
@@ -126,7 +126,7 @@ under the License.
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
                            <args>
-                              <param>tcp://localhost:5445</param>
+                              <param>tcp://localhost:61616</param>
                            </args>
                         </configuration>
                      </execution>
@@ -160,7 +160,7 @@ under the License.
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
                            <args>
-                              <param>tcp://localhost:5445</param>
+                              <param>tcp://localhost:61616</param>
                            </args>
                         </configuration>
                      </execution>
@@ -172,7 +172,7 @@ under the License.
                         <configuration>
                            <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
                            <args>
-                              <param>tcp://localhost:5445</param>
+                              <param>tcp://localhost:61616</param>
                            </args>
                         </configuration>
                      </execution>

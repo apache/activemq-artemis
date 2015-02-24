@@ -37,13 +37,13 @@ import org.apache.activemq.api.core.TransportConfiguration;
  * you'll need something like this if the ActiveMQ Server is remote
  * <pre>
  *      &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
- *                  value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=5445"/&gt;
+ *                  value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616"/&gt;
  * </pre>
  * <p>
  * you'll need something like this if the ActiveMQ Server is remote and has failover configured
  * <pre>
  *             &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
- *                       value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=5445;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=5446"/&gt;
+ *                       value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=61617"/&gt;
  * </pre>
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>

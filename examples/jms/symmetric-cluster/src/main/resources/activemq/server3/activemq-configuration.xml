@@ -42,12 +42,12 @@ under the License.
       <!-- Connectors -->
 
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5448</connector>
+         <connector name="netty-connector">tcp://localhost:61619</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5448</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61619</acceptor>
       </acceptors>
 
       <!-- Clustering configuration -->

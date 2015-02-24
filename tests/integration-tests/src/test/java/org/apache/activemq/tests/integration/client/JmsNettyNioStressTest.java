@@ -88,7 +88,7 @@ public class JmsNettyNioStressTest extends ServiceTestBase
    {
       // first set up the server
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put(TransportConstants.PORT_PROP_NAME, 5445);
+      params.put(TransportConstants.PORT_PROP_NAME, 61616);
       params.put(TransportConstants.HOST_PROP_NAME, "localhost");
       params.put(TransportConstants.USE_NIO_PROP_NAME, true);
       // minimize threads to maximize possibility for deadlock
@@ -101,7 +101,7 @@ public class JmsNettyNioStressTest extends ServiceTestBase
 
       // now the client side
       Map<String, Object> connectionParams = new HashMap<String, Object>();
-      connectionParams.put(TransportConstants.PORT_PROP_NAME, 5445);
+      connectionParams.put(TransportConstants.PORT_PROP_NAME, 61616);
       connectionParams.put(TransportConstants.HOST_PROP_NAME, "localhost");
       connectionParams.put(TransportConstants.USE_NIO_PROP_NAME, true);
       connectionParams.put(TransportConstants.BATCH_DELAY, 50);

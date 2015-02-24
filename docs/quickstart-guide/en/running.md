@@ -87,8 +87,8 @@ standalone-full.xml configuration by running the command
               14:47:44,115 INFO  [org.jboss.as.jacorb] (MSC service thread 1-13) JBAS016328: CORBA Naming Service started
               14:47:44,345 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) JBAS018210: Register web context: /activemq-server
               14:47:44,361 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 127.0.0.1:5455 for CORE protocol
-              14:47:44,362 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 127.0.0.1:5445 for CORE protocol
-              14:47:44,364 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 org.apache.activemq.default.servlet:5445 for CORE protocol
+              14:47:44,362 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 127.0.0.1:61616 for CORE protocol
+              14:47:44,364 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221020: Started Netty Acceptor version 3.6.6.Final-90e1eb2 org.apache.activemq.default.servlet:61616 for CORE protocol
               14:47:44,366 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221007: Server is now live
               14:47:44,366 INFO  [org.apache.activemq.core.server] (ServerService Thread Pool -- 58) HQ221001: ActiveMQ Server version 2.4.0.Beta2 (Andromedian Flyer, 123) [bcc1cd10-2bfb-11e3-ad5f-9f88840f9e1a]
               14:47:44,435 INFO  [org.jboss.as.messaging] (ServerService Thread Pool -- 58) JBAS011601: Bound messaging object to jndi name java:/ConnectionFactory

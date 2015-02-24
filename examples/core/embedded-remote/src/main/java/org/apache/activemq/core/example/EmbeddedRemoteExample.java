@@ -54,7 +54,7 @@ public class EmbeddedRemoteExample
           */
          Map<String,Object> map = new HashMap<String,Object>();
          map.put("host", "localhost");
-         map.put("port", 5445);
+         map.put("port", 61616);
          // -------------------------------------------------------
 
          ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), map));

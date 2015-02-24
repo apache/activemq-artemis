@@ -86,7 +86,7 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.minLargeMessageSize=250000
 
 
@@ -122,7 +122,7 @@ e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.compressLargeMessages=true
 
 ## Streaming large messages

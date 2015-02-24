@@ -76,7 +76,7 @@ public class SimpleJNDIClientTest extends UnitTestCase
       Hashtable<String, Object> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.VmConnectionFactory", "vm://0");
-      props.put("connectionFactory.TCPConnectionFactory", "tcp://localhost:5445");
+      props.put("connectionFactory.TCPConnectionFactory", "tcp://localhost:61616");
       props.put("connectionFactory.UDPConnectionFactory", "udp://" + getUDPDiscoveryAddress() + ":" + getUDPDiscoveryPort());
       props.put("connectionFactory.JGroupsConnectionFactory", "jgroups://mychannelid?file=test-jgroups-file_ping.xml");
       Context ctx = new InitialContext(props);
@@ -182,7 +182,7 @@ public class SimpleJNDIClientTest extends UnitTestCase
    {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:5445");
+      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616");
       Context ctx = new InitialContext(props);
 
       ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("myConnectionFactory");
@@ -195,7 +195,7 @@ public class SimpleJNDIClientTest extends UnitTestCase
    {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:5445?ha=true");
+      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?ha=true");
       Context ctx = new InitialContext(props);
 
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
@@ -329,7 +329,7 @@ public class SimpleJNDIClientTest extends UnitTestCase
    {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:5445/httpEnabled=true&foo=bar,tcp://127.0.0.2:5446?httpEnabled=false?clientID=myClientID");
+      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616/httpEnabled=true&foo=bar,tcp://127.0.0.2:61617?httpEnabled=false?clientID=myClientID");
       Context ctx = new InitialContext(props);
 
       ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("myConnectionFactory");
@@ -342,7 +342,7 @@ public class SimpleJNDIClientTest extends UnitTestCase
    {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:5445?" +
+      props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?" +
          TransportConstants.SSL_ENABLED_PROP_NAME + "=mySSLEnabledPropValue&" +
          TransportConstants.HTTP_ENABLED_PROP_NAME + "=myHTTPEnabledPropValue&" +
          TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME + "=myHTTPClientIdlePropValue&" +

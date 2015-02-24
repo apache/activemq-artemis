@@ -68,7 +68,7 @@ Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.autoGroup=true
 
 Alternatively you can set the group id via the connection factory. All
@@ -79,7 +79,7 @@ Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.groupID=Group-0
 
 ## Example

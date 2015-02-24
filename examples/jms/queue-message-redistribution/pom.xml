@@ -97,8 +97,8 @@ under the License.
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.QueueMessageRedistributionExample</clientClass>
                      <args>
-                        <param>tcp://localhost:5445</param>
-                        <param>tcp://localhost:5446</param>
+                        <param>tcp://localhost:61616</param>
+                        <param>tcp://localhost:61617</param>
                      </args>
                      <systemProperties>
                         <property>

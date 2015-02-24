@@ -115,7 +115,7 @@ JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`:
 
     java.naming.factory.initial = org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url = tcp://localhost:5445
+    java.naming.provider.url = tcp://localhost:61616
     connection.ConnectionFactory.retryInterval=1000
     connection.ConnectionFactory.retryIntervalMultiplier=1.5
     connection.ConnectionFactory.maxRetryInterval=60000

@@ -97,10 +97,10 @@ public class URIFactory<T, P>
    /*
    * this method is used to change a string with multiple URI's in it into a valid URI.
    * for instance it is possible to have the following String
-   * (tcp://localhost:5445,tcp://localhost:5545,tcp://localhost:5555)?somequery
+   * (tcp://localhost:61616,tcp://localhost:5545,tcp://localhost:5555)?somequery
    * This is an invalid URI so will be changed so that the first URI is used and the
    * extra ones added as part of the URI fragment, like so
-   * tcp://localhost:5445?someQuery#tcp://localhost:5545,tcp://localhost:5555.
+   * tcp://localhost:61616?someQuery#tcp://localhost:5545,tcp://localhost:5555.
    *
    * It is the job of the URISchema implementation to handle these fragments as needed.
    * */

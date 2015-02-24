@@ -469,7 +469,7 @@ JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://myhost:5445,myhost2:5445
+    java.naming.provider.url=tcp://myhost:61616,myhost2:61616
 
 The `java.naming.provider.url` contains a list of servers to use for the
 connection factory. When this connection factory used client application
@@ -485,11 +485,11 @@ connection factory. Here's an example:
 ``` java
 HashMap<String, Object> map = new HashMap<String, Object>();
 map.put("host", "myhost");
-map.put("port", "5445");
+map.put("port", "61616");
 TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
 HashMap<String, Object> map2 = new HashMap<String, Object>();
 map2.put("host", "myhost2");
-map2.put("port", "5446");
+map2.put("port", "61617");
 TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
 
 ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, server1, server2);
@@ -502,11 +502,11 @@ If you are using the core API then the same can be done as follows:
 ``` java
 HashMap<String, Object> map = new HashMap<String, Object>();
 map.put("host", "myhost");
-map.put("port", "5445");
+map.put("port", "61616");
 TransportConfiguration server1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
 HashMap<String, Object> map2 = new HashMap<String, Object>();
 map2.put("host", "myhost2");
-map2.put("port", "5446");
+map2.put("port", "61617");
 TransportConfiguration server2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), map2);
 
 ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(server1, server2);
@@ -846,7 +846,7 @@ in the JNDI context environment in, e.g. `jndi.properties`, to specify
 the load balancing policy directly:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.loadBalancingPolicyClassName=org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
 
 The above example would instantiate a JMS connection factory that uses

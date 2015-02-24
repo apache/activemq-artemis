@@ -154,7 +154,7 @@ public class ApplicationLayerFailoverExample extends ActiveMQExample
       // Step 1. Get an initial context for looking up JNDI from the server
       Hashtable<String, Object> properties = new Hashtable<String, Object>();
       properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-      properties.put("connectionFactory.ConnectionFactory", "tcp://127.0.0.1:" + (5445 + server));
+      properties.put("connectionFactory.ConnectionFactory", "tcp://127.0.0.1:" + (61616 + server));
       properties.put("queue.queue/exampleQueue", "exampleQueue");
       initialContext = new InitialContext(properties);
 

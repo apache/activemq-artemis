@@ -102,7 +102,7 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.consumerWindowSize=0
 
 If the connection factory is directly instantiated, the consumer window
@@ -140,7 +140,7 @@ max rate can be configured in the JNDI context environment, e.g.
 connection factory which is available in the context by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.consumerMaxRate=10
 
 If the connection factory is directly instantiated, the max rate size
@@ -194,7 +194,7 @@ e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.producerWindowSize=10
 
 If the connection factory is directly instantiated, the producer window
@@ -289,7 +289,7 @@ max rate size can be configured in the JNDI context environment, e.g.
 connection factory which is available in the context by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.producerMaxRate=10
 
 If the connection factory is directly instantiated, the max rate size

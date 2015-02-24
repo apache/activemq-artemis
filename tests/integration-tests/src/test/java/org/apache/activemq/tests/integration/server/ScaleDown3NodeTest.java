@@ -63,7 +63,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       setupClusterConnection("cluster0", "testAddress", false, 1, isNetty(), 1, 0, 2);
       setupClusterConnection("cluster0", "testAddress", false, 1, isNetty(), 2, 0, 1);
       String scaleDownConnector = servers[0].getConfiguration().getClusterConfigurations().get(0).getStaticConnectors().get(0);
-      Assert.assertEquals(5446, servers[0].getConfiguration().getConnectorConfigurations().get(scaleDownConnector).getParams().get(TransportConstants.PORT_PROP_NAME));
+      Assert.assertEquals(61617, servers[0].getConfiguration().getConnectorConfigurations().get(scaleDownConnector).getParams().get(TransportConstants.PORT_PROP_NAME));
       scaleDownConfiguration0.getConnectors().add(scaleDownConnector);
       startServers(0, 1, 2);
       setupSessionFactory(0, isNetty());

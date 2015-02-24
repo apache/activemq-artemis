@@ -58,12 +58,12 @@ under the License.
 
         <li>Instantiate the TransportConfiguration object. The TransportConfiguration instance encapsulates
         the connection details of the server we're connecting to. In this case we're using Netty as a transport, and
-        we're specifying to connect on port 5446.</li>
+        we're specifying to connect on port 61617.</li>
         <pre class="prettyprint">
            <code>
      Map<String, Object> connectionParams = new HashMap<String, Object>();
 
-     connectionParams.put(PORT_PROP_NAME, 5446);
+     connectionParams.put(PORT_PROP_NAME, 61617);
 
      TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(),
                                                                                 connectionParams);

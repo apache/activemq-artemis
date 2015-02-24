@@ -55,7 +55,7 @@ public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
       "      </config-property>\n" +
       "      <config-property>\n" +
       "         <description>The transport configuration. These values must be in the form of key=val;key=val;,\n" +
-      "            if multiple connectors are used then each set must be separated by a comma i.e. host=host1;port=5445,host=host2;port=5446.\n" +
+      "            if multiple connectors are used then each set must be separated by a comma i.e. host=host1;port=61616,host=host2;port=61617.\n" +
       "            Each set of params maps to the connector classname specified.\n" +
       "         </description>\n" +
       "         <config-property-name>ConnectionParameters</config-property-name>\n" +

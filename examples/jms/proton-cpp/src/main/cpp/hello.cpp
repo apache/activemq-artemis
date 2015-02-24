@@ -32,7 +32,7 @@
 using namespace qpid::messaging;
 
 int main(int argc, char** argv) {
-    std::string broker = argc > 1 ? argv[1] : "localhost:5445";
+    std::string broker = argc > 1 ? argv[1] : "localhost:61616";
     std::string address = argc > 2 ? argv[2] : "jms.queue.exampleQueue";
 
     // Connection options documented at http://qpid.apache.org/releases/qpid-0.30/programming/book/connections.html#connection-options

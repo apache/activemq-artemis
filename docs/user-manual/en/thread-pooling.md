@@ -150,7 +150,7 @@ by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
     
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     
     connection.ConnectionFactory.useGlobalPools=false
     

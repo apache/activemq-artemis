@@ -53,13 +53,13 @@ under the License.
 
       <!-- Connectors -->
       <connectors>
-         <connector name="netty-live-connector">tcp://localhost:5445</connector>
-         <connector name="netty-connector">tcp://localhost:5446</connector>
+         <connector name="netty-live-connector">tcp://localhost:61616</connector>
+         <connector name="netty-connector">tcp://localhost:61617</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5446</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61617</acceptor>
       </acceptors>
 
       <cluster-connections>

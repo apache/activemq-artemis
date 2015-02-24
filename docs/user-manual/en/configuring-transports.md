@@ -14,7 +14,7 @@ One of the most important concepts in ActiveMQ transports is the
 defined in xml in the configuration file `activemq-configuration.xml`.
 
     <acceptors>
-       <acceptor name="netty">tcp://localhost:5446</acceptor>
+       <acceptor name="netty">tcp://localhost:61617</acceptor>
     </acceptors>
 
 Acceptors are always defined inside an `acceptors` element. There can be
@@ -26,7 +26,7 @@ ActiveMQ server.
 
 In the above example we're defining an acceptor that uses
 [Netty](http://netty.io/) to listen for connections at port
-`5446`.
+`61617`.
 
 The `acceptor` element contains a `URI` that defines the kind of Acceptor
 to create along with its configuration. The `schema` part of the `URI`
@@ -41,7 +41,7 @@ valid key-value pairs depends on the specific transport be used and are
 passed straight through to the underlying transport. These are set on the
 `URI` as part of the query, like so:
 
-    <acceptor name="netty">tcp://localhost:5446?sslEnabled=true;key-store-path=/path</acceptor>
+    <acceptor name="netty">tcp://localhost:61617?sslEnabled=true;key-store-path=/path</acceptor>
 
 ## Understanding Connectors
 
@@ -53,7 +53,7 @@ Let's look at a connector defined in our `activemq-configuration.xml`
 file:
 
     <connectors>
-       <connector name="netty">tcp://localhost:5446</connector>
+       <connector name="netty">tcp://localhost:61617</connector>
     </connectors>
 
 Connectors can be defined inside a `connectors` element. There can be
@@ -82,7 +82,7 @@ couple of reasons for this:
     simple example:
 
         java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-        connectionFactory.MyConnectionFactory=tcp://myhost:5445
+        connectionFactory.MyConnectionFactory=tcp://myhost:61616
 
 ## Configuring the transport directly from the client side.
 
@@ -98,13 +98,13 @@ configuration, instead we just create the parameters and tell the
 Here's an example of creating a `ClientSessionFactory` which will
 connect directly to the acceptor we defined earlier in this chapter, it
 uses the standard Netty TCP transport and will try and connect on port
-5446 to localhost (default):
+61617 to localhost (default):
 
 ``` java
 Map<String, Object> connectionParams = new HashMap<String, Object>();
 
 connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    5446);
+                    61617);
 
 TransportConfiguration transportConfiguration =
     new TransportConfiguration(
@@ -127,7 +127,7 @@ on the server side or define a connection factory in `activemq-jms.xml`:
 ``` java
 Map<String, Object> connectionParams = new HashMap<String, Object>();
 
-connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 5446);
+connectionParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, 61617);
 
 TransportConfiguration transportConfiguration =
     new TransportConfiguration(
@@ -164,7 +164,7 @@ Sockets are being used and also use the appropriate decoders
 It is possible to limit which protocols are supported by using the
 `protocols` parameter on the Acceptor like so:
 
-        <connector name="netty">tcp://localhost:5446?protocols=CORE,AMQP</connector>
+        <connector name="netty">tcp://localhost:61617?protocols=CORE,AMQP</connector>
 
 
 > **Note**
@@ -232,7 +232,7 @@ Netty for simple TCP:
 
 -   `port`. This specified the port to connect to (when configuring a
     connector) or to listen on (when configuring an acceptor). The
-    default value for this property is `5445`.
+    default value for this property is `61616`.
 
 -   `tcpNoDelay`. If this is `true` then [Nagle's
     algorithm](http://en.wikipedia.org/wiki/Nagle%27s_algorithm) will be

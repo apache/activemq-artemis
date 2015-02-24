@@ -102,7 +102,7 @@ public final class TransportConfigurationUtils
       if (classname.contains("netty"))
       {
          Map<String, Object> serverParams = new HashMap<String, Object>();
-         Integer port = live ? 5445 : 5545;
+         Integer port = live ? 61616 : 5545;
          serverParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams);
       }
@@ -117,7 +117,7 @@ public final class TransportConfigurationUtils
       if (classname.contains("netty"))
       {
          Map<String, Object> serverParams = new HashMap<String, Object>();
-         Integer port = live ? 5445 : 5545;
+         Integer port = live ? 61616 : 5545;
          serverParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams, name);
       }

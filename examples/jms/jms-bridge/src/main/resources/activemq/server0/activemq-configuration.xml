@@ -37,7 +37,7 @@ under the License.
       <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
       <acceptors>
-         <acceptor name="netty">tcp://localhost:5445</acceptor>
+         <acceptor name="netty">tcp://localhost:61616</acceptor>
       </acceptors>
 
       <security-settings>

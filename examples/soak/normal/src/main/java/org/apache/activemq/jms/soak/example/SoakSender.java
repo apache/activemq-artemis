@@ -44,7 +44,7 @@ public class SoakSender
       String jndiURL = System.getProperty("jndi.address");
       if(jndiURL == null)
       {
-         jndiURL = args.length > 0 ? args[0] : "tcp://localhost:5445";
+         jndiURL = args.length > 0 ? args[0] : "tcp://localhost:61616";
       }
 
       System.out.println("Connecting to JNDI at " + jndiURL);

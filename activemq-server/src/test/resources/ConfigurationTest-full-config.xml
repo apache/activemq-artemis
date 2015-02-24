@@ -64,7 +64,7 @@
          <connector name="connector2">vm://5</connector>
       </connectors>
       <acceptors>
-         <acceptor>tcp://0.0.0.0:5445?tcpNoDelay=456;connectionTtl=44</acceptor>
+         <acceptor>tcp://0.0.0.0:61616?tcpNoDelay=456;connectionTtl=44</acceptor>
    	   <acceptor>vm://0?e1=z1;e2=567</acceptor>
       </acceptors>
       <broadcast-groups>
