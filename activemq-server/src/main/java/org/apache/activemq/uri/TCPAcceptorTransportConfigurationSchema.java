@@ -17,6 +17,8 @@
 package org.apache.activemq.uri;
 
 import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
+
+import java.net.URI;
 import java.util.Set;
 
 /**
@@ -29,7 +31,7 @@ public class TCPAcceptorTransportConfigurationSchema extends TCPTransportConfigu
       super(allowableProperties);
    }
 
-   public String getFactoryName()
+   public String getFactoryName(URI uri)
    {
       return NettyAcceptorFactory.class.getName();
    }
