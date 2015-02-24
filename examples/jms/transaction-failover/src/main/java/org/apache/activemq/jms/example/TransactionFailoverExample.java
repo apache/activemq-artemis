@@ -37,10 +37,18 @@ import org.apache.activemq.common.example.ActiveMQExample;
  */
 public class TransactionFailoverExample extends ActiveMQExample
 {
+
    public static void main(final String[] args)
    {
       new TransactionFailoverExample().run(args);
    }
+
+   // You need to guarantee uniqueIDs when using duplicate detection
+   // It needs to be unique even after a restart
+   // as these IDs are stored on the journal for control
+   // We recommend some sort of UUID, but for this example the Current Time as string would be enough
+   String uniqueID = Long.toString(System.currentTimeMillis());
+
 
    @Override
    public boolean runExample() throws Exception
@@ -138,15 +146,13 @@ public class TransactionFailoverExample extends ActiveMQExample
                              final int numMessages,
                              final boolean killServer) throws Exception
    {
+
       // We send half of messages
       for (int i = 0; i < numMessages / 2; i++)
       {
          TextMessage message = session.createTextMessage("This is text message " + i);
 
-         // We set the duplicate detection header - so the server will ignore the same message
-         // if sent again after failover
-
-         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "uniqueid" + i);
+         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(),  uniqueID + i);
 
          producer.send(message);
 
@@ -169,7 +175,7 @@ public class TransactionFailoverExample extends ActiveMQExample
          // We set the duplicate detection header - so the server will ignore the same message
          // if sent again after failover
 
-         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "uniqueid" + i);
+         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), uniqueID + i);
 
          producer.send(message);
 
