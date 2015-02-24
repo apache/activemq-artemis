@@ -128,12 +128,6 @@
          <artifactId>activemq-website</artifactId>
          <version>${project.version}</version>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-website</artifactId>
-         <version>${project.version}</version>
-         <classifier>javadoc</classifier>
-      </dependency>
 
       <!-- dependencies -->
       <dependency>
