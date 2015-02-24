@@ -39,11 +39,30 @@ If you want to install it to your local maven repo then run
 The full release uses gitbook to build a static website from the documentation, if you don't have gitbook installed then
  install gitbook using npm
 
-```npm install -g gitbook```
+```npm install -g gitbook gitbook-cli```
 
-If you dont have npm installed then you would need to install that first, on Fedora this would be
+### Installing NPM
+
+If you don't have npm installed then you would need to install  it first.
+
+#### On Fedora
 
 ```yum install npm```
+
+#### On Mac-OS
+
+The easiest way would be through brew [brew]
+
+You first install brew using the instructions on the [brew] website.
+
+After you installed brew you can install npm by:
+
+```brew install npm```
+
+[brew]: <http://brew.sh>
+
+#### Build without docs
+
 
 It is possible to build a distribution with out the manuals and javadocs if you dont have or want gitbook installed, 
 simply run
