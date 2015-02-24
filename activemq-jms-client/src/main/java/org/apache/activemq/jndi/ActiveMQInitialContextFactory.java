@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.jndi;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.Context;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.uri.ConnectionFactoryParser;
 
 /**
@@ -60,7 +60,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
             String jndiName = key.substring(connectionFactoryPrefix.length());
             try
             {
-               ActiveMQConnectionFactory factory = createConnectionFactory((String) environment.get(key), jndiName);
+               ConnectionFactory factory = createConnectionFactory((String) environment.get(key), jndiName);
                data.put(jndiName, factory);
             }
             catch (Exception e)
@@ -175,7 +175,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
    /**
     * Factory method to create a new connection factory from the given environment
     */
-   protected ActiveMQConnectionFactory createConnectionFactory(String uri, String name) throws Exception
+   protected ConnectionFactory createConnectionFactory(String uri, String name) throws Exception
    {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
       return parser.newObject(parser.expandURI(uri), name);

@@ -50,7 +50,7 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
    @Override
    protected List<TransportConfiguration> internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
-      return getTransportConfigurations(uri, query, allowableProperties, name, getFactoryName());
+      return getTransportConfigurations(uri, query, allowableProperties, name, getFactoryName(uri));
    }
 
    @Override
@@ -88,8 +88,13 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
       return transportConfigurations;
    }
 
-   protected String getFactoryName()
+   protected String getFactoryName(URI uri)
    {
+      //here for backwards compatibility
+      if (uri.getPath() != null && uri.getPath().contains("hornetq"))
+      {
+         return "org.hornetq.core.remoting.impl.netty.NettyConnectorFactory";
+      }
       return NettyConnectorFactory.class.getName();
    }
 }
