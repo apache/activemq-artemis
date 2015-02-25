@@ -37,13 +37,13 @@ Delayed redelivery is defined in the address-setting configuration:
 
     <!-- delay redelivery of messages for 5s -->
     <address-setting match="jms.queue.exampleQueue">
-    <!-- default is 1.0 --> 
+    <!-- default is 1.0 -->
     <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
-    <!-- default is 0 (no delay) --> 
+    <!-- default is 0 (no delay) -->
     <redelivery-delay>5000</redelivery-delay>
     <!-- default is redelivery-delay * 10 -->
     <max-redelivery-delay>50000</max-redelivery-delay>
-     
+
     </address-setting>
 
 If a `redelivery-delay` is specified, ActiveMQ will wait this delay
@@ -78,7 +78,7 @@ individually for each address.
 
 ### Example
 
-See ? for an example which shows how delayed redelivery is configured
+See [the examples chapter](examples.md) for an example which shows how delayed redelivery is configured
 and used with JMS.
 
 ## Dead Letter Addresses
@@ -94,7 +94,7 @@ be perused by the system administrator for action to be taken.
 
 ActiveMQ's addresses can be assigned a dead letter address. Once the
 messages have been unsuccessfully delivered for a given number of
-attempts, they are removed from their queue and sent to the relevant 
+attempts, they are removed from their queue and sent to the relevant
 dead letter address. These *dead letter* messages can later be consumed
 from the dead letter address for further inspection.
 

@@ -743,13 +743,6 @@ XA Send
 
 The `xa-send` example shows you how message sending behaves in an XA
 transaction in ActiveMQ.
-
-XA with Transaction Manager
----------------------------
-
-The `xa-with-jta` example shows you how to use JTA interfaces to control
-transactions with ActiveMQ.
-
 Core API Examples
 =================
 

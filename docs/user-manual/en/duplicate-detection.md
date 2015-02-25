@@ -74,7 +74,7 @@ by generating a UUID.
 Here's an example of setting the property using the core API:
 
 ``` java
-...     
+...
 
 ClientMessage message = session.createMessage(true);
 
@@ -87,7 +87,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, myUniqueID);
 And here's an example using the JMS API:
 
 ``` java
-...     
+...
 
 Message jmsMessage = session.createMessage();
 

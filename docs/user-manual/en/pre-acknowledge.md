@@ -24,7 +24,7 @@ message on the server but *before* it is delivered to the client. In
 that case, the message is lost and will not be recovered when the system
 restart.
 
-Depending on your messaging case, `pre-acknowledgement` mode can avoid
+Depending on your messaging case, `preAcknowledgement` mode can avoid
 extra network traffic and CPU at the cost of coping with message loss.
 
 An example of a use case for pre-acknowledgement is for stock price
@@ -46,8 +46,7 @@ This can be configured in a client's JNDI context environment, e.g.
 `jndi.properties`, like this:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.preAcknowledge=true
+    connection.ConnectionFactory=tcp://localhost:61616?preAcknowledge=true
 
 Alternatively, to use pre-acknowledgement mode using the JMS API, create
 a JMS Session with the `ActiveMQSession.PRE_ACKNOWLEDGE` constant.

@@ -6,8 +6,8 @@ broker can be configured to shutdown *gracefully* using the
 `graceful-shutdown-enabled` boolean configuration parameter.
 
 When the `graceful-shutdown-enabled` configuration parameter is `true`
-and the broker is shutdown it will first prevent any additional clients 
-from connecting and then it will wait for any existing connections to 
+and the broker is shutdown it will first prevent any additional clients
+from connecting and then it will wait for any existing connections to
 be terminated by the client before completing the shutdown process. The
 default value is `false`.
 

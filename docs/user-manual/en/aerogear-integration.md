@@ -22,7 +22,7 @@ configuration:
         <address-setting match="jms.queue.lastValueQueue">
         <last-value-queue>true</last-value-queue>
         </address-setting>
-        
+
 
 Shown are the required params for the connector service and are:
 
@@ -74,7 +74,7 @@ message.setStringProperty("AEROGEAR_ALERT", "Hello this is a notification from A
 
 producer.send(message);
 ```
-            
+
 
 The 'AEROGEAR_ALERT' property will be the alert sent to the mobile
 device.
@@ -91,14 +91,14 @@ ttl of a message you would:
 ``` java
 message.setIntProperty("AEROGEAR_TTL", 1234);
 ```
-            
+
 
 or if you wanted to set the list of variants you would use:
 
 ``` java
 message.setStringProperty("AEROGEAR_VARIANTS", "variant1,variant2,variant3");
-```            
-```            
+```
+```
 
 Again refer to the AeroGear documentation for a more in depth view on
 how to use these settings

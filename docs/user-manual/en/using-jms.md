@@ -99,15 +99,15 @@ Here is a list of all the supported URL schemes:
 Most clients won't be connecting to an embedded broker. Clients will
 most commonly connect across a network a remote broker. Here's a simple
 example of a client configuring a connection factory to connect to a
-remote broker running on myhost:61616:
+remote broker running on myhost:5445:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    connectionFactory.ConnectionFactory=tcp://myhost:61616
+    connectionFactory.ConnectionFactory=tcp://myhost:5445
 
 In the example above the client is using the `tcp` scheme for the
 provider URL. A client may also specify multiple comma-delimited
 host:port combinations in the URL (e.g.
-`(tcp://remote-host1:61616,remote-host2:61616)`). Whether there is one or
+`(tcp://remote-host1:5445,remote-host2:5445)`). Whether there is one or
 many host:port combinations in the URL they are treated as the *initial
 connector(s)* for the underlying connection.
 
@@ -120,7 +120,7 @@ traditional URL query string format (e.g.
 `scheme://host:port?key1=value1&key2=value2`) to customize the
 underlying transport mechanism. For example, if a client wanted to
 connect to a remote server using TCP and SSL it would create a connection
-factory like so, `tcp://remote-host:61616?ssl-enabled=true`.
+factory like so, `tcp://remote-host:5445?ssl-enabled=true`.
 
 All the properties available for the `tcp` scheme are described in [the
 documentation regarding the Netty
@@ -130,7 +130,7 @@ Note if you are using the `tcp` scheme and multiple addresses then a query
 can be applied to all the url's or just to an individual connector, so where
 you have
 
--   `(tcp://remote-host1:61616?httpEnabled=true,remote-host2:61616?httpEnabled=true)?clientID=1234`
+-   `(tcp://remote-host1:5445?httpEnabled=true,remote-host2:5445?httpEnabled=true)?clientID=1234`
 
 then the `httpEnabled` property is only set on the individual connectors where as the `clientId`
 is set on the actual connection factory. Any connector specific properties set on the whole
@@ -139,18 +139,18 @@ URI will be applied to all the connectors.
 
 The `udp` scheme supports 4 properties:
 
--   `local-address` - If you are running with multiple network
+-   `localAddress` - If you are running with multiple network
     interfaces on the same machine, you may want to specify that the
     discovery group listens only only a specific interface. To do this
     you can specify the interface address with this parameter.
 
--   `local-port` - If you want to specify a local port to which the
+-   `localPort` - If you want to specify a local port to which the
     datagram socket is bound you can specify it here. Normally you would
     just use the default value of -1 which signifies that an anonymous
     port should be used. This parameter is always specified in
-    conjunction with `local-address`.
+    conjunction with `localAddress`.
 
--   `refresh-timeout` - This is the period the discovery group waits
+-   `refreshTimeout` - This is the period the discovery group waits
     after receiving the last broadcast from a particular server before
     removing that servers connector pair entry from its list. You would
     normally set this to a value significantly higher than the
@@ -159,7 +159,7 @@ The `udp` scheme supports 4 properties:
     broadcasting due to slight differences in timing. This parameter is
     optional, the default value is 10000 milliseconds (10 seconds).
 
--   `discovery-initial-wait-timeout` - If the connection factory is used
+-   `discoveryInitialWaitTimeout` - If the connection factory is used
     immediately after creation then it may not have had enough time to
     received broadcasts from all the nodes in the cluster. On first
     usage, the connection factory will make sure it waits this long
@@ -174,14 +174,14 @@ that contains the JGroups configuration or it can be
 `jgroups://channelName?properties=some-jgroups-properties`. In both instance the
 `channelName` is the name given to the jgroups channel created.
 
-The `refresh-timeout` and `discovery-initial-wait-timeout` properties
+The `refreshTimeout` and `discoveryInitialWaitTimeout` properties
 are supported just like with `udp`.
 
 The default type for the default connection factory is of type `javax.jms.ConnectionFactory`.
 This can be changed by setting the type like so
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616?type=CF
+    java.naming.provider.url=tcp://localhost:5445?type=CF
 
 In this example it is still set to the default, below shows a list of types that can be set.
 
@@ -233,7 +233,7 @@ And if the client wanted to bind this queue to "queues/OrderQueue" then
 the JNDI properties would be configured like so:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://myhost:61616
+    java.naming.provider.url=tcp://myhost:5445
     queue.queues/OrderQueue=OrderQueue
 
 It is also possible to look-up JMS destinations which haven't been
@@ -256,7 +256,7 @@ initialized using those properties:
 InitialContext ic = new InitialContext();
 
 //Now we'll look up the connection factory from which we can create
-//connections to myhost:61616:
+//connections to myhost:5445:
 
 ConnectionFactory cf = (ConnectionFactory)ic.lookup("ConnectionFactory");
 
@@ -379,7 +379,7 @@ System.out.println("Got order: " + receivedMessage.getText());
 
 This represents the client id for a JMS client and is needed for
 creating durable subscriptions. It is possible to configure this on the
-connection factory and can be set via the `client-id` element. Any
+connection factory and can be set via the `clientId` element. Any
 connection created by this connection factory will have this set as its
 client id.
 
@@ -388,7 +388,7 @@ client id.
 When the JMS acknowledge mode is set to `DUPS_OK` it is possible to
 configure the consumer so that it sends acknowledgements in batches
 rather that one at a time, saving valuable bandwidth. This can be
-configured via the connection factory via the `dups-ok-batch-size`
+configured via the connection factory via the `dupsOkBatchSize`
 element and is set in bytes. The default is 1024 \* 1024 bytes = 1 MiB.
 
 ### Setting The Transaction Batch Size
@@ -396,5 +396,5 @@ element and is set in bytes. The default is 1024 \* 1024 bytes = 1 MiB.
 When receiving messages in a transaction it is possible to configure the
 consumer to send acknowledgements in batches rather than individually
 saving valuable bandwidth. This can be configured on the connection
-factory via the `transaction-batch-size` element and is set in bytes.
+factory via the `transactionBatchSize` element and is set in bytes.
 The default is 1024 \* 1024.

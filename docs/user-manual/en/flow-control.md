@@ -29,10 +29,10 @@ considerably reduce performance.
 
 To prevent this, ActiveMQ pre-fetches messages into a buffer on each
 consumer. The total maximum size of messages (in bytes) that will be
-buffered on each consumer is determined by the `consumer-window-size`
+buffered on each consumer is determined by the `consumerWindowSize`
 parameter.
 
-By default, the `consumer-window-size` is set to 1 MiB (1024 \* 1024
+By default, the `consumerWindowSize` is set to 1 MiB (1024 \* 1024
 bytes).
 
 The value can be:
@@ -52,7 +52,7 @@ two extremes:
 Fast consumers can process messages as fast as they consume them (or
 even faster)
 
-To allow fast consumers, set the `consumer-window-size` to -1. This
+To allow fast consumers, set the `consumerWindowSize` to -1. This
 will allow *unbounded* message buffering on the client side.
 
 Use this setting with caution: it can overflow the client memory if
@@ -73,7 +73,7 @@ thus preventing them being processed by the fast consumer. The fast
 consumer is therefore sitting idle when it could be processing the
 other messages.
 
-To allow slow consumers, set the `consumer-window-size` to 0 (for no
+To allow slow consumers, set the `consumerWindowSize` to 0 (for no
 buffer at all). This will prevent the slow consumer from buffering
 any messages on the client side. Messages will remain on the server
 side ready to be consumed by other consumers.
@@ -83,7 +83,7 @@ multiple consumers on a queue.
 
 Most of the consumers cannot be clearly identified as fast or slow
 consumers but are in-between. In that case, setting the value of
-`consumer-window-size` to optimize performance depends on the messaging
+`consumerWindowSize` to optimize performance depends on the messaging
 use case and requires benchmarks to find the optimal value, but a value
 of 1MiB is fine in most cases.
 
@@ -102,8 +102,7 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.consumerWindowSize=0
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?consumerWindowSize=0
 
 If the connection factory is directly instantiated, the consumer window
 size is specified by `ActiveMQConnectionFactory.setConsumerWindowSize()`
@@ -140,8 +139,7 @@ max rate can be configured in the JNDI context environment, e.g.
 connection factory which is available in the context by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.consumerMaxRate=10
+    java.naming.provider.url=tcp://localhost:61616?consumerMaxRate=10
 
 If the connection factory is directly instantiated, the max rate size
 can be set via the `ActiveMQConnectionFactory.setConsumerMaxRate(int
@@ -194,8 +192,7 @@ e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.producerWindowSize=10
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?producerWindowSize=10
 
 If the connection factory is directly instantiated, the producer window
 size can be set via the
@@ -289,8 +286,7 @@ max rate size can be configured in the JNDI context environment, e.g.
 connection factory which is available in the context by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.producerMaxRate=10
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?producerMaxRate=10
 
 If the connection factory is directly instantiated, the max rate size
 can be set via the `ActiveMQConnectionFactory.setProducerMaxRate(int

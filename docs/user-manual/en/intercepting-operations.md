@@ -15,7 +15,7 @@ An interceptor must implement the `Interceptor interface`:
 package org.apache.activemq.api.core.interceptor;
 
 public interface Interceptor
-{   
+{
    boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException;
 }
 ```

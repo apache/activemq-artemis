@@ -48,7 +48,7 @@ directory.
 
 Any message larger than a certain size is considered a large message.
 Large messages will be split up and sent in fragments. This is
-determined by the parameter `min-large-message-size`
+determined by the parameter `minLargeMessageSize`
 
 > **Note**
 >
@@ -56,7 +56,7 @@ determined by the parameter `min-large-message-size`
 > message data is filled with ASCII characters (which are 1 byte) the
 > size of the resulting ActiveMQ message would roughly double. This is
 > important when calculating the size of a "large" message as it may
-> appear to be less than the `min-large-message-size` before it is sent,
+> appear to be less than the `minLargeMessageSize` before it is sent,
 > but it then turns into a "large" message once it is encoded.
 
 The default value is 100KiB.
@@ -86,8 +86,7 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.minLargeMessageSize=250000
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?minLargeMessageSize=250000
 
 
 If the connection factory is being instantiated directly, the minimum
@@ -99,9 +98,9 @@ large message size is specified by
 You can choose to send large messages in compressed form using `
                 compress-large-messages` attributes.
 
-#### `compress-large-messages`
+#### `compressLargeMessages`
 
-If you specify the boolean property `compress-large-messages` on the
+If you specify the boolean property `compressLargeMessages` on the
 `server locator` or `ConnectionFactory` as true, The system will use the
 ZIP algorithm to compress the message body as the message is transferred
 to the server's side. Notice that there's no special treatment at the
@@ -109,7 +108,7 @@ server's side, all the compressing and uncompressing is done at the
 client.
 
 If the compressed size of a large message is below `
-                min-large-message-size`, it is sent to server as regular
+                minLargeMessageSize`, it is sent to server as regular
 messages. This means that the message won't be written into the server's
 large-message data directory, thus reducing the disk I/O.
 
@@ -122,8 +121,7 @@ e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.compressLargeMessages=true
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?compressLargeMessages=true
 
 ## Streaming large messages
 

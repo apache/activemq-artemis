@@ -175,4 +175,4 @@ undesirable state.
 
 ## Example
 
-See the [examples]9examples.md) chapter for an example which shows how to use paging with ActiveMQ.
+See the [examples](examples.md) chapter for an example which shows how to use paging with ActiveMQ.

@@ -37,7 +37,7 @@ to the client, and the client can then free up space in the buffer.
 If you are using JMS and you're using the JMS service on the server to
 load your JMS connection factory instances into JNDI then this parameter
 can be configured in the jms configuration using the element
-`confirmation-window-size` a. If you're using JMS but not using JNDI
+`confirmationWindowSize` a. If you're using JMS but not using JNDI
 then you can set these values directly on the
 `ActiveMQConnectionFactory` instance using the appropriate setter
 method.
@@ -76,12 +76,12 @@ once*delivery guarantees.
 
 Client reconnection is configured using the following parameters:
 
--   `retry-interval`. This optional parameter determines the period in
+-   `retryInterval`. This optional parameter determines the period in
     milliseconds between subsequent reconnection attempts, if the
     connection to the target server has failed. The default value is
     `2000` milliseconds.
 
--   `retry-interval-multiplier`. This optional parameter determines
+-   `retryIntervalMultiplier`. This optional parameter determines
     determines a multiplier to apply to the time since the last retry to
     compute the time to the next retry.
 
@@ -90,22 +90,22 @@ Client reconnection is configured using the following parameters:
 
     Let's take an example:
 
-    If we set `retry-interval` to `1000` ms and we set
-    `retry-interval-multiplier` to `2.0`, then, if the first reconnect
+    If we set `retryInterval` to `1000` ms and we set
+    `retryIntervalMultiplier` to `2.0`, then, if the first reconnect
     attempt fails, we will wait `1000` ms then `2000` ms then `4000` ms
     between subsequent reconnection attempts.
 
     The default value is `1.0` meaning each reconnect attempt is spaced
     at equal intervals.
 
--   `max-retry-interval`. This optional parameter determines the maximum
+-   `maxRetryInterval`. This optional parameter determines the maximum
     retry interval that will be used. When setting
-    `retry-interval-multiplier` it would otherwise be possible that
+    `retryIntervalMultiplier` it would otherwise be possible that
     subsequent retries exponentially increase to ridiculously large
     values. By setting this parameter you can set an upper limit on that
     value. The default value is `2000` milliseconds.
 
--   `reconnect-attempts`. This optional parameter determines the total
+-   `reconnectAttempts`. This optional parameter determines the total
     number of reconnect attempts to make before giving up and shutting
     down. A value of `-1` signifies an unlimited number of attempts. The
     default value is `0`.
@@ -115,11 +115,7 @@ JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`:
 
     java.naming.factory.initial = org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url = tcp://localhost:61616
-    connection.ConnectionFactory.retryInterval=1000
-    connection.ConnectionFactory.retryIntervalMultiplier=1.5
-    connection.ConnectionFactory.maxRetryInterval=60000
-    connection.ConnectionFactory.reconnectAttempts=1000
+    connection.ConnectionFactory=tcp://localhost:61616?retryInterval=1000&retryIntervalMultiplier=1.5&maxRetryInterval=60000&reconnectAttempts=1000
 
 If you're using JMS, but instantiating your JMS connection factory
 directly, you can specify the parameters using the appropriate setter
