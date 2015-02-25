@@ -37,6 +37,7 @@ import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.postoffice.BindingType;
 import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServerLogger;
@@ -112,7 +113,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       // Note that STOMP 1.0 has no heartbeat, so if connection ttl is non zero, data must continue to be sent or connection
       // will be timed out and closed!
 
-      String ttlStr = (String) acceptorUsed.getConfiguration().get("connection-ttl");
+      String ttlStr = (String) acceptorUsed.getConfiguration().get(TransportConstants.CONNECTION_TTL);
       Long ttl = ttlStr == null ? null : Long.valueOf(ttlStr);
 
       if (ttl != null)
