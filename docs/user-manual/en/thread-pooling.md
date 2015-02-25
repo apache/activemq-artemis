@@ -37,8 +37,9 @@ When using new IO (NIO), ActiveMQ will, by default, cap its thread pool
 at three times the number of cores (or hyper-threads) as reported by `
             Runtime.getRuntime().availableProcessors()` for processing
 incoming packets. To override this value, you can set the number of
-threads by specifying the parameter `nio-remoting-threads` in the
-transport configuration. See the ? for more information on this.
+threads by specifying the parameter `nioRemotingThreads` in the
+transport configuration. See the [configuring transports](configuring-transports.md)
+for more information on this.
 
 There are also a small number of other places where threads are used
 directly, we'll discuss each in turn.
@@ -131,7 +132,7 @@ myFactory.setUseGlobalPools(false);
 
 myFactory.setScheduledThreadPoolMaxSize(10);
 
-myFactory.setThreadPoolMaxSize(-1); 
+myFactory.setThreadPoolMaxSize(-1);
 ```
 
 If you're using the JMS API, you can set the same parameters on the
@@ -149,12 +150,12 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    
+
     java.naming.provider.url=tcp://localhost:61616
-    
+
     connection.ConnectionFactory.useGlobalPools=false
-    
+
     connection.ConnectionFactory.scheduledThreadPoolMaxSize=10
-    
+
     connection.ConnectionFactory.threadPoolMaxSize=-1
 

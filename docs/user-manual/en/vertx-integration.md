@@ -21,7 +21,7 @@ follows:
     <param key="queue" value="jms.queue.vertxQueue"/>
     <param key="vertx-address" value="vertx.in.eventaddress"/>
     </connector-service>
-        
+
 
 Shown are the required params for the connector service:
 
@@ -58,7 +58,7 @@ as follows:
     <param key="vertx-address" value="vertx.out.eventaddress"/>
     <param key="publish" value="true"/>
     </connector-service>
-        
+
 
 Shown are the required params for the connector service:
 

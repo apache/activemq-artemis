@@ -7,12 +7,6 @@ together in order to share message processing load. Each active node in
 the cluster is an active ActiveMQ server which manages its own messages
 and handles its own connections.
 
-> **Note**
->
-> The *clustered* parameter is deprecated and no longer needed for
-> setting up a cluster. If your configuration contains this parameter it
-> will be ignored and a message with the ID `HQ221038` will be logged.
-
 The cluster is formed by each node declaring *cluster connections* to
 other nodes in the core configuration file `activemq-configuration.xml`.
 When a node forms a cluster connection to another node, internally it
@@ -365,7 +359,7 @@ group-port from the corresponding `broadcast-group` on the server. Let's
 take a look at an example:
 
     java.naming.factory.initial = org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url = udp://231.7.7.7:9876
+    connectionFactory.myConnectionFactory=udp://231.7.7.7:9876
 
 The element `discovery-group-ref` specifies the name of a discovery
 group defined in `activemq-configuration.xml`.
@@ -469,13 +463,13 @@ JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://myhost:61616,myhost2:61616
+    connectionFactory.myConnectionFactory=(tcp://myhost:61616,tcp://myhost2:61616)
 
-The `java.naming.provider.url` contains a list of servers to use for the
+The `connectionFactory.myConnectionFactory` contains a list of servers to use for the
 connection factory. When this connection factory used client application
 and JMS connections are created from it, those connections will be
-load-balanced across the list of servers defined by the
-`java.naming.provider.url`.
+load-balanced across the list of servers defined within the brackets `()`.
+The brackets are expanded so the same query cab be appended after the last bracket for ease.
 
 If you're using JMS, but you're not using JNDI to lookup a connection
 factory - you're instantiating the JMS connection factory directly then
@@ -846,8 +840,7 @@ in the JNDI context environment in, e.g. `jndi.properties`, to specify
 the load balancing policy directly:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.loadBalancingPolicyClassName=org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
+    connection.myConnectionFactory=tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
 
 The above example would instantiate a JMS connection factory that uses
 the random connection load balancing policy.

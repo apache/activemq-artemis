@@ -20,7 +20,7 @@ Why use ActiveMQ? Here are just a few of the reasons:
 
 -   ActiveMQ is designed with usability in mind.
 
--   Written in Java. Runs on any platform with a Java 6+ runtime, that's
+-   Written in Java. Runs on any platform with a Java 8+ runtime, that's
     everything from Windows desktops to IBM mainframes.
 
 -   Amazing performance. Our ground-breaking high performance journal
@@ -44,8 +44,5 @@ Why use ActiveMQ? Here are just a few of the reasons:
     to load balance messages. Link geographically distributed clusters
     over unreliable connections to form a global network. Configure
     routing of messages in a highly flexible way.
-
--   For a full list of features, please see the [features wiki
-    page](todo) .
 
 

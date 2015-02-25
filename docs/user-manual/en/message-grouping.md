@@ -68,8 +68,7 @@ Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.autoGroup=true
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?autoGroup=true
 
 Alternatively you can set the group id via the connection factory. All
 messages sent with producers created via this connection factory will
@@ -79,8 +78,7 @@ Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:61616
-    connection.ConnectionFactory.groupID=Group-0
+    connectionFactory.myConnectionFactory=tcp://localhost:61616?roupID=Group-0
 
 ## Example
 
