@@ -95,7 +95,7 @@ seconds.
 
 #### Using JMS destinations
 
-As explained in [Mapping JMS Concepts to the Core API](jms-core-mapping.md), 
+As explained in [Mapping JMS Concepts to the Core API](jms-core-mapping.md),
 JMS destinations are also mapped to ActiveMQ
 addresses and queues. If you want to use Stomp to send messages to JMS
 destinations, the Stomp destinations must follow the same convention:
@@ -247,7 +247,7 @@ specification. To enable AMQP you must configure a Netty Acceptor to
 receive AMQP clients, like so:
 
     <acceptor name="stomp-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
-            
+
 
 ActiveMQ will then accept AMQP 1.0 clients on port 5672 which is the
 default AMQP port.
@@ -305,7 +305,7 @@ ActiveMQ JMS client can talk directly to a ActiveMQ server. To enable
 OpenWire support you must configure a Netty Acceptor, like so:
 
     <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
-            
+
 
 The ActiveMQ server will then listens on port 61616 for incoming
 openwire commands. Please note the "protocols" is not mandatory here.

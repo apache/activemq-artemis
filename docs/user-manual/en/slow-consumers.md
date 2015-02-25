@@ -15,7 +15,8 @@ resources.
 ## Configuration required for detecting slow consumers
 
 By default the server will not detect slow consumers. If slow consumer
-detection is desired then see ? for more details.
+detection is desired then see [queue attributes chapter](queue-attributes.md)
+for more details.
 
 The calculation to determine whether or not a consumer is slow only
 inspects the number of messages a particular consumer has

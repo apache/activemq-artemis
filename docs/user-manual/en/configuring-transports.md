@@ -1,9 +1,5 @@
 # Configuring the Transport
 
-ActiveMQ has a fully pluggable and highly flexible transport layer and
-defines its own Service Provider Interface (SPI) to make plugging in a
-new transport provider relatively straightforward.
-
 In this chapter we'll describe the concepts required for understanding
 ActiveMQ transports and where and how they're configured.
 
@@ -200,7 +196,7 @@ Netty for simple TCP:
 > The `host` and `port` parameters are only used in the core API, in
 > XML configuration these are set in the URI host and port.
 
--   `use-nio`. If this is `true` then Java non blocking NIO will be
+-   `useNio`. If this is `true` then Java non blocking NIO will be
     used. If set to `false` then old blocking Java IO will be used.
 
     If you require the server to handle many concurrent connections, we
@@ -264,7 +260,7 @@ Netty for simple TCP:
     `32768` bytes (32KiB).
 
 -   `batchDelay`. Before writing packets to the transport, ActiveMQ can
-    be configured to batch up writes for a maximum of `batch-delay`
+    be configured to batch up writes for a maximum of `batchDelay`
     milliseconds. This can increase overall throughput for very small
     messages. It does so at the expense of an increase in average
     latency for message transfer. The default value for this property is
@@ -277,9 +273,9 @@ Netty for simple TCP:
     small number of consumers, but at the cost of overall throughput and
     scalability - especially on multi-core machines. If you want the
     lowest latency and a possible reduction in throughput then you can
-    use the default value for `direct-deliver` (i.e. true). If you are
+    use the default value for `directDeliver` (i.e. true). If you are
     willing to take some small extra hit on latency but want the highest
-    throughput set `direct-deliver` to `false
+    throughput set `directDeliver` to `false
                             `.
 
 -   `nioRemotingThreads`. When configured to use NIO, ActiveMQ will,

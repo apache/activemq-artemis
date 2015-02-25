@@ -25,7 +25,7 @@ try
    sf = locator.createClientSessionFactory();;
 
    session = sf.createSession(...);
-   
+
    ... do some stuff with the session...
 }
 finally
@@ -34,7 +34,7 @@ finally
    {
       session.close();
    }
-   
+
    if (sf != null)
    {
       sf.close();
@@ -99,7 +99,7 @@ If you're using JMS, the connection TTL is defined by the
 `ConnectionTTL` attribute on a `ActiveMQConnectionFactory` instance, or
 if you're deploying JMS connection factory instances direct into JNDI on
 the server side, you can specify it in the xml config, using the
-parameter `connection-ttl`.
+parameter `connectionTtl`.
 
 The default value for connection ttl on an "unreliable" connection (e.g.
 a Netty connection) is `60000`ms, i.e. 1 minute. The default value for
@@ -156,10 +156,7 @@ connection failed and will either initiate failover, or call any
 using JMS) depending on how it has been configured.
 
 If you're using JMS it's defined by the `ClientFailureCheckPeriod`
-attribute on a `ActiveMQConnectionFactory` instance, or if you're
-deploying JMS connection factory instances direct into JNDI on the
-server side, you can specify it in the `activemq-jms.xml ` configuration
-file, using the parameter `client-failure-check-period`.
+attribute on a `ActiveMQConnectionFactory` instance..
 
 The default value for client failure check period on an "unreliable"
 connection (e.g. a Netty connection) is `30000`ms, i.e. 30 seconds. The

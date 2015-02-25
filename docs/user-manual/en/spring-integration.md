@@ -33,7 +33,7 @@ taking advantage of this feature:
        <bean id="EmbeddedJms" class="org.apache.activemq.integration.spring.SpringJmsBootstrap" init-method="start"/>
 
        <bean id="listener" class="org.apache.activemq.tests.integration.spring.ExampleListener"/>
-        
+
        <bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
           <property name="connectionFactory" ref="ConnectionFactory"/>
           <property name="destination" ref="/queue/exampleQueue"/>

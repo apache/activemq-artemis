@@ -121,7 +121,7 @@ import org.apache.activemq.core.config.impl.ConfigurationImpl;
 
 Configuration config = new ConfigurationImpl();
 HashSet<TransportConfiguration> transports = new HashSet<TransportConfiguration>();
-      
+
 transports.add(new TransportConfiguration(NettyAcceptorFactory.class.getName()));
 transports.add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 

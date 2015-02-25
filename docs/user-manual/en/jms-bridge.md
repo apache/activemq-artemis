@@ -300,9 +300,7 @@ you will have to bear in mind timeout issues.
 
 ### Examples
 
-Please see ? which shows how to configure and use a JMS Bridge with
+Please see [the examples chapter](examples.md) which shows how to configure and use a JMS Bridge with
 JBoss AS to send messages to the source destination and consume them
-from the target destination.
-
-Please see ? which shows how to configure and use a JMS Bridge between
+from the target destination and how to configure and use a JMS Bridge between
 two standalone ActiveMQ servers.

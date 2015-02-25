@@ -42,7 +42,7 @@ or
     <ha-policy>
        <shared-store/>
     </ha-policy>
-               
+
 
 As well as these 2 strategies there is also a 3rd called `live-only`.
 This of course means there will be no Backup Strategy and is the default
@@ -72,7 +72,7 @@ backup). This would look something like:
           <master/>
        </replication>
     </ha-policy>
-               
+
 
 or
 
@@ -81,7 +81,7 @@ or
           <slave/>
        </shared-store/>
     </ha-policy>
-               
+
 
 or
 
@@ -90,7 +90,7 @@ or
           <colocated/>
        </replication>
     </ha-policy>
-               
+
 
 ### Data Replication
 
@@ -213,7 +213,7 @@ configure the live server in ' `activemq-configuration.xml` to have:
           ...
        </cluster-connection>
     </cluster-connections>
-                    
+
 
 The backup server must be similarly configured but as a `slave`
 
@@ -364,7 +364,7 @@ id via the `ha-policy` configuration in `activemq-configuration.xml`:
     ...
        </cluster-connection>
     </cluster-connections>
-                   
+
 
 The backup server must also be configured as a backup.
 
@@ -373,7 +373,7 @@ The backup server must also be configured as a backup.
           <slave/>
        </shared-store>
     </ha-policy>
-                   
+
 
 In order for live - backup groups to operate properly with a shared
 store, both servers must have configured the location of journal
@@ -409,7 +409,7 @@ stop. This configuration would look like:
           </slave>
        </shared-store>
     </ha-policy>
-               
+
 
 The `failback-delay` configures how long the backup must wait after
 automatically stopping before it restarts. This is to gives the live
@@ -581,7 +581,7 @@ so:
           </colocated>
        <replication>
     </ha-policy>
-                
+
 
 the above example is configured to use replication, in this case the
 `master` and `slave` configurations must match those for normal
@@ -619,7 +619,7 @@ adding them to the `ha-policy` configuration like so:
              </excludes>
     .........
     </ha-policy>
-                     
+
 
 #### Configuring Directories
 
@@ -699,7 +699,7 @@ like:
           </scale-down>
        </live-only>
     </ha-policy>
-          
+
 
 In this instance the server is configured to use a specific connector to
 scale down, if a connector is not specified then the first INVM
@@ -714,7 +714,7 @@ this would look like:
           </scale-down>
        </live-only>
     </ha-policy>
-          
+
 
 #### Scale Down with groups
 
@@ -730,7 +730,7 @@ like so:
           </scale-down>
        </live-only>
     </ha-policy>
-             
+
 
 In this scenario only servers that belong to the group `my-group` will
 be scaled down to
@@ -774,7 +774,7 @@ typical configuration would look like:
           </colocated>
        </replication>
     </ha-policy>
-             
+
 
 #### Scale Down and Clients
 

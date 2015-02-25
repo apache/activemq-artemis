@@ -52,10 +52,8 @@ session, only the commit / rollback blocks not every send, or, using
 ActiveMQ's advanced *asynchronous send acknowledgements feature*
 described in Asynchronous Send Acknowledgements.
 
-If you are using JMS and you're using the JMS service on the server to
-load your JMS connection factory instances into JNDI then these
-parameters can be configured in `activemq-jms.xml` using the elements
-`block-on-durable-send` and `block-on-non-durable-send`. If you're using
+If you are using JMS and JNDI then using the elements
+`blockOnDurableSend` and `blockOnNonDurableSend`. If you're using
 JMS but not using JNDI then you can set these values directly on the
 `ActiveMQConnectionFactory` instance using the appropriate setter
 methods.
@@ -139,7 +137,7 @@ informed at the client side by ActiveMQ calling your handler's
 to the message that was sent.
 
 To enable asynchronous send acknowledgements you must make sure
-`confirmation-window-size` is set to a positive integer value, e.g.
+`confirmationWindowSize` is set to a positive integer value, e.g.
 10MiB
 
-Please see ? for a full working example.
+Please see [the examples chapter](examples.md) for a full working example.
