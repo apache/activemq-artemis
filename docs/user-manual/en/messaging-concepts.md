@@ -71,7 +71,7 @@ delivered to a consumer again.
 
 With point-to-point messaging, there can be many consumers on the queue
 but a particular message will only ever be consumed by a maximum of one
-of them. Senders (also known as*producers*) to the queue are completely
+of them. Senders (also known as *producers*) to the queue are completely
 decoupled from receivers (also known as *consumers*) of the queue - they
 do not know of each other's existence.
 
