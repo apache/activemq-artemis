@@ -97,7 +97,7 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema
       {
          return Integer.valueOf((String) port);
       }
-      return port != null ? (int) port : 5445;
+      return port != null ? (int) port : 61616;
    }
 
    private static String getHost(Map<String, Object> params)

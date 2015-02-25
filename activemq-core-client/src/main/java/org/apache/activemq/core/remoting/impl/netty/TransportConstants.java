@@ -131,7 +131,7 @@ public class TransportConstants
 
    public static final String DEFAULT_HOST = "localhost";
 
-   public static final int DEFAULT_PORT = 5445;
+   public static final int DEFAULT_PORT = 61616;
 
    public static final String DEFAULT_LOCAL_ADDRESS = null;
 

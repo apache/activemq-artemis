@@ -37,12 +37,12 @@
 
       <!-- Connectors -->
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5447</connector>
+         <connector name="netty-connector">tcp://localhost:61618</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5447</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61618</acceptor>
       </acceptors>
 
       <!-- Clustering configuration -->

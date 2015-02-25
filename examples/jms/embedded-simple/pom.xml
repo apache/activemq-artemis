@@ -68,8 +68,8 @@ under the License.
                   <configuration>
                      <clientClass>org.apache.activemq.jms.example.EmbeddedExample</clientClass>
                      <args>
-                        <param>tcp://localhost:5445</param>
-                        <param>tcp://localhost:5445</param>
+                        <param>tcp://localhost:61616</param>
+                        <param>tcp://localhost:61616</param>
                      </args>
                      <systemProperties>
                         <property>

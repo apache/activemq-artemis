@@ -25,9 +25,9 @@
       <!-- Connectors -->
 
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5445</connector>
+         <connector name="netty-connector">tcp://localhost:61616</connector>
 
-         <connector name="backup-connector">tcp://localhost:5446</connector>
+         <connector name="backup-connector">tcp://localhost:61617</connector>
       </connectors>
 
       <!-- Acceptors -->

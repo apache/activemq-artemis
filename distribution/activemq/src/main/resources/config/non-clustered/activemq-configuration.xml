@@ -35,13 +35,22 @@ under the License.
       <large-messages-directory>${data.dir:../data}/large-messages</large-messages-directory>
 
       <connectors>
-         <connector name="netty">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}</connector>
-         <connector name="netty-throughput">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.batch.port:5455}?batchDelay=50</connector>
+         <!-- Default Connector.  Returned to clients during broadcast and distributed around cluster.  See broadcast and discovery-groups -->
+         <connector name="activemq">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:61616}</connector>
       </connectors>
 
       <acceptors>
-         <acceptor name="netty">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}</acceptor>
-         <acceptor name="netty-throughput">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.batch.port:5455}?batchDelay=50;directDeliver=false</acceptor>
+         <!-- Default ActiveMQ Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP  -->
+         <acceptor name="activemq">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:61616}</acceptor>
+
+         <!-- AMQP Connector.  Listens on default AMQP port for AMQP traffic.  -->
+         <acceptor name="amqp">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5672}?protocols=AMQP</acceptor>
+
+         <!-- STOMP Acceptor.  Enables ActiveMQ Core protocol, OpenWire and STOMP.  -->
+         <acceptor name="stomp">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:61613}?protocols=STOMP</acceptor>
+
+         <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Core and STOMP for legacy HornetQ clients  -->
+         <acceptor name="hornetq">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}?protocols=CORE,STOMP</acceptor>
       </acceptors>
 
       <security-settings>

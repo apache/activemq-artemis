@@ -39,7 +39,7 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5446</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61617</acceptor>
       </acceptors>
 
       <!-- Other config -->

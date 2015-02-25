@@ -38,12 +38,12 @@ under the License.
       <paging-directory>${build.directory}/server0/data/messaging/paging</paging-directory>
 
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5445</connector>
+         <connector name="netty-connector">tcp://localhost:61616</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
          <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
       </acceptors>
 

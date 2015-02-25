@@ -594,7 +594,7 @@ replication as in the previous chapter. `shared-store` is also supported
 If the HA Policy is colocated then connectors and acceptors will be
 inherited from the live server creating it and offset depending on the
 setting of `backup-port-offset` configuration element. If this is set to
-say 100 (which is the default) and a connector is using port 5445 then
+say 100 (which is the default) and a connector is using port 61616 then
 this will be set to 5545 for the first server created, 5645 for the
 second and so on.
 

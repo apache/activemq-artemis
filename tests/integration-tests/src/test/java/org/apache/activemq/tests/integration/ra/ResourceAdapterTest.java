@@ -365,7 +365,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       spec.setDestination(MDBQUEUE);
       // now override the connector class
       spec.setConnectorClassName(NETTY_CONNECTOR_FACTORY);
-      spec.setConnectionParameters("port=5445");
+      spec.setConnectionParameters("port=61616");
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(new CountDownLatch(1));
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);

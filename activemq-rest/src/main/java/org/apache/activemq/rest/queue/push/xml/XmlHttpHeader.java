@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class XmlHttpHeader implements Serializable
 {
-   private static final long serialVersionUID = -390039194544718601L;
+   private static final long serialVersionUID = -3900391946161818601L;
    private String name;
    private String value;
 

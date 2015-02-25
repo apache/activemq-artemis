@@ -71,11 +71,11 @@
       </remoting-incoming-interceptors>
 
       <connectors>
-         <connector name="connector1">tcp://localhost:5445</connector>
+         <connector name="connector1">tcp://localhost:61616</connector>
          <connector name="connector2">vm://0</connector>
       </connectors>
       <acceptors>
-         <acceptor name="acceptor1">tcp://localhost:5445</acceptor>
+         <acceptor name="acceptor1">tcp://localhost:61616</acceptor>
          <acceptor>vm://0</acceptor>
       </acceptors>
 

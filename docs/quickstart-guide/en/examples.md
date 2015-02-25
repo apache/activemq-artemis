@@ -99,7 +99,7 @@ Type the command `mvn verify` and you should see the following output:
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl deployQueue
     INFO: HQ221003: trying to deploy queue jms.queue.exampleQueue
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.remoting.impl.netty.NettyAcceptor start
-    INFO: HQ221020: Started Netty Acceptor version 3.6.2.Final-c0d783c localhost:5445 for CORE protocol
+    INFO: HQ221020: Started Netty Acceptor version 3.6.2.Final-c0d783c localhost:61616 for CORE protocol
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl$SharedStoreLiveActivation run
     INFO: HQ221007: Server is now live
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl start
@@ -230,7 +230,7 @@ In the shell window you should see something like the following output:
     10:58:06,434 INFO  [org.jboss.as.remoting] (MSC service thread 1-2) JBAS017100: Listening on localhost.localdomain/127.0.0.1:4447
     10:58:06,434 INFO  [org.jboss.as.remoting] (MSC service thread 1-15) JBAS017100: Listening on /127.0.0.1:9999
     10:58:06,436 INFO  [org.jboss.as.server.deployment.scanner] (MSC service thread 1-16) JBAS015012: Started FileSystemDeploymentService for directory /home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/deployments
-    10:58:08,790 INFO  [org.apache.activemq.core.remoting.impl.netty.NettyAcceptor] (MSC service thread 1-11) Started Netty Acceptor version 3.2.5.Final-a96d88c localhost.localdomain:5445 for CORE protocol
+    10:58:08,790 INFO  [org.apache.activemq.core.remoting.impl.netty.NettyAcceptor] (MSC service thread 1-11) Started Netty Acceptor version 3.2.5.Final-a96d88c localhost.localdomain:61616 for CORE protocol
     10:58:08,793 INFO  [org.apache.activemq.core.remoting.impl.netty.NettyAcceptor] (MSC service thread 1-11) Started Netty Acceptor version 3.2.5.Final-a96d88c localhost.localdomain:5455 for CORE protocol
     10:58:08,795 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) Server is now live
     10:58:08,797 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) ActiveMQ Server version 2.2.13.Final (HQ_2_2_13_FINAL_AS7, 122) [5c499e88-9c63-11e2-bfa3-fe5400591699]) started

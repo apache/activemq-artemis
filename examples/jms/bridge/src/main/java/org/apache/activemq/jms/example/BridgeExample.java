@@ -59,7 +59,7 @@ public class BridgeExample extends ActiveMQExample
 
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://127.0.0.1:5445");
+         properties.put("connectionFactory.ConnectionFactory", "tcp://127.0.0.1:61616");
          properties.put("queue.queue/sausage-factory", "sausage-factory");
          ic0 = new InitialContext(properties);
 
@@ -75,7 +75,7 @@ public class BridgeExample extends ActiveMQExample
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://127.0.0.1:5446");
+         properties.put("connectionFactory.ConnectionFactory", "tcp://127.0.0.1:61617");
          properties.put("queue.queue/mincing-machine", "mincing-machine");
          ic1 = new InitialContext(properties);
 

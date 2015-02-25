@@ -307,7 +307,7 @@ public class ResourceAdapterTest extends ServiceTestBase
    {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
-      ra.setConnectionParameters("host=host1;port=5445, serverid=0, host=host2;port=5446");
+      ra.setConnectionParameters("host=host1;port=61616, serverid=0, host=host2;port=61617");
       ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(new ConnectionFactoryProperties());
       TransportConfiguration[] configurations = factory.getServerLocator().getStaticTransportConfigurations();
       assertNotNull(configurations);
@@ -315,14 +315,14 @@ public class ResourceAdapterTest extends ServiceTestBase
       assertEquals(NETTY_CONNECTOR_FACTORY, configurations[0].getFactoryClassName());
       assertEquals(2, configurations[0].getParams().size());
       assertEquals("host1", configurations[0].getParams().get("host"));
-      assertEquals("5445", configurations[0].getParams().get("port"));
+      assertEquals("61616", configurations[0].getParams().get("port"));
       assertEquals(INVM_CONNECTOR_FACTORY, configurations[1].getFactoryClassName());
       assertEquals(1, configurations[1].getParams().size());
       assertEquals("0", configurations[1].getParams().get("serverid"));
       assertEquals(NETTY_CONNECTOR_FACTORY, configurations[2].getFactoryClassName());
       assertEquals(2, configurations[2].getParams().size());
       assertEquals("host2", configurations[2].getParams().get("host"));
-      assertEquals("5446", configurations[2].getParams().get("port"));
+      assertEquals("61617", configurations[2].getParams().get("port"));
    }
 
    @Test
@@ -353,7 +353,7 @@ public class ResourceAdapterTest extends ServiceTestBase
    {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
-      ra.setConnectionParameters("host=host1;port=5445, serverid=0, host=host2;port=5446");
+      ra.setConnectionParameters("host=host1;port=61616, serverid=0, host=host2;port=61617");
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
       ArrayList<String> value = new ArrayList<String>();
       value.add(INVM_CONNECTOR_FACTORY);
@@ -366,7 +366,7 @@ public class ResourceAdapterTest extends ServiceTestBase
       connectionParameters.add(map1);
       Map<String, Object> map2 = new HashMap<String, Object>();
       map2.put("host", "myhost");
-      map2.put("port", "5445");
+      map2.put("port", "61616");
       connectionParameters.add(map2);
       Map<String, Object> map3 = new HashMap<String, Object>();
       map3.put("serverid", "1");
@@ -382,7 +382,7 @@ public class ResourceAdapterTest extends ServiceTestBase
       assertEquals(NETTY_CONNECTOR_FACTORY, configurations[1].getFactoryClassName());
       assertEquals(2, configurations[1].getParams().size());
       assertEquals("myhost", configurations[1].getParams().get("host"));
-      assertEquals("5445", configurations[1].getParams().get("port"));
+      assertEquals("61616", configurations[1].getParams().get("port"));
       assertEquals(INVM_CONNECTOR_FACTORY, configurations[2].getFactoryClassName());
       assertEquals(1, configurations[2].getParams().size());
       assertEquals("1", configurations[2].getParams().get("serverid"));

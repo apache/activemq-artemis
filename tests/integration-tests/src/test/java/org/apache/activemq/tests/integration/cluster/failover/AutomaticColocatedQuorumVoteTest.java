@@ -99,18 +99,18 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          assertEquals(server1.getNodeID(), backupServer0.getNodeID());
          Set<TransportConfiguration> backupAcceptors0 = backupServer0.getConfiguration().getAcceptorConfigurations();
          assertEquals(1, backupAcceptors0.size());
-         assertEquals("5545", backupAcceptors0.iterator().next().getParams().get("port"));
+         assertEquals("61716", backupAcceptors0.iterator().next().getParams().get("port"));
          Set<TransportConfiguration> backupAcceptors1 = backupServer1.getConfiguration().getAcceptorConfigurations();
          assertEquals(1, backupAcceptors1.size());
-         assertEquals("5546", backupAcceptors1.iterator().next().getParams().get("port"));
+         assertEquals("61717", backupAcceptors1.iterator().next().getParams().get("port"));
          Map<String, TransportConfiguration> connectorConfigurations0 = backupServer0.getConfiguration().getConnectorConfigurations();
          assertEquals(2, connectorConfigurations0.size());
-         assertEquals("5545", connectorConfigurations0.get("liveConnector0").getParams().get("port"));
-         assertEquals("5446", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
+         assertEquals("61716", connectorConfigurations0.get("liveConnector0").getParams().get("port"));
+         assertEquals("61617", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
          Map<String, TransportConfiguration> connectorConfigurations1 = backupServer1.getConfiguration().getConnectorConfigurations();
          assertEquals(2, connectorConfigurations1.size());
-         assertEquals("5546", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
-         assertEquals("5445", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
+         assertEquals("61717", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
+         assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
          if (!replicated)
          {
             assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
@@ -186,12 +186,12 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          assertEquals(0, backupAcceptors1.size());
          Map<String, TransportConfiguration> connectorConfigurations0 = backupServer0.getConfiguration().getConnectorConfigurations();
          assertEquals(2, connectorConfigurations0.size());
-         assertEquals("5445", connectorConfigurations0.get("liveConnector0").getParams().get("port"));
-         assertEquals("5446", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
+         assertEquals("61616", connectorConfigurations0.get("liveConnector0").getParams().get("port"));
+         assertEquals("61617", connectorConfigurations0.get("remoteConnector0").getParams().get("port"));
          Map<String, TransportConfiguration> connectorConfigurations1 = backupServer1.getConfiguration().getConnectorConfigurations();
          assertEquals(2, connectorConfigurations1.size());
-         assertEquals("5446", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
-         assertEquals("5445", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
+         assertEquals("61617", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
+         assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
          if (!replicated)
          {
             assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
@@ -366,14 +366,14 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
    private TransportConfiguration getAcceptorTransportConfiguration(int node)
    {
       HashMap<String, Object> params = new HashMap<>();
-      params.put("port", "" + (5445 + node));
+      params.put("port", "" + (61616 + node));
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
    }
 
    private TransportConfiguration getConnectorTransportConfiguration(String name, int node)
    {
       HashMap<String, Object> params = new HashMap<>();
-      params.put("port", "" + (5445 + node));
+      params.put("port", "" + (61616 + node));
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params, name);
    }
 }

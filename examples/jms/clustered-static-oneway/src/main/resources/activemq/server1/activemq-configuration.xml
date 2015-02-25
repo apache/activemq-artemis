@@ -37,14 +37,14 @@
 
       <!-- Connectors -->
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5446</connector>
+         <connector name="netty-connector">tcp://localhost:61617</connector>
          <!-- connector to the server0 -->
-         <connector name="server2-connector">tcp://localhost:5447</connector>
+         <connector name="server2-connector">tcp://localhost:61618</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5446</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61617</acceptor>
       </acceptors>
 
       <!-- Clustering configuration -->

@@ -40,20 +40,20 @@ under the License.
       <!-- Connectors -->
 
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5445</connector>
+         <connector name="netty-connector">tcp://localhost:61616</connector>
 
          <!-- We just use this connector so we can send management operations while the other acceptor
          is stopped -->
-         <connector name="netty-connector2">tcp://localhost:5446</connector>
+         <connector name="netty-connector2">tcp://localhost:61617</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
 
          <!-- We just use this acceptor so we can send management operations while the other acceptor
          is stopped -->
-         <acceptor name="netty-acceptor2">tcp://localhost:5446</acceptor>
+         <acceptor name="netty-acceptor2">tcp://localhost:61617</acceptor>
       </acceptors>
 
       <!-- Other config -->

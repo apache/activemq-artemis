@@ -97,12 +97,12 @@ It is also possible to use system property substitution in all the
 configuration files. by replacing a value with the name of a system
 property. Here is an example of this with a connector configuration:
 
-    <connector name="netty">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}</connector>
+    <connector name="netty">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:61616}</connector>
 
 Here you can see we have replaced 2 values with system properties
 `activemq.remoting.netty.host` and `activemq.remoting.netty.port`. These
 values will be replaced by the value found in the system property if
-there is one, if not they default back to localhost or 5445
+there is one, if not they default back to localhost or 61616
 respectively. It is also possible to not supply a default. i.e.
 `${activemq.remoting.netty.host}`, however the system property *must* be
 supplied in that case.

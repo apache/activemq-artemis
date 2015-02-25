@@ -78,7 +78,7 @@ by eliminating the need so specify a classpath. These tools are:
 
     Here's an example:
 
-        java -jar activemq-tools-<version>-jar-with-dependencies.jar import /home/user/exportData.xml 127.0.0.1 5445 false false
+        java -jar activemq-tools-<version>-jar-with-dependencies.jar import /home/user/exportData.xml 127.0.0.1 61616 false false
 
     Like the `export` tool the `import` tool is single threaded so
     depending on the size of the XML file it may take awhile for the

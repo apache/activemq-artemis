@@ -48,7 +48,7 @@ under the License.
 
 <p>You don't need to do anything special to configure the ActiveMQ server to accept AMQP clients. </p>
 <p>Just for the sake of documentation though we are setting the port of ActiveMQ on this example as 5672 which is the port qpid have by default. </p>
-<p>This is totally optional and you don't need to follow this convention. You can use any port you chose including ActiveMQ's 5445 default port</p>
+<p>This is totally optional and you don't need to follow this convention. You can use any port you chose including ActiveMQ's 61616 default port</p>
      <pre class="prettyprint">
      <code>
          &lt;acceptor name="proton-acceptor"&gt;tcp://localhost:5672&lt;/acceptor&gt;
@@ -70,7 +70,7 @@ under the License.
     <li> Create an amqp qpid 1.0 connection.</li>
         <pre class="prettyprint">
            <code>
-        std::string broker = argc > 1 ? argv[1] : "localhost:5445";
+        std::string broker = argc > 1 ? argv[1] : "localhost:61616";
         std::string address = argc > 2 ? argv[2] : "jms.queue.exampleQueue";
         std::string connectionOptions = argc > 3 ? argv[3] : "{protocol:amqp1.0}"; // Look at the <a href="http://qpid.apache.org/releases/qpid-0.30/programming/book/connections.html#connection-options">docs</a> for more options
 

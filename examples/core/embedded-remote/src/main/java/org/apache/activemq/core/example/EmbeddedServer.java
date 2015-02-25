@@ -51,7 +51,7 @@ public class EmbeddedServer
           */
          Map<String, Object> map = new HashMap<String, Object>();
          map.put("host", "localhost");
-         map.put("port", 5445);
+         map.put("port", 61616);
 
          TransportConfiguration transpConf = new TransportConfiguration(NettyAcceptorFactory.class.getName(),map);
 

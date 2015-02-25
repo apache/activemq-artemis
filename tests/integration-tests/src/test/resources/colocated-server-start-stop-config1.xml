@@ -19,7 +19,7 @@
             xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
 
    <connectors>
-      <connector name="netty-connector">tcp://localhost:5445</connector>
+      <connector name="netty-connector">tcp://localhost:61616</connector>
    </connectors>
 
    <paging-directory>/tmp/activemq-unit-test/live1/paging</paging-directory>
@@ -28,7 +28,7 @@
    <large-messages-directory>/tmp/activemq-unit-test/live1/largemessages</large-messages-directory>
    
    <acceptors>
-      <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
+      <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
    </acceptors>
 
     <broadcast-groups>

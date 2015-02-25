@@ -142,13 +142,13 @@ public class ConnectionFactoryURITest
       Map<String, Object> props = new HashMap<>();
       Set<String> allowableConnectorKeys = TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
       StringBuilder sb = new StringBuilder();
-      sb.append("(tcp://localhost0:5445?");//localhost1:5446,localhost2:5447,localhost3:5448)&ha=true");
+      sb.append("(tcp://localhost0:61616?");//localhost1:61617,localhost2:61618,localhost3:61619)&ha=true");
       populateConnectorParams(props, allowableConnectorKeys, sb);
       Map<String, Object> props2 = new HashMap<>();
-      sb.append(",tcp://localhost1:5446?");
+      sb.append(",tcp://localhost1:61617?");
       populateConnectorParams(props2, allowableConnectorKeys, sb);
       Map<String, Object> props3 = new HashMap<>();
-      sb.append(",tcp://localhost2:5447?");
+      sb.append(",tcp://localhost2:61618?");
       populateConnectorParams(props3, allowableConnectorKeys, sb);
       sb.append(")?ha=true&clientID=myID");
 
@@ -165,7 +165,7 @@ public class ConnectionFactoryURITest
    {
       TransportConfiguration connector = staticConnector;
       Assert.assertEquals(connector.getParams().get("host"), "localhost" + offfSet);
-      Assert.assertEquals(connector.getParams().get("port"), "" + (5445 + offfSet));
+      Assert.assertEquals(connector.getParams().get("port"), "" + (61616 + offfSet));
       Map<String, Object> params = connector.getParams();
       for (Map.Entry<String, Object> entry : params.entrySet())
       {
@@ -195,11 +195,11 @@ public class ConnectionFactoryURITest
       TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName());
       HashMap<String, Object> params = new HashMap<>();
       params.put("host", "localhost1");
-      params.put("port", 5446);
+      params.put("port", 61617);
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
       HashMap<String, Object> params2 = new HashMap<>();
       params2.put("host", "localhost2");
-      params2.put("port", 5447);
+      params2.put("port", 61618);
       TransportConfiguration tc3 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
       ActiveMQConnectionFactory connectionFactoryWithHA = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, tc, tc2, tc3);
       URI tcp = parser.createSchema("tcp", connectionFactoryWithHA);

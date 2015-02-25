@@ -145,7 +145,7 @@ public class FileConfigurationParserTest extends UnitTestCase
          "<large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>" + "\n" +
          "<paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>" + "\n" +
          "<connectors>" + "\n" +
-         "<connector name=\"netty\">tcp://localhost:5445</connector>" + "\n" +
+         "<connector name=\"netty\">tcp://localhost:61616</connector>" + "\n" +
          "<connector name=\"netty-throughput\">tcp://localhost:5545</connector>" + "\n" +
          "<connector name=\"in-vm\">vm://0</connector>" + "\n" +
          "</connectors>" + "\n" +

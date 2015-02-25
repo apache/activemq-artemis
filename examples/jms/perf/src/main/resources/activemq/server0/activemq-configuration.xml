@@ -33,7 +33,7 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5445?tcpNoDelay=false;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616?tcpNoDelay=false;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
       </acceptors>
 
       <queues>

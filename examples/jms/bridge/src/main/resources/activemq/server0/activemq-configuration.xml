@@ -39,12 +39,12 @@ under the License.
       <!-- Connectors -->
       <connectors>
          <!-- Connector to the other node -->
-         <connector name="remote-connector">tcp://localhost:5446</connector>
+         <connector name="remote-connector">tcp://localhost:61617</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5445</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
       </acceptors>
 
       <!-- We need to create a core queue for the JMS queue explicitly because the bridge will be deployed

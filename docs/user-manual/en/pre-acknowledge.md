@@ -46,7 +46,7 @@ This can be configured in a client's JNDI context environment, e.g.
 `jndi.properties`, like this:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    java.naming.provider.url=tcp://localhost:5445
+    java.naming.provider.url=tcp://localhost:61616
     connection.ConnectionFactory.preAcknowledge=true
 
 Alternatively, to use pre-acknowledgement mode using the JMS API, create

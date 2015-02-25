@@ -32,7 +32,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -69,8 +68,6 @@ public class OpenWireTestBase extends ServiceTestBase
       super.setUp();
       server = this.createServer(realStore, true);
       HashMap<String, Object> params = new HashMap<String, Object>();
-      params.put(TransportConstants.PORT_PROP_NAME, "61616");
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       Configuration serverConfig = server.getConfiguration();

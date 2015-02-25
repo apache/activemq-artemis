@@ -36,7 +36,7 @@ import org.apache.activemq.utils.UUIDGenerator;
  * <pre>
  * HashMap&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
  * map.put(&quot;host&quot;, &quot;localhost&quot;);
- * map.put(&quot;port&quot;, 5445);
+ * map.put(&quot;port&quot;, 61616);
  * TransportConfiguration config = new TransportConfiguration(InVMConnectorFactory.class.getName(), map);
  * ClientSessionFactory sf = new ClientSessionFactoryImpl(config);
  * </pre>

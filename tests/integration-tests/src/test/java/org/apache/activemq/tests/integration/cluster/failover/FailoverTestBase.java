@@ -275,7 +275,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
 
       try
       {
-         ServerSocket serverSocket = new ServerSocket(5445);
+         ServerSocket serverSocket = new ServerSocket(61616);
          serverSocket.close();
       }
       catch (IOException e)
@@ -284,7 +284,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
       }
       try
       {
-         ServerSocket serverSocket = new ServerSocket(5446);
+         ServerSocket serverSocket = new ServerSocket(61617);
          serverSocket.close();
       }
       catch (IOException e)
