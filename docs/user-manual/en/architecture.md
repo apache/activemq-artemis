@@ -28,14 +28,21 @@ ActiveMQ clients, potentially on different physical machines interact
 with the ActiveMQ server. ActiveMQ currently provides two APIs for
 messaging at the client side:
 
-1.  Core client API. This is a simple intuitive Java API that allows the
+1. Core client API. This is a simple intuitive Java API that allows the
     full set of messaging functionality without some of the complexities
     of JMS.
 
-2.  JMS client API. The standard JMS API is available at the client
+2. JMS client API. The standard JMS API is available at the client
     side.
 
-JMS semantics are implemented by a thin JMS facade layer on the client
+ActiveMQ also provides different protocol implementations on the server so you can use respective clients for these protocols:
+
+1. Stomp
+2. OpenWire
+3. AMQP
+
+
+JMS semantics are implemented by a JMS facade layer on the client
 side.
 
 The ActiveMQ server does not speak JMS and in fact does not know
@@ -66,7 +73,7 @@ application that requires messaging functionality internally but you
 don't want to expose that as a ActiveMQ server you can directly
 instantiate and embed ActiveMQ servers in your own application.
 
-For more information on embedding ActiveMQ, see [Embedding HornetQ](embedding-hornetq.md).
+For more information on embedding ActiveMQ, see [Embedding ActiveMQ](embedding-activemq.md).
 
 ## ActiveMQ integrated with a JEE application server
 
