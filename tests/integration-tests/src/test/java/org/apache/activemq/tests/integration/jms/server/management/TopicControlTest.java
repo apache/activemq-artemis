@@ -26,6 +26,7 @@ import javax.jms.TopicSubscriber;
 import javax.management.Notification;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -194,10 +195,14 @@ public class TopicControlTest extends ManagementTestBase
       String jsonString = topicControl.listDurableSubscriptionsAsJSON();
       SubscriptionInfo[] infos = SubscriptionInfo.from(jsonString);
       Assert.assertEquals(2, infos.length);
-      Assert.assertEquals(clientID, infos[0].getClientID());
-      Assert.assertEquals(subscriptionName, infos[0].getName());
-      Assert.assertEquals(clientID + "2", infos[1].getClientID());
-      Assert.assertEquals(subscriptionName + "2", infos[1].getName());
+      List<String> expectedClientIds = Arrays.asList(clientID, clientID + "2");
+      List<String> expectedSubscriptionNames = Arrays.asList(subscriptionName, subscriptionName + "2");
+
+      Assert.assertTrue(expectedClientIds.contains(infos[0].getClientID()));
+      Assert.assertTrue(expectedSubscriptionNames.contains(infos[0].getName()));
+
+      Assert.assertTrue(expectedClientIds.contains(infos[1].getClientID()));
+      Assert.assertTrue(expectedSubscriptionNames.contains(infos[1].getName()));
 
       jsonString = topicControl.listNonDurableSubscriptionsAsJSON();
       infos = SubscriptionInfo.from(jsonString);
