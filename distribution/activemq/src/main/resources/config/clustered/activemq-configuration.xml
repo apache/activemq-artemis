@@ -38,21 +38,21 @@ under the License.
 
       <connectors>
          <!-- Default Connector.  Returned to clients during broadcast and distributed around cluster.  See broadcast and discovery-groups -->
-         <connector name="activemq">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:61616}</connector>
+         <connector name="activemq">tcp://${activemq.remoting.default.host:localhost}:${activemq.remoting.default.port:61616}</connector>
       </connectors>
 
       <acceptors>
-         <!-- Default ActiveMQ Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP  -->
-         <acceptor name="activemq">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:61616}</acceptor>
+         <!-- Default ActiveMQ Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
+         <acceptor name="activemq">tcp://${activemq.remoting.default.host:localhost}:${activemq.remoting.default.port:61616}</acceptor>
 
-         <!-- AMQP Connector.  Listens on default AMQP port for AMQP traffic.  -->
-         <acceptor name="amqp">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5672}?protocols=AMQP</acceptor>
+         <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
+         <acceptor name="amqp">tcp://${activemq.remoting.amqp.host:localhost}:${activemq.remoting.amqp.port:5672}?protocols=AMQP</acceptor>
 
-         <!-- STOMP Acceptor.  Enables ActiveMQ Core protocol, OpenWire and STOMP.  -->
-         <acceptor name="stomp">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:61613}?protocols=STOMP</acceptor>
+         <!-- STOMP Acceptor. -->
+         <acceptor name="stomp">tcp://${activemq.remoting.stomp.host:localhost}:${activemq.remoting.stomp.port:61613}?protocols=STOMP</acceptor>
 
-         <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Core and STOMP for legacy HornetQ clients  -->
-         <acceptor name="hornetq">tcp://${activemq.remoting.netty.host:localhost}:${activemq.remoting.netty.port:5445}?protocols=CORE,STOMP</acceptor>
+         <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Core and STOMP for legacy HornetQ clients. -->
+         <acceptor name="hornetq">tcp://${activemq.remoting.hornetq.host:localhost}:${activemq.remoting.hornetq.port:5445}?protocols=CORE,STOMP</acceptor>
       </acceptors>
 
       <broadcast-groups>
