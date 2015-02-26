@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 package org.apache.activemq.tests.unit.core.journal.impl;
+import org.apache.activemq.tools.ExportJournal;
+import org.apache.activemq.tools.ImportJournal;
 import org.junit.Before;
 import org.junit.After;
 
@@ -35,8 +37,6 @@ import org.apache.activemq.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.core.journal.RecordInfo;
 import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.TestableJournal;
-import org.apache.activemq.core.journal.impl.ExportJournal;
-import org.apache.activemq.core.journal.impl.ImportJournal;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.ReusableLatch;
