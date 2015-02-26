@@ -31,6 +31,7 @@ import org.apache.activemq.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -62,7 +63,9 @@ public class Run implements Action
 
       BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
 
-      addShutdownHook(new File(broker.server.configuration).getParentFile());
+      String fileName = new URI(broker.server.configuration).getSchemeSpecificPart();
+
+      addShutdownHook(new File(fileName).getParentFile());
 
       ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
 
