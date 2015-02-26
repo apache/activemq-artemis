@@ -1488,6 +1488,21 @@ public class JournalStorageManager implements StorageManager
       }
    }
 
+   @Override
+   public void deleteID(long journalD) throws Exception
+   {
+      readLock();
+      try
+      {
+         bindingsJournal.appendDeleteRecord(journalD, false);
+      }
+      finally
+      {
+         readUnLock();
+      }
+   }
+
+
    public void deleteAddressSetting(SimpleString addressMatch) throws Exception
    {
       PersistedAddressSetting oldSetting = mapPersistedAddressSettings.remove(addressMatch);
@@ -2199,6 +2214,9 @@ public class JournalStorageManager implements StorageManager
             throw new IllegalStateException("Invalid record type " + rec);
          }
       }
+
+      // This will instruct the IDGenerator to cleanup old records
+      idGenerator.cleanup();
 
       return bindingsInfo;
    }

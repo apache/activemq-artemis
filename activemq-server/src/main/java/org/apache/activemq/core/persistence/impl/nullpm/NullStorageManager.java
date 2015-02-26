@@ -631,4 +631,10 @@ public class NullStorageManager implements StorageManager
    {
       // no-op
    }
+
+   @Override
+   public void deleteID(long journalD) throws Exception
+   {
+
+   }
 }

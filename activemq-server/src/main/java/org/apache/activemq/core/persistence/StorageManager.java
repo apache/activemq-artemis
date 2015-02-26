@@ -380,13 +380,20 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
    void addBytesToLargeMessage(SequentialFile appendFile, long messageID, byte[] bytes) throws Exception;
 
    /**
-    * Stores the given journalID in the bindingsJournal.
+    * Stores the id from IDManager.
     *
     * @param journalID
     * @param id
     * @throws Exception
     */
    void storeID(long journalID, long id) throws Exception;
+
+
+   /*
+       Deletes the ID from IDManager.
+    */
+   void deleteID(long journalD) throws Exception;
+
 
    /**
     * Read lock the StorageManager. USE WITH CARE!

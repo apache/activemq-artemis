@@ -1000,25 +1000,56 @@ public abstract class ServiceTestBase extends UnitTestCase
     */
    protected HashMap<Integer, AtomicInteger> countJournalLivingRecords(Configuration config) throws Exception
    {
-      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
-      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(getJournalDir(), null);
+      return internalCountJournalLivingRecords(config, true);
+   }
 
-      JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(),
-                                                    config.getJournalMinFiles(),
-                                                    0,
-                                                    0,
-                                                    messagesFF,
-                                                    "activemq-data",
-                                                    "amq",
-                                                    1);
-      messagesJournal.start();
+   /**
+    * This method will load a journal and count the living records
+    *
+    * @param config
+    * @param messageJournal if true -> MessageJournal, false -> BindingsJournal
+    * @return
+    * @throws Exception
+    */
+   protected HashMap<Integer, AtomicInteger> internalCountJournalLivingRecords(Configuration config, boolean messageJournal) throws Exception
+   {
+      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
+      SequentialFileFactory ff;
+
+      JournalImpl journal;
+
+      if (messageJournal)
+      {
+         ff = new NIOSequentialFileFactory(getJournalDir(), null);
+         journal = new JournalImpl(config.getJournalFileSize(),
+                                   config.getJournalMinFiles(),
+                                   0,
+                                   0,
+                                   ff,
+                                   "activemq-data",
+                                   "amq",
+                                   1);
+      }
+      else
+      {
+         ff = new NIOSequentialFileFactory(getBindingsDir(), null);
+         journal = new JournalImpl(1024 * 1024,
+                                   2,
+                                   config.getJournalCompactMinFiles(),
+                                   config.getJournalCompactPercentage(),
+                                   ff,
+                                   "activemq-bindings",
+                                   "bindings",
+                                   1);
+      }
+      journal.start();
 
 
       final List<RecordInfo> committedRecords = new LinkedList<RecordInfo>();
       final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
 
 
-      messagesJournal.load(committedRecords, preparedTransactions, null, false);
+      journal.load(committedRecords, preparedTransactions, null, false);
 
       for (RecordInfo info : committedRecords)
       {
@@ -1033,7 +1064,7 @@ public abstract class ServiceTestBase extends UnitTestCase
 
       }
 
-      messagesJournal.stop();
+      journal.stop();
       return recordsType;
    }
 
