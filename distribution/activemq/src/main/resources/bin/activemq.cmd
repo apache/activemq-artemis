@@ -47,25 +47,28 @@ echo.
 
 :RUN_JAVA
 
-if "%JVM_FLAGS%" == "" set JVM_FLAGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Dactivemq.home=$ACTIVEMQ_HOME -Ddata.dir=$ACTIVEMQ_HOME/data -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration="file:%ACTIVEMQ_HOME%\config\logging.properties" -Djava.library.path="%ACTIVEMQ_HOME%/bin/lib/linux-i686:%ACTIVEMQ_HOME%/bin/lib/linux-x86_64"
+rem "Set Defaults."
+set JAVA_ARGS=-Xmx1024M
+set ACTIVEMQ_LOGGING_CONF="file:%ACTIVEMQ_HOME%\config\logging.properties"
+set ACTIVEMQ_DATA_DIR="%ACTIVEMQ_HOME%\data"
+set ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
 
-if "x%ACTIVEMQ_OPTS%" == "x" goto noACTIVEMQ_OPTS
-  set JVM_FLAGS=%JVM_FLAGS% %ACTIVEMQ_OPTS%
-:noACTIVEMQ_OPTS
+rem "Load Config"
+set ACTIVEMQ_CONF="%ACTIVEMQ_HOME%\bin\activemq.conf.bat"
+if exist "%ACTIVEMQ_CONF%" (
+   call "%ACTIVEMQ_CONF%" %*
+) else (
+   echo Config file not found "%ACTIVEMQ_CONF%"
+)
 
-if "x%ACTIVEMQ_DEBUG%" == "x" goto noDEBUG
-  set JVM_FLAGS=%JVM_FLAGS% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
-:noDEBUG
+rem "Create full JVM Args"
+set JVM_ARGS=%JAVA_ARGS% -classpath %ACTIVEMQ_HOME%\lib\* -Dactivemq.home=%ACTIVEMQ_HOME% -Ddata.dir=%ACTIVEMQ_DATA_DIR% -Djava.util.logging.manager=%ACTIVEMQ_LOG_MANAGER% -Dlogging.configuration=%ACTIVEMQ_LOGGING_CONF% -Djava.library.path=%ACTIVEMQ_HOME%\lib\
 
-if "x%ACTIVEMQ_PROFILE%" == "x" goto noPROFILE
-  set JVM_FLAGS=-agentlib:yjpagent %JVM_FLAGS%
-:noPROFILE
+rem "Set Debug & Cluster props"
+if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
+if not "%ACTIVEMQ_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ACTIVEMQ_CLUSTER_PROPS%
 
-rem set JMX_OPTS=-Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
-
-set JVM_FLAGS=%JVM_FLAGS% %JMX_OPTS% -Dactivemq.home="%ACTIVEMQ_HOME%" -classpath "%ACTIVEMQ_HOME%\lib\*"
-
-"%_JAVACMD%" %JVM_FLAGS% org.apache.activemq.cli.ActiveMQ %*
+"%_JAVACMD%" %JVM_ARGS% org.apache.activemq.cli.ActiveMQ %*
 
 :END
 endlocal
