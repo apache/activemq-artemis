@@ -22,6 +22,7 @@ import org.apache.activemq.dto.BrokerDTO;
 import org.apache.activemq.factory.BrokerFactory;
 
 import java.io.File;
+import java.net.URI;
 
 @Command(name = "stop", description = "stops the broker instance")
 public class Stop implements Action
@@ -38,7 +39,9 @@ public class Stop implements Action
       }
       BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
 
-      File file = new File(broker.server.configuration).getParentFile();
+      String fileName = new URI(broker.server.configuration).getSchemeSpecificPart();
+
+      File file = new File(fileName).getParentFile();
 
       File stopFile = new File(file, "STOP_ME");
 
