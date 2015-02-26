@@ -25,7 +25,9 @@ public class Main
    private static final String PRINT_PAGES = "print-pages";
    private static final String DATA_TOOL = "data-tool";
    private static final String TRANSFER = "transfer-queue";
-   private static final String OPTIONS = " [" + IMPORT + "|" + EXPORT + "|" + PRINT_DATA + "|" + PRINT_PAGES + "|" + DATA_TOOL + "|" + TRANSFER + "]";
+   private static final String EXPORT_JOURNAL = "export-journal";
+   private static final String IMPORT_JOURNAL = "import-journal";
+   private static final String OPTIONS = " [" + IMPORT + "|" + EXPORT + "|" + PRINT_DATA + "|" + PRINT_PAGES + "|" + DATA_TOOL + "|" + TRANSFER + "|" + EXPORT_JOURNAL + "|" + IMPORT_JOURNAL + "]";
 
    public static void main(String[] arg) throws Exception
    {
@@ -36,7 +38,17 @@ public class Main
       }
 
 
-      if (TRANSFER.equals(arg[0]))
+      if (IMPORT_JOURNAL.equals(arg[0]))
+      {
+         ImportJournal tool = new ImportJournal();
+         tool.process(arg);
+      }
+      else if (EXPORT_JOURNAL.equals(arg[0]))
+      {
+         ExportJournal tool = new ExportJournal();
+         tool.process(arg);
+      }
+      else if (TRANSFER.equals(arg[0]))
       {
          TransferQueue tool = new TransferQueue();
          tool.process(arg);

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.tools;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -24,18 +24,20 @@ import java.util.List;
 
 import org.apache.activemq.core.journal.RecordInfo;
 import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.JournalReaderCallback;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.utils.Base64;
 
 /**
- * Use this class to export the journal data. You can use it as a main class or through its native method {@link ExportJournal#exportJournal(String, String, String, int, int, String)}
- *
+ * Use this class to export the journal data. You can use it as a main class or through its static method {@link #exportJournal(String, String, String, int, int, String)}
+ * <p/>
  * If you use the main method, use it as  <JournalDirectory> <JournalPrefix> <FileExtension> <MinFiles> <FileSize> <FileOutput>
- *
- * Example: java -cp activemq-core.jar org.apache.activemq.core.journal.impl.ExportJournal /journalDir activemq-data amq 2 10485760 /tmp/export.dat
+ * <p/>
+ * Example: java -cp activemq-tools*-jar-with-dependencies.jar export-journal /journalDir activemq-data amq 2 10485760 /tmp/export.dat
  *
  * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ExportJournal
 {
@@ -50,17 +52,21 @@ public class ExportJournal
 
    // Public --------------------------------------------------------
 
-   public static void main(final String[] arg)
+   public void process(final String[] arg)
    {
-      if (arg.length != 5)
+      if (arg.length != 6)
       {
-         System.err.println("Use: java -cp activemq-core.jar org.apache.activemq.core.journal.impl.ExportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
-         return;
+         for (int i = 0; i < arg.length; i++)
+         {
+            System.out.println("arg[" + i + "] = " + arg[i]);
+         }
+         printUsage();
+         System.exit(-1);
       }
 
       try
       {
-         ExportJournal.exportJournal(arg[0], arg[1], arg[2], 2, Integer.parseInt(arg[3]), arg[4]);
+         exportJournal(arg[1], arg[2], arg[3], 2, Integer.parseInt(arg[4]), arg[5]);
       }
       catch (Exception e)
       {
@@ -83,7 +89,7 @@ public class ExportJournal
 
       PrintStream out = new PrintStream(buffOut);
 
-      ExportJournal.exportJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, out);
+      exportJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, out);
 
       out.close();
    }
@@ -105,7 +111,7 @@ public class ExportJournal
       {
          out.println("#File," + file);
 
-         ExportJournal.exportJournalFile(out, nio, file);
+         exportJournalFile(out, nio, file);
       }
    }
 
@@ -124,12 +130,12 @@ public class ExportJournal
 
          public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
          {
-            out.println("operation@UpdateTX,txID@" + transactionID + "," + ExportJournal.describeRecord(recordInfo));
+            out.println("operation@UpdateTX,txID@" + transactionID + "," + describeRecord(recordInfo));
          }
 
          public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception
          {
-            out.println("operation@Update," + ExportJournal.describeRecord(recordInfo));
+            out.println("operation@Update," + describeRecord(recordInfo));
          }
 
          public void onReadRollbackRecord(final long transactionID) throws Exception
@@ -140,17 +146,17 @@ public class ExportJournal
          public void onReadPrepareRecord(final long transactionID, final byte[] extraData, final int numberOfRecords) throws Exception
          {
             out.println("operation@Prepare,txID@" + transactionID +
-                        ",numberOfRecords@" +
-                        numberOfRecords +
-                        ",extraData@" +
-                        ExportJournal.encode(extraData));
+                           ",numberOfRecords@" +
+                           numberOfRecords +
+                           ",extraData@" +
+                           encode(extraData));
          }
 
          public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
          {
             out.println("operation@DeleteRecordTX,txID@" + transactionID +
-                        "," +
-                        ExportJournal.describeRecord(recordInfo));
+                           "," +
+                           describeRecord(recordInfo));
          }
 
          public void onReadDeleteRecord(final long recordID) throws Exception
@@ -165,12 +171,12 @@ public class ExportJournal
 
          public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
          {
-            out.println("operation@AddRecordTX,txID@" + transactionID + "," + ExportJournal.describeRecord(recordInfo));
+            out.println("operation@AddRecordTX,txID@" + transactionID + "," + describeRecord(recordInfo));
          }
 
          public void onReadAddRecord(final RecordInfo recordInfo) throws Exception
          {
-            out.println("operation@AddRecord," + ExportJournal.describeRecord(recordInfo));
+            out.println("operation@AddRecord," + describeRecord(recordInfo));
          }
 
          public void markAsDataFile(final JournalFile file)
@@ -182,16 +188,16 @@ public class ExportJournal
    private static String describeRecord(final RecordInfo recordInfo)
    {
       return "id@" + recordInfo.id +
-             ",userRecordType@" +
-             recordInfo.userRecordType +
-             ",length@" +
-             recordInfo.data.length +
-             ",isUpdate@" +
-             recordInfo.isUpdate +
-             ",compactCount@" +
-             recordInfo.compactCount +
-             ",data@" +
-             ExportJournal.encode(recordInfo.data);
+         ",userRecordType@" +
+         recordInfo.userRecordType +
+         ",length@" +
+         recordInfo.data.length +
+         ",isUpdate@" +
+         recordInfo.isUpdate +
+         ",compactCount@" +
+         recordInfo.compactCount +
+         ",data@" +
+         encode(recordInfo.data);
    }
 
    private static String encode(final byte[] data)
@@ -199,12 +205,22 @@ public class ExportJournal
       return Base64.encodeBytes(data, 0, data.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
+   public void printUsage()
+   {
+      for (int i = 0; i < 10; i++)
+      {
+         System.err.println();
+      }
+      System.err.println("This method will export the journal at low level record.");
+      System.err.println();
+      System.err.println(Main.USAGE + " export-journal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
+      System.err.println();
+      for (int i = 0; i < 10; i++)
+      {
+         System.err.println();
+      }
+   }
 
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

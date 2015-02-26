@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.tools;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,12 +28,15 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.core.journal.RecordInfo;
+import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.core.journal.impl.JournalRecord;
+import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.utils.Base64;
 
 /**
  * Use this class to import the journal data from a listed file. You can use it as a main class or
  * through its native method
- * {@link ImportJournal#importJournal(String, String, String, int, int, String)}
+ * {@link #importJournal(String, String, String, int, int, String)}
  * <p>
  * If you use the main method, use its arguments as:
  *
@@ -61,17 +64,26 @@ public class ImportJournal
 
    // Public --------------------------------------------------------
 
-   public static void main(final String[] arg)
+
+   public void process(final String[] arg)
    {
-      if (arg.length != 5)
+      for (int i = 0; i < arg.length; i++)
       {
-         System.err.println("Use: java -cp activemq-core.jar:netty.jar org.apache.activemq.core.journal.impl.ImportJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>");
-         return;
+         System.out.println("arg[" + i + "] = " + arg[i]);
+      }
+      if (arg.length != 6)
+      {
+         for (int i = 0; i < arg.length; i++)
+         {
+            System.out.println("arg[" + i + "] = " + arg[i]);
+         }
+         printUsage();
+         System.exit(-1);
       }
 
       try
       {
-         ImportJournal.importJournal(arg[0], arg[1], arg[2], 2, Integer.parseInt(arg[3]), arg[4]);
+         importJournal(arg[1], arg[2], arg[3], 2, Integer.parseInt(arg[4]), arg[5]);
       }
       catch (Exception e)
       {
@@ -88,7 +100,7 @@ public class ImportJournal
                                     final String fileInput) throws Exception
    {
       FileInputStream fileInputStream = new FileInputStream(new File(fileInput));
-      ImportJournal.importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, fileInputStream);
+      importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, fileInputStream);
 
    }
 
@@ -100,7 +112,7 @@ public class ImportJournal
                                     final InputStream stream) throws Exception
    {
       Reader reader = new InputStreamReader(stream);
-      ImportJournal.importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, reader);
+      importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, reader);
    }
 
    public static void importJournal(final String directory,
@@ -153,7 +165,7 @@ public class ImportJournal
             continue;
          }
 
-         Properties lineProperties = ImportJournal.parseLine(splitLine);
+         Properties lineProperties = parseLine(splitLine);
 
          String operation = null;
          try
@@ -162,41 +174,41 @@ public class ImportJournal
 
             if (operation.equals("AddRecord"))
             {
-               RecordInfo info = ImportJournal.parseRecord(lineProperties);
+               RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecord(info.id, info.userRecordType, info.data, false);
             }
             else if (operation.equals("AddRecordTX"))
             {
-               long txID = ImportJournal.parseLong("txID", lineProperties);
-               AtomicInteger counter = ImportJournal.getCounter(txID, txCounters);
+               long txID = parseLong("txID", lineProperties);
+               AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
-               RecordInfo info = ImportJournal.parseRecord(lineProperties);
+               RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
             }
             else if (operation.equals("AddRecordTX"))
             {
-               long txID = ImportJournal.parseLong("txID", lineProperties);
-               AtomicInteger counter = ImportJournal.getCounter(txID, txCounters);
+               long txID = parseLong("txID", lineProperties);
+               AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
-               RecordInfo info = ImportJournal.parseRecord(lineProperties);
+               RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
             }
             else if (operation.equals("UpdateTX"))
             {
-               long txID = ImportJournal.parseLong("txID", lineProperties);
-               AtomicInteger counter = ImportJournal.getCounter(txID, txCounters);
+               long txID = parseLong("txID", lineProperties);
+               AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
-               RecordInfo info = ImportJournal.parseRecord(lineProperties);
+               RecordInfo info = parseRecord(lineProperties);
                journal.appendUpdateRecordTransactional(txID, info.id, info.userRecordType, info.data);
             }
             else if (operation.equals("Update"))
             {
-               RecordInfo info = ImportJournal.parseRecord(lineProperties);
+               RecordInfo info = parseRecord(lineProperties);
                journal.appendUpdateRecord(info.id, info.userRecordType, info.data, false);
             }
             else if (operation.equals("DeleteRecord"))
             {
-               long id = ImportJournal.parseLong("id", lineProperties);
+               long id = parseLong("id", lineProperties);
 
                // If not found it means the append/update records were reclaimed already
                if (journalRecords.get(id) != null)
@@ -206,9 +218,9 @@ public class ImportJournal
             }
             else if (operation.equals("DeleteRecordTX"))
             {
-               long txID = ImportJournal.parseLong("txID", lineProperties);
-               long id = ImportJournal.parseLong("id", lineProperties);
-               AtomicInteger counter = ImportJournal.getCounter(txID, txCounters);
+               long txID = parseLong("txID", lineProperties);
+               long id = parseLong("id", lineProperties);
+               AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
 
                // If not found it means the append/update records were reclaimed already
@@ -219,10 +231,10 @@ public class ImportJournal
             }
             else if (operation.equals("Prepare"))
             {
-               long txID = ImportJournal.parseLong("txID", lineProperties);
-               int numberOfRecords = ImportJournal.parseInt("numberOfRecords", lineProperties);
-               AtomicInteger counter = ImportJournal.getCounter(txID, txCounters);
-               byte[] data = ImportJournal.parseEncoding("extraData", lineProperties);
+               long txID = parseLong("txID", lineProperties);
+               int numberOfRecords = parseInt("numberOfRecords", lineProperties);
+               AtomicInteger counter = getCounter(txID, txCounters);
+               byte[] data = parseEncoding("extraData", lineProperties);
 
                if (counter.get() == numberOfRecords)
                {
@@ -241,9 +253,9 @@ public class ImportJournal
             }
             else if (operation.equals("Commit"))
             {
-               long txID = ImportJournal.parseLong("txID", lineProperties);
-               int numberOfRecords = ImportJournal.parseInt("numberOfRecords", lineProperties);
-               AtomicInteger counter = ImportJournal.getCounter(txID, txCounters);
+               long txID = parseLong("txID", lineProperties);
+               int numberOfRecords = parseInt("numberOfRecords", lineProperties);
+               AtomicInteger counter = getCounter(txID, txCounters);
                if (counter.get() == numberOfRecords)
                {
                   journal.appendCommitRecord(txID, false);
@@ -261,12 +273,12 @@ public class ImportJournal
             }
             else if (operation.equals("Rollback"))
             {
-               long txID = ImportJournal.parseLong("txID", lineProperties);
+               long txID = parseLong("txID", lineProperties);
                journal.appendRollbackRecord(txID, false);
             }
             else
             {
-               System.err.println("Invalid opeartion " + operation + " at line " + lineNumber);
+               System.err.println("Invalid operation " + operation + " at line " + lineNumber);
             }
          }
          catch (Exception ex)
@@ -293,18 +305,18 @@ public class ImportJournal
 
    protected static RecordInfo parseRecord(final Properties properties) throws Exception
    {
-      long id = ImportJournal.parseLong("id", properties);
-      byte userRecordType = ImportJournal.parseByte("userRecordType", properties);
-      boolean isUpdate = ImportJournal.parseBoolean("isUpdate", properties);
-      byte[] data = ImportJournal.parseEncoding("data", properties);
+      long id = parseLong("id", properties);
+      byte userRecordType = parseByte("userRecordType", properties);
+      boolean isUpdate = parseBoolean("isUpdate", properties);
+      byte[] data = parseEncoding("data", properties);
       return new RecordInfo(id, userRecordType, data, isUpdate, (short)0);
    }
 
    private static byte[] parseEncoding(final String name, final Properties properties) throws Exception
    {
-      String value = ImportJournal.parseString(name, properties);
+      String value = parseString(name, properties);
 
-      return ImportJournal.decode(value);
+      return decode(value);
    }
 
    /**
@@ -313,28 +325,28 @@ public class ImportJournal
     */
    private static int parseInt(final String name, final Properties properties) throws Exception
    {
-      String value = ImportJournal.parseString(name, properties);
+      String value = parseString(name, properties);
 
       return Integer.parseInt(value);
    }
 
    private static long parseLong(final String name, final Properties properties) throws Exception
    {
-      String value = ImportJournal.parseString(name, properties);
+      String value = parseString(name, properties);
 
       return Long.parseLong(value);
    }
 
    private static boolean parseBoolean(final String name, final Properties properties) throws Exception
    {
-      String value = ImportJournal.parseString(name, properties);
+      String value = parseString(name, properties);
 
       return Boolean.parseBoolean(value);
    }
 
    private static byte parseByte(final String name, final Properties properties) throws Exception
    {
-      String value = ImportJournal.parseString(name, properties);
+      String value = parseString(name, properties);
 
       return Byte.parseByte(value);
    }
@@ -381,12 +393,21 @@ public class ImportJournal
       return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
+   public void printUsage()
+   {
+      for (int i = 0; i < 10; i++)
+      {
+         System.err.println();
+      }
+      System.err.println("This method will export the journal at low level record.");
+      System.err.println();
+      System.err.println(Main.USAGE + " import-journal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileInput>");
+      System.err.println();
+      for (int i = 0; i < 10; i++)
+      {
+         System.err.println();
+      }
+   }
 
 }

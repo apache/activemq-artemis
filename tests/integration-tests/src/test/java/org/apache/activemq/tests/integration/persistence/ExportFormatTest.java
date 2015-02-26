@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.tests.integration.persistence;
 
+import org.apache.activemq.tools.ExportJournal;
+import org.apache.activemq.tools.ImportJournal;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -27,8 +29,6 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.journal.impl.ExportJournal;
-import org.apache.activemq.core.journal.impl.ImportJournal;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
@@ -117,10 +117,12 @@ public class ExportFormatTest extends ServiceTestBase
       locator.close();
       server.stop();
 
+      System.out.println();
       System.out.println("copy & paste the following as bindingsFile:");
 
       ExportJournal.exportJournal(getBindingsDir(), "activemq-bindings", "bindings", 2, 1048576, System.out);
 
+      System.out.println();
       System.out.println("copy & paste the following as dataFile:");
 
       ExportJournal.exportJournal(getJournalDir(), "activemq-data", "amq", 2, 102400, System.out);
