@@ -17,6 +17,8 @@
 package org.apache.activemq.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -68,19 +70,22 @@ public class FailoverListenerTest extends FailoverTestBase
    public void testFailoverListenerCall() throws Exception
    {
       createSessionFactory(2);
-
-      SessionFactoryFailoverListener listener = new SessionFactoryFailoverListener();
+      CountDownLatch failureLatch = new CountDownLatch(1);
+      CountDownLatch failureDoneLatch = new CountDownLatch(1);
+      SessionFactoryFailoverListener listener = new SessionFactoryFailoverListener(failureLatch, failureDoneLatch);
       sf.addFailoverListener(listener);
       ClientSession session = sendAndConsume(sf, true);
 
       liveServer.crash();
+      assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
       log.info("backup (nowLive) topology = " + backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
       log.info("Server Crash!!!");
 
-      Thread.sleep(1000);
+
+      assertTrue(failureDoneLatch.await(5, TimeUnit.SECONDS));
       //the backup server should be online by now
       assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.getFailoverEventType().get(1));
 
@@ -158,14 +163,17 @@ public class FailoverListenerTest extends FailoverTestBase
 
       //make sure no backup server is running
       backupServer.stop();
-
-      SessionFactoryFailoverListener listener = new SessionFactoryFailoverListener();
+      CountDownLatch failureLatch = new CountDownLatch(1);
+      CountDownLatch failureDoneLatch = new CountDownLatch(1);
+      SessionFactoryFailoverListener listener = new SessionFactoryFailoverListener(failureLatch, failureDoneLatch);
       sf.addFailoverListener(listener);
       ClientSession session = sendAndConsume(sf, true);
 
       liveServer.crash(session);
+      assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
+      assertTrue(failureDoneLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILOVER_FAILED, listener.getFailoverEventType().get(1));
 
       assertEquals("Expected 2 FailoverEvents to be triggered", 2, listener.getFailoverEventType().size());
@@ -290,6 +298,16 @@ public class FailoverListenerTest extends FailoverTestBase
 
       private final ArrayList<FailoverEventType> failoverTypeEvent = new ArrayList<FailoverEventType>();
 
+      private final CountDownLatch failureLatch;
+
+      private final CountDownLatch failureDoneLatch;
+
+      public SessionFactoryFailoverListener(CountDownLatch failureLatch, CountDownLatch failureDoneLatch)
+      {
+         this.failureLatch = failureLatch;
+         this.failureDoneLatch = failureDoneLatch;
+      }
+
       public ArrayList<FailoverEventType> getFailoverEventType()
       {
          return this.failoverTypeEvent;
@@ -300,6 +318,14 @@ public class FailoverListenerTest extends FailoverTestBase
       {
          this.failoverTypeEvent.add(eventType);
          log.info("Failover event just happen : " + eventType.toString());
+         if (eventType == FailoverEventType.FAILURE_DETECTED)
+         {
+            failureLatch.countDown();
+         }
+         else if (eventType == FailoverEventType.FAILOVER_COMPLETED || eventType == FailoverEventType.FAILOVER_FAILED)
+         {
+            failureDoneLatch.countDown();
+         }
       }
 
    }
