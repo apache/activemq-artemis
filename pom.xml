@@ -468,6 +468,7 @@
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
             <module>distribution</module>
+            <module>tests</module>
          </modules>
       </profile>
       <profile>
