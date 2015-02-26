@@ -96,6 +96,8 @@ public class NettyAcceptor implements Acceptor
       // Disable resource leak detection for performance reasons by default
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
    }
+   //just for debug
+   private final String protocolsString;
 
    private final String name;
 
@@ -205,6 +207,8 @@ public class NettyAcceptor implements Acceptor
                                                        configuration);
 
       this.protocolHandler = new ProtocolHandler(protocolMap, this, configuration, scheduledThreadPool);
+
+      this.protocolsString = getProtocols(protocolMap);
 
       host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME,
                                                    TransportConstants.DEFAULT_HOST,
@@ -478,7 +482,7 @@ public class NettyAcceptor implements Acceptor
                                                                             TimeUnit.MILLISECONDS);
          }
 
-         ActiveMQServerLogger.LOGGER.startedNettyAcceptor(TransportConstants.NETTY_VERSION, host, port);
+         ActiveMQServerLogger.LOGGER.startedNettyAcceptor(TransportConstants.NETTY_VERSION, host, port, protocolsString);
       }
    }
 
@@ -666,6 +670,23 @@ public class NettyAcceptor implements Acceptor
       return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener());
    }
 
+   private static String getProtocols(Map<String, ProtocolManager> protocolManager)
+   {
+      StringBuilder sb = new StringBuilder();
+      if (protocolManager != null)
+      {
+         Set<String> strings = protocolManager.keySet();
+         for (String string : strings)
+         {
+            if (sb.length() > 0)
+            {
+               sb.append(",");
+            }
+            sb.append(string);
+         }
+      }
+      return sb.toString();
+   }
    // Inner classes -----------------------------------------------------------------------------
 
    private final class ActiveMQServerChannelHandler extends ActiveMQChannelHandler implements ConnectionCreator
