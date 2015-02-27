@@ -162,11 +162,6 @@ It is possible to limit which protocols are supported by using the
 
         <connector name="netty">tcp://localhost:61617?protocols=CORE,AMQP</connector>
 
-
-> **Note**
->
-> The `protocol` parameter is now deprecated
-
 ## Configuring Netty TCP
 
 Netty TCP is a simple unencrypted TCP sockets based transport. Netty TCP
@@ -195,18 +190,6 @@ Netty for simple TCP:
 >
 > The `host` and `port` parameters are only used in the core API, in
 > XML configuration these are set in the URI host and port.
-
--   `useNio`. If this is `true` then Java non blocking NIO will be
-    used. If set to `false` then old blocking Java IO will be used.
-
-    If you require the server to handle many concurrent connections, we
-    highly recommend that you use non blocking Java NIO. Java NIO does
-    not maintain a thread per connection so can scale to many more
-    concurrent connections than with old blocking IO. If you don't
-    require the server to handle many concurrent connections, you might
-    get slightly better performance by using old (blocking) IO. The
-    default value for this property is `false` on the server side and
-    `false` on the client side.
 
 -   `host`. This specifies the host name or IP address to connect to
     (when configuring a connector) or to listen on (when configuring an
