@@ -25,8 +25,16 @@ acknowledged up to that point.
 
 Browsers will read through the page-cursor system.
 
-Consumers with selectors will also navigate through the page-files and
-it will ignore messages that don't match the criteria.
+Consumers with selectors will also navigate through the page-files and it will ignore messages that don't match the criteria.
+> *Warning:*
+> When you have a queue, and consumers filtering the queue with a very restrictive selector you may get into a situation where you won't be able to read more data from paging until you consume messages from the queue.
+>
+> Example: in one consumer you make a selector as 'color="red"'
+> but you only have one color red 1 millions messages after blue, you won't be able to consume red until you consume blue ones.
+>
+> This is different to browsing as we will "browse" the entire queue looking for messages and while we "depage" messages while feeding the queue.
+
+
 
 ## Configuration
 
