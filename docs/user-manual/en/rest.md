@@ -54,21 +54,11 @@ of the REST interface?
 
 ## Installation and Configuration
 
-ActiveMQ's REST interface is installed as a Web archive (WAR). It
-depends on the [RESTEasy](http://jboss.org/resteasy) project and can
-currently only run within a servlet container. Installing the ActiveMQ
-REST interface is a little bit different depending whether ActiveMQ is
-already installed and configured for your environment (e.g. you're
-deploying within JBoss AS 7) or you want the ActiveMQ REST WAR to
-startup and manage the ActiveMQ server (e.g. you're deploying within
-something like Apache Tomcat).
+ActiveMQ's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the ActiveMQ REST interface is a little bit different depending whether ActiveMQ is already installed and configured for your environment (e.g. you're deploying within Wildfly) or you want the ActiveMQ REST WAR to startup and manage the ActiveMQ server (e.g. you're deploying within something like Apache Tomcat).
 
 ### Installing Within Pre-configured Environment
 
-This section should be used when you want to use the ActiveMQ REST
-interface in an environment that already has ActiveMQ installed and
-running, e.g. JBoss AS 7. You must create a Web archive (.WAR) file with
-the following web.xml settings:
+This section should be used when you want to use the ActiveMQ REST interface in an environment that already has ActiveMQ installed and running, e.g. the Wildfly application server. You must create a Web archive (.WAR) file with the following web.xml settings:
 
     <web-app>
        <listener>
@@ -96,10 +86,7 @@ the following web.xml settings:
        </filter-mapping>
     </web-app>
 
-Within your WEB-INF/lib directory you must have the activemq-rest.jar
-file. If RESTEasy is not installed within your environment, you must add
-the RESTEasy jar files within the lib directory as well. Here's a sample
-Maven pom.xml that can build your WAR for this case.
+Within your WEB-INF/lib directory you must have the activemq-rest.jar file. If RESTEasy is not installed within your environment, you must add the RESTEasy jar files within the lib directory as well. Here's a sample Maven pom.xml that can build a WAR with the ActiveMQ REST library.
 
     <project xmlns="http://maven.apache.org/POM/4.0.0"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -107,55 +94,41 @@ Maven pom.xml that can build your WAR for this case.
 
        <modelVersion>4.0.0</modelVersion>
        <groupId>org.somebody</groupId>
-       <artifactId>myapp</artifactId>
+       <artifactId>activemq-rest</artifactId>
        <packaging>war</packaging>
        <name>My App</name>
-       <version>0.1-SNAPSHOT</version>
-       <repositories>
-          <repository>
-             <id>jboss</id>
-             <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-          </repository>
-       </repositories>
-
-       <build>
-          <plugins>
-             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                   <source>1.6</source>
-                   <target>1.6</target>
-                </configuration>
-             </plugin>
-          </plugins>
-       </build>
+       <version>1.0-SNAPSHOT</version>
 
        <dependencies>
           <dependency>
              <groupId>org.apache.activemq.rest</groupId>
              <artifactId>activemq-rest</artifactId>
-             <version>2.3.0-SNAPSHOT</version>
+             <version>6.0.0.Final</version>
+             <exclusions>
+                <exclusion>
+                   <groupId>*</groupId>
+                   <artifactId>*</artifactId>
+                </exclusion>
+             </exclusions>
           </dependency>
        </dependencies>
     </project>
 
-It is worth noting that when deploying a WAR in a Java EE application
-server like AS7 the URL for the resulting application will include the
-name of the WAR by default. For example, if you've constructed a WAR as
-described above named "activemq-rest.war" then clients will access it
-at, e.g. http://localhost:8080/activemq-rest/[queues|topics]. We'll see
-more about this later.
+The project structure should look this like:
+
+    |-- pom.xml
+    `-- src
+       `-- main
+           `-- webapp
+               `-- WEB-INF
+                   `-- web.xml
+
+
+It is worth noting that when deploying a WAR in a Java EE application server like Wildfly the URL for the resulting application will include the name of the WAR by default. For example, if you've constructed a WAR as described above named "activemq-rest.war" then clients will access it at, e.g. http://localhost:8080/activemq-rest/[queues|topics]. We'll see more about this later.
 
 ### Bootstrapping ActiveMQ Along with REST
 
-You can bootstrap ActiveMQ within your WAR as well. To do this, you must
-have the ActiveMQ core and JMS jars along with Netty, Resteasy, and the
-ActiveMQ REST jar within your WEB-INF/lib. You must also have a
-activemq-configuration.xml, activemq-jms.xml, and activemq-users.xml
-config files within WEB-INF/classes. The examples that come with the
-ActiveMQ REST distribution show how to do this. You must also add an
-additional listener to your web.xml file. Here's an example:
+You can bootstrap ActiveMQ within your WAR as well. To do this, you must have the ActiveMQ core and JMS jars along with Netty, RESTEasy, and the ActiveMQ REST jar within your WEB-INF/lib. You must also have a activemq-configuration.xml config file within WEB-INF/classes. The examples that come with the ActiveMQ REST distribution show how to do this. You must also add an additional listener to your web.xml file. Here's an example:
 
     <web-app>
        <listener>
@@ -189,10 +162,7 @@ additional listener to your web.xml file. Here's an example:
        </filter-mapping>
     </web-app>
 
-Here's a Maven pom.xml file for creating a WAR for this environment.
-Make sure your activemq configuration files are within the
-src/main/resources directory so that they are stuffed within the WAR's
-WEB-INF/classes directory!
+Here's a Maven pom.xml file for creating a WAR for this environment. Make sure your ActiveMQ configuration file(s) are within the src/main/resources directory so that they are stuffed within the WAR's WEB-INF/classes directory!
 
     <project xmlns="http://maven.apache.org/POM/4.0.0"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -200,66 +170,30 @@ WEB-INF/classes directory!
 
        <modelVersion>4.0.0</modelVersion>
        <groupId>org.somebody</groupId>
-       <artifactId>myapp</artifactId>
+       <artifactId>activemq-rest</artifactId>
        <packaging>war</packaging>
        <name>My App</name>
-       <version>0.1-SNAPSHOT</version>
-       <repositories>
-          <repository>
-             <id>jboss</id>
-             <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-          </repository>
-       </repositories>
-       <build>
-          <plugins>
-             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                   <source>1.6</source>
-                   <target>1.6</target>
-                </configuration>
-             </plugin>
-          </plugins>
-       </build>
+       <version>1.0-SNAPSHOT</version>
+
        <dependencies>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-core</artifactId>
-             <version>2.3.0-SNAPSHOT</version>
-          </dependency>
-          <dependency>
-             <groupId>io.netty</groupId>
-             <artifactId>netty</artifactId>
-             <version>3.4.5.Final</version>
-          </dependency>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-jms</artifactId>
-             <version>2.3.0-SNAPSHOT</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jms_2.0_spec</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-          </dependency>
           <dependency>
              <groupId>org.apache.activemq.rest</groupId>
              <artifactId>activemq-rest</artifactId>
-             <version>2.3.0-SNAPSHOT</version>
-          </dependency>
-          <dependency>
-             <groupId>org.jboss.resteasy</groupId>
-             <artifactId>resteasy-jaxrs</artifactId>
-             <version>2.3.4.Final</version>
-          </dependency>
-          <dependency>
-             <groupId>org.jboss.resteasy</groupId>
-             <artifactId>resteasy-jaxb-provider</artifactId>
-             <version>2.3.4.Final</version>
+             <version>6.0.0.Final</version>
           </dependency>
        </dependencies>
     </project>
+
+The project structure should look this like:
+
+    |-- pom.xml
+    `-- src
+       `-- main
+           `-- resources
+               `-- activemq-configuration.xml
+           `-- webapp
+               `-- WEB-INF
+                   `-- web.xml
 
 ### REST Configuration
 
@@ -1436,12 +1370,12 @@ Here's what creating a topic would look like:
 
 ## Securing the ActiveMQ REST Interface
 
-### Within JBoss Application server
+### Within Wildfly Application server
 
-Securing the ActiveMQ REST interface is very simple with the JBoss
+Securing the ActiveMQ REST interface is very simple with the Wildfly
 Application Server. You turn on authentication for all URLs within your
 WAR's web.xml, and let the user Principal to propagate to ActiveMQ. This
-only works if you are using the JBossSecurityManager with ActiveMQ. See
+only works if you are using the JAASSecurityManager with ActiveMQ. See
 the ActiveMQ documentation for more details.
 
 ### Security in other environments
@@ -1451,18 +1385,48 @@ role your own security by specifying security constraints with your
 web.xml for every path of every queue and topic you have deployed. Here
 is a list of URI patterns:
 
-  -------------------------------------------- -----------------------------------------------------------------------
-  /queues                                      secure the POST operation to secure queue creation
-  /queues/{queue-name}                         secure the GET HEAD operation to getting information about the queue.
-  /queues/{queue-name}/create/\*               secure this URL pattern for producing messages.
-  /queues/{queue-name}/pull-consumers/\*       secure this URL pattern for pulling messages.
-  /queues/{queue-name}/push-consumers/\*       secure this URL pattern for pushing messages.
-  /topics                                      secure the POST operation to secure topic creation
-  /topics/{topic-name}                         secure the GET HEAD operation to getting information about the topic.
-  /topics/{topic-name}/create/\*               secure this URL pattern for producing messages.
-  /topics/{topic-name}/pull-subscriptions/\*   secure this URL pattern for pulling messages.
-  /topics/{topic-name}/push-subscriptions/\*   secure this URL pattern for pushing messages.
-  -------------------------------------------- -----------------------------------------------------------------------
+<table>
+   <tr>
+      <td>/queues </td>
+      <td>secure the POST operation to secure queue creation</td>
+   </tr>
+   <tr>
+      <td>/queues/{queue-name}</td>
+      <td>secure the GET HEAD operation to getting information about the queue.</td>
+   </tr>
+   <tr>
+      <td>/queues/{queue-name}/create/\* </td>
+      <td>secure this URL pattern for producing messages. </td>
+   </tr>
+   <tr>
+      <td>/queues/{queue-name}/pull-consumers/\*</td>
+      <td>secure this URL pattern for pushing messages.</td>
+   </tr>
+   <tr>
+      <td>/queues/{queue-name}/push-consumers/\*</td>
+      <td>secure the POST operation to secure topic creation</td>
+   </tr>
+   <tr>
+      <td>/topics</td>
+      <td>secure the POST operation to secure topic creation</td>
+   </tr>
+   <tr>
+      <td>/topics/{topic-name}</td>
+      <td>secure the GET HEAD operation to getting information about the topic.</td>
+   </tr>
+   <tr>
+      <td>/topics/{topic-name}/create/\*</td>
+      <td>secure this URL pattern for producing messages.</td>
+   </tr>
+   <tr>
+      <td>/topics/{topic-name}/pull-subscriptions/\*</td>
+      <td>secure this URL pattern for pulling messages.</td>
+   </tr>
+   <tr>
+      <td>/topics/{topic-name}/push-subscriptions/\*</td>
+      <td>secure this URL pattern for pushing messages.</td>
+   </tr>
+</table>
 
 ## Mixing JMS and REST
 
