@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.core.persistence.impl.journal;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
@@ -42,6 +45,8 @@ public final class BatchingIDGenerator implements IDGenerator
 
    private final StorageManager storageManager;
 
+   private List<Long> cleanupRecords = null;
+
    public BatchingIDGenerator(final long start, final long checkpointSize, final StorageManager storageManager)
    {
       counter = new AtomicLong(start);
@@ -60,8 +65,31 @@ public final class BatchingIDGenerator implements IDGenerator
       storeID(recordID, recordID);
    }
 
+   /**
+    * A method to cleanup old records after started
+    */
+   public void cleanup()
+   {
+      if (cleanupRecords != null)
+      {
+         Iterator<Long> iterRecord = cleanupRecords.iterator();
+         while (iterRecord.hasNext())
+         {
+            Long record = iterRecord.next();
+            if (iterRecord.hasNext())
+            {
+               // we don't want to remove the last record
+               deleteID(record.longValue());
+            }
+         }
+         cleanupRecords.clear(); // help GC
+         cleanupRecords = null;
+      }
+   }
+
    public void loadState(final long journalID, final ActiveMQBuffer buffer)
    {
+      addCleanupRecord(journalID);
       IDCounterEncoding encoding = new IDCounterEncoding();
 
       encoding.decode(buffer);
@@ -93,8 +121,31 @@ public final class BatchingIDGenerator implements IDGenerator
       if (id >= nextID)
       {
          nextID += checkpointSize;
-         storeID(counter.incrementAndGet(), nextID);
+
+         if (!storageManager.isStarted())
+         {
+            // This could happen after the server is stopped
+            // while notifications are being sent and ID gerated.
+            // If the ID is intended to the journal you would know soon enough
+            // so we just ignore this for now
+            ActiveMQServerLogger.LOGGER.debug("The journalStorageManager is not loaded. " +
+                                                 "This is probably ok as long as it's a notification being sent after shutdown");
+         }
+         else
+         {
+            storeID(counter.getAndIncrement(), nextID);
+         }
       }
+   }
+
+   private void addCleanupRecord(long id)
+   {
+      if (cleanupRecords == null)
+      {
+         cleanupRecords = new LinkedList<>();
+      }
+
+      cleanupRecords.add(id);
    }
 
    private void storeID(final long journalID, final long id)
@@ -102,6 +153,18 @@ public final class BatchingIDGenerator implements IDGenerator
       try
       {
          storageManager.storeID(journalID, id);
+      }
+      catch (Exception e)
+      {
+         ActiveMQServerLogger.LOGGER.batchingIdError(e);
+      }
+   }
+
+   private void deleteID(final long journalID)
+   {
+      try
+      {
+         storageManager.deleteID(journalID);
       }
       catch (Exception e)
       {

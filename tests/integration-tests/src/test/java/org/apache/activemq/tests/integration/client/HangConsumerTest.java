@@ -477,45 +477,59 @@ public class HangConsumerTest extends ServiceTestBase
    @Test
    public void testDuplicateDestinationsOnTopic() throws Exception
    {
-      for (int i = 0; i < 5; i++)
+      try
       {
-         if (server.locateQueue(SimpleString.toSimpleString("jms.topic.tt")) == null)
+         for (int i = 0; i < 5; i++)
          {
-            server.createQueue(SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
-         }
-
-         server.stop();
-
-         SequentialFileFactory messagesFF = new NIOSequentialFileFactory(getBindingsDir(), null);
-
-         JournalImpl messagesJournal = new JournalImpl(1024 * 1024,
-            2,
-            0,
-            0,
-            messagesFF,
-            "activemq-bindings",
-            "bindings",
-            1);
-
-         messagesJournal.start();
-
-         LinkedList<RecordInfo> infos = new LinkedList<RecordInfo>();
-
-         messagesJournal.load(infos, null, null);
-
-         int bindings = 0;
-         for (RecordInfo info: infos)
-         {
-            if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD)
+            if (server.locateQueue(SimpleString.toSimpleString("jms.topic.tt")) == null)
             {
-               bindings++;
+               server.createQueue(SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
             }
-         }
-         assertEquals(1, bindings);
 
-         System.out.println("Bindings: " + bindings);
-         messagesJournal.stop();
-         if (i < 4) server.start();
+            server.stop();
+
+            SequentialFileFactory messagesFF = new NIOSequentialFileFactory(getBindingsDir(), null);
+
+            JournalImpl messagesJournal = new JournalImpl(1024 * 1024,
+                                                          2,
+                                                          0,
+                                                          0,
+                                                          messagesFF,
+                                                          "activemq-bindings",
+                                                          "bindings",
+                                                          1);
+
+            messagesJournal.start();
+
+            LinkedList<RecordInfo> infos = new LinkedList<RecordInfo>();
+
+            messagesJournal.load(infos, null, null);
+
+            int bindings = 0;
+            for (RecordInfo info : infos)
+            {
+               System.out.println("info: " + info);
+               if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD)
+               {
+                  bindings++;
+               }
+            }
+            assertEquals(1, bindings);
+
+            System.out.println("Bindings: " + bindings);
+            messagesJournal.stop();
+            if (i < 4) server.start();
+         }
+      }
+      finally
+      {
+         try
+         {
+            server.stop();
+         }
+         catch (Throwable ignored)
+         {
+         }
       }
    }
 

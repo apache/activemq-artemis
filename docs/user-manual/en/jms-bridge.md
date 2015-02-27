@@ -6,6 +6,10 @@ The function of the bridge is to consume messages from a source queue or
 topic, and send them to a target queue or topic, typically on a
 different server.
 
+> *Notice:*
+> The JMS Bridge is not intended as a replacement for transformation and more expert systems such as Camel.
+> The JMS Bridge may be useful for fast transfers as this chapter covers, but keep in mind that more complex scenarios requiring transformations will require you to use a more advanced transformation system that will play on use cases that will go beyond ActiveMQ.
+
 The source and target servers do not have to be in the same cluster
 which makes bridging suitable for reliably sending messages from one
 cluster to another, for instance across a WAN, and where the connection

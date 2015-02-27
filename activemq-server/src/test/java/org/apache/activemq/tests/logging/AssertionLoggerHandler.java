@@ -59,20 +59,23 @@ public class AssertionLoggerHandler extends ExtHandler
       }
    }
 
-   public static void assertMessageWasLogged(String assertionMessage, String expectedMessage)
-   {
-      if (!messages.containsKey(expectedMessage))
-      {
-         throw new AssertionError(assertionMessage);
-      }
-   }
 
-   public static void assertMessageWasLogged(String message)
+   /**
+    * is there any record matching Level?
+     * @param level
+    * @return
+    */
+   public static boolean hasLevel(Level level)
    {
-      if (!messages.containsKey(message))
+      for (ExtLogRecord record : messages.values())
       {
-         throw new AssertionError(Arrays.toString(messages.keySet().toArray()));
+         if (record.getLevel().equals(level))
+         {
+            return true;
+         }
       }
+
+      return false;
    }
 
    /**

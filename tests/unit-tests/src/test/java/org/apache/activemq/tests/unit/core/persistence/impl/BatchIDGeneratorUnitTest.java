@@ -46,7 +46,7 @@ public class BatchIDGeneratorUnitTest extends UnitTestCase
    public void testSequence() throws Exception
    {
       NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getTestDir());
-      Journal journal = new JournalImpl(10 * 1024, 2, 0, 0, factory, "test-data", "tst", 1);
+      Journal journal = new JournalImpl(10 * 1024, 2, 0, 0, factory, "activemq-bindings", "bindings", 1);
 
       journal.start();
 
@@ -135,7 +135,7 @@ public class BatchIDGeneratorUnitTest extends UnitTestCase
 
       Assert.assertEquals(0, tx.size());
 
-      Assert.assertTrue(records.size() > 0);
+      Assert.assertTrue("Contains " + records.size(),  records.size() > 0);
 
       for (RecordInfo record : records)
       {
@@ -149,7 +149,7 @@ public class BatchIDGeneratorUnitTest extends UnitTestCase
 
    private StorageManager getJournalStorageManager(final Journal bindingsJournal)
    {
-      return new NullStorageManager()
+      NullStorageManager storageManager = new NullStorageManager()
       {
          @Override
          public synchronized void storeID(long journalID, long id) throws Exception
@@ -158,5 +158,15 @@ public class BatchIDGeneratorUnitTest extends UnitTestCase
                                             BatchingIDGenerator.createIDEncodingSupport(id), true);
          }
       };
+
+      try
+      {
+         storageManager.start();
+      }
+      catch (Throwable ignored)
+      {
+      }
+
+      return storageManager;
    }
 }
