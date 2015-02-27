@@ -167,8 +167,8 @@ public interface ActiveMQServerLogger extends BasicLogger
    void journalUnreferencedMessage(Long messageID);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221020, value = "Started Netty Acceptor version {0} {1}:{2,number,#}", format = Message.Format.MESSAGE_FORMAT)
-   void startedNettyAcceptor(String id, String host, Integer port);
+   @Message(id = 221020, value = "Started Netty Acceptor version {0} {1}:{2,number,#} for protocols [{3}]", format = Message.Format.MESSAGE_FORMAT)
+   void startedNettyAcceptor(String id, String host, Integer port, String enabledProtocols);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221021, value = "failed to remove connection", format = Message.Format.MESSAGE_FORMAT)
