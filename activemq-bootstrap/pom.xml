@@ -60,6 +60,29 @@
          <groupId>io.airlift</groupId>
          <artifactId>airline</artifactId>
       </dependency>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-amqp-protocol</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-stomp-protocol</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-openwire-protocol</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>

@@ -25,6 +25,7 @@ import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -64,8 +65,9 @@ public class FileBroker implements Broker
 
       components = fileDeploymentManager.buildService(securityManager, ManagementFactory.getPlatformMBeanServer());
 
+      ArrayList<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
       ActiveMQBootstrapLogger.LOGGER.serverStarting();
-      for (ActiveMQComponent component : components.values())
+      for (ActiveMQComponent component : componentsByStartOrder)
       {
          component.start();
       }
@@ -93,6 +95,27 @@ public class FileBroker implements Broker
    @Override
    public boolean isStarted()
    {
-      return false;
+      return started;
+   }
+
+   public Map<String, ActiveMQComponent> getComponents()
+   {
+      return components;
+   }
+
+   /*
+   * this makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms but
+   * will need impproving if we get more.
+   * */
+   public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components)
+   {
+      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<ActiveMQComponent>();
+      ActiveMQComponent jmsComponent = components.get("jms");
+      if (jmsComponent != null)
+      {
+         activeMQComponents.add(jmsComponent);
+      }
+      activeMQComponents.add(components.get("core"));
+      return activeMQComponents;
    }
 }
