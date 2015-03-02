@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<html>
+<head>
+   <meta content="text/html; charset=ISO-8859-1"
+         http-equiv="content-type">
+   <title>HornetQ 2.4.1.Final Release Notes</title>
+</head>
+<body>
+
+<h1>Getting Started</h1>
+
+<h2>Starting the Broker</h2>
+
+<b>Note (Windows users):</b> The broker currently does not support spaces in path names.  For this reason the broker should be placed in a directory with no spaces in it's absolute path.</br></br>
+
+<b>Note (Windows users):</b> Examples below use the shell script `activemq` for use with linux, Windows users should use the `activemq.cmd` script with the same parameters.</br></br>
+
+To run the ActiveMQ broker with the default configuration, run the command shown below from the "bin" directory.</br></br>
+
+$ activemq run</br></br>
+
+To specify a broker configuration file:</br></br>
+
+$ activemq run --config scheme:location</br></br>
+
+e.g.</br></br>
+
+$ activemq run --config xml:/home/activemq/bootstrap.xml</br></br>
+
+The distribution ships with a number of example configurations that can be used to get started.  You can find these under the "config" directory.</br></br>
+
+It is possible to configure run time paramters in the activemq.conf (activemq.conf.bat for windows) file under the "bin" directory.
+<h2>Stopping the Broker</h2>
+
+To stop the broker please use the activemq script:</br></br>
+
+$ activemq stop</br></br>
+
+<h2>Documentation</h2>
+
+The broker comes shipped with an in depth user manual and a bunch of examples to help you get started.  These are all accessible from the broker website.  Start the broker then navigate to the <a href=" http://localhost:8161/">ActiveMQ broker website</a>.</br></br>
+
+<h2>Release Notes - ActiveMQ 6.0.0</h2>
+
+The ActiveMQ 6.0.0 release notes can be found in the <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12328953">ActiveMQ project JIRA</a>.
+
