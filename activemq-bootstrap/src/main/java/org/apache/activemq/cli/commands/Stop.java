@@ -33,9 +33,15 @@ public class Stop implements Action
    @Override
    public Object execute(ActionContext context) throws Exception
    {
+      /* We use File URI for locating files.  The ACTIVEMQ_HOME variable is used to determine file paths.  For Windows
+      the ACTIVEMQ_HOME variable will include back slashes (An invalid file URI character path separator).  For this
+      reason we overwrite the ACTIVEMQ_HOME variable with backslashes replaced with forward slashes. */
+      String activemqHome = System.getProperty("activemq.home").replace("\\", "/");
+      System.setProperty("activemq.home", activemqHome);
+
       if (configuration == null)
       {
-         configuration = "xml:" + System.getProperty("activemq.home").replace("\\", "/") + "/config/non-clustered/bootstrap.xml";
+         configuration = "xml:" + activemqHome + "/config/non-clustered/bootstrap.xml";
       }
       BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
 

@@ -52,7 +52,11 @@ public class Run implements Action
 
       ActiveMQ.printBanner();
 
+      /* We use File URI for locating files.  The ACTIVEMQ_HOME variable is used to determine file paths.  For Windows
+      the ACTIVEMQ_HOME variable will include back slashes (An invalid file URI character path separator).  For this
+      reason we overwrite the ACTIVEMQ_HOME variable with backslashes replaced with forward slashes. */
       String activemqHome = System.getProperty("activemq.home").replace("\\", "/");
+      System.setProperty("activemq.home", activemqHome);
 
       if (configuration == null)
       {
