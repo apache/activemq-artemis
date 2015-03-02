@@ -41,51 +41,6 @@
             <directory>${basedir}/target/output/</directory>
          </resource>
       </resources>
-      <plugins>
-         <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-               <!-- We don't currently have a 32-bit shared object in the repo which means if this is enabled the 64-bit
-                    shared object won't be copied properly. -->
-               <!--execution>
-                  <id>copy-resources-32</id>
-                  <phase>validate</phase>
-                  <goals>
-                     <goal>copy-resources</goal>
-                  </goals>
-                  <configuration>
-                     <outputDirectory>${basedir}/target/output/lib/linux-i686/</outputDirectory>
-                     <resources>
-                        <resource>
-                           <directory>bin/</directory>
-                           <includes>
-                              <include>libactiveMQAIO32.so</include>
-                           </includes>
-                        </resource>
-                     </resources>
-                  </configuration>
-               </execution-->
-               <execution>
-                  <id>copy-resources-64</id>
-                  <phase>validate</phase>
-                  <goals>
-                     <goal>copy-resources</goal>
-                  </goals>
-                  <configuration>
-                     <outputDirectory>${basedir}/target/output/lib/linux-x86_64/</outputDirectory>
-                     <resources>
-                        <resource>
-                           <directory>bin/</directory>
-                           <includes>
-                              <include>libactivemqAIO64.so</include>
-                           </includes>
-                        </resource>
-                     </resources>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
    </build>
 
 

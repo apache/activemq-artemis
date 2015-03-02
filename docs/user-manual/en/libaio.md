@@ -34,20 +34,11 @@ those platforms with the release.
 > At the moment the native layer is only available on Linux. If you are
 > in a platform other than Linux the native compilation will not work
 
-The native library uses
-[autoconf](http://en.wikipedia.org/wiki/Autoconf) what makes the
-compilation process easy, however you need to install extra packages as
-a requirement for compilation:
+These are the required linux packages to be installed for the compilation to work:
 
 -   gcc - C Compiler
 
 -   gcc-c++ or g++ - Extension to gcc with support for C++
-
--   autoconf - Tool for automating native build process
-
--   make - Plain old make
-
--   automake - Tool for automating make generation
 
 -   libtool - Tool for link editing native libraries
 
@@ -58,14 +49,13 @@ a requirement for compilation:
 -   A full JDK installed with the environment variable JAVA\_HOME set to
     its location
 
-To perform this installation on RHEL or Fedora, you can simply type this
-at a command line:
+To perform this installation on RHEL or Fedora, you can simply type this at a command line:
 
-    sudo yum install automake libtool autoconf gcc-c++ gcc libaio libaio-devel make
+    sudo yum install libtool gcc-c++ gcc libaio libaio-devel make
 
 Or on Debian systems:
 
-    sudo apt-get install automake libtool autoconf gcc-g++ gcc libaio libaio-dev make
+    sudo apt-get install libtool gcc-g++ gcc libaio libaio-dev make
 
 > **Note**
 >
@@ -75,30 +65,26 @@ Or on Debian systems:
 
 ## Invoking the compilation
 
-In the distribution, in the `native-src` directory, execute the shell
-script `bootstrap`. This script will invoke `automake` and `make` what
-will create all the make files and the native library.
+In the source distribution or git clone, in the `activemq-native` directory, execute the shell
+script `compile-native.sh`. This script will invoke the proper maven profile to perform the native build.
 
-    someUser@someBox:/messaging-distribution/native-src$ ./bootstrap
-    checking for a BSD-compatible install... /usr/bin/install -c
-    checking whether build environment is sane... yes
-    checking for a thread-safe mkdir -p... /bin/mkdir -p
-
-    ...
-
-    configure: creating ./config.status
-    config.status: creating Makefile
-    config.status: creating ./src/Makefile
-    config.status: creating config.h
-    config.status: config.h is unchanged
-    config.status: executing depfiles commands
-    config.status: executing libtool commands
-
+    someUser@someBox:/checkout-dir/activemq-native$ ./compile-native.sh
+    [INFO] Scanning for projects...
+    [INFO]
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Building ActiveMQ6 Native POM 6.0.0-SNAPSHOT
+    [INFO] ------------------------------------------------------------------------
+    [INFO]
+    [INFO] --- nar-maven-plugin:3.0.0:nar-validate (default-nar-validate) @ activemq-native ---
+    [INFO] Using AOL: amd64-Linux-gpp
+    [INFO]
+    [INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ activemq-native ---
     ...
 
 The produced library will be at
-`./native-src/src/.libs/libActiveMQAIO.so`. Simply move that file over
-`bin` on the distribution or the place you have chosen on the [library
+`./target/nar/activemq-native-RELEASE-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/
+libactivemq-native-RELEASE.so`. Simply move that file over
+`bin` with the proper rename [library
 path](#using-server.library.path).
 
 If you want to perform changes on the ActiveMQ libaio code, you could
