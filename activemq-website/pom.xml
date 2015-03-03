@@ -14,13 +14,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-pom</artifactId>
-      <version>6.0.0</version>
+      <version>6.0.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>activemq-website</artifactId>
@@ -120,12 +121,12 @@
                       <configuration>
                         <target>
                           <!-- lets generate the gitbook -->
-                          <mkdir dir="${webapp-outdir}/gitbook" />
+                          <mkdir dir="${webapp-outdir}/gitbook"/>
                           <echo>executing gitbook</echo>
                           <exec executable="gitbook">
-                            <arg value="build" />
-                            <arg value="${basedir}/../docs/user-manual/en" />
-                            <arg value="--output=${webapp-outdir}" />
+                            <arg value="build"/>
+                            <arg value="${basedir}/../docs/user-manual/en"/>
+                            <arg value="--output=${webapp-outdir}"/>
                           </exec>
                         </target>
                       </configuration>
