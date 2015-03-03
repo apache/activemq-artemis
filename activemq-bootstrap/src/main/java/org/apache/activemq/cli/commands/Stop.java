@@ -43,6 +43,10 @@ public class Stop implements Action
       {
          configuration = "xml:" + activemqHome + "/config/non-clustered/bootstrap.xml";
       }
+
+      // To support Windows paths as explained above.
+      configuration = configuration.replace("\\", "/");
+
       BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
 
       String fileName = new URI(broker.server.configuration).getSchemeSpecificPart();
