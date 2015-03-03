@@ -136,7 +136,7 @@
       </fileSet>
       <fileSet>
          <directory>${activemq.basedir}/examples</directory>
-         <outputDirectory>web/examples</outputDirectory>
+         <outputDirectory>examples</outputDirectory>
          <lineEnding>keep</lineEnding>
          <excludes>
             <exclude>**/target/**</exclude>
