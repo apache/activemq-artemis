@@ -63,6 +63,9 @@ public class Run implements Action
          configuration = "xml:" + activemqHome + "/config/non-clustered/bootstrap.xml";
       }
 
+      // To support Windows paths as explained above.
+      configuration = configuration.replace("\\", "/");
+
       System.out.println("Loading configuration file: " + configuration);
 
       BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
