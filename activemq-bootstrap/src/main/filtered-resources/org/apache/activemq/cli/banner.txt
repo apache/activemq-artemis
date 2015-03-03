@@ -3,6 +3,6 @@
    / _ \ / __| __| | \ / / _ \ |\/| | | | |
   / ___ \ (__| |_| |\ V /  __/ |  | | |_| |
  /_/   \_\___|\__|_| \_/ \___|_|  |_|\__\_\
- ActiveMQ ${project.version}
+ Apache ActiveMQ ${project.version}
 
 
