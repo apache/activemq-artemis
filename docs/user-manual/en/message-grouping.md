@@ -5,7 +5,7 @@ characteristics:
 
 -   Messages in a message group share the same group id, i.e. they have
     same group identifier property (`JMSXGroupID` for JMS,
-    `_HQ_GROUP_ID` for ActiveMQ Core API).
+    `_HQ_GROUP_ID` for Apache ActiveMQ Core API).
 
 -   Messages in a message group are always consumed by the same
     consumer, even if there are many consumers on a queue. They pin all

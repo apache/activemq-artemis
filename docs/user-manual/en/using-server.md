@@ -1,12 +1,12 @@
 # Using the Server
 
-This chapter will familiarise you with how to use the ActiveMQ server.
+This chapter will familiarise you with how to use the Apache ActiveMQ server.
 
 We'll show where it is, how to start and stop it, and we'll describe the
 directory layout and what all the files are and what they do.
 
-For the remainder of this chapter when we talk about the ActiveMQ server
-we mean the ActiveMQ standalone server, in its default configuration
+For the remainder of this chapter when we talk about the Apache ActiveMQ server
+we mean the Apache ActiveMQ standalone server, in its default configuration
 with a JMS Service enabled.
 
 ## Starting and Stopping the standalone server
@@ -16,21 +16,21 @@ In the distribution you will find a directory called `bin`.
 `cd` into that directory and you will find a Unix/Linux script called
 `activemq` and a Windows script called `activemq.cmd`.
 
-To start the ActiveMQ instance on Unix/Linux type `./activemq run`
+To start the Apache ActiveMQ instance on Unix/Linux type `./activemq run`
 
-To start the ActiveMQ instance on Windows type `activemq.cmd run`
+To start the Apache ActiveMQ instance on Windows type `activemq.cmd run`
 
 These scripts are very simple and basically just set-up the classpath
 and some JVM parameters and bootstrap the server using
 [Airline](https://github.com/airlift/airline).
 
-To stop the ActiveMQ instance you will use the same `activemq` script.
+To stop the Apache ActiveMQ instance you will use the same `activemq` script.
 
 To run on Unix/Linux type `./activemq stop`
 
 To run on Windows type `activemq.cmd stop`
 
-Please note that ActiveMQ requires a Java 6 or later runtime to run.
+Please note that Apache ActiveMQ requires a Java 6 or later runtime to run.
 
 By default the `config/non-clustered/bootstrap.xml` configuration is
 used. The configuration can be changed e.g. by running
@@ -43,7 +43,7 @@ The run scripts set some JVM settings for tuning the garbage collection
 policy and heap size. We recommend using a parallel garbage collection
 algorithm to smooth out latency and minimise large GC pauses.
 
-By default ActiveMQ runs in a maximum of 1GiB of RAM. To increase the
+By default Apache ActiveMQ runs in a maximum of 1GiB of RAM. To increase the
 memory settings change the `-Xms` and `-Xmx` memory settings as you
 would for any Java program.
 
@@ -77,7 +77,7 @@ JVM will use the environment variable `LD_LIBRARY_PATH`.
 
 ## System properties
 
-ActiveMQ can take a system property on the command line for configuring
+Apache ActiveMQ can take a system property on the command line for configuring
 logging.
 
 For more information on configuring logging, please see the section on
@@ -129,11 +129,11 @@ The bootstrap file is very simple. Let's take a look at an example:
 
 ## The main configuration file.
 
-The configuration for the ActiveMQ core server is contained in
+The configuration for the Apache ActiveMQ core server is contained in
 `activemq-configuration.xml`. This is what the FileConfiguration bean
 uses to configure the messaging server.
 
-There are many attributes which you can configure ActiveMQ. In most
+There are many attributes which you can configure Apache ActiveMQ. In most
 cases the defaults will do fine, in fact every attribute can be
 defaulted which means a file with a single empty `configuration` element
 is a valid configuration file. The different configuration will be

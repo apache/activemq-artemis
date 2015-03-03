@@ -1,31 +1,31 @@
 # Architecture
 
-In this section we will give an overview of the ActiveMQ high level
+In this section we will give an overview of the Apache ActiveMQ high level
 architecture.
 
 ## Core Architecture
 
-ActiveMQ core is designed simply as set of Plain Old Java Objects
+Apache ActiveMQ core is designed simply as set of Plain Old Java Objects
 (POJOs) - we hope you like its clean-cut design.
 
 We've also designed it to have as few dependencies on external jars as
-possible. In fact, ActiveMQ core has only one jar dependency, netty.jar,
+possible. In fact, Apache ActiveMQ core has only one jar dependency, netty.jar,
 other than the standard JDK classes! This is because we use some of the
 netty buffer classes internally.
 
-This allows ActiveMQ to be easily embedded in your own project, or
+This allows Apache ActiveMQ to be easily embedded in your own project, or
 instantiated in any dependency injection framework such as Spring or
 Google Guice.
 
-Each ActiveMQ server has its own ultra high performance persistent
+Each Apache ActiveMQ server has its own ultra high performance persistent
 journal, which it uses for message and other persistence.
 
 Using a high performance journal allows outrageous persistence message
 performance, something not achievable when using a relational database
 for persistence.
 
-ActiveMQ clients, potentially on different physical machines interact
-with the ActiveMQ server. ActiveMQ currently provides two APIs for
+Apache ActiveMQ clients, potentially on different physical machines interact
+with the Apache ActiveMQ server. Apache ActiveMQ currently provides two APIs for
 messaging at the client side:
 
 1. Core client API. This is a simple intuitive Java API that allows the
@@ -35,7 +35,7 @@ messaging at the client side:
 2. JMS client API. The standard JMS API is available at the client
     side.
 
-ActiveMQ also provides different protocol implementations on the server so you can use respective clients for these protocols:
+Apache ActiveMQ also provides different protocol implementations on the server so you can use respective clients for these protocols:
 
 1. Stomp
 2. OpenWire
@@ -45,13 +45,13 @@ ActiveMQ also provides different protocol implementations on the server so you c
 JMS semantics are implemented by a JMS facade layer on the client
 side.
 
-The ActiveMQ server does not speak JMS and in fact does not know
+The Apache ActiveMQ server does not speak JMS and in fact does not know
 anything about JMS, it is a protocol agnostic messaging server designed
 to be used with multiple different protocols.
 
 When a user uses the JMS API on the client side, all JMS interactions
-are translated into operations on the ActiveMQ core client API before
-being transferred over the wire using the ActiveMQ wire format.
+are translated into operations on the Apache ActiveMQ core client API before
+being transferred over the wire using the Apache ActiveMQ wire format.
 
 The server always just deals with core API interactions.
 
@@ -59,25 +59,25 @@ A schematic illustrating this relationship is shown in figure 3.1 below:
 
 ![ActiveMQ architecture1](images/architecture1.jpg)
 
-Figure 3.1 shows two user applications interacting with a ActiveMQ
+Figure 3.1 shows two user applications interacting with an Apache ActiveMQ
 server. User Application 1 is using the JMS API, while User Application
 2 is using the core client API directly.
 
 You can see from the diagram that the JMS API is implemented by a thin
 facade layer on the client side.
 
-## ActiveMQ embedded in your own application
+## Apache ActiveMQ embedded in your own application
 
-ActiveMQ core is designed as a set of simple POJOs so if you have an
+Apache ActiveMQ core is designed as a set of simple POJOs so if you have an
 application that requires messaging functionality internally but you
-don't want to expose that as a ActiveMQ server you can directly
-instantiate and embed ActiveMQ servers in your own application.
+don't want to expose that as an Apache ActiveMQ server you can directly
+instantiate and embed Apache ActiveMQ servers in your own application.
 
-For more information on embedding ActiveMQ, see [Embedding ActiveMQ](embedding-activemq.md).
+For more information on embedding Apache ActiveMQ, see [Embedding Apache ActiveMQ](embedding-Apache activemq.md).
 
-## ActiveMQ integrated with a JEE application server
+## Apache ActiveMQ integrated with a JEE application server
 
-ActiveMQ provides its own fully functional Java Connector Architecture
+Apache ActiveMQ provides its own fully functional Java Connector Architecture
 (JCA) adaptor which enables it to be integrated easily into any JEE
 compliant application server or servlet engine.
 
@@ -110,12 +110,12 @@ you will not be able to take advantage of the JCA features, such as
 caching of JMS sessions, which can result in poor performance.
 
 Figure 3.2 below shows a JEE application server integrating with a
-ActiveMQ server via the ActiveMQ JCA adaptor. Note that all
+Apache ActiveMQ server via the Apache ActiveMQ JCA adaptor. Note that all
 communication between EJB sessions or entity beans and Message Driven
-beans go through the adaptor and not directly to ActiveMQ.
+beans go through the adaptor and not directly to Apache ActiveMQ.
 
 The large arrow with the prohibited sign shows an EJB session bean
-talking directly to the ActiveMQ server. This is not recommended as
+talking directly to the Apache ActiveMQ server. This is not recommended as
 you'll most likely end up creating a new connection and session every
 time you want to interact from the EJB, which is an anti-pattern.
 
@@ -123,9 +123,9 @@ time you want to interact from the EJB, which is an anti-pattern.
 
 For more information on using the JCA adaptor, please see [Application Server Integration and Java EE](appserver-integration.md).
 
-## ActiveMQ stand-alone server
+## Apache ActiveMQ stand-alone server
 
-ActiveMQ can also be deployed as a stand-alone server. This means a
+Apache ActiveMQ can also be deployed as a stand-alone server. This means a
 fully independent messaging server not dependent on a JEE application
 server.
 

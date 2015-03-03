@@ -1,6 +1,6 @@
 # Messaging Concepts
 
-ActiveMQ is an asynchronous messaging system, an example of [Message
+Apache ActiveMQ is an asynchronous messaging system, an example of [Message
 Oriented
 Middleware](http://en.wikipedia.org/wiki/Message_oriented_middleware) ,
 we'll just call them messaging systems in the remainder of this book.
@@ -140,7 +140,7 @@ require.
 ## Transactions
 
 Messaging systems typically support the sending and acknowledgement of
-multiple messages in a single local transaction. ActiveMQ also supports
+multiple messages in a single local transaction. Apache ActiveMQ also supports
 the sending and acknowledgement of message as part of a large global
 transaction - using the Java mapping of XA: JTA.
 
@@ -184,7 +184,7 @@ programmatic API so JMS clients and servers from different vendors
 cannot directly interoperate since each will use the vendor's own
 internal wire protocol.
 
-ActiveMQ provides a fully compliant JMS 1.1 and JMS 2.0 API.
+Apache ActiveMQ provides a fully compliant JMS 1.1 and JMS 2.0 API.
 
 ### System specific APIs
 
@@ -194,7 +194,7 @@ of system functionality to be exposed to the client application. API's
 like JMS are not normally rich enough to expose all the extra features
 that most messaging systems provide.
 
-ActiveMQ provides its own core client API for clients to use if they
+Apache ActiveMQ provides its own core client API for clients to use if they
 wish to have access to functionality over and above that accessible via
 the JMS API.
 
@@ -216,7 +216,7 @@ use HTTP as their underlying protocol.
 The advantage of a REST approach with HTTP is in its simplicity and the
 fact the internet is already tuned to deal with HTTP optimally.
 
-Please see [Rest Interface](rest.md) for using ActiveMQ's RESTful interface.
+Please see [Rest Interface](rest.md) for using Apache ActiveMQ's RESTful interface.
 
 ### STOMP
 
@@ -226,7 +226,7 @@ theoretically any Stomp client can work with any messaging system that
 supports Stomp. Stomp clients are available in many different
 programming languages.
 
-Please see [Stomp](interoperability.md) for using STOMP with ActiveMQ.
+Please see [Stomp](interoperability.md) for using STOMP with Apache ActiveMQ.
 
 ### AMQP
 
@@ -235,10 +235,10 @@ interoperable messaging. It also defines a wire format, so any AMQP
 client can work with any messaging system that supports AMQP. AMQP
 clients are available in many different programming languages.
 
-ActiveMQ implements the [AMQP
+Apache ActiveMQ implements the [AMQP
 1.0](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp)
 specification. Any client that supports the 1.0 specification will be
-able to interact with ActiveMQ.
+able to interact with Apache ActiveMQ.
 
 ## High Availability
 
@@ -246,7 +246,7 @@ High Availability (HA) means that the system should remain operational
 after failure of one or more of the servers. The degree of support for
 HA varies between various messaging systems.
 
-ActiveMQ provides automatic failover where your sessions are
+Apache ActiveMQ provides automatic failover where your sessions are
 automatically reconnected to the backup server on event of live server
 failure.
 
@@ -263,12 +263,12 @@ Degrees of support for clusters varies between messaging systems, with
 some systems having fairly basic clusters with the cluster members being
 hardly aware of each other.
 
-ActiveMQ provides very configurable state-of-the-art clustering model
+Apache ActiveMQ provides very configurable state-of-the-art clustering model
 where messages can be intelligently load balanced between the servers in
 the cluster, according to the number of consumers on each node, and
 whether they are ready for messages.
 
-ActiveMQ also has the ability to automatically redistribute messages
+Apache ActiveMQ also has the ability to automatically redistribute messages
 between nodes of a cluster to prevent starvation on any particular node.
 
 For full details on clustering, please see [Clusters](clusters.md).
@@ -284,10 +284,10 @@ messages to another queue on a different server. Bridges cope with
 unreliable connections, automatically reconnecting when the connections
 becomes available again.
 
-ActiveMQ bridges can be configured with filter expressions to only
+Apache ActiveMQ bridges can be configured with filter expressions to only
 forward certain messages, and transformation can also be hooked in.
 
-ActiveMQ also allows routing between queues to be configured in server
+Apache ActiveMQ also allows routing between queues to be configured in server
 side configuration. This allows complex routing networks to be set up
 forwarding or copying messages from one destination to another, forming
 a global network of interconnected brokers.

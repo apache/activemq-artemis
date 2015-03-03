@@ -1,6 +1,6 @@
 # Using Core
 
-ActiveMQ core is a completely JMS-agnostic messaging system with its own
+Apache ActiveMQ core is a completely JMS-agnostic messaging system with its own
 non-JMS API. We call this the *core API*.
 
 If you don't want to use JMS you can use the core API directly. The core
@@ -41,16 +41,16 @@ please consult the Javadoc.
 
 -   Messages can be specified with a priority value between 0 and 9. 0
     represents the lowest priority and 9 represents the highest.
-    ActiveMQ will attempt to deliver higher priority messages before
+    Apache ActiveMQ will attempt to deliver higher priority messages before
     lower priority ones.
 
--   Messages can be specified with an optional expiry time. ActiveMQ
+-   Messages can be specified with an optional expiry time. Apache ActiveMQ
     will not deliver messages after its expiry time has been exceeded.
 
 -   Messages also have an optional timestamp which represents the time
     the message was sent.
 
--   ActiveMQ also supports the sending/consuming of very large messages
+-   Apache ActiveMQ also supports the sending/consuming of very large messages
     much larger than can fit in available RAM at any one time.
 
 ### Address
@@ -132,7 +132,7 @@ ClientSession instances group ClientConsumers and ClientProducers.
 ClientSession instances can be registered with an optional
 `SendAcknowledgementHandler`. This allows your client code to be
 notified asynchronously when sent messages have successfully reached the
-server. This unique ActiveMQ feature, allows you to have full guarantees
+server. This unique Apache ActiveMQ feature, allows you to have full guarantees
 that sent messages have reached the server without having to block on
 each message sent until a response is received. Blocking on each
 messages sent is costly since it requires a network round trip for each

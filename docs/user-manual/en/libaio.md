@@ -1,6 +1,6 @@
 # Libaio Native Libraries
 
-ActiveMQ distributes a native library, used as a bridge between ActiveMQ
+Apache ActiveMQ distributes a native library, used as a bridge between Apache ActiveMQ
 and Linux libaio.
 
 `libaio` is a library, developed as part of the Linux kernel project.
@@ -11,13 +11,13 @@ when they have been processed.
 We use this in our high performance journal if configured to do so,
 please see [Persistence](persistence.md).
 
-These are the native libraries distributed by ActiveMQ:
+These are the native libraries distributed by Apache ActiveMQ:
 
 -   libActiveMQAIO32.so - x86 32 bits
 
 -   libActiveMQAIO64.so - x86 64 bits
 
-When using libaio, ActiveMQ will always try loading these files as long
+When using libaio, Apache ActiveMQ will always try loading these files as long
 as they are on the [library path](#using-server.library.path).
 
 ## Compiling the native libraries
@@ -87,5 +87,5 @@ libactivemq-native-RELEASE.so`. Simply move that file over
 `bin` with the proper rename [library
 path](#using-server.library.path).
 
-If you want to perform changes on the ActiveMQ libaio code, you could
+If you want to perform changes on the Apache ActiveMQ libaio code, you could
 just call make directly at the `native-src` directory.

@@ -1,6 +1,6 @@
 # The JMS Bridge
 
-ActiveMQ includes a fully functional JMS message bridge.
+Apache ActiveMQ includes a fully functional JMS message bridge.
 
 The function of the bridge is to consume messages from a source queue or
 topic, and send them to a target queue or topic, typically on a
@@ -8,18 +8,18 @@ different server.
 
 > *Notice:*
 > The JMS Bridge is not intended as a replacement for transformation and more expert systems such as Camel.
-> The JMS Bridge may be useful for fast transfers as this chapter covers, but keep in mind that more complex scenarios requiring transformations will require you to use a more advanced transformation system that will play on use cases that will go beyond ActiveMQ.
+> The JMS Bridge may be useful for fast transfers as this chapter covers, but keep in mind that more complex scenarios requiring transformations will require you to use a more advanced transformation system that will play on use cases that will go beyond Apache ActiveMQ.
 
 The source and target servers do not have to be in the same cluster
 which makes bridging suitable for reliably sending messages from one
 cluster to another, for instance across a WAN, and where the connection
 may be unreliable.
 
-A bridge can be deployed as a standalone application, with ActiveMQ
+A bridge can be deployed as a standalone application, with Apache ActiveMQ
 standalone server or inside a JBoss AS instance. The source and the
 target can be located in the same virtual machine or another one.
 
-The bridge can also be used to bridge messages from other non ActiveMQ
+The bridge can also be used to bridge messages from other non Apache ActiveMQ
 JMS servers, as long as they are JMS 1.1 compliant.
 
 > **Note**
@@ -27,7 +27,7 @@ JMS servers, as long as they are JMS 1.1 compliant.
 > Do not confuse a JMS bridge with a core bridge. A JMS bridge can be
 > used to bridge any two JMS 1.1 compliant JMS providers and uses the
 > JMS API. A core bridge (described in [Core Bidges](core-bridges.md)) is used to bridge any two
-> ActiveMQ instances and uses the core API. Always use a core bridge if
+> Apache ActiveMQ instances and uses the core API. Always use a core bridge if
 > you can in preference to a JMS bridge. The core bridge will typically
 > provide better performance than a JMS bridge. Also the core bridge can
 > provide *once and only once* delivery guarantees without using XA.
@@ -193,7 +193,7 @@ by the parameters passed to its constructor.
 
 The "transactionManager" property points to a JTA transaction manager
 implementation and should be set if you need to use the 'ONCE_AND_ONCE_ONLY'
-Quality of Service. ActiveMQ doesn't ship with such an implementation, but
+Quality of Service. Apache ActiveMQ doesn't ship with such an implementation, but
 if you are running within an Application Server you can inject the Transaction
 Manager that is shipped.
 
@@ -204,7 +204,7 @@ the connection factory used to create the connection for the source or
 target server.
 
 The configuration example above uses the default implementation provided
-by ActiveMQ that looks up the connection factory using JNDI. For other
+by Apache ActiveMQ that looks up the connection factory using JNDI. For other
 Application Servers or JMS providers a new implementation may have to be
 provided. This can easily be done by implementing the interface
 `org.apache.activemq.jms.bridge.ConnectionFactoryFactory`.
@@ -215,7 +215,7 @@ Again, similarly, these are used to create or lookup up the
 destinations.
 
 In the configuration example above, we have used the default provided by
-ActiveMQ that looks up the destination using JNDI.
+Apache ActiveMQ that looks up the destination using JNDI.
 
 A new implementation can be provided by implementing
 `org.apache.activemq.jms.bridge.DestinationFactory` interface.
@@ -251,7 +251,7 @@ This mode is available for both durable and non-durable messages.
 
 This QoS mode ensures messages will reach the destination from the
 source once and only once. (Sometimes this mode is known as "exactly
-once"). If both the source and the destination are on the same ActiveMQ
+once"). If both the source and the destination are on the same Apache ActiveMQ
 server instance then this can be achieved by sending and acknowledging
 the messages in the same local transaction. If the source and
 destination are on different servers this is achieved by enlisting the
@@ -307,4 +307,4 @@ you will have to bear in mind timeout issues.
 Please see [the examples chapter](examples.md) which shows how to configure and use a JMS Bridge with
 JBoss AS to send messages to the source destination and consume them
 from the target destination and how to configure and use a JMS Bridge between
-two standalone ActiveMQ servers.
+two standalone Apache ActiveMQ servers.

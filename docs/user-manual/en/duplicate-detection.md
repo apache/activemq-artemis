@@ -1,9 +1,9 @@
 # Duplicate Message Detection
 
-ActiveMQ includes powerful automatic duplicate message detection,
+Apache ActiveMQ includes powerful automatic duplicate message detection,
 filtering out duplicate messages without you having to code your own
 fiddly duplicate detection logic at the application level. This chapter
-will explain what duplicate detection is, how ActiveMQ uses it and how
+will explain what duplicate detection is, how Apache ActiveMQ uses it and how
 and where to configure it.
 
 When sending messages from a client to a server, or indeed from a server
@@ -34,7 +34,7 @@ server or connection fails while the transaction commit is being
 processed it is also indeterminate whether the transaction was
 successfully committed or not!
 
-To solve these issues ActiveMQ provides automatic duplicate messages
+To solve these issues Apache ActiveMQ provides automatic duplicate messages
 detection for messages sent to addresses.
 
 ## Using Duplicate Detection for Message Sending

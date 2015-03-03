@@ -1,6 +1,6 @@
 # Using JMS
 
-Although ActiveMQ provides a JMS agnostic messaging API, many users will
+Although Apache ActiveMQ provides a JMS agnostic messaging API, many users will
 be more comfortable using JMS.
 
 JMS is a very popular API standard for messaging, and most messaging
@@ -8,7 +8,7 @@ systems provide a JMS API. If you are completely new to JMS we suggest
 you follow the [Oracle JMS tutorial](http://docs.oracle.com/javaee/7/tutorial/partmessaging.htm) -
 a full JMS tutorial is out of scope for this guide.
 
-ActiveMQ also ships with a wide range of examples, many of which
+Apache ActiveMQ also ships with a wide range of examples, many of which
 demonstrate JMS API usage. A good place to start would be to play around
 with the simple JMS Queue and Topic example, but we also provide
 examples for many other parts of the JMS API. A full description of the
@@ -16,7 +16,7 @@ examples is available in [Examples](examples.md).
 
 In this section we'll go through the main steps in configuring the
 server for JMS and creating a simple JMS program. We'll also show how to
-configure and use JNDI, and also how to use JMS with ActiveMQ without
+configure and use JNDI, and also how to use JMS with Apache ActiveMQ without
 using any JNDI.
 
 A simple ordering system
@@ -42,18 +42,18 @@ JNDI Configuration
 The JMS specification establishes the convention that *administered
 objects* (i.e. JMS queue, topic and connection factory instances) are
 made available via the JNDI API. Brokers are free to implement JNDI as
-they see fit assuming the implementation fits the API. ActiveMQ does not
+they see fit assuming the implementation fits the API. Apache ActiveMQ does not
 have a JNDI server. Rather, it uses a client-side JNDI implementation
 that relies on special properties set in the environment to construct
 the appropriate JMS objects. In other words, no objects are stored in
-JNDI on the ActiveMQ server, instead they are simply instantiated on the
+JNDI on the Apache ActiveMQ server, instead they are simply instantiated on the
 client based on the provided configuration. Let's look at the different
 kinds of administered objects and how to configure them.
 
 > **Note**
 >
 > The following configuration properties *are strictly required when
-> ActiveMQ is running in stand-alone mode*. When ActiveMQ is integrated
+> Apache ActiveMQ is running in stand-alone mode*. When Apache ActiveMQ is integrated
 > to an application server (e.g. Wildfly) the application server itself
 > will almost certainly provide a JNDI client with its own properties.
 
@@ -66,7 +66,7 @@ well as many other configuration parameters.
 
 Here's a simple example of the JNDI context environment for a client
 looking up a connection factory to access an *embedded* instance of
-ActiveMQ:
+Apache ActiveMQ:
 
     java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
     connectionFactory.invmConnectionFactory=vm://0
@@ -224,7 +224,7 @@ connection factories, destinations can be configured using special
 properties in the JNDI context environment. The property *name* should
 follow the pattern: `queue.<jndi-binding>` or `topic.<jndi-binding>`.
 The property *value* should be the name of the queue hosted by the
-ActiveMQ server. For example, if the server had a JMS queue configured
+Apache ActiveMQ server. For example, if the server had a JMS queue configured
 like so:
 
     <queue name="OrderQueue"/>
@@ -317,7 +317,7 @@ Although it is a very common JMS usage pattern to lookup JMS
 instances) from JNDI, in some cases you just think "Why do I need JNDI?
 Why can't I just instantiate these objects directly?"
 
-With ActiveMQ you can do exactly that. ActiveMQ supports the direct
+With Apache ActiveMQ you can do exactly that. Apache ActiveMQ supports the direct
 instantiation of JMS Queue, Topic and ConnectionFactory instances, so
 you don't have to use JNDI at all.
 

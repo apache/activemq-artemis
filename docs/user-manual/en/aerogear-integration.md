@@ -2,7 +2,7 @@
 
 AeroGears push technology provides support for different push
 notification technologies like Google Cloud Messaging, Apple's APNs or
-Mozilla's SimplePush. ActiveMQ allows you to configure a Connector
+Mozilla's SimplePush. Apache ActiveMQ allows you to configure a Connector
 Service that will consume messages from a queue and forward them to an
 AeroGear push server and subsequently sent as notifications to mobile
 devices.
