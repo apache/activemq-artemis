@@ -138,7 +138,6 @@ public final class VersionLoader
             int minorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.minorVersion"));
             int microVersion = Integer.valueOf(versionProps.getProperty("activemq.version.microVersion"));
             int[] incrementingVersions = parseCompatibleVersionList(versionProps.getProperty("activemq.version.incrementingVersion"));
-            String versionSuffix = versionProps.getProperty("activemq.version.versionSuffix");
             int[] compatibleVersionArray = parseCompatibleVersionList(versionProps.getProperty("activemq.version.compatibleVersionList"));
             List<Version> definedVersions = new ArrayList<Version>(incrementingVersions.length);
             for (int incrementingVersion : incrementingVersions)
@@ -148,7 +147,6 @@ public final class VersionLoader
                                                    minorVersion,
                                                    microVersion,
                                                    incrementingVersion,
-                                                   versionSuffix,
                                                    compatibleVersionArray));
             }
             //We want the higher version to be the first

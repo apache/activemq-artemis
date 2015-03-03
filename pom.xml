@@ -51,16 +51,14 @@
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
       <netty.version>4.0.20.Final</netty.version>
-      <activemq.version.versionName>Active Hornet</activemq.version.versionName>
+      <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>6</activemq.version.majorVersion>
       <activemq.version.minorVersion>0</activemq.version.minorVersion>
       <activemq.version.microVersion>0</activemq.version.microVersion>
       <activemq.version.incrementingVersion>126,125,124,123,122</activemq.version.incrementingVersion>
-      <activemq.version.versionSuffix>SNAPSHOT</activemq.version.versionSuffix>
-      <activemq.version.versionTag>SNAPSHOT</activemq.version.versionTag>
+      <activemq.version.versionTag>${project.version}</activemq.version.versionTag>
       <ActiveMQ-Version>
-         ${activemq.version.majorVersion}.${activemq.version.minorVersion}.${activemq.version.microVersion}.${activemq.version.versionSuffix}
-         (${activemq.version.versionName}, ${activemq.version.incrementingVersion})
+         ${project.version}(${activemq.version.incrementingVersion})
       </ActiveMQ-Version>
       <resteasy.version>3.0.9.Final</resteasy.version>
       <skipUnitTests>true</skipUnitTests>

@@ -40,8 +40,6 @@ public class VersionImpl implements Version, Serializable
 
    private final int incrementingVersion;
 
-   private final String versionSuffix;
-
    private final int[] compatibleVersionList;
 
    // Constructors --------------------------------------------------
@@ -51,7 +49,6 @@ public class VersionImpl implements Version, Serializable
                       final int minorVersion,
                       final int microVersion,
                       final int incrementingVersion,
-                      final String versionSuffix,
                       final int[] compatibleVersionList)
    {
       this.versionName = versionName;
@@ -64,8 +61,6 @@ public class VersionImpl implements Version, Serializable
 
       this.incrementingVersion = incrementingVersion;
 
-      this.versionSuffix = versionSuffix;
-
       this.compatibleVersionList = Arrays.copyOf(compatibleVersionList, compatibleVersionList.length);
    }
 
@@ -73,17 +68,7 @@ public class VersionImpl implements Version, Serializable
 
    public String getFullVersion()
    {
-      return majorVersion + "." +
-             minorVersion +
-             "." +
-             microVersion +
-             "." +
-             versionSuffix +
-             " (" +
-             versionName +
-             ", " +
-             incrementingVersion +
-             ")";
+      return versionName;
    }
 
    public String getVersionName()
@@ -104,11 +89,6 @@ public class VersionImpl implements Version, Serializable
    public int getMicroVersion()
    {
       return microVersion;
-   }
-
-   public String getVersionSuffix()
-   {
-      return versionSuffix;
    }
 
    public int getIncrementingVersion()
@@ -139,7 +119,6 @@ public class VersionImpl implements Version, Serializable
       result = prime * result + microVersion;
       result = prime * result + minorVersion;
       result = prime * result + ((versionName == null) ? 0 : versionName.hashCode());
-      result = prime * result + ((versionSuffix == null) ? 0 : versionSuffix.hashCode());
       return result;
    }
 
@@ -187,17 +166,6 @@ public class VersionImpl implements Version, Serializable
          }
       }
       else if (!versionName.equals(other.versionName))
-      {
-         return false;
-      }
-      if (versionSuffix == null)
-      {
-         if (other.versionSuffix != null)
-         {
-            return false;
-         }
-      }
-      else if (!versionSuffix.equals(other.versionSuffix))
       {
          return false;
       }

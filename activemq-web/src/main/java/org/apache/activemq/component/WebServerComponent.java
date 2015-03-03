@@ -82,7 +82,7 @@ public class WebServerComponent implements ExternalComponent
    {
       server.start();
 
-      System.out.println("Server started at " + webServerConfig.bind);
+      System.out.println("HTTP Server started at " + webServerConfig.bind);
    }
 
    public void stop() throws Exception
