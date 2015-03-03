@@ -4,14 +4,14 @@
 application platform for the JVM that's designed for modern mobile, web,
 and enterprise applications. Vert.x provides a distributed event bus
 that allows messages to be sent across vert.x instances and clients. You
-can now redirect and persist any vert.x messages to ActiveMQ and route
-those messages to a specified vertx address by configuring ActiveMQ
+can now redirect and persist any vert.x messages to Apache ActiveMQ and route
+those messages to a specified vertx address by configuring Apache ActiveMQ
 vertx incoming and outgoing vertx connector services.
 
 ## Configuring a Vertx Incoming Connector Service
 
 Vertx Incoming Connector services receive messages from vertx event bus
-and route them to a ActiveMQ queue. Such a service can be configured as
+and route them to an Apache ActiveMQ queue. Such a service can be configured as
 follows:
 
     <connector-service name="vertx-incoming-connector">
@@ -25,7 +25,7 @@ follows:
 
 Shown are the required params for the connector service:
 
--   `queue`. The name of the ActiveMQ queue to send message to.
+-   `queue`. The name of the Apache ActiveMQ queue to send message to.
 
 As well as these required parameters there are the following optional
 parameters
@@ -62,7 +62,7 @@ as follows:
 
 Shown are the required params for the connector service:
 
--   `queue`. The name of the ActiveMQ queue to fetch message from.
+-   `queue`. The name of the Apache ActiveMQ queue to fetch message from.
 
 As well as these required paramaters there are the following optional
 parameters

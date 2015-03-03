@@ -1,12 +1,12 @@
 # Detecting Dead Connections
 
 In this section we will discuss connection time-to-live (TTL) and
-explain how ActiveMQ deals with crashed clients and clients which have
+explain how Apache ActiveMQ deals with crashed clients and clients which have
 exited without cleanly closing their resources.
 
 ## Cleaning up Dead Connection Resources on the Server
 
-Before a ActiveMQ client application exits it is considered good
+Before an Apache ActiveMQ client application exits it is considered good
 practice that it should close its resources in a controlled manner,
 using a `finally` block.
 
@@ -81,12 +81,12 @@ running out of memory or other resources.
 We have to balance the requirement for cleaning up dead client resources
 with the fact that sometimes the network between the client and the
 server can fail and then come back, allowing the client to reconnect.
-ActiveMQ supports client reconnection, so we don't want to clean up
+Apache ActiveMQ supports client reconnection, so we don't want to clean up
 "dead" server side resources too soon or this will prevent any client
 from reconnecting, as it won't be able to find its old sessions on the
 server.
 
-ActiveMQ makes all of this configurable. For each `ClientSessionFactory`
+Apache ActiveMQ makes all of this configurable. For each `ClientSessionFactory`
 we define a *connection TTL*. Basically, the TTL determines how long the
 server will keep a connection alive in the absence of any data arriving
 from the client. The client will automatically send "ping" packets
@@ -120,7 +120,7 @@ As previously discussed, it's important that all core client sessions
 and JMS connections are always closed explicitly in a `finally` block
 when you are finished using them.
 
-If you fail to do so, ActiveMQ will detect this at garbage collection
+If you fail to do so, Apache ActiveMQ will detect this at garbage collection
 time, and log a warning similar to the following in the logs (If you are
 using JMS the warning will involve a JMS connection not a client
 session):
@@ -132,7 +132,7 @@ session):
        at org.apache.activemq.core.client.impl.DelegatingSession.<init>(DelegatingSession.java:83)
        at org.acme.yourproject.YourClass (YourClass.java:666)
 
-ActiveMQ will then close the connection / client session for you.
+Apache ActiveMQ will then close the connection / client session for you.
 
 Note that the log will also tell you the exact line of your user code
 where you created the JMS connection / client session that you later did

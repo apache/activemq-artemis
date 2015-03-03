@@ -1,6 +1,6 @@
 # Logging
 
-ActiveMQ uses the JBoss Logging framework to do its logging and is
+Apache ActiveMQ uses the JBoss Logging framework to do its logging and is
 configurable via the `logging.properties` file found in the
 configuration directories. This is configured by Default to log to both
 the console and to a file.
@@ -21,7 +21,7 @@ There are 6 loggers available which are as follows:
     <tbody>
     <tr>
         <td>org.jboss.logging</td>
-        <td>Logs any calls not handled by the ActiveMQ loggers</td>
+        <td>Logs any calls not handled by the Apache ActiveMQ loggers</td>
     </tr>
     <tr>
         <td>org.apache.activemq.core.server</td>
@@ -85,7 +85,7 @@ The following is a typical `logging.properties for a client`
 
     # Root logger level
     logger.level=INFO
-    # ActiveMQ logger levels
+    # Apache ActiveMQ logger levels
     logger.org.apache.activemq.core.server.level=INFO
     logger.org.apache.activemq.utils.level=INFO
     logger.org.apache.activemq.jms.level=DEBUG

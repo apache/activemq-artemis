@@ -1,11 +1,11 @@
 # Configuring the Transport
 
 In this chapter we'll describe the concepts required for understanding
-ActiveMQ transports and where and how they're configured.
+Apache ActiveMQ transports and where and how they're configured.
 
 ## Understanding Acceptors
 
-One of the most important concepts in ActiveMQ transports is the
+One of the most important concepts in Apache ActiveMQ transports is the
 *acceptor*. Let's dive straight in and take a look at an acceptor
 defined in xml in the configuration file `activemq-configuration.xml`.
 
@@ -18,7 +18,7 @@ one or more acceptors defined in the `acceptors` element. There's no
 upper limit to the number of acceptors per server.
 
 Each acceptor defines a way in which connections can be made to the
-ActiveMQ server.
+Apache ActiveMQ server.
 
 In the above example we're defining an acceptor that uses
 [Netty](http://netty.io/) to listen for connections at port
@@ -139,7 +139,7 @@ etc
 
 ## Configuring the Netty transport
 
-Out of the box, ActiveMQ currently uses
+Out of the box, Apache ActiveMQ currently uses
 [Netty](http://netty.io/), a high performance low level
 network library.
 
@@ -151,9 +151,9 @@ We believe this caters for the vast majority of transport requirements.
 
 ## Single Port Support
 
-ActiveMQ supports using a single port for all
-protocols, ActiveMQ will automatically detect which protocol is being
-used CORE, AMQP, STOMP or OPENWIRE and use the appropriate ActiveMQ
+Apache ActiveMQ supports using a single port for all
+protocols, Apache ActiveMQ will automatically detect which protocol is being
+used CORE, AMQP, STOMP or OPENWIRE and use the appropriate Apache ActiveMQ
 handler. It will also detect whether protocols such as HTTP or Web
 Sockets are being used and also use the appropriate decoders
 
@@ -242,7 +242,7 @@ Netty for simple TCP:
     TCP receive buffer in bytes. The default value for this property is
     `32768` bytes (32KiB).
 
--   `batchDelay`. Before writing packets to the transport, ActiveMQ can
+-   `batchDelay`. Before writing packets to the transport, Apache ActiveMQ can
     be configured to batch up writes for a maximum of `batchDelay`
     milliseconds. This can increase overall throughput for very small
     messages. It does so at the expense of an increase in average
@@ -261,7 +261,7 @@ Netty for simple TCP:
     throughput set `directDeliver` to `false
                             `.
 
--   `nioRemotingThreads`. When configured to use NIO, ActiveMQ will,
+-   `nioRemotingThreads`. When configured to use NIO, Apache ActiveMQ will,
     by default, use a number of threads equal to three times the number
     of cores (or hyper-threads) as reported by
     `Runtime.getRuntime().availableProcessors()` for processing incoming
@@ -399,7 +399,7 @@ Netty HTTP uses the same properties as Netty TCP but adds the following
 additional properties:
 
 -   `httpEnabled`. This is now no longer needed as of version 2.4. With
-    single port support ActiveMQ will now automatically detect if http
+    single port support Apache ActiveMQ will now automatically detect if http
     is being used and configure itself.
 
 -   `httpClientIdleTime`. How long a client can be idle before

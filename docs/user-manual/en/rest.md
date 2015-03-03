@@ -1,7 +1,7 @@
 # REST Interface
 
-The ActiveMQ REST interface allows you to leverage the reliability and
-scalability features of ActiveMQ over a simple REST/HTTP interface.
+The Apache ActiveMQ REST interface allows you to leverage the reliability and
+scalability features of Apache ActiveMQ over a simple REST/HTTP interface.
 Messages are produced and consumed by sending and receiving simple HTTP
 messages that contain the content you want to push around. For instance,
 here's a simple example of posting an order to an order processing queue
@@ -18,47 +18,47 @@ express as an HTTP message:
     </order>
 
 As you can see, we're just posting some arbitrary XML document to a URL.
-When the XML is received on the server is it processed within ActiveMQ
-as a JMS message and distributed through core ActiveMQ. Simple and easy.
+When the XML is received on the server is it processed within Apache ActiveMQ
+as a JMS message and distributed through core Apache ActiveMQ. Simple and easy.
 Consuming messages from a queue or topic looks very similar. We'll
 discuss the entire interface in detail later in this docbook.
 
 ## Goals of REST Interface
 
-Why would you want to use ActiveMQ's REST interface? What are the goals
+Why would you want to use Apache ActiveMQ's REST interface? What are the goals
 of the REST interface?
 
 -   Easily usable by machine-based (code) clients.
 
--   Zero client footprint. We want ActiveMQ to be usable by any
+-   Zero client footprint. We want Apache ActiveMQ to be usable by any
     client/programming language that has an adequate HTTP client
     library. You shouldn't have to download, install, and configure a
-    special library to interact with ActiveMQ.
+    special library to interact with Apache ActiveMQ.
 
 -   Lightweight interoperability. The HTTP protocol is strong enough to
     be our message exchange protocol. Since interactions are RESTful the
     HTTP uniform interface provides all the interoperability you need to
     communicate between different languages, platforms, and even
     messaging implementations that choose to implement the same RESTful
-    interface as ActiveMQ (i.e. the [REST-\*](http://rest-star.org)
+    interface as Apache ActiveMQ (i.e. the [REST-\*](http://rest-star.org)
     effort.)
 
 -   No envelope (e.g. SOAP) or feed (e.g. Atom) format requirements. You
     shouldn't have to learn, use, or parse a specific XML document
-    format in order to send and receive messages through ActiveMQ's REST
+    format in order to send and receive messages through Apache ActiveMQ's REST
     interface.
 
 -   Leverage the reliability, scalability, and clustering features of
-    ActiveMQ on the back end without sacrificing the simplicity of a
+    Apache ActiveMQ on the back end without sacrificing the simplicity of a
     REST interface.
 
 ## Installation and Configuration
 
-ActiveMQ's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the ActiveMQ REST interface is a little bit different depending whether ActiveMQ is already installed and configured for your environment (e.g. you're deploying within Wildfly) or you want the ActiveMQ REST WAR to startup and manage the ActiveMQ server (e.g. you're deploying within something like Apache Tomcat).
+Apache ActiveMQ's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the Apache ActiveMQ REST interface is a little bit different depending whether Apache ActiveMQ is already installed and configured for your environment (e.g. you're deploying within Wildfly) or you want the ActiveMQ REST WAR to startup and manage the Apache ActiveMQ server (e.g. you're deploying within something like Apache Tomcat).
 
 ### Installing Within Pre-configured Environment
 
-This section should be used when you want to use the ActiveMQ REST interface in an environment that already has ActiveMQ installed and running, e.g. the Wildfly application server. You must create a Web archive (.WAR) file with the following web.xml settings:
+This section should be used when you want to use the Apache ActiveMQ REST interface in an environment that already has Apache ActiveMQ installed and running, e.g. the Wildfly application server. You must create a Web archive (.WAR) file with the following web.xml settings:
 
     <web-app>
        <listener>
@@ -86,7 +86,7 @@ This section should be used when you want to use the ActiveMQ REST interface in 
        </filter-mapping>
     </web-app>
 
-Within your WEB-INF/lib directory you must have the activemq-rest.jar file. If RESTEasy is not installed within your environment, you must add the RESTEasy jar files within the lib directory as well. Here's a sample Maven pom.xml that can build a WAR with the ActiveMQ REST library.
+Within your WEB-INF/lib directory you must have the Apache activemq-rest.jar file. If RESTEasy is not installed within your environment, you must add the RESTEasy jar files within the lib directory as well. Here's a sample Maven pom.xml that can build a WAR with the Apache ActiveMQ REST library.
 
     <project xmlns="http://maven.apache.org/POM/4.0.0"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -128,7 +128,7 @@ It is worth noting that when deploying a WAR in a Java EE application server lik
 
 ### Bootstrapping ActiveMQ Along with REST
 
-You can bootstrap ActiveMQ within your WAR as well. To do this, you must have the ActiveMQ core and JMS jars along with Netty, RESTEasy, and the ActiveMQ REST jar within your WEB-INF/lib. You must also have a activemq-configuration.xml config file within WEB-INF/classes. The examples that come with the ActiveMQ REST distribution show how to do this. You must also add an additional listener to your web.xml file. Here's an example:
+You can bootstrap Apache ActiveMQ within your WAR as well. To do this, you must have the Apache ActiveMQ core and JMS jars along with Netty, RESTEasy, and the Apache ActiveMQ REST jar within your WEB-INF/lib. You must also have an Apache ActiveMQ-configuration.xml config file within WEB-INF/classes. The examples that come with the Apache ActiveMQ REST distribution show how to do this. You must also add an additional listener to your web.xml file. Here's an example:
 
     <web-app>
        <listener>
@@ -162,7 +162,7 @@ You can bootstrap ActiveMQ within your WAR as well. To do this, you must have th
        </filter-mapping>
     </web-app>
 
-Here's a Maven pom.xml file for creating a WAR for this environment. Make sure your ActiveMQ configuration file(s) are within the src/main/resources directory so that they are stuffed within the WAR's WEB-INF/classes directory!
+Here's a Maven pom.xml file for creating a WAR for this environment. Make sure your Apache ActiveMQ configuration file(s) are within the src/main/resources directory so that they are stuffed within the WAR's WEB-INF/classes directory!
 
     <project xmlns="http://maven.apache.org/POM/4.0.0"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -197,7 +197,7 @@ The project structure should look this like:
 
 ### REST Configuration
 
-The ActiveMQ REST implementation does have some configuration options.
+The Apache ActiveMQ REST implementation does have some configuration options.
 These are configured via XML configuration file that must be in your
 WEB-INF/classes directory. You must set the web.xml context-param
 `rest.messaging.config.file` to specify the name of the configuration
@@ -220,12 +220,12 @@ values for each.
 
 Let's give an explanation of each config option.
 
--   `server-in-vm-id`. The ActiveMQ REST impl uses the IN-VM transport
-    to communicate with ActiveMQ. It uses the default server id, which
+-   `server-in-vm-id`. The Apache ActiveMQ REST impl uses the IN-VM transport
+    to communicate with Apache ActiveMQ. It uses the default server id, which
     is "0".
 
 -   `use-link-headers`. By default, all links (URLs) are published using
-    custom headers. You can instead have the ActiveMQ REST
+    custom headers. You can instead have the Apache ActiveMQ REST
     implementation publish links using the [Link Header
     specification](http://tools.ietf.org/html/draft-nottingham-http-link-header-10)
     instead if you desire.
@@ -244,7 +244,7 @@ Let's give an explanation of each config option.
     system path. This is a directory where push registrations for queues
     are stored. See [Pushing Messages](#message-push).
 
--   `producer-session-pool-size`. The REST implementation pools ActiveMQ
+-   `producer-session-pool-size`. The REST implementation pools Apache ActiveMQ
     sessions for sending messages. This is the size of the pool. That
     number of sessions will be created at startup time.
 
@@ -260,12 +260,12 @@ Let's give an explanation of each config option.
     consumers/subscriptions that remain idle for that amount of time.
 
 -   `consumer-window-size`. For consumers, this config option is the
-    same as the ActiveMQ one of the same name. It will be used by
-    sessions created by the ActiveMQ REST implementation.
+    same as the Apache ActiveMQ one of the same name. It will be used by
+    sessions created by the Apache ActiveMQ REST implementation.
 
-## ActiveMQ REST Interface Basics
+## Apache ActiveMQ REST Interface Basics
 
-The ActiveMQ REST interface publishes a variety of REST resources to
+The Apache ActiveMQ REST interface publishes a variety of REST resources to
 perform various tasks on a queue or topic. Only the top-level queue and
 topic URI schemes are published to the outside world. You must discover
 all over resources to interact with by looking for and traversing links.
@@ -280,7 +280,7 @@ following relative URI pattern:
     /queues/{name}
     /topics/{name}
 
-The base of the URI is the base URL of the WAR you deployed the ActiveMQ
+The base of the URI is the base URL of the WAR you deployed the Apache ActiveMQ
 REST server within as defined in the [Installation and
 Configuration](#install) section of this document. Replace the `{name}`
 string within the above URI pattern with the name of the queue or topic
@@ -288,7 +288,7 @@ you are interested in interacting with. For example if you have
 configured a JMS topic named "foo" within your `activemq-jms.xml` file,
 the URI name should be "jms.topic.foo". If you have configured a JMS
 queue name "bar" within your `activemq-jms.xml` file, the URI name
-should be "jms.queue.bar". Internally, ActiveMQ prepends the "jms.topic"
+should be "jms.queue.bar". Internally, Apache ActiveMQ prepends the "jms.topic"
 or "jms.queue" strings to the name of the deployed destination. Next,
 perform your HEAD or GET request on this URI. Here's what a
 request/response would look like.
@@ -317,7 +317,7 @@ on the scheme of the URLs returned within these headers as they are an
 implementation detail. Treat them as opaque and query for them each and
 every time you initially interact (at boot time) with the server. If you
 treat all URLs as opaque then you will be isolated from implementation
-changes as the ActiveMQ REST interface evolves over time.
+changes as the Apache ActiveMQ REST interface evolves over time.
 
 ### Queue Resource Response Headers
 
@@ -336,7 +336,7 @@ with a Queue resource.
     [Consuming Messages via Pull](#message-pull).
 
 -   `msg-push-consumers`. This is a URL for registering other URLs you
-    want the ActiveMQ REST server to push messages to. The semantics of
+    want the Apache ActiveMQ REST server to push messages to. The semantics of
     this link are described in [Pushing Messages](#message-push).
 
 ### Topic Resource Response Headers
@@ -356,19 +356,19 @@ with a Topic resource.
     described in [Consuming Messages via Pull](#message-pull).
 
 -   `msg-push-subscriptions`. This is a URL for registering other URLs
-    you want the ActiveMQ REST server to push messages to. The semantics
+    you want the Apache ActiveMQ REST server to push messages to. The semantics
     of this link are described in [Pushing Messages](#message-push).
 
 ## Posting Messages
 
 This chapter discusses the protocol for posting messages to a queue or a
-topic. In [ActiveMQ REST Interface Basics](#basics), you saw that a
+topic. In [Apache ActiveMQ REST Interface Basics](#basics), you saw that a
 queue or topic resource publishes variable custom headers that are links
 to other RESTful resources. The `msg-create` header is a URL you can
 post a message to. Messages are published to a queue or topic by sending
 a simple HTTP message to the URL published by the `msg-create` header.
 The HTTP message contains whatever content you want to publish to the
-ActiveMQ destination. Here's an example scenario:
+Apache ActiveMQ destination. Here's an example scenario:
 
 > **Note**
 >
@@ -450,10 +450,10 @@ Sometimes you might have network problems when posting new messages to a
 queue or topic. You may do a POST and never receive a response.
 Unfortunately, you don't know whether or not the server received the
 message and so a re-post of the message might cause duplicates to be
-posted to the queue or topic. By default, the ActiveMQ REST interface is
+posted to the queue or topic. By default, the Apache ActiveMQ REST interface is
 configured to accept and post duplicate messages. You can change this by
 turning on duplicate message detection by setting the `dups-ok` config
-option to `false` as described in [ActiveMQ REST Interface
+option to `false` as described in [Apache ActiveMQ REST Interface
 Basics](#basics). When you do this, the initial POST to the `msg-create`
 URL will redirect you, using the standard HTTP 307 redirection mechanism
 to a unique URL to POST to. All other interactions remain the same as
@@ -531,17 +531,17 @@ discussed earlier. Here's an example:
     in the `msg-create-next` header.
 
 How can this work? As you can see, with each successful response, the
-ActiveMQ REST server returns a uniquely generated URL within the
+Apache ActiveMQ REST server returns a uniquely generated URL within the
 msg-create-next header. This URL is dedicated to the next new message
 you want to post. Behind the scenes, the code extracts an identify from
-the URL and uses ActiveMQ's duplicate detection mechanism by setting the
+the URL and uses Apache ActiveMQ's duplicate detection mechanism by setting the
 `DUPLICATE_DETECTION_ID` property of the JMS message that is actually
 posted to the system.
 
 If you happen to use the same ID more than once you'll see a message
 like this on the server:
 
-    WARN  [org.apache.activemq.core.server] (Thread-3 (ActiveMQ-remoting-threads-ActiveMQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) HQ112098: Duplicate message detected - message will not be routed. Message information:
+    WARN  [org.apache.activemq.core.server] (Thread-3 (Apache ActiveMQ-remoting-threads-ActiveMQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) HQ112098: Duplicate message detected - message will not be routed. Message information:
     ServerMessage[messageID=20,priority=4, bodySize=1500,expiration=0, durable=true, address=jms.queue.bar,properties=TypedProperties[{http_content$type=application/x-www-form-urlencoded, http_content$length=3, postedAsHttpMessage=true, _HQ_DUPL_ID=42}]]@12835058
 
 An alternative to this approach is to use the `msg-create-with-id`
@@ -568,7 +568,7 @@ repost the message. It also only has to come up with a unique
 ### Persistent Messages
 
 By default, posted messages are not durable and will not be persisted in
-ActiveMQ's journal. You can create durable messages by modifying the
+Apache ActiveMQ's journal. You can create durable messages by modifying the
 default configuration as expressed in Chapter 2 so that all messages are
 persisted when sent. Alternatively, you can set a URL query parameter
 called `durable` to true when you post your messages to the URLs
@@ -615,14 +615,14 @@ almost identically for queues and topics with some minor, but important
 caveats. To start consuming you must create a consumer resource on the
 server that is dedicated to your client. Now, this pretty much breaks
 the stateless principle of REST, but after much prototyping, this is the
-best way to work most effectively with ActiveMQ through a REST
+best way to work most effectively with Apache ActiveMQ through a REST
 interface.
 
 You create consumer resources by doing a simple POST to the URL
 published by the `msg-pull-consumers` response header if you are
 interacting with a queue, the `msg-pull-subscribers` response header if
 you're interacting with a topic. These headers are provided by the main
-queue or topic resource discussed in [ActiveMQ REST Interface
+queue or topic resource discussed in [Apache ActiveMQ REST Interface
 Basics](#basics). Doing an empty POST to one of these URLs will create a
 consumer resource that follows an auto-acknowledge protocol and, if you
 are interacting with a topic, creates a temporarily subscription to the
@@ -642,7 +642,7 @@ parameters (`application/x-www-form-urlencoded`) described below.
     provide this parameter, the name will be automatically generated by
     the server. Only usable on topics.
 
--   `selector`. This is an optional JMS selector string. The ActiveMQ
+-   `selector`. This is an optional JMS selector string. The Apache ActiveMQ
     REST interface adds HTTP headers to the JMS message for REST
     produced messages. HTTP headers are prefixed with "http\_" and every
     '-' character is converted to a '\$'.
@@ -810,7 +810,7 @@ resource.
     retry a post. Also notice, that another new msg-consume-next URL is
     present. Although it probably is the same URL you used last post,
     get in the habit of using URLs returned in response headers as
-    future versions of ActiveMQ REST might be redirecting you or adding
+    future versions of Apache ActiveMQ REST might be redirecting you or adding
     additional data to the URL after timeouts like this.
 
 3.  POST to the URL within the last `msg-consume-next` to get the next
@@ -1063,7 +1063,7 @@ request on the consumer resource.
 Unless your queue or topic has a high rate of message flowing though it,
 if you use the pull protocol, you're going to be receiving a lot of 503
 responses as you continuously pull the server for new messages. To
-alleviate this problem, the ActiveMQ REST interface provides the
+alleviate this problem, the Apache ActiveMQ REST interface provides the
 `Accept-Wait` header. This is a generic HTTP request header that is a
 hint to the server for how long the client is willing to wait for a
 response from the server. The value of this header is the time in
@@ -1098,9 +1098,9 @@ server-side consumer resource (and underlying JMS session).
 
 ## Pushing Messages
 
-You can configure the ActiveMQ REST server to push messages to a
+You can configure the Apache ActiveMQ REST server to push messages to a
 registered URL either remotely through the REST interface, or by
-creating a pre-configured XML file for the ActiveMQ REST server to load
+creating a pre-configured XML file for the Apache ActiveMQ REST server to load
 at boot time.
 
 ### The Queue Push Subscription XML
@@ -1145,7 +1145,7 @@ performing a retry.
 The `disableOnFailure` element, if set to true, will disable the
 registration if all retries have failed. It will not disable the
 connection on non-connection-failure issues (like a bad request for
-instance). In these cases, the dead letter queue logic of ActiveMQ will
+instance). In these cases, the dead letter queue logic of Apache ActiveMQ will
 take over.
 
 The `link` element specifies the basis of the interaction. The `href`
@@ -1158,10 +1158,10 @@ important and the value of it triggers different behavior. Here's the
 values a rel attribute can have:
 
 -   `destination`. The href URL is assumed to be a queue or topic
-    resource of another ActiveMQ REST server. The push registration will
+    resource of another Apache ActiveMQ REST server. The push registration will
     initially do a HEAD request to this URL to obtain a
     msg-create-with-id header. It will use this header to push new
-    messages to the ActiveMQ REST endpoint reliably. Here's an example:
+    messages to the Apache ActiveMQ REST endpoint reliably. Here's an example:
 
         <push-registration>
            <link rel="destination" href="http://somewhere.com/queues/jms.queue.foo"/>
@@ -1368,19 +1368,19 @@ Here's what creating a topic would look like:
     HTTP/1.1 201 Created
     Location: http://example.com/topics/jms.topic.testTopic
 
-## Securing the ActiveMQ REST Interface
+## Securing the Apache ActiveMQ REST Interface
 
 ### Within Wildfly Application server
 
-Securing the ActiveMQ REST interface is very simple with the Wildfly
+Securing the Apache ActiveMQ REST interface is very simple with the Wildfly
 Application Server. You turn on authentication for all URLs within your
-WAR's web.xml, and let the user Principal to propagate to ActiveMQ. This
-only works if you are using the JAASSecurityManager with ActiveMQ. See
-the ActiveMQ documentation for more details.
+WAR's web.xml, and let the user Principal to propagate to Apache ActiveMQ. This
+only works if you are using the JAASSecurityManager with Apache ActiveMQ. See
+the Apache ActiveMQ documentation for more details.
 
 ### Security in other environments
 
-To secure the ActiveMQ REST interface in other environments you must
+To secure the Apache ActiveMQ REST interface in other environments you must
 role your own security by specifying security constraints with your
 web.xml for every path of every queue and topic you have deployed. Here
 is a list of URI patterns:
@@ -1430,7 +1430,7 @@ is a list of URI patterns:
 
 ## Mixing JMS and REST
 
-The ActiveMQ REST interface supports mixing JMS and REST producers and
+The Apache ActiveMQ REST interface supports mixing JMS and REST producers and
 consumers. You can send an ObjectMessage through a JMS Producer, and
 have a REST client consume it. You can have a REST client POST a message
 to a topic and have a JMS Consumer receive it. Some simple
@@ -1439,10 +1439,10 @@ installed.
 
 ### JMS Producers - REST Consumers
 
-If you have a JMS producer, the ActiveMQ REST interface only supports
+If you have a JMS producer, the Apache ActiveMQ REST interface only supports
 ObjectMessage type. If the JMS producer is aware that there may be REST
 consumers, it should set a JMS property to specify what Content-Type the
-Java object should be translated into by REST clients. The ActiveMQ REST
+Java object should be translated into by REST clients. The Apache ActiveMQ REST
 server will use RESTEasy content handlers (MessageBodyReader/Writers) to
 transform the Java object to the type desired. Here's an example of a
 JMS producer setting the content type of the message.
@@ -1460,7 +1460,7 @@ push registration should be set to the desired type.
 ### REST Producers - JMS Consumers
 
 If you have a REST client producing messages and a JMS consumer,
-ActiveMQ REST has a simple helper class for you to transform the HTTP
+Apache ActiveMQ REST has a simple helper class for you to transform the HTTP
 body to a Java object. Here's some example code:
 
     public void onMessage(Message message)

@@ -1,6 +1,6 @@
 # Routing Messages With Wild Cards
 
-ActiveMQ allows the routing of messages via wildcard addresses.
+Apache ActiveMQ allows the routing of messages via wildcard addresses.
 
 If a queue is created with an address of say `queue.news.#` then it will
 receive any messages sent to addresses that match this, for instance

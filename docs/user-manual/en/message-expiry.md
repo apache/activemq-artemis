@@ -2,18 +2,18 @@
 
 Messages can be set with an optional *time to live* when sending them.
 
-ActiveMQ will not deliver a message to a consumer after it's time to
+Apache ActiveMQ will not deliver a message to a consumer after it's time to
 live has been exceeded. If the message hasn't been delivered by the time
 that time to live is reached the server can discard it.
 
-ActiveMQ's addresses can be assigned a expiry address so that, when
+Apache ActiveMQ's addresses can be assigned a expiry address so that, when
 messages are expired, they are removed from the queue and sent to the
 expiry address. Many different queues can be bound to an expiry address.
 These *expired* messages can later be consumed for further inspection.
 
 ## Message Expiry
 
-Using ActiveMQ Core API, you can set an expiration time directly on the
+Using Apache ActiveMQ Core API, you can set an expiration time directly on the
 message:
 
     // message will expire in 5000ms from now

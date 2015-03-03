@@ -1,6 +1,6 @@
 # Project Information
 
-The official ActiveMQ project page is <http://activemq.apache.org//>.
+The official Apache ActiveMQ project page is <http://activemq.apache.org//>.
 
 ## Software Download
 
@@ -20,11 +20,11 @@ page:<http://activemq.apache.org/download.html>
 
 -   Follow us on [twitter](https://twitter.com/activemq)
 
--   ActiveMQ Git repository is <https://github.com/apache/activemq-6>
+-   Apache ActiveMQ Git repository is <https://github.com/apache/activemq-6>
 
 -   All release tags are available from
     <https://github.com/apache/activemq-6/releases>
 
 
 And many thanks to all our contributors, both old and new who helped
-create ActiveMQ.
+create Apache ActiveMQ.

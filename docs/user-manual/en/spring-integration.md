@@ -1,11 +1,11 @@
 # Spring Integration
 
-ActiveMQ provides a simple bootstrap class,
+Apache ActiveMQ provides a simple bootstrap class,
 `org.apache.activemq.integration.spring.SpringJmsBootstrap`, for
-integration with Spring. To use it, you configure ActiveMQ as you always
+integration with Spring. To use it, you configure Apache ActiveMQ as you always
 would, through its various configuration files like
 `activemq-configuration.xml`, `activemq-jms.xml`, and
-`activemq-users.xml`. The Spring helper class starts the ActiveMQ server
+`activemq-users.xml`. The Spring helper class starts the Apache ActiveMQ server
 and adds any factories or destinations configured within
 `activemq-jms.xml` directly into the namespace of the Spring context.
 Let's take this `activemq-jms.xml` file for instance:

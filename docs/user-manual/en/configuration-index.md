@@ -1800,21 +1800,21 @@ element is used by the server side JMS service to load JMS Queues, Topics
 Using Masked Passwords in Configuration Files
 ---------------------------------------------
 
-By default all passwords in ActiveMQ server's configuration files are in
+By default all passwords in Apache ActiveMQ server's configuration files are in
 plain text form. This usually poses no security issues as those files
 should be well protected from unauthorized accessing. However, in some
 circumstances a user doesn't want to expose its passwords to more eyes
 than necessary.
 
-ActiveMQ can be configured to use 'masked' passwords in its
+Apache ActiveMQ can be configured to use 'masked' passwords in its
 configuration files. A masked password is an obscure string
 representation of a real password. To mask a password a user will use an
 'encoder'. The encoder takes in the real password and outputs the masked
 version. A user can then replace the real password in the configuration
-files with the new masked password. When ActiveMQ loads a masked
+files with the new masked password. When Apache ActiveMQ loads a masked
 password, it uses a suitable 'decoder' to decode it into real password.
 
-ActiveMQ provides a default password encoder and decoder. Optionally
+Apache ActiveMQ provides a default password encoder and decoder. Optionally
 users can use or implement their own encoder and decoder for masking the
 passwords.
 
@@ -1845,7 +1845,7 @@ trust-store-password. Because Acceptors and Connectors are pluggable
 implementations, each transport will have different password masking
 needs.
 
-When a Connector or Acceptor configuration is initialised, ActiveMQ will
+When a Connector or Acceptor configuration is initialised, Apache ActiveMQ will
 add the "mask-password" and "password-codec" values to the Connector or
 Acceptors params using the keys `activemq.usemaskedpassword` and
 `activemq.passwordcodec` respectively. The Netty and InVM
@@ -1885,7 +1885,7 @@ example 2
     <mask-password>true</mask-password>
     <cluster-password>80cf731af62c290</cluster-password>
 
-This indicates the cluster password is a masked value and ActiveMQ will
+This indicates the cluster password is a masked value and Apache ActiveMQ will
 use its built-in decoder to decode it. All other passwords in the
 configuration file, Connectors, Acceptors and Bridges, will also use
 masked passwords.
@@ -1909,7 +1909,7 @@ followed by key/value pairs, separated by semi-colons. For example:
 \<property name="useMaskedPassword"\>true\</property\>
 \<property
 name="passwordCodec"\>com.foo.FooDecoder;key=value\</property\>
-ActiveMQ will load this property and initialize the class with a
+Apache ActiveMQ will load this property and initialize the class with a
 parameter map containing the "key"-\>"value" pair. If `passwordCodec` is
 not specified, the built-in decoder is used.
 
@@ -1944,7 +1944,7 @@ will have to be in masked form.
 
 ### Masking passwords in activemq-users.properties
 
-ActiveMQ's built-in security manager uses plain properties files
+Apache ActiveMQ's built-in security manager uses plain properties files
 where the user passwords are specified in plaintext forms by default. To
 mask those parameters the following two properties need to be set
 in the 'bootstrap.xml' file.
@@ -1961,7 +1961,7 @@ Bridges. Example:
     <mask-password>true</mask-password>
     <password-codec>org.apache.activemq.utils.DefaultSensitiveStringCodec;key=hello world</password-codec>
 
-When so configured, the ActiveMQ security manager will initialize a
+When so configured, the Apache ActiveMQ security manager will initialize a
 DefaultSensitiveStringCodec with the parameters "key"-\>"hello world",
 then use it to decode all the masked passwords in this configuration
 file.
@@ -1974,7 +1974,7 @@ its original clear text form in order to be used in various security
 operations. The algorithm used for decoding must match that for
 encoding. Otherwise the decoding may not be successful.
 
-For user's convenience ActiveMQ provides a default built-in Decoder.
+For user's convenience Apache ActiveMQ provides a default built-in Decoder.
 However a user can if they so wish implement their own.
 
 #### The built-in Decoder
@@ -1998,7 +1998,7 @@ Just copy "80cf731af62c290" and replace your plaintext password with it.
 #### Using a different decoder
 
 It is possible to use a different decoder rather than the built-in one.
-Simply make sure the decoder is in ActiveMQ's classpath and configure
+Simply make sure the decoder is in Apache ActiveMQ's classpath and configure
 the server to use it as follows:
 
     <password-codec>com.foo.SomeDecoder;key1=value1;key2=value2</password-codec>
@@ -2014,7 +2014,7 @@ Then configure your cluster-password like this:
     <mask-password>true</mask-password>
     <cluster-password>masked_password</cluster-password>
 
-When ActiveMQ reads the cluster-password it will initialize the
+When Apache ActiveMQ reads the cluster-password it will initialize the
 NewDecoder and use it to decode "mask\_password". It also process all
 passwords using the new defined decoder.
 
@@ -2050,4 +2050,4 @@ need String type. So a new decoder would be defined like
     }
 
 Last but not least, once you get your own decoder, please add it to the
-classpath. Otherwise ActiveMQ will fail to load it!
+classpath. Otherwise Apache ActiveMQ will fail to load it!

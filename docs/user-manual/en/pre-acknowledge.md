@@ -8,14 +8,14 @@ JMS specifies 3 acknowledgement modes:
 
 -   `DUPS_OK_ACKNOWLEDGE`
 
-ActiveMQ supports two additional modes: `PRE_ACKNOWLEDGE` and
+Apache ActiveMQ supports two additional modes: `PRE_ACKNOWLEDGE` and
 `INDIVIDUAL_ACKNOWLEDGE`
 
 In some cases you can afford to lose messages in event of failure, so it
 would make sense to acknowledge the message on the server *before*
 delivering it to the client.
 
-This extra mode is supported by ActiveMQ and will call it
+This extra mode is supported by Apache ActiveMQ and will call it
 *pre-acknowledge* mode.
 
 The disadvantage of acknowledging on the server before delivery is that

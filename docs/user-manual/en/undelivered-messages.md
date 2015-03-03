@@ -46,7 +46,7 @@ Delayed redelivery is defined in the address-setting configuration:
 
     </address-setting>
 
-If a `redelivery-delay` is specified, ActiveMQ will wait this delay
+If a `redelivery-delay` is specified, Apache ActiveMQ will wait this delay
 before redelivering the messages.
 
 By default, there is no redelivery delay (`redelivery-delay`is set to
@@ -92,7 +92,7 @@ to a dead letter address.
 Any such messages can then be diverted to queue(s) where they can later
 be perused by the system administrator for action to be taken.
 
-ActiveMQ's addresses can be assigned a dead letter address. Once the
+Apache ActiveMQ's addresses can be assigned a dead letter address. Once the
 messages have been unsuccessfully delivered for a given number of
 attempts, they are removed from their queue and sent to the relevant
 dead letter address. These *dead letter* messages can later be consumed
@@ -144,7 +144,7 @@ that shows how dead letter is configured and used with JMS.
 
 ## Delivery Count Persistence
 
-In normal use, ActiveMQ does not update delivery count *persistently*
+In normal use, Apache ActiveMQ does not update delivery count *persistently*
 until a message is rolled back (i.e. the delivery count is not updated
 *before* the message is delivered to the consumer). In most messaging
 use cases, the messages are consumed, acknowledged and forgotten as soon
@@ -160,7 +160,7 @@ delivery count. During the recovery phase, the server will not have
 knowledge of that and will deliver the message with `redelivered` set to
 `false` while it should be `true`.
 
-As this behavior breaks strict JMS semantics, ActiveMQ allows to persist
+As this behavior breaks strict JMS semantics, Apache ActiveMQ allows to persist
 delivery count before message delivery but this feature is disabled by default
 due to performance implications.
 

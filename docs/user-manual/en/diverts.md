@@ -1,6 +1,6 @@
 # Diverting and Splitting Message Flows
 
-ActiveMQ allows you to configure objects called *diverts* with some
+Apache ActiveMQ allows you to configure objects called *diverts* with some
 simple server configuration.
 
 Diverts allow you to transparently divert messages routed to one address

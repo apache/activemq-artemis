@@ -9,14 +9,14 @@ event of server failure so client applications can continue to operate*.
 
 ## Live - Backup Groups
 
-ActiveMQ allows servers to be linked together as *live - backup* groups
+Apache ActiveMQ allows servers to be linked together as *live - backup* groups
 where each live server can have 1 or more backup servers. A backup
 server is owned by only one live server. Backup servers are not
 operational until failover occurs, however 1 chosen backup, which will
 be in passive mode, announces its status and waits to take over the live
 servers work
 
-Before failover, only the live server is serving the ActiveMQ clients
+Before failover, only the live server is serving the Apache ActiveMQ clients
 while the backup servers remain passive or awaiting to become a backup
 server. When a live server crashes or is brought down in the correct
 mode, the backup server currently in passive mode will become live and
@@ -28,7 +28,7 @@ live server coming back up and automatically stop.
 
 ### HA Policies
 
-ActiveMQ supports two different strategies for backing up a server
+Apache ActiveMQ supports two different strategies for backing up a server
 *shared store* and *replication*. Which is configured via the
 `ha-policy` configuration element.
 
@@ -789,13 +789,13 @@ be high enough to deal with the time needed to scale down.
 
 ## Failover Modes
 
-ActiveMQ defines two types of client failover:
+Apache ActiveMQ defines two types of client failover:
 
 -   Automatic client failover
 
 -   Application-level client failover
 
-ActiveMQ also provides 100% transparent automatic reattachment of
+Apache ActiveMQ also provides 100% transparent automatic reattachment of
 connections to the same server (e.g. in case of transient network
 problems). This is similar to failover, except it is reconnecting to the
 same server and is discussed in [Client Reconnection and Session Reattachment](client-reconnection.md)
@@ -807,14 +807,14 @@ knowledge of non persistent queues.
 
 ### Automatic Client Failover
 
-ActiveMQ clients can be configured to receive knowledge of all live and
+Apache ActiveMQ clients can be configured to receive knowledge of all live and
 backup servers, so that in event of connection failure at the client -
 live server connection, the client will detect this and reconnect to the
 backup server. The backup server will then automatically recreate any
 sessions and consumers that existed on each connection before failover,
 thus saving the user from having to hand-code manual reconnection logic.
 
-ActiveMQ clients detect connection failure when it has not received
+Apache ActiveMQ clients detect connection failure when it has not received
 packets from the server within the time given by
 `client-failure-check-period` as explained in section [Detecting Dead Connections](connection-ttl.md). If the client
 does not receive data in good time, it will assume the connection has
@@ -822,7 +822,7 @@ failed and attempt failover. Also if the socket is closed by the OS,
 usually if the server process is killed rather than the machine itself
 crashing, then the client will failover straight away.
 
-ActiveMQ clients can be configured to discover the list of live-backup
+Apache ActiveMQ clients can be configured to discover the list of live-backup
 server groups in a number of different ways. They can be configured
 explicitly or probably the most common way of doing this is to use
 *server discovery* for the client to automatically discover the list.
@@ -857,7 +857,7 @@ JMS sessions, please see ? and ?.
 
 #### A Note on Server Replication
 
-ActiveMQ does not replicate full server state between live and backup
+Apache ActiveMQ does not replicate full server state between live and backup
 servers. When the new session is automatically recreated on the backup
 it won't have any knowledge of messages already sent or acknowledged in
 that session. Any in-flight sends or acknowledgements at the time of
@@ -898,14 +898,14 @@ session will not have any knowledge of the call that was in progress.
 This call might otherwise hang for ever, waiting for a response that
 will never come.
 
-To prevent this, ActiveMQ will unblock any blocking calls that were in
+To prevent this, Apache ActiveMQ will unblock any blocking calls that were in
 progress at the time of failover by making them throw a
 `javax.jms.JMSException` (if using JMS), or a `ActiveMQException` with
 error code `ActiveMQException.UNBLOCKED`. It is up to the client code to
 catch this exception and retry any operations if desired.
 
 If the method being unblocked is a call to commit(), or prepare(), then
-the transaction will be automatically rolled back and ActiveMQ will
+the transaction will be automatically rolled back and Apache ActiveMQ will
 throw a `javax.jms.TransactionRolledBackException` (if using JMS), or a
 `ActiveMQException` with error code
 `ActiveMQException.TRANSACTION_ROLLED_BACK` if using the core API.
@@ -940,7 +940,7 @@ local rollback code as necessary. There is no need to manually rollback
 the session - it is already rolled back. The user can then just retry
 the transactional operations again on the same session.
 
-ActiveMQ ships with a fully functioning example demonstrating how to do
+Apache ActiveMQ ships with a fully functioning example demonstrating how to do
 this, please see ?
 
 If failover occurs when a commit call is being executed, the server, as
@@ -990,7 +990,7 @@ connection failure: `java.jms.ExceptionListener`. Please consult the JMS
 javadoc or any good JMS tutorial for more information on how to use
 this.
 
-The ActiveMQ core API also provides a similar feature in the form of the
+The Apache ActiveMQ core API also provides a similar feature in the form of the
 class `org.apache.activemq.core.client.SessionFailureListener`
 
 Any ExceptionListener or SessionFailureListener instance will always be
@@ -1037,7 +1037,7 @@ application level.
 
 To implement application-level failover, if you're using JMS then you
 need to set an `ExceptionListener` class on the JMS connection. The
-`ExceptionListener` will be called by ActiveMQ in the event that
+`ExceptionListener` will be called by Apache ActiveMQ in the event that
 connection failure is detected. In your `ExceptionListener`, you would
 close your old JMS connections, potentially look up new connection
 factory instances from JNDI and creating new connections.

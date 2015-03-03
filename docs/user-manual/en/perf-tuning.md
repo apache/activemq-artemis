@@ -1,6 +1,6 @@
 # Performance Tuning
 
-In this chapter we'll discuss how to tune ActiveMQ for optimum
+In this chapter we'll discuss how to tune Apache ActiveMQ for optimum
 performance.
 
 ## Tuning persistence
@@ -72,12 +72,12 @@ JMS API
     storage.
 
 -   Batch many sends or acknowledgements in a single transaction.
-    ActiveMQ will only require a network round trip on the commit, not
+    Apache ActiveMQ will only require a network round trip on the commit, not
     on every send or acknowledgement.
 
 ## Other Tunings
 
-There are various other places in ActiveMQ where we can perform some
+There are various other places in Apache ActiveMQ where we can perform some
 tuning:
 
 -   Use Asynchronous Send Acknowledgements. If you need to send durable
@@ -125,7 +125,7 @@ tuning:
     consumer-window-size. This effectively disables consumer flow
     control.
 
--   Socket NIO vs Socket Old IO. By default ActiveMQ uses old (blocking)
+-   Socket NIO vs Socket Old IO. By default Apache ActiveMQ uses old (blocking)
     on the server and the client side (see the chapter on configuring
     transports for more information [Configuring the Transport](configuring-transports.md). NIO is much more scalable but
     can give you some latency hit compared to old blocking IO. If you
@@ -174,7 +174,7 @@ tuning:
     `serveruser`.
 
 -   Use `batch-delay` and set `direct-deliver` to false for the best
-    throughput for very small messages. ActiveMQ comes with a
+    throughput for very small messages. Apache ActiveMQ comes with a
     preconfigured connector/acceptor pair (`netty-throughput`) in
     `activemq-configuration.xml` and JMS connection factory
     (`ThroughputConnectionFactory`) in `activemq-jms.xml`which can be
@@ -193,7 +193,7 @@ tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
     `-XX:+UseParallelOldGC` on Sun JDKs.
 
 -   Memory settings. Give as much memory as you can to the server.
-    ActiveMQ can run in low memory by using paging (described in [Paging](paging.md)) but
+    Apache ActiveMQ can run in low memory by using paging (described in [Paging](paging.md)) but
     if it can run with all queues in RAM this will improve performance.
     The amount of memory you require will depend on the size and number
     of your queues and the size and number of your messages. Use the JVM
@@ -223,7 +223,7 @@ tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
     > Some popular libraries such as the Spring JMS Template are known
     > to use these anti-patterns. If you're using Spring JMS Template
     > and you're getting poor performance you know why. Don't blame
-    > ActiveMQ! The Spring JMS Template can only safely be used in an
+    > Apache ActiveMQ! The Spring JMS Template can only safely be used in an
     > app server which caches JMS sessions (e.g. using JCA), and only
     > then for sending messages. It cannot be safely be used for
     > synchronously consuming messages, even in an app server.

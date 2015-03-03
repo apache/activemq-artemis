@@ -1,14 +1,14 @@
 # Persistence
 
-In this chapter we will describe how persistence works with ActiveMQ and
+In this chapter we will describe how persistence works with Apache ActiveMQ and
 how to configure it.
 
-ActiveMQ ships with a high performance journal. Since ActiveMQ handles
+Apache ActiveMQ ships with a high performance journal. Since Apache ActiveMQ handles
 its own persistence, rather than relying on a database or other 3rd
 party persistence engine it is very highly optimised for the specific
 messaging use cases.
 
-A ActiveMQ journal is an *append only* journal. It consists of a set of
+An Apache ActiveMQ journal is an *append only* journal. It consists of a set of
 files on disk. Each file is pre-created to a fixed size and initially
 filled with padding. As operations are performed on the server, e.g. add
 message, update message, delete message, records are appended to the
@@ -27,12 +27,12 @@ minimise the amount of disk head movement, since an entire disk cylinder
 is accessible simply by the disk rotating - the head does not have to
 move.
 
-As delete records are added to the journal, ActiveMQ has a sophisticated
+As delete records are added to the journal, Apache ActiveMQ has a sophisticated
 file garbage collection algorithm which can determine if a particular
 journal file is needed any more - i.e. has all its data been deleted in
 the same or other files. If so, the file can be reclaimed and re-used.
 
-ActiveMQ also has a compaction algorithm which removes dead space from
+Apache ActiveMQ also has a compaction algorithm which removes dead space from
 the journal and compresses up the data so it takes up less files on
 disk.
 
@@ -41,7 +41,7 @@ supporting both local and XA transactions.
 
 The majority of the journal is written in Java, however we abstract out
 the interaction with the actual file system to allow different pluggable
-implementations. ActiveMQ ships with two implementations:
+implementations. Apache ActiveMQ ships with two implementations:
 
 -   Java [NIO](http://en.wikipedia.org/wiki/New_I/O).
 
@@ -52,7 +52,7 @@ implementations. ActiveMQ ships with two implementations:
 -   Linux Asynchronous IO
 
     The second implementation uses a thin native code wrapper to talk to
-    the Linux asynchronous IO library (AIO). With AIO, ActiveMQ will be
+    the Linux asynchronous IO library (AIO). With AIO, Apache ActiveMQ will be
     called back when the data has made it to disk, allowing us to avoid
     explicit syncs altogether and simply send back confirmation of
     completion when AIO informs us that the data has been persisted.
@@ -73,7 +73,7 @@ implementations. ActiveMQ ships with two implementations:
 
     libaio is part of the kernel project.
 
-The standard ActiveMQ core server uses two instances of the journal:
+The standard Apache ActiveMQ core server uses two instances of the journal:
 
 -   Bindings journal.
 
@@ -107,7 +107,7 @@ The standard ActiveMQ core server uses two instances of the journal:
     This journal instance stores all message related data, including the
     message themselves and also duplicate-id caches.
 
-    By default ActiveMQ will try and use an AIO journal. If AIO is not
+    By default Apache ActiveMQ will try and use an AIO journal. If AIO is not
     available, e.g. the platform is not Linux with the correct kernel
     version or AIO has not been installed then it will automatically
     fall back to using Java NIO which is available on any Java platform.
@@ -116,13 +116,13 @@ The standard ActiveMQ core server uses two instances of the journal:
     has a `hq` extension. File size is by the default `10485760`
     (configurable), and it is located at the journal folder.
 
-For large messages, ActiveMQ persists them outside the message journal.
+For large messages, Apache ActiveMQ persists them outside the message journal.
 This is discussed in [Large Messages](large-messages.md).
 
-ActiveMQ can also be configured to page messages to disk in low memory
+Apache ActiveMQ can also be configured to page messages to disk in low memory
 situations. This is discussed in [Paging](paging.md).
 
-If no persistence is required at all, ActiveMQ can also be configured
+If no persistence is required at all, Apache ActiveMQ can also be configured
 not to persist any data at all to storage as discussed in the Configuring
 HornetQ for Zero Persistence section.
 
@@ -182,18 +182,18 @@ The message journal is configured using the following attributes in
 
     Choosing `NIO` chooses the Java NIO journal. Choosing `AIO` chooses
     the Linux asynchronous IO journal. If you choose `AIO` but are not
-    running Linux or you do not have libaio installed then ActiveMQ will
+    running Linux or you do not have libaio installed then Apache ActiveMQ will
     detect this and automatically fall back to using `NIO`.
 
 -   `journal-sync-transactional`
 
-    If this is set to true then ActiveMQ will make sure all transaction
+    If this is set to true then Apache ActiveMQ will make sure all transaction
     data is flushed to disk on transaction boundaries (commit, prepare
     and rollback). The default value is `true`.
 
 -   `journal-sync-non-transactional`
 
-    If this is set to true then ActiveMQ will make sure non
+    If this is set to true then Apache ActiveMQ will make sure non
     transactional message data (sends and acknowledgements) are flushed
     to disk each time. The default value for this is `true`.
 
@@ -204,8 +204,8 @@ The message journal is configured using the following attributes in
 
 -   `journal-min-files`
 
-    The minimum number of files the journal will maintain. When ActiveMQ
-    starts and there is no initial message data, ActiveMQ will
+    The minimum number of files the journal will maintain. When Apache ActiveMQ
+    starts and there is no initial message data, Apache ActiveMQ will
     pre-create `journal-min-files` number of files.
 
     Creating journal files and filling them with padding is a fairly
@@ -322,7 +322,7 @@ The message journal is configured using the following attributes in
 ## Installing AIO
 
 The Java NIO journal gives great performance, but If you are running
-ActiveMQ using Linux Kernel 2.6 or later, we highly recommend you use
+Apache ActiveMQ using Linux Kernel 2.6 or later, we highly recommend you use
 the `AIO` journal for the very best persistence performance.
 
 It's not possible to use the AIO journal under other operating systems
@@ -339,10 +339,10 @@ Using aptitude, (e.g. on Ubuntu or Debian system):
 
     apt-get install libaio
 
-## Configuring ActiveMQ for Zero Persistence
+## Configuring Apache ActiveMQ for Zero Persistence
 
 In some situations, zero persistence is sometimes required for a
-messaging system. Configuring ActiveMQ to perform zero persistence is
+messaging system. Configuring Apache ActiveMQ to perform zero persistence is
 straightforward. Simply set the parameter `persistence-enabled` in
 `activemq-configuration.xml` to `false`.
 
@@ -353,7 +353,7 @@ message data, duplicate id caches or paging data will be persisted.
 ## Import/Export the Journal Data
 
 You may want to inspect the existent records on each one of the journals
-used by ActiveMQ, and you can use the export/import tool for that
+used by Apache ActiveMQ, and you can use the export/import tool for that
 purpose.
 you can export the journal as a text file by using this command:
 

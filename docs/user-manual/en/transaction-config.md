@@ -1,13 +1,13 @@
 # Resource Manager Configuration
 
-ActiveMQ has its own Resource Manager for handling the lifespan of JTA
+Apache ActiveMQ has its own Resource Manager for handling the lifespan of JTA
 transactions. When a transaction is started the resource manager is
 notified and keeps a record of the transaction and its current state. It
 is possible in some cases for a transaction to be started but then
 forgotten about. Maybe the client died and never came back. If this
 happens then the transaction will just sit there indefinitely.
 
-To cope with this ActiveMQ can, if configured, scan for old transactions
+To cope with this Apache ActiveMQ can, if configured, scan for old transactions
 and rollback any it finds. The default for this is 3000000 milliseconds
 (5 minutes), i.e. any transactions older than 5 minutes are removed.
 This timeout can be changed by editing the `transaction-timeout`
@@ -15,7 +15,7 @@ property in `activemq-configuration.xml` (value must be in
 milliseconds). The property `transaction-timeout-scan-period` configures
 how often, in milliseconds, to scan for old transactions.
 
-Please note that ActiveMQ will not unilaterally rollback any XA
+Please note that Apache ActiveMQ will not unilaterally rollback any XA
 transactions in a prepared state - this must be heuristically rolled
 back via the management API if you are sure they will never be resolved
 by the transaction manager.
