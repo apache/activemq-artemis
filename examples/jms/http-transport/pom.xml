@@ -58,7 +58,7 @@ under the License.
                   <configuration>
                      <systemProperties>
                         <property>
-                           <name>build.directory</name>
+                           <name>data.dir</name>
                            <value>${basedir}/target/</value>
                         </property>
                      </systemProperties>
@@ -125,7 +125,7 @@ under the License.
                <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                <systemProperties>
                   <property>
-                     <name>build.directory</name>
+                     <name>data.dir</name>
                      <value>${basedir}/target/</value>
                   </property>
                </systemProperties>

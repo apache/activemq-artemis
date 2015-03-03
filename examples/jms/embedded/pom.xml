@@ -77,7 +77,7 @@ under the License.
                            <value>${basedir}/target/classes/activemq</value>
                         </property>
                         <property>
-                           <name>build.directory</name>
+                           <name>data.dir</name>
                            <value>${basedir}/target/</value>
                         </property>
                      </systemProperties>
