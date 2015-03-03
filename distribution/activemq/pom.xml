@@ -25,9 +25,9 @@
       <version>6.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq</artifactId>
+   <artifactId>apache-activemq</artifactId>
    <packaging>pom</packaging>
-   <name>Actual ActiveMQ Distribution</name>
+   <name>Apache ActiveMQ Distribution</name>
 
    <properties>
       <schemaLocation>${project.build.directory}/${project.artifactId}-${project.version}-bin/${project.artifactId}-${project.version}/schema</schemaLocation>
