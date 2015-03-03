@@ -19,7 +19,7 @@
    <groupId>org.apache.activemq</groupId>
    <artifactId>activemq-pom</artifactId>
    <packaging>pom</packaging>
-   <version>6.0.1-SNAPSHOT</version>
+   <version>6.0.0</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -107,7 +107,7 @@
       <connection>scm:git:http://git-wip-us.apache.org/repos/asf/activemq-6.git</connection>
       <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/activemq-6.git</developerConnection>
       <url>https://fisheye6.atlassian.com/browse/~br=master/activemq-6-git</url>
-      <tag>HEAD</tag>
+      <tag>6.0.0</tag>
    </scm>
 
    <distributionManagement>
@@ -750,7 +750,7 @@
             <plugin>
                <groupId>org.apache.activemq</groupId>
                <artifactId>activemq-maven-plugin</artifactId>
-               <version>6.0.1-SNAPSHOT</version>
+               <version>6.0.0</version>
             </plugin>
          </plugins>
       </pluginManagement>
