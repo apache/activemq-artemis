@@ -119,10 +119,13 @@
                       <phase>generate-sources</phase>
                       <configuration>
                         <target>
+			  <condition property="gitbook.cmd" value="gitbook.cmd" else="gitbook">
+			    <os family="windows"/>
+			  </condition>
                           <!-- lets generate the gitbook -->
                           <mkdir dir="${webapp-outdir}/gitbook" />
-                          <echo>executing gitbook</echo>
-                          <exec executable="gitbook">
+                          <echo>executing ${gitbook.cmd}</echo>
+                          <exec executable="${gitbook.cmd}">
                             <arg value="build" />
                             <arg value="${basedir}/../docs/user-manual/en" />
                             <arg value="--output=${webapp-outdir}" />
