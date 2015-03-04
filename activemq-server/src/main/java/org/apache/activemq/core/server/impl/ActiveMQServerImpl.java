@@ -431,7 +431,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
          }
          else
          {
-            state = SERVER_STATE.STARTED;
             ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), nodeManager.getNodeId(),
                                                      identity != null ? identity : "");
          }
@@ -1789,16 +1788,17 @@ public class ActiveMQServerImpl implements ActiveMQServer
          {
             throw ActiveMQMessageBundle.BUNDLE.nodeIdNull();
          }
-         activationLatch.countDown();
 
          // We can only do this after everything is started otherwise we may get nasty races with expired messages
          postOffice.startExpiryScanner();
       }
-      else
-      {
-         activationLatch.countDown();
-      }
+   }
 
+   public void completeActivation() throws Exception
+   {
+      setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
+      getRemotingService().startAcceptors();
+      activationLatch.countDown();
       callActivationCompleteCallbacks();
    }
 

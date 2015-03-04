@@ -111,4 +111,10 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl
       result = 31 * result + (problem != null ? problem.hashCode() : 0);
       return result;
    }
+
+   @Override
+   public String toString()
+   {
+      return getParentString() + ", problem=" + problem.name() + "]";
+   }
 }
