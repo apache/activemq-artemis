@@ -495,7 +495,6 @@
             <module>examples</module>
             <module>distribution</module>
          </modules>
-         
       </profile>
       <profile>
          <!-- tests is the profile we use to run the entire testsuite
@@ -599,52 +598,6 @@
             <module>tests</module>
             <module>examples</module>
          </modules>
-         <properties>
-            <skipTests>true</skipTests>
-         </properties>
-      </profile>
-      <profile>
-         <id>apache-release</id>
-         <activation>
-            <property>
-               <name>apache-release</name>
-            </property>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-assembly-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <goals>
-                           <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                           <finalName>apache-activemq-${project.version}</finalName>
-                           <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
-                           <descriptorRefs>
-                              <descriptorRef>
-                                 source-release
-                              </descriptorRef>
-                           </descriptorRefs>
-                        </configuration>
-                     </execution>
-                  </executions>
-                  <dependencies>
-                     <dependency>
-                        <!-- apache version not yet released -->
-                        <!--<groupId>org.apache</groupId>-->
-                        <groupId>org.apache.geronimo.genesis</groupId>
-                        <artifactId>apache-source-release-assembly-descriptor</artifactId>
-                        <!-- apache version not yet known -->
-                        <version>2.0</version>
-                     </dependency>
-                  </dependencies>
-               </plugin>
-            </plugins>
-         </build>
          <properties>
             <skipTests>true</skipTests>
          </properties>
