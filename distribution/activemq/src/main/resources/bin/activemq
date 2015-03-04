@@ -102,7 +102,12 @@ ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
 JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M"
 
 # Load Runtime Config
-. $ACTIVEMQ_HOME/bin/activemq.conf
+if [ -z "$ACTIVEMQ_CONF" ] ; then
+   ACTIVEMQ_CONF=$ACTIVEMQ_HOME/bin/activemq.conf
+else
+   ACTIVEMQ_CONF="$ACTIVEMQ_CONF"
+fi
+. $ACTIVEMQ_CONF
 
 JAVA_ARGS="$JAVA_ARGS $ACTIVEMQ_CLUSTER_PROPS -Dactivemq.home=$ACTIVEMQ_HOME -Djava.library.path=$ACTIVEMQ_HOME/bin/lib/linux-i686:$ACTIVEMQ_HOME/bin/lib/linux-x86_64 -Ddata.dir=$ACTIVEMQ_DATA_DIR -Djava.util.logging.manager=$ACTIVEMQ_LOG_MANAGER -Dlogging.configuration=$ACTIVEMQ_LOGGING_CONF $DEBUG_ARGS"
 

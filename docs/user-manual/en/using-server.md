@@ -37,6 +37,18 @@ used. The configuration can be changed e.g. by running
 `./activemq run -- xml:../config/clustered/bootstrap.xml` or another
 config of your choosing.
 
+Environment variables are used to provide ease of changing ports, hosts and
+data directories used and can be found in `activemq.conf` on linux and
+`activemq.conf.bat` on Windows. A different properties file can be used by
+setting the property `ACTIVEMQ_CONF`, on linux this would be:
+
+      export ACTIVEMQ_CONF=myenv.env
+
+or on Windows
+
+      set ACTIVEMQ_CONF=myenv.env
+
+
 ## Server JVM settings
 
 The run scripts set some JVM settings for tuning the garbage collection

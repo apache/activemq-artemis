@@ -25,7 +25,7 @@ rem Log manager class
 set ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
 
 rem Cluster Properties: Used to pass arguments to ActiveMQ.  These can be referenced in activemq-configuration.xml
-rem set ACTIVEMQ_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617
+rem set ACTIVEMQ_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
 set JAVA_ARGS=-Xmx1024m
