@@ -46,6 +46,8 @@ import org.codehaus.classworlds.ClassWorld;
 public class ActiveMQStartPlugin extends AbstractMojo
 
 {
+   static final String SKIPBROKERSTART = "skipBrokerStart";
+
    /**
     * The plugin descriptor
     */
@@ -99,6 +101,12 @@ public class ActiveMQStartPlugin extends AbstractMojo
 
    public void execute() throws MojoExecutionException, MojoFailureException
    {
+      String property = System.getProperty(SKIPBROKERSTART);
+      if (property != null)
+      {
+         getLog().info("skipping Broker Start");
+         return;
+      }
       if (testClusterManager)
       {
          try

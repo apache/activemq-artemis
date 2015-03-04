@@ -59,7 +59,7 @@ under the License.
                      <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                      <systemProperties>
                         <property>
-                           <name>build.directory</name>
+                           <name>data.dir</name>
                            <value>${basedir}/target/</value>
                         </property>
                         <property>
@@ -78,7 +78,7 @@ under the License.
                      <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
                      <systemProperties>
                         <property>
-                           <name>build.directory</name>
+                           <name>data.dir</name>
                            <value>${basedir}/target/</value>
                         </property>
                         <property>
@@ -164,7 +164,7 @@ under the License.
                <waitOnStart>false</waitOnStart>
                <systemProperties>
                   <property>
-                     <name>build.directory</name>
+                     <name>data.dir</name>
                      <value>${basedir}/target/</value>
                   </property>
                </systemProperties>

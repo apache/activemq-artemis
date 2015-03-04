@@ -58,7 +58,7 @@ under the License.
                   <configuration>
                      <systemProperties>
                         <property>
-                           <name>build.directory</name>
+                           <name>data.dir</name>
                            <value>${basedir}/target/</value>
                         </property>
                         <property>
@@ -79,7 +79,7 @@ under the License.
                      <fork>true</fork>
                      <systemProperties>
                         <property>
-                           <name>build.directory</name>
+                           <name>data.dir</name>
                            <value>${basedir}/target/</value>
                         </property>
                         <property>

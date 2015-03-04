@@ -43,6 +43,11 @@ public class ActiveMQStopPlugin extends AbstractMojo
 
    public void execute() throws MojoExecutionException, MojoFailureException
    {
+      String property = System.getProperty(ActiveMQStartPlugin.SKIPBROKERSTART);
+      if (property != null)
+      {
+         return;
+      }
       try
       {
          String dirName = configurationDir != null ? configurationDir : ".";
