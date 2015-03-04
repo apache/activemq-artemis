@@ -35,8 +35,6 @@ public interface Version
 
    int getMicroVersion();
 
-   String getVersionSuffix();
-
    int getIncrementingVersion();
 
    boolean isCompatible(int v);

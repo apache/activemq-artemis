@@ -80,15 +80,15 @@ public interface ActiveMQServerLogger extends BasicLogger
    ActiveMQServerLogger LOGGER = Logger.getMessageLogger(ActiveMQServerLogger.class, ActiveMQServerLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221000, value = "{0} server is starting with configuration {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221000, value = "{0} Message Broker is starting with configuration {1}", format = Message.Format.MESSAGE_FORMAT)
    void serverStarting(String type, Configuration configuration);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221001, value = "ActiveMQ Server version {0} [{1}] {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221001, value = "Apache ActiveMQ Message Broker version {0} [nodeID={1}] {2}", format = Message.Format.MESSAGE_FORMAT)
    void serverStarted(String fullVersion, SimpleString nodeId, String identity);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221002, value = "ActiveMQ Server version {0} [{1}] stopped", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221002, value = "Apache ActiveMQ Message Broker version {0} [{1}] stopped", format = Message.Format.MESSAGE_FORMAT)
    void serverStopped(String version, SimpleString nodeId);
 
    @LogMessage(level = Logger.Level.INFO)
@@ -117,7 +117,7 @@ public interface ActiveMQServerLogger extends BasicLogger
    void awaitFailBack();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221109, value = "ActiveMQ Backup Server version {0} [{1}] started, waiting live to fail before it gets active",
+   @Message(id = 221109, value = "Apache ActiveMQ Backup Server version {0} [{1}] started, waiting live to fail before it gets active",
             format = Message.Format.MESSAGE_FORMAT)
    void backupServerStarted(String version, SimpleString nodeID);
 
@@ -167,8 +167,8 @@ public interface ActiveMQServerLogger extends BasicLogger
    void journalUnreferencedMessage(Long messageID);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221020, value = "Started Netty Acceptor version {0} {1}:{2,number,#} for protocols [{3}]", format = Message.Format.MESSAGE_FORMAT)
-   void startedNettyAcceptor(String id, String host, Integer port, String enabledProtocols);
+   @Message(id = 221020, value = "Started Acceptor at {0}:{1,number,#} for protocols [{2}]", format = Message.Format.MESSAGE_FORMAT)
+   void startedAcceptor(String host, Integer port, String enabledProtocols);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221021, value = "failed to remove connection", format = Message.Format.MESSAGE_FORMAT)
@@ -325,7 +325,7 @@ public interface ActiveMQServerLogger extends BasicLogger
    void divertBindingNotExists(SimpleString bindingName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222007, value = "Security risk! ActiveMQ is running with the default cluster admin user and default password. Please see the cluster chapter in the ActiveMQ User Guide for instructions on how to change this.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222007, value = "Security risk! Apache ActiveMQ is running with the default cluster admin user and default password. Please see the cluster chapter in the ActiveMQ User Guide for instructions on how to change this.", format = Message.Format.MESSAGE_FORMAT)
    void clusterSecurityRisk();
 
    @LogMessage(level = Logger.Level.WARN)
@@ -986,21 +986,13 @@ public interface ActiveMQServerLogger extends BasicLogger
    void backupMovingDataAway(String oldPath, String newPath);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222163, value = "Server is being completely stopped, since this was a replicated backup there may be journal files that need cleaning up. The ActiveMQ server will have to be manually restarted.",
+   @Message(id = 222163, value = "Server is being completely stopped, since this was a replicated backup there may be journal files that need cleaning up. The Apache ActiveMQ broker will have to be manually restarted.",
             format = Message.Format.MESSAGE_FORMAT)
    void stopReplicatedBackupAfterFailback();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222164, value = "Error when trying to start replication {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorStartingReplication(BackupReplicationStartFailedMessage.BackupRegistrationProblem problem);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222165, value = "Error starting naming server", format = Message.Format.MESSAGE_FORMAT)
-   void unableToStartNamingServer(@Cause Exception e);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222166, value = "Error stopping naming server", format = Message.Format.MESSAGE_FORMAT)
-   void unableToStopNamingServer(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222167, value = "Group Binding not available so deleting {0} groups from {1}, groups will be bound to another node",

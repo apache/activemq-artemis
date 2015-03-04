@@ -482,7 +482,7 @@ public class NettyAcceptor implements Acceptor
                                                                             TimeUnit.MILLISECONDS);
          }
 
-         ActiveMQServerLogger.LOGGER.startedNettyAcceptor(TransportConstants.NETTY_VERSION, host, port, protocolsString);
+         ActiveMQServerLogger.LOGGER.startedAcceptor(host, port, protocolsString);
       }
    }
 
