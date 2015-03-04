@@ -498,7 +498,9 @@
          
       </profile>
       <profile>
-         <id>hudson-tests</id>
+         <!-- tests is the profile we use to run the entire testsuite
+               Running this entire build could take up to 2 hours -->
+         <id>tests</id>
          <modules>
             <module>activemq-dto</module>
             <module>activemq-web</module>
@@ -537,7 +539,9 @@
          </properties>
       </profile>
       <profile>
-         <id>jenkins-fast-tests</id>
+         <!-- This will represent a subset of the tests
+              This is used on PR checks on the Jenkins instance at build.apache.org -->
+         <id>fast-tests</id>
          <modules>
             <module>activemq-dto</module>
             <module>activemq-web</module>

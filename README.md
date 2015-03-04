@@ -73,7 +73,7 @@ simply run
 
 To run the unit tests:
 
-```% mvn -Phudson-tests test```
+```% mvn -Ptests test```
 
 Generating reports from unit tests:
 
@@ -82,7 +82,7 @@ Generating reports from unit tests:
 
 Running tests individually
 
-```% mvn -Phudson-tests -DfailIfNoTests=false -Dtest=<test-name> test ```
+```% mvn -Ptests -DfailIfNoTests=false -Dtest=<test-name> test ```
 
 where &lt;test-name> is the name of the Test class without its package name
 
@@ -130,6 +130,8 @@ can be installed from [Eclipse Kepler release repository].
 
 ## IntelliJ IDEA
 
+### Importing the Project
+
 The following steps show how to import ActiveMQ6 source into IntelliJ IDEA and setup the correct maven profile to allow
 running of JUnit tests from within the IDE.  (Steps are based on version: 13.1.4)
 
@@ -139,21 +141,31 @@ This should open the import project wizard.  From here:
 
 * Select "Import from existing model" toggle box, then select Maven from the list box below.  Click Next.
 * Leave the defaults set on this page and click next.
-* On the "Select profiles page", select the checkbox next to "Default" and click next.
+* On the "Select profiles page", select the checkbox next to "tests" and click next.
 * From here the default settings should suffice.  Continue through the wizard, clicking next until the wizard is complete.
 
 Once the project has been imported and IDEA has caught up importing all the relevant dependencies, you should be able to
 run JUnit tests from with the IDE.  Select any test class in the tests -> integration tests folder.  Right click on the
 class in the project tab and click "Run <classname>".  If the "Run <classname>" option is present then you're all set to go.
 
-### My JUnit tests are not runnable with in the IDE.
+
+### Style Templates for Idea
+
+We have shared the style templates that are good for this project. If you want to apply them use these steps:
+
+* File->Import Settings
+* Select the file under ./activemq6-cloned-folder/etc/IDEA-style.jar
+* Select both Code Style Templates and File templates (it's the default option)
+* Select OK and restart Idea
+
+### Issue: My JUnit tests are not runnable with in the IDE.
 
 If the "Run <classname>" or "Run all tests" option is not present.  It is likely that the default profile has not been
-imported properly.  To (re)import the "default" Maven profile in an existing project.
+imported properly.  To (re)import the "tests" Maven profile in an existing project.
 
 * Open the Maven Projects Tool Window: View -> Tool Windows -> Maven Projects
 * Select the "profiles" drop down
-* Unselect then reselect the checkbox next to "default".
+* Unselect then reselect the checkbox next to "tests".
 * Click on the "Reimport all maven projects" button in the top left hand corner of the window. (It looks like a ciruclar
 blue arrow.
 * Wait for IDEA to reload and try running a JUnit test again.  The option to run should now be present.
