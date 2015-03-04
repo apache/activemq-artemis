@@ -461,6 +461,7 @@
             <module>activemq-rest</module>
             <module>activemq-tools</module>
             <module>activemq-service-extensions</module>
+            <module>activemq-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
