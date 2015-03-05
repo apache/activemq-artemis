@@ -413,7 +413,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
       }
       Assert.assertFalse("cluster manager should stop", servers[4].getClusterManager().isStarted());
       final String address = "foo1235";
-      ServerLocator locator = createHAServerLocator();
+      ServerLocator locator = createNonHALocator(isNetty());
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(config.getClusterUser(), CLUSTER_PASSWORD, false, true, true, false, 1);
       session.createQueue(address, address, true);

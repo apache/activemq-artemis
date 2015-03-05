@@ -289,6 +289,8 @@ public final class SharedNothingBackupActivation extends Activation
                }
 
             }
+
+            activeMQServer.completeActivation();
          }
       }
       catch (Exception e)

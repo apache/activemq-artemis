@@ -103,6 +103,8 @@ public class SharedNothingLiveActivation extends LiveActivation
 
          activeMQServer.initialisePart2(false);
 
+         activeMQServer.completeActivation();
+
          if (activeMQServer.getIdentity() != null)
          {
             ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
@@ -141,6 +143,7 @@ public class SharedNothingLiveActivation extends LiveActivation
                }
                catch (ActiveMQException e)
                {
+                  ActiveMQServerLogger.LOGGER.debug("Failed to process backup registration packet", e);
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.EXCEPTION));
                }
             }

@@ -161,7 +161,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
       for (int i = 0; i < 5; i++)
       {
-         BytesMessage msg2 = (BytesMessage) cons2.receive(5000);
+         BytesMessage msg2 = (BytesMessage) cons2.receive(10000);
          assertNotNull(msg2);
          msg2.acknowledge();
 

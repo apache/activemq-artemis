@@ -87,6 +87,8 @@ public final class SharedStoreBackupActivation extends Activation
 
          activeMQServer.initialisePart2(scalingDown);
 
+         activeMQServer.completeActivation();
+
          if (scalingDown)
          {
             ActiveMQServerLogger.LOGGER.backupServerScaledDown();

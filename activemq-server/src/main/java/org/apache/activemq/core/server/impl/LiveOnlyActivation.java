@@ -62,6 +62,8 @@ public class LiveOnlyActivation extends Activation
 
          activeMQServer.initialisePart2(false);
 
+         activeMQServer.completeActivation();
+
          if (activeMQServer.getIdentity() != null)
          {
             ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
