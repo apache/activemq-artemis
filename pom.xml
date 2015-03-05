@@ -185,16 +185,6 @@
 
    <dependencyManagement>
       <dependencies>
-         <!-- ## Documentation Build Dependencies ## -->
-         <dependency>
-            <groupId>org.jboss.apiviz</groupId>
-            <artifactId>apiviz</artifactId>
-            <version>1.3.2.GA</version>
-            <scope>release</scope>
-            <!-- License: LGPL -->
-         </dependency>
-         <!-- ## End Documentation Build Dependencies ## -->
-
          <!-- ## Test Dependenices ## Note: Junit is required in certain module tests.  We should control versions from here. -->
          <dependency>
             <groupId>junit</groupId>
