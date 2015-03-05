@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.apache.activemq</groupId>
    <artifactId>activemq-pom</artifactId>
@@ -735,7 +736,7 @@
             <plugin>
                <groupId>org.codehaus.mojo</groupId>
                <artifactId>cobertura-maven-plugin</artifactId>
-               <configuration />
+               <configuration/>
                <executions>
                   <execution>
                      <goals>
@@ -942,7 +943,7 @@
             <artifactId>cobertura-maven-plugin</artifactId>
             <version>2.5.2</version>
             <configuration>
-               <check />
+               <check/>
                <formats>
                   <format>html</format>
                   <format>xml</format>
