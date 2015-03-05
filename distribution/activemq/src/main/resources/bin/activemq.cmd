@@ -54,7 +54,7 @@ set ACTIVEMQ_DATA_DIR="%ACTIVEMQ_HOME%\data"
 set ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
 
 rem "Load Config"
-if "%ACTIVEMQ_CONF%" == "" set ACTIVEMQ_DATA="%ACTIVEMQ_HOME%\bin\activemq.conf.bat"
+if "%ACTIVEMQ_CONF%" == "" set ACTIVEMQ_CONF="%ACTIVEMQ_HOME%\bin\activemq.conf.bat"
 if exist "%ACTIVEMQ_CONF%" (
    call "%ACTIVEMQ_CONF%" %*
 ) else (
