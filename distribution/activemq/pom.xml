@@ -184,38 +184,6 @@
          <build>
          </build>
       </profile>
-      <profile>
-         <id>source-release</id>
-         <activation>
-            <property>
-               <name>apache-release</name>
-            </property>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-deploy-plugin</artifactId>
-               </plugin>
-               <plugin>
-                  <artifactId>maven-assembly-plugin</artifactId>
-                  <version>2.2</version>
-                  <configuration>
-                     <descriptor>src/main/assembly/source-assembly.xml</descriptor>
-                     <tarLongFileMode>gnu</tarLongFileMode>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <phase>package</phase>
-                        <goals>
-                           <goal>single</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
    </profiles>
 
    <build>
@@ -233,12 +201,24 @@
          <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <version>2.2</version>
-            <configuration>
-               <descriptor>src/main/assembly/dep.xml</descriptor>
-               <tarLongFileMode>gnu</tarLongFileMode>
-            </configuration>
             <executions>
                <execution>
+                  <id>source</id>
+                  <configuration>
+                     <descriptor>src/main/assembly/source-assembly.xml</descriptor>
+                     <tarLongFileMode>gnu</tarLongFileMode>
+                  </configuration>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+               </execution>
+               <execution>
+                 <id>bin</id>
+                  <configuration>
+                     <descriptor>src/main/assembly/dep.xml</descriptor>
+                     <tarLongFileMode>gnu</tarLongFileMode>
+                  </configuration>
                   <phase>package</phase>
                   <goals>
                      <goal>single</goal>
