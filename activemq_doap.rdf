@@ -65,8 +65,8 @@ under the License.
     
     <release>
       <Version>
-        <name>6.0.0-SNAPSHOT</name>
-        <revision>6.0.0-SNAPSHOT.final</revision>
+        <name>6.0.0</name>
+        <revision>6.0.0.final</revision>
         <created>2013-16-12</created>
       </Version>
     </release>
