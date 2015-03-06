@@ -103,7 +103,7 @@ Within your WEB-INF/lib directory you must have the Apache activemq-rest.jar fil
           <dependency>
              <groupId>org.apache.activemq.rest</groupId>
              <artifactId>activemq-rest</artifactId>
-             <version>6.0.0.Final</version>
+             <version>6.0.0-SNAPSHOT.Final</version>
              <exclusions>
                 <exclusion>
                    <groupId>*</groupId>
@@ -179,7 +179,7 @@ Here's a Maven pom.xml file for creating a WAR for this environment. Make sure y
           <dependency>
              <groupId>org.apache.activemq.rest</groupId>
              <artifactId>activemq-rest</artifactId>
-             <version>6.0.0.Final</version>
+             <version>6.0.0-SNAPSHOT.Final</version>
           </dependency>
        </dependencies>
     </project>

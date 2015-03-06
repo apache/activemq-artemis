@@ -555,7 +555,7 @@ be to use a brower and go to the URL http://localhost:8161/jolokia/read/org.apac
 
 This would give you back something like the following:
 
-    {"timestamp":1422019706,"status":200,"request":{"mbean":"org.apache.activemq:module=Core,type=Server","attribute":"Version","type":"read"},"value":"6.0.0.SNAPSHOT (Active Hornet, 126)"}
+    {"timestamp":1422019706,"status":200,"request":{"mbean":"org.apache.activemq:module=Core,type=Server","attribute":"Version","type":"read"},"value":"6.0.0-SNAPSHOT.SNAPSHOT (Active Hornet, 126)"}
 
 ## Using Management Via Core API
 
