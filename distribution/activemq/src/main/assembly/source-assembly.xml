@@ -40,6 +40,10 @@
             <exclude>tests/integration-tests/</exclude>
             <exclude>tests/jms-tests/</exclude>
             <exclude>tests/byteman-tests/</exclude>
+            <exclude>tests/concurrent-tests/</exclude>
+            <exclude>tests/performance-tests/</exclude>
+            <exclude>tests/soak-tests/</exclude>
+            <exclude>tests/stress-tests/</exclude>
 
             <!--  build output  -->
             <exclude>
