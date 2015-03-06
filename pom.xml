@@ -213,13 +213,6 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging-spi</artifactId>
-            <version>2.1.0.GA</version>
-            <scope>compile</scope>
-            <!-- License: LGPL-->
-         </dependency>
-         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>3.1.4.RELEASE</version>
