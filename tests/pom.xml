@@ -77,15 +77,9 @@
 
    <profiles>
       <profile>
-         <id>banned-tests</id>
+         <id>extra-tests</id>
          <modules>
-            <module>jms-tests</module>
-            <module>integration-tests</module>
-            <module>byteman-tests</module>
-            <module>soak-tests</module>
-            <module>stress-tests</module>
-            <module>concurrent-tests</module>
-            <module>performance-tests</module>
+            <module>extra-tests</module>
          </modules>
       </profile>
    </profiles>
@@ -94,5 +88,10 @@
       <module>unit-tests</module>
       <module>joram-tests</module>
       <module>timing-tests</module>
+      <module>jms-tests</module>
+      <module>integration-tests</module>
+      <module>soak-tests</module>
+      <module>stress-tests</module>
+      <module>performance-tests</module>
    </modules>
 </project>

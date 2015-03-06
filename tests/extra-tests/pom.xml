@@ -14,6 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
+<!-- This test folder contains tests that are not part of the regular testsuite
+     because they use optional libraries such as LGPL or private ones.
+     They are optional and will validate extra functionality available through Service Integration
+     Example: Transaction Manager -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
@@ -23,15 +28,57 @@
       <version>6.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>jms-tests</artifactId>
+   <artifactId>extra-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Tests</name>
+   <name>ActiveMQ6 Extra Tests</name>
 
    <properties>
+      <tools.jar>${java.home}/../lib/tools.jar</tools.jar>
+      <byteman.version>2.2.0</byteman.version>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
    </properties>
 
    <dependencies>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-all</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman</artifactId>
+         <version>${byteman.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman-submit</artifactId>
+         <scope>test</scope>
+         <version>${byteman.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman-install</artifactId>
+         <scope>test</scope>
+         <version>${byteman.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman-bmunit</artifactId>
+         <scope>test</scope>
+         <version>${byteman.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.testng</groupId>
+               <artifactId>testng</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>com.sun</groupId>
+         <artifactId>tools</artifactId>
+         <version>1.7</version>
+         <scope>system</scope>
+         <systemPath>${tools.jar}</systemPath>
+      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-core-client</artifactId>
@@ -48,6 +95,13 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq.tests</groupId>
+         <artifactId>integration-tests</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+         <type>test-jar</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq.tests</groupId>
          <artifactId>unit-tests</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
@@ -56,11 +110,6 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-jms-client</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -83,10 +132,6 @@
          <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-      </dependency>
-      <dependency>
          <groupId>commons-logging</groupId>
          <artifactId>commons-logging</artifactId>
       </dependency>
@@ -94,7 +139,11 @@
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-ejb_3.0_spec</artifactId>
       </dependency>
-
+      <!--this specifically for the JMS Bridge -->
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jta_1.1_spec</artifactId>
+      </dependency>
       <dependency>
          <groupId>org.apache.geronimo.components</groupId>
          <artifactId>geronimo-jaspi</artifactId>
@@ -116,10 +165,24 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+      </dependency>
+
+
+
+      <!-- Needed for JMS Bridge Tests -->
+      <dependency>
          <groupId>org.jboss.jbossts.jts</groupId>
          <artifactId>jbossjts-jacorb</artifactId>
          <version>4.17.13.Final</version>
       </dependency>
+      <dependency>
+         <groupId>org.jboss</groupId>
+         <artifactId>jboss-transaction-spi</artifactId>
+         <version>7.1.0.Final</version>
+      </dependency>
+
    </dependencies>
 
    <build>
@@ -140,8 +203,41 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-               <skipTests>${skipJmsTests}</skipTests>
-               <argLine>${activemq-surefire-argline}</argLine>
+               <skipTests>${skipExtraTests}</skipTests>
+               <!-- ensure we don't inherit a byteman jar form any env settings -->
+               <environmentVariables>
+                  <BYTEMAN_HOME></BYTEMAN_HOME>
+               </environmentVariables>
+               <systemProperties>
+                  <!--
+                  <property>
+                     <name>org.jboss.byteman.home</name>
+                     <value></value>
+                  </property>
+                  <property>
+                     <name>org.jboss.byteman.verbose</name>
+                     <value>true</value>
+                  </property>
+                  <property>
+                     <name>org.jboss.byteman.contrib.bmunit.verbose</name>
+                     <value>true</value>
+                  </property>
+                  <property>
+                     <name>org.jboss.byteman.dump.generated.classes</name>
+                     <value></value>
+                  </property>
+                  -->
+               </systemProperties>
+               <!-- make sure maven puts the byteman jar in the classpath rather than in a manifest jar -->
+               <useManifestOnlyJar>false</useManifestOnlyJar>
+               <forkMode>once</forkMode>
+               <!--
+               <debugForkedProcess>true</debugForkedProcess>
+               -->
+               <parallel>false</parallel>
+               <!--<argLine>${activemq-surefire-argline} -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.contrib.bmunit.verbose</argLine>-->
+               <!-- '-noverify' is needed here to fix VerifyErrors on ScaleDownFailoverTest and ScaleDownFailureTest (and their subclasses). I got the tip from https://issues.jboss.org/browse/BYTEMAN-248. -->
+               <argLine>${activemq-surefire-argline} -noverify</argLine>
             </configuration>
          </plugin>
       </plugins>
