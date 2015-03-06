@@ -27,10 +27,6 @@ import org.apache.activemq.core.client.impl.ClientMessageImpl;
  * The ClientRequestor constructor is given a ClientSession and a request address.
  * It creates a temporary queue for the responses and provides a request method that sends the request message and waits for its reply.
  *
- * @apiviz.uses org.apache.activemq.api.core.client.ClientSession
- * @apiviz.owns org.apache.activemq.api.core.client.ClientProducer
- * @apiviz.owns org.apache.activemq.api.core.client.ClientConsumer
- *
  * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public final class ClientRequestor
