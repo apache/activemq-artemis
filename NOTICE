@@ -14,11 +14,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-Certain portions of ActiveMQ are based on code made available
-under the GNU Lesser General Public License, version 2.1 or later
-(http://www.fsf.org/licensing/licenses/lgpl.html).
-"JBoss" and "Red Hat" are trademarks of Red Hat, Inc. and/or its
-affiliates, registered in the U.S. and other countries.  Your
-permissions under the licensing terms governing ActiveMQ do
-not include a license, express or implied, to any Red Hat trademark.
