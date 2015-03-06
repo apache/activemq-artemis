@@ -62,7 +62,7 @@ add the following dependencies.
     <dependency>
        <groupId>org.apache.activemq</groupId>
        <artifactId>activemq-core-client</artifactId>
-       <version>6.0.0</version>
+       <version>6.0.0-SNAPSHOT</version>
     </dependency>
 
 There are 2 properties you need to set when starting your java program,
