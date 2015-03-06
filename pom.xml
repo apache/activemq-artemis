@@ -63,7 +63,7 @@
       <resteasy.version>3.0.9.Final</resteasy.version>
       <skipUnitTests>true</skipUnitTests>
       <skipJmsTests>true</skipJmsTests>
-      <skipBytemanTests>true</skipBytemanTests>
+      <skipExtraTests>true</skipExtraTests>
       <skipIntegrationTests>true</skipIntegrationTests>
       <skipJoramTests>true</skipJoramTests>
       <skipTimingTests>true</skipTimingTests>
@@ -517,7 +517,7 @@
             <skipStressTests>true</skipStressTests>
             <skipSoakTests>true</skipSoakTests>
             <skipPerformanceTests>true</skipPerformanceTests>
-            <skipBytemanTests>false</skipBytemanTests>
+            <skipExtraTests>false</skipExtraTests>
          </properties>
       </profile>
       <profile>
@@ -552,7 +552,7 @@
             <skipJoramTests>false</skipJoramTests>
             <skipConcurrentTests>false</skipConcurrentTests>
             <skipRestTests>false</skipRestTests>
-            <skipBytemanTests>false</skipBytemanTests>
+            <skipExtraTests>false</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
          </properties>
       </profile>

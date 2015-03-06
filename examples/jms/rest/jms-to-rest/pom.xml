@@ -24,7 +24,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.rest.examples</groupId>
       <artifactId>activemq-rest-examples-pom</artifactId>
-      <version>6.0.0</version>
+      <version>6.0.1-SNAPSHOT</version>
    </parent>
    <artifactId>mixed-jms-rest</artifactId>
    <packaging>war</packaging>

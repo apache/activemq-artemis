@@ -20,7 +20,7 @@
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>activemq-tests-pom</artifactId>
-      <version>6.0.0</version>
+      <version>6.0.1-SNAPSHOT</version>
    </parent>
 
    <artifactId>jms-tests</artifactId>
@@ -95,19 +95,6 @@
          <artifactId>geronimo-ejb_3.0_spec</artifactId>
       </dependency>
 
-      <!--this specifically for the XA Tests -->
-      <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-transaction-spi</artifactId>
-         <version>7.0.0.Final</version>
-         <exclusions>
-            <exclusion>
-               <groupId>org.jboss.logging</groupId>
-               <artifactId>jboss-logging-spi</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-
       <dependency>
          <groupId>org.apache.geronimo.components</groupId>
          <artifactId>geronimo-jaspi</artifactId>
@@ -154,14 +141,6 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipJmsTests}</skipTests>
-               <excludes>
-                  <!-- TODO: Can we remove XATests? Can we remove them all? -->
-                  <exclude>org/apache/activemq/jms/tests/XARecoveryTest.java</exclude>
-                  <exclude>org/apache/activemq/jms/tests/XAResourceRecoveryTest.java</exclude>
-                  <exclude>org/apache/activemq/jms/tests/XATest.java</exclude>
-                  <exclude>org/apache/activemq/jms/tests/stress/*.java</exclude>
-                  <exclude>org/apache/activemq/jms/tests/manual/**</exclude>
-               </excludes>
                <argLine>${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>

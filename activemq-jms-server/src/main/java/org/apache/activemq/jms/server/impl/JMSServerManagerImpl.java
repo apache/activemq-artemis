@@ -436,7 +436,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       // We have to perform the server.stop outside of the lock because of backup activation issues.
       // See https://bugzilla.redhat.com/show_bug.cgi?id=959616
-      // And org.apache.activemq.byteman.tests.StartStopDeadlockTest which is validating for this case here
+      // And org.apache.activemq.extras.tests.StartStopDeadlockTest which is validating for this case here
       server.stop();
    }
 
