@@ -34,15 +34,6 @@
 
    <dependencyManagement>
       <dependencies>
-         <!-- ## XA Dependencies ## -->
-         <dependency>
-            <groupId>org.jboss.jbossts.jts</groupId>
-            <artifactId>jbossjts-jacorb</artifactId>
-            <version>4.17.13.Final</version>
-            <!-- License: LGPL -->
-         </dependency>
-         <!-- ## End XA Dependencies ## -->
-
          <!--## JMS Dependencies ## -->
          <dependency>
             <groupId>org.apache.geronimo.components</groupId>
@@ -84,16 +75,24 @@
       </plugins>
    </build>
 
+   <profiles>
+      <profile>
+         <id>banned-tests</id>
+         <modules>
+            <module>jms-tests</module>
+            <module>integration-tests</module>
+            <module>byteman-tests</module>
+            <module>soak-tests</module>
+            <module>stress-tests</module>
+            <module>concurrent-tests</module>
+            <module>performance-tests</module>
+         </modules>
+      </profile>
+   </profiles>
+
    <modules>
       <module>unit-tests</module>
-      <module>jms-tests</module>
       <module>joram-tests</module>
-      <module>soak-tests</module>
-      <module>stress-tests</module>
       <module>timing-tests</module>
-      <module>concurrent-tests</module>
-      <module>performance-tests</module>
-      <module>integration-tests</module>
-      <module>byteman-tests</module>
    </modules>
 </project>

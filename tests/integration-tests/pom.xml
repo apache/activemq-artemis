@@ -185,6 +185,7 @@
       <dependency>
          <groupId>org.jboss.jbossts.jts</groupId>
          <artifactId>jbossjts-jacorb</artifactId>
+         <version>4.17.13.Final</version>
       </dependency>
       <dependency>
          <groupId>org.jboss</groupId>
