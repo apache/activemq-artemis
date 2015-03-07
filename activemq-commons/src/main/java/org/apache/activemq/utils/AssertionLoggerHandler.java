@@ -14,18 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.logging;
+package org.apache.activemq.utils;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import org.jboss.logmanager.ExtHandler;
 import org.jboss.logmanager.ExtLogRecord;
-import org.junit.Assert;
 
 /**
+ * This class contains a tool where programs could intercept for LogMessage given an interval of time between {@link #startCapture()}
+ * and {@link #stopCapture()}
+ * <p/>
+ * Be careful with this use as this is intended for testing only (such as testcases) *
+ *
  * @author <a href="mailto:ehugonne@redhat.com">Emmanuel Hugonnet</a> (c) 2013 Red Hat, inc.
  */
 public class AssertionLoggerHandler extends ExtHandler
@@ -62,7 +65,8 @@ public class AssertionLoggerHandler extends ExtHandler
 
    /**
     * is there any record matching Level?
-     * @param level
+    *
+    * @param level
     * @return
     */
    public static boolean hasLevel(Level level)
@@ -120,24 +124,6 @@ public class AssertionLoggerHandler extends ExtHandler
       }
 
       return false;
-   }
-
-   public static void assertMessageWasLoggedWithLevel(String expectedMessage, Level expectedLevel)
-   {
-      if (!messages.containsKey(expectedMessage))
-      {
-         throw new AssertionError((Arrays.toString(messages.keySet().toArray())));
-      }
-      Assert.assertEquals(expectedLevel, messages.get(expectedMessage).getLevel());
-   }
-
-   public static void assertMessageWasLoggedWithLevel(String assertionMessage, String expectedMessage, Level expectedLevel)
-   {
-      if (!messages.containsKey(expectedMessage))
-      {
-         throw new AssertionError(assertionMessage);
-      }
-      Assert.assertEquals(assertionMessage, expectedLevel, messages.get(expectedMessage).getLevel());
    }
 
    public static final void clear()

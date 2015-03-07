@@ -169,6 +169,13 @@
          <artifactId>junit</artifactId>
       </dependency>
 
+      <!-- this is for the log assertion -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-commons</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
 
 
       <!-- Needed for JMS Bridge Tests -->

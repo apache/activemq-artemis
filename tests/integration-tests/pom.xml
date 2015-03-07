@@ -223,6 +223,16 @@
          <version>1.0.1</version>
          <scope>test</scope>
       </dependency>
+
+      <!-- this is for the log assertion -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-commons</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+
+
    </dependencies>
 
    <build>

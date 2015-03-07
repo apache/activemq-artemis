@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.tests.logging.AssertionLoggerHandler;
+import org.apache.activemq.utils.AssertionLoggerHandler;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.logmanager.Level;
 import org.junit.Test;
