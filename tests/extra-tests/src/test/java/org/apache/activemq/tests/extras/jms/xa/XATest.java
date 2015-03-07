@@ -36,7 +36,6 @@ import javax.transaction.xa.Xid;
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-
 import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.tests.extras.ExtrasTestLogger;
@@ -48,14 +47,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * A XATestBase
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  * @version <tt>$Revision: 1.1 $</tt>
- *
- *
  */
 public class XATest extends JMSTestBase
 {
@@ -70,7 +66,7 @@ public class XATest extends JMSTestBase
    protected Transaction suspendedTx;
 
    protected XAConnectionFactory xacf;
-   
+
    protected Queue queue1;
 
    // Constructors --------------------------------------------------
@@ -84,7 +80,7 @@ public class XATest extends JMSTestBase
       super.setUp();
 
       xacf = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616", "test");
-      
+
       queue1 = createQueue("queue1");
       TxControl.enable();
 
@@ -176,10 +172,10 @@ public class XATest extends JMSTestBase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         TextMessage m2 = (TextMessage)cons.receive(1000);
+         TextMessage m2 = (TextMessage) cons.receive(1000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(1000);
+         m2 = (TextMessage) cons.receive(1000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
       }
@@ -238,10 +234,10 @@ public class XATest extends JMSTestBase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
       }
@@ -419,12 +415,12 @@ public class XATest extends JMSTestBase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
 
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
@@ -497,12 +493,12 @@ public class XATest extends JMSTestBase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
 
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
@@ -576,10 +572,10 @@ public class XATest extends JMSTestBase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
 
@@ -596,10 +592,10 @@ public class XATest extends JMSTestBase
          tx.enlistResource(res);
          tx.enlistResource(res2);
 
-         TextMessage m3 = (TextMessage)cons.receive(5000);
+         TextMessage m3 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m3);
          Assert.assertEquals("XATest1", m3.getText());
-         m3 = (TextMessage)cons.receive(5000);
+         m3 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m3);
          Assert.assertEquals("XATest2", m3.getText());
 
@@ -657,10 +653,10 @@ public class XATest extends JMSTestBase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
 
@@ -677,10 +673,10 @@ public class XATest extends JMSTestBase
          tx.enlistResource(res);
          tx.enlistResource(res2);
 
-         TextMessage m3 = (TextMessage)cons.receive(5000);
+         TextMessage m3 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m3);
          Assert.assertEquals("XATest1", m3.getText());
-         m3 = (TextMessage)cons.receive(5000);
+         m3 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m3);
          Assert.assertEquals("XATest2", m3.getText());
 
@@ -739,10 +735,10 @@ public class XATest extends JMSTestBase
          conn2.start();
          Session sessReceiver = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sessReceiver.createConsumer(queue1);
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
       }
@@ -790,11 +786,11 @@ public class XATest extends JMSTestBase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
@@ -859,12 +855,12 @@ public class XATest extends JMSTestBase
 
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage m2 = (TextMessage)cons.receive(5000);
+         TextMessage m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest1", m2.getText());
 
-         m2 = (TextMessage)cons.receive(5000);
+         m2 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
@@ -880,12 +876,12 @@ public class XATest extends JMSTestBase
          tx = tm.getTransaction();
          tx.enlistResource(res);
 
-         TextMessage m3 = (TextMessage)cons.receive(5000);
+         TextMessage m3 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m3);
          Assert.assertEquals("XATest1", m3.getText());
 
-         m3 = (TextMessage)cons.receive(5000);
+         m3 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(m3);
          Assert.assertEquals("XATest2", m3.getText());
@@ -947,7 +943,7 @@ public class XATest extends JMSTestBase
 
          // Receive the messages, one on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(5000);
+         TextMessage r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish1", r1.getText());
@@ -955,7 +951,7 @@ public class XATest extends JMSTestBase
          cons1.close();
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(5000);
+         TextMessage r2 = (TextMessage) cons2.receive(5000);
 
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish2", r2.getText());
@@ -970,7 +966,7 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r3 = (TextMessage)cons.receive(100);
+         TextMessage r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
       }
@@ -1012,9 +1008,9 @@ public class XATest extends JMSTestBase
 
          // Create 2 sessions and enlist them
          XASession sess1 = conn.createXASession();
-         ClientSessionInternal res1 = (ClientSessionInternal)sess1.getXAResource();
+         ClientSessionInternal res1 = (ClientSessionInternal) sess1.getXAResource();
          XASession sess2 = conn.createXASession();
-         ClientSessionInternal res2 = (ClientSessionInternal)sess2.getXAResource();
+         ClientSessionInternal res2 = (ClientSessionInternal) sess2.getXAResource();
          res1.setForceNotSameRM(true);
          res2.setForceNotSameRM(true);
 
@@ -1024,7 +1020,7 @@ public class XATest extends JMSTestBase
 
          // Receive the messages, one on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(5000);
+         TextMessage r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish1", r1.getText());
@@ -1032,7 +1028,7 @@ public class XATest extends JMSTestBase
          cons1.close();
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(5000);
+         TextMessage r2 = (TextMessage) cons2.receive(5000);
 
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish2", r2.getText());
@@ -1047,7 +1043,7 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r3 = (TextMessage)cons.receive(100);
+         TextMessage r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
       }
@@ -1095,9 +1091,9 @@ public class XATest extends JMSTestBase
 
          // Create 2 sessions and enlist them
          XASession sess1 = conn.createXASession();
-         ClientSessionInternal res1 = (ClientSessionInternal)sess1.getXAResource();
+         ClientSessionInternal res1 = (ClientSessionInternal) sess1.getXAResource();
          XASession sess2 = conn.createXASession();
-         ClientSessionInternal res2 = (ClientSessionInternal)sess2.getXAResource();
+         ClientSessionInternal res2 = (ClientSessionInternal) sess2.getXAResource();
 
          Transaction tx = tm.getTransaction();
          tx.enlistResource(res1);
@@ -1105,12 +1101,12 @@ public class XATest extends JMSTestBase
 
          // Receive the messages, two on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(5000);
+         TextMessage r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish1", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(5000);
+         r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish2", r1.getText());
@@ -1118,12 +1114,12 @@ public class XATest extends JMSTestBase
          cons1.close();
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(5000);
+         TextMessage r2 = (TextMessage) cons2.receive(5000);
 
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish3", r2.getText());
 
-         r2 = (TextMessage)cons2.receive(5000);
+         r2 = (TextMessage) cons2.receive(5000);
 
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish4", r2.getText());
@@ -1147,7 +1143,7 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r = (TextMessage)cons.receive(5000);
+         TextMessage r = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r);
 
          boolean session1First = false;
@@ -1167,19 +1163,19 @@ public class XATest extends JMSTestBase
 
          if (session1First)
          {
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish2", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish3", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
@@ -1188,26 +1184,26 @@ public class XATest extends JMSTestBase
          }
          else
          {
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish4", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish1", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish2", r.getText());
          }
 
-         r = (TextMessage)cons.receive(100);
+         r = (TextMessage) cons.receive(100);
 
          Assert.assertNull(r);
 
@@ -1254,9 +1250,9 @@ public class XATest extends JMSTestBase
 
          // Create 2 sessions and enlist them
          XASession sess1 = conn.createXASession();
-         ClientSessionInternal res1 = (ClientSessionInternal)sess1.getXAResource();
+         ClientSessionInternal res1 = (ClientSessionInternal) sess1.getXAResource();
          XASession sess2 = conn.createXASession();
-         ClientSessionInternal res2 = (ClientSessionInternal)sess2.getXAResource();
+         ClientSessionInternal res2 = (ClientSessionInternal) sess2.getXAResource();
          res1.setForceNotSameRM(true);
          res2.setForceNotSameRM(true);
 
@@ -1266,12 +1262,12 @@ public class XATest extends JMSTestBase
 
          // Receive the messages, two on each consumer
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(5000);
+         TextMessage r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish1", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(5000);
+         r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish2", r1.getText());
@@ -1282,12 +1278,12 @@ public class XATest extends JMSTestBase
          Thread.sleep(500);
 
          MessageConsumer cons2 = sess2.createConsumer(queue1);
-         TextMessage r2 = (TextMessage)cons2.receive(5000);
+         TextMessage r2 = (TextMessage) cons2.receive(5000);
 
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish3", r2.getText());
 
-         r2 = (TextMessage)cons2.receive(5000);
+         r2 = (TextMessage) cons2.receive(5000);
 
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish4", r2.getText());
@@ -1311,7 +1307,7 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r = (TextMessage)cons.receive(5000);
+         TextMessage r = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r);
 
          boolean session1First = false;
@@ -1331,19 +1327,19 @@ public class XATest extends JMSTestBase
 
          if (session1First)
          {
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish2", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish3", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
@@ -1352,26 +1348,26 @@ public class XATest extends JMSTestBase
          }
          else
          {
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish4", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish1", r.getText());
 
-            r = (TextMessage)cons.receive(5000);
+            r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
 
             Assert.assertEquals("jellyfish2", r.getText());
          }
 
-         r = (TextMessage)cons.receive(100);
+         r = (TextMessage) cons.receive(100);
 
          Assert.assertNull(r);
       }
@@ -1424,27 +1420,27 @@ public class XATest extends JMSTestBase
          tx.enlistResource(res2);
 
          MessageConsumer cons1 = sess1.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons1.receive(5000);
+         TextMessage r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish1", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(5000);
+         r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish2", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(5000);
+         r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish3", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(5000);
+         r1 = (TextMessage) cons1.receive(5000);
 
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish4", r1.getText());
 
-         r1 = (TextMessage)cons1.receive(100);
+         r1 = (TextMessage) cons1.receive(100);
 
          Assert.assertNull(r1);
 
@@ -1476,31 +1472,31 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r = (TextMessage)cons.receive(5000);
+         TextMessage r = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(r);
 
          Assert.assertEquals("jellyfish1", r.getText());
 
-         r = (TextMessage)cons.receive(5000);
+         r = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(r);
 
          Assert.assertEquals("jellyfish2", r.getText());
 
-         r = (TextMessage)cons.receive(5000);
+         r = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(r);
 
          Assert.assertEquals("jellyfish3", r.getText());
 
-         r = (TextMessage)cons.receive(5000);
+         r = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(r);
 
          Assert.assertEquals("jellyfish4", r.getText());
 
-         r = (TextMessage)cons.receive(100);
+         r = (TextMessage) cons.receive(100);
 
          Assert.assertNull(r);
       }
@@ -1565,11 +1561,11 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(5000);
+         TextMessage r1 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r1);
          Assert.assertEquals("echidna1", r1.getText());
 
-         TextMessage r2 = (TextMessage)cons.receive(5000);
+         TextMessage r2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r2);
          Assert.assertEquals("echidna2", r2.getText());
 
@@ -1606,9 +1602,9 @@ public class XATest extends JMSTestBase
 
          // Create 2 sessions and enlist them
          XASession sess1 = conn.createXASession();
-         ClientSessionInternal res1 = (ClientSessionInternal)sess1.getXAResource();
+         ClientSessionInternal res1 = (ClientSessionInternal) sess1.getXAResource();
          XASession sess2 = conn.createXASession();
-         ClientSessionInternal res2 = (ClientSessionInternal)sess2.getXAResource();
+         ClientSessionInternal res2 = (ClientSessionInternal) sess2.getXAResource();
          res1.setForceNotSameRM(true);
          res2.setForceNotSameRM(true);
 
@@ -1637,11 +1633,11 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(5000);
+         TextMessage r1 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r1);
          Assert.assertEquals("echidna1", r1.getText());
 
-         TextMessage r2 = (TextMessage)cons.receive(5000);
+         TextMessage r2 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r2);
          Assert.assertEquals("echidna2", r2.getText());
 
@@ -1708,7 +1704,7 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(100);
+         TextMessage r1 = (TextMessage) cons.receive(100);
          Assert.assertNull(r1);
 
       }
@@ -1742,9 +1738,9 @@ public class XATest extends JMSTestBase
 
          // Create 2 sessions and enlist them
          XASession sess1 = conn.createXASession();
-         ClientSessionInternal res1 = (ClientSessionInternal)sess1.getXAResource();
+         ClientSessionInternal res1 = (ClientSessionInternal) sess1.getXAResource();
          XASession sess2 = conn.createXASession();
-         ClientSessionInternal res2 = (ClientSessionInternal)sess2.getXAResource();
+         ClientSessionInternal res2 = (ClientSessionInternal) sess2.getXAResource();
          res1.setForceNotSameRM(true);
          res2.setForceNotSameRM(true);
 
@@ -1773,7 +1769,7 @@ public class XATest extends JMSTestBase
          MessageConsumer cons = sess.createConsumer(queue1);
          conn2.start();
 
-         TextMessage r1 = (TextMessage)cons.receive(100);
+         TextMessage r1 = (TextMessage) cons.receive(100);
          Assert.assertNull(r1);
       }
       finally
@@ -1823,7 +1819,7 @@ public class XATest extends JMSTestBase
 
          // Receive one message in one tx
 
-         TextMessage r1 = (TextMessage)cons1.receive(5000);
+         TextMessage r1 = (TextMessage) cons1.receive(5000);
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish1", r1.getText());
 
@@ -1838,7 +1834,7 @@ public class XATest extends JMSTestBase
          tx2.enlistResource(res1);
 
          // Receive 2nd message in a different tx
-         TextMessage r2 = (TextMessage)cons1.receive(5000);
+         TextMessage r2 = (TextMessage) cons1.receive(5000);
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish2", r2.getText());
 
@@ -1853,7 +1849,7 @@ public class XATest extends JMSTestBase
          Session sess = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn2.start();
          MessageConsumer cons = sess.createConsumer(queue1);
-         TextMessage r3 = (TextMessage)cons.receive(100);
+         TextMessage r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
          // now resume the first tx and then commit it
@@ -1908,7 +1904,7 @@ public class XATest extends JMSTestBase
 
          // Receive one message in one tx
 
-         TextMessage r1 = (TextMessage)cons1.receive(5000);
+         TextMessage r1 = (TextMessage) cons1.receive(5000);
          Assert.assertNotNull(r1);
          Assert.assertEquals("jellyfish1", r1.getText());
 
@@ -1923,7 +1919,7 @@ public class XATest extends JMSTestBase
          tx2.enlistResource(res1);
 
          // Receive 2nd message in a different tx
-         TextMessage r2 = (TextMessage)cons1.receive(5000);
+         TextMessage r2 = (TextMessage) cons1.receive(5000);
          Assert.assertNotNull(r2);
          Assert.assertEquals("jellyfish2", r2.getText());
 
@@ -1941,11 +1937,11 @@ public class XATest extends JMSTestBase
          conn2.start();
          MessageConsumer cons = sess.createConsumer(queue1);
 
-         TextMessage r3 = (TextMessage)cons.receive(5000);
+         TextMessage r3 = (TextMessage) cons.receive(5000);
 
          Assert.assertNotNull(r3);
          Assert.assertEquals("jellyfish2", r3.getText());
-         r3 = (TextMessage)cons.receive(100);
+         r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
          // rollback the other tx
@@ -1953,10 +1949,10 @@ public class XATest extends JMSTestBase
          tm.rollback();
 
          // Verify the first message is now available
-         r3 = (TextMessage)cons.receive(5000);
+         r3 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r3);
          Assert.assertEquals("jellyfish1", r3.getText());
-         r3 = (TextMessage)cons.receive(100);
+         r3 = (TextMessage) cons.receive(100);
          Assert.assertNull(r3);
 
       }
@@ -2024,10 +2020,10 @@ public class XATest extends JMSTestBase
          Session sess = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn2.start();
          MessageConsumer cons = sess.createConsumer(queue1);
-         TextMessage r1 = (TextMessage)cons.receive(5000);
+         TextMessage r1 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r1);
          Assert.assertEquals("kangaroo2", r1.getText());
-         TextMessage r2 = (TextMessage)cons.receive(100);
+         TextMessage r2 = (TextMessage) cons.receive(100);
          Assert.assertNull(r2);
 
          // now resume the first tx and then commit it
@@ -2036,7 +2032,7 @@ public class XATest extends JMSTestBase
          tm.commit();
 
          // verify that the first text message is received
-         TextMessage r3 = (TextMessage)cons.receive(5000);
+         TextMessage r3 = (TextMessage) cons.receive(5000);
          Assert.assertNotNull(r3);
          Assert.assertEquals("kangaroo1", r3.getText());
 
