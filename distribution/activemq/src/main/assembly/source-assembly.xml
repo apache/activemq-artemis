@@ -37,13 +37,10 @@
          <!-- TODO These excludes were lifted from maven-resources-apache-source-release-assembly-descriptor-1.0.4. We
          should use this descriptor directly in future -->
          <excludes>
-            <exclude>tests/integration-tests/</exclude>
-            <exclude>tests/jms-tests/</exclude>
-            <exclude>tests/byteman-tests/</exclude>
-            <exclude>tests/concurrent-tests/</exclude>
-            <exclude>tests/performance-tests/</exclude>
-            <exclude>tests/soak-tests/</exclude>
-            <exclude>tests/stress-tests/</exclude>
+            <exclude>tests/extra-tests/</exclude>
+            
+            <!-- in case some of the build generates data, this needs to be ignored -->
+            <exclude>data/</exclude>
 
             <!--  build output  -->
             <exclude>
