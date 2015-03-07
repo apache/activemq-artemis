@@ -29,7 +29,7 @@ under the License.
 
 <p>ActiveMQ is a multi protocol broker. It will inspect the initial handshake of clients to determine what protocol to use.</p>
 <p>All you need to do is to connect a client into activemq's configured port and you should be able connect.</p>
-<p>To run this example simply run the command <literal>mvn verify</literal>, execute the compile.sh script and start the executable called ./hello</p>
+<p>To run this example simply run the command <literal>mvn verify -Pexample</literal>, execute the compile.sh script and start the executable called ./hello</p>
 <pre>
     # first make sure you have the dependencies you need to compile and run the client
     # You will have to adapt this step according to your platform. Consult the <a href="http://qpid.apache.org/releases/qpid-0.30/programming/book/">qpid docs</a> for more information.
@@ -37,7 +37,7 @@ under the License.
     [proton-cpp]$ sudo yum install qpid-cpp-client-devel
 
     # on a first window
-    [proton-cpp]$ mvn verify
+    [proton-cpp]$ mvn verify -Pexample
 
     # on a second window
     # That goes without saying but you will of course need g++ (the C++ compiler) installed

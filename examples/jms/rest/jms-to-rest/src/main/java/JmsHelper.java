@@ -18,6 +18,7 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.core.config.FileDeploymentManager;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQDestination;
@@ -35,8 +36,9 @@ public class JmsHelper
    public static ConnectionFactory createConnectionFactory(String configFile) throws Exception
    {
       FileConfiguration config = new FileConfiguration();
-      config.setConfigurationUrl(configFile);
-      config.start();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(configFile);
+      deploymentManager.addDeployable(config);
+      deploymentManager.readConfiguration();
       TransportConfiguration transport = config.getConnectorConfigurations().get("netty-connector");
       return new ActiveMQJMSConnectionFactory(ActiveMQClient.createServerLocatorWithoutHA(transport));
 

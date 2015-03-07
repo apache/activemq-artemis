@@ -20,7 +20,7 @@ under the License.
 <h1>Apache ActiveMQ Examples</h1>
 <h2>JMS Examples</h2>
 <p>Each example has its own instructions as to how they can be run, but for most of them it is as simple as running
-    <code>mvn verify</code> from the example directory. This will start a broker with the correct configuration, run the
+    <code>mvn verify -Pexample</code> from the example directory. This will start a broker with the correct configuration, run the
 example and then stop the server so you will need to make sure there is not a broker already running</p>
 <p>If you want to run an example against an already running broker then firstly you will need to start the broker to use
 the examples configuration. An example configuration is provided which by default to run the queue example, to run this
@@ -31,7 +31,6 @@ directory for the journal, to avoid problems it is best to delete this directory
 set the <code>ACTIVEMQ_DATA_DIR</code> environment property in <code>activemq.conf</code>to use a different location</p>
    <ol>
        <li><a href="./jms/aerogear/readme.html">AeroGear Example</a></li>
-       <li><a href="./jms/applet/readme.html">Applet Example</a></li>
        <li><a href="./jms/application-layer-failover/readme.html">Application-Layer Failover Example</a></li>
        <li><a href="./jms/bridge/readme.html">Core Bridge Example</a></li>
        <li><a href="./jms/browser/readme.html">JMS QueueBrowser Example</a></li>

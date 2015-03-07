@@ -62,6 +62,7 @@ under the License.
    <modules>
       <module>core</module>
       <module>jms</module>
+      <module>soak</module>
    </modules>
 
 </project>

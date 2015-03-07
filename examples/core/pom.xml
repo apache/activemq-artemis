@@ -36,4 +36,16 @@ under the License.
       <udp-address>231.7.7.7</udp-address>
    </properties>
 
+   <profiles>
+      <profile>
+         <id>release</id>
+         <modules>
+            <module>embedded</module>
+            <module>embedded-remote</module>
+            <module>perf</module>
+            <module>vertx-connector</module>
+         </modules>
+      </profile>
+   </profiles>
+
 </project>

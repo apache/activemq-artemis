@@ -28,7 +28,7 @@ under the License.
       <version>6.0.1-SNAPSHOT</version>
    </parent>
 
-   <groupId>org.apache.activemq.example.soak</groupId>
+   <groupId>org.apache.activemq.examples.soak</groupId>
    <artifactId>soak-examples</artifactId>
    <packaging>pom</packaging>
    <name>ActiveMQ6 Soak Examples</name>

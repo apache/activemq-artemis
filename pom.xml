@@ -736,7 +736,7 @@
             <plugin>
                <groupId>org.apache.activemq</groupId>
                <artifactId>activemq-maven-plugin</artifactId>
-               <version>6.0.1-SNAPSHOT</version>
+               <version>${project.version}</version>
             </plugin>
          </plugins>
       </pluginManagement>

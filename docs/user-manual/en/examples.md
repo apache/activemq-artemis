@@ -17,7 +17,7 @@ JMS Examples
 ============
 
 To run a JMS example, simply `cd` into the appropriate example directory
-and type `mvn verify` (For details please read the readme.html in each
+and type `mvn verify -Pexample` (For details please read the readme.html in each
 example directory).
 
 Here's a listing of the examples with a brief description.

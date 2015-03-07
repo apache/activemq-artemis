@@ -27,7 +27,7 @@ under the License.
    <name>ActiveMQ6 Soak Normal Example</name>
 
    <parent>
-      <groupId>org.apache.activemq.example.soak</groupId>
+      <groupId>org.apache.activemq.examples.soak</groupId>
       <artifactId>soak-examples</artifactId>
       <version>6.0.1-SNAPSHOT</version>
    </parent>
@@ -87,9 +87,6 @@ under the License.
    <profiles>
       <profile>
          <id>local</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
          <build>
             <plugins>
                <plugin>
