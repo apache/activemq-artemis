@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.jms.example;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+
 
 import org.apache.activemq.common.example.ActiveMQExample;
 
@@ -64,6 +66,8 @@ public class StompExample extends ActiveMQExample
             "\n" +
             END_OF_FRAME;
          sendFrame(socket, connectFrame);
+
+         readFrame(socket);
 
          // Step 3. Send a SEND frame (a Stomp message) to the
          // jms.queue.exampleQueue address with a text body
@@ -131,6 +135,18 @@ public class StompExample extends ActiveMQExample
          outputStream.write(bytes[i]);
       }
       outputStream.flush();
+   }
+
+   private static String readFrame(Socket socket) throws Exception
+   {
+      byte[] bytes = new byte[2048];
+      InputStream inputStream = socket.getInputStream();
+      int nbytes = inputStream.read(bytes);
+      byte[] data = new byte[nbytes];
+      System.arraycopy(bytes, 0, data, 0, data.length);
+      String resp = new String(data, "UTF-8");
+      System.out.println("Got response from server: " + resp);
+      return resp;
    }
 
 }
