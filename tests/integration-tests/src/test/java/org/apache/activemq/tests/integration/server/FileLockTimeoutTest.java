@@ -27,7 +27,7 @@ import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.utils.AssertionLoggerHandler;
+import org.apache.activemq.logs.AssertionLoggerHandler;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.AfterClass;
 import org.junit.Assert;

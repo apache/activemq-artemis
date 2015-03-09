@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.logs.ActiveMQUtilBundle;
 
 import static org.apache.activemq.utils.DataConstants.BOOLEAN;
 import static org.apache.activemq.utils.DataConstants.BYTE;
