@@ -25,6 +25,7 @@
       <groupId>org.apache</groupId>
       <artifactId>apache</artifactId>
       <version>16</version>
+      <relativePath>org.apache:apache</relativePath>
    </parent>
 
    <modules>
