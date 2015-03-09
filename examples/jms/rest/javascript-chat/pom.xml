@@ -18,13 +18,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.apache.activemq.examples.rest</groupId>
       <artifactId>activemq-rest-examples-pom</artifactId>
-      <version>6.0.1-SNAPSHOT</version>
+      <version>6.0.0</version>
    </parent>
    <artifactId>javascript-chat</artifactId>
    <packaging>war</packaging>
@@ -51,8 +50,7 @@ under the License.
                        <contextPath>/</contextPath>
                        <scanIntervalSeconds>2</scanIntervalSeconds>
                        <connectors>
-                           <connector
-                                   implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                           <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
                                <port>9095</port>
                                <maxIdleTime>60000</maxIdleTime>
                            </connector>
@@ -98,8 +96,7 @@ under the License.
                      <stopKey>foo</stopKey>
                      <stopPort>9999</stopPort>
                      <connectors>
-                        <connector
-                                implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
                            <port>9095</port>
                            <maxIdleTime>60000</maxIdleTime>
                         </connector>
