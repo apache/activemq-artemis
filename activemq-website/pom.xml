@@ -66,45 +66,50 @@
      <webapp-outdir>${basedir}/target/classes/user-manual</webapp-outdir>
    </properties>
 
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.10.1</version>
+            <executions>
+               <execution>
+                  <id>javadoc-jar</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>jar</goal>
+                  </goals>
+                  <configuration>
+                     <useStandardDocletOptions>true</useStandardDocletOptions>
+                     <minmemory>128m</minmemory>
+                     <maxmemory>512m</maxmemory>
+                     <quiet>false</quiet>
+                     <!-- switch on dependency-driven aggregation -->
+                     <includeDependencySources>true</includeDependencySources>
+
+                     <dependencySourceIncludes>
+                        <!-- include ONLY dependencies I control -->
+                        <dependencySourceInclude>org.apache.activemq:activemq-core-client</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:activemq-jms-client</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:activemq-server</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:activemq-jms-server</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:activemq-journal</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:activemq-selector</dependencySourceInclude>
+                     </dependencySourceIncludes>
+                     <quiet>false</quiet>
+                     <aggregate>true</aggregate>
+                     <excludePackageNames>org.apache.activemq.core:org.apache.activemq.utils</excludePackageNames>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+
    <profiles>
       <profile>
          <id>release</id>
          <build>
              <plugins>
-                 <plugin>
-                     <artifactId>maven-javadoc-plugin</artifactId>
-                     <version>2.10.1</version>
-                     <executions>
-                         <execution>
-                             <id>javadoc-jar</id>
-                             <phase>package</phase>
-                             <goals>
-                                 <goal>jar</goal>
-                             </goals>
-                             <configuration>
-                                 <useStandardDocletOptions>true</useStandardDocletOptions>
-                                 <minmemory>128m</minmemory>
-                                 <maxmemory>512m</maxmemory>
-                                 <quiet>false</quiet>
-                                 <!-- switch on dependency-driven aggregation -->
-                                 <includeDependencySources>true</includeDependencySources>
-
-                                 <dependencySourceIncludes>
-                                    <!-- include ONLY dependencies I control -->
-                                    <dependencySourceInclude>org.apache.activemq:activemq-core-client</dependencySourceInclude>
-                                    <dependencySourceInclude>org.apache.activemq:activemq-jms-client</dependencySourceInclude>
-                                    <dependencySourceInclude>org.apache.activemq:activemq-server</dependencySourceInclude>
-                                    <dependencySourceInclude>org.apache.activemq:activemq-jms-server</dependencySourceInclude>
-                                    <dependencySourceInclude>org.apache.activemq:activemq-journal</dependencySourceInclude>
-                                    <dependencySourceInclude>org.apache.activemq:activemq-selector</dependencySourceInclude>
-                                 </dependencySourceIncludes>
-                                 <quiet>false</quiet>
-                                 <aggregate>true</aggregate>
-                                 <excludePackageNames>org.apache.activemq.core:org.apache.activemq.utils</excludePackageNames>
-                             </configuration>
-                         </execution>
-                     </executions>
-                 </plugin>
                 <plugin>
                   <artifactId>maven-antrun-plugin</artifactId>
                   <version>1.6</version>
@@ -113,9 +118,9 @@
                       <phase>generate-sources</phase>
                       <configuration>
                         <target>
-			  <condition property="gitbook.cmd" value="gitbook.cmd" else="gitbook">
-			    <os family="windows" />
-			  </condition>
+                          <condition property="gitbook.cmd" value="gitbook.cmd" else="gitbook">
+                             <os family="windows" />
+                          </condition>
                           <!-- lets generate the gitbook -->
                           <mkdir dir="${webapp-outdir}/gitbook" />
                           <echo>executing ${gitbook.cmd}</echo>
