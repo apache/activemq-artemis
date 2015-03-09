@@ -166,24 +166,13 @@
          <groupId>commons-logging</groupId>
          <artifactId>commons-logging</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-website</artifactId>
+         <version>${project.version}</version>
+         <classifier>javadoc</classifier>
+      </dependency>
    </dependencies>
-
-   <profiles>
-      <profile>
-         <id>release</id>
-         <dependencies>
-            <!-- javadoc -->
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-website</artifactId>
-                <version>${project.version}</version>
-                <classifier>javadoc</classifier>
-            </dependency>
-         </dependencies>
-         <build>
-         </build>
-      </profile>
-   </profiles>
 
    <build>
       <resources>
