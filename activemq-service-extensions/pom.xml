@@ -55,6 +55,22 @@
          <artifactId>junit</artifactId>
          <scope>test</scope>
       </dependency>
+
+
+      <dependency>
+         <groupId>org.jboss.logmanager</groupId>
+         <artifactId>jboss-logmanager</artifactId>
+         <scope>test</scope>
+      </dependency>
+
+      <!-- this is for the log assertion -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+
    </dependencies>
 
    <properties>

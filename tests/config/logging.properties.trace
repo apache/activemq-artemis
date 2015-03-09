@@ -53,7 +53,7 @@ handler.FILE.fileName=target/activemq.log
 handler.FILE.formatter=PATTERN
 
 # Console handler configuration
-handler.TEST=org.apache.activemq.tests.logging.AssertionLoggerHandler
+handler.TEST=org.apache.activemq.utils.AssertionLoggerHandler
 handler.TEST.level=TRACE
 handler.TEST.formatter=PATTERN
 
