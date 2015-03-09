@@ -4,13 +4,13 @@ Running the ActiveMQ Examples
 To run an individual example firstly cd into the example directory and run
 
 ```
-mvn verify
+mvn verify -Pexample
 ```
 
 If you are running against an un released version, i.e. from master branch, you will have to run `mvn install` on the root
 pom.xml and the example/activemq-jms-examples-common/pom.xml first.
 
-If you want to run all the examples (except those that need to be run standalone) you can run `mvn verify` in the examples
+If you want to run all the examples (except those that need to be run standalone) you can run `mvn verify -Pexample` in the examples
 directory but before you do you will need to up the memory used by running:
 
 ```

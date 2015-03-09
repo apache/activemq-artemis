@@ -84,7 +84,9 @@ under the License.
     </dependency>
 
    </dependencies>
-
+   <profiles>
+      <profile>
+         <id>example</id>
          <build>
             <plugins>
                <plugin>
@@ -180,6 +182,8 @@ under the License.
                </plugin>
             </plugins>
          </build>
+      </profile>
+   </profiles>
 
 
 </project>

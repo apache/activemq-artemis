@@ -62,10 +62,7 @@ under the License.
 
    <profiles>
       <profile>
-         <id>default</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
+         <id>example</id>
          <build>
             <plugins>
                <plugin>
