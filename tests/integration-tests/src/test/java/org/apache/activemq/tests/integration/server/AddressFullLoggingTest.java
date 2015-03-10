@@ -33,7 +33,7 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.utils.AssertionLoggerHandler;
+import org.apache.activemq.logs.AssertionLoggerHandler;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.AfterClass;
 import org.junit.Assert;

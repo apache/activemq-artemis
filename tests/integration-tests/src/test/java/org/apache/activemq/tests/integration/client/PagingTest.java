@@ -73,7 +73,7 @@ import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.utils.AssertionLoggerHandler;
+import org.apache.activemq.logs.AssertionLoggerHandler;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;

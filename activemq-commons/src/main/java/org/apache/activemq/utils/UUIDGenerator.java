@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.logs.ActiveMQUtilLogger;
 
 public final class UUIDGenerator
 {

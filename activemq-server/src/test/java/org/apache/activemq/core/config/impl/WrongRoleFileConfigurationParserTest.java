@@ -20,7 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq.utils.AssertionLoggerHandler;
+import org.apache.activemq.logs.AssertionLoggerHandler;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

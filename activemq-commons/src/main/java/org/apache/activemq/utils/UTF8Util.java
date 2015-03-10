@@ -19,6 +19,8 @@ package org.apache.activemq.utils;
 import java.lang.ref.SoftReference;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.logs.ActiveMQUtilBundle;
+import org.apache.activemq.logs.ActiveMQUtilLogger;
 
 /**
  *
