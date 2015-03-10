@@ -66,6 +66,7 @@
             <include>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</include>
             <include>commons-beanutils:commons-beanutils</include>
             <include>commons-logging:commons-logging</include>
+            <include>org.fusesource.hawtbuf:hawtbuf</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:activemq-website</exclude>
@@ -129,10 +130,26 @@
          <outputDirectory>/</outputDirectory>
          <lineEnding>keep</lineEnding>
          <excludes>
+            <exclude>bin/activemq</exclude>
+            <exclude>bin/run.sh</exclude>
+            <exclude>bin/stop.sh</exclude>
             <exclude>**/target/**</exclude>
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
          </excludes>
+      </fileSet>
+      <!-- chmod to 755 on linux executables -->
+      <fileSet>
+         <directory>src/main/resources</directory>
+         <outputDirectory>/</outputDirectory>
+         <lineEnding>keep</lineEnding>
+         <includes>
+            <include>bin/activemq</include>
+            <include>bin/run.sh</include>
+            <include>bin/stop.sh</include>
+         </includes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0755</fileMode>
       </fileSet>
       <fileSet>
          <directory>${activemq.basedir}/examples</directory>
