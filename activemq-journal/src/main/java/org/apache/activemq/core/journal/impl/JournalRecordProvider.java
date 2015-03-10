@@ -24,10 +24,6 @@ import java.util.Map;
  * During a TX.commit, the JournalTransaction needs to get a valid list of records from either the JournalImpl or JournalCompactor.
  *
  * when a commit is read, the JournalTransaction will inquire the JournalCompactor about the existent records
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public interface JournalRecordProvider
 {

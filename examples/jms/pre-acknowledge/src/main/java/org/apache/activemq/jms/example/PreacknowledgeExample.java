@@ -35,14 +35,10 @@ import org.apache.activemq.api.jms.management.JMSManagementHelper;
 import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
- *
  * This example demonstrates the use of ActiveMQ "pre-acknowledge" functionality where
  * messages are acknowledged before they are delivered to the consumer.
  *
  * Please see the readme.html for more details.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class PreacknowledgeExample extends ActiveMQExample
 {

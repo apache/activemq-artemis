@@ -31,8 +31,6 @@ import org.junit.Before;
 
 /**
  * A ClusterConnectionControlUsingCoreTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionControlTest
 {

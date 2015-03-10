@@ -32,10 +32,6 @@ import javax.naming.RefAddr;
  * A RefAddr that can be used for any serializable object.
  *
  * Basically the address is the serialized form of the object as a byte[]
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @version $Revision$
- *
  */
 public class SerializableObjectRefAddr extends RefAddr
 {

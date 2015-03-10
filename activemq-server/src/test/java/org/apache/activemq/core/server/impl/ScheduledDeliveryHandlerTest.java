@@ -55,10 +55,6 @@ import org.apache.activemq.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ScheduledDeliveryHandlerTest extends Assert
 {
 

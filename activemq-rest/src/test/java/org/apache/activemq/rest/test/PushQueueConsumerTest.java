@@ -34,10 +34,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class PushQueueConsumerTest extends MessageTestBase
 {
    enum PushRegistrationType

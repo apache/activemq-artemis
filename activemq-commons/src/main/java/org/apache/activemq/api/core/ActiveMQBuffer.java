@@ -26,7 +26,6 @@ import io.netty.buffer.ByteBuf;
  * Instances of it can be obtained from {@link ActiveMQBuffers} factory.
  * <p>
  * Much of it derived from Netty ChannelBuffer by Trustin Lee
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @see ActiveMQBuffers
  */
 public interface ActiveMQBuffer

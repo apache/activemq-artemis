@@ -31,8 +31,6 @@ import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * A TransactionDetail
- *
- * @author <a href="tm.igarashi@gmail.com">Tomohisa Igarashi</a>
  */
 public abstract class TransactionDetail
 {

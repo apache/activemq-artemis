@@ -31,9 +31,6 @@ import org.apache.activemq.command.SessionId;
 /**
  * We just copy this structure from amq, but what's the purpose
  * and can it be removed ?
- *
- * @author howard
- *
  */
 public class AMQSingleTransportConnectionStateRegister implements
       AMQTransportConnectionStateRegister

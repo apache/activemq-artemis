@@ -24,11 +24,6 @@ import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public interface JMSManagementService
 {
    JMSServerControl registerJMSServer(JMSServerManager server) throws Exception;

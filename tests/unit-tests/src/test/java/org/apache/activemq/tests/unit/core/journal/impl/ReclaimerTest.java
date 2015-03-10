@@ -33,11 +33,7 @@ import org.apache.activemq.core.journal.impl.Reclaimer;
 import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
- *
  * A ReclaimerTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class ReclaimerTest extends UnitTestCase
 {

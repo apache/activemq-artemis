@@ -43,10 +43,6 @@ import org.apache.activemq.rest.util.HttpMessageHelper;
 import org.apache.activemq.utils.UUID;
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class PostMessage
 {
    protected ClientSessionFactory sessionFactory;

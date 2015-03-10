@@ -32,8 +32,6 @@ import org.junit.Test;
 
 /**
  * A GracefulShutdownTest
- *
- * @author Justin Bertram
  */
 public class GracefulShutdownTest extends ServiceTestBase
 {

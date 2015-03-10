@@ -21,10 +21,6 @@ package org.apache.activemq.core.server;
  * A reference to a message.
  *
  * Channels store message references rather than the messages themselves.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface MessageReference
 {

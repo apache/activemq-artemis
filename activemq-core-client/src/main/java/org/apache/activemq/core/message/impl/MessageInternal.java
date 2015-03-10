@@ -27,10 +27,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A MessageInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public interface MessageInternal extends Message
 {

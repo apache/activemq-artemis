@@ -20,10 +20,6 @@ import javax.transaction.xa.XAException;
 
 /**
  * A ActiveMQXAException
- *
- * @author Tim Fox
- *
- *
  */
 public class ActiveMQXAException extends XAException
 {

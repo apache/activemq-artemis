@@ -38,8 +38,6 @@ import org.junit.Test;
 
 /**
  * A MessageConsumerRollbackTest
- *
- * @author clebert
  */
 public class MessageConsumerRollbackTest extends ServiceTestBase
 {

@@ -25,10 +25,6 @@ import org.apache.activemq.core.server.management.NotificationService;
 
 /**
  * A SimpleNotificationService
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil
- *
- *
  */
 public class SimpleNotificationService implements NotificationService
 {

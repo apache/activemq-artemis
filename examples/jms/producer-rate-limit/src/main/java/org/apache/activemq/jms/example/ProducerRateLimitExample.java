@@ -30,8 +30,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * This example demonstrates how a message producer can be limited to produce messages at a maximum rate
  * specified in messages per sec.
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
 public class ProducerRateLimitExample extends ActiveMQExample
 {

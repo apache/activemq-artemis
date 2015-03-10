@@ -29,8 +29,6 @@ import org.junit.Test;
 
 /**
  * A ManagementHelperTest
- *
- * @author jmesnil
  */
 public class ManagementHelperTest extends Assert
 {

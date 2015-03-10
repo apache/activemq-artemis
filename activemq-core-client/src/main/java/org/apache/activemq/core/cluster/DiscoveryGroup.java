@@ -45,10 +45,6 @@ import org.apache.activemq.utils.TypedProperties;
  * We will probably keep both interfaces for a while as UDP is a simple solution requiring no extra dependencies which
  * is suitable for users looking for embedded solutions.
  * <p/>
- * Created 17 Nov 2008 13:21:45
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
  */
 public final class DiscoveryGroup implements ActiveMQComponent
 {

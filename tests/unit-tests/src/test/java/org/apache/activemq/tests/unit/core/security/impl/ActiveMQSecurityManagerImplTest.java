@@ -31,8 +31,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * tests ActiveMQSecurityManagerImpl
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class ActiveMQSecurityManagerImplTest extends UnitTestCase
 {

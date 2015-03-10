@@ -47,7 +47,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * servers.
  * <p>
  * Please see the readme.html file for more information.
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
 public class SymmetricClusterExample extends ActiveMQExample
 {

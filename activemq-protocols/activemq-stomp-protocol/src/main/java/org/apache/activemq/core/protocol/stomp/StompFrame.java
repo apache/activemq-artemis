@@ -26,9 +26,6 @@ import org.apache.activemq.api.core.ActiveMQBuffers;
 
 /**
  * Represents all the data in a STOMP frame.
- *
- * @author <a href="http://hiramchirino.com">chirino</a>
- * @author Tim Fox
  */
 public class StompFrame
 {

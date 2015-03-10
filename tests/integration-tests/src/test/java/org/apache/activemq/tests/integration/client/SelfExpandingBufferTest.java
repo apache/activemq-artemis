@@ -34,8 +34,6 @@ import org.junit.Test;
 
 /**
  * A SelfExpandingBufferTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class SelfExpandingBufferTest extends ServiceTestBase
 {

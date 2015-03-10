@@ -21,11 +21,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
- *
  * A SessionQueueQueryMessage
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class SessionQueueQueryMessage extends PacketImpl
 {

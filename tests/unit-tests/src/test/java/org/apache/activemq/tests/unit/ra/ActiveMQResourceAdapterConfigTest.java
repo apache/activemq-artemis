@@ -38,8 +38,6 @@ import org.xml.sax.InputSource;
  * This test is used to generate the commented out configs in the src/config/ra.xml. If you add a setter to the ActiveMQResourceAdapter
  * this test should fail, if it does paste the new commented out configs into the ra.xml file and in here. don't forget to
  * add a description for each new property added and try and put it in the config some where appropriate.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
 {

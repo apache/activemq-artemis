@@ -19,11 +19,7 @@ package org.apache.activemq.core.journal.impl;
 import org.apache.activemq.core.journal.SequentialFile;
 
 /**
- *
  * A JournalFile
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface JournalFile
 {

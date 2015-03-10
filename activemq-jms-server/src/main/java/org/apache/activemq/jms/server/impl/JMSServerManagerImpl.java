@@ -97,10 +97,6 @@ import org.apache.activemq.utils.json.JSONObject;
  * files content is changed.
  * If a JMSConfiguration object is used, the JMS resources can not be
  * redeployed.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
 public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
 {

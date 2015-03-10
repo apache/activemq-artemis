@@ -21,9 +21,6 @@ import org.apache.activemq.utils.uri.URISchema;
 
 import java.util.List;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public abstract class AbstractTransportConfigurationSchema  extends URISchema<List<TransportConfiguration>, String>
 {
 }

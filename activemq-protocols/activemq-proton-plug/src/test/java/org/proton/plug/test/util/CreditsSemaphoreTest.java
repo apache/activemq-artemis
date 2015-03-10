@@ -24,10 +24,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.proton.plug.util.CreditsSemaphore;
 
-/**
- * @author Clebert Suconic
- */
-
 public class CreditsSemaphoreTest
 {
    final CreditsSemaphore semaphore = new CreditsSemaphore(10);

@@ -21,8 +21,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
  * Provides a SimpleEncoding with a Fake Payload
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class SimpleEncoding implements EncodingSupport
 {

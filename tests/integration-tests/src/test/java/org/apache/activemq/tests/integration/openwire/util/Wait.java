@@ -20,9 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class Wait
 {

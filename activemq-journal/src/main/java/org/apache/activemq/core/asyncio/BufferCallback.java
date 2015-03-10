@@ -19,11 +19,7 @@ package org.apache.activemq.core.asyncio;
 import java.nio.ByteBuffer;
 
 /**
- *
  * Used to receive a notification on completed buffers used by the AIO layer.
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public interface BufferCallback
 {

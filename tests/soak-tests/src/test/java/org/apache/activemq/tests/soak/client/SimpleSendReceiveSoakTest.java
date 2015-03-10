@@ -35,10 +35,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A ClientSoakTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class SimpleSendReceiveSoakTest extends ServiceTestBase
 {

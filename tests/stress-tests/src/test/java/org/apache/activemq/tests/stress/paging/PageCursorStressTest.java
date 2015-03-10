@@ -56,8 +56,6 @@ import org.junit.Test;
 
 /**
  * A PageCursorTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class PageCursorStressTest extends ServiceTestBase
 {

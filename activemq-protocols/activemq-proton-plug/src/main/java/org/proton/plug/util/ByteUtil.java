@@ -19,10 +19,6 @@ package org.proton.plug.util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ByteUtil
 {
    public static void debugFrame(String message, ByteBuf byteIn)

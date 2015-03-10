@@ -25,9 +25,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * The integration point between the PagingManger and the File System (aka SequentialFiles)
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public interface PagingStoreFactory
 {

@@ -59,10 +59,6 @@ import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class MessageHeaderTest extends MessageHeaderTestBase
 {
    // Constants -----------------------------------------------------

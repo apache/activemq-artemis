@@ -26,10 +26,6 @@ import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class JmsHelper
 {
    public static ConnectionFactory createConnectionFactory(String configFile) throws Exception

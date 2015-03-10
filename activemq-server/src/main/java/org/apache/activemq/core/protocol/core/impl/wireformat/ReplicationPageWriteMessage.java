@@ -23,10 +23,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * A ReplicationPageWrite
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ReplicationPageWriteMessage extends PacketImpl
 {

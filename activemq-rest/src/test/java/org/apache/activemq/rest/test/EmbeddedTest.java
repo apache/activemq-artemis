@@ -41,9 +41,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- */
 public class EmbeddedTest
 {
    public static EmbeddedRestActiveMQJMS server;

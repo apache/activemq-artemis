@@ -31,10 +31,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class PagingWithFailoverAndCountersTest extends ServiceTestBase
 {
 

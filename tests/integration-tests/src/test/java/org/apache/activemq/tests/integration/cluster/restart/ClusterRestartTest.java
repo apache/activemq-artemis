@@ -25,10 +25,6 @@ import org.apache.activemq.core.postoffice.Binding;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Sep 29, 2009
- */
 public class ClusterRestartTest extends ClusterTestBase
 {
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

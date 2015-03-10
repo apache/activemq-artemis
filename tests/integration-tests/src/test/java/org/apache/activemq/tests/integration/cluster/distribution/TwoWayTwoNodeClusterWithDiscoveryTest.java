@@ -18,10 +18,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 /**
  * A TwoWayTwoNodeClusterWithDiscoveryTest
- *
- * @author jmesnil
- *
- *
  */
 public class TwoWayTwoNodeClusterWithDiscoveryTest extends TwoWayTwoNodeClusterTest
 {

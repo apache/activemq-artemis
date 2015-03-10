@@ -33,9 +33,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * This example shows how to configure and use a <em>Last-Value</em> queues.
  * Only the last message with a well-defined property is hold by the queue.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class LastValueQueueExample extends ActiveMQExample
 {

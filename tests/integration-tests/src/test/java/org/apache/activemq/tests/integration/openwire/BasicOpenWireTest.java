@@ -37,11 +37,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-/**
- *
- * @author @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- */
 public class BasicOpenWireTest extends OpenWireTestBase
 {
    @Rule public TestName name = new TestName();

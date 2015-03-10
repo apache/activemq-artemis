@@ -27,9 +27,6 @@ import org.apache.activemq.utils.ConcurrentHashSet;
 
 /**
  * The connection manager used in non-managed environments.
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAConnectionManager implements ConnectionManager
 {

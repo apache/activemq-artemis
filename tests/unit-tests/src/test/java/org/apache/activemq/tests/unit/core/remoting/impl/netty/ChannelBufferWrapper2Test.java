@@ -22,10 +22,6 @@ import org.apache.activemq.tests.unit.core.remoting.ActiveMQBufferTestBase;
 
 /**
  * Same as ChannelBufferWrapperTest, but using a different constructor
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:csuconic@redhat.com">Clebert Suconic</a>
- *
- *
  */
 public class ChannelBufferWrapper2Test extends ActiveMQBufferTestBase
 {

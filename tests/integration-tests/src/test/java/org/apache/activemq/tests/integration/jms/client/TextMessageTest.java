@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * A TextMessageTest
- *
- * @author Tim Fox
  */
 public class TextMessageTest extends JMSTestBase
 {

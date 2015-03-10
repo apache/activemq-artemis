@@ -22,8 +22,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
  * A BufferHandler that will handle buffers received by an acceptor.
  * <p>
  * The Buffer Handler will decode the buffer and take the appropriate action, typically forwarding to the correct channel.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface BufferHandler
 {

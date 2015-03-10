@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.INVALID_FILTER_
 
 /**
  * A filter expression was found to be invalid.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQInvalidFilterExpressionException extends ActiveMQException
 {

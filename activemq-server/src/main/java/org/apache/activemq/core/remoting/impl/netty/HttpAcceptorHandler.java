@@ -40,7 +40,6 @@ import io.netty.util.ReferenceCountUtil;
 /**
  * Ensures that every request has a response and also that any uninitiated responses always wait for
  * a response.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class HttpAcceptorHandler extends ChannelDuplexHandler
 {

@@ -52,8 +52,6 @@ import java.io.File;
  * <p/>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
  * articles. Unused methods should be marked as deprecated.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 @MessageBundle(projectCode = "AMQ")
 public interface ActiveMQMessageBundle

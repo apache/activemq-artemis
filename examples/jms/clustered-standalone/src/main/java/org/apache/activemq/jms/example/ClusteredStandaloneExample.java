@@ -29,9 +29,6 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.common.example.ActiveMQExample;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class ClusteredStandaloneExample extends ActiveMQExample
 {
    public static void main(final String[] args)

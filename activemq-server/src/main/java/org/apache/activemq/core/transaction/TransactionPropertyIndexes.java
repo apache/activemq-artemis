@@ -18,12 +18,6 @@ package org.apache.activemq.core.transaction;
 
 /**
  * A TransactionPropertyIndexes
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 2 Jan 2009 19:48:07
- *
- *
  */
 public class TransactionPropertyIndexes
 {

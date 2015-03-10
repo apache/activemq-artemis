@@ -30,10 +30,6 @@ import org.apache.activemq.utils.DataConstants;
 
 /**
  * A TransportConfigurationEncodingSupport
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class TransportConfigurationEncodingSupport
 {

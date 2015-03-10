@@ -23,10 +23,6 @@ import org.apache.activemq.spi.core.remoting.ReadyListener;
 
 /**
  * A SessionCallback
- *
- * @author Tim Fox
- *
- *
  */
 public interface SessionCallback
 {

@@ -22,9 +22,6 @@ import org.apache.activemq.core.message.impl.MessageInternal;
 
 /**
  * A SessionSendContinuationMessage<br>
- * Created Dec 4, 2008 12:25:14 PM
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class SessionSendContinuationMessage extends SessionContinuationMessage
 {

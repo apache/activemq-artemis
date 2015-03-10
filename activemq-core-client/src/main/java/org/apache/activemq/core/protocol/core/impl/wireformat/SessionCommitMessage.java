@@ -20,7 +20,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * A SessionCommitMessage
- * @author tim
  */
 public class SessionCommitMessage extends PacketImpl
 {

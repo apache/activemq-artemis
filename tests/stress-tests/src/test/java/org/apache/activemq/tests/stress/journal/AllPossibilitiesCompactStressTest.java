@@ -19,10 +19,6 @@ package org.apache.activemq.tests.stress.journal;
 
 /**
  * A NIORandomCompactTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class AllPossibilitiesCompactStressTest extends MixupCompactorTestBase
 {

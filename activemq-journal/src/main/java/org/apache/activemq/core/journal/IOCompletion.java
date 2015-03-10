@@ -18,10 +18,6 @@ package org.apache.activemq.core.journal;
 
 /**
  * A IOCompletion
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public interface IOCompletion extends IOAsyncTask
 {

@@ -25,10 +25,6 @@ import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
 /**
  * A OpenWireProtocolManagerFactory
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- *
  */
 public class OpenWireProtocolManagerFactory implements ProtocolManagerFactory
 {

@@ -31,9 +31,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates clustering using jgroups.
- *
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
- * @author <a href="hgao@redhat.com>Howard Gao</a>
  */
 public class ClusteredJgroupsExample extends ActiveMQExample
 {

@@ -41,9 +41,6 @@ import org.junit.Test;
  * A ReferenceableTest.
  * <p/>
  * All administered objects should be referenceable and serializable as per spec 4.2
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @version $Revision$
  */
 public class ReferenceableTest extends JMSTestCase
 {

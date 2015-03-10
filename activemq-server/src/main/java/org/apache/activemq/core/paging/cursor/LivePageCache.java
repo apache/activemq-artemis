@@ -20,10 +20,6 @@ import org.apache.activemq.core.paging.PagedMessage;
 
 /**
  * A LivePageCache
- *
- * @author clebertsuconic
- *
- *
  */
 public interface LivePageCache extends PageCache
 {

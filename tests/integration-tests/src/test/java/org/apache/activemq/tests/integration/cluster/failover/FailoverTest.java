@@ -65,8 +65,6 @@ import org.junit.Test;
 
 /**
  * A FailoverTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class FailoverTest extends FailoverTestBase
 {

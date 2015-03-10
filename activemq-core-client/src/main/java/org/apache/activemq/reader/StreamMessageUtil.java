@@ -21,10 +21,6 @@ import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * @author Clebert Suconic
- */
-
 public class StreamMessageUtil extends MessageUtil
 {
    /**

@@ -24,11 +24,6 @@ import javax.jms.Topic;
 
 /**
  * The MCF default properties - these are set in the <tx-connection-factory> at the jms-ds.xml
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties implements Serializable
 {

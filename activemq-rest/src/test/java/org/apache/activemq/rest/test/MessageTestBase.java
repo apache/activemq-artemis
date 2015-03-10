@@ -27,9 +27,6 @@ import org.jboss.resteasy.spi.Link;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- */
 public class MessageTestBase
 {
    public static Embedded server;

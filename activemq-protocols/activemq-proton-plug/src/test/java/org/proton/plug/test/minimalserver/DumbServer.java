@@ -20,11 +20,6 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-
-/**
- * @author Clebert Suconic
- */
-
 public class DumbServer
 {
    static ConcurrentHashMap<String, BlockingDeque<Object>> maps = new ConcurrentHashMap<>();

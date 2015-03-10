@@ -20,7 +20,6 @@ import java.io.Serializable;
 
 /**
  * A QueueConfiguration
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class CoreQueueConfiguration implements Serializable
 {

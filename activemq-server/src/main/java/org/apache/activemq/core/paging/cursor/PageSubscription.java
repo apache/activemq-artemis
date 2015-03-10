@@ -27,10 +27,6 @@ import org.apache.activemq.utils.LinkedListIterator;
 
 /**
  * A PageCursor
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- *
  */
 public interface PageSubscription
 {

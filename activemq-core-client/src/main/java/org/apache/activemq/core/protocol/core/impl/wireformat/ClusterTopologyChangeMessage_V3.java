@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 
-/**
- * @author Justin Bertram
- */
 public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessage_V2
 {
    private String scaleDownGroupName;

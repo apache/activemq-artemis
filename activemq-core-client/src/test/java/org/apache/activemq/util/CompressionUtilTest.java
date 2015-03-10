@@ -33,9 +33,6 @@ import org.apache.activemq.utils.InflaterWriter;
 
 /**
  * A CompressionUtilTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class CompressionUtilTest extends Assert
 {

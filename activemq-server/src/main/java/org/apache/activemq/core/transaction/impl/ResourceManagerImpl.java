@@ -37,9 +37,6 @@ import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * A ResourceManagerImpl
- *
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class ResourceManagerImpl implements ResourceManager
 {

@@ -50,8 +50,6 @@ import org.junit.Test;
 
 /**
  * A JMSServerControlRestartTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class JMSServerControlRestartTest extends ManagementTestBase
 {

@@ -20,9 +20,6 @@ import org.apache.activemq.core.filter.Filter;
 
 import java.util.List;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public interface ScheduledDeliveryHandler
 {
    boolean checkAndSchedule(MessageReference ref, final boolean tail);

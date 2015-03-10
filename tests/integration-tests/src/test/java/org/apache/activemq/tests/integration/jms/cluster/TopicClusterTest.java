@@ -31,8 +31,6 @@ import org.junit.Test;
 
 /**
  * A TopicClusterTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class TopicClusterTest extends JMSClusteredTestBase
 {

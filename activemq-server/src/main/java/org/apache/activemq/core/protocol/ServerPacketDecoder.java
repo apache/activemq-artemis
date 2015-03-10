@@ -71,10 +71,6 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendLargeMe
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         10/12/12
- */
 public class ServerPacketDecoder extends ClientPacketDecoder
 {
    private static final long serialVersionUID = 3348673114388400766L;

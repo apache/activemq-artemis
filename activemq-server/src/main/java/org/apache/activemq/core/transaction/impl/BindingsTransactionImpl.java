@@ -22,8 +22,6 @@ import org.apache.activemq.core.server.impl.RefsOperation;
 
 /**
  * A BindingsTransactionImpl
- *
- * @author clebertsuconic
  */
 public class BindingsTransactionImpl extends TransactionImpl
 {

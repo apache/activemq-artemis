@@ -24,8 +24,6 @@ import org.apache.activemq.core.protocol.openwire.OpenWireConnection;
 
 /**
  * @See org.apache.activemq.broker.TransportConnectionState
- * @author howard
- *
  */
 public class AMQTransportConnectionState extends ConnectionState
 {

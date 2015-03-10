@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.ADDRESS_FULL;
 
 /**
  * An address is full.
- * @author Justin Bertram
  */
 public final class ActiveMQAddressFullException extends ActiveMQException
 {

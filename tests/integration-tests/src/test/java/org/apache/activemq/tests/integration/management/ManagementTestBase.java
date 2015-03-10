@@ -34,10 +34,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A ManagementTestBase
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public abstract class ManagementTestBase extends ServiceTestBase
 {

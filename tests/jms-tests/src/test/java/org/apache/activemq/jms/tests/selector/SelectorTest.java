@@ -38,9 +38,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- */
 public class SelectorTest extends ActiveMQServerTestCase
 {
 

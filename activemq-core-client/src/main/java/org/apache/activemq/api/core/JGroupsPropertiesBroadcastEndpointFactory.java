@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.api.core;
 
-/**
-* @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
-*/
 public class JGroupsPropertiesBroadcastEndpointFactory implements BroadcastEndpointFactory
 {
    private String properties;

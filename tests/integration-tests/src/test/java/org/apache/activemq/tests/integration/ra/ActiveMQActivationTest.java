@@ -24,10 +24,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A ActiveMQActivationTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class ActiveMQActivationTest extends ServiceTestBase
 {

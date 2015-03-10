@@ -30,8 +30,6 @@ import org.junit.Test;
 
 /**
  * A MessageTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class ExpiryMessageTest extends JMSTestBase
 {

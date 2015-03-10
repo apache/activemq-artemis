@@ -55,8 +55,6 @@ import org.junit.Test;
 
 /**
  * A SoakJournal
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JournalCleanupCompactStressTest extends ServiceTestBase
 {

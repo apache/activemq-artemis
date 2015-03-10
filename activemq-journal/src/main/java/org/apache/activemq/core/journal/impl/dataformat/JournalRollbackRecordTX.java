@@ -21,10 +21,6 @@ import org.apache.activemq.core.journal.impl.JournalImpl;
 
 /**
  * A JournalRollbackRecordTX
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class JournalRollbackRecordTX extends JournalInternalRecord
 {

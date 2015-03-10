@@ -29,10 +29,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
  * A JMSDynamicConfigTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class JMSDynamicConfigTest extends JMSTestBase
 {

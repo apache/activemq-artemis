@@ -20,8 +20,6 @@ package org.apache.activemq.core.protocol.core;
 /**
  * A ChannelHandler is used by {@link Channel}. When a channel receives a packet it will call its handler to deal with the
  * packet.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface ChannelHandler
 {

@@ -37,9 +37,6 @@ import org.apache.activemq.core.settings.Mergeable;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
 public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T>
 {

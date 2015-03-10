@@ -119,8 +119,6 @@ import org.junit.rules.TestName;
  * <p/>
  * See {@code org.apache.activemq.tests.util.ServiceTestBase} for a test case with server set-up.
  *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:csuconic@redhat.com">Clebert</a>
  * @see ServiceTestBase
  */
 public abstract class UnitTestCase extends CoreUnitTestCase

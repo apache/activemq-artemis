@@ -21,10 +21,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
 /**
  * A NettyFileStorageSymmetricClusterWithDiscoveryTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class NettyFileStorageSymmetricClusterWithDiscoveryTest extends SymmetricClusterWithDiscoveryTest
 {

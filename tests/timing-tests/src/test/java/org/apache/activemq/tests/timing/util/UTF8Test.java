@@ -27,14 +27,7 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.UTF8Util;
 
 /**
- *
  * A UTF8Test
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- * Created Feb 23, 2009 11:57:55 AM
- *
- *
  */
 public class UTF8Test extends UnitTestCase
 {

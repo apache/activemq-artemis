@@ -28,8 +28,6 @@ import org.apache.activemq.core.server.ServerMessage;
 
 /**
  * A InternalReference
- *
- * @author clebert
  */
 public class PagedReferenceImpl implements PagedReference
 {

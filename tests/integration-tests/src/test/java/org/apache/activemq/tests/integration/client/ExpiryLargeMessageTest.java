@@ -36,8 +36,6 @@ import org.junit.Test;
 
 /**
  * This test will send large messages in page-mode, DLQ then, expiry then, and they should be received fine
- *
- * @author clebertsuconic
  */
 public class ExpiryLargeMessageTest extends ServiceTestBase
 {

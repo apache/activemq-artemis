@@ -37,10 +37,6 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.util.TimeoutTask;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class ConsumersResource implements TimeoutTask.Callback
 {
    protected ConcurrentHashMap<String, QueueConsumer> queueConsumers = new ConcurrentHashMap<String, QueueConsumer>();

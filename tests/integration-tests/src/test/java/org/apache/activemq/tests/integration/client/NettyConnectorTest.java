@@ -30,9 +30,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class NettyConnectorTest extends ServiceTestBase
 {
    private ActiveMQServer server;

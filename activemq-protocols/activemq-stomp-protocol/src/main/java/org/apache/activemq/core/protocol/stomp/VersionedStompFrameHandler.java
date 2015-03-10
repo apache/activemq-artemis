@@ -32,9 +32,6 @@ import org.apache.activemq.utils.DataConstants;
 
 import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public abstract class VersionedStompFrameHandler
 {
    protected StompConnection connection;

@@ -58,8 +58,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 
 /**
  * A PrintPage
- *
- * @author clebertsuconic
  */
 public class PrintPages // NO_UCD (unused code)
 {

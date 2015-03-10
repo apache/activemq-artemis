@@ -26,10 +26,6 @@ import org.apache.activemq.jms.persistence.config.PersistedType;
 
 /**
  * A JMSStorageManagerTest
- *
- * @author <mailto:hgao@redhat.com">Howard Gao</a>
- *
- *
  */
 public class JMSStorageManagerTest extends StorageManagerTestBase
 {

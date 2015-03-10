@@ -29,8 +29,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that uses HTTP protocol.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class HttpTransportExample extends ActiveMQExample
 {

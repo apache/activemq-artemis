@@ -19,12 +19,7 @@ package org.apache.activemq.core.journal;
 import org.apache.activemq.core.journal.impl.JournalFile;
 
 /**
- *
  * A TestableJournal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public interface TestableJournal extends Journal
 {

@@ -41,10 +41,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created May 20, 2010
- */
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 {
 

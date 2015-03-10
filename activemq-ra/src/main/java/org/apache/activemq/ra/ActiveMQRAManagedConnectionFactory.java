@@ -34,10 +34,6 @@ import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
 
 /**
  * ActiveMQ ManagedConnectionFactory
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public final class ActiveMQRAManagedConnectionFactory implements ManagedConnectionFactory, ResourceAdapterAssociation
 {

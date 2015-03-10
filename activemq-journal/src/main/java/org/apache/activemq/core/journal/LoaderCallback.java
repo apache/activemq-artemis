@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.core.journal;
 
-/**
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public interface LoaderCallback extends TransactionFailureCallback
 {
    void addPreparedTransaction(PreparedTransactionInfo preparedTransaction);

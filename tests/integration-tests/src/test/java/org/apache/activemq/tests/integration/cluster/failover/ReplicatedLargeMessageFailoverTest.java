@@ -22,7 +22,6 @@ import org.apache.activemq.core.client.impl.ClientSessionInternal;
 
 /**
  * A ReplicatedLargeMessageFailoverTest
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest
 {

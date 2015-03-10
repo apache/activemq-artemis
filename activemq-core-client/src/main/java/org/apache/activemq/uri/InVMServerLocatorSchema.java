@@ -26,9 +26,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class InVMServerLocatorSchema extends AbstractServerLocatorSchema
 {
    @Override

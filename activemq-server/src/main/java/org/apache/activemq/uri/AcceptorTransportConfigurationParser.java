@@ -22,9 +22,6 @@ import org.apache.activemq.utils.uri.URIFactory;
 
 import java.util.List;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class AcceptorTransportConfigurationParser extends URIFactory<List<TransportConfiguration>, String>
 {
    public AcceptorTransportConfigurationParser()

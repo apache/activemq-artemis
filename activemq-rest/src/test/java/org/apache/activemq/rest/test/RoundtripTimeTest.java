@@ -25,9 +25,6 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- */
 public class RoundtripTimeTest extends MessageTestBase
 {
    @Test

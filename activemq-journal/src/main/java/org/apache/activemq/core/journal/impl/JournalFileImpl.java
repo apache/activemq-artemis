@@ -24,12 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.core.journal.SequentialFile;
 
 /**
- *
  * A JournalFileImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class JournalFileImpl implements JournalFile
 {

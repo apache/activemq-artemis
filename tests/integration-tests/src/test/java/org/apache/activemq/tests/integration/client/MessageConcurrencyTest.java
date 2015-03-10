@@ -39,8 +39,6 @@ import org.junit.Test;
 
 /**
  * A MessageConcurrencyTest
- *
- * @author Tim Fox
  */
 public class MessageConcurrencyTest extends ServiceTestBase
 {

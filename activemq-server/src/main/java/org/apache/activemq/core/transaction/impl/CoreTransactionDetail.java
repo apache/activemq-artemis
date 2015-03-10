@@ -27,10 +27,6 @@ import org.apache.activemq.core.transaction.TransactionDetail;
 
 /**
  * A CoreTransactionDetail
- *
- * @author <a href="tm.igarashi@gmail.com">Tomohisa Igarashi</a>
- *
- *
  */
 public class CoreTransactionDetail extends TransactionDetail
 {

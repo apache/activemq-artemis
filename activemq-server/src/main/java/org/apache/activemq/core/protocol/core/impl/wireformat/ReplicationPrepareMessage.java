@@ -22,9 +22,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public final class ReplicationPrepareMessage extends PacketImpl
 {
    private long txId;

@@ -18,10 +18,6 @@ package org.apache.activemq.spi.core.remoting;
 
 /**
  * A ReadyListener
- *
- * @author Tim Fox
- *
- *
  */
 public interface ReadyListener
 {

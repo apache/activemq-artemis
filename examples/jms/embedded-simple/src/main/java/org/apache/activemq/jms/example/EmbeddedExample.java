@@ -35,9 +35,6 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 
 /**
  * This example demonstrates how to run a ActiveMQ embedded with JMS
- *
- * @author <a href="clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class EmbeddedExample extends ActiveMQExample
 {

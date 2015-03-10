@@ -17,9 +17,6 @@
 package org.apache.activemq.server;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         5/14/12
- *
  *         This class will be spawned in a new vm and will call the bootstrap
  */
 public class SpawnedActiveMQBootstrap

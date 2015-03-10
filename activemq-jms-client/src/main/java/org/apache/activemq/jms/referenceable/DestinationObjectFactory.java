@@ -28,10 +28,6 @@ import javax.naming.spi.ObjectFactory;
  * A DestinationObjectFactory.
  *
  * Given a Reference - reconstructs a ActiveMQDestination
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @version $Revision$
- *
  */
 public class DestinationObjectFactory implements ObjectFactory
 {

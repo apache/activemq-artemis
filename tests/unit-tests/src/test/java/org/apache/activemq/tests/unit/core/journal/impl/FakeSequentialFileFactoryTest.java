@@ -20,11 +20,7 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 
 /**
- *
  * A FakeSequentialFileFactoryTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class FakeSequentialFileFactoryTest extends SequentialFileFactoryTestBase
 {

@@ -31,8 +31,6 @@ import org.junit.Test;
  * A MessageWithReadResolveTest
  * <p/>
  * See http://jira.jboss.com/jira/browse/JBMESSAGING-442
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class MessageWithReadResolveTest extends JMSTestCase
 {

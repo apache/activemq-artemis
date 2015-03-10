@@ -21,10 +21,6 @@ import java.util.List;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * @author Justin Bertram
- *
- */
 public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryResponseMessage
 {
    private boolean autoCreateJmsQueues;

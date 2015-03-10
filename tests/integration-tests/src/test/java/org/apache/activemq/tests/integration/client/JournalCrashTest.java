@@ -40,8 +40,6 @@ import org.junit.Test;
 
 /**
  * A JournalCrashTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JournalCrashTest extends ServiceTestBase
 {

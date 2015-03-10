@@ -29,10 +29,6 @@ import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 
 /**
  * A JournalTransaction
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class JournalTransaction
 {

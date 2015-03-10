@@ -24,11 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-/**
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- */
 public abstract class AbstractClientStompFrame implements ClientStompFrame
 {
    protected static final String HEADER_RECEIPT = "receipt";

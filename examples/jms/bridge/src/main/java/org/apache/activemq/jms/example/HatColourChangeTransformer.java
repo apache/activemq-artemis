@@ -22,10 +22,6 @@ import org.apache.activemq.core.server.cluster.Transformer;
 
 /**
  * A HatColourChangeTransformer
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class HatColourChangeTransformer implements Transformer
 {

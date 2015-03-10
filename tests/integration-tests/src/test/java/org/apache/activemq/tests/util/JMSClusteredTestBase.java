@@ -45,8 +45,6 @@ import org.junit.Before;
 
 /**
  * A JMSBaseTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JMSClusteredTestBase extends ServiceTestBase
 {

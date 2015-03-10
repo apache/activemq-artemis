@@ -26,11 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- *
  * A AIOSequentialFileFactoryTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
 {

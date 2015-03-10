@@ -19,10 +19,6 @@ package org.apache.activemq.utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ByteUtil
 {
 

@@ -58,8 +58,6 @@ import org.junit.Test;
 
 /**
  * A QueueControlTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class QueueControlTest extends ManagementTestBase
 {

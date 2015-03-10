@@ -63,8 +63,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 /**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @see PagingStore
  */
 public class PagingStoreImpl implements PagingStore

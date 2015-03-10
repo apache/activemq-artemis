@@ -45,10 +45,6 @@ import org.apache.activemq.core.server.group.impl.Response;
 
 /**
  * A BindingsImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 11 Dec 2008 08:34:33
  */
 public final class BindingsImpl implements Bindings
 {

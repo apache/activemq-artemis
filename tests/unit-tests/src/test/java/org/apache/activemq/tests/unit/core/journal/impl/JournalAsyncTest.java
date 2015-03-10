@@ -33,8 +33,6 @@ import org.junit.Test;
 
 /**
  * A JournalAsyncTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JournalAsyncTest extends UnitTestCase
 {

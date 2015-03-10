@@ -20,11 +20,6 @@ import org.junit.Test;
 
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class ConnectionFactoryObjectFactoryTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

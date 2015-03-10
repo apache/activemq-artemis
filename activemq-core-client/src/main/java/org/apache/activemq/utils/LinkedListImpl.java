@@ -25,10 +25,6 @@ import java.util.NoSuchElementException;
  * elements added or removed from the queue either directly or via iterators.
  *
  * This class is not thread safe.
- *
- * @author Tim Fox
- *
- *
  */
 public class LinkedListImpl<E> implements LinkedList<E>
 {

@@ -25,10 +25,6 @@ import org.w3c.dom.Node;
 
 /**
  * A JMSServerConfigParser
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public interface JMSServerConfigParser
 {

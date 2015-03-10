@@ -23,9 +23,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>
  * This IDGenerator doesn't support more than 16777215 IDs per 16 millisecond. It would throw an exception if this happens.
  * </p>
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> Created Sep 24, 2008 11:54:10 AM
  */
 public class TimeAndCounterIDGenerator implements IDGenerator
 {

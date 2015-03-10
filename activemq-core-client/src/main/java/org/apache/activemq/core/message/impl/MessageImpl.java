@@ -39,12 +39,6 @@ import org.apache.activemq.utils.UUID;
  * A concrete implementation of a message
  * <p>
  * All messages handled by ActiveMQ core are of this type
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @version <tt>$Revision: 2740 $</tt>
  */
 public abstract class MessageImpl implements MessageInternal
 {

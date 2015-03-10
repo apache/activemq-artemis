@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.ActiveMQException;
 
 /**
  * A FailureListener notifies the user when a connection failure occurred.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface FailureListener
 {

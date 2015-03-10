@@ -41,9 +41,6 @@ import org.junit.Test;
 
 /**
  * A ClientSessionFactoryTest
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class SessionFactoryTest extends ServiceTestBase
 {

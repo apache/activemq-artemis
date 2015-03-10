@@ -29,8 +29,6 @@ import org.proton.plug.util.NettyWritable;
 
 /**
  * A this is a wrapper around a ActiveMQ ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public abstract class AbstractProtonContextSender extends ProtonInitializable implements ProtonDeliveryHandler
 {

@@ -36,11 +36,7 @@ import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
- *
  * A ConfigurationImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class ConfigurationImplTest extends UnitTestCase
 {

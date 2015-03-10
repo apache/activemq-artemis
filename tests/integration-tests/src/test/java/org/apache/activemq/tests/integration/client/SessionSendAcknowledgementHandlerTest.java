@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * A SendAcknowledgementsTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class SessionSendAcknowledgementHandlerTest extends ServiceTestBase
 {

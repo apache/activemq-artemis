@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.settings;
 
-/**
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- */
 public interface HierarchicalRepositoryChangeListener
 {
    void onChange();

@@ -22,12 +22,6 @@ import org.apache.activemq.core.config.Configuration;
 
 /**
  * A NettyMultiThreadRandomReattachTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 18 Feb 2009 08:01:20
- *
- *
  */
 public class NettyMultiThreadRandomReattachTest extends MultiThreadRandomReattachTest
 {

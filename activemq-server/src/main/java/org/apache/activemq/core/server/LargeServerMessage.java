@@ -23,8 +23,6 @@ import org.apache.activemq.core.replication.ReplicatedLargeMessage;
 
 /**
  * A LargeMessage
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessage
 {

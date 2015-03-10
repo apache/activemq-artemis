@@ -18,7 +18,6 @@ package org.apache.activemq.tests.integration.cluster.failover;
 
 /**
  * A SharedStoreReplicatedDistributionTest
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class SharedStoreDistributionTest extends ReplicatedDistributionTest
 {

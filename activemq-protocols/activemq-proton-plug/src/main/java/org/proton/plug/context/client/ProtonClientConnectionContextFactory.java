@@ -20,10 +20,6 @@ import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionContextFactory;
 import org.proton.plug.AMQPConnectionCallback;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonClientConnectionContextFactory extends AMQPConnectionContextFactory
 {
    private static final AMQPConnectionContextFactory theInstance = new ProtonClientConnectionContextFactory();

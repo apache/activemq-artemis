@@ -22,10 +22,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * A SessionReceiveLargeMessage
- *
- * @author Clebert Suconic
- *
- *
  */
 public class SessionReceiveLargeMessage extends PacketImpl
 {

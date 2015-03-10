@@ -32,8 +32,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * An example where a client will send a JMS message to a Topic.
  * Browser clients connected using Web Sockets will be able to receive the message.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class StompWebSocketExample extends ActiveMQExample
 {

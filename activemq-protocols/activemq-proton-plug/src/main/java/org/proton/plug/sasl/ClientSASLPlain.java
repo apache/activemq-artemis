@@ -21,8 +21,6 @@ import org.proton.plug.ClientSASL;
 /**
  * This is a simple implementation provided with just user/password
  * TODO: this interface will probaby change as we are challenged with more SASL cases where there is a communication between client and server to determine the authentication
- *
- * @author Clebert Suconic
  */
 public class ClientSASLPlain implements ClientSASL
 {

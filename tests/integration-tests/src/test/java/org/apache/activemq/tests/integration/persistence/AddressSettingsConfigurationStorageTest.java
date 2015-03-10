@@ -32,7 +32,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * A ConfigurationStorageTest
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase
 {

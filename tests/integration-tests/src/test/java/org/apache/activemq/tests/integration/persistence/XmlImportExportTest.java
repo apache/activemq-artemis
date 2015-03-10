@@ -58,8 +58,6 @@ import javax.jms.Session;
 
 /**
  * A test of the XML export/import functionality
- *
- * @author Justin Bertram
  */
 public class XmlImportExportTest extends ServiceTestBase
 {

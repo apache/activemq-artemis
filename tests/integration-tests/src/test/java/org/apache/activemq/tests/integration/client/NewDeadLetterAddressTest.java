@@ -41,10 +41,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 /**
  *
  * A NewDeadLetterAddressTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class NewDeadLetterAddressTest extends UnitTestCase
 {

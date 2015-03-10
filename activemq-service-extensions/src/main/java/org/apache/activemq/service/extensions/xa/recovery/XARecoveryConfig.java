@@ -28,12 +28,7 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
  *
  * This represents the configuration of a single connection factory.
  *
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- * @author Clebert Suconic
- *
  * A wrapper around info needed for the xa recovery resource
- *         Date: 3/23/11
- *         Time: 10:15 AM
  */
 public class XARecoveryConfig
 {

@@ -64,12 +64,6 @@ import org.apache.activemq.utils.UUID;
 
 /**
  * A Core BridgeImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author Clebert Suconic
- *         <p/>
- *         Created 12 Nov 2008 11:37:35
  */
 
 public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler

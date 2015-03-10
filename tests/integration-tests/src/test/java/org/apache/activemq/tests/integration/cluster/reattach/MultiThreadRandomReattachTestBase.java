@@ -47,11 +47,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 
 /**
  * A MultiThreadRandomReattachTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase
 {

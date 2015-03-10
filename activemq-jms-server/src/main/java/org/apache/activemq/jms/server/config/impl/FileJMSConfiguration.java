@@ -36,9 +36,6 @@ import javax.management.MBeanServer;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class FileJMSConfiguration extends JMSConfigurationImpl implements Deployable
 {
    private static final String CONFIGURATION_SCHEMA_URL = "schema/activemq-jms.xsd";

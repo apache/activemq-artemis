@@ -29,8 +29,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how to implement and use interceptors with ActiveMQ.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class InterceptorExample extends ActiveMQExample
 {

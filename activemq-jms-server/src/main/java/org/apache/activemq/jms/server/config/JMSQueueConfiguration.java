@@ -18,10 +18,6 @@ package org.apache.activemq.jms.server.config;
 
 /**
  * A QeueConfiguration
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public interface JMSQueueConfiguration
 {

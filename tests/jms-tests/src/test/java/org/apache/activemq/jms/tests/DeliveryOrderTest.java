@@ -34,8 +34,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * A DeliveryOrderTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class DeliveryOrderTest extends JMSTestCase
 {

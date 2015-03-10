@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.DUPLICATE_METAD
 
 /**
  * A Session Metadata was set in duplication
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 5/2/12
  */
 public final class ActiveMQDuplicateMetaDataException extends ActiveMQException
 {

@@ -25,8 +25,6 @@ import org.apache.activemq.api.core.management.Parameter;
 
 /**
  * A TopicControl is used to manage a JMS Topic.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface TopicControl extends DestinationControl
 {

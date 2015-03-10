@@ -19,10 +19,6 @@ package org.apache.activemq.tests.integration.paging;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.SpawnedVMSupport;
 
-/**
- * @author Clebert Suconic
- */
-
 public class PagingWithFailoverServer extends SpawnedServerSupport
 {
    public static Process spawnVM(final String testDir, final int thisPort, final int otherPort) throws Exception

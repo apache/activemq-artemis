@@ -33,9 +33,6 @@ import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
 
 /**
  * ActiveMQ implementation of a JMS Destination.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class ActiveMQDestination implements Destination, Serializable, Referenceable
 {

@@ -37,10 +37,6 @@ import org.apache.activemq.tests.util.SpawnedVMSupport;
 /**
  * A test that makes sure that a ActiveMQ server cleans up the associated
  * resources when one of its client crashes.
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @version <tt>$Revision: 4032 $</tt>
  */
 public class ClientCrashTest extends ClientTestBase
 {

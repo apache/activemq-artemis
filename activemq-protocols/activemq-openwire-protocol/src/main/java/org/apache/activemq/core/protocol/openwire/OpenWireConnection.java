@@ -105,8 +105,6 @@ import org.apache.activemq.utils.ConcurrentHashSet;
 
 /**
  * Represents an activemq connection.
- * @author howard
- *
  */
 public class OpenWireConnection implements RemotingConnection, CommandVisitor
 {

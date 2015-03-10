@@ -36,11 +36,6 @@ import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.ST
 import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.START_LIVE;
 import static org.apache.activemq.tests.integration.cluster.NodeManagerAction.STOP_BACKUP;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: Oct 16, 2010
- *         Time: 9:22:32 AM
- */
 public class NodeManagerTest extends ServiceTestBase
 {
    @Test

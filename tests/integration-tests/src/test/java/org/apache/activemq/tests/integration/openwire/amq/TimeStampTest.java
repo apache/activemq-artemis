@@ -28,9 +28,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.TimeStampTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class TimeStampTest extends BasicOpenWireTest
 {

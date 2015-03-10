@@ -34,14 +34,7 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
- *
  * A TransactionDurabilityTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 16 Jan 2009 11:00:33
- *
- *
  */
 public class TransactionDurabilityTest extends ServiceTestBase
 {

@@ -20,9 +20,6 @@ import java.util.Map;
 
 /**
  * A ClusterConnectionControl is used to manage a cluster connection.
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public interface ClusterConnectionControl extends ActiveMQComponentControl
 {

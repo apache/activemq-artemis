@@ -38,8 +38,6 @@ import org.junit.Test;
 
 /**
  * A ConnectionTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ConnectionTest extends JMSTestBase
 {

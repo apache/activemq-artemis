@@ -26,11 +26,6 @@ import javax.jms.MapMessage;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotWriteableException;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version $Revision$
- *
- */
 public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage
 {
    // Constants -----------------------------------------------------

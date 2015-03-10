@@ -18,10 +18,6 @@ package org.proton.plug.exceptions;
 
 import org.apache.qpid.proton.amqp.Symbol;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         6/6/13
- */
 public class ActiveMQAMQPException extends Exception
 {
 

@@ -46,8 +46,6 @@ import org.junit.Test;
 
 /**
  * A JMSServerStartStopTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class JMSServerStartStopTest extends UnitTestCase
 {

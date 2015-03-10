@@ -29,10 +29,6 @@ import java.util.Set;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
 
-/**
- * @author clebertsuconic
- */
-
 public abstract class URISchema<T, P>
 {
    public abstract String getSchemaName();

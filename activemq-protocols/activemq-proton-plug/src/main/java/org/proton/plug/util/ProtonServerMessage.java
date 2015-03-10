@@ -34,8 +34,6 @@ import org.apache.qpid.proton.message.ProtonJMessage;
 
 /**
  * This is a serverMessage that won't deal with the body
- *
- * @author Clebert Suconic
  */
 public class ProtonServerMessage implements ProtonJMessage
 {

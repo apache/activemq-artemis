@@ -18,10 +18,6 @@ package org.proton.plug.context;
 
 import org.apache.qpid.proton.engine.Sender;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface ProtonPlugSender
 {
    int deliverMessage(Object message, int deliveryCount) throws Exception;

@@ -28,9 +28,6 @@ import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
  * is a job for the implementation.
  *
  * This is used for replication (which needs a QuorumManager) and scaling-down (which does not need a QuorumManager).
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author Justin Bertram
  */
 public abstract class LiveNodeLocator implements ClusterTopologyListener
 {

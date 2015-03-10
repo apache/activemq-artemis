@@ -31,8 +31,6 @@ import org.junit.Test;
 
 /**
  * A ConsumerFilterTest
- *
- * @author Tim Fox
  */
 public class ConsumerFilterTest extends ServiceTestBase
 {

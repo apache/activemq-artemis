@@ -53,8 +53,6 @@ import org.junit.Test;
 
 /**
  * A RandomFailoverSoakTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class RandomReattachTest extends UnitTestCase
 {

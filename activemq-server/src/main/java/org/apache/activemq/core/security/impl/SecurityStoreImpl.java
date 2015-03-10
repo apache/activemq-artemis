@@ -39,13 +39,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * The ActiveMQ SecurityStore implementation
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- *
- *
- * @version $Revision$
- *
  */
 public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryChangeListener
 {

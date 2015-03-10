@@ -39,10 +39,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.UUIDGenerator;
 import org.junit.Assert;
 
-/**
- * @author Clebert Suconic
- */
-
 public class DiscoveryBaseTest extends UnitTestCase
 {
    protected static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

@@ -34,10 +34,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class DiscoveryStayAliveTest extends DiscoveryBaseTest
 {
 

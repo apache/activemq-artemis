@@ -21,9 +21,6 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class ClusterTopologyChangeMessage extends PacketImpl
 {
    protected boolean exit;

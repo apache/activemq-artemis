@@ -19,12 +19,8 @@ package org.apache.activemq.core.journal;
 import org.apache.activemq.core.asyncio.AIOCallback;
 
 /**
- *
  * This class is just a direct extension of AIOCallback.
  * Just to avoid the direct dependency of org.apache.activemq.core.asynciio.AIOCallback from the journal.
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public interface IOAsyncTask extends AIOCallback
 {

@@ -32,9 +32,6 @@ import org.apache.activemq.command.ActiveMQDestination;
 
 /**
  * adapted from: org.apache.activemq.test.JmsResourceProvider
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsResourceProvider
 {

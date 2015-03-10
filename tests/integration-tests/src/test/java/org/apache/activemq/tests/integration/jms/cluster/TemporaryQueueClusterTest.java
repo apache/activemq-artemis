@@ -31,10 +31,6 @@ import org.apache.activemq.tests.util.JMSClusteredTestBase;
 
 /**
  * A TopicClusterTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase
 {

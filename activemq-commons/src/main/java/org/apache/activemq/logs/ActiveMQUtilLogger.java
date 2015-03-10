@@ -23,9 +23,6 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         3/15/12
- *
  * Logger Code 20
  *
  * each message id must be 6 digits long starting with 20, the 3rd digit donates the level so

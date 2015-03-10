@@ -29,9 +29,6 @@ import java.util.List;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * @author clebertsuconic
- */
 @RunWith(Parameterized.class)
 public class ClientACKPerf extends AbstractSendReceivePerfTest
 {

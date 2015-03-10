@@ -21,11 +21,7 @@ import java.util.List;
 import org.apache.activemq.core.filter.Filter;
 
 /**
- *
  * A ClientConsumer
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface Consumer
 {

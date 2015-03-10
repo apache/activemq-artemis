@@ -39,9 +39,6 @@ import org.apache.activemq.api.jms.management.TopicControl;
 
 /**
  * A ManagementControlHelper
- *
- * @author jmesnil
- *
  */
 public class ManagementControlHelper
 {

@@ -26,10 +26,6 @@ import javax.naming.spi.InitialContextFactory;
 
 /**
  * An in-VM JNDI InitialContextFactory. Lightweight JNDI implementation used for testing.
-
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version <tt>$Revision: 2868 $</tt>
- *
  */
 public class InVMInitialContextFactory implements InitialContextFactory
 {

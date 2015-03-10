@@ -23,9 +23,6 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * A InVMRegistry
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public final class InVMRegistry
 {

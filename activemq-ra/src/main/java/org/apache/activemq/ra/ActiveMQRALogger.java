@@ -40,8 +40,6 @@ import org.jboss.logging.annotations.MessageLogger;
  * </pre>
  * <p/>
  * so an INFO message would be 151000 to 151999
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 3/15/12
  */
 @MessageLogger(projectCode = "AMQ")
 public interface ActiveMQRALogger extends BasicLogger

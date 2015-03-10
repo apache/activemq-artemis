@@ -24,8 +24,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *
  *         Allows a Java Client to be run which must hve a static main(String[] args) method
  */
 

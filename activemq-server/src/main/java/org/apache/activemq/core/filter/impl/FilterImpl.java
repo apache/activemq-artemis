@@ -31,9 +31,6 @@ import org.apache.activemq.core.server.ServerMessage;
 /**
 * This class implements a ActiveMQ filter
 *
-* @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
-* @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
-*
 * ActiveMQ filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
 *
 * Valid identifiers that can be used are:
@@ -48,16 +45,6 @@ import org.apache.activemq.core.server.ServerMessage;
 *
 * String values must be set as <code>SimpleString</code>, not <code>java.lang.String</code> (see JBMESSAGING-1307).
 * Derived from JBoss MQ version by
-*
-* @author <a href="mailto:Norbert.Lataille@m4x.org">Norbert Lataille</a>
-* @author <a href="mailto:jplindfo@helsinki.fi">Juha Lindfors</a>
-* @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
-* @author <a href="mailto:Scott.Stark@jboss.org">Scott Stark</a>
-* @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
-*
-* @version    $Revision: 3569 $
-*
-* $Id: Selector.java 3569 2008-01-15 21:14:04Z timfox $
 */
 public class FilterImpl implements Filter
 {

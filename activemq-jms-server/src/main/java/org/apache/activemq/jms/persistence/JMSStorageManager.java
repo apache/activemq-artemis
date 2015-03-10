@@ -26,10 +26,6 @@ import org.apache.activemq.jms.persistence.config.PersistedType;
 
 /**
  * A JMSPersistence
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public interface JMSStorageManager extends ActiveMQComponent
 {

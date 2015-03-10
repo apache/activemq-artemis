@@ -34,8 +34,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  *
  * <p>For example: prepareTransaction will wait for the current completions, and further adds will be called on the latch. Later on when commit is called you can reuse the same latch.</p>
  *
- * @author Clebert Suconic
- * */
+ */
 public class ReusableLatch
 {
    /**

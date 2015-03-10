@@ -25,9 +25,6 @@ import org.jboss.resteasy.spi.Link;
 
 /**
  * Forwarding to a ActiveMQ/REST-* endpoing
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class ActiveMQPushStrategy extends UriTemplateStrategy
 {

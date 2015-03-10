@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.INTERNAL_ERROR;
 
 /**
  * Internal error which prevented ActiveMQ from performing an important operation.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQInternalErrorException extends ActiveMQException
 {

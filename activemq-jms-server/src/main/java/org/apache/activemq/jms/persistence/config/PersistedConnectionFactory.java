@@ -23,10 +23,6 @@ import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfiguration
 
 /**
  * A PersistedConnectionFactory
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class PersistedConnectionFactory implements EncodingSupport
 {

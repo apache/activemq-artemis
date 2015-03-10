@@ -24,14 +24,7 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.utils.Base64;
 
 /**
- *
  * Xid implementation
- *
- * @author <a href="mailto:adrian@jboss.org">Adrian Brock</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:juha@jboss.org">Juha Lindfors</a>
- *
- * @version $Revision 1.1 $
  */
 public class XidImpl implements Xid, Serializable
 {

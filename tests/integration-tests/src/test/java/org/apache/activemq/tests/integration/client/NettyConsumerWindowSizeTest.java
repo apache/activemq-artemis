@@ -18,10 +18,6 @@ package org.apache.activemq.tests.integration.client;
 
 /**
  * A NettyConsumerWindowSizeTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class NettyConsumerWindowSizeTest extends ConsumerWindowSizeTest
 {

@@ -42,10 +42,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class SecurityTest extends ServiceTestBase
 {
    /*

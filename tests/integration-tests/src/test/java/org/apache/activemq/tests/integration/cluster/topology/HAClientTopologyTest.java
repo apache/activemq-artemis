@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class HAClientTopologyTest extends TopologyClusterTestBase
 {
    @Override

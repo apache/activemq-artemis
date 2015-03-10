@@ -25,10 +25,6 @@ import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
 /**
  * A StompProtocolManagerFactory
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class StompProtocolManagerFactory implements ProtocolManagerFactory
 {

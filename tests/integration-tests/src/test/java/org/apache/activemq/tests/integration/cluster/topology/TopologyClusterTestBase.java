@@ -49,8 +49,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * A TopologyClusterTestBase
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public abstract class TopologyClusterTestBase extends ClusterTestBase
 {

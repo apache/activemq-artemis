@@ -22,8 +22,6 @@ import java.util.Map;
 
 /**
  * A QueueControl is used to manage a queue.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface QueueControl
 {

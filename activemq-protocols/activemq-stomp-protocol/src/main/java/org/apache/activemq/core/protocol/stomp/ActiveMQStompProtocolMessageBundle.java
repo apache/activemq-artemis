@@ -30,8 +30,6 @@ import org.jboss.logging.Messages;
  * <p>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
  * articles. Unused methods should be marked as deprecated.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 
 @MessageBundle(projectCode = "AMQ")

@@ -27,10 +27,6 @@ import org.apache.activemq.logs.ActiveMQUtilBundle;
 
 /**
  * A PasswordMarkingUtil
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- *
  */
 public class PasswordMaskingUtil
 {

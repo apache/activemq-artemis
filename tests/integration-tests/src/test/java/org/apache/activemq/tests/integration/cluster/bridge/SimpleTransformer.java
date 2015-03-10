@@ -23,12 +23,6 @@ import org.apache.activemq.core.server.cluster.Transformer;
 
 /**
  * A SimpleTransformer
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 21 Nov 2008 11:44:37
- *
- *
  */
 public class SimpleTransformer implements Transformer
 {

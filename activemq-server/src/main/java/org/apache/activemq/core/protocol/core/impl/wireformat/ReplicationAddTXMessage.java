@@ -25,10 +25,6 @@ import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYP
 
 /**
  * A ReplicationAddMessage
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ReplicationAddTXMessage extends PacketImpl
 {

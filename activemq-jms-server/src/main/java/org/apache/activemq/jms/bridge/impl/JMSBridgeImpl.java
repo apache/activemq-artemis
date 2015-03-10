@@ -74,10 +74,6 @@ import org.apache.activemq.utils.SensitiveDataCodec;
 
 /**
  * A JMSBridge
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- * @version <tt>$Revision:4566 $</tt>
  */
 public final class JMSBridgeImpl implements JMSBridge
 {

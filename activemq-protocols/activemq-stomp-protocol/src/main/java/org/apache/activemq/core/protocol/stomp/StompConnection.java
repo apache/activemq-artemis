@@ -48,8 +48,6 @@ import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessa
 
 /**
  * A StompConnection
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public final class StompConnection implements RemotingConnection
 {

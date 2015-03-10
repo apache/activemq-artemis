@@ -23,7 +23,6 @@ import org.w3c.dom.NodeList;
 
 /**
  * A XMLConfigurationUtil
- * @author jmesnil
  */
 public class XMLConfigurationUtil
 {

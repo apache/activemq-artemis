@@ -41,9 +41,6 @@ import org.apache.activemq.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.JMSTestBase;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class CloseDestroyedConnectionTest extends JMSTestBase
 {
    private ActiveMQConnectionFactory cf;

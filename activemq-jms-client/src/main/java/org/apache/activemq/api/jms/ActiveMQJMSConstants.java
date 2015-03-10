@@ -18,10 +18,6 @@ package org.apache.activemq.api.jms;
 
 /**
  * Constants for ActiveMQ for property keys used for ActiveMQ specific extensions to JMS.
- *
- * @author Tim Fox
- *
- *
  */
 public class ActiveMQJMSConstants
 {

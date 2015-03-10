@@ -86,11 +86,6 @@ import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * Server side Session implementation
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
  */
 public class ServerSessionImpl implements ServerSession, FailureListener
 {

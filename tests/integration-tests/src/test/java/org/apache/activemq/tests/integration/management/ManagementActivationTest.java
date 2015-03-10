@@ -39,9 +39,6 @@ import org.junit.Test;
  * Validates if a JMS management operations will wait until the server is activated.  If the server is not active
  * then JMS management operations (e.g. create connection factory, create queue, etc.) should be stored in a cache
  * and then executed once the server becomes active.  The normal use-case for this involves a live/backup pair.
- *
- * @author clebertsuconic
- * @author Justin Bertram
  */
 public class ManagementActivationTest extends FailoverTestBase
 {

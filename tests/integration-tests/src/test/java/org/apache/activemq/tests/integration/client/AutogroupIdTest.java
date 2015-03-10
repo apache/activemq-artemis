@@ -33,9 +33,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class AutogroupIdTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

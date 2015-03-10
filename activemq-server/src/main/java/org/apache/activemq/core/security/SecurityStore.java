@@ -19,11 +19,6 @@ package org.apache.activemq.core.security;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.ServerSession;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public interface SecurityStore
 {
    void authenticate(String user, String password) throws Exception;

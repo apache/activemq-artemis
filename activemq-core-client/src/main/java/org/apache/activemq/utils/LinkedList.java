@@ -18,10 +18,6 @@ package org.apache.activemq.utils;
 
 /**
  * A LinkedList
- *
- * @author Tim Fox
- *
- *
  */
 public interface LinkedList<E>
 {

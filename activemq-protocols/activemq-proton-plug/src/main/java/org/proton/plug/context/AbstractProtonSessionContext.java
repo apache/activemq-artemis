@@ -34,8 +34,6 @@ import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
  * ProtonSession is a direct representation of the session on the broker.
  * It has a link between a ProtonSession and a Broker or Client Session
  * The Broker Session is linked through the ProtonSessionSPI
- *
- * @author Clebert Suconic
  */
 public abstract class AbstractProtonSessionContext extends ProtonInitializable implements AMQPSessionContext
 {

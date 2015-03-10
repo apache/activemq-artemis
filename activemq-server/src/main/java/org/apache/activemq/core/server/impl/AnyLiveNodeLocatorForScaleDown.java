@@ -34,8 +34,6 @@ import org.apache.activemq.core.server.LiveNodeLocator;
 /**
  * This implementation looks for any available live node, once tried with no success it is marked as
  * tried and the next available is used.
- *
- * @author Justin Bertram
  */
 public class AnyLiveNodeLocatorForScaleDown extends LiveNodeLocator
 {

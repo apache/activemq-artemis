@@ -23,10 +23,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
 /**
  * A NettyAsynchronousReattachTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class NettyAsynchronousReattachTest extends NettyAsynchronousFailoverTest
 {

@@ -73,9 +73,6 @@ import org.apache.activemq.utils.FutureLatch;
  * Note that {@link org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge}s extend Bridges but are controlled over through
  * {@link ClusterConnectionImpl}. As a node is discovered a new {@link org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge} is
  * deployed.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
  */
 public final class ClusterManager implements ActiveMQComponent
 {

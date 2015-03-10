@@ -26,8 +26,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
  * <br>
  * It is possible to configure a factory using the setter methods only if no session has been created.
  * Once a session is created, the configuration is fixed and any call to a setter method will throw a IllegalStateException.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface ClientSessionFactory extends AutoCloseable
 {

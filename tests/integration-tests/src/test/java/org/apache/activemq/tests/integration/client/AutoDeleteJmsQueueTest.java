@@ -30,9 +30,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author Justin Bertram
- */
 public class AutoDeleteJmsQueueTest extends JMSTestBase
 {
    @Test

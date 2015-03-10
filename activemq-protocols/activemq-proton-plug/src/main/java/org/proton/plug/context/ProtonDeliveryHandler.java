@@ -20,8 +20,6 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         <p/>
  *         An interface to handle deliveries, either messages, acks or transaction calls
  */
 public interface ProtonDeliveryHandler

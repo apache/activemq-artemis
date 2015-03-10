@@ -61,11 +61,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * Concrete implementation of a ClientConsumer.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @version <tt>$Revision: 3783 $</tt> $Id: ServerConsumerImpl.java 3783 2008-02-25 12:15:14Z timfox $
  */
 public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 {

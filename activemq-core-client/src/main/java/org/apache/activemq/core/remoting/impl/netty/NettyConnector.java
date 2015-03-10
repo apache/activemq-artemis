@@ -105,11 +105,6 @@ import static org.apache.activemq.utils.Base64.encodeBytes;
 
 /**
  * A NettyConnector
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:tlee@redhat.com">Trustin Lee</a>
- * @author <a href="mailto:nmaurer@redhat.com">Norman Maurer</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class NettyConnector extends AbstractConnector
 {

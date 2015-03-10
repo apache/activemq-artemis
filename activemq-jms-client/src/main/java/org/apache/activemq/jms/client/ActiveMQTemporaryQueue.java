@@ -23,10 +23,6 @@ import javax.jms.TemporaryQueue;
  * ActiveMQ implementation of a JMS TemporaryQueue.
  * <br>
  * This class can be instantiated directly.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>$Revision: 3569 $</tt>
- *
  */
 public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQueue
 {

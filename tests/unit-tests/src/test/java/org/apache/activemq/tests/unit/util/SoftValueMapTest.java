@@ -22,8 +22,6 @@ import org.junit.Test;
 
 /**
  * A SoftValueMapTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class SoftValueMapTest extends UnitTestCase
 {

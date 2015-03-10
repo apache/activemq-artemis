@@ -21,9 +21,6 @@ import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import java.net.URI;
 import java.util.Set;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class TCPAcceptorTransportConfigurationSchema extends TCPTransportConfigurationSchema
 {
    public TCPAcceptorTransportConfigurationSchema(Set<String> allowableProperties)

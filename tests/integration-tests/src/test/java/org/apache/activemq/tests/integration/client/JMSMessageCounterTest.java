@@ -28,10 +28,6 @@ import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class JMSMessageCounterTest extends JMSTestBase
 {
 

@@ -27,10 +27,6 @@ import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
 
 /**
  * A ServerLocatorInternal
- *
- * @author Tim Fox
- *
- *
  */
 public interface ServerLocatorInternal extends ServerLocator
 {

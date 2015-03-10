@@ -33,7 +33,6 @@ import org.apache.activemq.core.journal.impl.JournalImpl;
  * have to invalidate the transaction
  * <p>
  * The commit operation itself is not included in this total.
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JournalCompleteRecordTX extends JournalInternalRecord
 {

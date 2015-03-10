@@ -32,10 +32,6 @@ import org.apache.activemq.jms.client.ActiveMQTextMessage;
 
 /**
  * A JMSTransactionDetail
- *
- * @author <a href="tm.igarashi@gmail.com">Tomohisa Igarashi</a>
- *
- *
  */
 public class JMSTransactionDetail extends TransactionDetail
 {

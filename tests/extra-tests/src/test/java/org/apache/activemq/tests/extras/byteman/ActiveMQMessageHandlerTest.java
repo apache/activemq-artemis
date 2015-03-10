@@ -50,10 +50,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created May 20, 2010
- */
 @RunWith(BMUnitRunner.class)
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 {

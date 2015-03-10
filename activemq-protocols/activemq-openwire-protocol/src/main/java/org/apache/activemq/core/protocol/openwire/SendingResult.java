@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 
-/**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class SendingResult
 {
    private boolean blockNextSend;

@@ -36,10 +36,6 @@ import org.apache.activemq.utils.ConcurrentHashSet;
 
 /**
  * A simple address manager that maintains the addresses and bindings.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class SimpleAddressManager implements AddressManager
 {

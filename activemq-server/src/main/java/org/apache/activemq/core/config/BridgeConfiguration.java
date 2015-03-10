@@ -24,7 +24,6 @@ import org.apache.activemq.api.core.client.ActiveMQClient;
 
 /**
  * A BridgeConfiguration
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class BridgeConfiguration implements Serializable
 {

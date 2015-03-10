@@ -20,12 +20,6 @@ import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
 /**
  * A BindingType
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 22 Dec 2008 13:37:23
- *
- *
  */
 public enum BindingType
 {

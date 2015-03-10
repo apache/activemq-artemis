@@ -28,10 +28,6 @@ import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 
 /**
  * A GroupIDTest
- *
- * @author Tim Fox
- *
- *
  */
 public class GroupIDTest extends GroupingTest
 {

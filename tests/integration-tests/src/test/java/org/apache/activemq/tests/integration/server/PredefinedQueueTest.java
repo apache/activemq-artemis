@@ -42,10 +42,6 @@ import org.junit.Test;
 
 /**
  * A PredefinedQueueTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 19 Jan 2009 15:44:52
  */
 public class PredefinedQueueTest extends ServiceTestBase
 {

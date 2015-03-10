@@ -21,8 +21,6 @@ import org.apache.activemq.core.server.MessageReference;
 
 /**
  * A PagedReference
- *
- * @author clebert
  */
 public interface PagedReference extends MessageReference
 {

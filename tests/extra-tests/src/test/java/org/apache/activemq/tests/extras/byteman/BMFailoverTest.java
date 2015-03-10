@@ -51,10 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         4/18/13
- */
 @RunWith(BMUnitRunner.class)
 public class BMFailoverTest extends FailoverTestBase
 {

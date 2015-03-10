@@ -83,10 +83,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * A PostOfficeImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="csuconic@redhat.com">Clebert Suconic</a>
  */
 public class PostOfficeImpl implements PostOffice, NotificationListener, BindingsFactory
 {

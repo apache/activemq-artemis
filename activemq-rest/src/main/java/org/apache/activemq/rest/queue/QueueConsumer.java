@@ -40,8 +40,6 @@ import org.apache.activemq.rest.util.LinkStrategy;
 
 /**
  * Auto-acknowleged consumer
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  */
 public class QueueConsumer
 {

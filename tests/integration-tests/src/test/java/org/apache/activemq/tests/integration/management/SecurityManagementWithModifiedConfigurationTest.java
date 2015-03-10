@@ -27,8 +27,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 
 /**
  * A SecurityManagementTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class SecurityManagementWithModifiedConfigurationTest extends SecurityManagementTestBase
 {

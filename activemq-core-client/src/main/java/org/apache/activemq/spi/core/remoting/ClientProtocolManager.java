@@ -25,10 +25,6 @@ import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface ClientProtocolManager
 {
 

@@ -19,10 +19,6 @@ package org.apache.activemq.core.server;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.ReferenceCounter;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface AutoCreatedQueueManager extends ReferenceCounter
 {
    SimpleString getQueueName();

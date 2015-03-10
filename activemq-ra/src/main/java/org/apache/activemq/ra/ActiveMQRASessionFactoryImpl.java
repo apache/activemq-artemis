@@ -51,9 +51,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionForContextImpl;
 
 /**
  * Implements the JMS Connection API and produces {@link ActiveMQRASession} objects.
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForContextImpl implements
    ActiveMQRASessionFactory, ActiveMQConnectionForContext, Referenceable

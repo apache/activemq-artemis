@@ -26,10 +26,6 @@ import org.junit.Test;
 
 /**
  * A TypedPropertiesConversionTest
- *
- * @author jmesnil
- *
- *
  */
 public class TypedPropertiesConversionTest
 {

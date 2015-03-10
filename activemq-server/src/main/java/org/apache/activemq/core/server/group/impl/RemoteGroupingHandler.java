@@ -43,8 +43,6 @@ import org.apache.activemq.utils.TypedProperties;
  * <p/>
  * This will use management notifications to communicate with the node that has the Local Grouping
  * handler to make proposals.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public final class RemoteGroupingHandler extends GroupHandlingAbstract
 {

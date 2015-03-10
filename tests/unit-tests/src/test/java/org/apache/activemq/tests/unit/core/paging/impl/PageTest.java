@@ -36,9 +36,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 public class PageTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

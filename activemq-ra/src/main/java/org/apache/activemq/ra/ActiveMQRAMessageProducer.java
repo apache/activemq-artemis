@@ -25,9 +25,6 @@ import javax.jms.MessageProducer;
 
 /**
  * ActiveMQMessageProducer.
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @author <a href="jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAMessageProducer implements MessageProducer
 {

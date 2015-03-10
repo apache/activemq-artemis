@@ -28,10 +28,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A FileLockTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class FileLockTest extends UnitTestCase
 {

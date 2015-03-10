@@ -20,11 +20,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.activemq.api.core.ActiveMQException;
 
-/**
- *
- * @author clebert.suconic@jboss.com
- *
- */
 public interface AsynchronousFile
 {
    void close() throws InterruptedException, ActiveMQException;

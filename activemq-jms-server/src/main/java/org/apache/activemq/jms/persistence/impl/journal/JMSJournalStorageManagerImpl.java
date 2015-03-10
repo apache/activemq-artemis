@@ -44,8 +44,6 @@ import org.apache.activemq.utils.IDGenerator;
 
 /**
  * A JournalJMSStorageManagerImpl
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 {

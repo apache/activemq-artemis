@@ -21,7 +21,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.OBJECT_CLOSED;
 /**
  * A client operation failed because the calling resource (ClientSession, ClientProducer, etc.) is
  * closed.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQObjectClosedException extends ActiveMQException
 {

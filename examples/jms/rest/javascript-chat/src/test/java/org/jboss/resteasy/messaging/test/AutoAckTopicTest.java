@@ -23,11 +23,6 @@ import org.apache.activemq.rest.util.LinkStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 
-
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class AutoAckTopicTest
 {
    public static Link getLinkByTitle(LinkStrategy strategy, ClientResponse response, String title)

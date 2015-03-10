@@ -58,10 +58,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 
 /**
  * A JMSUtil
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *         <p/>
- *         Created 14 nov. 2008 13:48:08
  */
 public class JMSUtil
 {

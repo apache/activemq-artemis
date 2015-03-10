@@ -24,10 +24,6 @@ import java.util.Map;
  * This interface is used for implementing a value decoder.
  *
  * It takes in a mask value and decode it.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- *
  */
 public interface SensitiveDataCodec<T>
 {

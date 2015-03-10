@@ -22,10 +22,6 @@ import java.util.List;
 import org.apache.activemq.rest.queue.push.FilePushStore;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class FileTopicPushStore extends FilePushStore implements TopicPushStore
 {
    public FileTopicPushStore(String dirname) throws Exception

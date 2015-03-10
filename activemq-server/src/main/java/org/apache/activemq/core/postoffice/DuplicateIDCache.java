@@ -23,12 +23,6 @@ import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * A DuplicateIDCache
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 8 Dec 2008 16:36:07
- *
- *
  */
 public interface DuplicateIDCache
 {

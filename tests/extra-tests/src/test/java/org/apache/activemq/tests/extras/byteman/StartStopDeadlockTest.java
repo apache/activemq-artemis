@@ -38,8 +38,6 @@ import org.junit.runner.RunWith;
 
 /**
  * This test validates a deadlock identified by https://bugzilla.redhat.com/show_bug.cgi?id=959616
- *
- * @author Clebert
  */
 @RunWith(BMUnitRunner.class)
 public class StartStopDeadlockTest extends ServiceTestBase

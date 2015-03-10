@@ -41,9 +41,6 @@ import org.apache.activemq.utils.ConcurrentHashSet;
  * <p>
  * We wrap the real session, so we can add a finalizer on this and close the session
  * on GC if it has not already been closed
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class DelegatingSession implements ClientSessionInternal
 {

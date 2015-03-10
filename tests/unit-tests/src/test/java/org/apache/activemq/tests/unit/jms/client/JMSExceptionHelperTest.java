@@ -33,11 +33,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class JMSExceptionHelperTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

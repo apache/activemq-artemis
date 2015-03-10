@@ -29,9 +29,6 @@ import org.apache.activemq.utils.json.JSONArray;
 
 /**
  * A ServerSession
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
  */
 public interface ServerSession
 {

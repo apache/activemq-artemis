@@ -27,11 +27,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.UUID;
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: Oct 13, 2010
- *         Time: 2:38:40 PM
- */
 public abstract class NodeManager implements ActiveMQComponent
 {
    protected static final byte FIRST_TIME_START = '0';

@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * A IsolatedTopologyTest
- *
- * @author clebertsuconic
  */
 public class IsolatedTopologyTest extends ServiceTestBase
 {

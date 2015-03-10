@@ -21,7 +21,6 @@ package org.apache.activemq.api.core.client;
  * <p>
  * To receive messages asynchronously, a MessageHandler is set on a ClientConsumer. Every time the
  * consumer will receive a message, it will call the handler's {@code onMessage()} method.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  * @see ClientConsumer#setMessageHandler(MessageHandler)
  */
 public interface MessageHandler

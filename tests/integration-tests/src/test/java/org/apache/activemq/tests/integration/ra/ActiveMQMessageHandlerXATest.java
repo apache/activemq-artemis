@@ -38,10 +38,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Jul 6, 2010
- */
 public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase
 {
    @Override

@@ -21,10 +21,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
  * A InternalEncoder
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public abstract class JournalInternalRecord implements EncodingSupport
 {

@@ -24,9 +24,6 @@ import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 
 /**
  * A JMSBridgeControlImpl
- *
- * @author <a href="jose@voxeo.com">Jose de Castro</a>
- *
  */
 public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeControl
 {

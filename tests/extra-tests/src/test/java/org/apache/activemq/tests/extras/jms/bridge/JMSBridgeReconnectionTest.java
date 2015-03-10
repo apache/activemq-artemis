@@ -37,9 +37,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class JMSBridgeReconnectionTest extends BridgeTestBase
 {
    /**

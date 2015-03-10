@@ -49,8 +49,6 @@ import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessa
 
 /**
  * A StompSession
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class StompSession implements SessionCallback
 {

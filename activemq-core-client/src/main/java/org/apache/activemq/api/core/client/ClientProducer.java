@@ -36,8 +36,6 @@ import org.apache.activemq.api.core.SimpleString;
  * The send rate can also be controlled via {@link ServerLocator#setProducerMaxRate(int)} and the
  * {@link org.apache.activemq.api.core.client.ServerLocator#setProducerWindowSize(int)}. <br>
  * <br>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
  */
 public interface ClientProducer extends AutoCloseable
 {

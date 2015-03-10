@@ -26,10 +26,6 @@ import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
 /**
  * A CoreProtocolManagerFactory
- *
- * @author Tim Fox
- *
- *
  */
 public class CoreProtocolManagerFactory implements ProtocolManagerFactory
 {

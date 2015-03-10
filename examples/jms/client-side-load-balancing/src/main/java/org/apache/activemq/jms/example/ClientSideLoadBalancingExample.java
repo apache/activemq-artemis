@@ -34,8 +34,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  *
  * In this example there are three nodes and we use a round-robin client side load-balancing
  * policy.
- *
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
 public class ClientSideLoadBalancingExample extends ActiveMQExample
 {

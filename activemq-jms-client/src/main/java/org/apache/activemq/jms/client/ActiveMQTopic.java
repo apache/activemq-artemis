@@ -24,11 +24,6 @@ import org.apache.activemq.api.core.SimpleString;
  * ActiveMQ implementation of a JMS Topic.
  * <br>
  * This class can be instantiated directly.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>$Revision: 8737 $</tt>
- *
  */
 public class ActiveMQTopic extends ActiveMQDestination implements Topic
 {

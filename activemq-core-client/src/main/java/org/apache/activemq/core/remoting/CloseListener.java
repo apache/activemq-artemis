@@ -20,8 +20,6 @@ package org.apache.activemq.core.remoting;
  * CloseListeners can be registered with a {@link org.apache.activemq.spi.core.protocol.RemotingConnection} to get notified when the connection is closed.
  * <p>
  * {@link org.apache.activemq.spi.core.protocol.RemotingConnection#addCloseListener(CloseListener)}
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public interface CloseListener
 {

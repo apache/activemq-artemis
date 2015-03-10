@@ -50,8 +50,6 @@ import org.junit.Test;
 
 /**
  * A ProducerFlowControlTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> fox
  */
 public class ProducerFlowControlTest extends ServiceTestBase
 {

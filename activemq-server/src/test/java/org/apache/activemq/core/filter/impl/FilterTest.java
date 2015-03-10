@@ -30,9 +30,6 @@ import org.junit.Test;
 
 /**
  * Tests the compliance with the ActiveMQ Filter syntax.
- *
- * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class FilterTest extends SilentTestCase
 {

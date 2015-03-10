@@ -18,11 +18,6 @@ package org.apache.activemq.tests.timing.util;
 
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class UUIDTest extends org.apache.activemq.tests.unit.util.UUIDTest
 {
 

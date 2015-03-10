@@ -53,8 +53,6 @@ import org.proton.plug.util.ByteUtil;
 
 /**
  * This is simulating a JMS client against a simple server
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author Clebert Suconic
  */
 @RunWith(Parameterized.class)
 public class ProtonTest extends AbstractJMSTest

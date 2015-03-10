@@ -31,9 +31,6 @@ import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 
 /**
  * A SpawnedServer
- *
- * @author jmesnil
- *
  */
 public class SpawnedJMSServer
 {

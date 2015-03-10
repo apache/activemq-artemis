@@ -59,8 +59,6 @@ import org.apache.activemq.spi.core.remoting.Connection;
 
 /**
  * A CoreProtocolManager
- *
- * @author Tim Fox
  */
 class CoreProtocolManager implements ProtocolManager
 {

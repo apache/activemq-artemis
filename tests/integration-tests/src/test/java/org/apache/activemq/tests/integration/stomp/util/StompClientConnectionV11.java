@@ -18,9 +18,6 @@ package org.apache.activemq.tests.integration.stomp.util;
 
 import java.io.IOException;
 
-/**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class StompClientConnectionV11 extends AbstractStompClientConnection
 {
    public StompClientConnectionV11(String host, int port) throws IOException

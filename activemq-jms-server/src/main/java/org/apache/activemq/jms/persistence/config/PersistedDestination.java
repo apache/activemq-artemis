@@ -24,8 +24,6 @@ import org.apache.activemq.utils.DataConstants;
 
 /**
  * A PersistedDestination
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class PersistedDestination implements EncodingSupport
 {

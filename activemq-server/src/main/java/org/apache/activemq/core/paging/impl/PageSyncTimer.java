@@ -27,7 +27,6 @@ import org.apache.activemq.core.persistence.OperationContext;
 
 /**
  * This will batch multiple calls waiting to perform a sync in a single call.
- * @author clebertsuconic
  */
 final class PageSyncTimer
 {

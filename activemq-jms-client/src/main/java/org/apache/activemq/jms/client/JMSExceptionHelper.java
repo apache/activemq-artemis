@@ -24,11 +24,7 @@ import javax.jms.JMSSecurityException;
 import org.apache.activemq.api.core.ActiveMQException;
 
 /**
- *
  * A JMSExceptionHelper
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public final class JMSExceptionHelper
 {

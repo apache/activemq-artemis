@@ -39,9 +39,6 @@ import org.junit.Test;
 
 /**
  * GroupingTest
- *
- * @author Tim Fox
- *
  */
 public class GroupingTest extends JMSTestBase
 {

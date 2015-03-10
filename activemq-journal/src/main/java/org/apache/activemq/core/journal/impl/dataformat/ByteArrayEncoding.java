@@ -21,10 +21,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
  * A ByteArrayEncoding
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ByteArrayEncoding implements EncodingSupport
 {

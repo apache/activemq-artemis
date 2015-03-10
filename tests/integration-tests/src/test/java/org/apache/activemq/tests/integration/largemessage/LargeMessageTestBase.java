@@ -50,10 +50,6 @@ import org.junit.Assert;
 
 /**
  * A LargeMessageTestBase
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *         <p/>
- *         Created Oct 29, 2008 11:43:52 AM
  */
 public abstract class LargeMessageTestBase extends ServiceTestBase
 {

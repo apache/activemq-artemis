@@ -25,11 +25,6 @@ import org.apache.activemq.tests.util.SpawnedVMSupport;
 import org.apache.activemq.utils.UUID;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: Oct 18, 2010
- *         Time: 10:34:25 AM
- */
 public class RealNodeManagerTest extends NodeManagerTest
 {
    @Test

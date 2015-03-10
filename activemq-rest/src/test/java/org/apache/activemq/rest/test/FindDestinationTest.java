@@ -24,9 +24,6 @@ import org.jboss.resteasy.test.TestPortProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- */
 public class FindDestinationTest extends MessageTestBase
 {
    @Test

@@ -19,11 +19,7 @@ package org.apache.activemq.core.server;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
- *
  * A QueueQueryResult
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class QueueQueryResult
 {

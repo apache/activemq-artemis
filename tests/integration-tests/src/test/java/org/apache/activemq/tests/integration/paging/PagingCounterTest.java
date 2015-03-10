@@ -38,8 +38,6 @@ import org.junit.Test;
 
 /**
  * A PagingCounterTest
- *
- * @author clebertsuconic
  */
 public class PagingCounterTest extends ServiceTestBase
 {

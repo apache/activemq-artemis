@@ -21,10 +21,6 @@ import java.io.Serializable;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- */
 public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMessage
 {
    // Constants -----------------------------------------------------

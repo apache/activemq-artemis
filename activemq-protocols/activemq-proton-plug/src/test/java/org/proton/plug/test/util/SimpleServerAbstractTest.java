@@ -26,10 +26,6 @@ import org.proton.plug.test.minimalserver.MinimalServer;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * @author Clebert Suconic
- */
-
 public class SimpleServerAbstractTest
 {
 

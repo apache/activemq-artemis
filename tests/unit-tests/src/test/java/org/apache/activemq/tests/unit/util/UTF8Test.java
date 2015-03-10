@@ -37,12 +37,6 @@ import org.apache.activemq.utils.UTF8Util;
 
 /**
  * A UTF8Test
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- * Created Feb 23, 2009 12:50:57 PM
- *
- *
  */
 public class UTF8Test extends UnitTestCase
 {

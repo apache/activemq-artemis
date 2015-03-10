@@ -23,10 +23,6 @@ import org.apache.activemq.utils.ReusableLatch;
 
 /**
  * A TransactionCallback
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class TransactionCallback implements IOAsyncTask
 {

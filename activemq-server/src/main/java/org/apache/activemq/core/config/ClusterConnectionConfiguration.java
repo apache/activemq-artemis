@@ -25,8 +25,6 @@ import org.apache.activemq.api.core.client.ActiveMQClient;
 
 /**
  * A ClusterConnectionConfiguration
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class ClusterConnectionConfiguration implements Serializable
 {

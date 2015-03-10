@@ -33,9 +33,6 @@ import org.junit.Test;
 
 /**
  * A test that sends/receives object messages to the JMS provider and verifies their integrity.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ObjectMessageTest extends MessageTestBase
 {

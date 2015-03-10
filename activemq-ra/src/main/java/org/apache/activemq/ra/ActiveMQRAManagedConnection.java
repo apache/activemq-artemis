@@ -58,10 +58,6 @@ import org.apache.activemq.utils.VersionLoader;
 
 /**
  * The managed connection
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public final class ActiveMQRAManagedConnection implements ManagedConnection, ExceptionListener
 {

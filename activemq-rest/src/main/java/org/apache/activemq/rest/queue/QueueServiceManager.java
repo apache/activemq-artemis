@@ -24,10 +24,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.rest.queue.push.FilePushStore;
 import org.apache.activemq.rest.queue.push.PushStore;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class QueueServiceManager extends DestinationServiceManager
 {
    protected PushStore pushStore;

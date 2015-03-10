@@ -23,8 +23,6 @@ import org.junit.Test;
 
 /**
  * A SimpleSymmetricClusterTest
- *
- * @author clebert
  */
 public class SimpleSymmetricClusterTest extends ClusterTestBase
 {

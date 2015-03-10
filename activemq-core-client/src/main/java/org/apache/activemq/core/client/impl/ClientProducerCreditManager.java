@@ -21,10 +21,6 @@ import org.apache.activemq.spi.core.remoting.SessionContext;
 
 /**
  * A ClientProducerCreditManager
- *
- * @author Tim Fox
- *
- *
  */
 public interface ClientProducerCreditManager
 {

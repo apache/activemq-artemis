@@ -30,10 +30,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 /**
  *
  * A CloseConnectionOnGCTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class CloseConnectionFactoryOnGCest extends JMSTestBase
 {

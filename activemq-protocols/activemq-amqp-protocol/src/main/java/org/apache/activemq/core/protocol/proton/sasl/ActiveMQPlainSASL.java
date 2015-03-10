@@ -20,10 +20,6 @@ import org.apache.activemq.core.security.SecurityStore;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.proton.plug.sasl.ServerSASLPlain;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ActiveMQPlainSASL extends ServerSASLPlain
 {
 

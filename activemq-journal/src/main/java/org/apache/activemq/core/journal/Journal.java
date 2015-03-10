@@ -28,8 +28,6 @@ import org.apache.activemq.core.server.ActiveMQComponent;
  * <p>
  * Notice also that even on the callback methods it's possible to pass the sync mode. That will only
  * make sense on the NIO operations.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  * @see org.apache.activemq.utils.IDGenerator
  */
 public interface Journal extends ActiveMQComponent

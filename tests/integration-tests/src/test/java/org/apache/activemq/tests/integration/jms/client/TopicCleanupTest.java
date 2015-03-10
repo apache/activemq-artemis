@@ -37,8 +37,6 @@ import org.junit.Test;
  * This test will simulate a situation where the Topics used to have an extra queue on startup.
  * The server was then written to perform a cleanup, and that cleanup should always work.
  * This test will create the dirty situation where the test should recover from
- *
- * @author clebertsuconic
  */
 public class TopicCleanupTest extends JMSTestBase
 {

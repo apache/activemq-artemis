@@ -18,10 +18,6 @@ package org.apache.activemq.utils;
 
 /**
  * A SizeFormatterUtil
- *
- * @author <a href="mailto:jmesnil@gmail.com">Jeff Mesnil</a>
- *
- *
  */
 public class SizeFormatterUtil
 {

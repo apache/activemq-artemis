@@ -27,8 +27,6 @@ import org.junit.Test;
 
 /**
  * A ServerTest
- *
- * @author jmesnil
  */
 public class FailoverWithSharedStoreTest extends ClusterTestBase
 {

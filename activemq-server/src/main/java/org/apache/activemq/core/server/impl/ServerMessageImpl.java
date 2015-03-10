@@ -32,10 +32,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A ServerMessageImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public class ServerMessageImpl extends MessageImpl implements ServerMessage
 {

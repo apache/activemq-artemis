@@ -19,12 +19,7 @@ package org.apache.activemq.core.example;
 import java.util.logging.Logger;
 
 /**
- *
  * A PerfSender
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class PerfSender extends PerfBase
 {

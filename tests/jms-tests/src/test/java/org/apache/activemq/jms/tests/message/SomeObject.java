@@ -20,8 +20,6 @@ import java.io.Serializable;
 
 /**
  * ObjectMessageTest needed a simple class to test ClassLoadingIsolations
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
  */
 public class SomeObject implements Serializable
 {

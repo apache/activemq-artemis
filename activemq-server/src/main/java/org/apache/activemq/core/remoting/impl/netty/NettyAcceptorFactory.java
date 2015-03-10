@@ -29,8 +29,6 @@ import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 
 /**
  * A NettyAcceptorFactory
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class NettyAcceptorFactory implements AcceptorFactory
 {

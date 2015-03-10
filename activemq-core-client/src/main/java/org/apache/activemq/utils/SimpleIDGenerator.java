@@ -18,9 +18,6 @@ package org.apache.activemq.utils;
 
 /**
  * A SimpleIDGenerator
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class SimpleIDGenerator implements IDGenerator
 {

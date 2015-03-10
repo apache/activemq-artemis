@@ -20,10 +20,6 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class MockXAResource implements XAResource
 {
    @Override

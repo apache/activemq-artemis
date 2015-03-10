@@ -23,8 +23,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * A ReplicationLargeMessageWriteMessage
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public final class ReplicationLargeMessageWriteMessage extends PacketImpl
 {

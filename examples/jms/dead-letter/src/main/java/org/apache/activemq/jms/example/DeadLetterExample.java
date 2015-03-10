@@ -29,9 +29,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example showing how messages are moved to dead letter destination when they are unsuccessfully delivered multiple times
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class DeadLetterExample extends ActiveMQExample
 {

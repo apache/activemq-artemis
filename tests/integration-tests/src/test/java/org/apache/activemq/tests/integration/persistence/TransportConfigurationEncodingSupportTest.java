@@ -36,10 +36,6 @@ import org.junit.Assert;
 
 /**
  * A TransportConfigurationEncodingSupportTest
- *
- * @author jmesnil
- *
- *
  */
 public class TransportConfigurationEncodingSupportTest extends Assert
 {

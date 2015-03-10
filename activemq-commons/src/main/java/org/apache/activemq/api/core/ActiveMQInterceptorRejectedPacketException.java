@@ -21,7 +21,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.INTERCEPTOR_REJ
 /**
  * An outgoing interceptor returned false.
  * See org.apache.activemq.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq.api.core.Interceptor)
- * @author Justin Bertram
  */
 // XXX I doubt any reader will make much sense of this Javadoc's text.
 public final class ActiveMQInterceptorRejectedPacketException extends ActiveMQException

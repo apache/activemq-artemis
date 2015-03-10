@@ -30,8 +30,6 @@ import org.junit.Test;
 
 /**
  * A LinkedListTest
- *
- * @author Tim Fox
  */
 public class LinkedListTest extends UnitTestCase
 {

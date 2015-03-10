@@ -29,8 +29,6 @@ import org.apache.activemq.core.server.impl.ServerMessageImpl;
 
 /**
  * A StompUtils
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class StompUtils
 {

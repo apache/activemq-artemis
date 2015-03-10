@@ -19,10 +19,7 @@ package org.apache.activemq.core.example;
 import java.io.Serializable;
 
 /**
- *
  * Class that holds the parameters used in the performance examples
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class PerfParams implements Serializable
 {

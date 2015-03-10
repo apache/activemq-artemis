@@ -23,7 +23,6 @@ import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 
 /**
  * Factory class to create instances of {@link ActiveMQBuffer}.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class ActiveMQBuffers
 {

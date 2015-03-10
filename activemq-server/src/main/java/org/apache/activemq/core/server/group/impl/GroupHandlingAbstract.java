@@ -32,10 +32,6 @@ import org.apache.activemq.core.server.management.ManagementService;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * @author Clebert Suconic
- */
-
 public abstract class GroupHandlingAbstract implements GroupingHandler
 {
    protected final Executor executor;

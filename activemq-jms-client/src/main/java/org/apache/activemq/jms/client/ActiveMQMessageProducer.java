@@ -44,10 +44,6 @@ import org.apache.activemq.utils.UUID;
 import org.apache.activemq.utils.UUIDGenerator;
 /**
  * ActiveMQ implementation of a JMS MessageProducer.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
  */
 public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher
 {

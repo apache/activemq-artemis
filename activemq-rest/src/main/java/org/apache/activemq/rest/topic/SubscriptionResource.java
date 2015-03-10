@@ -21,10 +21,6 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.rest.queue.DestinationServiceManager;
 import org.apache.activemq.rest.queue.QueueConsumer;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class SubscriptionResource extends QueueConsumer implements Subscription
 {
    protected boolean durable;

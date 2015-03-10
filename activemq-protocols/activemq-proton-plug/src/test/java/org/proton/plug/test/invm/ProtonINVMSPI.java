@@ -31,10 +31,6 @@ import org.proton.plug.test.minimalserver.MinimalSessionSPI;
 import org.proton.plug.util.ByteUtil;
 import org.proton.plug.util.DebugInfo;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonINVMSPI implements AMQPConnectionCallback
 {
 

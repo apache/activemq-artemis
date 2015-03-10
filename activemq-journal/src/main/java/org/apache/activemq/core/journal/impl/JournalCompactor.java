@@ -42,10 +42,6 @@ import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A JournalCompactor
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class JournalCompactor extends AbstractJournalUpdateTask implements JournalRecordProvider
 {

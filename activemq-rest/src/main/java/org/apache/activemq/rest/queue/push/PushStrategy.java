@@ -19,10 +19,6 @@ package org.apache.activemq.rest.queue.push;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public interface PushStrategy
 {
    /**

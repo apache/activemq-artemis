@@ -24,12 +24,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 /**
- *
  * A RealJournalImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class RealJournalImplAIOTest extends JournalImplTestUnit
 {

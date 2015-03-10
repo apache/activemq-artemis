@@ -18,10 +18,6 @@ package org.proton.plug;
 
 import io.netty.buffer.ByteBuf;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface AMQPConnectionCallback
 {
    void close();

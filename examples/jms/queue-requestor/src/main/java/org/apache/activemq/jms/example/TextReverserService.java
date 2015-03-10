@@ -31,10 +31,6 @@ import javax.jms.TextMessage;
  * A TextReverserService is a MessageListener which consume text messages from a destination
  * and replies with text messages containing the reversed text.
  * It sends replies to the destination specified by the JMS ReplyTo header of the consumed messages.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class TextReverserService implements MessageListener
 {

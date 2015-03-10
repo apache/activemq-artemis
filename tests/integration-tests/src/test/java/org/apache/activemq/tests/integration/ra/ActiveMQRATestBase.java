@@ -47,10 +47,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Jul 6, 2010
- */
 public abstract class ActiveMQRATestBase extends JMSTestBase
 {
    protected ServerLocator locator;

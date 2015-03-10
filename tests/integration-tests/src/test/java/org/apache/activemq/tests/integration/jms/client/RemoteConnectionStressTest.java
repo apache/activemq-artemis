@@ -41,7 +41,6 @@ import org.junit.Test;
 
 /**
  * test Written to replicate https://issues.jboss.org/browse/HORNETQ-1312
- * @author Clebert Suconic
  */
 public class RemoteConnectionStressTest extends ServiceTestBase
 {

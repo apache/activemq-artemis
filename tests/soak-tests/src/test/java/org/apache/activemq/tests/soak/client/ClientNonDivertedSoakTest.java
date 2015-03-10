@@ -34,8 +34,6 @@ import org.junit.Test;
 
 /**
  * A ClientSoakTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ClientNonDivertedSoakTest extends ServiceTestBase
 {

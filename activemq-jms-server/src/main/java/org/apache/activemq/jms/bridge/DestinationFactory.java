@@ -18,13 +18,6 @@ package org.apache.activemq.jms.bridge;
 
 import javax.jms.Destination;
 
-/**
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>$Revision: $</tt>10 Oct 2007
- *
- *
- */
 public interface DestinationFactory
 {
    Destination createDestination() throws Exception;

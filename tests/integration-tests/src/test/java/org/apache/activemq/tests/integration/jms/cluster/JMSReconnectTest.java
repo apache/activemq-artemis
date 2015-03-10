@@ -55,12 +55,7 @@ import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
- *
  * A JMSReconnectTest
- *
- * @author Tim Fox
- *
- *
  */
 public class JMSReconnectTest extends UnitTestCase
 {

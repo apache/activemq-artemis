@@ -27,8 +27,6 @@ import org.apache.activemq.utils.UTF8Util;
 
 /**
  * A ChannelBufferWrapper
- *
- * @author Tim Fox
  */
 public class ChannelBufferWrapper implements ActiveMQBuffer
 {

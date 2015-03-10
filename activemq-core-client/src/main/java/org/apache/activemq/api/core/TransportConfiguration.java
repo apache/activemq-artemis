@@ -40,7 +40,6 @@ import org.apache.activemq.utils.UUIDGenerator;
  * TransportConfiguration config = new TransportConfiguration(InVMConnectorFactory.class.getName(), map);
  * ClientSessionFactory sf = new ClientSessionFactoryImpl(config);
  * </pre>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class TransportConfiguration implements Serializable
 {

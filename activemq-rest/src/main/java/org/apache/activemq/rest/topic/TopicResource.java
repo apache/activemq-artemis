@@ -32,10 +32,6 @@ import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.DestinationResource;
 import org.apache.activemq.rest.queue.PostMessage;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class TopicResource extends DestinationResource
 {
    protected SubscriptionsResource subscriptions;

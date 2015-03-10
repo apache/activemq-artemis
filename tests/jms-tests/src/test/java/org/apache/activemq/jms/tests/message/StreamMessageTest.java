@@ -27,8 +27,6 @@ import org.junit.Test;
 
 /**
  * A test that sends/receives stream messages to the JMS provider and verifies their integrity.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  */
 public class StreamMessageTest extends MessageTestBase
 {

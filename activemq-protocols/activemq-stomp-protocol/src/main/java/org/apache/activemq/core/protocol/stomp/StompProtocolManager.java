@@ -61,8 +61,6 @@ import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessa
 
 /**
  * StompProtocolManager
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 class StompProtocolManager implements ProtocolManager, NotificationListener
 {

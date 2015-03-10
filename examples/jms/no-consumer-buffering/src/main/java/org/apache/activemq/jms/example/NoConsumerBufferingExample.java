@@ -30,8 +30,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * This example demonstrates how ActiveMQ consumers can be configured to not buffer any messages from
  * the server.
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
 public class NoConsumerBufferingExample extends ActiveMQExample
 {

@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * A TextMessageOverBridgeTest
- *
- * @author clebertsuconic
  */
 public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 {

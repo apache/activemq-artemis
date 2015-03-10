@@ -25,11 +25,6 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- *
- * @author clebert.suconic@jboss.org
- *
- */
 public abstract class FileFactoryTestBase extends UnitTestCase
 {
    protected abstract SequentialFileFactory createFactory();

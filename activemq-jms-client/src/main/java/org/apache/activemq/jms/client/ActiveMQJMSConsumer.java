@@ -23,9 +23,6 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 
-/**
- * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
- */
 public class ActiveMQJMSConsumer implements JMSConsumer
 {
 

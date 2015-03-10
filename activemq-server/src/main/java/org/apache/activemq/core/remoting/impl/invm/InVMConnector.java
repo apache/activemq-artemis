@@ -38,10 +38,6 @@ import org.apache.activemq.utils.OrderedExecutorFactory;
 
 /**
  * A InVMConnector
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- *
  */
 public class InVMConnector extends AbstractConnector
 {

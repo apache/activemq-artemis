@@ -38,12 +38,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 
 /**
  * A AcceptorControlTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
- * Created 11 dec. 2008 17:38:58
- *
- *
  */
 public class AcceptorControlTest extends ManagementTestBase
 {

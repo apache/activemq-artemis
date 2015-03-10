@@ -48,9 +48,6 @@ import static org.apache.activemq.utils.DataConstants.STRING;
  * (Version 1.1 April 12, 2002).
  * <p>
  * TODO - should have typed property getters and do conversions herein
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public final class TypedProperties
 {

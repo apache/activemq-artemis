@@ -36,10 +36,6 @@ import org.apache.activemq.api.core.client.ClientSession;
  * Don't used ObjectMessage if you want good performance!
  * <p>
  * Serialization is slooooow!
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
  */
 public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMessage
 {

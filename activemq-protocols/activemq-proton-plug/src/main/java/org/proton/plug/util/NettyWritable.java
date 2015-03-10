@@ -16,11 +16,6 @@
  */
 package org.proton.plug.util;
 
-/**
- * @author Clebert Suconic
- */
-
-
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
@@ -28,8 +23,6 @@ import org.apache.qpid.proton.codec.WritableBuffer;
 
 /**
  * This is to use NettyBuffer within Proton
- *
- * @author Clebert Suconic
  */
 
 public class NettyWritable implements WritableBuffer

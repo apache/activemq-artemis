@@ -26,8 +26,6 @@ import org.apache.activemq.api.core.TransportConfigurationHelper;
  * A ConnectorFactory is used by the client for creating connectors.
  * <p>
  * A Connector is used to connect to an {@link org.apache.activemq.spi.core.remoting.Acceptor}.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface ConnectorFactory extends TransportConfigurationHelper
 {

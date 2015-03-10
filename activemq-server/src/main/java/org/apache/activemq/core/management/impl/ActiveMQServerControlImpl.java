@@ -90,11 +90,6 @@ import org.apache.activemq.utils.TypedProperties;
 import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter,
                                                                          org.apache.activemq.core.server.management.NotificationListener
 {

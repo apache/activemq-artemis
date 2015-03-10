@@ -31,11 +31,7 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
 
 /**
- *
  * A AIOSequentialFile
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class AIOSequentialFile extends AbstractSequentialFile implements IOExceptionListener
 {

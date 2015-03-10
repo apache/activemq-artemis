@@ -21,10 +21,6 @@ import org.apache.activemq.core.paging.PagedMessage;
 
 /**
  * The provider of Cursor for a given Address
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- *
  */
 public interface PageCursorProvider
 {

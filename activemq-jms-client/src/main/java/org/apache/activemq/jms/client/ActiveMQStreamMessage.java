@@ -43,16 +43,6 @@ import static org.apache.activemq.reader.StreamMessageUtil.streamReadString;
 
 /**
  * ActiveMQ implementation of a JMS StreamMessage.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Some parts based on JBM 1.x class by:
- *
- * @author Norbert Lataille (Norbert.Lataille@m4x.org)
- * @author <a href="mailto:adrian@jboss.org">Adrian Brock</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
  */
 public final class ActiveMQStreamMessage extends ActiveMQMessage implements StreamMessage
 {

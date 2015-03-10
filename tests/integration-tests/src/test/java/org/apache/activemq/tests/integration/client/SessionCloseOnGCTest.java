@@ -31,9 +31,6 @@ import org.junit.Test;
 
 /**
  * A SessionCloseOnGCTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <mailto:tim.fox@jboss.org">Tim Fox</a>
  */
 public class SessionCloseOnGCTest extends ServiceTestBase
 {

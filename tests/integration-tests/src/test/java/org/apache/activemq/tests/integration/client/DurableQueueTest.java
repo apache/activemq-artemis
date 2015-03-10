@@ -34,8 +34,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A TemporaryQueueTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class DurableQueueTest extends ServiceTestBase
 {

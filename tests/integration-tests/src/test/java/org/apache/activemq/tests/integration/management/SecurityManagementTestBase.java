@@ -35,9 +35,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A SecurityManagementTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public abstract class SecurityManagementTestBase extends UnitTestCase
 {

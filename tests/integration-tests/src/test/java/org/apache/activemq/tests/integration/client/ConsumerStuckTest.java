@@ -33,9 +33,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class ConsumerStuckTest extends ServiceTestBase
 {
    private ActiveMQServer server;

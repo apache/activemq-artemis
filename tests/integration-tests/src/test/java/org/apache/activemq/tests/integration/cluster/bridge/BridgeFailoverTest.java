@@ -32,9 +32,6 @@ import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.tests.integration.cluster.util.MultiServerTestBase;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
 public class BridgeFailoverTest extends MultiServerTestBase
 {
 

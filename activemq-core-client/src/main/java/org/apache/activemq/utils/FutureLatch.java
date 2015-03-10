@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A Future
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class FutureLatch implements Runnable
 {

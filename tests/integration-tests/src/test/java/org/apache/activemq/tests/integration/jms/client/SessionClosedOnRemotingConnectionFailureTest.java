@@ -44,10 +44,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 /**
  *
  * A SessionClosedOnRemotingConnectionFailureTest
- *
- * @author Tim Fox
- *
- *
  */
 public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase
 {

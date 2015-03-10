@@ -37,9 +37,6 @@ import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class JMSQueueControlImpl extends StandardMBean implements JMSQueueControl
 {
    private final ActiveMQDestination managedQueue;

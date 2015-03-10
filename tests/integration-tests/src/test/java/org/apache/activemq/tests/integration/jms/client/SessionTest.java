@@ -28,8 +28,6 @@ import org.junit.Test;
 
 /**
  * A SessionTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class SessionTest extends JMSTestBase
 {

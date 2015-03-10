@@ -28,12 +28,6 @@ import org.w3c.dom.Element;
 
 /**
  * A ConfigurationValidationTr
- *
- * @author jmesnil
- *
- * Created 22 janv. 2009 14:53:19
- *
- *
  */
 public class ConfigurationValidationTest extends UnitTestCase
 {

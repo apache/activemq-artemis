@@ -133,10 +133,6 @@ import org.apache.activemq.utils.VersionLoader;
 
 /**
  * The ActiveMQ server implementation
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ataylor@redhat.com>Andy Taylor</a>
- * @author <a href="mailto:mtaylor@redhat.com>Martyn Taylor</a>
  */
 public class ActiveMQServerImpl implements ActiveMQServer
 {

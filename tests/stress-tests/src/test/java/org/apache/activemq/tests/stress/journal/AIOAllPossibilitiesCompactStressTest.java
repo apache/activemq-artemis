@@ -24,10 +24,6 @@ import org.apache.activemq.core.journal.impl.JournalConstants;
 
 /**
  * A NIOAllPossibilitiesCompactStressTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class AIOAllPossibilitiesCompactStressTest extends AllPossibilitiesCompactStressTest
 {

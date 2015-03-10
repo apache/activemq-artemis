@@ -34,9 +34,6 @@ import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
  *
  * This example shows how to run a ActiveMQ core client and server embedded in your
  * own application
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class EmbeddedRemoteExample
 {

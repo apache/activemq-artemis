@@ -25,10 +25,6 @@ import org.apache.activemq.rest.util.LinkStrategy;
 import org.apache.activemq.rest.util.TimeoutTask;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public abstract class DestinationServiceManager
 {
    protected ServerLocator locator;

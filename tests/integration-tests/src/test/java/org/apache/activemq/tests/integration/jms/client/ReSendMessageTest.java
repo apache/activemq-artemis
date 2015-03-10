@@ -42,8 +42,6 @@ import org.junit.Test;
 
 /**
  * Receive Messages and resend them, like the bridge would do
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ReSendMessageTest extends JMSTestBase
 {

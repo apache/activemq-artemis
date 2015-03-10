@@ -29,9 +29,6 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
  * Test the <code>javax.jms.TemporaryQueue</code> features.
- *
- * @author Jeff Mesnil (jmesnil@gmail.com)
- * @version $Id: TemporaryQueueTest.java,v 1.1 2007/03/29 04:28:37 starksm Exp $
  */
 public class TemporaryQueueTest extends PTPTestCase
 {

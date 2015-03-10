@@ -21,10 +21,7 @@ import org.apache.qpid.proton.engine.Transport;
 
 /**
  * TODO : this needs a better home
- *
- * @author rhs
  */
-
 public final class Events
 {
 

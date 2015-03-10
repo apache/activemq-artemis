@@ -36,8 +36,6 @@ import org.junit.Test;
 
 /**
  * A MessageRateTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class MessageRateTest extends ServiceTestBase
 {

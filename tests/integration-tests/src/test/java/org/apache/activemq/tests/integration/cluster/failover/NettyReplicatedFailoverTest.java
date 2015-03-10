@@ -23,8 +23,6 @@ import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
 /**
  * A NettyReplicatedFailoverTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class NettyReplicatedFailoverTest extends NettyFailoverTest
 {

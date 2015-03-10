@@ -24,10 +24,6 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- */
 public class JNDIUtil
 {
    // Constants -----------------------------------------------------

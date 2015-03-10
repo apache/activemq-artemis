@@ -18,9 +18,6 @@ package org.apache.activemq.api.core;
 
 import org.jgroups.JChannel;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint
 {
    private final JChannel jChannel;

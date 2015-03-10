@@ -51,10 +51,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author Justin Bertram
- */
 @RunWith(value = Parameterized.class)
 public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
 {

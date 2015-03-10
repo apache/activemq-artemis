@@ -23,8 +23,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
  * A ConnectionFactoryConfiguration for {@link javax.jms.ConnectionFactory} objects.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface ConnectionFactoryConfiguration extends EncodingSupport
 {

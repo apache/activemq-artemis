@@ -22,10 +22,6 @@ import org.junit.BeforeClass;
 
 /**
  * A AIOMultiThreadCompactorStressTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class AIOMultiThreadCompactorStressTest extends NIOMultiThreadCompactorStressTest
 {

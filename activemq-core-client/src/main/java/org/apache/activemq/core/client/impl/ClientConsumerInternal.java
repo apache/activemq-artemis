@@ -25,8 +25,6 @@ import org.apache.activemq.utils.FutureLatch;
 
 /**
  * A ClientConsumerInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface ClientConsumerInternal extends ClientConsumer
 {

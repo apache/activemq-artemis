@@ -29,8 +29,6 @@ import org.junit.Test;
 
 /**
  * A SendStressTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class SendStressTest extends ServiceTestBase
 {

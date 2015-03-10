@@ -25,7 +25,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 
 /**
  * A TestServer
- * @author jmesnil
  */
 public interface TestableServer extends ActiveMQComponent
 {

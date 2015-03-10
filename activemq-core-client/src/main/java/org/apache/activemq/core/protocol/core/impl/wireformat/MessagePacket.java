@@ -22,10 +22,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * A MessagePacket
- *
- * @author Tim Fox
- *
- *
  */
 public abstract class MessagePacket extends PacketImpl
 {

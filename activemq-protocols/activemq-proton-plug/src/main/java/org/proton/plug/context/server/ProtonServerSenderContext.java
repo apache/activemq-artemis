@@ -39,10 +39,6 @@ import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.proton.plug.context.ProtonPlugSender;
 import org.apache.qpid.proton.amqp.messaging.Source;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonServerSenderContext extends AbstractProtonContextSender implements ProtonPlugSender
 {
 

@@ -21,10 +21,6 @@ import org.apache.activemq.api.core.SimpleString;
 
 /**
  * Helper methods to read and write from ActiveMQBuffer.
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class BufferHelper
 {

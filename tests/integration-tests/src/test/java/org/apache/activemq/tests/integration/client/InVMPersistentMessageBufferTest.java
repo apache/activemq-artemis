@@ -18,10 +18,6 @@ package org.apache.activemq.tests.integration.client;
 
 /**
  * A InVMPersistentMessageBufferTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class InVMPersistentMessageBufferTest extends InVMNonPersistentMessageBufferTest
 {

@@ -33,9 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Justin Bertram
- */
 public class InvalidConnectorTest extends JMSTestBase
 {
    @Override

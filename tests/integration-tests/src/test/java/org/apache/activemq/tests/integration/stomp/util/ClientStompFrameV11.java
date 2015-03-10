@@ -17,8 +17,6 @@
 package org.apache.activemq.tests.integration.stomp.util;
 
 /**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *         <p/>
  *         pls use factory to create frames.
  */
 public class ClientStompFrameV11 extends AbstractClientStompFrame

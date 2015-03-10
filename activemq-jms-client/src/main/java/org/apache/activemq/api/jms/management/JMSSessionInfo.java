@@ -22,10 +22,6 @@ import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * A JMSSessionInfo
- *
- * @author howard
- *
- *
  */
 public class JMSSessionInfo
 {

@@ -30,10 +30,6 @@ import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Map.Entry;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class HttpMessageHelper
 {
    public static final String POSTED_AS_HTTP_MESSAGE = "postedAsHttpMessage";

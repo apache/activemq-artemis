@@ -42,10 +42,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
  *
  * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4806007
  * http://jira.jboss.com/jira/browse/JBAS-2641
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @version $Revision: 6016 $
- *
  */
 public class String64KLimitTest extends UnitTestCase
 {

@@ -31,8 +31,6 @@ import org.junit.Test;
 
 /**
  * A NettySecurityClientTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class NettySecurityClientTest extends ServiceTestBase
 {

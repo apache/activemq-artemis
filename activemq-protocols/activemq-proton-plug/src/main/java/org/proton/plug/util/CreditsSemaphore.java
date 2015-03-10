@@ -18,10 +18,6 @@ package org.proton.plug.util;
 
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-/**
- * @author Clebert Suconic
- */
-
 public class CreditsSemaphore
 {
 

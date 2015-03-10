@@ -28,7 +28,6 @@ import org.apache.activemq.utils.DataConstants;
  * <p>
  * This object is used heavily throughout ActiveMQ for performance reasons.
  *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class SimpleString implements CharSequence, Serializable, Comparable<SimpleString>
 {

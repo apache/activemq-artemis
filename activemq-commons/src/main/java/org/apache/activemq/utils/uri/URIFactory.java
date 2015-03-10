@@ -22,9 +22,6 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author clebertsuconic
- */
 public class URIFactory<T, P>
 {
 

@@ -18,9 +18,6 @@ package org.apache.activemq.service.extensions.transactions;
 
 import javax.transaction.TransactionManager;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public interface TransactionManagerLocator
 {
    TransactionManager getTransactionManager();

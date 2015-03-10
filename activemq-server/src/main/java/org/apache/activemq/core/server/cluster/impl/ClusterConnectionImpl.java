@@ -73,9 +73,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A ClusterConnectionImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
  */
 public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener
 {

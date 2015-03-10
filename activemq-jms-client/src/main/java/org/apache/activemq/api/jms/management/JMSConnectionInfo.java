@@ -21,10 +21,6 @@ import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * A JMSConnectionInfo
- *
- * @author jmesnil
- *
- *
  */
 public class JMSConnectionInfo
 {

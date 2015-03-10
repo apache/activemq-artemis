@@ -34,9 +34,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.utils.json.JSONArray;
 
-/**
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class BroadcastGroupControlTest extends ManagementTestBase
 {
 

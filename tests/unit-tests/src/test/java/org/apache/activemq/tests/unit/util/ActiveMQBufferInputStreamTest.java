@@ -24,8 +24,6 @@ import org.junit.Test;
 
 /**
  * A ActiveMQInputStreamTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ActiveMQBufferInputStreamTest extends UnitTestCase
 {

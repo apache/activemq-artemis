@@ -26,10 +26,6 @@ import org.apache.activemq.api.jms.management.JMSManagementHelper;
 
 /**
  * A MBeanUsingCoreMessage
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class JMSMessagingProxy
 {

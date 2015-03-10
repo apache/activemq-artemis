@@ -45,8 +45,6 @@ import org.w3c.dom.Node;
  * <p>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
  * articles. Unused methods should be marked as deprecated.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 @MessageLogger(projectCode = "AMQ")
 public interface ActiveMQClientLogger extends BasicLogger

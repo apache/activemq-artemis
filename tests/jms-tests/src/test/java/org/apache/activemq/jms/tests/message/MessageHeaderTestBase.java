@@ -43,13 +43,6 @@ import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Before;
 
-/**
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>$Revision: 2883 $</tt>
- *
- */
 public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------

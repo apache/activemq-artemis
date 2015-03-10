@@ -47,8 +47,6 @@ import org.junit.Test;
 
 /**
  * A DuplicateDetectionUnitTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class DuplicateDetectionUnitTest extends ServiceTestBase
 {

@@ -16,10 +16,6 @@
  */
 package org.proton.plug;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface AMQPServerConnectionContext extends AMQPConnectionContext
 {
 }

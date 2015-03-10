@@ -25,8 +25,6 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 
 /**
  * A class that represents a XATopicConnectionFactory.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class ActiveMQXATopicConnectionFactory extends ActiveMQConnectionFactory implements XATopicConnectionFactory
 {

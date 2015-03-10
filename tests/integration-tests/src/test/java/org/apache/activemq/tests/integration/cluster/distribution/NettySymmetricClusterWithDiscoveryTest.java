@@ -18,12 +18,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 /**
  * A NettySymmetricClusterWithDiscoveryTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 13 Feb 2009 13:52:03
- *
- *
  */
 public class NettySymmetricClusterWithDiscoveryTest extends SymmetricClusterWithDiscoveryTest
 {

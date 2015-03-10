@@ -46,10 +46,6 @@ import org.junit.Test;
 
 /**
  * A DuplicateDetectionTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 9 Dec 2008 12:31:48
  */
 public class DuplicateDetectionTest extends ServiceTestBase
 {

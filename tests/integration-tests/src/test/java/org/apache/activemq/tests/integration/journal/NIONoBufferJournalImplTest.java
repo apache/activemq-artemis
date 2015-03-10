@@ -24,11 +24,7 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestUnit;
 
 /**
- *
  * A RealJournalImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class NIONoBufferJournalImplTest extends JournalImplTestUnit
 {

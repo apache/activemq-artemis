@@ -24,10 +24,6 @@ import org.apache.activemq.api.core.management.ResourceNames;
 
 /**
  * A BroadcastGroupControlUsingCoreTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTest
 {

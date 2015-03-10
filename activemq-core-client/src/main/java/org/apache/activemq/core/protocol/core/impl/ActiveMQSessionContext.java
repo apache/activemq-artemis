@@ -107,10 +107,6 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIV
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
 import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ActiveMQSessionContext extends SessionContext
 {
    private final Channel sessionChannel;

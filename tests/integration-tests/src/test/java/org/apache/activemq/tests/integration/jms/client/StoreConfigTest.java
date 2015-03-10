@@ -36,10 +36,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
  * A CreateCFTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class StoreConfigTest extends JMSTestBase
 {

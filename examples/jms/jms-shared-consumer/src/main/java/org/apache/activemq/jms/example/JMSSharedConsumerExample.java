@@ -33,8 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A JMS Example that uses shared consumers.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class JMSSharedConsumerExample extends ActiveMQExample
 {

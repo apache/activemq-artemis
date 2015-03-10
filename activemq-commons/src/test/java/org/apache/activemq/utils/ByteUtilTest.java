@@ -19,10 +19,6 @@ package org.apache.activemq.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ByteUtilTest
 {
    @Test

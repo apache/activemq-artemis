@@ -18,9 +18,6 @@ package org.apache.activemq.uri;
 
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class InVMAcceptorTransportConfigurationSchema extends InVMTransportConfigurationSchema
 {
    protected String getFactoryName()

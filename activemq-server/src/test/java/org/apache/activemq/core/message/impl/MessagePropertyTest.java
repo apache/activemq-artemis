@@ -28,9 +28,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Francisco Borges
- */
 public class MessagePropertyTest extends ServiceTestBase
 {
    private ActiveMQServer server;

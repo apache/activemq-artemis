@@ -32,8 +32,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that consumes messages using selectors.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class TopicSelectorExample2 extends ActiveMQExample
 {

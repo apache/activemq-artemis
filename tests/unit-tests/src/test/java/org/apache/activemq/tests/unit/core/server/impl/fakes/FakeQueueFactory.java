@@ -29,11 +29,7 @@ import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.impl.QueueImpl;
 
 /**
- *
  * A FakeQueueFactory
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class FakeQueueFactory implements QueueFactory
 {

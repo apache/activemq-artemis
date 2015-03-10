@@ -30,10 +30,6 @@ import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.spi.core.remoting.Connection;
 
-/**
- * @author Clebert Suconic
- */
-
 public abstract class AbstractRemotingConnection implements RemotingConnection
 {
    protected final List<FailureListener> failureListeners = new CopyOnWriteArrayList<FailureListener>();

@@ -20,10 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class NodeAnnounceMessage extends PacketImpl
 {
    protected String nodeID;

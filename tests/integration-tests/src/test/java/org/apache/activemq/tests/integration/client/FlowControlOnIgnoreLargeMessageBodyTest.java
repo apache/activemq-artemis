@@ -37,13 +37,7 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 
 /**
- *
  * A TestFlowControlOnIgnoreLargeMessageBodyTest
- *
- * @author clebertsuconic
- * @author Pavel Slavice
- *
- *
  */
 public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 {

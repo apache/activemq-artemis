@@ -18,11 +18,6 @@ package org.apache.activemq.core.server;
 
 /**
  * A ActiveMQComponent
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>$Revision: 2796 $</tt>
- *
- *
  */
 public interface ActiveMQComponent
 {

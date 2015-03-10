@@ -32,10 +32,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * A MessageRedistributionWithDiscoveryTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 {

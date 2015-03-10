@@ -27,10 +27,6 @@ import org.apache.activemq.utils.json.JSONArray;
 
 /**
  * A BroadcastGroupControl
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
- * Created 11 dec. 2008 17:09:04
  */
 public class BroadcastGroupControlImpl extends AbstractControl implements BroadcastGroupControl
 {

@@ -18,8 +18,6 @@ package org.apache.activemq.jms.persistence.config;
 
 /**
  * A PersistedType
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public enum PersistedType
 {

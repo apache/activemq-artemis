@@ -36,9 +36,6 @@ import org.junit.Test;
 /**
  * Tests focused on durable subscription behavior. More durable subscription tests can be found in
  * MessageConsumerTest.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class DurableSubscriptionTest extends JMSTestCase
 {

@@ -33,10 +33,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 /**
  *
  * A ReceiveNoWaitTest
- *
- * @author Tim Fox
- *
- *
  */
 public class ReceiveNoWaitTest extends JMSTestBase
 {

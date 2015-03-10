@@ -33,8 +33,6 @@ import org.apache.activemq.utils.DataConstants;
  * It is also persisted on the journal at the time of management is used to created a connection factory and set to store.
  * <p>
  * Every property on this class has to be also set through encoders through EncodingSupport implementation at this class.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConfiguration
 {

@@ -41,9 +41,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class ExpiryAddressTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

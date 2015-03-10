@@ -29,8 +29,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Topic example that creates a producer and consumer on a queue and sends and receives a message.
- *
- * @author <a href="csuconic@redhat.com">Clebert Suconic</a>
  */
 public class TopicSelectorExample1 extends ActiveMQExample
 {

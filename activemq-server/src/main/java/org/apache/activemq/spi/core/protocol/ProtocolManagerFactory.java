@@ -23,10 +23,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 
 /**
  * A ProtocolManagerFactory
- *
- * @author tim
- *
- *
  */
 public interface ProtocolManagerFactory
 {

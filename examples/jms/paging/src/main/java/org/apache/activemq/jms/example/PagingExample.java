@@ -30,8 +30,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
- *
- * @author <a href="csuconic@redhat.com">Clebert Suconic</a>
  */
 public class PagingExample extends ActiveMQExample
 {

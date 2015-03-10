@@ -36,8 +36,6 @@ import org.junit.Test;
 
 /**
  * A NettyAcceptorFactoryTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class NettyAcceptorFactoryTest extends UnitTestCase
 {

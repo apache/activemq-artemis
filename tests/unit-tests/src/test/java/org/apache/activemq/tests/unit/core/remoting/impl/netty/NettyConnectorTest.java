@@ -34,9 +34,6 @@ import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class NettyConnectorTest extends UnitTestCase
 {
 

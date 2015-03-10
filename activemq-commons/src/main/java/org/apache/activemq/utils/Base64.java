@@ -92,10 +92,6 @@ import java.nio.charset.StandardCharsets;
  * Please visit <a href="http://iharder.net/base64">http://iharder.net/base64</a>
  * periodically to check for updates or to contribute improvements.
  * </p>
- *
- * @author Robert Harder
- * @author rob@iharder.net
- * @version 2.2.2
  */
 public class Base64
 {

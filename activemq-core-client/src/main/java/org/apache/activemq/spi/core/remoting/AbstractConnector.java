@@ -20,8 +20,6 @@ import java.util.Map;
 
 /**
  * Abstract connector
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public abstract class AbstractConnector implements Connector
 {

@@ -31,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A JMS Completion Listener Example.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class JMSCompletionListenerExample extends ActiveMQExample
 {

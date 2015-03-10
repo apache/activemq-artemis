@@ -18,10 +18,6 @@ package org.apache.activemq.core.asyncio;
 
 /**
  * A IOExceptionListener
- *
- * @author clebert
- *
- *
  */
 public interface IOExceptionListener
 {

@@ -24,11 +24,6 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version <tt>$Revision: 2868 $</tt>
- *
- */
 public class InVMNameParser implements NameParser, Serializable
 {
    // Constants -----------------------------------------------------

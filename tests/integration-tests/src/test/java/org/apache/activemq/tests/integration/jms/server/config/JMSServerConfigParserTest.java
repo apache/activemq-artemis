@@ -28,10 +28,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A JMSServerConfigParserTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class JMSServerConfigParserTest extends ServiceTestBase
 {

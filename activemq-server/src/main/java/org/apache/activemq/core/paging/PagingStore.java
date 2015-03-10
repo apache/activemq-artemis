@@ -38,7 +38,6 @@ import org.apache.activemq.core.transaction.Transaction;
  * be used based on configured size.
  * </p>
  *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  * @see PagingManager
  */
 public interface PagingStore extends ActiveMQComponent

@@ -42,10 +42,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:clebert.suconic">Clebert Suconic</a>
- */
 public class ScheduledMessageTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

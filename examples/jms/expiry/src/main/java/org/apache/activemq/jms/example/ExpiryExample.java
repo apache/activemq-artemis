@@ -29,9 +29,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example showing how messages are moved to an expiry queue when they expire.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class ExpiryExample extends ActiveMQExample
 {

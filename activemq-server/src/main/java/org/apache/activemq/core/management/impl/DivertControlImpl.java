@@ -25,10 +25,6 @@ import org.apache.activemq.core.server.Divert;
 
 /**
  * A DivertControl
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
- * Created 11 dec. 2008 17:09:04
  */
 public class DivertControlImpl extends AbstractControl implements DivertControl
 {

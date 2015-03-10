@@ -59,8 +59,6 @@ import org.apache.activemq.utils.FutureLatch;
 
 /**
  * A PageCursorImpl
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 final class PageSubscriptionImpl implements PageSubscription
 {

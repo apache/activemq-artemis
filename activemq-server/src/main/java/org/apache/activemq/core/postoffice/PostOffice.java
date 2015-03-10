@@ -39,9 +39,6 @@ import org.apache.activemq.core.transaction.Transaction;
  * Addresses can be any String instance.
  *
  * A Queue instance can only be bound against a single address in the post office.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface PostOffice extends ActiveMQComponent
 {

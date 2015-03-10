@@ -34,8 +34,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * Messages are initially round robin'd between both nodes of the cluster.
  * The consumer on one of the nodes is then closed, and we demonstrate that the "stranded" messages
  * are redistributed to the other node which has a consumer so they can be consumed.
- *
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
 public class QueueMessageRedistributionExample extends ActiveMQExample
 {

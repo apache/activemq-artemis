@@ -27,9 +27,6 @@ import javax.transaction.TransactionManager;
 
 import org.apache.activemq.service.extensions.transactions.TransactionManagerLocator;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class DummyTransactionManagerLocator implements TransactionManagerLocator,TransactionManager
 {
    @Override

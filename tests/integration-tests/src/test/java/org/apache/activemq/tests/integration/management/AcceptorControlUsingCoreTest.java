@@ -31,10 +31,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A AcceptorControlUsingCoreTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class AcceptorControlUsingCoreTest extends AcceptorControlTest
 {

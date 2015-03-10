@@ -18,10 +18,6 @@ package org.apache.activemq.tests.integration.client;
 
 /**
  * A NettyPersistentMessageBufferTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class NettyPersistentMessageBufferTest extends InVMNonPersistentMessageBufferTest
 {

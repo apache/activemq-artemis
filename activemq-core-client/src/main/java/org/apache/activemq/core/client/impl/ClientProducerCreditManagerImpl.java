@@ -25,8 +25,6 @@ import org.apache.activemq.spi.core.remoting.SessionContext;
 
 /**
  * A ProducerCreditManager
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class ClientProducerCreditManagerImpl implements ClientProducerCreditManager
 {

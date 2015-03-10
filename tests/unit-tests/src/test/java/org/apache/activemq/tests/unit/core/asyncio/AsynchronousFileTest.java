@@ -53,8 +53,6 @@ import org.junit.Test;
  * I - Run->Open Run Dialog
  * II - Find the class on the list (you will find it if you already tried running this testcase before)
  * III - Add -Djava.library.path=<your project place>/native/src/.libs
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>.
  */
 public class AsynchronousFileTest extends AIOTestBase
 {

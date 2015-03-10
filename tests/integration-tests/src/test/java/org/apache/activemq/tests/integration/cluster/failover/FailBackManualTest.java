@@ -38,11 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: Dec 21, 2010
- *         Time: 12:04:16 PM
- */
 public class FailBackManualTest extends FailoverTestBase
 {
    private ServerLocatorInternal locator;

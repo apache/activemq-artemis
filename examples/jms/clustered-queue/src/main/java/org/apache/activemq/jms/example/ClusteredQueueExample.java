@@ -32,8 +32,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
- *
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
 public class ClusteredQueueExample extends ActiveMQExample
 {

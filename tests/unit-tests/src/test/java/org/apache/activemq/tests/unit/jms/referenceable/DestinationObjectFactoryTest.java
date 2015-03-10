@@ -28,11 +28,6 @@ import org.apache.activemq.jms.referenceable.DestinationObjectFactory;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class DestinationObjectFactoryTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

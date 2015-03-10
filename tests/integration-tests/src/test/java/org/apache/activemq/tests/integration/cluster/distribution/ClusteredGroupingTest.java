@@ -50,11 +50,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.junit.After;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author Clebert
- * @author Justin
- */
 public class ClusteredGroupingTest extends ClusterTestBase
 {
 

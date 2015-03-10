@@ -35,10 +35,6 @@ import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.utils.IDGenerator;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ActiveMQJMSVendor extends JMSVendor
 {
 

@@ -29,10 +29,6 @@ import org.junit.Test;
 
 /**
  * A ClusterWithBackupFailoverTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 9 Mar 2009 16:31:21
  */
 public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
 {

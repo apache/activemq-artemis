@@ -41,10 +41,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
  * A DivertAndACKClientTest
  *
  * https://jira.jboss.org/jira/browse/HORNETQ-165
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class DivertAndACKClientTest extends JMSTestBase
 {

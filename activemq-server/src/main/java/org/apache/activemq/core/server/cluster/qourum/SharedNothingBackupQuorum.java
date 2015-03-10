@@ -31,10 +31,6 @@ import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 
-/**
- * @author Andy Taylor
- */
-
 public class SharedNothingBackupQuorum implements Quorum, FailureListener
 {
    public enum BACKUP_ACTIVATION

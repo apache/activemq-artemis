@@ -61,8 +61,6 @@ import org.junit.Before;
  * A ClusteredBridgeTestBase
  * This class serves as a base class for jms bridge tests in
  * clustered scenarios.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public abstract class ClusteredBridgeTestBase extends ServiceTestBase
 {

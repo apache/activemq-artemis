@@ -36,8 +36,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A LargeServerMessageImpl
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public final class LargeServerMessageImpl extends ServerMessageImpl implements LargeServerMessage
 {

@@ -21,10 +21,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * A ReplicationLargeMessageBeingMessage
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ReplicationLargeMessageBeginMessage extends PacketImpl
 {

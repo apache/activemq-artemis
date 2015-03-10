@@ -34,10 +34,6 @@ import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonServerReceiverContext extends AbstractProtonReceiverContext
 {
 

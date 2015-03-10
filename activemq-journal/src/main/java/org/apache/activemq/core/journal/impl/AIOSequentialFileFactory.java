@@ -35,8 +35,6 @@ import org.apache.activemq.utils.ActiveMQThreadFactory;
 
 /**
  * A AIOSequentialFileFactory
- *
- * @author clebert.suconic@jboss.com
  */
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory
 {

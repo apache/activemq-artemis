@@ -29,10 +29,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class SpringIntegrationTest extends UnitTestCase
 {
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

@@ -25,8 +25,6 @@ import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessa
 
 /**
  * A StompDecoder
- *
- * @author Tim Fox
  */
 public class StompDecoder
 {

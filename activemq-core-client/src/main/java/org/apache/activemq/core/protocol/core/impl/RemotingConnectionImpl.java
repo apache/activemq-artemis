@@ -39,10 +39,6 @@ import org.apache.activemq.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.utils.SimpleIDGenerator;
 
-/**
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection
 {
    // Constants

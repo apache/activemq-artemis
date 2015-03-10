@@ -34,8 +34,6 @@ import org.apache.activemq.spi.core.remoting.ReadyListener;
 
 /**
  * A CoreSessionCallback
- *
- * @author Tim Fox
  */
 public final class CoreSessionCallback implements SessionCallback
 {

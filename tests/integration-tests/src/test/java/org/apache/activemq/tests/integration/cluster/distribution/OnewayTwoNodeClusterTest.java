@@ -27,12 +27,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
 /**
  * A OnewayTwoNodeClusterTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 30 Jan 2009 18:03:28
- *
- *
  */
 public class OnewayTwoNodeClusterTest extends ClusterTestBase
 {

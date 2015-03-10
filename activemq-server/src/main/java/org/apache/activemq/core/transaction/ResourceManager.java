@@ -24,11 +24,7 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.core.server.ActiveMQComponent;
 
 /**
- *
  * A ResourceManager
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface ResourceManager extends ActiveMQComponent
 {

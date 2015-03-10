@@ -39,9 +39,6 @@ import org.jboss.logging.Messages;
 import org.w3c.dom.Node;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         3/12/12
- *
  * Logger Code 11
  *
  * each message id must be 6 digits long starting with 10, the 3rd digit should be 9

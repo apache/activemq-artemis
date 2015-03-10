@@ -47,7 +47,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A HeuristicXATest
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class HeuristicXATest extends ServiceTestBase
 {

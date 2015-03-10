@@ -26,8 +26,6 @@ import org.apache.activemq.api.core.management.Parameter;
  * ActiveMQ JMS ConnectionFactory uses an underlying ClientSessionFactory to connect to ActiveMQ
  * servers. Please refer to the ClientSessionFactory for a detailed description.
  *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:fox@redhat.com">Tim Fox</a>
  * @see ServerLocator
  * @see ClientSessionFactory
  */

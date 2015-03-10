@@ -29,9 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class TCPTransportConfigurationSchema extends AbstractTransportConfigurationSchema
 {
    private final Set<String> allowableProperties;

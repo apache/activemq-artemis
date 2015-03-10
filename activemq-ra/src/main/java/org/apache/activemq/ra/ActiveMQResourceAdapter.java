@@ -60,11 +60,6 @@ import org.jgroups.JChannel;
 
 /**
  * The resource adapter for ActiveMQ
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @author <a href="jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
 {

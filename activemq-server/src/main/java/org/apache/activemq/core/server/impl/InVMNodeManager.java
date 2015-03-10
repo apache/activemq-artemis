@@ -35,9 +35,6 @@ import org.apache.activemq.utils.UUIDGenerator;
  * We use the {@link org.apache.activemq.core.server.impl.InVMNodeManager} instead of {@link org.apache.activemq.core.server.impl.FileLockNodeManager} when
  * multiple servers are run inside the same VM and File Locks can not be shared in the
  * same VM (it would cause a shared lock violation).
- *
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a> Date: Oct 13, 2010 Time: 3:55:47
- *         PM
  */
 public final class InVMNodeManager extends NodeManager
 {

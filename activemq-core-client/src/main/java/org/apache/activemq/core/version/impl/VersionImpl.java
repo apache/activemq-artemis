@@ -23,8 +23,6 @@ import org.apache.activemq.core.version.Version;
 
 /**
  * A VersionImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class VersionImpl implements Version, Serializable
 {

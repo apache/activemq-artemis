@@ -25,13 +25,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * A Core Bridge
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- * Created 15 Nov 2008 09:42:31
- *
- *
  */
 public interface Bridge extends Consumer, ActiveMQComponent
 {

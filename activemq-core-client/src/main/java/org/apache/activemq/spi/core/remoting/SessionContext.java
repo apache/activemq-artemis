@@ -37,10 +37,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.IDGenerator;
 import org.apache.activemq.utils.SimpleIDGenerator;
 
-/**
- * @author Clebert Suconic
- */
-
 public abstract class SessionContext
 {
    protected ClientSessionInternal session;

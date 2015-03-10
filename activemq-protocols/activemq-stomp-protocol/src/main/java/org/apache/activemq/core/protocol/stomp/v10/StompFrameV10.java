@@ -18,10 +18,6 @@ package org.apache.activemq.core.protocol.stomp.v10;
 
 import org.apache.activemq.core.protocol.stomp.StompFrame;
 
-/**
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class StompFrameV10 extends StompFrame
 {
    public StompFrameV10(String command)

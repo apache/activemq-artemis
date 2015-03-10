@@ -23,10 +23,6 @@ import org.apache.activemq.core.server.MessageReference;
 
 /**
  * Just a helper, when you don't want to implement all the methods on a transaction operation.
- *
- * @author clebertsuconic
- *
- *
  */
 public abstract class TransactionOperationAbstract implements TransactionOperation
 {

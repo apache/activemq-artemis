@@ -18,10 +18,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 /**
  * A LargeMessageRedistributionTest
- *
- * @author clebert
- *
- *
  */
 public class LargeMessageRedistributionTest extends MessageRedistributionTest
 {

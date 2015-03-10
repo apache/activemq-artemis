@@ -79,8 +79,6 @@ import org.junit.Before;
 
 /**
  * Base class with basic utilities on starting up a basic server
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public abstract class ServiceTestBase extends UnitTestCase
 {

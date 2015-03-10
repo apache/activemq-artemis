@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.CONNECTION_TIME
 
 /**
  * A client timed out will connecting to ActiveMQ server.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQConnectionTimedOutException extends ActiveMQException
 {

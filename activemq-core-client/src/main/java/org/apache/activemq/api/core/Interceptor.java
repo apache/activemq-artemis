@@ -25,9 +25,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
  * To add an interceptor to ActiveMQ server, you have to modify the server configuration file
  * {@literal activemq-configuration.xml}.<br>
  * To add it to a client, use {@link org.apache.activemq.api.core.client.ServerLocator#addIncomingInterceptor(Interceptor)}
- *
- * @author clebert.suconic@jboss.com
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface Interceptor
 {

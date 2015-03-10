@@ -32,9 +32,6 @@ import org.objectweb.jtests.jms.framework.TestConfig;
  * Test the JMSX defined properties.
  * <br />
  *  See JMS Specification, sec. 3.5.9 JMS Defined Properties
- *
- * @author Jeff Mesnil (jmesnil@gmail.com)
- * @version $Id: JMSXPropertyTest.java,v 1.2 2007/06/19 23:32:34 csuconic Exp $
  */
 public class JMSXPropertyTest extends PTPTestCase
 {

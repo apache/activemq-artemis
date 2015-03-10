@@ -57,10 +57,6 @@ import org.apache.activemq.utils.VersionLoader;
  * <p>
  * The flat implementation of {@link TopicConnection} and {@link QueueConnection} is per design,
  * following the common usage of these as one flat API in JMS 1.1.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
  */
 public class ActiveMQConnection extends ActiveMQConnectionForContextImpl implements TopicConnection, QueueConnection
 {

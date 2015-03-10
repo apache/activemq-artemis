@@ -25,10 +25,6 @@ import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A SimpleWaitIOCallback
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public final class SimpleWaitIOCallback extends SyncIOCompletion
 {

@@ -27,9 +27,7 @@ import org.jboss.logmanager.ExtLogRecord;
  * This class contains a tool where programs could intercept for LogMessage given an interval of time between {@link #startCapture()}
  * and {@link #stopCapture()}
  * <p/>
- * Be careful with this use as this is intended for testing only (such as testcases) *
- *
- * @author <a href="mailto:ehugonne@redhat.com">Emmanuel Hugonnet</a> (c) 2013 Red Hat, inc.
+ * Be careful with this use as this is intended for testing only (such as testcases)
  */
 public class AssertionLoggerHandler extends ExtHandler
 {

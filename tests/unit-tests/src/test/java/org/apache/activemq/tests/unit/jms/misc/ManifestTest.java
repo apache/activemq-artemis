@@ -35,9 +35,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionMetaData;
 import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- */
 public class ManifestTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

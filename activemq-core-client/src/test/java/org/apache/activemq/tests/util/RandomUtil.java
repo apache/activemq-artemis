@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public final class RandomUtil
 {
    // Constants -----------------------------------------------------

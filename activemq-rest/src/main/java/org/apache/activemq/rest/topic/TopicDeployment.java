@@ -18,10 +18,6 @@ package org.apache.activemq.rest.topic;
 
 import org.apache.activemq.rest.queue.DestinationSettings;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class TopicDeployment extends DestinationSettings
 {
    private String name;

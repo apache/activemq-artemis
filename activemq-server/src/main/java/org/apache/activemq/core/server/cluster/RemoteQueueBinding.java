@@ -21,12 +21,6 @@ import org.apache.activemq.core.postoffice.QueueBinding;
 
 /**
  * A RemoteQueueBinding
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 23 Jan 2009 11:58:05
- *
- *
  */
 public interface RemoteQueueBinding extends QueueBinding
 {

@@ -26,9 +26,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 
 /**
  * An aggregate interface for the JMS connection factories
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.com">Jesper Pedersen</a>
  */
 public interface ActiveMQRAConnectionFactory extends XAQueueConnectionFactory,
    XATopicConnectionFactory, Serializable, Referenceable

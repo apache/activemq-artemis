@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A ClientProducerCreditsImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class ClientProducerCreditsImpl implements ClientProducerCredits
 {

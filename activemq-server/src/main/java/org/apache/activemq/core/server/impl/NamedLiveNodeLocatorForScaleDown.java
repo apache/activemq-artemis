@@ -34,7 +34,6 @@ import org.apache.activemq.core.server.LiveNodeLocator;
 /**
  * NamedLiveNodeLocatorForScaleDown looks for a live server in the cluster with a specific scaleDownGroupName
  *
- * @author Justin Bertram
  * @see org.apache.activemq.core.config.Configuration#getScaleDownGroupName()
  */
 public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator

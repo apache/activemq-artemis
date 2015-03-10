@@ -41,8 +41,6 @@ import org.apache.activemq.utils.ExecutorFactory;
  * If there are no pending IO operations, the tasks are just executed at the callers thread without any context switch.
  *
  * So, if you are doing operations that are not dependent on IO (e.g NonPersistentMessages) you wouldn't have any context switch.
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class OperationContextImpl implements OperationContext
 {

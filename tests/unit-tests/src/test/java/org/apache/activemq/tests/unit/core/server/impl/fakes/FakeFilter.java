@@ -21,11 +21,7 @@ import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.server.ServerMessage;
 
 /**
- *
  * A FakeFilter
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class FakeFilter implements Filter
 {

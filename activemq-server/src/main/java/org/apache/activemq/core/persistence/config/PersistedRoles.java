@@ -22,10 +22,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 
 /**
  * A ConfiguredRoles
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class PersistedRoles implements EncodingSupport
 {

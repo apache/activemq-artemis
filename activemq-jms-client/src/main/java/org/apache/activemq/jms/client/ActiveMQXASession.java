@@ -23,10 +23,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 
 /**
  * A ActiveMQXASession
- *
- * @author clebertsuconic
- *
- *
  */
 public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession, XATopicSession
 {

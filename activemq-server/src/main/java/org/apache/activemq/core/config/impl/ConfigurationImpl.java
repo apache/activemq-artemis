@@ -48,10 +48,6 @@ import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
-/**
- * @author <a href="mailto:ataylor@redhat.com>Andy Taylor</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class ConfigurationImpl implements Configuration, Serializable
 {
    // Constants ------------------------------------------------------------------------------

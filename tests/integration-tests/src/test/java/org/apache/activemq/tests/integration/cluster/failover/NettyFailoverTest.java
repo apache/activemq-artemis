@@ -34,10 +34,6 @@ import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 
 /**
  * A NettyFailoverTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class NettyFailoverTest extends FailoverTest
 {

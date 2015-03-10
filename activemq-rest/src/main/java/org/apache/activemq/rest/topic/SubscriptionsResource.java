@@ -43,10 +43,6 @@ import org.apache.activemq.rest.queue.DestinationServiceManager;
 import org.apache.activemq.rest.queue.QueueConsumer;
 import org.apache.activemq.rest.util.TimeoutTask;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class SubscriptionsResource implements TimeoutTask.Callback
 {
    protected ConcurrentHashMap<String, QueueConsumer> queueConsumers = new ConcurrentHashMap<String, QueueConsumer>();

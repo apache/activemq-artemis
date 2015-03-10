@@ -31,8 +31,6 @@ import org.junit.Before;
 
 /**
  * The base class for AIO Tests
- * @author Clebert Suconic
- *
  */
 public abstract class AIOTestBase extends UnitTestCase
 {

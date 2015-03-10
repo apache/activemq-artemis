@@ -24,11 +24,7 @@ import org.apache.qpid.proton.engine.Transport;
 
 /**
  * EventHandler
- * <p/>
- *
- * @author rhs
  */
-
 public interface EventHandler
 {
 

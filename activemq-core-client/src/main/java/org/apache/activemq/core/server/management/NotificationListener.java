@@ -19,12 +19,6 @@ package org.apache.activemq.core.server.management;
 
 /**
  * A NotificationListener
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 22 Jan 2009 16:48:27
- *
- *
  */
 public interface NotificationListener
 {

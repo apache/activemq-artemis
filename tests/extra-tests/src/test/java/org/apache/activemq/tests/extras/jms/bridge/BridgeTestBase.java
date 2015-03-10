@@ -67,8 +67,6 @@ import org.junit.Before;
 
 /**
  * A BridgeTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public abstract class BridgeTestBase extends UnitTestCase
 {

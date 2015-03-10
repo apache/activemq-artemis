@@ -18,10 +18,6 @@ package org.apache.activemq.jms.example;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class SpringExample
 {
    public static void main(String[] args) throws Exception

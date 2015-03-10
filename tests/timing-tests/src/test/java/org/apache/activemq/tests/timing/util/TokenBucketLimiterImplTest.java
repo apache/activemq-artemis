@@ -28,8 +28,6 @@ import org.junit.Test;
 
 /**
  * A TokenBucketLimiterImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class TokenBucketLimiterImplTest extends UnitTestCase
 {

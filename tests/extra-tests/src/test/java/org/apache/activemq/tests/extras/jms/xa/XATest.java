@@ -48,10 +48,6 @@ import org.junit.Test;
 
 /**
  * A XATestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @version <tt>$Revision: 1.1 $</tt>
  */
 public class XATest extends JMSTestBase
 {

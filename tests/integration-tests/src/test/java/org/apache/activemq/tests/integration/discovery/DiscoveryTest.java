@@ -62,8 +62,6 @@ import org.junit.Test;
  * <p/>
  * Also: Make sure you add integration-tests/src/tests/resources to your project path on the
  * tests/integration-tests
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class DiscoveryTest extends DiscoveryBaseTest
 {

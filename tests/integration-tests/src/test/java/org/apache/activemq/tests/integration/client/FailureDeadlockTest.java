@@ -42,12 +42,7 @@ import org.apache.activemq.tests.integration.jms.server.management.NullInitialCo
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
- *
  * A FailureDeadlockTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class FailureDeadlockTest extends ServiceTestBase
 {

@@ -25,8 +25,6 @@ import org.junit.Test;
 
 /**
  * A DuplicateCacheTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class DuplicateCacheTest extends StorageManagerTestBase
 {

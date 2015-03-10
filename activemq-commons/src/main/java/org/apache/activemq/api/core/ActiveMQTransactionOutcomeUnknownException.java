@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.TRANSACTION_OUT
 
 /**
  * The outcome of a transaction is unknown.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 5/2/12
  */
 public final class ActiveMQTransactionOutcomeUnknownException extends ActiveMQException
 {

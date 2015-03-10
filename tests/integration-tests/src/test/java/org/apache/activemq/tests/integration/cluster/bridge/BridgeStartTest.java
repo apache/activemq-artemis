@@ -46,10 +46,6 @@ import org.junit.runners.Parameterized;
 
 /**
  * A BridgeStartTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 14 Jan 2009 14:05:01
  */
 @RunWith(value = Parameterized.class)
 public class BridgeStartTest extends ServiceTestBase

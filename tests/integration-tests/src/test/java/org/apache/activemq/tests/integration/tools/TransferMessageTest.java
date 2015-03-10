@@ -36,10 +36,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class TransferMessageTest extends ClusterTestBase
 {
 

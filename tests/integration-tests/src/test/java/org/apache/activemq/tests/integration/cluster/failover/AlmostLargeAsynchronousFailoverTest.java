@@ -21,10 +21,6 @@ import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 
 /**
  * Validating failover when the size of the message Size > flow Control && message Size < minLargeMessageSize
- *
- * @author clebertsuconic
- *
- *
  */
 public class AlmostLargeAsynchronousFailoverTest extends AsynchronousFailoverTest
 {

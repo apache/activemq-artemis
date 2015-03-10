@@ -34,8 +34,6 @@ import org.junit.Test;
 
 /**
  * A DeleteMessagesOnStartupTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
 {

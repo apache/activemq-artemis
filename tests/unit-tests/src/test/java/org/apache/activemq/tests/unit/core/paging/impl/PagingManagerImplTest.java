@@ -43,9 +43,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 public class PagingManagerImplTest extends UnitTestCase
 {
    private final ReadLock lock = new ReentrantReadWriteLock().readLock();

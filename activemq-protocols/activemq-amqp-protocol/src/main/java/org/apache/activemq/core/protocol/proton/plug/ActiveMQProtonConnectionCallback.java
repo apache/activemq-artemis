@@ -33,10 +33,6 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.ServerSASL;
 import org.proton.plug.sasl.AnonymousServerSASL;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback
 {
    private final ProtonProtocolManager manager;

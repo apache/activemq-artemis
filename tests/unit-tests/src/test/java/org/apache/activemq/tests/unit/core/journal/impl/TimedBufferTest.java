@@ -36,10 +36,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A TimedBufferTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class TimedBufferTest extends UnitTestCase
 {

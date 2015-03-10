@@ -27,9 +27,6 @@ import org.junit.Before;
 
 /**
  * adapted from: JmsTopicSendReceiveTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport
 {

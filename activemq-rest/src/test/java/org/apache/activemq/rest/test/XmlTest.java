@@ -22,10 +22,6 @@ import org.junit.Test;
 import javax.xml.bind.JAXBContext;
 import java.io.StringReader;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class XmlTest
 {
    @Test

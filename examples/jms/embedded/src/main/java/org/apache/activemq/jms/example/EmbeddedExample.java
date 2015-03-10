@@ -43,10 +43,6 @@ import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 
 /**
  * This example demonstrates how to run a ActiveMQ embedded with JMS
- *
- * @author <a href="clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:bburke@redhat.com">Bill Burke</a>
  */
 public final class EmbeddedExample extends ActiveMQExample
 {

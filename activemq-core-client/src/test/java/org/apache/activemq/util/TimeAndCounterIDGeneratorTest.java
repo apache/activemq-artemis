@@ -29,8 +29,6 @@ import org.apache.activemq.utils.TimeAndCounterIDGenerator;
 
 /**
  * A TimeAndCounterIDGeneratorTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a> Created 24-Sep-08 3:42:25 PM
  */
 public class TimeAndCounterIDGeneratorTest extends Assert
 {

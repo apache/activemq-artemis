@@ -39,8 +39,6 @@ import org.junit.Test;
 
 /**
  * A NettyAcceptorTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class NettyAcceptorTest extends UnitTestCase
 {

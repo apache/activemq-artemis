@@ -31,10 +31,6 @@ import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
 /**
  * A SecurityFailoverTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class SecurityFailoverTest extends FailoverTest
 {

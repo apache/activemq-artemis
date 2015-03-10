@@ -34,12 +34,6 @@ import org.junit.Test;
 
 /**
  * A MeasurePagingMultiThreadTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- * Created Dec 1, 2008 1:02:39 PM
- *
- *
  */
 public class MeasurePagingMultiThreadTest extends ServiceTestBase
 {

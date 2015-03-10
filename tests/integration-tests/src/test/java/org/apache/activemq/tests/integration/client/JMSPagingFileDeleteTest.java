@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * This will perform cleanup tests on paging while using JMS topics
- *
- * @author clebertsuconic
  */
 public class JMSPagingFileDeleteTest extends JMSTestBase
 {

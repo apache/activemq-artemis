@@ -38,11 +38,6 @@ import javax.naming.Reference;
 
 import org.apache.activemq.jms.tests.JmsTestLogger;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version <tt>$Revision: 2868 $</tt>
- *
- */
 public class InVMContext implements Context, Serializable
 {
    // Constants -----------------------------------------------------

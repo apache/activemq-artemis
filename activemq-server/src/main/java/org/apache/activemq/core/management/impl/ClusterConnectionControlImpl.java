@@ -28,8 +28,6 @@ import org.apache.activemq.utils.json.JSONArray;
 
 /**
  * A ClusterConnectionControl
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl
 {

@@ -24,10 +24,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * A DelayInterceptor
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class DelayInterceptor implements Interceptor
 {

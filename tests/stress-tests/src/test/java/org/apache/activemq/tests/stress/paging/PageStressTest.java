@@ -37,8 +37,6 @@ import org.junit.Test;
 
 /**
  * This is an integration-tests that will take some time to run.
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public class PageStressTest extends ServiceTestBase
 {

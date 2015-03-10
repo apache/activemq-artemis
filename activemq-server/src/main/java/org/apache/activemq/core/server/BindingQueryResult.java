@@ -21,11 +21,7 @@ import java.util.List;
 import org.apache.activemq.api.core.SimpleString;
 
 /**
- *
  * A BindingQueryResult
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class BindingQueryResult
 {

@@ -37,10 +37,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A MessageExpirationTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class MessageExpirationTest extends ServiceTestBase
 {

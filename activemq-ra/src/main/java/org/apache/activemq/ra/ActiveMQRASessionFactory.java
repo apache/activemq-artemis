@@ -24,10 +24,6 @@ import javax.jms.XATopicConnection;
 
 /**
  * A joint interface for all connection types
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @version $Revision: 71554 $
  */
 public interface ActiveMQRASessionFactory extends XATopicConnection, XAQueueConnection
 {

@@ -22,7 +22,6 @@ package org.apache.activemq.api.core.client;
  * Used to get notification of topology events. After adding a listener to the cluster connection,
  * the listener receives {@link #nodeUP(TopologyMember, boolean)} for all the current topology
  * members.
- * @author tim
  */
 public interface ClusterTopologyListener
 {

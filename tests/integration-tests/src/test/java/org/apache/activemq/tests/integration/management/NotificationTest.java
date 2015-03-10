@@ -47,8 +47,6 @@ import static org.apache.activemq.api.core.management.CoreNotificationType.CONSU
 
 /**
  * A NotificationTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class NotificationTest extends UnitTestCase
 {

@@ -26,10 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ReferenceCounterTest extends Assert
 {
 

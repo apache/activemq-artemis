@@ -23,13 +23,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 /**
- *
  * A SoakBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class SoakBase
 {

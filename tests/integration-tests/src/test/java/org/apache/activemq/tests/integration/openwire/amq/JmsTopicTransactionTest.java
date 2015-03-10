@@ -18,9 +18,6 @@ package org.apache.activemq.tests.integration.openwire.amq;
 
 /**
  * adapted from: org.apache.activemq.JmsTopicTransactionTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsTopicTransactionTest extends JmsTransactionTestSupport
 {

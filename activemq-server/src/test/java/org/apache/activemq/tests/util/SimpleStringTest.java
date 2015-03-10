@@ -27,11 +27,7 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.DataConstants;
 
 /**
- *
  * A SimpleStringTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class SimpleStringTest extends Assert
 {

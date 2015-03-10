@@ -20,10 +20,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.activemq.api.core.ActiveMQException;
 
-/**
- * @author Clebert Suconic
- */
-
 public class Native
 {
    // Functions used for locking files .....

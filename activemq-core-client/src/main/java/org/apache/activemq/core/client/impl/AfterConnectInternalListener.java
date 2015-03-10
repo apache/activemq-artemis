@@ -20,10 +20,6 @@ package org.apache.activemq.core.client.impl;
  * To be called right after the ConnectionFactory created a connection.
  * This listener is not part of the API and shouldn't be used by users.
  * (if you do so we can't guarantee any API compatibility on this class)
- *
- * @author clebertsuconic
- *
- *
  */
 public interface AfterConnectInternalListener
 {

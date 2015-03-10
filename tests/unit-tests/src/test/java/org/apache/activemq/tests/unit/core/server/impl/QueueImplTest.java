@@ -56,8 +56,6 @@ import org.junit.Test;
 
 /**
  * A QueueTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class QueueImplTest extends UnitTestCase
 {

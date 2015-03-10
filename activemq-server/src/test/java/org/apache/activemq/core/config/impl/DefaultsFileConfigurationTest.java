@@ -29,12 +29,7 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.journal.impl.JournalConstants;
 
 /**
- *
  * A DefaultsFileConfigurationTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 {

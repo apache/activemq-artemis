@@ -55,10 +55,6 @@ import org.apache.activemq.utils.SensitiveDataCodec;
 
 /**
  * The activation.
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @author <a href="jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ActiveMQActivation
 {

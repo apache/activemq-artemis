@@ -83,8 +83,6 @@ import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
 /**
  * Handles all the synchronization necessary for replication on the backup side (that is the
  * backup's side of the "remote backup" use case).
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public final class ReplicationEndpoint implements ChannelHandler, ActiveMQComponent
 {

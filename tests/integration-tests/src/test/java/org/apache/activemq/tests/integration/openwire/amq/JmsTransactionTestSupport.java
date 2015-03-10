@@ -37,9 +37,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTransactionTestSupport
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implements MessageListener
 {

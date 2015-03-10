@@ -18,10 +18,6 @@ package org.apache.activemq.tests.integration.paging;
 
 /**
  * A NettyPagingSendTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class NettyPagingSendTest extends PagingSendTest
 {

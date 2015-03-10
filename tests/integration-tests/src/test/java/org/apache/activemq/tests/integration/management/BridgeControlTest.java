@@ -46,7 +46,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 
 /**
  * A BridgeControlTest
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class BridgeControlTest extends ManagementTestBase
 {

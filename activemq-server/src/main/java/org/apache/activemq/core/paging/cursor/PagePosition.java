@@ -20,10 +20,6 @@ package org.apache.activemq.core.paging.cursor;
 
 /**
  * A PagePosition
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public interface PagePosition extends Comparable<PagePosition>
 {

@@ -23,8 +23,6 @@ import java.net.URL;
  * such as load a class first using TCCL, and then the classLoader used by ActiveMQ (ClassloadingUtil.getClass().getClassLoader()).
  * <p>
  * Is't required to use a Security Block on any calls to this class.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 
 public final class ClassloadingUtil

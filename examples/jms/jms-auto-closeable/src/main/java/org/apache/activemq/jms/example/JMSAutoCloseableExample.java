@@ -23,8 +23,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how AutoCloseable is used by JMS 2 resources.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class JMSAutoCloseableExample extends ActiveMQExample
 {

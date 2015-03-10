@@ -44,10 +44,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A OrderReattachTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class OrderReattachTest extends ServiceTestBase
 {

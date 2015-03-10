@@ -22,12 +22,6 @@ import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
 
 /**
  * A MessageChunkSoakTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- * Created Oct 27, 2008 5:07:05 PM
- *
- *
  */
 public class LargeMessageStressTest extends LargeMessageTestBase
 {

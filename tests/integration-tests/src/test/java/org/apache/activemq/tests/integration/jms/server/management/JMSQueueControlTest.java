@@ -71,10 +71,6 @@ import org.junit.Test;
  * A QueueControlTest
  * <p/>
  * on this testContaining WithRealData will use real data on the journals
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *         <p/>
- *         Created 14 nov. 2008 13:35:10
  */
 public class JMSQueueControlTest extends ManagementTestBase
 {

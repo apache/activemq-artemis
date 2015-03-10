@@ -37,7 +37,6 @@ import org.junit.Before;
 
 /**
  * A StorageManagerTestBase
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public abstract class StorageManagerTestBase extends ServiceTestBase
 {

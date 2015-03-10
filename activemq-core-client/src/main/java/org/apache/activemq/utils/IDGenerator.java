@@ -25,7 +25,6 @@ package org.apache.activemq.utils;
  * The next recordID should be persisted in the journals during a normal shutdown. The lack of such
  * a record indicates a server crash. During server restart, if the journals lack a
  * {@literal next-recordID} record, we use the last recorded ID plus {@code MAX_INT}.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface IDGenerator
 {

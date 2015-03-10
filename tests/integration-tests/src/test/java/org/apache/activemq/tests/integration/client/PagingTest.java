@@ -82,10 +82,6 @@ import org.junit.Test;
 
 /**
  * A PagingTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *         <p/>
- *         Created Dec 5, 2008 8:25:58 PM
  */
 public class PagingTest extends ServiceTestBase
 {

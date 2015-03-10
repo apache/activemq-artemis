@@ -41,10 +41,6 @@ import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.management.JMSManagementService;
 
-/*
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- */
 public class JMSManagementServiceImpl implements JMSManagementService
 {
 

@@ -33,7 +33,6 @@ import org.apache.activemq.utils.UUIDGenerator;
  * This is just to stress and soak test Transactions with ActiveMQ.
  * <p>
  * And this is dealing with XA directly for the purpose testing only.
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public abstract class ClientAbstract extends Thread
 {

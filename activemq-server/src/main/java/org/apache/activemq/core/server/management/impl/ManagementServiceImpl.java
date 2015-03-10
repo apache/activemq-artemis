@@ -84,11 +84,6 @@ import org.apache.activemq.core.transaction.ResourceManager;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.utils.TypedProperties;
 
-/*
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:fox@redhat.com">Tim Fox</a>
- *
- */
 public class ManagementServiceImpl implements ManagementService
 {
    // Constants -----------------------------------------------------

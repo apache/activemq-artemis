@@ -31,9 +31,6 @@ import org.apache.activemq.spi.core.remoting.Connection;
  *
  * Perhaps a better name for this class now would be ProtocolConnection as this
  * represents the link with the used protocol
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface RemotingConnection extends BufferHandler
 {

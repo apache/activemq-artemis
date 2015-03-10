@@ -23,9 +23,7 @@ import org.apache.activemq.tests.util.SpawnedVMSupport;
  * This is a sub process of the test {@link org.apache.activemq.tests.integration.paging.PageCountSyncOnNonTXTest}
  *  The System.out calls here are meant to be here as they will appear on the process output and test output.
  *  It helps to identify what happened on the test in case of failures.
- * @author Clebert Suconic
  */
-
 public class PageCountSyncServer extends SpawnedServerSupport
 {
    public static Process spawnVM(final String testDir, final long timeToRun) throws Exception

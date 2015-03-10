@@ -21,10 +21,6 @@ import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class FakeInterceptor implements Interceptor
 {
 

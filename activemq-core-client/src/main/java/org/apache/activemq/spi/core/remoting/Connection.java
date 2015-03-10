@@ -24,9 +24,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * The connection used by a channel to write data to.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
  */
 public interface Connection
 {

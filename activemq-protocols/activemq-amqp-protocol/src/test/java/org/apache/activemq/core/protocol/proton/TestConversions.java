@@ -48,10 +48,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.proton.plug.util.NettyWritable;
 
-/**
- * @author Clebert Suconic
- */
-
 public class TestConversions extends Assert
 {
 

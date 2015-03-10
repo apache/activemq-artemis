@@ -39,8 +39,6 @@ import org.junit.Test;
 
 /**
  * A JMSServerDeployerTest
- *
- * @author jmesnil
  */
 public class JMSServerDeployerTest extends ServiceTestBase
 {

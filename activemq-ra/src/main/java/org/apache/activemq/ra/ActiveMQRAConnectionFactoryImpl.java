@@ -40,9 +40,6 @@ import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
 
 /**
  * The connection factory
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFactory
 {

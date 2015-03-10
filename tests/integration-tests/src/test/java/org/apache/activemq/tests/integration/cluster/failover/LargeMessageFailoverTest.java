@@ -23,9 +23,6 @@ import org.junit.Test;
 
 /**
  * A LargeMessageFailoverTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
  */
 public class LargeMessageFailoverTest extends FailoverTest
 {

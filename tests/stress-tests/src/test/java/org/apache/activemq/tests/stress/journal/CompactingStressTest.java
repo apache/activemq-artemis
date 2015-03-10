@@ -40,10 +40,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A CompactingTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class CompactingStressTest extends ServiceTestBase
 {

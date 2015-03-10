@@ -25,10 +25,6 @@ import org.apache.activemq.core.server.group.UnproposalListener;
 
 /**
  * A Bindings
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 10 Dec 2008 19:10:52
  */
 public interface Bindings extends UnproposalListener
 {

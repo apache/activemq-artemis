@@ -16,9 +16,6 @@
  */
 package org.proton.plug;
 
-/**
- * @author Clebert Suconic
- */
 public interface ClientSASL
 {
    byte[] getBytes();

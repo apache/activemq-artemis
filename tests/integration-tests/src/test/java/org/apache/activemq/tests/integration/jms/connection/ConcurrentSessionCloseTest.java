@@ -34,10 +34,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 /**
  *
  * A ConcurrentSessionCloseTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class ConcurrentSessionCloseTest extends JMSTestBase
 {

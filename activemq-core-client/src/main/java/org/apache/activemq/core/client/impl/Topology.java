@@ -32,11 +32,6 @@ import org.apache.activemq.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.apache.activemq.spi.core.remoting.Connector;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author Clebert Suconic
- *         Created Aug 16, 2010
- */
 public final class Topology implements Serializable
 {
 

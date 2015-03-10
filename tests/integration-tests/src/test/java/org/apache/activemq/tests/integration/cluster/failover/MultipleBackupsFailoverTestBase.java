@@ -39,10 +39,6 @@ import org.junit.Assert;
 
 /**
  * A MultipleBackupsFailoverTestBase
- *
- * @author jmesnil
- *
- *
  */
 public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
 {

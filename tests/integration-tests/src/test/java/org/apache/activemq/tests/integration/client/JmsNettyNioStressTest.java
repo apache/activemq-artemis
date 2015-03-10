@@ -61,8 +61,6 @@ import org.junit.Test;
  * If the deadlock occurs, all threads will block/die. A simple transaction
  * counting strategy is used to verify that the count has reached the expected
  * value.
- *
- * @author Carl Heymann
  */
 public class JmsNettyNioStressTest extends ServiceTestBase
 {

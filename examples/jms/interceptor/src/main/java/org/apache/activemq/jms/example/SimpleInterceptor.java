@@ -26,8 +26,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * A simple Interceptor implementation
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class SimpleInterceptor implements Interceptor
 {

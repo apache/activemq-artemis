@@ -85,8 +85,6 @@ import org.junit.Before;
 
 /**
  * A ClusterTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public abstract class ClusterTestBase extends ServiceTestBase
 {

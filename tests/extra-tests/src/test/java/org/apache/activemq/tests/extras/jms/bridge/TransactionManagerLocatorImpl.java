@@ -21,10 +21,6 @@ import javax.transaction.TransactionManager;
 
 import org.apache.activemq.service.extensions.transactions.TransactionManagerLocator;
 
-/**
- * @author mtaylor
- */
-
 public class TransactionManagerLocatorImpl implements TransactionManagerLocator
 {
    public static TransactionManager tm = null;

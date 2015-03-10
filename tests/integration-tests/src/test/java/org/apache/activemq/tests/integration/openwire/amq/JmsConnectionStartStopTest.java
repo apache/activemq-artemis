@@ -39,8 +39,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsConnectionStartStopTest
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsConnectionStartStopTest extends BasicOpenWireTest
 {

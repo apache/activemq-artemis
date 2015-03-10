@@ -39,10 +39,6 @@ import org.apache.activemq.tests.util.TransportConfigurationUtils;
 
 /**
  * A FailoverOnFlowControlTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class FailoverOnFlowControlTest extends FailoverTestBase
 {

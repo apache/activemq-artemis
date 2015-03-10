@@ -31,8 +31,6 @@ import org.junit.Test;
  * A JMSBridgeClusteredTest
  * <p/>
  * Tests of jms bridge using HA connection factories.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase
 {

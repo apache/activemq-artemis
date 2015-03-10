@@ -53,8 +53,6 @@ import org.apache.activemq.utils.ExecutorFactory;
  * of the server.
  * <p>
  * This is not part of our public API.
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public interface ActiveMQServer extends ActiveMQComponent
 {

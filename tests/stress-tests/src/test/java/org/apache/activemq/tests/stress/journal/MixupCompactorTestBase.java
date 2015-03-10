@@ -32,8 +32,6 @@ import org.junit.Test;
 
 /**
  * This class will control mix up compactor between each operation of a test
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public abstract class MixupCompactorTestBase extends JournalImplTestBase
 {

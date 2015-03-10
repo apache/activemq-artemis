@@ -24,7 +24,6 @@ import org.junit.BeforeClass;
 
 /**
  * A AIOImportExportTest
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class AIOImportExportTest extends NIOImportExportTest
 {

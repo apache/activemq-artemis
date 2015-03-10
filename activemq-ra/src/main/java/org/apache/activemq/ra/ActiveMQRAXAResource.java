@@ -26,9 +26,6 @@ import org.apache.activemq.core.client.impl.ActiveMQXAResource;
 
 /**
  * ActiveMQXAResource.
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @author <a href="jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAXAResource implements ActiveMQXAResource
 {

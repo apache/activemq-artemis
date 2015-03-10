@@ -42,8 +42,6 @@ import org.junit.Test;
  * A PagingFailoverTest
  * <p/>
  * TODO: validate replication failover also
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class PagingFailoverTest extends FailoverTestBase
 {

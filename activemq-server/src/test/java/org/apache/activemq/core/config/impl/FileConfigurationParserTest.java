@@ -31,8 +31,6 @@ import org.junit.Test;
 
 /**
  * A FileConfigurationParserTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class FileConfigurationParserTest extends UnitTestCase
 {

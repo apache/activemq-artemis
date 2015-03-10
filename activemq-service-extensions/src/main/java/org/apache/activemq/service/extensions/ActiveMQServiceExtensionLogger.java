@@ -24,8 +24,6 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
- * @author mtaylor
- *
  * Logger Code 34
  *
  * each message id must be 6 digits long starting with 20, the 3rd digit donates the level so

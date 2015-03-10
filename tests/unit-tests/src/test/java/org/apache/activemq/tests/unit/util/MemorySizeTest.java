@@ -27,10 +27,6 @@ import org.apache.activemq.utils.MemorySize;
 
 /**
  * A MemorySizeTest
- *
- * @author Tim Fox
- *
- *
  */
 public class MemorySizeTest extends Assert
 {

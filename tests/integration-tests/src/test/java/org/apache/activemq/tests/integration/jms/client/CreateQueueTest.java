@@ -29,8 +29,6 @@ import org.junit.Test;
 
 /**
  * A CreateQueueTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class CreateQueueTest extends JMSTestBase
 {

@@ -18,9 +18,6 @@ package org.apache.activemq.tests.integration.cluster.topology;
 
 /**
  * A NettyHAClientTopologyTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class NettyHAClientTopologyTest extends HAClientTopologyTest
 {

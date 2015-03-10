@@ -37,8 +37,6 @@ import org.junit.Test;
 
 /**
  * Testing of message property conversion. See {@link javax.jms.Message} for details
- *
- * @author <a href="mailto:afu@novell.com">Alex Fu</a>
  */
 public class MessagePropertyConversionTest extends ActiveMQServerTestCase
 {

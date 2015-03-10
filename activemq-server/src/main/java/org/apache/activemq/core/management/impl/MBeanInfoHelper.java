@@ -27,11 +27,6 @@ import javax.management.MBeanParameterInfo;
 import org.apache.activemq.api.core.management.Operation;
 import org.apache.activemq.api.core.management.Parameter;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class MBeanInfoHelper
 {
    // Constants -----------------------------------------------------

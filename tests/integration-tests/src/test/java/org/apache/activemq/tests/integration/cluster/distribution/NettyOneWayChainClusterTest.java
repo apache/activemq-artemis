@@ -20,12 +20,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 /**
  * A NettyOneWayChainClusterTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 8 Feb 2009 10:45:50
- *
- *
  */
 public class NettyOneWayChainClusterTest extends OneWayChainClusterTest
 {

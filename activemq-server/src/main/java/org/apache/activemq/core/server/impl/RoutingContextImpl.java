@@ -29,7 +29,6 @@ import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * A RoutingContextImpl
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class RoutingContextImpl implements RoutingContext
 {

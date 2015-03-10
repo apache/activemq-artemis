@@ -54,8 +54,6 @@ import org.junit.Test;
 
 /**
  * A BridgeReconnectTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class BridgeReconnectTest extends BridgeTestBase
 {

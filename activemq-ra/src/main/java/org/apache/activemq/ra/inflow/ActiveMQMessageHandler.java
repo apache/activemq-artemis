@@ -47,11 +47,6 @@ import org.apache.activemq.utils.VersionLoader;
 
 /**
  * The message handler
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class ActiveMQMessageHandler implements MessageHandler
 {

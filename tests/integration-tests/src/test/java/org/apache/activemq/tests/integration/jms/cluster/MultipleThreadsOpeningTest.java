@@ -29,8 +29,6 @@ import org.junit.Test;
 
 /**
  * A MultipleThreadsOpeningTest
- *
- * @author clebertsuconic
  */
 public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
 {

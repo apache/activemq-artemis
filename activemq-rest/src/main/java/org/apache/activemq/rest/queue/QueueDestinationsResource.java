@@ -42,10 +42,6 @@ import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.rest.util.Constants;
 import org.w3c.dom.Document;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 @Path(Constants.PATH_FOR_QUEUES)
 public class QueueDestinationsResource
 {

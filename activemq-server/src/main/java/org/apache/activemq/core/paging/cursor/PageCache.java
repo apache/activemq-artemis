@@ -21,10 +21,6 @@ import org.apache.activemq.utils.SoftValueHashMap;
 
 /**
  * A PageCache
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public interface PageCache extends SoftValueHashMap.ValueCache
 {

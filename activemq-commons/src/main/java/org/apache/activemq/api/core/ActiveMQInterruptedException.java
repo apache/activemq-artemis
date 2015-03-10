@@ -18,7 +18,6 @@ package org.apache.activemq.api.core;
 
 /**
  * When an interruption happens, we will just throw a non-checked exception.
- * @author clebertsuconic
  */
 public final class ActiveMQInterruptedException extends RuntimeException
 {

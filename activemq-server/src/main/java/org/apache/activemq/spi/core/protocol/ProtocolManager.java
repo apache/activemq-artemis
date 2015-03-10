@@ -24,8 +24,6 @@ import org.apache.activemq.spi.core.remoting.Connection;
 
 /**
  * A ProtocolManager
- *
- * @author Tim Fox
  */
 public interface ProtocolManager
 {

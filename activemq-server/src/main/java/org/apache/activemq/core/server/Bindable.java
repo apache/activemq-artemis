@@ -18,12 +18,6 @@ package org.apache.activemq.core.server;
 
 /**
  * A Bindable
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 21 Dec 2008 09:10:18
- *
- *
  */
 public interface Bindable
 {

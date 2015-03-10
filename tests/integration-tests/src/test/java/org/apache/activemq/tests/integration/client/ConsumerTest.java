@@ -47,11 +47,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
-
 @RunWith(value = Parameterized.class)
 public class ConsumerTest extends ServiceTestBase
 {

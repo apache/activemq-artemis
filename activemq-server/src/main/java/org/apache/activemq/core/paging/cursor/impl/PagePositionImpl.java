@@ -20,8 +20,6 @@ import org.apache.activemq.core.paging.cursor.PagePosition;
 
 /**
  * A PagePosition
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class PagePositionImpl implements PagePosition
 {

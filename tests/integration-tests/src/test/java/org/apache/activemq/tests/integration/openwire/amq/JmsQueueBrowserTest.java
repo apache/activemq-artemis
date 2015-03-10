@@ -32,9 +32,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsQueueBrowserTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsQueueBrowserTest extends BasicOpenWireTest
 {

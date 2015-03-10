@@ -24,9 +24,6 @@ import org.junit.Assert;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class ValidatorsTest extends Assert
 {
 

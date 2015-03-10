@@ -65,12 +65,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 import org.apache.activemq.utils.OrderedExecutorFactory;
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- * @author Tim Fox
- * @author Clebert Suconic
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ConnectionLifeCycleListener
 {
    // Constants

@@ -34,7 +34,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * After both servers are started, the live server is killed and the backup becomes active ("fails-over").
  * <p>
  * Later the live server is restarted and takes back its position by asking the backup to stop ("fail-back").
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
  */
 public class ReplicatedFailbackExample extends ActiveMQExample
 {

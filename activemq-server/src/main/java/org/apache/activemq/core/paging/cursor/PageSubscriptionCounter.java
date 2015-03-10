@@ -21,10 +21,6 @@ import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * A PagingSubscriptionCounterInterface
- *
- * @author clebertsuconic
- *
- *
  */
 public interface PageSubscriptionCounter
 {

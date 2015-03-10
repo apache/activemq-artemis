@@ -28,9 +28,7 @@ import org.junit.Before;
 /**
  * Any test based on a single server can extend this class.
  * This is useful for quick writing tests with starting a server, locator, factory... etc
- * @author Clebert Suconic
  */
-
 public abstract class SingleServerTestBase extends ServiceTestBase
 {
 

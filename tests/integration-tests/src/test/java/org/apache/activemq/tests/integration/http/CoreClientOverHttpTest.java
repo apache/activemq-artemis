@@ -40,9 +40,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class CoreClientOverHttpTest extends UnitTestCase
 {
    private static final SimpleString QUEUE = new SimpleString("CoreClientOverHttpTestQueue");

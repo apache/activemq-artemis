@@ -23,10 +23,6 @@ import org.proton.plug.exceptions.ActiveMQAMQPIllegalStateException;
 import org.proton.plug.exceptions.ActiveMQAMQPTimeoutException;
 import org.proton.plug.util.FutureRunnable;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonInitializable
 {
 

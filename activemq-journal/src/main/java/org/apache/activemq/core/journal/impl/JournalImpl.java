@@ -75,9 +75,6 @@ import org.apache.activemq.utils.DataConstants;
  * <p>A circular log implementation.</p
  * <p/>
  * <p>Look at {@link JournalImpl#load(LoaderCallback)} for the file layout
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public class JournalImpl extends JournalBase implements TestableJournal, JournalRecordProvider
 {

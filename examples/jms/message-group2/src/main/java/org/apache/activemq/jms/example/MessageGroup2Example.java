@@ -35,8 +35,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that sends and receives message groups.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class MessageGroup2Example extends ActiveMQExample
 {

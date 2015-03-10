@@ -22,10 +22,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.client.impl.QueueQueryImpl;
 import org.apache.activemq.core.server.QueueQueryResult;
 
-/**
- * @author Justin Bertram
- *
- */
 public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryResponseMessage
 {
    private boolean autoCreationEnabled;

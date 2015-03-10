@@ -147,8 +147,6 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTo
 
 /**
  * A PacketDecoder
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public abstract class PacketDecoder implements Serializable
 {

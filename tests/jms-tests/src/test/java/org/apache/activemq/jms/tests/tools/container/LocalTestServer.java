@@ -48,13 +48,6 @@ import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.jms.tests.JmsTestLogger;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>1.1</tt>
- *          <p/>
- *          LocalTestServer.java,v 1.1 2006/02/21 08:25:32 timfox Exp
- */
 public class LocalTestServer implements Server, Runnable
 {
    // Constants ------------------------------------------------------------------------------------

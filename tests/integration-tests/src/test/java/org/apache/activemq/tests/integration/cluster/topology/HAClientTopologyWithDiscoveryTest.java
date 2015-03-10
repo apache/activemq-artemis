@@ -21,9 +21,6 @@ import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.client.ServerLocator;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase
 {
    protected final String groupAddress = getUDPDiscoveryAddress();

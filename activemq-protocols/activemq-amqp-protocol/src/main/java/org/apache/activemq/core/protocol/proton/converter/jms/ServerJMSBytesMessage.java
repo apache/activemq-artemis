@@ -47,11 +47,6 @@ import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteObject;
 import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteShort;
 import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteUTF;
 
-
-/**
- * @author Clebert Suconic
- */
-
 public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMessage
 {
    public ServerJMSBytesMessage(MessageInternal message, int deliveryCount)

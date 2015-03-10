@@ -20,10 +20,6 @@ import org.apache.activemq.api.core.client.ClientMessage;
 
 import javax.ws.rs.core.Response;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class ConsumedHttpMessage extends ConsumedMessage
 {
    private byte[] data;

@@ -37,10 +37,6 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
  *
  * The {@link Subject} returned by the login context is expecting to have a {@link Group} with the <code>Roles</code> name
  * containing a set of {@link Principal} for each role of the user.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class JAASSecurityManager implements ActiveMQSecurityManager
 {

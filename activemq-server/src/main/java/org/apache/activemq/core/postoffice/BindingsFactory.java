@@ -20,8 +20,6 @@ import org.apache.activemq.api.core.SimpleString;
 
 /**
  * A factory for creating bindings
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public interface BindingsFactory
 {

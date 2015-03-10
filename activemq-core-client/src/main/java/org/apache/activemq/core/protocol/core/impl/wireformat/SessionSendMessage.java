@@ -22,9 +22,6 @@ import org.apache.activemq.core.message.impl.MessageInternal;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class SessionSendMessage extends MessagePacket
 {
 

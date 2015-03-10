@@ -59,10 +59,6 @@ import org.apache.activemq.jms.client.ActiveMQSession;
 
 /**
  * A joint interface for JMS sessions
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public final class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSession, XATopicSession
 {

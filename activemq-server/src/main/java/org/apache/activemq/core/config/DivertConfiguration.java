@@ -23,8 +23,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * A DivertConfiguration
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class DivertConfiguration implements Serializable
 {

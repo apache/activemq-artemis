@@ -28,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A SameProcessActiveMQServer
- *
- * @author jmesnil
  */
 public class SameProcessActiveMQServer implements TestableServer
 {

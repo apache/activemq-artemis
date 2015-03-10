@@ -31,10 +31,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 
 /**
  * ActiveMQ implementation of a JMS QueueBrowser.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *
  */
 public final class ActiveMQQueueBrowser implements QueueBrowser
 {

@@ -33,9 +33,6 @@ import org.objectweb.jtests.jms.framework.TestConfig;
  * Test topic sessions
  * <br />
  * See JMS specifications, sec. 4.4 Session
- *
- * @author Jeff Mesnil (jmesnil@gmail.com)
- * @version $Id: TopicSessionTest.java,v 1.2 2007/06/19 23:32:35 csuconic Exp $
  */
 public class TopicSessionTest extends PubSubTestCase
 {

@@ -40,9 +40,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlSendFailTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
 {

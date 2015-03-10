@@ -34,8 +34,6 @@ import org.junit.Test;
  * Simulates the journal being updated, compacted cleared up,
  * and having multiple restarts,
  * To make sure the journal would survive at multiple restarts of the server
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JournalRestartStressTest extends ServiceTestBase
 {

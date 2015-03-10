@@ -27,10 +27,6 @@ import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ServiceUtils
 {
    private static ActiveMQXAResourceWrapperFactory activeMQXAResourceWrapperFactory;

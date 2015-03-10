@@ -50,14 +50,6 @@ import org.apache.activemq.utils.ConfirmationWindowWarning;
 import org.apache.activemq.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.utils.XidCodecSupport;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
 public final class ClientSessionImpl implements ClientSessionInternal, FailureListener
 {
    private final Map<String, String> metadata = new HashMap<String, String>();

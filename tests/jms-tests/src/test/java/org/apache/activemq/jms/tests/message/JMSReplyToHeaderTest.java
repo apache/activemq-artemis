@@ -26,10 +26,6 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 /**
  *
  * A JMSReplyToHeaderTest
-
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class JMSReplyToHeaderTest extends MessageHeaderTestBase
 {

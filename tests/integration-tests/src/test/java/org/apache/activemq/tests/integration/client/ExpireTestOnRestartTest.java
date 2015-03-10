@@ -33,8 +33,6 @@ import org.junit.Test;
 
 /**
  * A ExpireTestOnRestartTest
- *
- * @author clebertsuconic
  */
 public class ExpireTestOnRestartTest extends ServiceTestBase
 {

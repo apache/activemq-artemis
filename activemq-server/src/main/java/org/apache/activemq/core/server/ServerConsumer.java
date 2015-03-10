@@ -23,9 +23,6 @@ import org.apache.activemq.core.transaction.Transaction;
 /**
  *
  * A ServerConsumer
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface ServerConsumer extends Consumer
 {

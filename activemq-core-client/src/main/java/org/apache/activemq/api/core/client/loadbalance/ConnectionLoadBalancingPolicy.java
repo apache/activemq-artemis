@@ -18,8 +18,6 @@ package org.apache.activemq.api.core.client.loadbalance;
 
 /**
  * A ConnectionLoadBalancingPolicy defines a policy to load balance between connections.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface ConnectionLoadBalancingPolicy
 {

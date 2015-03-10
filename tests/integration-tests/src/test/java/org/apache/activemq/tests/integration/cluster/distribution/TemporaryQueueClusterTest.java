@@ -27,10 +27,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 
 /**
  * A TemporaryQueueClusterTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class TemporaryQueueClusterTest extends ClusterTestBase
 {

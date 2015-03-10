@@ -34,9 +34,6 @@ import org.junit.runners.Parameterized;
 
 /**
  * adapted from: org.apache.activemq.JMSUsecaseTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 @RunWith(Parameterized.class)
 public class JMSUsecase1Test extends BasicOpenWireTest

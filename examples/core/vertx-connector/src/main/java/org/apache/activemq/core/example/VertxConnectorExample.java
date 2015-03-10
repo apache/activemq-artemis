@@ -30,8 +30,6 @@ import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
 
 /**
  * A simple example of using Vert.x connector service.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class VertxConnectorExample
 {
@@ -60,7 +58,7 @@ public class VertxConnectorExample
 
          // Step 2 Deploy a Verticle to receive message
          String verticle = "org.apache.activemq.core.example.ExampleVerticle";
-         platformManager.deployVerticle(verticle, null, new URL[0], 1, null, 
+         platformManager.deployVerticle(verticle, null, new URL[0], 1, null,
                   new Handler<AsyncResult<String>>(){
 
                      @Override
@@ -72,7 +70,7 @@ public class VertxConnectorExample
                         }
                         latch0.countDown();
                      }
-            
+
          });
 
          latch0.await();

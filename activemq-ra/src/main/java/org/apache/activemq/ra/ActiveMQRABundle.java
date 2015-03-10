@@ -28,9 +28,6 @@ import javax.jms.JMSRuntimeException;
 import javax.resource.NotSupportedException;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         3/12/12
- *
  * Logger Code 15
  *
  * each message id must be 6 digits long starting with 15, the 3rd digit should be 9

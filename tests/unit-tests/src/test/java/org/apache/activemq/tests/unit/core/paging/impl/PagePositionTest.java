@@ -22,10 +22,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 
 /**
  * A PagePositionTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class PagePositionTest extends UnitTestCase
 {

@@ -16,10 +16,6 @@
  */
 package org.proton.plug.test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class Constants
 {
    public static final int PORT = 5672;

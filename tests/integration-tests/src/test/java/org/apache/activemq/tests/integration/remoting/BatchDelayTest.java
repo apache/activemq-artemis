@@ -36,12 +36,7 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
- *
  * A BatchDelayTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class BatchDelayTest extends ServiceTestBase
 {

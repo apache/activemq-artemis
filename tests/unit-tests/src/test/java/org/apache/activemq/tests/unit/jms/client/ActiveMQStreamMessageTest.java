@@ -29,11 +29,6 @@ import org.apache.activemq.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class ActiveMQStreamMessageTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

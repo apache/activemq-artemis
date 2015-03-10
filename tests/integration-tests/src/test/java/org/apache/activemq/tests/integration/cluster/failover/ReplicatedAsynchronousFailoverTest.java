@@ -16,11 +16,8 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-
 /**
  * A ReplicatedAsynchronousFailoverTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ReplicatedAsynchronousFailoverTest extends AsynchronousFailoverTest
 {

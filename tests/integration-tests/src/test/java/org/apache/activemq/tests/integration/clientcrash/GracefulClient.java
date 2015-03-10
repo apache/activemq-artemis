@@ -30,9 +30,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
 /**
  * Code to be run in an external VM, via main()
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class GracefulClient
 {

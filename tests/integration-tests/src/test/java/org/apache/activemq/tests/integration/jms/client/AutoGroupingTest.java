@@ -26,10 +26,6 @@ import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 
 /**
  * A AutoGroupingTest
- *
- * @author Tim Fox
- *
- *
  */
 public class AutoGroupingTest extends GroupingTest
 {

@@ -42,10 +42,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 /**
  *
  * A CloseConnectionOnGCTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class CloseConnectionOnGCTest extends JMSTestBase
 {

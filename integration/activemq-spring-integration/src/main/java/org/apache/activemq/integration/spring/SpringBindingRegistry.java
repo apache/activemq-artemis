@@ -20,10 +20,6 @@ import org.apache.activemq.spi.core.naming.BindingRegistry;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class SpringBindingRegistry implements BindingRegistry
 {
    private ConfigurableBeanFactory factory;

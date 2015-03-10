@@ -32,10 +32,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 /**
  *
  * A QueueFactoryImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- *
  */
 public class QueueFactoryImpl implements QueueFactory
 {

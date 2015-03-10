@@ -24,11 +24,6 @@ import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * A RoutingContext
- *
- * @author Tim Fox
- * @author Clebert Suconic
- *
- *
  */
 public interface RoutingContext
 {

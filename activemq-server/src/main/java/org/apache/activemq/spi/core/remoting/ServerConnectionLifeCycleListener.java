@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.spi.core.remoting;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         10/11/12
- */
 public interface ServerConnectionLifeCycleListener extends ConnectionLifeCycleListener
 {
       /**

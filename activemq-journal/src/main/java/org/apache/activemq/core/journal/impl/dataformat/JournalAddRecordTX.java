@@ -22,10 +22,6 @@ import org.apache.activemq.core.journal.impl.JournalImpl;
 
 /**
  * A JournalAddRecordTX
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class JournalAddRecordTX extends JournalInternalRecord
 {

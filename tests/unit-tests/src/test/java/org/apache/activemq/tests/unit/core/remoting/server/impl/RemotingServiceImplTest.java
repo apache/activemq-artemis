@@ -34,10 +34,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class RemotingServiceImplTest
 {
    private ServiceRegistry serviceRegistry;

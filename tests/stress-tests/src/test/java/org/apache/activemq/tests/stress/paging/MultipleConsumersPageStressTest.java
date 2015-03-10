@@ -43,10 +43,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A MultipleConsumersPageStressTest
- *
- * @author clebertsuconic
- *
- *
  */
 public class MultipleConsumersPageStressTest extends ServiceTestBase
 {

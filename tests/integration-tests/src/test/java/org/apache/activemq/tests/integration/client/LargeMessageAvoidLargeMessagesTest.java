@@ -34,8 +34,6 @@ import org.junit.Test;
 /**
  * The test extends the LargeMessageTest and tests
  * the functionality of option avoid-large-messages
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 {

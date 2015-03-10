@@ -28,10 +28,6 @@ import org.apache.activemq.jms.server.JMSServerManager;
 
 /**
  * A StompConnectionCleanupTest
- *
- * @author Tim Fox
- *
- *
  */
 public class StompConnectionCleanupTest extends StompTestBase
 {

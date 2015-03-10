@@ -29,10 +29,6 @@ import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConcurrentHashSet;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         9/21/11
- */
 public final class RecoveryManager
 {
    private ActiveMQRegistry registry;

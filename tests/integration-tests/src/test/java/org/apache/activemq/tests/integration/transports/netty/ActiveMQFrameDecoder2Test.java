@@ -32,9 +32,6 @@ import org.junit.Test;
 
 /**
  * A ActiveMQFrameDecoder2Test
- *
- * @author <a href="tlee@redhat.com">Trustin Lee</a>
- * @version $Revision$, $Date$
  */
 public class ActiveMQFrameDecoder2Test extends UnitTestCase
 {

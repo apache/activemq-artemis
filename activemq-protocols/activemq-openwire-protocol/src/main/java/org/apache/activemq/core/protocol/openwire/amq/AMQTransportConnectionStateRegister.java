@@ -26,9 +26,6 @@ import org.apache.activemq.command.SessionId;
 
 /**
  * What's the purpose of this?
- *
- * @author howard
- *
  */
 public interface AMQTransportConnectionStateRegister
 {

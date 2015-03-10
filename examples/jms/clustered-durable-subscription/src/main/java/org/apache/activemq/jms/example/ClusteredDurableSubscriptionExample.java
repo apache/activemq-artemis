@@ -34,8 +34,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  *
  * The same durable subscription can exist on more than one node of the cluster, and messages
  * sent to the topic will be load-balanced in a round-robin fashion between the two nodes
- *
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
 public class ClusteredDurableSubscriptionExample extends ActiveMQExample
 {

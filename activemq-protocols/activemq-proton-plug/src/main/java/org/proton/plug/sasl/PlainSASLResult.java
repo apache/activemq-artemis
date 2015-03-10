@@ -18,10 +18,6 @@ package org.proton.plug.sasl;
 
 import org.proton.plug.SASLResult;
 
-/**
- * @author Clebert Suconic
- */
-
 public class PlainSASLResult implements SASLResult
 {
    private boolean success;

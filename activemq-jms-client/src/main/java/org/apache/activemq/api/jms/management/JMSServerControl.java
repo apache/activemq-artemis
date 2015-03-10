@@ -23,9 +23,6 @@ import org.apache.activemq.api.core.management.Parameter;
 
 /**
  * A JMSSserverControl is used to manage ActiveMQ JMS server.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface JMSServerControl
 {

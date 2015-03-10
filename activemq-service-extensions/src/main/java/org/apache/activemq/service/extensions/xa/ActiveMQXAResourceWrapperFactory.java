@@ -19,10 +19,6 @@ package org.apache.activemq.service.extensions.xa;
 import javax.transaction.xa.XAResource;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public interface ActiveMQXAResourceWrapperFactory
 {
    ActiveMQXAResourceWrapper wrap(XAResource xaResource, Map<String, Object> properties);

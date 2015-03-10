@@ -32,10 +32,6 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- */
 public class TransactedSessionTest extends JMSTestCase
 {
    @Test

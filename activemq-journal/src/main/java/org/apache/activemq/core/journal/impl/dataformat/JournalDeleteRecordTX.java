@@ -22,10 +22,6 @@ import org.apache.activemq.core.journal.impl.JournalImpl;
 
 /**
  * A JournalDeleteRecordTX
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class JournalDeleteRecordTX extends JournalInternalRecord
 {

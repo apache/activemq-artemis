@@ -31,8 +31,6 @@ import javax.naming.InitialContext;
 /**
  * A simple example that demonstrates failover of the JMS connection from one node to another
  * when the live server crashes using a JMS <em>non-transacted</em> session.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class StopServerFailoverExample extends ActiveMQExample
 {

@@ -27,8 +27,6 @@ import org.apache.activemq.spi.core.remoting.ConsumerContext;
 
 /**
  * A ClientSessionInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface ClientSessionInternal extends ClientSession
 {

@@ -18,10 +18,6 @@ package org.apache.activemq.core.server;
 
 /**
  * A ActivateCallback
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public interface ActivateCallback
 {

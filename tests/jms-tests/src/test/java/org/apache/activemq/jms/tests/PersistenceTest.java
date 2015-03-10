@@ -28,7 +28,6 @@ import org.junit.Test;
 
 /**
  * A PersistenceTest
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class PersistenceTest extends JMSTestCase
 {

@@ -35,11 +35,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- */
 public class BrowserTest extends JMSTestCase
 {
    Connection conn;

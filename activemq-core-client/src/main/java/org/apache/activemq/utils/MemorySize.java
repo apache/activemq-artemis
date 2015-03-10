@@ -23,11 +23,6 @@ import java.lang.ref.WeakReference;
 
 /**
  * A MemorySize
- *
- * @author Clebert Suconic
- * @author Tim Fox
- *
- *
  */
 public class MemorySize
 {

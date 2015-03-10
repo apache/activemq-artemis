@@ -18,10 +18,6 @@ package org.proton.plug;
 
 import org.apache.qpid.proton.message.ProtonJMessage;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface AMQPClientSenderContext
 {
    void send(ProtonJMessage message);

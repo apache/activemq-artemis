@@ -28,9 +28,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class TCPSchema extends AbstractCFSchema
 {
    @Override

@@ -37,10 +37,6 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * The decode() and encode() method is copied originally from
  * JBoss AS code base.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- *
  */
 public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String>
 {

@@ -29,9 +29,6 @@ import java.util.Set;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- */
 public class QueueTest extends JMSTestCase
 {
 

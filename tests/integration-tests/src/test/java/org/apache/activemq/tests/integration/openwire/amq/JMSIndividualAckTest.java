@@ -31,9 +31,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JMSIndividualAckTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JMSIndividualAckTest extends BasicOpenWireTest
 {

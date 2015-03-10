@@ -26,9 +26,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class ObjectInputStreamWithClassLoader extends ObjectInputStream
 {
 

@@ -24,10 +24,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
 /**
  * A ReplicationAddMessage
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ReplicationDeleteTXMessage extends PacketImpl
 {

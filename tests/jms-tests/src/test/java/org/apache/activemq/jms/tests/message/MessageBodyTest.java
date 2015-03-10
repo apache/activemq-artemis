@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * A MessageBodyTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class MessageBodyTest extends MessageBodyTestCase
 {

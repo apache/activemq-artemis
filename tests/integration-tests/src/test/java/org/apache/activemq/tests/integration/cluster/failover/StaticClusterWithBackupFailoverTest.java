@@ -18,8 +18,6 @@ package org.apache.activemq.tests.integration.cluster.failover;
 
 /**
  * A StaticClusterWithBackupFailoverTest
- *
- * @author jmesnil
  */
 public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase
 {

@@ -27,7 +27,6 @@ import org.apache.activemq.core.server.ServerMessage;
 
 /**
  * A LocalQueueBinding
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class LocalQueueBinding implements QueueBinding
 {

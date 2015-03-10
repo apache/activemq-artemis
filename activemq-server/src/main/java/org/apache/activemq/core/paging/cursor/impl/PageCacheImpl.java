@@ -25,10 +25,6 @@ import org.apache.activemq.core.paging.impl.Page;
 
 /**
  * The caching associated to a single page.
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 class PageCacheImpl implements PageCache
 {

@@ -31,9 +31,6 @@ import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
 /**
  * A SecurityManagementTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase
 {

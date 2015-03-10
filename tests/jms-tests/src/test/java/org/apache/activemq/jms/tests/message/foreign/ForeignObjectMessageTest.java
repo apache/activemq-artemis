@@ -27,11 +27,6 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 
 /**
  * Tests the delivery/receipt of a foreign object message
- *
- *
- * @author <a href="mailto:a.walker@base2group.com>Aaron Walker</a>
- *
- *
  */
 public class ForeignObjectMessageTest extends ForeignMessageTest
 {

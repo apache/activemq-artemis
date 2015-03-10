@@ -39,8 +39,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * A InVMConnection
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class InVMConnection implements Connection
 {

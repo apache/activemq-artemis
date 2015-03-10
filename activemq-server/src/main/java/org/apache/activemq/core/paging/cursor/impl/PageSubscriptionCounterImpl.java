@@ -38,8 +38,6 @@ import org.apache.activemq.core.transaction.impl.TransactionImpl;
 
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription
- *
- * @author clebertsuconic
  */
 public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 {

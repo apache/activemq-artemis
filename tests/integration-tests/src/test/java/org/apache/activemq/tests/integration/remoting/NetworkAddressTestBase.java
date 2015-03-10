@@ -40,10 +40,6 @@ import org.junit.Test;
 
 /**
  * A NetworkAddressTest
- *
- * @author jmesnil
- *         <p/>
- *         Created 26 janv. 2009 15:06:58
  */
 public abstract class NetworkAddressTestBase extends ServiceTestBase
 {

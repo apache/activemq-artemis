@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.IO_ERROR;
 
 /**
  * Unexpected I/O error occurred on the server.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQIOErrorException extends ActiveMQException
 {

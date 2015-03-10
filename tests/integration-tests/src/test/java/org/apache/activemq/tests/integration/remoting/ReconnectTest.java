@@ -36,10 +36,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * A ReconnectSimpleTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ReconnectTest extends ServiceTestBase
 {

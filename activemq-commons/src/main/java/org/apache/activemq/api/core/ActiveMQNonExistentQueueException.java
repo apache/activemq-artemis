@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.QUEUE_DOES_NOT_
 
 /**
  * An operation failed because a queue does not exist on the server.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQNonExistentQueueException extends ActiveMQException
 {

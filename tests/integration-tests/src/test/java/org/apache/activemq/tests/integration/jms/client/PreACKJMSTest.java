@@ -35,8 +35,6 @@ import org.junit.Test;
 
 /**
  * A PreACKJMSTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class PreACKJMSTest extends JMSTestBase
 {

@@ -23,9 +23,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- */
 public class AddressSettingsTest extends UnitTestCase
 {
    @Test

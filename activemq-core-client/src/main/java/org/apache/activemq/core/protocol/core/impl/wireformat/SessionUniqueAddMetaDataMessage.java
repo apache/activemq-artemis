@@ -19,10 +19,6 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 
 /**
  * A SessionUniqueAddMetaDataMessageV2
- *
- * @author clebertsuconic
- *
- *
  */
 public class SessionUniqueAddMetaDataMessage extends SessionAddMetaDataMessageV2
 {

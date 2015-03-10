@@ -18,10 +18,6 @@ package org.apache.activemq.tests.integration.client;
 
 /**
  * A NettyProducerFlowControlTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class NettyProducerFlowControlTest extends ProducerFlowControlTest
 {

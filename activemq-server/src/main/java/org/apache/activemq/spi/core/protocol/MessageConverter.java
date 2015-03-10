@@ -18,9 +18,6 @@ package org.apache.activemq.spi.core.protocol;
 
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * @author Clebert Suconic
- */
 // TODO: use this interface properly on OpenWire
 public interface MessageConverter
 {

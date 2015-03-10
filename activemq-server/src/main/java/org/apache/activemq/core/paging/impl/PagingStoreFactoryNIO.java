@@ -45,8 +45,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 /**
  *
  * Integration point between Paging and NIO
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class PagingStoreFactoryNIO implements PagingStoreFactory
 {

@@ -18,8 +18,6 @@ package org.apache.activemq.api.core.management;
 
 /**
  * A ActiveMQComponentControl is used to manage the life cycle of a ActiveMQ component.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface ActiveMQComponentControl
 {

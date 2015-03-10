@@ -18,10 +18,6 @@ package org.proton.plug.util;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author Clebert Suconic
- */
-
 public class FutureRunnable implements Runnable
 {
    private final ReusableLatch latch;

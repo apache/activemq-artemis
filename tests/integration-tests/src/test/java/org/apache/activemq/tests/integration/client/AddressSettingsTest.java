@@ -30,9 +30,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class AddressSettingsTest extends ServiceTestBase
 {
    private final SimpleString addressA = new SimpleString("addressA");

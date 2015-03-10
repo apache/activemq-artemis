@@ -29,8 +29,6 @@ import org.junit.Test;
 
 /**
  * A BlockingSendTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class BlockingSendTest extends ServiceTestBase
 {

@@ -38,8 +38,6 @@ import org.apache.activemq.journal.ActiveMQJournalLogger;
 
 /**
  * A AbstractSequentialFile
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public abstract class AbstractSequentialFile implements SequentialFile
 {

@@ -70,8 +70,6 @@ import org.apache.activemq.utils.VersionLoader;
  * Semantic properties could also be added to this implementation.
  * <p/>
  * Implementations of this class need to be stateless.
- *
- * @author Clebert Suconic
  */
 
 public class ActiveMQClientProtocolManager implements ClientProtocolManager

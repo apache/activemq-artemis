@@ -80,13 +80,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A Netty TCP Acceptor that supports SSL
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="tlee@redhat.com">Trustin Lee</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="nmaurer@redhat.com">Norman Maurer</a>
- * @version $Rev$, $Date$
  */
 public class NettyAcceptor implements Acceptor
 {

@@ -22,11 +22,7 @@ import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.junit.BeforeClass;
 
 /**
- *
  * A RealJournalImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class AIOJournalImplTest extends JournalImplTestUnit
 {

@@ -34,9 +34,6 @@ import org.apache.activemq.spi.core.naming.BindingRegistry;
  * <p>
  * JMS Endpoints are registered with a simple MapBindingRegistry.  If you want to use a different registry
  * you must set the registry property of this class or call the setRegistry() method if you want to use JNDI
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class EmbeddedJMS extends EmbeddedActiveMQ
 {
