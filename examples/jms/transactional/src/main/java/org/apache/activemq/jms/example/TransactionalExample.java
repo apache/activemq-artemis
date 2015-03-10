@@ -29,8 +29,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that sends and consume message transactionally.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class TransactionalExample extends ActiveMQExample
 {

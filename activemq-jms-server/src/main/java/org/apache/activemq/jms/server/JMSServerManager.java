@@ -30,10 +30,6 @@ import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 /**
  * The JMS Management interface.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface JMSServerManager extends ActiveMQComponent
 {

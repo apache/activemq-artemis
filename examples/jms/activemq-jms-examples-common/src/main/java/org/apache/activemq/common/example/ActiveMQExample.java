@@ -38,8 +38,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
  * <p>
  * This takes care of starting and stopping the server as well as deploying any
  * queue needed.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public abstract class ActiveMQExample
 {

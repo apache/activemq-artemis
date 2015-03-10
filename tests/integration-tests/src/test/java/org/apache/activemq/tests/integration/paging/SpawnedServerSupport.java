@@ -39,10 +39,7 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 
 /**
  * Support class for server that are using an external process on the testsuite
- *
- * @author Clebert Suconic
  */
-
 public class SpawnedServerSupport
 {
 

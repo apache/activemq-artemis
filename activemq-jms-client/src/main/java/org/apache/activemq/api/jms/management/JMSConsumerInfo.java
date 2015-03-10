@@ -22,8 +22,6 @@ import org.apache.activemq.utils.json.JSONObject;
 /**
  * Helper class to create Java Objects from the
  * JSON serialization returned by {@link JMSServerControl#listConsumersAsJSON(String)} and related methods.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class JMSConsumerInfo
 {

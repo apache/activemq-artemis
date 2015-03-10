@@ -41,14 +41,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- *
- * A DirectDeliverTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class DirectDeliverTest extends ServiceTestBase
 {
 

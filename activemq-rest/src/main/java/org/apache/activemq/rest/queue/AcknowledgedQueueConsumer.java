@@ -38,10 +38,6 @@ import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.util.Constants;
 import org.apache.activemq.rest.util.LinkStrategy;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class AcknowledgedQueueConsumer extends QueueConsumer
 {
    protected long counter;

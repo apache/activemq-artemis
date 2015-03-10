@@ -24,7 +24,6 @@ import org.apache.activemq.core.journal.IOCriticalErrorListener;
  * It may be used under special cases, but it shouldn't be needed under regular circumstances as the
  * system should detect the need for compacting. The regular use is to configure min-compact
  * parameters.
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public final class CompactJournal // NO_UCD
 {

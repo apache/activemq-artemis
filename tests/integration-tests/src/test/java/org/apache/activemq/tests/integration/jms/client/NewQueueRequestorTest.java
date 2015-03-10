@@ -33,10 +33,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class NewQueueRequestorTest extends JMSTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

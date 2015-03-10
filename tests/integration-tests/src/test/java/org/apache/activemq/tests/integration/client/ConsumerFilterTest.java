@@ -29,11 +29,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ConsumerFilterTest
- *
- * @author Tim Fox
- */
 public class ConsumerFilterTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

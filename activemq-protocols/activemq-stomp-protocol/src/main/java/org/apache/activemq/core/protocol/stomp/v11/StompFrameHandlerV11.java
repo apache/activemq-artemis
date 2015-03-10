@@ -31,9 +31,6 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 
 import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements FrameEventListener
 {
    protected static final char ESC_CHAR = '\\';

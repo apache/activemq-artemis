@@ -33,9 +33,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTopicRedeliverTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsTopicRedeliverTest extends BasicOpenWireTest
 {

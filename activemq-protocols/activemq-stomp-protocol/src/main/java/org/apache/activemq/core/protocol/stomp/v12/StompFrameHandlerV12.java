@@ -30,9 +30,6 @@ import org.apache.activemq.core.server.ServerMessage;
 
 import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameEventListener
 {
    public StompFrameHandlerV12(StompConnection connection)

@@ -26,10 +26,6 @@ import static org.apache.activemq.core.security.CheckType.DELETE_DURABLE_QUEUE;
 import static org.apache.activemq.core.security.CheckType.DELETE_NON_DURABLE_QUEUE;
 import static org.apache.activemq.core.security.CheckType.SEND;
 
-
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class RoleTest extends Assert
 {
    // Constants -----------------------------------------------------

@@ -19,10 +19,6 @@ package org.apache.activemq.core.config;
 import java.io.Serializable;
 import java.util.Map;
 
-/**
- * A ConnectorServiceConfiguration
- * @author <a href="tm.igarashi@gmail.com">Tomohisa Igarashi</a>
- */
 public class ConnectorServiceConfiguration implements Serializable
 {
    private static final long serialVersionUID = -641207073030767325L;

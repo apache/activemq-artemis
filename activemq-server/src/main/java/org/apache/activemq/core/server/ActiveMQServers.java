@@ -30,7 +30,6 @@ import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
  * <p>
  * This class should be used when you want to instantiate a ActiveMQServer instance for embedding in
  * your own application, as opposed to directly instantiating an implementing instance.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class ActiveMQServers
 {

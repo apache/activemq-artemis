@@ -23,9 +23,6 @@ import javax.resource.spi.LocalTransaction;
 
 /**
  * JMS Local transaction
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRALocalTransaction implements LocalTransaction
 {

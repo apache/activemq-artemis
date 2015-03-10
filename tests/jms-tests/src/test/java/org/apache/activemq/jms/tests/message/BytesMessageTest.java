@@ -26,8 +26,6 @@ import org.junit.Before;
 
 /**
  * A test that sends/receives bytes messages to the JMS provider and verifies their integrity.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  */
 public class BytesMessageTest extends MessageTestBase
 {

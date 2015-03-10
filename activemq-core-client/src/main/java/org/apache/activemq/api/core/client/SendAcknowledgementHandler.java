@@ -32,7 +32,6 @@ import org.apache.activemq.api.core.Message;
  * <p>
  * Notice that this notification will only take place if {@code ConfirmationWindowSize} is set to a
  * positive value at {@link ServerLocator#setConfirmationWindowSize(int)}.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface SendAcknowledgementHandler
 {

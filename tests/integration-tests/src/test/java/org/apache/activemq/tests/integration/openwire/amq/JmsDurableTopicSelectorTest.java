@@ -20,9 +20,6 @@ import org.junit.Before;
 
 /**
  * adapted from: org.apache.activemq.JmsDurableTopicSelectorTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsDurableTopicSelectorTest extends JmsTopicSelectorTest
 {

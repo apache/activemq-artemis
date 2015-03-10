@@ -31,8 +31,6 @@ import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
  * on Linux.
  * <p/>
  * https://bugzilla.redhat.com/show_bug.cgi?id=678585
- *
- * @author clebertsuconic
  */
 public final class AIOFileLockNodeManager extends FileLockNodeManager
 {

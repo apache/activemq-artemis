@@ -22,10 +22,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class SpringJmsBootstrap extends EmbeddedJMS implements BeanFactoryAware
 {
    public void setBeanFactory(BeanFactory beanFactory) throws BeansException

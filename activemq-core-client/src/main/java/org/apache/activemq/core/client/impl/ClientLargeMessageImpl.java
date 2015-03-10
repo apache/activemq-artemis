@@ -30,7 +30,6 @@ import org.apache.activemq.utils.DataConstants;
  * <p>
  * At the time of sending a regular Message is sent as we won't know the message is considered large
  * until the buffer is filled up or the user set a streaming.
- * @author clebertsuconic
  */
 public final class ClientLargeMessageImpl extends ClientMessageImpl implements ClientLargeMessageInternal
 {

@@ -39,9 +39,6 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
  * post on old ack-next
  * post on old ack-next after an ack
  * ack with an old ack link
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class RepostingTopicTest extends MessageTestBase
 {

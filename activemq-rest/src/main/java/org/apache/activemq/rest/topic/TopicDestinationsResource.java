@@ -43,10 +43,6 @@ import org.apache.activemq.rest.queue.PostMessageDupsOk;
 import org.apache.activemq.rest.queue.PostMessageNoDups;
 import org.w3c.dom.Document;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 @Path("/topics")
 public class TopicDestinationsResource
 {

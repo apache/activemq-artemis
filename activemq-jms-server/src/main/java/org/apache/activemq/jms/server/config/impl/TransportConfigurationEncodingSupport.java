@@ -28,13 +28,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.utils.BufferHelper;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A TransportConfigurationEncodingSupport
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class TransportConfigurationEncodingSupport
 {
    public static List<Pair<TransportConfiguration, TransportConfiguration>> decodeConfigs(ActiveMQBuffer buffer)

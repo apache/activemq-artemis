@@ -26,10 +26,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class QueueReceiverTest extends JMSTestCase
 {
    /**

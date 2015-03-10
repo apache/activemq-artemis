@@ -25,7 +25,6 @@ import org.apache.activemq.core.server.ServerMessage;
  * <p>
  * We can't just record the ServerMessage as we need other information (such as the TransactionID
  * used during paging)
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public interface PagedMessage extends EncodingSupport
 {

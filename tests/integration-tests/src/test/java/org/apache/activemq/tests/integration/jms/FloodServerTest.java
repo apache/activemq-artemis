@@ -50,10 +50,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 /**
  *
  * A FloodServerTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class FloodServerTest extends UnitTestCase
 {

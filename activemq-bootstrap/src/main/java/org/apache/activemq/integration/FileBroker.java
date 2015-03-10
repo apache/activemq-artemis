@@ -28,9 +28,6 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class FileBroker implements Broker
 {
    private final String configurationUrl;

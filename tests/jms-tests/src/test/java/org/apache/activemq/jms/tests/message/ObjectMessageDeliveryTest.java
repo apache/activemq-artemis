@@ -33,10 +33,6 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 /**
  *
  * A ObjectMessageDeliveryTest
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:juha@jboss.org">Juha Lindfors</a>
- *
- *
  */
 public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase
 {

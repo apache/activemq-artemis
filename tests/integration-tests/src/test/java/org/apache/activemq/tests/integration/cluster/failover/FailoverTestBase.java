@@ -54,11 +54,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-/**
- * A FailoverTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public abstract class FailoverTestBase extends ServiceTestBase
 {
    // Constants -----------------------------------------------------

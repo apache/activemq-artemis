@@ -30,12 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ActiveMQFrameDecoder2Test
- *
- * @author <a href="tlee@redhat.com">Trustin Lee</a>
- * @version $Revision$, $Date$
- */
 public class ActiveMQFrameDecoder2Test extends UnitTestCase
 {
    private static final int MSG_CNT = 10000;

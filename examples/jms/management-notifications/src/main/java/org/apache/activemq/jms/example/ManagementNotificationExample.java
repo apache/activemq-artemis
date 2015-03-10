@@ -34,8 +34,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example that shows how to receive management notifications using JMS messages.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class ManagementNotificationExample extends ActiveMQExample
 {

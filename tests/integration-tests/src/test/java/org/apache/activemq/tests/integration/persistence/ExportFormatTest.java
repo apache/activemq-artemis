@@ -32,13 +32,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A ExportFormatTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class ExportFormatTest extends ServiceTestBase
 {
 

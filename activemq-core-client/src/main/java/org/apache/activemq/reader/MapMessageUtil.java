@@ -20,10 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * @author Clebert Suconic
- */
-
 public class MapMessageUtil extends MessageUtil
 {
 

@@ -24,7 +24,6 @@ import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
 
 /**
  * A protocol manager that will replace the packet manager for inter-server communications
- * @author Clebert Suconic
  */
 public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolManagerFactory
 {

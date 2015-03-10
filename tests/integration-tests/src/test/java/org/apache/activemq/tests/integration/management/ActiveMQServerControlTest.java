@@ -57,13 +57,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A QueueControlTest
- *
- * @author jmesnil
- *         <p/>
- *         Created 26 nov. 2008 14:18:48
- */
 public class ActiveMQServerControlTest extends ManagementTestBase
 {
 

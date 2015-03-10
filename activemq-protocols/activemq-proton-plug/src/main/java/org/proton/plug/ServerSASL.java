@@ -16,10 +16,6 @@
  */
 package org.proton.plug;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface ServerSASL
 {
    String getName();

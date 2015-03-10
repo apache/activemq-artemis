@@ -32,10 +32,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- */
 public class NoLocalSubscriberTest extends JMSTestBase
 {
    // Constants -----------------------------------------------------

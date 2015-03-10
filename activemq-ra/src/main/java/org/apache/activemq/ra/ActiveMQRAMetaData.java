@@ -22,9 +22,6 @@ import javax.resource.spi.ManagedConnectionMetaData;
 
 /**
  * Managed connection meta data
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAMetaData implements ManagedConnectionMetaData
 {

@@ -21,10 +21,7 @@ import org.apache.activemq.tests.util.SpawnedVMSupport;
 /**
  * There is no difference between this class and {@link org.apache.activemq.tests.integration.paging.PagingWithFailoverServer}
  * other than helping us identify it on the logs, as it will show with a different name through spawned logs
- *
- * @author Clebert Suconic
  */
-
 public class PagingWithFailoverBackup extends PagingWithFailoverServer
 {
    public static Process spawnVM(final String testDir, final int thisPort, final int otherPort) throws Exception

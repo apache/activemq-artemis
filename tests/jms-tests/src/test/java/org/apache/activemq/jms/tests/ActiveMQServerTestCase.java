@@ -57,11 +57,6 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
- * @author <a href="mailto:adrian@jboss.org">Adrian Brock</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.org">Tim Fox</a>
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  * @deprecated this infrastructure should not be used for new code. New tests should go into
  * org.apache.activemq.tests.integration.jms at the integration-tests project.
  */

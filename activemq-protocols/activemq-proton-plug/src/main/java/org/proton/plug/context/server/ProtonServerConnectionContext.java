@@ -28,10 +28,6 @@ import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonServerConnectionContext extends AbstractConnectionContext implements AMQPServerConnectionContext
 {
    public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP)

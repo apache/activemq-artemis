@@ -46,10 +46,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class ConnectionFactoryTest extends JMSTestCase
 {
    private final Random random = new Random();

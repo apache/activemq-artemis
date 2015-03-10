@@ -38,9 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Justin Bertram
- */
 public class AutoCreateJmsQueueTest extends JMSTestBase
 {
    @Test

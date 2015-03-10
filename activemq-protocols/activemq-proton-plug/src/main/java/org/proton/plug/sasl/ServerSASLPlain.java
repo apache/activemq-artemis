@@ -19,10 +19,6 @@ package org.proton.plug.sasl;
 import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ServerSASLPlain implements ServerSASL
 {
    public static final String NAME = "PLAIN";

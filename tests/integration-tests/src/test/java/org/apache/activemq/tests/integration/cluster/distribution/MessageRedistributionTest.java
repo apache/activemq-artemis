@@ -39,13 +39,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A MessageRedistributionTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 10 Feb 2009 18:41:57
- */
 public class MessageRedistributionTest extends ClusterTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

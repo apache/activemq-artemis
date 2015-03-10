@@ -32,11 +32,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A ServerLargeMessageTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class ServerLargeMessageTest extends ServiceTestBase
 {
 

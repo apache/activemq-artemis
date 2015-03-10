@@ -38,10 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:clebert.suconic@feodorov.com">Clebert Suconic</a>
- * @version <tt>$Revision: 6220 $</tt>
- */
 public class JMSLargeMessageTest extends JMSTestBase
 {
    // Constants -----------------------------------------------------

@@ -36,8 +36,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * from one address to another.
  *
  * Please see the readme.html for more information.
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
 public class DivertExample extends ActiveMQExample
 {

@@ -44,8 +44,6 @@ import org.junit.Test;
  * This class contains tests for core management
  * functionalities that are affected by a server
  * in paging mode.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class ManagementWithPagingServerTest extends ManagementTestBase
 {

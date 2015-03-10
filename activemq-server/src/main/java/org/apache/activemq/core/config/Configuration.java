@@ -31,8 +31,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 
 /**
  * A Configuration is used to configure ActiveMQ servers.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface Configuration
 {

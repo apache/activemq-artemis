@@ -17,10 +17,6 @@
 
 package org.apache.activemq.service.extensions.xa.recovery;
 
-/**
- * @author mtaylor
- */
-
 public class ActiveMQRegistryImpl implements ActiveMQRegistry
 {
    private static ActiveMQRegistryImpl instance;

@@ -36,8 +36,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 
 /**
  * A simple JMS example showing the usage of XA support in JMS.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class XAReceiveExample extends ActiveMQExample
 {

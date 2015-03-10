@@ -23,9 +23,6 @@ import org.apache.activemq.core.server.MessageReference;
 /**
  *
  * A TransactionOperation
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface TransactionOperation
 {

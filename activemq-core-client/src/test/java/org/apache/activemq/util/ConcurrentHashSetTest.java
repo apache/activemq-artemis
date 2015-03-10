@@ -29,11 +29,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.ConcurrentSet;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class ConcurrentHashSetTest extends Assert
 {
    // Constants -----------------------------------------------------

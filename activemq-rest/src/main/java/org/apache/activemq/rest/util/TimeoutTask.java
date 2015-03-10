@@ -25,10 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.activemq.rest.ActiveMQRestLogger;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class TimeoutTask implements Runnable
 {
    protected boolean running = true;

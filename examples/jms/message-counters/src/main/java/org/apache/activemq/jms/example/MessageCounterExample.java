@@ -41,9 +41,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * An example showing how to use message counters to have information on a queue.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class MessageCounterExample extends ActiveMQExample
 {

@@ -21,13 +21,6 @@ import java.util.List;
 
 import org.apache.activemq.core.journal.IOAsyncTask;
 
-/**
- * A TimedBufferObserver
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public interface TimedBufferObserver
 {
 

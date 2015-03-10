@@ -41,9 +41,6 @@ import org.junit.Test;
 
 /**
  * Play with ActiveMQ
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class RawAckTest
 {

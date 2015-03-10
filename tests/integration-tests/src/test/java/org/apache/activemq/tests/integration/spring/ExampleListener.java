@@ -23,10 +23,6 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class ExampleListener implements MessageListener
 {
    public static String lastMessage = null;

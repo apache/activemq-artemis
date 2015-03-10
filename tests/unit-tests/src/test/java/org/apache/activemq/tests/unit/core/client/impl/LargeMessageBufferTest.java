@@ -52,11 +52,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A LargeMessageBufferUnitTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class LargeMessageBufferTest extends UnitTestCase
 {
 

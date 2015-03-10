@@ -27,10 +27,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.utils.uri.SchemaConstants;
 import org.apache.activemq.utils.uri.URISchema;
 
-/**
- * @author clebertsuconic
- */
-
 public class UDPSchema extends AbstractCFSchema
 {
    @Override

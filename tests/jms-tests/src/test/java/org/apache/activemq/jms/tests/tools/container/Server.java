@@ -29,9 +29,6 @@ import org.apache.activemq.jms.server.JMSServerManager;
 
 /**
  * The remote interface exposed by TestServer.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version <tt>$Revision: 2868 $</tt>
  */
 public interface Server extends Remote
 {

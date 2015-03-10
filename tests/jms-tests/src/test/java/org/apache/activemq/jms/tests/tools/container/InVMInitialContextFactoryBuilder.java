@@ -24,12 +24,6 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- * @version <tt>$Revision: 2868 $</tt>
- *
- */
 public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBuilder
 {
    // Constants ------------------------------------------------------------------------------------

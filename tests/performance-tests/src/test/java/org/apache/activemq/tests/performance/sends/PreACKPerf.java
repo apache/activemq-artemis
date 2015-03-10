@@ -24,10 +24,6 @@ import javax.jms.Session;
 
 import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 
-/**
- * @author clebertsuconic
- */
-
 public class PreACKPerf extends AbstractSendReceivePerfTest
 {
    @Override

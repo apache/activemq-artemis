@@ -18,10 +18,6 @@ package org.apache.activemq.service.extensions.xa;
 
 import javax.transaction.xa.XAResource;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public interface ActiveMQXAResourceWrapper extends XAResource
 {
    // List of supported properties

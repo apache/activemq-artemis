@@ -26,10 +26,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
  * test module.
  *
  * This test should be placed on each one of the tests modules to make sure the library is loaded correctly.
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class LibaioDependencyCheckTest extends UnitTestCase
 {

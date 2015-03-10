@@ -29,13 +29,6 @@ import javax.jms.Session;
 
 import org.junit.Test;
 
-/**
- * A AutoAckMesageListenerTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class AutoAckMesageListenerTest extends JMSTestCase
 {
 

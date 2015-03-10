@@ -18,13 +18,6 @@ package org.apache.activemq.core.cluster;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 
-/**
- * A DiscoveryEntry
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class DiscoveryEntry
 {
    private final String nodeID;

@@ -20,10 +20,6 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface AMQPSessionContext
 {
    byte[] getTag();

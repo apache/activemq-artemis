@@ -39,13 +39,6 @@ import org.apache.activemq.api.core.client.SessionFailureListener;
  * The reason why we don't use that class directly is that it assumes on failure of connection
  * the RM_FAIL or RM_ERR is thrown, but in ActiveMQ we throw XA_RETRY since we want the recovery manager to be able
  * to retry on failure without having to manually retry
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *
- * @version $Revision: 45341 $
  */
 public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureListener
 {

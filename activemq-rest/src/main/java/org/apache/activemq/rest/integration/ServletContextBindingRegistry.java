@@ -20,10 +20,6 @@ import org.apache.activemq.spi.core.naming.BindingRegistry;
 
 import javax.servlet.ServletContext;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class ServletContextBindingRegistry implements BindingRegistry
 {
    private ServletContext servletContext;

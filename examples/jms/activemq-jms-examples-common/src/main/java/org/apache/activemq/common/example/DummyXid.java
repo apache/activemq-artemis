@@ -20,9 +20,6 @@ import javax.transaction.xa.Xid;
 
 import org.apache.activemq.utils.Base64;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class DummyXid implements Xid
 {
    private static final long serialVersionUID = 407053232840068514L;

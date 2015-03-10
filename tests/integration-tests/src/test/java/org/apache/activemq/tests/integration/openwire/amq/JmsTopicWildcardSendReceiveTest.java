@@ -31,9 +31,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsTopicWildcardSendReceiveTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest
 {

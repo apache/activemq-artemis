@@ -38,8 +38,6 @@ import org.apache.activemq.journal.ActiveMQJournalLogger;
 /**
  * This is a helper class for the Journal, which will control access to dataFiles, openedFiles and freeFiles
  * Guaranteeing that they will be delivered in order to the Journal
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JournalFilesRepository
 {

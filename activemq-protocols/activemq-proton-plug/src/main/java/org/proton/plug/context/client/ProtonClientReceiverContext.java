@@ -36,9 +36,6 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
 import static org.proton.plug.util.DeliveryUtil.decodeMessageImpl;
 
-/**
- * @author Clebert Suconic
- */
 public class ProtonClientReceiverContext extends AbstractProtonReceiverContext implements AMQPClientReceiverContext
 {
    public ProtonClientReceiverContext(AMQPSessionCallback sessionSPI, AbstractConnectionContext connection, AbstractProtonSessionContext protonSession, Receiver receiver)

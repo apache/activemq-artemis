@@ -41,12 +41,6 @@ import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.spi.core.remoting.ReadyListener;
 import org.apache.activemq.utils.ConcurrentHashSet;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="nmaurer@redhat.com">Norman Maurer</a>
- */
 public class NettyConnection implements Connection
 {
    // Constants -----------------------------------------------------

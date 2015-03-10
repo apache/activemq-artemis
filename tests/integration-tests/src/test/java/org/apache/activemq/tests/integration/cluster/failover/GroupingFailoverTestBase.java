@@ -32,10 +32,6 @@ import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBas
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Oct 26, 2009
- */
 public abstract class GroupingFailoverTestBase extends ClusterTestBase
 {
 

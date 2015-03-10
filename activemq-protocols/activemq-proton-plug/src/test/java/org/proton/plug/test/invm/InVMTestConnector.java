@@ -22,8 +22,6 @@ import org.proton.plug.test.minimalclient.Connector;
 
 /**
  * This is used for testing, where we bypass Netty or any networking for test conditions only
- *
- * @author Clebert Suconic
  */
 public class InVMTestConnector implements Connector
 {

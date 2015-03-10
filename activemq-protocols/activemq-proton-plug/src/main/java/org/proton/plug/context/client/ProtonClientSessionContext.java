@@ -31,10 +31,6 @@ import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.util.FutureRunnable;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonClientSessionContext extends AbstractProtonSessionContext implements AMQPClientSessionContext
 {
    public ProtonClientSessionContext(AMQPSessionCallback sessionSPI, AbstractConnectionContext connection, Session session)

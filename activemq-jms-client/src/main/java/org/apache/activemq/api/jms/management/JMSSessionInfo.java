@@ -20,13 +20,6 @@ import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONException;
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * A JMSSessionInfo
- *
- * @author howard
- *
- *
- */
 public class JMSSessionInfo
 {
    private final String sessionID;

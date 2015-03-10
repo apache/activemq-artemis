@@ -22,11 +22,6 @@ import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
 
-/**
- * A ProtocolManager
- *
- * @author Tim Fox
- */
 public interface ProtocolManager
 {
    ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection);

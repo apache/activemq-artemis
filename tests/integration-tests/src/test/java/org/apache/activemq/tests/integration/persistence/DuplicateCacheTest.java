@@ -23,11 +23,6 @@ import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.Test;
 
-/**
- * A DuplicateCacheTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class DuplicateCacheTest extends StorageManagerTestBase
 {
 

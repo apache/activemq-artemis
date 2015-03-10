@@ -38,10 +38,6 @@ import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class PingStressTest extends ServiceTestBase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;

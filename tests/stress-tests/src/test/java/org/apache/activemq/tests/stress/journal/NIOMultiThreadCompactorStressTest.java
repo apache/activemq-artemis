@@ -45,11 +45,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A MultiThreadConsumerStressTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
 {
 

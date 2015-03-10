@@ -42,10 +42,6 @@ import org.apache.activemq.core.version.Version;
 
 /**
  * A packet handler for all packets that need to be handled at the server level
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class ActiveMQPacketHandler implements ChannelHandler
 {

@@ -76,13 +76,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A JMSServerControlTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *         <p/>
- *         Created 14 nov. 2008 13:35:10
- */
 public class JMSServerControlTest extends ManagementTestBase
 {
    // Attributes ----------------------------------------------------

@@ -18,15 +18,6 @@ package org.apache.activemq.core.server.cluster;
 
 import org.apache.activemq.api.core.client.MessageHandler;
 
-/**
- * A MessageFlowRecord
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 5 Feb 2009 11:39:36
- *
- *
- */
 public interface MessageFlowRecord extends MessageHandler
 {
    String getAddress();

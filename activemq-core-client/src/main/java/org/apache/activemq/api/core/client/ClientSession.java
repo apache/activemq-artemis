@@ -24,11 +24,6 @@ import org.apache.activemq.api.core.SimpleString;
 
 /**
  * A ClientSession is a single-thread object required for producing and consuming messages.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface ClientSession extends XAResource, AutoCloseable
 {

@@ -27,11 +27,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A SendStressTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class SendStressTest extends ServiceTestBase
 {
 

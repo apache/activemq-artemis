@@ -41,13 +41,6 @@ import org.apache.activemq.core.journal.impl.JournalImpl;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- *
- * A JournalImplTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public abstract class JournalImplTestBase extends UnitTestCase
 {
    protected List<RecordInfo> records = new LinkedList<RecordInfo>();

@@ -25,10 +25,6 @@ import org.junit.Test;
 import java.net.URI;
 import java.util.Map;
 
-/**
- * @author clebertsuconic
- */
-
 public class URIParserTest
 {
 

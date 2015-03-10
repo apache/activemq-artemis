@@ -56,11 +56,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.utils.ExecutorFactory;
 
-/**
- * A PrintPage
- *
- * @author clebertsuconic
- */
 public class PrintPages // NO_UCD (unused code)
 {
    public static void printPages(String pageDirectory, String messagesDirectory)

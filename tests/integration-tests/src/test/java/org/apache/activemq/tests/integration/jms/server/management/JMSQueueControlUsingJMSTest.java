@@ -38,10 +38,6 @@ import org.junit.Test;
 /**
  *
  * A JMSQueueControlUsingJMSTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest
 {

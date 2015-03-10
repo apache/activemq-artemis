@@ -32,11 +32,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * @author Tim Fox
- *
- *
- */
 public class SimpleSendMultipleQueuesTest extends ServiceTestBase
 {
    public static final String address = "testaddress";

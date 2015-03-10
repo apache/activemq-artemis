@@ -59,13 +59,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A LargeMessageTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *         <p/>
- *         Created 29-Sep-08 4:04:10 PM
- */
 public class InterruptedLargeMessageTest extends LargeMessageTestBase
 {
    // Constants -----------------------------------------------------

@@ -37,11 +37,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A MessageConcurrencyTest
- *
- * @author Tim Fox
- */
 public class MessageConcurrencyTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

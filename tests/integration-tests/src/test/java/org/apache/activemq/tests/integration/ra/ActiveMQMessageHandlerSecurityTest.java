@@ -28,10 +28,6 @@ import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Jul 6, 2010
- */
 public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase
 {
    @Override

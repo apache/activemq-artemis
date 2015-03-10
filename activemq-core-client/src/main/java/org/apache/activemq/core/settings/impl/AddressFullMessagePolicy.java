@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.core.settings.impl;
 
-/**
- * A AddressFullMessagePolicy
- *
- * @author Tim Fox
- *
- *
- */
 public enum AddressFullMessagePolicy
 {
    DROP, PAGE, BLOCK, FAIL;

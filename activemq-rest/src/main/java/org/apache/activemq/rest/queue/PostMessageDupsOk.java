@@ -33,9 +33,6 @@ import java.net.URI;
 
 /**
  * Implements simple "create" link.  Returns 201 with Location of created resource as per HTTP
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class PostMessageDupsOk extends PostMessage
 {

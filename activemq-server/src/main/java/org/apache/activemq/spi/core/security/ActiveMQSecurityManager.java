@@ -24,7 +24,6 @@ import org.apache.activemq.core.security.Role;
 /**
  * Use to validate whether a user has is valid to connect to the server and perform certain
  * functions
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public interface ActiveMQSecurityManager
 {

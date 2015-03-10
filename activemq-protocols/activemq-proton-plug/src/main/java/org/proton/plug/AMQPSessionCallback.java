@@ -25,10 +25,7 @@ import org.proton.plug.context.ProtonPlugSender;
 
 /**
  * These are methods where the Proton Plug component will call your server
- *
- * @author Clebert Suconic
  */
-
 public interface AMQPSessionCallback
 {
 

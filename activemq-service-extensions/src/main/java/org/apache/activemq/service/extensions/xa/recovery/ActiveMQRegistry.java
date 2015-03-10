@@ -17,10 +17,6 @@
 
 package org.apache.activemq.service.extensions.xa.recovery;
 
-/**
- * @author mtaylor
- */
-
 public interface ActiveMQRegistry
 {
    void register(final XARecoveryConfig resourceConfig);

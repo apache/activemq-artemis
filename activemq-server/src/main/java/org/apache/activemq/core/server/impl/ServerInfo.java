@@ -26,13 +26,6 @@ import org.apache.activemq.core.paging.PagingStore;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.utils.SizeFormatterUtil;
 
-/**
- * A ServerInfo
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class ServerInfo
 {
    private final ActiveMQServer server;

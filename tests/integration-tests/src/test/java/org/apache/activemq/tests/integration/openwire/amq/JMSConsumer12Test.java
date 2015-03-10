@@ -31,9 +31,6 @@ import org.junit.runners.Parameterized;
 
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 @RunWith(Parameterized.class)
 public class JMSConsumer12Test extends BasicOpenWireTest

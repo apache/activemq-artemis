@@ -22,15 +22,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A SessionContinuationMessage
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- * Created Dec 5, 2008 10:08:40 AM
- *
- *
- */
 public abstract class SessionContinuationMessage extends PacketImpl
 {
 

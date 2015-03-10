@@ -22,13 +22,6 @@ import org.apache.activemq.api.core.client.ClientRequestor;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.management.ManagementHelper;
 
-/**
- * A MBeanUsingCoreMessage
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class CoreMessagingProxy
 {
 

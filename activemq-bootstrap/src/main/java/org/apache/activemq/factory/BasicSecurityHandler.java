@@ -22,9 +22,6 @@ import org.apache.activemq.dto.SecurityDTO;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class BasicSecurityHandler implements SecurityHandler
 {
    @Override

@@ -20,10 +20,6 @@ import org.apache.activemq.core.journal.IOCompletion;
 
 /**
  * Internal class used to manage explicit syncs on the Journal through callbacks.
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public abstract class SyncIOCompletion implements IOCompletion
 {

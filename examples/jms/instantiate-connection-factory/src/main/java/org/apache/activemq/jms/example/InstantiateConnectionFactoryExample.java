@@ -40,9 +40,6 @@ import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
  * Queue, ConnectionFactory, etc. without having to use JNDI at all.
  *
  * For more information please see the readme.html file.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class InstantiateConnectionFactoryExample extends ActiveMQExample
 {

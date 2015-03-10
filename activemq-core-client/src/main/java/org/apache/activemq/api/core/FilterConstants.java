@@ -19,7 +19,6 @@ package org.apache.activemq.api.core;
 /**
  * Constants representing pre-defined message attributes that can be referenced in ActiveMQ core
  * filter expressions.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class FilterConstants
 {

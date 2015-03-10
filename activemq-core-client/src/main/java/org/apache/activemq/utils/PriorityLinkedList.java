@@ -20,9 +20,6 @@ package org.apache.activemq.utils;
 /**
  * A type of linked list which maintains items according to a priority
  * and allows adding and removing of elements at both ends, and peeking
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>$Revision: 1174 $</tt>
  */
 public interface PriorityLinkedList<T>
 {

@@ -25,13 +25,6 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 
-/**
- *
- * A JMSMessageListenerWrapper
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class JMSMessageListenerWrapper implements MessageHandler
 {
    private final ActiveMQConnection connection;

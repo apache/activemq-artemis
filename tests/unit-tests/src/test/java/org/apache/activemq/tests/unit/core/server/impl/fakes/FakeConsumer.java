@@ -25,13 +25,6 @@ import org.apache.activemq.core.server.Consumer;
 import org.apache.activemq.core.server.HandleStatus;
 import org.apache.activemq.core.server.MessageReference;
 
-/**
- *
- * A FakeConsumer
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class FakeConsumer implements Consumer
 {
    private HandleStatus statusToReturn = HandleStatus.HANDLED;

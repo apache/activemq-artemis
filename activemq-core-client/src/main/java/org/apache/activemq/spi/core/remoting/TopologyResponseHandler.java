@@ -20,10 +20,6 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface TopologyResponseHandler
 {
    // This is sent when the server is telling the client the node is being disconnected

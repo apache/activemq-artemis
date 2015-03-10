@@ -57,13 +57,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A TopicControlTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *         <p/>
- *         Created 13 nov. 2008 16:50:53
- */
 public class TopicControlTest extends ManagementTestBase
 {
 

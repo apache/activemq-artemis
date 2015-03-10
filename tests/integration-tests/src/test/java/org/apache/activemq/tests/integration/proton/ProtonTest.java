@@ -63,9 +63,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 @RunWith(Parameterized.class)
 public class ProtonTest extends ServiceTestBase
 {

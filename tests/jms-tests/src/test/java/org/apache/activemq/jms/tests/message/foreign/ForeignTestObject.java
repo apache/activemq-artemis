@@ -20,11 +20,6 @@ import java.io.Serializable;
 
 /**
  * A Simple Serializable Object
- *
- *
- * @author <a href="mailto:a.walker@base2group.com>Aaron Walker</a>
- *
- *
  */
 public class ForeignTestObject implements Serializable
 {

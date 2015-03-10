@@ -45,10 +45,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Jul 7, 2010
- */
 public class ResourceAdapterTest extends ActiveMQRATestBase
 {
    @Test

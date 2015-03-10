@@ -32,14 +32,6 @@ import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 
-/**
- *
- * A RealJournalImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:Clebert.Suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public abstract class JournalImplTestUnit extends JournalImplTestBase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;

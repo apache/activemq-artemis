@@ -36,9 +36,6 @@ import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
  *                                                              +------------&gt; | {@link org.apache.activemq.core.postoffice.Address} |
  *                                                                             +----------+
  * </PRE>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
  */
 public interface PagingManager extends ActiveMQComponent, HierarchicalRepositoryChangeListener
 {

@@ -23,7 +23,6 @@ import org.apache.activemq.core.journal.IOCompletion;
  * This represents a set of operations done as part of replication.
  * <p>
  * When the entire set is done, a group of Runnables can be executed.
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public interface OperationContext extends IOCompletion
 {

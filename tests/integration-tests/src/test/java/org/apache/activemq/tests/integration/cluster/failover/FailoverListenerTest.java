@@ -42,10 +42,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- * @author <a href="mailto:flemming.harms@gmail.com">Flemming Harms</a>
- */
 public class FailoverListenerTest extends FailoverTestBase
 {
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

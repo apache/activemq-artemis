@@ -32,9 +32,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * is redelivered.
  *
  * Please see the readme.html for more information
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class DelayedRedeliveryExample extends ActiveMQExample
 {

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.security;
 
-/**
-* @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
-*/
 public class User
 {
    final String user;

@@ -32,13 +32,6 @@ import org.apache.activemq.core.messagecounter.MessageCounterManager;
 /**
  *
  * A MessageCounterManager
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- * @version <tt>$Revision: 3307 $</tt>
- *
- *
  */
 public class MessageCounterManagerImpl implements MessageCounterManager
 {

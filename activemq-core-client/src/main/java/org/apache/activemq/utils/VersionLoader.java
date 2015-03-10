@@ -35,10 +35,6 @@ import org.apache.activemq.core.version.impl.VersionImpl;
 
 /**
  * This loads the version info in from a version.properties file.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="csuconic@redhat.com">Clebert Suconic</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public final class VersionLoader
 {

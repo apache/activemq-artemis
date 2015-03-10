@@ -23,10 +23,6 @@ import java.util.NoSuchElementException;
  * A priority linked list implementation
  * <p>
  * It implements this by maintaining an individual LinkedBlockingDeque for each priority level.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @version <tt>$Revision: 1174 $</tt>
  */
 public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
 {

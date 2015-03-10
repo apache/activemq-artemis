@@ -22,9 +22,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 /**
  *
  * A SessionConsumerForceDelivery
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public class SessionForceConsumerDelivery extends PacketImpl
 {

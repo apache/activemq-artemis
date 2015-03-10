@@ -42,9 +42,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class ProducerFlowControlTest extends BasicOpenWireTest
 {

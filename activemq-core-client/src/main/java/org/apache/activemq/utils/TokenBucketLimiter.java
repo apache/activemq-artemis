@@ -22,7 +22,6 @@ package org.apache.activemq.utils;
  * <p>
  * The rate is specified in cycles per second (or 'Hertz').
  * @see <a href="http://en.wikipedia.org/wiki/Token_bucket">Token bucket</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface TokenBucketLimiter
 {

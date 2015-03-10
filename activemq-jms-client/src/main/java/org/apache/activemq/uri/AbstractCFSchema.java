@@ -24,10 +24,6 @@ import org.apache.activemq.core.client.ActiveMQClientLogger;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.utils.uri.URISchema;
 
-/**
- * @author clebertsuconic
- */
-
 public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory, String>
 {
 

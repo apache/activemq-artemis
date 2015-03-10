@@ -40,8 +40,6 @@ import org.junit.Test;
 
 /**
  * Client-ack time
- *
- * @author Clebert Suconic
  */
 public abstract class AbstractSendReceivePerfTest extends JMSTestBase
 {

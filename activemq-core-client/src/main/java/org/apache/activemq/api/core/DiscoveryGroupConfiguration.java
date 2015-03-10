@@ -31,8 +31,6 @@ import org.apache.activemq.utils.UUIDGenerator;
  * will be filled.<br>
  * If by any reason, both properties are filled, the JGroups takes precedence. That means, if
  * {@code jgroupsFile != null} then the Grouping method used will be JGroups.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
  */
 public final class DiscoveryGroupConfiguration implements Serializable
 {

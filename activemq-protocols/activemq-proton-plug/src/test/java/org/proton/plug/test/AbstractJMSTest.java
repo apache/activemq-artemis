@@ -31,10 +31,6 @@ import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
 import org.proton.plug.test.minimalserver.DumbServer;
 import org.proton.plug.test.minimalserver.MinimalServer;
 
-/**
- * @author Clebert Suconic
- */
-
 public class AbstractJMSTest
 {
    protected final boolean useHawtJMS;

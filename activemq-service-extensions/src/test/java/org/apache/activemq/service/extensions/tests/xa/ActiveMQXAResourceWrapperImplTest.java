@@ -27,10 +27,6 @@ import org.junit.Test;
 
 import static org.jgroups.util.Util.assertEquals;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ActiveMQXAResourceWrapperImplTest
 {
    @Test

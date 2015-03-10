@@ -23,10 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Jun 29, 2010
- */
 public interface ConnectorServiceFactory
 {
    ConnectorService createConnectorService(String connectorName, Map<String, Object> configuration,

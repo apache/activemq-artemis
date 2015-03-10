@@ -22,14 +22,6 @@ import java.nio.ByteBuffer;
 import org.apache.activemq.core.journal.IOCriticalErrorListener;
 import org.apache.activemq.core.journal.SequentialFile;
 
-/**
- *
- * A NIOSequentialFileFactory
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class NIOSequentialFileFactory extends AbstractSequentialFileFactory
 {
    public NIOSequentialFileFactory(final String journalDir)

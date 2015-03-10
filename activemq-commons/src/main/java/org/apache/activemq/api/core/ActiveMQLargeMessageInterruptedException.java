@@ -20,7 +20,6 @@ package org.apache.activemq.api.core;
 import static org.apache.activemq.api.core.ActiveMQExceptionType.LARGE_MESSAGE_INTERRUPTED;
 
 /**
- * @author Clebert
  */
 // XXX
 public class ActiveMQLargeMessageInterruptedException extends ActiveMQException

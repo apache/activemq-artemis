@@ -20,8 +20,6 @@ import java.util.Map;
 
 /**
  * Helper interface for specifying default parameters on Transport Configurations.
- *
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public interface TransportConfigurationHelper
 {

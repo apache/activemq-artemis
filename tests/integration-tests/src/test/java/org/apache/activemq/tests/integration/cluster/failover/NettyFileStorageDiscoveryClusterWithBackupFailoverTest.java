@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * A NettyFileStorageDiscoveryClusterWithBackupFailoverTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class NettyFileStorageDiscoveryClusterWithBackupFailoverTest extends DiscoveryClusterWithBackupFailoverTest
 {
    @Override

@@ -28,10 +28,6 @@ import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.core.server.ConnectorServiceFactory;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ServiceRegistry
 {
    private ExecutorService executorService;

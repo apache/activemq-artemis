@@ -19,9 +19,6 @@ package org.apache.activemq.uri;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.utils.uri.URIFactory;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class ServerLocatorParser extends URIFactory<ServerLocator, String>
 {
    public ServerLocatorParser()

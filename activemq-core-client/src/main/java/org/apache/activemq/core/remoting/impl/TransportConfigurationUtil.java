@@ -27,8 +27,6 @@ import org.apache.activemq.utils.ClassloadingUtil;
 /**
  * Stores static mappings of class names to ConnectorFactory instances to act as a central repo for ConnectorFactory
  * objects.
- *
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 
 public class TransportConfigurationUtil

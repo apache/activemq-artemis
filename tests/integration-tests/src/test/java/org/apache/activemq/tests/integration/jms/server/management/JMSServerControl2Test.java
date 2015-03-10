@@ -61,11 +61,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A QueueControlTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a> Created 14 nov. 2008 13:35:10
- */
 public class JMSServerControl2Test extends ManagementTestBase
 {
    private static final long CONNECTION_TTL = 1000;

@@ -27,10 +27,6 @@ import org.apache.activemq.utils.SensitiveDataCodec;
 
 /**
  * The RA default properties - these are set in the ra.xml file
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ActiveMQRAProperties extends ConnectionFactoryProperties implements Serializable
 {

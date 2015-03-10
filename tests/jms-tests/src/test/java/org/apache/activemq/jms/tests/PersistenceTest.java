@@ -26,10 +26,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- * A PersistenceTest
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class PersistenceTest extends JMSTestCase
 {
    /**

@@ -21,8 +21,6 @@ import javax.management.MBeanOperationInfo;
 
 /**
  * An AddressControl is used to manage an address.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface AddressControl
 {

@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.core.server;
 
-/**
- *
- * A JournalType
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public enum JournalType
 {
    NIO, ASYNCIO;

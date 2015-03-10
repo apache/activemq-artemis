@@ -21,10 +21,6 @@ import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.apache.activemq.rest.MessageServiceManager;
 import org.jboss.resteasy.test.TestPortProvider;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class EmbeddedRestActiveMQ
 {
    protected TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();

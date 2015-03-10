@@ -21,10 +21,6 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.rest.queue.AcknowledgedQueueConsumer;
 import org.apache.activemq.rest.queue.DestinationServiceManager;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class AcknowledgedSubscriptionResource extends AcknowledgedQueueConsumer implements Subscription
 {
    private boolean durable;

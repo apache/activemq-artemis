@@ -20,13 +20,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.cluster.Transformer;
 
-/**
- * A AddForwardingTimeTransformer
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class AddForwardingTimeTransformer implements Transformer
 {
    public ServerMessage transform(final ServerMessage message)

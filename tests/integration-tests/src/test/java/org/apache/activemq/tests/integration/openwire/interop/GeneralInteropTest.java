@@ -42,9 +42,6 @@ import org.junit.Test;
  * This test covers interactions between core clients and
  * openwire clients, i.e. core producers sending messages
  * to be received by openwire receivers, and vice versa.
- *
- * @author @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class GeneralInteropTest extends BasicOpenWireTest
 {

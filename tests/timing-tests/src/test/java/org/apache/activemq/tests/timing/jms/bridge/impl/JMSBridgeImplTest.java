@@ -71,9 +71,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class JMSBridgeImplTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

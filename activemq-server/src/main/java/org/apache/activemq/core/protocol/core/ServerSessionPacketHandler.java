@@ -113,14 +113,6 @@ import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.ServerSession;
 import org.apache.activemq.spi.core.remoting.Connection;
 
-/**
- * A ServerSessionPacketHandler
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
- * @author <a href="mailto:clebert.suconic@jboss.org>Clebert Suconic</a>
- */
 public class ServerSessionPacketHandler implements ChannelHandler
 {
    private final ServerSession session;

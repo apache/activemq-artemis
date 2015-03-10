@@ -22,9 +22,6 @@ import org.apache.activemq.utils.uri.URISchema;
 import java.net.URI;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String>
 {
 

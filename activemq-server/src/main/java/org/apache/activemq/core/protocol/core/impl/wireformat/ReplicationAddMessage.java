@@ -23,10 +23,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 
-/**
- * A ReplicationAddMessage
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public final class ReplicationAddMessage extends PacketImpl
 {
    private long id;

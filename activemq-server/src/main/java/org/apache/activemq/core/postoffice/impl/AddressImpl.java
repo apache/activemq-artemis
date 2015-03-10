@@ -24,8 +24,6 @@ import org.apache.activemq.core.postoffice.Address;
 
 /**
  * splits an address string into its hierarchical parts split by '.'
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class AddressImpl implements Address
 {

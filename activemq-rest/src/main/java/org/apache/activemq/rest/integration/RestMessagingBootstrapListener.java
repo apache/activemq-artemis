@@ -23,9 +23,6 @@ import javax.servlet.ServletContextListener;
 import org.apache.activemq.rest.MessageServiceManager;
 import org.jboss.resteasy.spi.Registry;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- */
 public class RestMessagingBootstrapListener implements ServletContextListener
 {
    MessageServiceManager manager;

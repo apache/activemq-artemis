@@ -24,12 +24,6 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: 8/18/11
- *         Time: 12:25 PM
- */
-
-/**
  * @phase verify
  * @goal stop
  */

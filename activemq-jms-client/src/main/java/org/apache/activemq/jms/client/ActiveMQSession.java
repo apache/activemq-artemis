@@ -65,12 +65,6 @@ import org.apache.activemq.api.core.client.ClientSession.QueueQuery;
  * <br>
  * Note that we *do not* support JMS ASF (Application Server Facilities) optional
  * constructs such as ConnectionConsumer
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- *
- *
  */
 public class ActiveMQSession implements QueueSession, TopicSession
 {

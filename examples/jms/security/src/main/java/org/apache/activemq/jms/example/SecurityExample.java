@@ -29,11 +29,6 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.common.example.ActiveMQExample;
 
-/**
- * A simple JMS example that shows how to access messaging with security configured.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
- */
 public class SecurityExample extends ActiveMQExample
 {
    private boolean result = true;

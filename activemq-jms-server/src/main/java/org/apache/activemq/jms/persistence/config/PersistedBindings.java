@@ -24,11 +24,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.utils.BufferHelper;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A PersistedBinding
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class PersistedBindings implements EncodingSupport
 {
 

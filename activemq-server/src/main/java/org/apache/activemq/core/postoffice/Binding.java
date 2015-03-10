@@ -23,11 +23,6 @@ import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.group.UnproposalListener;
 
-/**
- * A Binding
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public interface Binding extends UnproposalListener
 {
    SimpleString getAddress();

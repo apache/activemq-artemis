@@ -33,12 +33,6 @@ import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.journal.ActiveMQJournalLogger;
 
-/**
- * A TimedBuffer
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class TimedBuffer
 {
    // Constants -----------------------------------------------------

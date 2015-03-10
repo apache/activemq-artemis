@@ -137,10 +137,6 @@ import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds
  * data. For details see the Javadoc of
  * {@link #startReplication(ReplicationManager, PagingManager, String, boolean)}.
  * <p/>
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class JournalStorageManager implements StorageManager
 {

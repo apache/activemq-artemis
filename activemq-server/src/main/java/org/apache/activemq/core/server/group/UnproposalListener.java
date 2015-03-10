@@ -18,10 +18,6 @@ package org.apache.activemq.core.server.group;
 
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface UnproposalListener
 {
    void unproposed(SimpleString groupID);

@@ -29,8 +29,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that uses SSL secure transport.
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class SSLExample extends ActiveMQExample
 {

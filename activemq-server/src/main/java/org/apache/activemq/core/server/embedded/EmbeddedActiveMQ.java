@@ -28,9 +28,6 @@ import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
 /**
  * Helper class to simplify bootstrap of ActiveMQ server.  Bootstraps from classpath-based config files.
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class EmbeddedActiveMQ
 {

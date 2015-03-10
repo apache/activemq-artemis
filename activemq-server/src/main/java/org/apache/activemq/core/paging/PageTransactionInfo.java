@@ -23,11 +23,6 @@ import org.apache.activemq.core.paging.cursor.PageSubscription;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public interface PageTransactionInfo extends EncodingSupport
 {
    boolean isCommit();

@@ -22,10 +22,6 @@ import org.proton.plug.sasl.ClientSASLPlain;
 import org.proton.plug.sasl.PlainSASLResult;
 import org.proton.plug.sasl.ServerSASLPlain;
 
-/**
- * @author Clebert Suconic
- */
-
 public class PlainSASLTest
 {
    @Test

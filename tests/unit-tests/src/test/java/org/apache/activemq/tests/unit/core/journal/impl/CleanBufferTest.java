@@ -29,11 +29,6 @@ import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class CleanBufferTest extends UnitTestCase
 {
 

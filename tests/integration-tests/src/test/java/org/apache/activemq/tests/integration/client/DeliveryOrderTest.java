@@ -35,9 +35,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class DeliveryOrderTest extends ServiceTestBase
 {
    public final SimpleString addressA = new SimpleString("addressA");

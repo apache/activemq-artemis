@@ -44,14 +44,6 @@ import org.apache.activemq.utils.PriorityLinkedListImpl;
 import org.apache.activemq.utils.ReusableLatch;
 import org.apache.activemq.utils.TokenBucketLimiter;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @version <tt>$Revision: 3603 $</tt> $Id: ClientConsumerImpl.java 3603 2008-01-21 18:49:20Z timfox $
- */
 public final class ClientConsumerImpl implements ClientConsumerInternal
 {
    // Constants

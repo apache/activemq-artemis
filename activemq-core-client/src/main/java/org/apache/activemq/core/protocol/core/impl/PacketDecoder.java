@@ -145,11 +145,6 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAStartMess
 import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 
-/**
- * A PacketDecoder
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public abstract class PacketDecoder implements Serializable
 {
    public abstract Packet decode(final ActiveMQBuffer in);

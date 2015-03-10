@@ -20,8 +20,6 @@ import java.util.List;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public interface HierarchicalRepository<T>
 {

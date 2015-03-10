@@ -20,13 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 
-/**
- * A JournalAddRecord
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class JournalAddRecord extends JournalInternalRecord
 {
 

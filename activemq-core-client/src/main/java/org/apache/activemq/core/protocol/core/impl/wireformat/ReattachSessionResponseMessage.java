@@ -19,13 +19,6 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- *
- * A ReattachSessionResponseMessage
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class ReattachSessionResponseMessage extends PacketImpl
 {
    private int lastConfirmedCommandID;

@@ -50,11 +50,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.core.transaction.ResourceManager;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public interface ManagementService extends NotificationService, ActiveMQComponent
 {
    // Configuration

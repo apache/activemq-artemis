@@ -26,11 +26,8 @@ import org.apache.activemq.spi.core.remoting.Connection;
 import org.proton.plug.AMQPConnectionContext;
 
 /**
- *
  * This is a Server's Connection representation used by ActiveMQ.
- * @author Clebert Suconic
  */
-
 public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 {
    private final AMQPConnectionContext amqpConnection;

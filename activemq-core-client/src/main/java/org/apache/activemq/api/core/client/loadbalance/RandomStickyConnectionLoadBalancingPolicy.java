@@ -20,9 +20,6 @@ import org.apache.activemq.utils.Random;
 
 /**
  * {@link RandomConnectionLoadBalancingPolicy#select(int)} chooses a the initial node randomly then subsequent requests return the same node
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public final class RandomStickyConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy
 {

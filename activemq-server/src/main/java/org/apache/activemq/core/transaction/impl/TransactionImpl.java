@@ -31,12 +31,6 @@ import org.apache.activemq.core.server.impl.RefsOperation;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperation;
 
-/**
- * A TransactionImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
- */
 public class TransactionImpl implements Transaction
 {
    private List<TransactionOperation> operations;

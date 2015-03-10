@@ -18,13 +18,6 @@ package org.apache.activemq.tests.integration.cluster.failover;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 
-/**
- * A NettyAsynchronousFailoverTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class NettyAsynchronousFailoverTest extends AsynchronousFailoverTest
 {
    @Override

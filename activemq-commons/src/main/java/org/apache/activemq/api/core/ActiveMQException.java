@@ -18,8 +18,6 @@ package org.apache.activemq.api.core;
 
 /**
  * ActiveMQException is the root exception for the ActiveMQ API.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ActiveMQException extends Exception
 {

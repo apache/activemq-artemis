@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.utils.uri;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class SchemaConstants
 {
    public static final String TCP = "tcp";

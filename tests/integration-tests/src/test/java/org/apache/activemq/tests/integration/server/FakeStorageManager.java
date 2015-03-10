@@ -22,9 +22,6 @@ import java.util.List;
 import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class FakeStorageManager extends NullStorageManager
 {
    List<Long> messageIds = new ArrayList<Long>();

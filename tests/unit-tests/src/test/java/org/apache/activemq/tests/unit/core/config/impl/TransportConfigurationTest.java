@@ -23,15 +23,6 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A TransportConfigurationTest
- *
- * @author jmesnil
- *
- * Created 20 janv. 2009 14:46:35
- *
- *
- */
 public class TransportConfigurationTest extends UnitTestCase
 {
 

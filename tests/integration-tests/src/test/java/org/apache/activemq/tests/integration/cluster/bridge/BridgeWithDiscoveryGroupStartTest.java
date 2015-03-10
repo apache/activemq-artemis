@@ -48,11 +48,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * A BridgeWithDiscoveryGroupStartTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 @RunWith(value = Parameterized.class)
 public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
 {

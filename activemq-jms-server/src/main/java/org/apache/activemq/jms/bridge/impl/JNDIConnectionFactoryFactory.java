@@ -21,14 +21,6 @@ import java.util.Hashtable;
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 
 
-/**
- * A JNDIConnectionFactoryFactory
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version <tt>$Revision:4566 $</tt>
- *
- *
- */
 public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements ConnectionFactoryFactory
 {
    public JNDIConnectionFactoryFactory(final Hashtable jndiProperties, final String lookup)

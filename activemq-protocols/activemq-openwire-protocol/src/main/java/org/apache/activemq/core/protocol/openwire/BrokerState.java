@@ -18,8 +18,6 @@ package org.apache.activemq.core.protocol.openwire;
 
 /**
  * The class holds related states of an activemq broker.
- * @author howard
- *
  */
 public class BrokerState
 {

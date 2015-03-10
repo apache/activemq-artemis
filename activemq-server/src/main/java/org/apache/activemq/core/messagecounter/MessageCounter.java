@@ -32,11 +32,6 @@ import org.apache.activemq.core.server.Queue;
  * Note that the underlying queue *does not* update statistics every time a message
  * is added since that would reall slow things down, instead we *sample* the queues at
  * regular intervals - this means we are less intrusive on the queue
- *
- * @author <a href="mailto:u.schroeter@mobilcom.de">Ulf Schroeter</a>
- * @author <a href="mailto:s.steinbacher@mobilcom.de">Stephan Steinbacher</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @version $Revision: 1.8 $
  */
 public class MessageCounter
 {

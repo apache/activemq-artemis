@@ -36,8 +36,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * This examples demonstrates a connection created to a server. Failure of the network connection is then simulated
  *
  * The network is brought back up and the client reconnects and resumes transparently.
- *
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
 public class ReattachExample extends ActiveMQExample
 {

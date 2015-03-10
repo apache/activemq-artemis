@@ -17,10 +17,6 @@
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 @XmlRootElement(name="order")
 public class Order implements Serializable
 {

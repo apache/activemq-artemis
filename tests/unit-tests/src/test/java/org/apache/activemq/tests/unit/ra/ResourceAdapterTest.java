@@ -43,11 +43,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A ResourceAdapterTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class ResourceAdapterTest extends ServiceTestBase
 {
 

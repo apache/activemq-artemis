@@ -25,13 +25,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
 
-/**
- * A ServerLocatorInternal
- *
- * @author Tim Fox
- *
- *
- */
 public interface ServerLocatorInternal extends ServerLocator
 {
    void start(Executor executor) throws Exception;

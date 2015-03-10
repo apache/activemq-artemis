@@ -38,7 +38,7 @@ import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYP
  * <p>
  * This class wraps a {@link ReplicationManager} and the local {@link Journal}. Every call will be
  * relayed to both instances.
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
+ *
  * @see org.apache.activemq.core.persistence.impl.journal.JournalStorageManager
  */
 public class ReplicatedJournal implements Journal

@@ -21,15 +21,6 @@ import java.util.List;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- * A DuplicateIDCache
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 8 Dec 2008 16:36:07
- *
- *
- */
 public interface DuplicateIDCache
 {
    boolean contains(byte[] duplicateID);

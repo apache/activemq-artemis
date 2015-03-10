@@ -25,8 +25,6 @@ import org.proton.plug.handler.EventHandler;
 
 /**
  * This is useful for cases where you only want to implement a few methods
- *
- * @author Clebert Suconic
  */
 public abstract class DefaultEventHandler implements EventHandler
 {

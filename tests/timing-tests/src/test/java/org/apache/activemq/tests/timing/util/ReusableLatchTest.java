@@ -23,9 +23,6 @@ import org.junit.Assert;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- * @author <a href="csuconic@redhat.com">Clebert Suconic</a>
- */
 public class ReusableLatchTest extends UnitTestCase
 {
    @Test

@@ -46,8 +46,6 @@ import org.junit.Test;
  * A MultiThreadFailoverTest
  * <p/>
  * Test Failover where failure is prompted by another thread
- *
- * @author Tim Fox
  */
 public class AsynchronousFailoverTest extends FailoverTestBase
 {

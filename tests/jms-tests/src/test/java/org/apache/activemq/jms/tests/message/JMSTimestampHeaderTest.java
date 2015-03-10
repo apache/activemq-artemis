@@ -22,9 +22,6 @@ import javax.jms.Message;
 
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- */
 public class JMSTimestampHeaderTest extends MessageHeaderTestBase
 {
    // Constants -----------------------------------------------------

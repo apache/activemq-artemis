@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.utils;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface ReferenceCounter
 {
    int increment();

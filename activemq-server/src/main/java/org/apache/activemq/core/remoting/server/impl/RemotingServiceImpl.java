@@ -70,12 +70,6 @@ import org.apache.activemq.utils.ConfigurationHelper;
 import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
 public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener
 {
    // Constants -----------------------------------------------------

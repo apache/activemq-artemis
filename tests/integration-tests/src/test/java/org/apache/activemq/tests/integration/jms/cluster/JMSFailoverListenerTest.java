@@ -67,9 +67,6 @@ import org.junit.Test;
  * A JMSFailoverTest
  * <p/>
  * A simple test to test setFailoverListener when using the JMS API.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:flemming.harms@gmail.com">Flemming Harms</a>
  */
 public class JMSFailoverListenerTest extends ServiceTestBase
 {

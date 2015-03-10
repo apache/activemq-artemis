@@ -29,11 +29,6 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
-*
-* @author @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
-*
-*/
 public class BasicSecurityTest extends BasicOpenWireTest
 {
    @Before

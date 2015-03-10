@@ -28,9 +28,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.ReconnectWithSameClientIDTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class ReconnectWithSameClientIDTest extends BasicOpenWireTest
 {

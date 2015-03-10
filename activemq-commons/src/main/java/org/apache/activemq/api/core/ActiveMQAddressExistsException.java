@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.ADDRESS_EXISTS;
 
 /**
  * An operation failed because an address exists on the server.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 5/2/12
  */
 public final class ActiveMQAddressExistsException extends ActiveMQException
 {

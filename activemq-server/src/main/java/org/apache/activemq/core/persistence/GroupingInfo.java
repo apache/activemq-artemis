@@ -18,10 +18,6 @@ package org.apache.activemq.core.persistence;
 
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Oct 18, 2009
- */
 public interface GroupingInfo
 {
    SimpleString getClusterName();

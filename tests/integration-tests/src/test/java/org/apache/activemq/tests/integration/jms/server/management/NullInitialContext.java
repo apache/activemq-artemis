@@ -20,15 +20,6 @@ import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-/**
- * A NullInitialContext
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
- * Created 14 nov. 2008 11:06:03
- *
- *
- */
 public class NullInitialContext extends InitialContext
 {
 

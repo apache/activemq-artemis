@@ -25,7 +25,6 @@ import org.apache.activemq.core.message.impl.MessageInternal;
 /**
  * A ResetLimitWrappedActiveMQBuffer
  * TODO: Move this to commons
- * @author Tim Fox
  *
  */
 public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper

@@ -22,7 +22,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * Extension of RemotingConnection for the ActiveMQ core protocol
- * @author Tim Fox
  */
 public interface CoreRemotingConnection extends RemotingConnection
 {

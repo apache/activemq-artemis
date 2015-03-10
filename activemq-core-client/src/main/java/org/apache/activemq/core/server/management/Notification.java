@@ -23,7 +23,6 @@ import org.apache.activemq.utils.TypedProperties;
  * A Notification
  * @see org.apache.activemq.core.server.management.NotificationListener
  * @see NotificationType
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> Created 22 Jan 2009 16:41:12
  */
 public final class Notification
 {

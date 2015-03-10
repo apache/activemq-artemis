@@ -26,11 +26,6 @@ import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 import javax.jms.StreamMessage;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version $Revision$
- *
- */
 public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMessage
 {
    // Constants -----------------------------------------------------

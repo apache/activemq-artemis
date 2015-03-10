@@ -56,8 +56,6 @@ import org.apache.activemq.utils.Base64;
  * Read XML output from <code>org.apache.activemq.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
  * send the messages to a running instance of ActiveMQ.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
  * for speed and simplicity.
- *
- * @author Justin Bertram
  */
 public final class XmlDataImporter
 {

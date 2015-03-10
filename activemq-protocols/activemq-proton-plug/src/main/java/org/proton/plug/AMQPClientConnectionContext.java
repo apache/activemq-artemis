@@ -20,10 +20,7 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * This is valid only on a client connection.
- *
- * @author Clebert Suconic
  */
-
 public interface AMQPClientConnectionContext extends AMQPConnectionContext
 {
    /**

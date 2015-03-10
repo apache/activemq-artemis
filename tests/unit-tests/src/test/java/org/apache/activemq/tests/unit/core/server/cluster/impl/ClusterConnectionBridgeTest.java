@@ -21,10 +21,6 @@ import org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ClusterConnectionBridgeTest extends UnitTestCase
 {
    @Test

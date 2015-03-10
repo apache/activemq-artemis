@@ -18,13 +18,6 @@ package org.apache.activemq.jms.server.config;
 
 import java.util.List;
 
-/**
- * A JMSConfiguration
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public interface JMSConfiguration
 {
    List<JMSQueueConfiguration> getQueueConfigurations();

@@ -33,12 +33,6 @@ import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A SecurityManagementTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
- */
 public abstract class SecurityManagementTestBase extends UnitTestCase
 {
 

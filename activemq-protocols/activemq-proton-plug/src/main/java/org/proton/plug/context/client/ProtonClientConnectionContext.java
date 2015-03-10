@@ -29,10 +29,6 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.context.ProtonInitializable;
 import org.proton.plug.util.FutureRunnable;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonClientConnectionContext extends AbstractConnectionContext implements AMQPClientConnectionContext
 {
    public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback)

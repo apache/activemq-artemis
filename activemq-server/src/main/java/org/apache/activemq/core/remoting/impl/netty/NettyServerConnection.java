@@ -23,9 +23,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 
-/**
- * @author <a href="mailto:nmaurer@redhat.com">Norman Maurer</a>
- */
 public class NettyServerConnection extends NettyConnection
 {
    public NettyServerConnection(Map<String, Object> configuration, Channel channel, ConnectionLifeCycleListener listener, boolean batchingEnabled, boolean directDeliver)

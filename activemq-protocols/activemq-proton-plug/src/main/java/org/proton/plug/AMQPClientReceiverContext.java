@@ -20,10 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.qpid.proton.message.ProtonJMessage;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface AMQPClientReceiverContext
 {
    ProtonJMessage receiveMessage(int time, TimeUnit unit) throws Exception;

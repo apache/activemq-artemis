@@ -24,8 +24,6 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  * Logger Code 19
  *
  * each message id must be 6 digits long starting with 19, the 3rd digit donates the level so

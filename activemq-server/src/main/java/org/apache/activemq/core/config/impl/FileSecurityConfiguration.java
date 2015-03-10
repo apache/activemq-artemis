@@ -23,9 +23,6 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.Set;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class FileSecurityConfiguration extends SecurityConfiguration
 {
    private final String usersUrl;

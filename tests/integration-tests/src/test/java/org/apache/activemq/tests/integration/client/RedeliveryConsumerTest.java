@@ -40,13 +40,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A RedeliveryConsumerTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *         <p/>
- *         Created Feb 17, 2009 6:06:11 PM
- */
 public class RedeliveryConsumerTest extends ServiceTestBase
 {
 

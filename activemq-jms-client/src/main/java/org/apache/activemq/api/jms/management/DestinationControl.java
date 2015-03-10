@@ -23,8 +23,6 @@ import org.apache.activemq.api.core.management.Parameter;
 
 /**
  * A DestinationControl is used to manage a JMS Destination.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface DestinationControl
 {

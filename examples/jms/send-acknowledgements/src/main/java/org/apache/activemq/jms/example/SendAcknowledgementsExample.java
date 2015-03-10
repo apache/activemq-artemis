@@ -36,9 +36,6 @@ import org.apache.activemq.jms.client.ActiveMQSession;
  * receive acknowledgements that messages were successfully received at the server in a separate stream
  * to the stream of messages being sent to the server.
  * For more information please see the readme.html file
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class SendAcknowledgementsExample extends ActiveMQExample
 {

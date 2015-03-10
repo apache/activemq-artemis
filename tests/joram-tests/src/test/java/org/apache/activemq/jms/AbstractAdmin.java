@@ -23,9 +23,6 @@ import org.objectweb.jtests.jms.admin.Admin;
 
 /**
  * AbstractAdmin.
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @version $Revision: 1.1 $
  */
 public class AbstractAdmin implements Admin
 {

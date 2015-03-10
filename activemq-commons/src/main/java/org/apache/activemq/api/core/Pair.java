@@ -22,7 +22,6 @@ import java.io.Serializable;
  * A Pair is a holder for 2 objects.
  * <p>
  * This is a utility class.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class Pair<A, B> implements Serializable
 {

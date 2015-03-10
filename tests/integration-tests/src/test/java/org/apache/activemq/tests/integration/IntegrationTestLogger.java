@@ -20,10 +20,6 @@ import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.MessageLogger;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         4/18/12
- */
 @MessageLogger(projectCode = "HQTEST")
 public interface IntegrationTestLogger extends BasicLogger
 {

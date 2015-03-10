@@ -26,10 +26,6 @@ import javax.management.ObjectName;
 /**
  * A ActiveMQRAService ensures that ActiveMQ Resource Adapter will be stopped *before* the ActiveMQ server.
  * https://jira.jboss.org/browse/HORNETQ-339
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class ActiveMQRAService
 {

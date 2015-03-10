@@ -34,13 +34,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.tests.util.JMSTestBase;
 
-/**
- * A CreateCFTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class StoreConfigTest extends JMSTestBase
 {
 

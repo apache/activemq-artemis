@@ -33,9 +33,6 @@ import org.junit.Test;
 
 /**
  * Various use cases, added here while trying things or fixing forum issues.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
  */
 public class MiscellaneousTest extends JMSTestCase
 {

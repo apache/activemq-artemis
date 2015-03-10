@@ -20,10 +20,6 @@ package org.apache.activemq.uri;
 import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.utils.uri.URIFactory;
 
-/**
- * @author clebertsuconic
- */
-
 public class ConnectionFactoryParser extends URIFactory<ActiveMQConnectionFactory, String>
 {
    public ConnectionFactoryParser()

@@ -18,13 +18,6 @@ package org.apache.activemq.jms.client;
 
 import javax.jms.TemporaryTopic;
 
-/**
- * A ActiveMQTemporaryTopic
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTopic
 {
 

@@ -25,8 +25,6 @@ import org.apache.activemq.api.jms.JMSFactoryType;
 
 /**
  * A class that represents a TopicConnectionFactory.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class ActiveMQTopicConnectionFactory extends ActiveMQConnectionFactory implements TopicConnectionFactory
 {

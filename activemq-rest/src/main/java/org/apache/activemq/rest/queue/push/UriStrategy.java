@@ -48,10 +48,6 @@ import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.specimpl.ResteasyUriBuilder;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class UriStrategy implements PushStrategy
 {
    ThreadSafeClientConnManager connManager = new ThreadSafeClientConnManager();

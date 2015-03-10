@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.rest;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class UnmarshalException extends RuntimeException
 {
    private static final long serialVersionUID = 3932027442263719425L;

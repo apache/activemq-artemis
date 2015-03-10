@@ -31,10 +31,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.context.client.ProtonClientConnectionContextFactory;
 
-/**
- * @author Clebert Suconic
- */
-
 public class SimpleAMQPConnector implements Connector
 {
    private Bootstrap bootstrap;

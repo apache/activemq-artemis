@@ -20,10 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.core.message.impl.MessageInternal;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         10/12/12
- */
 public class SessionReceiveClientLargeMessage extends SessionReceiveLargeMessage
 {
    public SessionReceiveClientLargeMessage(MessageInternal message)

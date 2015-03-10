@@ -20,9 +20,6 @@ import org.apache.activemq.dto.ServerDTO;
 import org.apache.activemq.integration.Broker;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public interface BrokerHandler
 {
    Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security);

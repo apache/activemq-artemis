@@ -23,8 +23,6 @@ import org.apache.activemq.api.core.SimpleString;
 
 /**
  * A remote Grouping handler configuration
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public final class GroupingHandlerConfiguration implements Serializable
 {

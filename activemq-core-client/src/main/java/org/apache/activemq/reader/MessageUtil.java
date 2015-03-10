@@ -31,10 +31,7 @@ import org.apache.activemq.api.core.SimpleString;
  * static methods intended for import static on JMS like messages.
  *
  * This provides a helper for core message to act some of the JMS functions used by the JMS wrapper
- *
- * @author Clebert Suconic
  */
-
 public class MessageUtil
 {
    public static final SimpleString CORRELATIONID_HEADER_NAME = new SimpleString("JMSCorrelationID");

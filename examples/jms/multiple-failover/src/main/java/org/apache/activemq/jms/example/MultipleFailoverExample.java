@@ -28,11 +28,6 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.common.example.ActiveMQExample;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: Nov 4, 2010
- *         Time: 10:51:45 AM
- */
 public class MultipleFailoverExample extends ActiveMQExample
 {
    public static void main(final String[] args)

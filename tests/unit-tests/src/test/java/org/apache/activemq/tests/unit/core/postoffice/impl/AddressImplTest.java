@@ -25,9 +25,6 @@ import org.apache.activemq.core.postoffice.Address;
 import org.apache.activemq.core.postoffice.impl.AddressImpl;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class AddressImplTest extends UnitTestCase
 {
    @Test

@@ -69,8 +69,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 /**
  * This is the implementation of {@link org.apache.activemq.api.core.client.ServerLocator} and all
  * the proper javadoc is located on that interface.
- *
- * @author Tim Fox
  */
 public final class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListener
 {

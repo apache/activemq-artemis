@@ -26,12 +26,6 @@ import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.spi.core.remoting.Connector;
 import org.apache.activemq.spi.core.remoting.ConnectorFactory;
 
-/**
- * A NettyConnectorFactory
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
 public class NettyConnectorFactory implements ConnectorFactory
 {
    public Connector createConnector(final Map<String, Object> configuration,

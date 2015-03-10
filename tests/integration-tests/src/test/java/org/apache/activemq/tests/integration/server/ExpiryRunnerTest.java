@@ -44,9 +44,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class ExpiryRunnerTest extends UnitTestCase
 {
    private ActiveMQServer server;

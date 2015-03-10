@@ -23,10 +23,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 
 /**
  * Used to send large messages
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public class ActiveMQBufferInputStream extends InputStream
 {

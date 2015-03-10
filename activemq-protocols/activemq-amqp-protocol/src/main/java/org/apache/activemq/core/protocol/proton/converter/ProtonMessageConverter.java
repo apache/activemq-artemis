@@ -25,10 +25,6 @@ import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.spi.core.protocol.MessageConverter;
 import org.apache.activemq.utils.IDGenerator;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonMessageConverter implements MessageConverter
 {
 

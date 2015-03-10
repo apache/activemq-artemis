@@ -63,10 +63,6 @@ package org.apache.activemq.jms.bridge;
  * valid for a certain period of time so this approach is not as watertight as
  * using QOS_ONCE_AND_ONLY_ONCE but may be a good choice depending on your
  * specific application.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public enum QualityOfServiceMode
 {

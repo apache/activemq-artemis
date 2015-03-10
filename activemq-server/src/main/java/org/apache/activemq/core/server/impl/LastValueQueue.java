@@ -41,8 +41,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
  * <p>
  * This is useful for example, for stock prices, where you're only interested in the latest value
  * for a particular stock
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> rewrite
  */
 public class LastValueQueue extends QueueImpl
 {

@@ -19,9 +19,6 @@ package org.apache.activemq.api.core.management;
 
 /**
  * A BridgeControl is used to manage a Bridge.
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public interface BridgeControl extends ActiveMQComponentControl
 {

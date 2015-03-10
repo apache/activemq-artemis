@@ -64,8 +64,6 @@ import org.junit.Test;
  * this is testing the case for resending notifications from RemotingGroupHandler
  * There is a small window where you could receive notifications wrongly
  * this test will make sure the component would play well with that notification
- *
- * @author Clebert Suconic
  */
 public class ClusteredResetMockTest extends UnitTestCase
 {

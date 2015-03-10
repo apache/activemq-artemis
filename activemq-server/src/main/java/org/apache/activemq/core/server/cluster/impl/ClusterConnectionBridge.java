@@ -54,10 +54,6 @@ import org.apache.activemq.utils.UUIDGenerator;
  * A bridge with extra functionality only available when the server is clustered.
  * <p>
  * Such as such adding extra properties and setting up notifications between the nodes.
- *
- * @author tim
- * @author Clebert Suconic
- * @author <a href="mtaylor@redhat,com">Martyn Taylor</a>
  */
 public class ClusterConnectionBridge extends BridgeImpl
 {

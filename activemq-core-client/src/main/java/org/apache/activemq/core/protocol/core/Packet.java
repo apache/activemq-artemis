@@ -21,8 +21,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * A Packet represents a packet of data transmitted over a connection.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface Packet
 {

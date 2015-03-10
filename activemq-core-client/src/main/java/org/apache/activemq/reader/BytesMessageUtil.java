@@ -18,10 +18,6 @@ package org.apache.activemq.reader;
 
 import org.apache.activemq.api.core.Message;
 
-/**
- * @author Clebert Suconic
- */
-
 public class BytesMessageUtil extends MessageUtil
 {
 

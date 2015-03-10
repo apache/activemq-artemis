@@ -38,8 +38,6 @@ import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ resources
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ProtonProtocolManager implements ProtocolManager, NotificationListener
 {

@@ -43,10 +43,6 @@ import org.apache.activemq.tests.util.TransportConfigurationUtils;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         8/1/12
- */
 public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
 {
    // Constants -----------------------------------------------------

@@ -33,8 +33,6 @@ import org.apache.activemq.uri.ConnectionFactoryParser;
 
 /**
  * A utility class for creating ActiveMQ client-side JMS managed resources.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ActiveMQJMSClient
 {

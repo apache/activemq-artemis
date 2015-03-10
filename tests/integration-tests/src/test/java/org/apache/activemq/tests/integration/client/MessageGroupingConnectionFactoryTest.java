@@ -42,10 +42,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Dec 1, 2009
- */
 public class MessageGroupingConnectionFactoryTest extends UnitTestCase
 {
    private ActiveMQServer server;

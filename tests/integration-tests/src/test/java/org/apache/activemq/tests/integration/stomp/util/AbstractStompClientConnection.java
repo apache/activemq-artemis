@@ -27,11 +27,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- */
 public abstract class AbstractStompClientConnection implements StompClientConnection
 {
    public static final String STOMP_COMMAND = "STOMP";

@@ -22,10 +22,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.tests.util.SingleServerTestBase;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class AutoCloseCoreTest extends SingleServerTestBase
 {
 

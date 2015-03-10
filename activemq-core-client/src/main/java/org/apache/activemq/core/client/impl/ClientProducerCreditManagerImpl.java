@@ -23,11 +23,6 @@ import java.util.Map;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 
-/**
- * A ProducerCreditManager
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class ClientProducerCreditManagerImpl implements ClientProducerCreditManager
 {
    public static final int MAX_UNREFERENCED_CREDITS_CACHE_SIZE = 1000;

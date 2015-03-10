@@ -33,9 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="jbertram@redhat.com">Justin Bertram</a>
- */
 public class MultipliedDelayedMessageTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

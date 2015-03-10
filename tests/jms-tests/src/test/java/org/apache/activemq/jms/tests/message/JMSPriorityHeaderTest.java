@@ -27,10 +27,6 @@ import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
 {
    /*

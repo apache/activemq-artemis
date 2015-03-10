@@ -30,10 +30,6 @@ import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
-/**
- * A ConfigurationStorageTest
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase
 {
 

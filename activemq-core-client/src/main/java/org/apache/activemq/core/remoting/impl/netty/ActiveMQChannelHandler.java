@@ -31,10 +31,6 @@ import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 
 /**
  * Common handler implementation for client and server side handler.
- *
- * @author <a href="mailto:tlee@redhat.com">Trustin Lee</a>
- * @author <a href="mailto:nmaurer@redhat.com">Norman Maurer</a>
- * @version $Rev$, $Date$
  */
 public class ActiveMQChannelHandler extends ChannelDuplexHandler
 {

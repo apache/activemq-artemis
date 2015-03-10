@@ -23,10 +23,6 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.TransientQueueManager;
 import org.apache.activemq.utils.ReferenceCounterUtil;
 
-/**
- * @author Clebert Suconic
- */
-
 public class TransientQueueManagerImpl implements TransientQueueManager
 {
    private final SimpleString queueName;

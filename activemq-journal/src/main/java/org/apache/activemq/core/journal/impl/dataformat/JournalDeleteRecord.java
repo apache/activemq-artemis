@@ -19,13 +19,6 @@ package org.apache.activemq.core.journal.impl.dataformat;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 
-/**
- * A JournalDeleteRecord
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class JournalDeleteRecord extends JournalInternalRecord
 {
 

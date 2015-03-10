@@ -18,8 +18,6 @@ package org.apache.activemq.api.core.management;
 
 /**
  * A DivertControl is used to manage a divert.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface DivertControl
 {

@@ -32,10 +32,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ConnectorsServiceTest extends UnitTestCase
 {
    private Configuration configuration;

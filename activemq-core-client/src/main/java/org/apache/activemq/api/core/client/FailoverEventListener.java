@@ -18,8 +18,6 @@ package org.apache.activemq.api.core.client;
 
 /**
  * A FailoverEvent notifies the client the state if the connection changes occurred on the session.
- *
- * @author <a href="mailto:flemming.harms@gmail.com">Flemming Harms</a>
  */
 public interface FailoverEventListener
 {

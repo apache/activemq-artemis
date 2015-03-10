@@ -33,10 +33,6 @@ import org.junit.Test;
 
 /**
  * All tests related to closing a Connection.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class ConnectionClosedTest extends JMSTestCase
 {

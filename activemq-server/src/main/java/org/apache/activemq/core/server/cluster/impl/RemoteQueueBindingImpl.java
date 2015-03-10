@@ -35,15 +35,6 @@ import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
 
-/**
- * A RemoteQueueBindingImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 21 Jan 2009 18:55:22
- *
- *
- */
 public class RemoteQueueBindingImpl implements RemoteQueueBinding
 {
    private final SimpleString address;

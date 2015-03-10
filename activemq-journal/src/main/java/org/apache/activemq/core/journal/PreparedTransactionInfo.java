@@ -19,14 +19,6 @@ package org.apache.activemq.core.journal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * A PreparedTransactionInfo
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class PreparedTransactionInfo
 {
    public final long id;

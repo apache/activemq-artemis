@@ -37,9 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 @RunWith(BMUnitRunner.class)
 public class ClusteredGroupingTest extends ClusterTestBase
 {

@@ -28,10 +28,6 @@ import javax.naming.spi.ObjectFactory;
  * A ConnectionFactoryObjectFactory.
  *
  * Given a reference - reconstructs a ActiveMQRAConnectionFactory
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @version $Revision$
- *
  */
 public class ConnectionFactoryObjectFactory implements ObjectFactory
 {

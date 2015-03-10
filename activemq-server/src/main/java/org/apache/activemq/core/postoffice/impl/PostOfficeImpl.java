@@ -81,13 +81,6 @@ import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.TypedProperties;
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- * A PostOfficeImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="csuconic@redhat.com">Clebert Suconic</a>
- */
 public class PostOfficeImpl implements PostOffice, NotificationListener, BindingsFactory
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();

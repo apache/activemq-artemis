@@ -92,11 +92,6 @@ import org.apache.activemq.utils.TypedProperties;
  * Implementation of a Queue
  * <p/>
  * Completely non blocking between adding to queue and delivering to consumers.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public class QueueImpl implements Queue
 {
@@ -3058,8 +3053,6 @@ public class QueueImpl implements Queue
 
    /**
     * This will determine the actions that could be done while iterate the queue through iterQueue
-    *
-    * @author clebertsuconic
     */
    abstract class QueueIterateAction
    {

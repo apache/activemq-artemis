@@ -33,12 +33,6 @@ import org.junit.Assert;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:csuconic@redhat.com">Clebert Suconic</a>
- */
 public final class SpawnedVMSupport
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;

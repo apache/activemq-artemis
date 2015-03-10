@@ -20,10 +20,6 @@ import org.apache.activemq.service.extensions.ServiceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class TransactionManagerLocatorTest extends Assert
 {
    @Test

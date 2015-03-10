@@ -54,9 +54,6 @@ import org.apache.activemq.uri.ServerLocatorParser;
 
 /**
  * ActiveMQ implementation of a JMS ConnectionFactory.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class ActiveMQConnectionFactory implements Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory
 {

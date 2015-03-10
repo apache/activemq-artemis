@@ -20,11 +20,6 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-
-/**
- * @author clebertsuconic
- */
-
 public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest
 {
    @Override

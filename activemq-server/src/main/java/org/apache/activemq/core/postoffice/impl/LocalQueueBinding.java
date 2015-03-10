@@ -25,10 +25,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * A LocalQueueBinding
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class LocalQueueBinding implements QueueBinding
 {
    private final SimpleString address;

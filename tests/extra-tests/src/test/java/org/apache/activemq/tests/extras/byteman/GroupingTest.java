@@ -39,8 +39,6 @@ import org.junit.runner.RunWith;
 
 /**
  * GroupingTest
- *
- * @author Andy Taylor
  */
 @RunWith(BMUnitRunner.class)
 public class GroupingTest extends JMSTestBase

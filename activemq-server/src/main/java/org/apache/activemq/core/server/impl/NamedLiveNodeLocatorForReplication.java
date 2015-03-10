@@ -31,7 +31,6 @@ import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
 /**
  * NamedLiveNodeLocatorForReplication looks for a live server in the cluster with a specific backupGroupName
  *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  * @see org.apache.activemq.core.server.cluster.ha.HAPolicy#getGroupName()
  */
 public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator

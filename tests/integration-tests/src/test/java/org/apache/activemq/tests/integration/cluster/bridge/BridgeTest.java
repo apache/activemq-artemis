@@ -66,14 +66,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * A JMSBridgeTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
- *         <p/>
- *         Created 14 Jan 2009 14:05:01
- */
 @RunWith(value = Parameterized.class)
 public class BridgeTest extends ServiceTestBase
 {

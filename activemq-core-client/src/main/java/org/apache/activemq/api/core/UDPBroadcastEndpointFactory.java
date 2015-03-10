@@ -33,8 +33,6 @@ import org.apache.activemq.core.client.ActiveMQClientLogger;
  * The configuration used to determine how the server will broadcast members.
  * <p>
  * This is analogous to {@link org.apache.activemq.api.core.DiscoveryGroupConfiguration}
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> Created 18 Nov 2008 08:44:30
  */
 public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFactory
 {
@@ -106,10 +104,6 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
    /**
     * <p> This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
     * {@link org.apache.activemq.core.cluster.DiscoveryGroup}</p>
-    *
-    * @author Tomohisa
-    * @author Howard Gao
-    * @author Clebert Suconic
     */
    private static class UDPBroadcastEndpoint implements BroadcastEndpoint
    {

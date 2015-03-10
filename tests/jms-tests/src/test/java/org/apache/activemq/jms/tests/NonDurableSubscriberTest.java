@@ -27,8 +27,6 @@ import org.junit.Test;
 
 /**
  * Non-durable subscriber tests.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  */
 public class NonDurableSubscriberTest extends JMSTestCase
 {

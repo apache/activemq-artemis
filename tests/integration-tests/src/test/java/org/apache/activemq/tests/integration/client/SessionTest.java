@@ -43,9 +43,6 @@ import org.junit.Test;
 
 /**
  * This test covers the API for ClientSession although XA tests are tested separately.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
  */
 public class SessionTest extends ServiceTestBase
 {

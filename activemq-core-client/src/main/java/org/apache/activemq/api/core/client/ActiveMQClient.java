@@ -31,7 +31,6 @@ import java.net.URI;
  * Once a {@link ClientSessionFactory} has been created, it can be further configured using its
  * setter methods before creating the sessions. Once a session is created, the factory can no longer
  * be modified (its setter methods will throw a {@link IllegalStateException}.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public final class ActiveMQClient
 {

@@ -32,10 +32,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple example which shows how to use a QueueBrowser to look at messages of a queue without removing them from the queue
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
  */
 public class QueueBrowserExample extends ActiveMQExample
 {

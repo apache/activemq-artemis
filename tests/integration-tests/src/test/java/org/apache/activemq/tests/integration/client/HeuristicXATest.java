@@ -45,10 +45,6 @@ import org.apache.activemq.core.transaction.impl.XidImpl;
 import org.apache.activemq.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A HeuristicXATest
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class HeuristicXATest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------

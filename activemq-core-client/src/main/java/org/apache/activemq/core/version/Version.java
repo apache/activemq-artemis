@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.core.version;
 
-/**
- *
- * A VersionImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public interface Version
 {
    String getFullVersion();

@@ -22,7 +22,6 @@ import org.apache.activemq.api.core.SimpleString;
 
 /**
  * USed to hold a hierarchical style address, delimited by a '.'.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public interface Address
 {

@@ -43,9 +43,6 @@ import org.junit.runners.Parameterized;
 
 /**
  * adapted from: org.apache.activemq.JMSMessageTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 @RunWith(Parameterized.class)
 public class JMSMessageTest extends BasicOpenWireTest

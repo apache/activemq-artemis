@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.core.persistence.impl;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface PageCountPending
 {
    long getID();

@@ -27,10 +27,6 @@ import org.apache.activemq.rest.MessageServiceConfiguration;
 import org.apache.activemq.rest.MessageServiceManager;
 import org.jboss.resteasy.test.TestPortProvider;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class Embedded
 {
    protected MessageServiceManager manager = new MessageServiceManager();

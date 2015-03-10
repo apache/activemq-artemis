@@ -30,11 +30,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.junit.After;
 import org.junit.Test;
 
-/**
- * A JMXDomainTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class JMXDomainTest extends ManagementTestBase
 {
    ActiveMQServer server_0 = null;

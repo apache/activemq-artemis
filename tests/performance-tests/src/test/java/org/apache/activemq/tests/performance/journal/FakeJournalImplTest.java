@@ -22,9 +22,6 @@ import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFile
 /**
  *
  * A FakeJournalImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class FakeJournalImplTest extends JournalImplTestUnit
 {

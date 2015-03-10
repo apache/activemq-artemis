@@ -29,10 +29,6 @@ import org.apache.activemq.spi.core.remoting.ConsumerContext;
  * These 2 types of consumption are exclusive: a ClientConsumer with a MessageHandler set will
  * throw ActiveMQException if its <code>receive()</code> methods are called.
  *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- *
  * @see ClientSession#createConsumer(String)
  */
 public interface ClientConsumer extends AutoCloseable

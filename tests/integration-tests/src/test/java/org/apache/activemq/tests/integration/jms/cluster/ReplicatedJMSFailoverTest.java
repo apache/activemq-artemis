@@ -24,13 +24,6 @@ import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 
-/**
- * A ReplicatedJMSFailoverTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class ReplicatedJMSFailoverTest extends JMSFailoverTest
 {
 

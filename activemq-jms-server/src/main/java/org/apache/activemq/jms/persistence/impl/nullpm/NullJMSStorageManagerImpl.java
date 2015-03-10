@@ -25,13 +25,6 @@ import org.apache.activemq.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 
-/**
- * A NullJMSStorageManagerImpl
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class NullJMSStorageManagerImpl implements JMSStorageManager
 {
 

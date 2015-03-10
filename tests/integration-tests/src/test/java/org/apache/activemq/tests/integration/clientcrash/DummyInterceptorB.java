@@ -24,11 +24,6 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
-/**
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class DummyInterceptorB implements Interceptor
 {
 

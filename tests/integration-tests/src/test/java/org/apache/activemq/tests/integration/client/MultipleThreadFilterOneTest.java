@@ -36,10 +36,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 /**
  * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different filter
  * This is similar to MultipleThreadFilterTwoTest but it uses multiple queues
- *
- * @author clebertsuconic
- *
- *
  */
 public class MultipleThreadFilterOneTest extends ServiceTestBase
 {

@@ -47,11 +47,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A InterceptorTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> fox
- */
 public class InterceptorTest extends ServiceTestBase
 {
    private ActiveMQServer server;

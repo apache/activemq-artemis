@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.DISCONNECTED;
 
 /**
  * A client was disconnected from ActiveMQ server when the server has shut down.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQDisconnectedException extends ActiveMQException
 {

@@ -30,8 +30,6 @@ import org.apache.activemq.core.transaction.Transaction;
 
 /**
  * extends the simple manager to allow wildcard addresses to be used.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class WildcardAddressManager extends SimpleAddressManager
 {

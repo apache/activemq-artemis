@@ -18,13 +18,6 @@ package org.apache.activemq.core.journal.impl;
 
 import org.apache.activemq.core.journal.RecordInfo;
 
-/**
- * A JournalReader
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public interface JournalReaderCallback
 {
    void onReadAddRecord(RecordInfo info) throws Exception;

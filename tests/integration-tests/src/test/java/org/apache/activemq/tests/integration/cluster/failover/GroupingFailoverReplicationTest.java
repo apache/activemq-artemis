@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Oct 26, 2009
- */
 public class GroupingFailoverReplicationTest extends GroupingFailoverTestBase
 {
    @Override

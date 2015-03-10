@@ -37,13 +37,6 @@ import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 
-/**
- * A MultipleBackupsFailoverTestBase
- *
- * @author jmesnil
- *
- *
- */
 public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
 {
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

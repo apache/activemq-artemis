@@ -26,10 +26,6 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.server.ConnectorService;
 import org.apache.activemq.core.server.ConnectorServiceFactory;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class FakeConnectorServiceFactory implements ConnectorServiceFactory
 {
    private ConnectorService connectorService;

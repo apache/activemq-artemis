@@ -19,13 +19,6 @@ package org.apache.activemq.api.jms.management;
 import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * A JMSConnectionInfo
- *
- * @author jmesnil
- *
- *
- */
 public class JMSConnectionInfo
 {
 

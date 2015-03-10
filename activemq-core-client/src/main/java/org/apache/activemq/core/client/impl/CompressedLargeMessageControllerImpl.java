@@ -33,9 +33,6 @@ import org.apache.activemq.utils.InflaterReader;
 import org.apache.activemq.utils.InflaterWriter;
 import org.apache.activemq.utils.UTF8Util;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 final class CompressedLargeMessageControllerImpl implements LargeMessageController
 {
    private static final String OPERATION_NOT_SUPPORTED = "Operation not supported";

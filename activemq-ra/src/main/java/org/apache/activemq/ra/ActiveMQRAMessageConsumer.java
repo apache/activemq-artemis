@@ -29,9 +29,6 @@ import javax.jms.TextMessage;
 
 /**
  * A wrapper for a message consumer
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAMessageConsumer implements MessageConsumer
 {

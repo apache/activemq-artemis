@@ -18,10 +18,6 @@ package org.apache.activemq.core.config;
 
 import java.io.Serializable;
 
-/**
- * A QueueConfiguration
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class CoreQueueConfiguration implements Serializable
 {
    private static final long serialVersionUID = 650404974977490254L;

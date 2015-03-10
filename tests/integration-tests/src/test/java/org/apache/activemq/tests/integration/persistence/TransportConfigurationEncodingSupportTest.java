@@ -34,13 +34,6 @@ import org.apache.activemq.api.core.Pair;
 
 import org.junit.Assert;
 
-/**
- * A TransportConfigurationEncodingSupportTest
- *
- * @author jmesnil
- *
- *
- */
 public class TransportConfigurationEncodingSupportTest extends Assert
 {
 

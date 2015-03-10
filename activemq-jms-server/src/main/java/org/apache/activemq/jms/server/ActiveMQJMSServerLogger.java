@@ -26,9 +26,6 @@ import org.jboss.logging.annotations.MessageLogger;
 import org.w3c.dom.Node;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- *
  * Logger Code 12
  *
  * each message id must be 6 digits long starting with 12, the 3rd digit donates the level so

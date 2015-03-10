@@ -29,10 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- */
 public abstract class MessageTestBase extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------

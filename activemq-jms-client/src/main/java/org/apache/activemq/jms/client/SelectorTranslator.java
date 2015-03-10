@@ -32,9 +32,6 @@ import java.util.List;
  * of one we want to substitute.
  *
  * This makes it less trivial than a simple search and replace.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class SelectorTranslator
 {

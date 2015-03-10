@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         8/1/12
- */
 public class ReplicatedMultipleServerFailoverNoGroupNodeNameTest extends ReplicatedMultipleServerFailoverTest
 {
    @Override

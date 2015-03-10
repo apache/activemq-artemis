@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.core.security;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         1/30/12
- */
 public class ActiveMQPrincipal
 {
    private final String userName;

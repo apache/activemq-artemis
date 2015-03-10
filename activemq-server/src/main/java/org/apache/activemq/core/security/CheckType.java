@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.core.security;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
- * @version $Revision: 2925 $
- *          <p/>
- *          $Id: $
- */
 public enum CheckType
 {
    SEND

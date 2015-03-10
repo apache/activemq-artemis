@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.rest.util;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public interface Constants
 {
    String WAIT_HEADER = "Accept-Wait";

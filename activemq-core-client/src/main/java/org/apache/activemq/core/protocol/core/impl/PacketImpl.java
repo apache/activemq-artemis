@@ -21,10 +21,6 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class PacketImpl implements Packet
 {
    // Constants -------------------------------------------------------------------------

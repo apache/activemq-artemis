@@ -29,10 +29,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class BodyTest extends JMSTestBase
 {
 

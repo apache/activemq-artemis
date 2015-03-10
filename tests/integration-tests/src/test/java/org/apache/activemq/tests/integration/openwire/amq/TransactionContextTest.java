@@ -28,9 +28,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.TransactionContextTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class TransactionContextTest extends BasicOpenWireTest
 {

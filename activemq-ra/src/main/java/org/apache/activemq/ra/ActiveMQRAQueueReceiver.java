@@ -23,9 +23,6 @@ import javax.jms.QueueReceiver;
 
 /**
  * A wrapper for a queue receiver
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implements QueueReceiver
 {

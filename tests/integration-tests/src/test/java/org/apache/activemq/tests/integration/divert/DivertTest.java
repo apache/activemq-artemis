@@ -36,13 +36,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A DivertTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 14 Jan 2009 14:05:01
- */
 public class DivertTest extends ServiceTestBase
 {
    private static final int TIMEOUT = 500;

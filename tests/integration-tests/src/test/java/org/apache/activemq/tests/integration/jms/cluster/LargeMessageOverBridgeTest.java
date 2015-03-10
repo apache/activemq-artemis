@@ -33,11 +33,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 
-/**
- * A TextMessageOverBridgeTest
- *
- * @author clebertsuconic
- */
 public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 {
    /**

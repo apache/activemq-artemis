@@ -32,10 +32,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 
-/**
- * @author Clebert Suconic
- */
-
 public class TransferQueue // NO_UCD (unused code)
 {
 

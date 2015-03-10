@@ -24,10 +24,6 @@ import org.apache.activemq.rest.queue.push.PushConsumer;
 import org.apache.activemq.rest.queue.push.PushStore;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class PushSubscription extends PushConsumer
 {
    public PushSubscription(ClientSessionFactory factory, String destination, String id, PushRegistration registration, PushStore store)

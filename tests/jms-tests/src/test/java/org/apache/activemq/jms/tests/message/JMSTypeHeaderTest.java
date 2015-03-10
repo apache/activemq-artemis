@@ -22,9 +22,6 @@ import javax.jms.Message;
 
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 
-/**
- * @author <a href="mailto:dua_rajdeep@yahoo.com">Rajdeep Dua</a>
- */
 public class JMSTypeHeaderTest extends MessageHeaderTestBase
 {
    // Constants -----------------------------------------------------

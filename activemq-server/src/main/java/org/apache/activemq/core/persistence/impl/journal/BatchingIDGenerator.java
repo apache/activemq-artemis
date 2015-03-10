@@ -31,8 +31,6 @@ import org.apache.activemq.utils.IDGenerator;
 /**
  * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID
  * in the journal only when starting a new batch.
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- * @author <mailto:tim.fox@jboss.org">Tim Fox</a>
  * @see IDGenerator
  */
 public final class BatchingIDGenerator implements IDGenerator

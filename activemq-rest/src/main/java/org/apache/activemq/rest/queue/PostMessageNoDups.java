@@ -25,9 +25,6 @@ import javax.ws.rs.core.UriInfo;
 
 /**
  * implements reliable "create", "create-next" pattern defined by REST-* Messaging specificaiton
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class PostMessageNoDups extends PostMessage
 {

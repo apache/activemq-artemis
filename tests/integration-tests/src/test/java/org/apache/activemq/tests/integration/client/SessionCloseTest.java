@@ -42,13 +42,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A SessionCloseTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class SessionCloseTest extends UnitTestCase
 {
 

@@ -30,10 +30,6 @@ import org.apache.activemq.jms.client.ActiveMQDestination;
 import org.apache.activemq.jms.client.ActiveMQQueue;
 import org.apache.activemq.reader.MessageUtil;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ServerJMSMessage implements Message
 {
    protected final MessageInternal message;

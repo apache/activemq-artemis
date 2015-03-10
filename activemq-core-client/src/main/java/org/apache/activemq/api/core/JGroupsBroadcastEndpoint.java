@@ -29,8 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class is the implementation of ActiveMQ members discovery that will use JGroups.
- *
- * @author Howard Gao
  */
 public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
 {

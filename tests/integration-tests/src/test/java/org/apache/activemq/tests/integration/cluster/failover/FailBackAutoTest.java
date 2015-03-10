@@ -41,9 +41,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- */
 public class FailBackAutoTest extends FailoverTestBase
 {
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

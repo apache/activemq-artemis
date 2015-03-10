@@ -37,7 +37,6 @@ import org.junit.Before;
 /**
  * @deprecated this infrastructure should not be used for new code. New tests should go into
  *             org.apache.activemq.tests.integration.jms at the integration-tests project.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 @Deprecated
 public class JMSTestCase extends ActiveMQServerTestCase

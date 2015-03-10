@@ -19,10 +19,6 @@ package org.apache.activemq.core.paging.cursor;
 
 import org.apache.activemq.utils.LinkedListIterator;
 
-/**
- * @author clebertsuconic
- */
-
 public interface PageIterator extends LinkedListIterator<PagedReference>
 {
    void redeliver(PagePosition reference);

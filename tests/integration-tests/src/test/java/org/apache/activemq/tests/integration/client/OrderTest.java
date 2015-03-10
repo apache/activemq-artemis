@@ -34,11 +34,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * A OrderTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 @RunWith(Parameterized.class)
 public class OrderTest extends ServiceTestBase
 {

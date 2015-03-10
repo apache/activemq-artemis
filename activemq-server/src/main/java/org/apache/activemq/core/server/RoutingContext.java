@@ -22,14 +22,6 @@ import java.util.Map;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- * A RoutingContext
- *
- * @author Tim Fox
- * @author Clebert Suconic
- *
- *
- */
 public interface RoutingContext
 {
    Transaction getTransaction();

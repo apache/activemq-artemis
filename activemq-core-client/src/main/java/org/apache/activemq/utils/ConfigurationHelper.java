@@ -25,12 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 
-/**
- * A ConfigurationHelper
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class ConfigurationHelper
 {
    public static String getStringProperty(final String propName, final String def, final Map<String, Object> props)

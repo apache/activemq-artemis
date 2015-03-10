@@ -19,10 +19,6 @@ package org.apache.activemq.rest.integration;
 import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ
 {
    @Override

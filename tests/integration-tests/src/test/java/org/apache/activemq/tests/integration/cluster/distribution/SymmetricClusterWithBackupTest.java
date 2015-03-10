@@ -21,11 +21,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
-/**
- * A SymmetricClusterWithBackupTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> Created 13 Mar 2009 11:00:31
- */
 public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

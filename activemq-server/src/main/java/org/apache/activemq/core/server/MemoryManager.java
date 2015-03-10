@@ -23,7 +23,6 @@ import org.apache.activemq.utils.SizeFormatterUtil;
  * <p>
  * This class will run a thread monitoring memory usage and log warnings in case we are low on
  * memory.
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class MemoryManager implements ActiveMQComponent
 {

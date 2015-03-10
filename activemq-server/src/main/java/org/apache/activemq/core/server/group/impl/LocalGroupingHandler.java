@@ -43,8 +43,6 @@ import org.apache.activemq.utils.TypedProperties;
 
 /**
  * A Local Grouping handler. All the Remote handlers will talk with us
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public final class LocalGroupingHandler extends GroupHandlingAbstract
 {

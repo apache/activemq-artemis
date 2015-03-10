@@ -46,11 +46,6 @@ import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A JMSBridgeTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class JMSBridgeTest extends BridgeTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

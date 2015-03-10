@@ -30,7 +30,6 @@ import org.apache.activemq.core.server.impl.FileLockNodeManager;
  * cd activemq-server
  * mvn -q exec:java -Dexec.args="/foo/activemq/bindings /foo/activemq/journal" -Dexec.mainClass="org.apache.activemq.tools.PrintData"
  * </pre>
- * @author clebertsuconic
  */
 public class PrintData // NO_UCD (unused code)
 {

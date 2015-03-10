@@ -30,14 +30,6 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- *
- * A SynchronousCloseTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class SynchronousCloseTest extends ServiceTestBase
 {
 

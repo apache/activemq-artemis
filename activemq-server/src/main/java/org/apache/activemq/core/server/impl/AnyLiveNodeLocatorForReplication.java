@@ -34,8 +34,6 @@ import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
 /**
  * This implementation looks for any available live node, once tried with no success it is marked as
  * tried and the next available is used.
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator
 {

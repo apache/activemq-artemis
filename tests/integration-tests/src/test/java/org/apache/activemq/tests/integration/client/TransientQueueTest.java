@@ -29,10 +29,6 @@ import org.apache.activemq.tests.util.SingleServerTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class TransientQueueTest extends SingleServerTestBase
 {
 

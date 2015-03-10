@@ -18,13 +18,6 @@ package org.apache.activemq.core.journal.impl;
 
 import org.apache.activemq.core.journal.RecordInfo;
 
-/**
- * A JournalReaderCallbackAbstract
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class JournalReaderCallbackAbstract implements JournalReaderCallback
 {
 

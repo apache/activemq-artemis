@@ -36,15 +36,6 @@ import javax.naming.NamingException;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 
-/**
- *
- * A TestFlowControlOnIgnoreLargeMessageBodyTest
- *
- * @author clebertsuconic
- * @author Pavel Slavice
- *
- *
- */
 public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 {
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

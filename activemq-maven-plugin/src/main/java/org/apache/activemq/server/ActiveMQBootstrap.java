@@ -46,8 +46,6 @@ import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
 /**
  * This will bootstrap the HornetQ Server and also the naming server if required
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public class ActiveMQBootstrap
 {

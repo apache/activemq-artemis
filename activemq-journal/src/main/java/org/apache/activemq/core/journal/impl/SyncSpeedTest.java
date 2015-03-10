@@ -36,10 +36,6 @@ import org.apache.activemq.journal.ActiveMQJournalLogger;
  *
  * This class just provides some diagnostics on how fast your disk can sync
  * Useful when determining performance issues
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a> fox
- *
- *
  */
 public class SyncSpeedTest
 {

@@ -47,9 +47,6 @@ import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONException;
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class QueueControlImpl extends AbstractControl implements QueueControl
 {
    public static final int FLUSH_LIMIT = 500;

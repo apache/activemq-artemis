@@ -34,9 +34,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class CommitRollbackTest extends ServiceTestBase
 {
    public final SimpleString addressA = new SimpleString("addressA");

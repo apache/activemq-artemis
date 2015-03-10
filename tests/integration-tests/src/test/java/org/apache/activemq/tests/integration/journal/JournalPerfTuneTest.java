@@ -36,10 +36,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- * A JournalPerfTuneTest
- * @author tim
- */
 @Ignore
 public class JournalPerfTuneTest extends UnitTestCase
 {

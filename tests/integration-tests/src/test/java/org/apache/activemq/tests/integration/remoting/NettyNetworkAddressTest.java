@@ -20,12 +20,6 @@ import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 
-/**
- * A NettyNetworkAddressTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
- */
 public class NettyNetworkAddressTest extends NetworkAddressTestBase
 {
 

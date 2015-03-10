@@ -34,10 +34,6 @@ import org.apache.activemq.core.transaction.TransactionOperationAbstract;
  * A DuplicateIDCacheImpl
  *
  * A fixed size rotating cache of last X duplicate ids.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *         Created 8 Dec 2008 16:35:55
  */
 public class DuplicateIDCacheImpl implements DuplicateIDCache
 {

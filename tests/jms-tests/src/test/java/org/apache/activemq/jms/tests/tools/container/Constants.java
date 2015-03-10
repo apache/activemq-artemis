@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.jms.tests.tools.container;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version <tt>$Revision: 2868 $</tt>
- *
- */
 public class Constants
 {
    // Constants -----------------------------------------------------

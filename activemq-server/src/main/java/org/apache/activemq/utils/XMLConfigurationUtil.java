@@ -21,10 +21,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * A XMLConfigurationUtil
- * @author jmesnil
- */
 public class XMLConfigurationUtil
 {
 

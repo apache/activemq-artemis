@@ -32,10 +32,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class SuppliedThreadPoolTest extends UnitTestCase
 {
    private ActiveMQServer server;

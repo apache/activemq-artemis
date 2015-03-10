@@ -19,9 +19,6 @@ package org.apache.activemq.tests.integration.stomp.util;
 import java.util.StringTokenizer;
 
 /**
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  * 1.0 frames
  *
  * 1. CONNECT

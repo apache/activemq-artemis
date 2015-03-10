@@ -20,10 +20,6 @@ import org.apache.qpid.proton.codec.AMQPDefinedTypes;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 
-/**
- * @author Clebert Suconic
- */
-
 public class CodecCache
 {
 

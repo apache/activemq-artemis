@@ -25,11 +25,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.UTF8Util;
 
-/**
- * A ChannelBufferWrapper
- *
- * @author Tim Fox
- */
 public class ChannelBufferWrapper implements ActiveMQBuffer
 {
    protected ByteBuf buffer; // NO_UCD (use final)

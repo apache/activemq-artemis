@@ -28,9 +28,6 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 
 /**
  * A test that sends/receives text messages to the JMS provider and verifies their integrity.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
  */
 public class TextMessageTest extends MessageTestBase
 {

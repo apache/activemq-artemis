@@ -29,12 +29,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
-/**
- * A SecurityManagementTest
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
- */
 public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase
 {
 

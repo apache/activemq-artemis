@@ -24,10 +24,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 @XmlRootElement(name = "push-topic-registration")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @XmlType(propOrder = {"topic"})

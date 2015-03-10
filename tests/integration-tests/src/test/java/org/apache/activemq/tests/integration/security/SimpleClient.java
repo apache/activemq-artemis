@@ -29,8 +29,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 
 /**
  * Code to be run in an external VM, via main()
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 final class SimpleClient
 {

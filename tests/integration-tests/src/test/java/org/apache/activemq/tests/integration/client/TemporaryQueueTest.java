@@ -56,12 +56,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A TemporaryQueueTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author Clebert Suconic
- */
 public class TemporaryQueueTest extends SingleServerTestBase
 {
    // Constants -----------------------------------------------------

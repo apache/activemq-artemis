@@ -28,10 +28,6 @@ import org.junit.Test;
 
 import static org.jgroups.util.Util.assertTrue;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ServiceUtilsTest
 {
    @Test

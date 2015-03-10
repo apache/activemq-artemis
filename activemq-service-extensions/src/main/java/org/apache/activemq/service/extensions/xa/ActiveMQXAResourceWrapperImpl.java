@@ -21,10 +21,6 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper
 {
    private final XAResource xaResource;

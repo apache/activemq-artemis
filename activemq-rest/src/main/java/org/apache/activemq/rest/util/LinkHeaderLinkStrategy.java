@@ -20,10 +20,6 @@ import org.jboss.resteasy.spi.Link;
 
 import javax.ws.rs.core.Response;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class LinkHeaderLinkStrategy implements LinkStrategy
 {
    /**

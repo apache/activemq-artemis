@@ -33,9 +33,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * An example where a Stomp 1.2 client sends a message on a TCP socket
  * and consumes it from a JMS MessageConsumer.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class StompExample extends ActiveMQExample
 {

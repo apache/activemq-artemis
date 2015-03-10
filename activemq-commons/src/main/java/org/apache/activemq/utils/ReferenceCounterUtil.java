@@ -19,10 +19,6 @@ package org.apache.activemq.utils;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ReferenceCounterUtil implements ReferenceCounter
 {
    private final Runnable runnable;

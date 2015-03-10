@@ -31,10 +31,6 @@ import javax.ws.rs.ext.Providers;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class Jms
 {
    /**

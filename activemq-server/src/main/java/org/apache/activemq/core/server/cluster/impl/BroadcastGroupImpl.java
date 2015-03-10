@@ -43,12 +43,6 @@ import org.apache.activemq.utils.UUIDGenerator;
  *
  * <p>This is totally generic to the mechanism used on the transmission. It originally only had UDP but this got refactored
  * into sub classes of {@link BroadcastEndpoint}</p>
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
- *
- * Created 15 Nov 2008 09:45:32
- *
  */
 public class BroadcastGroupImpl implements BroadcastGroup, Runnable
 {

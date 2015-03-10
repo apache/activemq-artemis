@@ -21,10 +21,6 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 
-/**
- * A NullStorageLargeServerMessage
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage
 {
 

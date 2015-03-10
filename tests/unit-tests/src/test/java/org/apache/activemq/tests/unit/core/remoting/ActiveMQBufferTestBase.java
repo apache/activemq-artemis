@@ -27,10 +27,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>.
- *
- */
 public abstract class ActiveMQBufferTestBase extends UnitTestCase
 {
    // Constants -----------------------------------------------------

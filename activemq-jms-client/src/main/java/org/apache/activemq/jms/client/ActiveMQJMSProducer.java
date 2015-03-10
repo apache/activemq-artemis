@@ -46,8 +46,6 @@ import org.apache.activemq.utils.TypedProperties;
  * {@link #setDisableMessageTimestamp(boolean)} calls their equivalent at the
  * {@link MessageProducer}. IF the user is using the producer in async mode, this may lead to races.
  * We allow/tolerate this because these are just optional optimizations.
- *
- * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
 public final class ActiveMQJMSProducer implements JMSProducer
 {

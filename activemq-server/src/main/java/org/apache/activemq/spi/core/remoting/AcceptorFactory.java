@@ -27,10 +27,6 @@ import org.apache.activemq.spi.core.protocol.ProtocolManager;
  * A factory for creating acceptors.
  * <p/>
  * An Acceptor is an endpoint that a {@link org.apache.activemq.spi.core.remoting.Connector} will connect to and is used by the remoting service.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface AcceptorFactory
 {

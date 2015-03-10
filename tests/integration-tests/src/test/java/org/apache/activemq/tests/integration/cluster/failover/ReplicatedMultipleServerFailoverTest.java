@@ -26,10 +26,6 @@ import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         8/1/12
- */
 public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailoverTestBase
 {
    @Test

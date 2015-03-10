@@ -25,13 +25,6 @@ import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.utils.MemorySize;
 
-/**
- * A MemorySizeTest
- *
- * @author Tim Fox
- *
- *
- */
 public class MemorySizeTest extends Assert
 {
    @Test

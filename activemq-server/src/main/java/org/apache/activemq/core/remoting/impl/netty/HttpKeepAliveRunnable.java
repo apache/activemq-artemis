@@ -22,8 +22,6 @@ import java.util.concurrent.Future;
 
 /**
  * A simple Runnable to allow {@link HttpAcceptorHandler}s to be called intermittently.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class HttpKeepAliveRunnable implements Runnable
 {

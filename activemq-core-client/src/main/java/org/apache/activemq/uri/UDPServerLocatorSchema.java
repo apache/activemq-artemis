@@ -28,9 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class UDPServerLocatorSchema extends AbstractServerLocatorSchema
 {
    protected static List<String> IGNORED = new ArrayList<>();

@@ -33,11 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A MessagDurabilityTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class MessageDurabilityTest extends ServiceTestBase
 {
 

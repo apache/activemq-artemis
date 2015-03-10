@@ -20,9 +20,6 @@ package org.apache.activemq.core.protocol.core;
 /**
  * A CommandConfirmationHandler is used by the channel to confirm confirmations of packets.
  * <p>
- * Created 9 Feb 2009 12:39:11
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface CommandConfirmationHandler
 {

@@ -40,8 +40,6 @@ import org.apache.activemq.utils.ConfigurationHelper;
  * <p/>
  * It may also listen to a queue, and forward them (e.g. messages arriving at the queue are picked
  * and tweeted to some Twitter account).
- *
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> Created Jun 29, 2010
  */
 public final class ConnectorsService implements ActiveMQComponent
 {

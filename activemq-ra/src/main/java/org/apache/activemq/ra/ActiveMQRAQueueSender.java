@@ -24,9 +24,6 @@ import javax.jms.QueueSender;
 
 /**
  * ActiveMQQueueSender.
- *
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @author <a href="jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements QueueSender
 {

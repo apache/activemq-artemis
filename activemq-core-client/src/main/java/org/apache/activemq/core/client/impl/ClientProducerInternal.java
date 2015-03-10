@@ -21,9 +21,6 @@ import org.apache.activemq.api.core.client.ClientProducer;
 /**
  *
  * A ClientProducerInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface ClientProducerInternal extends ClientProducer
 {

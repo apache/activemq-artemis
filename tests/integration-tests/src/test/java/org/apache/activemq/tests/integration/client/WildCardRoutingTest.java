@@ -37,9 +37,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class WildCardRoutingTest extends UnitTestCase
 {
    private ActiveMQServer server;

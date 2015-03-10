@@ -44,9 +44,6 @@ import org.apache.activemq.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class AcknowledgeTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

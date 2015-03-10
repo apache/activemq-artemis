@@ -19,9 +19,6 @@ package org.apache.activemq.tests.integration.stomp.util;
 import java.io.IOException;
 
 /**
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  * pls use factory to create frames.
  */
 public class StompClientConnectionV10 extends AbstractStompClientConnection

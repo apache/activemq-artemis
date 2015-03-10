@@ -20,13 +20,6 @@ import org.apache.activemq.api.core.Message;
 import org.apache.activemq.core.message.impl.MessageInternal;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * A MessagePacket
- *
- * @author Tim Fox
- *
- *
- */
 public abstract class MessagePacket extends PacketImpl
 {
    protected MessageInternal message;

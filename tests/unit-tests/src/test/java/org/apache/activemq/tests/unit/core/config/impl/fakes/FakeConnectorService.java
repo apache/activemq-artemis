@@ -18,10 +18,6 @@ package org.apache.activemq.tests.unit.core.config.impl.fakes;
 
 import org.apache.activemq.core.server.ConnectorService;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class FakeConnectorService implements ConnectorService
 {
    @Override

@@ -35,13 +35,6 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- *
- * A SequentialFileFactoryTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public abstract class SequentialFileFactoryTestBase extends UnitTestCase
 {
    @Override

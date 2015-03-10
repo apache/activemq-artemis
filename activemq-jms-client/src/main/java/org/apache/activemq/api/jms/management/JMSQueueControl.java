@@ -25,8 +25,6 @@ import org.apache.activemq.api.core.management.Parameter;
 
 /**
  * A JMSQueueControl is used to manage a JMS queue.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface JMSQueueControl extends DestinationControl
 {

@@ -45,11 +45,6 @@ import org.junit.Test;
 
 import static org.apache.activemq.tests.util.RandomUtil.randomString;
 
-/**
- * A QueueControlTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class AddressControlTest extends ManagementTestBase
 {
 

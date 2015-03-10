@@ -21,9 +21,6 @@ import javax.jms.Message;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class JMSCorrelationIDHeaderTest extends MessageHeaderTestBase
 {
    // Constants -----------------------------------------------------

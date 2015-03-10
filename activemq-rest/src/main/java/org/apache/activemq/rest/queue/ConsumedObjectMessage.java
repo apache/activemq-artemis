@@ -22,10 +22,6 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class ConsumedObjectMessage extends ConsumedMessage
 {
    protected Object readObject;

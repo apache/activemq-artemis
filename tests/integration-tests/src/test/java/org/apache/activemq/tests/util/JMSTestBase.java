@@ -51,11 +51,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-/**
- * A JMSBaseTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class JMSTestBase extends ServiceTestBase
 {
    protected ActiveMQServer server;

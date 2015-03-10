@@ -24,10 +24,6 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 
-/**
- * @author Clebert Suconic
- */
-
 public class DataTool
 {
 

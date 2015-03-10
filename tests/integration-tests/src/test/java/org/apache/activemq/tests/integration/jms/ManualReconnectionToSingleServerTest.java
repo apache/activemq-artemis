@@ -56,9 +56,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class ManualReconnectionToSingleServerTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------

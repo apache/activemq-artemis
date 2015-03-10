@@ -38,11 +38,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- */
 public class SessionTest extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------

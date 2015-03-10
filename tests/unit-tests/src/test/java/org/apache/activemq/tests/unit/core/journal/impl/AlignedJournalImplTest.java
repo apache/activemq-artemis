@@ -44,11 +44,6 @@ import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFile
 import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class AlignedJournalImplTest extends UnitTestCase
 {
 

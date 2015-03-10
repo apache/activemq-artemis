@@ -23,10 +23,6 @@ import org.apache.activemq.rest.HttpHeaderProperty;
 
 import javax.ws.rs.core.Response;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public abstract class ConsumedMessage
 {
    public static final String POSTED_AS_HTTP_MESSAGE = "postedAsHttpMessage";

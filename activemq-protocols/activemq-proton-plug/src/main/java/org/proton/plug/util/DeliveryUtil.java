@@ -21,10 +21,6 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 
-/**
- * @author Clebert Suconic
- */
-
 public class DeliveryUtil
 {
 

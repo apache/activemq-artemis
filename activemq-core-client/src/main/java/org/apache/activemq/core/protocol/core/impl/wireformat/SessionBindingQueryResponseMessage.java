@@ -26,9 +26,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 /**
  *
  * A SessionBindingQueryResponseMessage
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class SessionBindingQueryResponseMessage extends PacketImpl
 {

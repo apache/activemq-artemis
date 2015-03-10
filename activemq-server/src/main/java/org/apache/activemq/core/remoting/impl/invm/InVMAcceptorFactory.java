@@ -27,12 +27,6 @@ import org.apache.activemq.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 
-/**
- * A InVMAcceptorFactory
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class InVMAcceptorFactory implements AcceptorFactory
 {
    public Acceptor createAcceptor(final String name,

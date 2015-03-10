@@ -32,10 +32,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.PushConsumerResource;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class QueueResource extends DestinationResource
 {
    protected ConsumersResource consumers;

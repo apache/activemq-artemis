@@ -18,9 +18,6 @@ package org.apache.activemq.api.core.management;
 
 /**
  * A BroadcastGroupControl is used to manage a broadcast group.
- *
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- *
  */
 public interface BroadcastGroupControl extends ActiveMQComponentControl
 {

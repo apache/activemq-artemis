@@ -26,8 +26,6 @@ import org.objectweb.jtests.jms.admin.Admin;
  * GenericAdmin.
  *
  * @FIXME delegate to a JBoss defined admin class
- * @author <a href="adrian@jboss.com">Adrian Brock</a>
- * @version $Revision: 1.1 $
  */
 public class GenericAdmin implements Admin
 {

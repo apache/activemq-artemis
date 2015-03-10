@@ -21,11 +21,6 @@ import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * A ActiveMQThreadFactory
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public final class SimpleServerThreadFactory implements ThreadFactory
 {
    private final ThreadGroup group;

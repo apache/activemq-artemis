@@ -47,8 +47,6 @@ import org.apache.activemq.utils.UTF8Util;
  * by a single buffer. This buffer can be consumed as messages are arriving, and it will hold the
  * packets until they are read using the ChannelBuffer interface, or the setOutputStream or
  * saveStream are called.
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class LargeMessageControllerImpl implements LargeMessageController
 {

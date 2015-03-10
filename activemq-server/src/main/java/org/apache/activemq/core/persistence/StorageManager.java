@@ -55,10 +55,6 @@ import org.apache.activemq.utils.IDGenerator;
 /**
  * A StorageManager
  *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
- *
  * Note about IDGEnerator
  *
  *  I've changed StorageManager to extend IDGenerator, because in some places

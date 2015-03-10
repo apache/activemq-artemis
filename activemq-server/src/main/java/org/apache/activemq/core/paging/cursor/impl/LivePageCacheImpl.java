@@ -26,10 +26,6 @@ import org.apache.activemq.core.server.LargeServerMessage;
 
 /**
  * This is the same as PageCache, however this is for the page that's being currently written.
- *
- * @author clebertsuconic
- *
- *
  */
 public class LivePageCacheImpl implements LivePageCache
 {

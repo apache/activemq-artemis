@@ -26,10 +26,6 @@ import org.apache.activemq.core.version.Version;
 
 /**
  * ActiveMQ implementation of a JMS ConnectionMetaData.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
  */
 public class ActiveMQConnectionMetaData implements ConnectionMetaData
 {

@@ -25,8 +25,6 @@ import org.junit.Test;
 
 /**
  * Validate if the embedded server will start even with AIO selected
- *
- * @author Clebert Suconic
  */
 public class ValidateAIOTest extends ServiceTestBase
 {

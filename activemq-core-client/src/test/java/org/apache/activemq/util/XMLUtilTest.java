@@ -26,9 +26,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- */
 public class XMLUtilTest extends SilentTestCase
 {
    // Constructors --------------------------------------------------

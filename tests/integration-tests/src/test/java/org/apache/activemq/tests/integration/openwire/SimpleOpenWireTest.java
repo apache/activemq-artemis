@@ -32,11 +32,6 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- *
- * @author @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
- */
 public class SimpleOpenWireTest extends BasicOpenWireTest
 {
    @Override

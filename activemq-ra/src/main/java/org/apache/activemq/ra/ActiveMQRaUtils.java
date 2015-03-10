@@ -30,9 +30,6 @@ import org.jgroups.JChannel;
 
 /**
  * Various utility functions
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public final class ActiveMQRaUtils
 {

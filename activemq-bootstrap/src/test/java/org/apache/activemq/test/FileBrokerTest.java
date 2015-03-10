@@ -24,9 +24,6 @@ import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class FileBrokerTest
 {
    @Test

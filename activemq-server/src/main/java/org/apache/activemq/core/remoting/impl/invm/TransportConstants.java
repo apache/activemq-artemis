@@ -17,14 +17,6 @@
 package org.apache.activemq.core.remoting.impl.invm;
 
 
-/**
- * A TransportConstants
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- * @author ClebertSuconic
- *
- */
 public final class TransportConstants
 {
    public static final String SERVER_ID_PROP_NAME = "serverId";

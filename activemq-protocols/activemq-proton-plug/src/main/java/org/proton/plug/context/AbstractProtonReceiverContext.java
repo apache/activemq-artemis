@@ -21,8 +21,6 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         <p/>
  *         handles incoming messages via a Proton Receiver and forwards them to ActiveMQ
  */
 public abstract class AbstractProtonReceiverContext extends ProtonInitializable implements ProtonDeliveryHandler

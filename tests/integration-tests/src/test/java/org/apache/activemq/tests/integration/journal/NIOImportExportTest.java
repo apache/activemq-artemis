@@ -27,13 +27,6 @@ import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 
-/**
- * A NIOImportExportTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class NIOImportExportTest extends JournalImplTestBase
 {
 

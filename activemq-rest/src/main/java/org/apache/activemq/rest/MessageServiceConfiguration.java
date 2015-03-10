@@ -19,10 +19,6 @@ package org.apache.activemq.rest;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 @XmlRootElement(name = "rest-messaging")
 public class MessageServiceConfiguration
 {

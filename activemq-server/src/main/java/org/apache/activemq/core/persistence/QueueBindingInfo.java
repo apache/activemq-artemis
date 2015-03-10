@@ -18,15 +18,6 @@ package org.apache.activemq.core.persistence;
 
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * A QueueBindingInfo
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 10 Jan 2009 10:23:37
- *
- *
- */
 public interface QueueBindingInfo
 {
    long getId();

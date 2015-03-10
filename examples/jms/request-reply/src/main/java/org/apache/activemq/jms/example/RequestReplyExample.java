@@ -42,8 +42,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * and not create a new one for each message!
  *
  * Or better still use the correlation id, and just store the requests in a map, then you don't need a temporary queue at all
- *
- * @author <a href="hgao@redhat.com">Howard Gao</a>
  */
 public class RequestReplyExample extends ActiveMQExample
 {

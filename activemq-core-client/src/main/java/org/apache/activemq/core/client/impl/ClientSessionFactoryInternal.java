@@ -24,13 +24,6 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.api.core.client.SessionFailureListener;
 import org.apache.activemq.utils.ConfirmationWindowWarning;
 
-/**
- * A ClientSessionFactoryInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- *
- */
 public interface ClientSessionFactoryInternal extends ClientSessionFactory
 {
    void causeExit();

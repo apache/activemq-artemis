@@ -16,10 +16,6 @@
  */
 package org.proton.plug.util;
 
-/**
- * @author Clebert Suconic
- */
-
 public class DebugInfo
 {
    public static final boolean debug = false;

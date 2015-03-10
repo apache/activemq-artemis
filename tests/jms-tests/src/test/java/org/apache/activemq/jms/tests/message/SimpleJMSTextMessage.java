@@ -19,10 +19,6 @@ package org.apache.activemq.jms.tests.message;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- */
 public class SimpleJMSTextMessage extends SimpleJMSMessage implements TextMessage
 {
    // Constants -----------------------------------------------------

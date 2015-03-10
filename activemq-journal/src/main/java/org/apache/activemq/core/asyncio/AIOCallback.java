@@ -18,8 +18,6 @@ package org.apache.activemq.core.asyncio;
 
 /**
  * The interface used for AIO Callbacks.
- * @author clebert.suconic@jboss.com
- *
  */
 public interface AIOCallback
 {

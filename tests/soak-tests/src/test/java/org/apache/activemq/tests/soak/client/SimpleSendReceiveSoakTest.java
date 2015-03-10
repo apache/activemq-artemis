@@ -33,13 +33,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A ClientSoakTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class SimpleSendReceiveSoakTest extends ServiceTestBase
 {
 

@@ -35,11 +35,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A SymmetricFailoverTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class ReplicatedDistributionTest extends ClusterTestBase
 {
 

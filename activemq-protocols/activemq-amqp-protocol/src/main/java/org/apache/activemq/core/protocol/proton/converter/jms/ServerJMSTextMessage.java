@@ -31,14 +31,6 @@ import static org.apache.activemq.reader.TextMessageUtil.writeBodyText;
  * ActiveMQ implementation of a JMS TextMessage.
  * <br>
  * This class was ported from SpyTextMessage in JBossMQ.
- *
- * @author Norbert Lataille (Norbert.Lataille@m4x.org)
- * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
- * @author <a href="mailto:adrian@jboss.org">Adrian Brock</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @version $Revision: 3412 $
  */
 public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessage
 {

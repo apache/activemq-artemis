@@ -44,8 +44,6 @@ import java.io.Serializable;
 
 /**
  * ActiveMQ implementation of a JMSContext.
- *
- * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc
  */
 public class ActiveMQJMSContext implements JMSContext
 {

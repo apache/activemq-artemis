@@ -19,13 +19,6 @@ package org.apache.activemq.jms.server.config.impl;
 import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 
 
-/**
- * A QueueConfigurationImpl
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class JMSQueueConfigurationImpl implements JMSQueueConfiguration
 {
 

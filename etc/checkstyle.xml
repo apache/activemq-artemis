@@ -103,5 +103,11 @@ under the License.
          <property name="requiredParameters" value="name"/>
       </module>
 
+      <module name="WriteTag">
+         <property name="tag" value="@author"/>
+         <property name="tagSeverity" value="error"/>
+         <property name="severity" value="ignore"/>
+      </module>
+
    </module>
 </module>

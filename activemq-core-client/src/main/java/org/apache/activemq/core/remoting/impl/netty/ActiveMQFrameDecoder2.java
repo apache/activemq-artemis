@@ -23,10 +23,6 @@ import org.apache.activemq.utils.DataConstants;
 
 /**
  * A Netty decoder specially optimised to to decode messages on the core protocol only
- *
- * @author <a href="tlee@redhat.com">Trustin Lee</a>
- * @author <a href="nmaurer@redhat.com">Norman Maurer</a>
- * @version $Revision: 7839 $, $Date: 2009-08-21 02:26:39 +0900 (2009-08-21, 금) $
  */
 public class ActiveMQFrameDecoder2 extends LengthFieldBasedFrameDecoder
 {

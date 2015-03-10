@@ -23,9 +23,6 @@ import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
 import java.util.List;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class ProtonProtocolManagerFactory implements ProtocolManagerFactory
 {
    private static final String AMQP_PROTOCOL_NAME = "AMQP";

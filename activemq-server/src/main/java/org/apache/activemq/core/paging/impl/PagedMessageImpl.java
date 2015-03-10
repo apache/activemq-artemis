@@ -29,9 +29,6 @@ import org.apache.activemq.utils.DataConstants;
 
 /**
  * This class represents a paged message
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
  */
 public class PagedMessageImpl implements PagedMessage
 {

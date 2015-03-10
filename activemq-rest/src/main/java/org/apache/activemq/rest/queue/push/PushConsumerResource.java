@@ -36,10 +36,6 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class PushConsumerResource
 {
    protected Map<String, PushConsumer> consumers = new ConcurrentHashMap<String, PushConsumer>();

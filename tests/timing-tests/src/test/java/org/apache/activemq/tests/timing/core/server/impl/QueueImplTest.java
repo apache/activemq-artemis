@@ -38,9 +38,6 @@ import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- */
 public class QueueImplTest extends UnitTestCase
 {
    private static final SimpleString queue1 = new SimpleString("queue1");

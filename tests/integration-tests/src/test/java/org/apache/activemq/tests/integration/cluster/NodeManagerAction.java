@@ -19,11 +19,6 @@ package org.apache.activemq.tests.integration.cluster;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.impl.FileLockNodeManager;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: Oct 18, 2010
- *         Time: 10:09:12 AM
- */
 public class NodeManagerAction
 {
    public static final int START_LIVE = 0;

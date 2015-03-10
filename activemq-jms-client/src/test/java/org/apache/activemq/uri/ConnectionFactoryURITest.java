@@ -45,10 +45,6 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author clebertsuconic
- */
-
 public class ConnectionFactoryURITest
 {
    ConnectionFactoryParser parser = new ConnectionFactoryParser();

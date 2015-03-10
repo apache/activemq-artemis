@@ -29,7 +29,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 
 /**
  * An EmbeddedServer
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class EmbeddedServer
 {

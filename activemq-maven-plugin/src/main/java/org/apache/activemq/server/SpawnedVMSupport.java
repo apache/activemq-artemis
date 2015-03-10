@@ -29,11 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.DefaultArtifact;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:csuconic@redhat.com">Clebert Suconic</a>
- */
 public class SpawnedVMSupport
 {
    public static Process spawnVM(List<DefaultArtifact> arts,

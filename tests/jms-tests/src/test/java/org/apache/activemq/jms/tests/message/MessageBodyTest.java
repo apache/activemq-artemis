@@ -33,11 +33,6 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A MessageBodyTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class MessageBodyTest extends MessageBodyTestCase
 {
 

@@ -36,8 +36,6 @@ import org.junit.Test;
  * A PagingOrderTest.
  * <p/>
  * PagingTest has a lot of tests already. I decided to create a newer one more specialized on Ordering and counters
- *
- * @author clebertsuconic
  */
 public class PagingSyncTest extends ServiceTestBase
 {

@@ -25,13 +25,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * A MessageInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public interface MessageInternal extends Message
 {
    void decodeFromBuffer(ActiveMQBuffer buffer);

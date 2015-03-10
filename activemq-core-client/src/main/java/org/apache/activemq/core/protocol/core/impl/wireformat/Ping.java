@@ -23,7 +23,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
  * Ping is sent on the client side by {@link org.apache.activemq.core.client.impl.ClientSessionFactoryImpl}. At the server's
  * side it is handled by {@link org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl}
  * @see org.apache.activemq.spi.core.protocol.RemotingConnection#checkDataReceived()
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class Ping extends PacketImpl
 {

@@ -19,11 +19,6 @@ package org.apache.activemq.utils;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * A Future
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class FutureLatch implements Runnable
 {
    private final CountDownLatch latch;

@@ -20,11 +20,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * A ClientMessageInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public interface ClientMessageInternal extends ClientMessage
 {
 

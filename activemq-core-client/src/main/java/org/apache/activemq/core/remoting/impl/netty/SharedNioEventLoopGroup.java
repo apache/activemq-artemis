@@ -32,9 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * @author <a href="nmaurer@redhat.com">Norman Maurer</a>
- */
 public class SharedNioEventLoopGroup extends NioEventLoopGroup
 {
    private static SharedNioEventLoopGroup instance;

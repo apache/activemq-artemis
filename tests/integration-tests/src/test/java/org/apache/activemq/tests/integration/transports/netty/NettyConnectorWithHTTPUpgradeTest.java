@@ -68,8 +68,6 @@ import static org.apache.activemq.tests.util.RandomUtil.randomString;
 
 /**
  * Test that Netty Connector can connect to a Web Server and upgrade from a HTTP request to its remoting protocol.
- *
- * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
 public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
 {

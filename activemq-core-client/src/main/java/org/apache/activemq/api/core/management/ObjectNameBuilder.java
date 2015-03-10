@@ -23,7 +23,6 @@ import org.apache.activemq.api.core.SimpleString;
 
 /**
  * Helper class to build ObjectNames for ActiveMQ resources.
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public final class ObjectNameBuilder
 {

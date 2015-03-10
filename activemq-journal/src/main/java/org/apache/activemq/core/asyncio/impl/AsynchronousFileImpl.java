@@ -41,7 +41,6 @@ import org.apache.activemq.utils.ReusableLatch;
 /**
  * AsynchronousFile implementation
  *
- * @author clebert.suconic@jboss.com
  *         Warning: Case you refactor the name or the package of this class
  *         You need to make sure you also rename the C++ native calls
  */

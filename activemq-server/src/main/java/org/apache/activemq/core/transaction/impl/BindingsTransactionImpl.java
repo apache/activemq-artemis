@@ -20,11 +20,6 @@ import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.RefsOperation;
 
-/**
- * A BindingsTransactionImpl
- *
- * @author clebertsuconic
- */
 public class BindingsTransactionImpl extends TransactionImpl
 {
 

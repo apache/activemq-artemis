@@ -17,13 +17,6 @@
 package org.apache.activemq.core.client.impl;
 
 
-/**
- * A ClientLargeMessageInternal
- *
- * @author clebertsuconic
- *
- *
- */
 public interface ClientLargeMessageInternal extends ClientMessageInternal
 {
 

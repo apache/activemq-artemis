@@ -91,8 +91,6 @@ import org.apache.activemq.utils.ExecutorFactory;
  * Read the journal, page, and large-message data from a stopped instance of ActiveMQ and save it in an XML format to
  * a file.  It uses the StAX <code>javax.xml.stream.XMLStreamWriter</code> for speed and simplicity.  Output can be
  * read by <code>org.apache.activemq.core.persistence.impl.journal.XmlDataImporter</code>.
- *
- * @author Justin Bertram
  */
 public final class XmlDataExporter
 {

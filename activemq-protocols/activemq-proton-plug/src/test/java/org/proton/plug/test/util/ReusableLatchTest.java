@@ -22,9 +22,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.proton.plug.util.ReusableLatch;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 public class ReusableLatchTest
 {
    @Test

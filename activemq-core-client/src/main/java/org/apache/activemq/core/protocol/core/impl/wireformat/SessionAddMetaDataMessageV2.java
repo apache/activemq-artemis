@@ -23,10 +23,6 @@ import org.apache.activemq.core.protocol.core.impl.PacketImpl;
  * A SessionAddMetaDataMessage
  *
  * This packet replaces {@link SessionAddMetaDataMessage}
- *
- * @author Clebert Suconic
- *
- *
  */
 public class SessionAddMetaDataMessageV2 extends PacketImpl
 {

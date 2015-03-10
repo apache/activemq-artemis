@@ -24,8 +24,6 @@ import org.apache.activemq.jms.client.ActiveMQMessage;
 
 /**
  * Helper class to use JMS messages to manage ActiveMQ server resources.
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public class JMSManagementHelper
 {

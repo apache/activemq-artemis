@@ -33,10 +33,6 @@ import org.apache.activemq.journal.ActiveMQJournalLogger;
  *
  * <p>2) All pos that correspond to any neg in file Fn, must all live in any file Fm where 0 <= m <= n
  * which are also marked for deletion in the same pass of the algorithm.</p>
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class Reclaimer
 {

@@ -27,9 +27,6 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMess
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 public class DummyInterceptor implements Interceptor
 {
    protected IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

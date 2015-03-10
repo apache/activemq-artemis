@@ -24,10 +24,6 @@ import org.apache.activemq.core.paging.PagingStore;
 /**
  *
  * A ServerMessage
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public interface ServerMessage extends MessageInternal, EncodingSupport
 {

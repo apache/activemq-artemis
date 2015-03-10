@@ -34,11 +34,6 @@ import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.classworlds.ClassWorld;
 
-
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- */
-
 /**
  * @phase verify
  * @goal start

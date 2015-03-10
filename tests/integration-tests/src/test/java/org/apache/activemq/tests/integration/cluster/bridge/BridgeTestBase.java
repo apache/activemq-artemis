@@ -31,13 +31,6 @@ import org.apache.activemq.tests.util.InVMNodeManagerServer;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 
-/**
- * A BridgeTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 21 Nov 2008 10:32:23
- */
 public abstract class BridgeTestBase extends UnitTestCase
 {
 

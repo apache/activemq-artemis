@@ -19,13 +19,7 @@ package org.apache.activemq.core.journal;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 
 /**
- *
  * This interface provides encoding support for the Journal.
- *
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public interface EncodingSupport
 {

@@ -27,11 +27,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.UUID;
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class UUIDTest extends UnitTestCase
 {
    static final int MANY_TIMES = 100000;

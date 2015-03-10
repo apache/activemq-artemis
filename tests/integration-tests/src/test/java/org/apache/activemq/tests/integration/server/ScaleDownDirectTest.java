@@ -42,8 +42,6 @@ import org.junit.runners.Parameterized;
 /**
  * On this test we will run ScaleDown directly as an unit-test in several cases,
  * simulating what would happen during a real scale down.
- *
- * @author clebertsuconic
  */
 @RunWith(value = Parameterized.class)
 public class ScaleDownDirectTest extends ClusterTestBase

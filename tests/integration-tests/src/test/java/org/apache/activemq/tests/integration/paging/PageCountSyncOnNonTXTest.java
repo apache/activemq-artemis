@@ -30,10 +30,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Clebert Suconic
- */
-
 public class PageCountSyncOnNonTXTest extends ServiceTestBase
 {
 

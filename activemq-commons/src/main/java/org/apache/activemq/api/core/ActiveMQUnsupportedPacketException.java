@@ -20,7 +20,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.UNSUPPORTED_PAC
 
 /**
  * A packet of unsupported type was received by ActiveMQ PacketHandler.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a> 4/30/12
  */
 public final class ActiveMQUnsupportedPacketException extends ActiveMQException
 {

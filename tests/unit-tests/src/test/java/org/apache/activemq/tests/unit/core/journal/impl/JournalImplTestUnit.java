@@ -32,12 +32,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A JournalImplTestBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 public abstract class JournalImplTestUnit extends JournalImplTestBase
 {
    @After

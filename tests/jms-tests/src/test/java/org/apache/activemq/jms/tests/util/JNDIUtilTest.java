@@ -25,9 +25,6 @@ import javax.naming.NameNotFoundException;
 import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.utils.JNDIUtil;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- */
 public class JNDIUtilTest extends ActiveMQServerTestCase
 {
    // Constants -----------------------------------------------------

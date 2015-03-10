@@ -42,10 +42,6 @@ import org.apache.activemq.rest.util.TimeoutTask;
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 import org.apache.activemq.utils.XMLUtil;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class MessageServiceManager
 {
    protected ExecutorService threadPool;

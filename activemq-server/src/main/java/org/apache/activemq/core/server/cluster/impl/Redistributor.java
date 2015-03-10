@@ -37,13 +37,6 @@ import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- * A Redistributor
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 8 Feb 2009 14:23:41
- */
 public class Redistributor implements Consumer
 {
    private boolean active;

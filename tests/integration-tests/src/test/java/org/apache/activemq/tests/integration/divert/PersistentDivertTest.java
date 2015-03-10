@@ -38,15 +38,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A PersistentDivertTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 14 Jan 2009 14:05:01
- *
- *
- */
 public class PersistentDivertTest extends ServiceTestBase
 {
    final int minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 2;

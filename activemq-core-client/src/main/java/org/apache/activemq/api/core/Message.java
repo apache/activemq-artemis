@@ -49,10 +49,6 @@ import org.apache.activemq.utils.UUID;
  * <p>
  * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a
  * {@code boolean}), a {@link ActiveMQPropertyConversionException} will be thrown.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">ClebertSuconic</a>
- * @version <tt>$Revision: 3341 $</tt> $Id: Message.java 3341 2007-11-19 14:34:57Z timfox $
  */
 public interface Message
 {

@@ -31,8 +31,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsAutoAckListenerTest
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsAutoAckListenerTest extends BasicOpenWireTest implements MessageListener
 {

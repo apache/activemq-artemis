@@ -21,8 +21,6 @@ import org.apache.activemq.core.remoting.FailureListener;
 
 /**
  * A SessionFailureListener notifies the client when a failure occurred on the session.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface SessionFailureListener extends FailureListener
 {

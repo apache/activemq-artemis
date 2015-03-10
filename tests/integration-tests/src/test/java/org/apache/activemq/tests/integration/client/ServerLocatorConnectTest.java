@@ -32,12 +32,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * User: andy
- * Date: Sep 15, 2010
- * Time: 2:27:07 PM
- * * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- */
 public class ServerLocatorConnectTest extends ServiceTestBase
 {
    private ActiveMQServer server;

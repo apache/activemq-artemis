@@ -26,9 +26,6 @@ import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.core.protocol.stomp.StompFrame;
 
-/**
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class StompFrameV12 extends StompFrame
 {
    private static final byte[] END_OF_FRAME = new byte[]{0, '\n'};

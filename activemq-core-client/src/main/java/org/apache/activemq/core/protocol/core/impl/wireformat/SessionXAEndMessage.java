@@ -22,9 +22,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.utils.XidCodecSupport;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class SessionXAEndMessage extends PacketImpl
 {
    private Xid xid;

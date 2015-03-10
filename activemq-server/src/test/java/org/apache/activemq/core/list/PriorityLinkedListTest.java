@@ -26,9 +26,6 @@ import org.junit.Assert;
 import org.apache.activemq.utils.LinkedListIterator;
 import org.apache.activemq.utils.PriorityLinkedListImpl;
 
-/**
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
- */
 public final class PriorityLinkedListTest extends Assert
 {
    protected Wibble a;

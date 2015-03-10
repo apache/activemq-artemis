@@ -25,9 +25,6 @@ import org.apache.activemq.core.server.Divert;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class DivertBinding implements Binding
 {
    private final SimpleString address;

@@ -21,12 +21,6 @@ import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * A InVMRegistry
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public final class InVMRegistry
 {
    public static final InVMRegistry instance = new InVMRegistry();

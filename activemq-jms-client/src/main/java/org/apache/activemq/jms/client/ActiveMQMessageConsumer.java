@@ -35,8 +35,6 @@ import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 
 /**
  * ActiveMQ implementation of a JMS MessageConsumer.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  */
 public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber
 {

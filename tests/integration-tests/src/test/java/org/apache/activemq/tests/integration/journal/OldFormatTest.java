@@ -27,11 +27,6 @@ import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.utils.DataConstants;
 import org.junit.Test;
 
-/**
- * A OldFormatTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class OldFormatTest extends JournalImplTestBase
 {
 

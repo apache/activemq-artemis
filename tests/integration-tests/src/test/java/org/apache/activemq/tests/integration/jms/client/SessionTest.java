@@ -26,11 +26,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
-/**
- * A SessionTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- */
 public class SessionTest extends JMSTestBase
 {
 

@@ -25,13 +25,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.utils.LinkedListIterator;
 
-/**
- * A PageCursor
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- *
- */
 public interface PageSubscription
 {
 

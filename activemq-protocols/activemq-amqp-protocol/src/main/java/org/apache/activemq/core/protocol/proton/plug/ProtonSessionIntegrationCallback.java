@@ -47,10 +47,6 @@ import org.proton.plug.SASLResult;
 import org.proton.plug.context.ProtonPlugSender;
 import org.proton.plug.sasl.PlainSASLResult;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, SessionCallback
 {
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);

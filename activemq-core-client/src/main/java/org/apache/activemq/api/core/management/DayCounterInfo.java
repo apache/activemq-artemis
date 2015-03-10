@@ -25,8 +25,6 @@ import org.apache.activemq.utils.json.JSONObject;
 /**
  * Helper class to create Java Objects from the
  * JSON serialization returned by {@link QueueControl#listMessageCounterHistory()}.
- *
- *  @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public final class DayCounterInfo
 {

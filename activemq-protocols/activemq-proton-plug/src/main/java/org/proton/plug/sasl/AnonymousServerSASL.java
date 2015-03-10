@@ -19,10 +19,6 @@ package org.proton.plug.sasl;
 import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 
-/**
- * @author Clebert Suconic
- */
-
 public class AnonymousServerSASL implements ServerSASL
 {
    public AnonymousServerSASL()

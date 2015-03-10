@@ -30,11 +30,6 @@ import javax.jms.MessageFormatException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @version $Revision$
- *
- */
 public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMessage
 {
    // Static -------------------------------------------------------

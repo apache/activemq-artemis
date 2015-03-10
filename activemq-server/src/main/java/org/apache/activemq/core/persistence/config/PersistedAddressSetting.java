@@ -21,11 +21,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
-/**
- * A PersistedAddressSetting
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class PersistedAddressSetting implements EncodingSupport
 {
    // Constants -----------------------------------------------------

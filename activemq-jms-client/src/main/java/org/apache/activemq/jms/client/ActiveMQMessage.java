@@ -52,17 +52,6 @@ import org.apache.activemq.utils.UUID;
  * <br>
  * JMS Messages only live on the client side - the server only deals with MessageImpl
  * instances
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:bershath@yahoo.com">Tyronne Wickramarathne</a> Partially ported from JBossMQ implementation
- *         originally written by:
- * @author Norbert Lataille (Norbert.Lataille@m4x.org)
- * @author Hiram Chirino (Cojonudo14@hotmail.com)
- * @author David Maplesden (David.Maplesden@orion.co.nz)
- * @author <a href="mailto:adrian@jboss.org">Adrian Brock</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class ActiveMQMessage implements javax.jms.Message
 {

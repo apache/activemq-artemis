@@ -20,11 +20,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.SoftValueHashMap;
 import org.junit.Test;
 
-/**
- * A SoftValueMapTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class SoftValueMapTest extends UnitTestCase
 {
 

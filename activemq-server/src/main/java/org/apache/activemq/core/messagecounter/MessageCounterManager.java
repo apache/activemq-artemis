@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.core.messagecounter;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public interface MessageCounterManager
 {
    void start();

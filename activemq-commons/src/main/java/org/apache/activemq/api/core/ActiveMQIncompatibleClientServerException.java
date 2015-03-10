@@ -22,7 +22,6 @@ import static org.apache.activemq.api.core.ActiveMQExceptionType.INCOMPATIBLE_CL
  * The server version and the client version are incompatible.
  * <p>
  * Normally this means you are trying to use a newer client on an older server.
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  */
 public final class ActiveMQIncompatibleClientServerException extends ActiveMQException
 {

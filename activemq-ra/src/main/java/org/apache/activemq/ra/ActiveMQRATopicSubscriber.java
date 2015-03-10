@@ -23,9 +23,6 @@ import javax.jms.TopicSubscriber;
 
 /**
  * A wrapper for a topic subscriber
- *
- * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
- * @author <a href="mailto:jesper.pedersen@jboss.org">Jesper Pedersen</a>
  */
 public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer implements TopicSubscriber
 {

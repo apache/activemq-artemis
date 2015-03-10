@@ -35,8 +35,6 @@ import org.apache.activemq.jms.client.ActiveMQConnection;
  *
  * In this example there are two nodes running in a cluster, both server will be running for start,
  * but after a while the first server will crash. This will trigger an fail oever event
- *
- * @author <a href="flemming.harms@gmail.com>Flemming Harms</a>
  */
 public class ClientSideFailoverListerExample extends ActiveMQExample
 {

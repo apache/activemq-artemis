@@ -40,13 +40,6 @@ import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 import org.apache.activemq.core.journal.impl.dataformat.JournalRollbackRecordTX;
 import org.apache.activemq.journal.ActiveMQJournalLogger;
 
-/**
- * A JournalCompactor
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class JournalCompactor extends AbstractJournalUpdateTask implements JournalRecordProvider
 {
    // We try to separate old record from new ones when doing the compacting

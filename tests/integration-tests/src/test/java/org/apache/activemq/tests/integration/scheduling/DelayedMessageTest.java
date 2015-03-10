@@ -35,9 +35,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class DelayedMessageTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

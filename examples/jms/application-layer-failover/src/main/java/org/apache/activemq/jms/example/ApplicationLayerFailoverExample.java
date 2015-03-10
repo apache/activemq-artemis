@@ -38,8 +38,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * A simple example that demonstrates application-layer failover of the JMS connection from one node to another
  * when the live server crashes
- *
- * @author <a href="tim.fox@jboss.com>Tim Fox</a>
  */
 public class ApplicationLayerFailoverExample extends ActiveMQExample
 {

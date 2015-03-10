@@ -21,8 +21,6 @@ package org.apache.activemq.api.core.management;
  * <br>
  * Resource's name is build by appending its <em>name</em> to its corresponding type.
  * For example, the resource name of the "foo" queue is {@code CORE_QUEUE + "foo"}.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public final class ResourceNames
 {

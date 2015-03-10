@@ -37,9 +37,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * The most comprehensive, yet simple, unit test.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Foxv</a>
  */
 public class JMSTest extends JMSTestCase
 {

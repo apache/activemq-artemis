@@ -29,10 +29,6 @@ import org.apache.activemq.rest.ActiveMQRestLogger;
 import org.apache.activemq.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.rest.topic.PushTopicRegistration;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class FilePushStore implements PushStore
 {
    protected Map<String, PushRegistration> map = new HashMap<String, PushRegistration>();

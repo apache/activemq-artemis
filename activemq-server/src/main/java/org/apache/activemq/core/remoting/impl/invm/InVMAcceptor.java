@@ -40,11 +40,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 import org.apache.activemq.utils.OrderedExecutorFactory;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * A InVMAcceptor
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public final class InVMAcceptor implements Acceptor
 {
    private final int id;

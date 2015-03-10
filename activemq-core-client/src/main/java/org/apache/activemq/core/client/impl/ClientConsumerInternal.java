@@ -23,11 +23,6 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.utils.FutureLatch;
 
-/**
- * A ClientConsumerInternal
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public interface ClientConsumerInternal extends ClientConsumer
 {
    SimpleString getQueueName();

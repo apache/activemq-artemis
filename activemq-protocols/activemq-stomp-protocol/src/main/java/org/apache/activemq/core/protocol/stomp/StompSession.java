@@ -47,11 +47,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 
 import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * A StompSession
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class StompSession implements SessionCallback
 {
    private final StompProtocolManager manager;

@@ -29,9 +29,6 @@ import javax.management.MBeanServer;
 
 /**
  * A {@code FileConfiguration} reads configuration values from a file.
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
 public final class FileConfiguration extends ConfigurationImpl implements Deployable
 {

@@ -25,9 +25,6 @@ package org.apache.activemq.core.server;
  * NO_MATCH means the MessageReference was rejected by a Filter
  *
  * BUSY means the MessageReference was rejected since the ClientConsumer was busy
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public enum HandleStatus
 {

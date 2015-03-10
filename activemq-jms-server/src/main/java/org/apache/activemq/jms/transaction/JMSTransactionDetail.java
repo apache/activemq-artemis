@@ -30,13 +30,6 @@ import org.apache.activemq.jms.client.ActiveMQObjectMessage;
 import org.apache.activemq.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.jms.client.ActiveMQTextMessage;
 
-/**
- * A JMSTransactionDetail
- *
- * @author <a href="tm.igarashi@gmail.com">Tomohisa Igarashi</a>
- *
- *
- */
 public class JMSTransactionDetail extends TransactionDetail
 {
    public JMSTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception

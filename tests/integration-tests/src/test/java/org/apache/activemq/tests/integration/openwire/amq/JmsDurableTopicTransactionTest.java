@@ -20,9 +20,6 @@ import javax.jms.DeliveryMode;
 
 /**
  * adapted from: org.apache.activemq.JmsDurableTopicTransactionTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsDurableTopicTransactionTest extends JmsTopicTransactionTest
 {

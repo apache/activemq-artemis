@@ -46,11 +46,6 @@ import org.apache.activemq.utils.VersionLoader;
 
 import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * A StompConnection
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public final class StompConnection implements RemotingConnection
 {
    protected static final String CONNECTION_ID_PROP = "__HQ_CID";

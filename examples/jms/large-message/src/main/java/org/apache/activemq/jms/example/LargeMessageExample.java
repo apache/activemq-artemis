@@ -38,9 +38,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 /**
  * This example demonstrates the ability of ActiveMQ to send and consume a very large message, much
  * bigger than can fit in RAM.
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="clebert.suconic@jboss.com">Clebert Suconic</a>
  */
 public class LargeMessageExample extends ActiveMQExample
 {

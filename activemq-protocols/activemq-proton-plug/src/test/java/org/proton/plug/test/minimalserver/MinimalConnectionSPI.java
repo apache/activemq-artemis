@@ -34,10 +34,6 @@ import org.proton.plug.util.ByteUtil;
 import org.proton.plug.util.DebugInfo;
 import org.proton.plug.util.ReusableLatch;
 
-/**
- * @author Clebert Suconic
- */
-
 public class MinimalConnectionSPI implements AMQPConnectionCallback
 {
    Channel channel;

@@ -18,10 +18,6 @@ package org.proton.plug.test.minimalclient;
 
 import org.proton.plug.AMQPClientConnectionContext;
 
-/**
- * @author Clebert Suconic
- */
-
 public interface Connector
 {
    void start();

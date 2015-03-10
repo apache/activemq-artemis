@@ -39,9 +39,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
  * A concurrent QueueTest
  *
  * All the concurrent queue tests go in here
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
  */
 public class QueueConcurrentTest extends UnitTestCase
 {

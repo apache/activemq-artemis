@@ -26,8 +26,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 
 /**
  * A class that represents a ConnectionFactory.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class ActiveMQJMSConnectionFactory extends ActiveMQConnectionFactory implements TopicConnectionFactory, QueueConnectionFactory
 {

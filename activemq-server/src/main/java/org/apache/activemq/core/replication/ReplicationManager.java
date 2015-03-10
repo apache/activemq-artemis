@@ -71,7 +71,6 @@ import org.apache.activemq.utils.ExecutorFactory;
  * <p/>
  * Its equivalent in the backup server is {@link ReplicationEndpoint}.
  *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  * @see ReplicationEndpoint
  */
 public final class ReplicationManager implements ActiveMQComponent

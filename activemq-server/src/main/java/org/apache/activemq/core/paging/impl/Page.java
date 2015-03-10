@@ -37,9 +37,6 @@ import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 public final class Page implements Comparable<Page>
 {
    // Constants -----------------------------------------------------

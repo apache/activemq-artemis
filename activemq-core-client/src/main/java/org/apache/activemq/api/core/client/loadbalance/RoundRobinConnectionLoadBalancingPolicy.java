@@ -26,12 +26,6 @@ import org.apache.activemq.utils.Random;
  * <br>
  * The first call to {@link #select(int)} will return a random integer between {@code 0} (inclusive) and {@code max} (exclusive).
  * Subsequent calls will then return an integer in a round-robin fashion.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 28 Nov 2008 10:21:08
- *
- *
  */
 public final class RoundRobinConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy, Serializable
 {

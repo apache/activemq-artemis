@@ -30,7 +30,6 @@ import javax.naming.spi.ObjectFactory;
 
 /**
  * used by the default context when running in embedded local configuration
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public final class NonSerializableFactory implements ObjectFactory
 {

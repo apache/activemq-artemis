@@ -18,7 +18,6 @@ package org.apache.activemq.core.journal;
 
 /**
  * This is a POJO containing information about the journal during load time.
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class JournalLoadInformation
 {

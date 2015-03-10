@@ -31,13 +31,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A DeleteMessagesRestartTest
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *         <p/>
- *         Created Mar 2, 2009 10:14:38 AM
- */
 public class DeleteQueueRestartTest extends ServiceTestBase
 {
 

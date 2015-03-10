@@ -18,13 +18,6 @@ package org.apache.activemq.api.core.management;
 
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * A AddressSettingsInfo
- *
- * @author jmesnil
- *
- *
- */
 // XXX no javadocs
 public final class AddressSettingsInfo
 {

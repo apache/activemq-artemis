@@ -25,9 +25,6 @@ import org.apache.activemq.utils.VersionLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class VersionLoaderTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

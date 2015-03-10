@@ -34,10 +34,6 @@ import org.apache.activemq.utils.ConcurrentHashSet;
 /**
  *
  * Super class for Journal maintenances such as clean up and Compactor
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 {

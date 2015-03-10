@@ -20,9 +20,6 @@ import java.util.Map;
 
 /**
  * A Connector is used by the client for creating and controlling a connection.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
  */
 public interface Connector
 {

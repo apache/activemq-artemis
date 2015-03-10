@@ -21,11 +21,6 @@ import java.io.Serializable;
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- * A DivertConfiguration
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class DivertConfiguration implements Serializable
 {
    private static final long serialVersionUID = 6910543740464269629L;

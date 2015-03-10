@@ -25,9 +25,6 @@ import org.apache.activemq.core.client.ActiveMQClientLogger;
 
 /**
  * A factory for producing executors that run all tasks in order, which delegate to a single common executor instance.
- *
- * @author <a href="david.lloyd@jboss.com">David Lloyd</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class OrderedExecutorFactory implements ExecutorFactory
 {

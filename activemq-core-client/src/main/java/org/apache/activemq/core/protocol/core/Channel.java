@@ -29,8 +29,6 @@ import org.apache.activemq.api.core.ActiveMQException;
  * Each Channel should will forward any packets received to its {@link org.apache.activemq.core.protocol.core.ChannelHandler}.
  * <p>
  * A Channel *does not* support concurrent access by more than one thread!
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public interface Channel
 {

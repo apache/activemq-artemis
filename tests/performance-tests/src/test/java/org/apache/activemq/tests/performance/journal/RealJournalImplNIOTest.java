@@ -22,14 +22,6 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.tests.unit.UnitTestLogger;
 
-/**
- *
- * A RealJournalImplTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- */
 public class RealJournalImplNIOTest extends JournalImplTestUnit
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;

@@ -33,11 +33,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A IsolatedTopologyTest
- *
- * @author clebertsuconic
- */
 public class IsolatedTopologyTest extends ServiceTestBase
 {
 

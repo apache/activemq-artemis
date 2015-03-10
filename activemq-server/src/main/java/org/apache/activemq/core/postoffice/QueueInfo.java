@@ -22,15 +22,6 @@ import java.util.List;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
-/**
- * A QueueInfo
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 21 Jan 2009 20:55:06
- *
- *
- */
 public class QueueInfo implements Serializable
 {
    private static final long serialVersionUID = 3451892849198803182L;

@@ -29,9 +29,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsCreateConsumerInOnMessageTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implements MessageListener
 {

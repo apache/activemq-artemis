@@ -24,10 +24,6 @@ import javax.naming.InitialContext;
 
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- *
- */
 public class ConsumerClosedTest extends JMSTestCase
 {
    // Constants -----------------------------------------------------

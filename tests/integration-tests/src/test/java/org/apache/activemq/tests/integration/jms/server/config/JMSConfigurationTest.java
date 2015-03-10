@@ -48,13 +48,6 @@ import org.apache.activemq.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A JMSConfigurationTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class JMSConfigurationTest extends ServiceTestBase
 {
 

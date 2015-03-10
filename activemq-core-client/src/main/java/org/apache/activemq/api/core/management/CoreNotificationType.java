@@ -18,8 +18,6 @@ package org.apache.activemq.api.core.management;
 
 /**
  * This enum defines all core notification types
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public enum CoreNotificationType implements NotificationType
 {

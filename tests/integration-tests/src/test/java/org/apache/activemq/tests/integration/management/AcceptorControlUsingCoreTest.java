@@ -29,13 +29,6 @@ import org.apache.activemq.api.core.management.AcceptorControl;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A AcceptorControlUsingCoreTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class AcceptorControlUsingCoreTest extends AcceptorControlTest
 {
 

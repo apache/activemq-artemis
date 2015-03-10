@@ -18,15 +18,6 @@ package org.apache.activemq.core.server.cluster;
 
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * A Transformer
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 18 Nov 2008 11:01:50
- *
- *
- */
 public interface Transformer
 {
    ServerMessage transform(ServerMessage message);

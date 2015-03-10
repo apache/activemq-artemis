@@ -26,8 +26,6 @@ import org.apache.activemq.api.core.Pair;
  * Note: This class used to be called PosFiles
  *
  * Used on the ref-count for reclaiming
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  * */
 public class JournalRecord
 {

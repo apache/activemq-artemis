@@ -20,13 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-/**
- * A ClusteredRequestResponseTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *         <p/>
- *         Created 3 Feb 2009 09:10:43
- */
 public class ClusteredRequestResponseTest extends ClusterTestBase
 {
 

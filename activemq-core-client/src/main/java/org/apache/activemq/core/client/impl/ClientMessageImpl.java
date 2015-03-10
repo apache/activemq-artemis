@@ -35,10 +35,6 @@ import org.apache.activemq.reader.MessageUtil;
 /**
  *
  * A ClientMessageImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- *
  */
 public class ClientMessageImpl extends MessageImpl implements ClientMessageInternal
 {

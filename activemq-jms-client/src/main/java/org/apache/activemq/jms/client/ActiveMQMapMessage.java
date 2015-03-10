@@ -38,13 +38,6 @@ import static org.apache.activemq.reader.MapMessageUtil.readBodyMap;
 
 /**
  * ActiveMQ implementation of a JMS MapMessage.
- *
- * @author Norbert Lataille (Norbert.Lataille@m4x.org)
- * @author <a href="mailto:adrian@jboss.org">Adrian Brock</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @version $Revision: 3412 $
  */
 public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMessage
 {

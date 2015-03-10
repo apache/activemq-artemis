@@ -23,13 +23,6 @@ import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
 import org.w3c.dom.Node;
 
-/**
- * A JMSServerConfigParser
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public interface JMSServerConfigParser
 {
    /**

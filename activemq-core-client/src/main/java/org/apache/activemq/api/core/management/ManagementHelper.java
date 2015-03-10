@@ -29,9 +29,6 @@ import org.apache.activemq.utils.json.JSONObject;
 
 /**
  * Helper class to use ActiveMQ Core messages to manage server resources.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  */
 public final class ManagementHelper
 {

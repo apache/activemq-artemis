@@ -36,10 +36,6 @@ import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.impl.InVMNodeManager;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * @author Clebert Suconic
- */
-
 public class MultiServerTestBase extends ServiceTestBase
 {
 

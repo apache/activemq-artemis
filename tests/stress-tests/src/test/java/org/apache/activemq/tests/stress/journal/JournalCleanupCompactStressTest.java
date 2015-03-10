@@ -53,11 +53,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A SoakJournal
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class JournalCleanupCompactStressTest extends ServiceTestBase
 {
 

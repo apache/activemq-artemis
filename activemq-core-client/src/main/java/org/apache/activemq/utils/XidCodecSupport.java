@@ -21,11 +21,6 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class XidCodecSupport
 {
 

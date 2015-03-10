@@ -41,14 +41,6 @@ import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- *
- * A AddressControlUsingCoreTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class AddressControlUsingCoreTest extends ManagementTestBase
 {
 

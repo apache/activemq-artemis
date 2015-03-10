@@ -20,10 +20,6 @@ import java.util.List;
 
 /**
  * A Callback to receive information about bad transactions for extra cleanup required for broken transactions such as large messages.
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
  */
 public interface TransactionFailureCallback
 {

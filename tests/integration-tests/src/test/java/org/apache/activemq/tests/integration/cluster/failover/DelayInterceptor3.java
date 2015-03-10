@@ -22,13 +22,6 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * A DelayInterceptor3
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
- */
 public class DelayInterceptor3 implements Interceptor
 {
 

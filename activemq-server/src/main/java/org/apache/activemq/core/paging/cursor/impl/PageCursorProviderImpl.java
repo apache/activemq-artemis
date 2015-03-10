@@ -45,10 +45,6 @@ import org.apache.activemq.utils.SoftValueHashMap;
  *
  * TODO: this may be moved entirely into PagingStore as there's an one-to-one relationship here
  *       However I want to keep this isolated as much as possible during development
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
- *
  */
 public class PageCursorProviderImpl implements PageCursorProvider
 {

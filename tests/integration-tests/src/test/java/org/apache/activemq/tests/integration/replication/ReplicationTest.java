@@ -93,11 +93,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ReplicationTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public final class ReplicationTest extends ServiceTestBase
 {
 

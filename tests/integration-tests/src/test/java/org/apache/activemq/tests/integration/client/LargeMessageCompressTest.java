@@ -41,8 +41,6 @@ import org.junit.Test;
  * A LargeMessageCompressTest
  * <p/>
  * Just extend the LargeMessageTest
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class LargeMessageCompressTest extends LargeMessageTest
 {

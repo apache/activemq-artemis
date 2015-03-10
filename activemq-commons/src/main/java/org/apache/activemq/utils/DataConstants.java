@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.utils;
 
-/**
- *
- * A DataConstants
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public final class DataConstants
 {
    public static final int SIZE_INT = 4;

@@ -56,10 +56,6 @@ import org.apache.activemq.utils.TypedProperties;
 import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter,
                                                                      org.apache.activemq.core.server.management.NotificationListener
 {

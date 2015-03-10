@@ -28,11 +28,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * A ActiveMQServerControlUsingCoreTest
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- */
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest
 {
 

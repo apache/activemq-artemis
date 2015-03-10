@@ -37,10 +37,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
  * properly updated
  *
  * Created to verify HORNETQ-913 / AS7-4548
- *
- * @author clebertsuconic
- *
- *
  */
 public class NonHATopologyTest extends ServiceTestBase
 {

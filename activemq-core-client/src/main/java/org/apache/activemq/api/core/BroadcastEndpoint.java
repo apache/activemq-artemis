@@ -34,8 +34,6 @@ import java.util.concurrent.TimeUnit;
  * of this interface may use different broadcasting techniques like UDP multicasting or
  * JGroups channels.
  *
- * @author Tomohisa
- * @author Howard Gao
  * @see JGroupsBroadcastEndpoint
  * @see UDPBroadcastEndpoint
  */

@@ -25,10 +25,6 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 /**
  * The basic configuration used to determine how the server will broadcast members
  * This is analogous to {@link org.apache.activemq.api.core.DiscoveryGroupConfiguration}
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public final class BroadcastGroupConfiguration implements Serializable
 {

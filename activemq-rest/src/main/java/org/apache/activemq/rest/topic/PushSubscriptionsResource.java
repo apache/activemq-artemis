@@ -38,10 +38,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class PushSubscriptionsResource
 {
    protected Map<String, PushSubscription> consumers = new ConcurrentHashMap<String, PushSubscription>();

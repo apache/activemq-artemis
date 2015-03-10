@@ -22,8 +22,6 @@ import java.net.URL;
 
 /**
  * This class is the implementation of ActiveMQ members discovery that will use JGroups.
- *
- * @author Howard Gao
  */
 public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint
 {

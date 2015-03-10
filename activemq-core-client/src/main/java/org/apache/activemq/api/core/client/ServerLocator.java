@@ -32,8 +32,6 @@ import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
  * If you use UDP or JGroups (exclusively JGroups or UDP), the initial discovery is done by the
  * grouping finder, after the initial connection is made the server will always send updates to the
  * client. But the listeners will listen for updates on grouping.
- *
- * @author Tim Fox
  */
 public interface ServerLocator extends AutoCloseable
 {

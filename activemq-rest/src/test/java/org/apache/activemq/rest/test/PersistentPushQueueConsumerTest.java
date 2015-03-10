@@ -38,9 +38,6 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
 /**
  * Test durable queue push consumers
- *
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
  */
 public class PersistentPushQueueConsumerTest
 {

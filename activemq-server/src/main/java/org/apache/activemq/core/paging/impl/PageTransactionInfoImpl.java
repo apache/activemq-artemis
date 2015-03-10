@@ -35,9 +35,6 @@ import org.apache.activemq.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 public final class PageTransactionInfoImpl implements PageTransactionInfo
 {
    // Constants -----------------------------------------------------

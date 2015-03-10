@@ -24,9 +24,7 @@ import org.apache.activemq.utils.XidCodecSupport;
 
 /**
  * to be called after a failure on an XA Session
- * @author Clebert Suconic
  */
-
 public class SessionXAAfterFailedMessage extends PacketImpl
 {
    // Constants -----------------------------------------------------

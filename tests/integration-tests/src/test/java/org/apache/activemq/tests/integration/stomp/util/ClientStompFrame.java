@@ -19,9 +19,6 @@ package org.apache.activemq.tests.integration.stomp.util;
 import java.nio.ByteBuffer;
 
 /**
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  * pls use factory to create frames.
  */
 public interface ClientStompFrame

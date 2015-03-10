@@ -19,10 +19,6 @@ package org.apache.activemq.core.protocol.core.impl;
 import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManagerFactory
 {
    private static final long serialVersionUID = 1;

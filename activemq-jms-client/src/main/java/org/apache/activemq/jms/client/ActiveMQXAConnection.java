@@ -31,7 +31,6 @@ import org.apache.activemq.api.core.client.ClientSessionFactory;
  * <p>
  * The flat implementation of {@link XATopicConnection} and {@link XAQueueConnection} is per design,
  * following common practices of JMS 1.1.
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public final class ActiveMQXAConnection extends ActiveMQConnection implements XATopicConnection, XAQueueConnection
 {

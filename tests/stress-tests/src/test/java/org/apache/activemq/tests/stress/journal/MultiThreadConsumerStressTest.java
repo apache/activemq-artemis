@@ -40,8 +40,6 @@ import org.junit.Test;
  * A MultiThreadConsumerStressTest
  * <p/>
  * This test validates consuming / sending messages while compacting is working
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
  */
 public class MultiThreadConsumerStressTest extends ServiceTestBase
 {

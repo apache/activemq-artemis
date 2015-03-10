@@ -26,7 +26,6 @@ package org.apache.activemq.api.core.management;
  * <li>JMS messages
  * </ul>
  * @see the ActiveMQ user manual section on "Management Notifications"
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public interface NotificationType
 {

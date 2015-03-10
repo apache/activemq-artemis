@@ -19,15 +19,6 @@ package org.apache.activemq.core.server;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 
-/**
- * A Divert
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 24 Dec 2008 09:58:04
- *
- *
- */
 public interface Divert extends Bindable
 {
    Filter getFilter();

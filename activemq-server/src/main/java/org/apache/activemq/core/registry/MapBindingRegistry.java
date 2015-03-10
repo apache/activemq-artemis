@@ -21,10 +21,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.spi.core.naming.BindingRegistry;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class MapBindingRegistry implements BindingRegistry
 {
    protected ConcurrentMap<String, Object> registry = new ConcurrentHashMap<String, Object>();

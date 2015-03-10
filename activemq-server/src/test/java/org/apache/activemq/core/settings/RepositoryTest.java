@@ -27,9 +27,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- */
 public class RepositoryTest extends UnitTestCase
 {
    HierarchicalRepository<HashSet<Role>> securityRepository;

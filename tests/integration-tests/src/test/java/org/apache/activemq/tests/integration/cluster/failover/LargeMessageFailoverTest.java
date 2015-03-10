@@ -21,12 +21,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.junit.Test;
 
-/**
- * A LargeMessageFailoverTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- */
 public class LargeMessageFailoverTest extends FailoverTest
 {
 

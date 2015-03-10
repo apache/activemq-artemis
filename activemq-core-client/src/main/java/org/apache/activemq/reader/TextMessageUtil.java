@@ -20,10 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * @author Clebert Suconic
- */
-
 public class TextMessageUtil extends MessageUtil
 {
 

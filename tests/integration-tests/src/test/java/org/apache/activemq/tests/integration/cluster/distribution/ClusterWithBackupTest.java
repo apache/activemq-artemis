@@ -22,16 +22,6 @@ import org.junit.Test;
 
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
-/**
- *
- * A ClusterWithBackupTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 9 Mar 2009 16:31:21
- *
- *
- */
 public class ClusterWithBackupTest extends ClusterTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

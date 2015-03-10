@@ -36,10 +36,6 @@ import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
- */
 public class FileConfigurationTest extends ConfigurationImplTest
 {
    @Override

@@ -33,11 +33,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A JMSConnectionFactoryConfigurationStorageTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- */
 public class JMSConnectionFactoryConfigurationStorageTest extends StorageManagerTestBase
 {
 

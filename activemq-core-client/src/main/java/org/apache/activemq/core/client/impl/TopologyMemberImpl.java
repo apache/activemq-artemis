@@ -21,10 +21,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- *         Created Aug 16, 2010
- */
 public final class TopologyMemberImpl implements TopologyMember
 {
    private static final long serialVersionUID = 1123652191795626133L;

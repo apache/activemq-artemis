@@ -48,9 +48,6 @@ import org.apache.activemq.core.transaction.impl.XidImpl;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class MessageGroupingTest extends UnitTestCase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

@@ -28,12 +28,6 @@ import org.apache.activemq.core.server.cluster.Transformer;
 
 /**
  * A DivertImpl simply diverts a message to a different forwardAddress
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- * Created 19 Dec 2008 10:57:49
- *
- *
  */
 public class DivertImpl implements Divert
 {

@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.core.server.management;
 
-/**
- * A NotificationService
- *
- * @author jmesnil
- */
 public interface NotificationService
 {
    /**

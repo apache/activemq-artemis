@@ -41,9 +41,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class LVQRecoveryTest extends ServiceTestBase
 {
    private ActiveMQServer server;

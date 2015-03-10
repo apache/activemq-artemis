@@ -32,11 +32,6 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.settings.HierarchicalRepository;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
-/**
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:andy.taylor@jboss.org>Andy Taylor</a>
- */
 public final class PagingManagerImpl implements PagingManager
 {
    private volatile boolean started = false;

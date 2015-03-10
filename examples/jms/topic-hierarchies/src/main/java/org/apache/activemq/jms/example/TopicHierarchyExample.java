@@ -33,8 +33,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
  * This example demonstrates how a JMS TopicSubscriber can be created to subscribe to a wild-card Topic.
  *
  * For more information please see the readme.html
- *
- * @author <a href="tim.fox@jboss.com">Tim Fox</a>
  */
 public class TopicHierarchyExample extends ActiveMQExample
 {

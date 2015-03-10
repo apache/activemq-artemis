@@ -57,11 +57,6 @@ import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.FutureLatch;
 
-/**
- * A PageCursorImpl
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- */
 final class PageSubscriptionImpl implements PageSubscription
 {
    private final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();

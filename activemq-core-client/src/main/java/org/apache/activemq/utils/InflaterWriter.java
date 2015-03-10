@@ -29,8 +29,6 @@ import java.util.zip.Inflater;
  * decompress the bytes and write them to the output stream.
  * <p>
  * Not for concurrent use.
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
  */
 public class InflaterWriter extends OutputStream
 {

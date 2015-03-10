@@ -56,12 +56,6 @@ import org.apache.activemq.core.server.impl.JournalLoader;
 import org.apache.activemq.core.transaction.ResourceManager;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- * A NullStorageManager
- *
- * @author <a href="mailto:ataylor@redhat.com">Andy Taylor</a>
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class NullStorageManager implements StorageManager
 {
    private final AtomicLong idSequence = new AtomicLong(0);

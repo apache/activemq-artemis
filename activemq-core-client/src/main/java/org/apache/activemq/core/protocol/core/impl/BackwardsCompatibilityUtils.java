@@ -24,9 +24,7 @@ import org.apache.activemq.api.core.client.TopologyMember;
 /**
  * This is a utility class to house any HornetQ client specific backwards compatibility methods.
  *
- * @author mtaylor
  */
-
 public class BackwardsCompatibilityUtils
 {
    private static int INITIAL_ACTIVEMQ_INCREMENTING_VERSION = 126;

@@ -32,13 +32,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A BatchIDGeneratorUnitTest
- *
- * @author <mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- *
- */
 public class BatchIDGeneratorUnitTest extends UnitTestCase
 {
 

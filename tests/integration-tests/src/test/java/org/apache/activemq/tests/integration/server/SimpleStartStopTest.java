@@ -27,10 +27,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.jboss.logmanager.Level;
 import org.junit.Test;
 
-/**
- * @author clebertsuconic
- */
-
 public class SimpleStartStopTest extends ServiceTestBase
 {
 

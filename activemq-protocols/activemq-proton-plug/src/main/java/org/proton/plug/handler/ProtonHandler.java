@@ -26,10 +26,7 @@ import org.proton.plug.handler.impl.ProtonHandlerImpl;
 
 /**
  * This is a definition of the public interface for {@link org.proton.plug.handler.impl.ProtonHandlerImpl}
- *
- * @author Clebert Suconic
  */
-
 public interface ProtonHandler
 {
 

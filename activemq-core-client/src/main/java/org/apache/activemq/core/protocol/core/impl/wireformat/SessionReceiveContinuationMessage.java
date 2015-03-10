@@ -19,15 +19,6 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A SessionSendContinuationMessage
- *
- * @author <a href="mailto:clebert.suconic@jboss.org">Clebert Suconic</a>
- *
- * Created Dec 4, 2008 12:25:14 PM
- *
- *
- */
 public class SessionReceiveContinuationMessage extends SessionContinuationMessage
 {
 

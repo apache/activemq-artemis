@@ -25,8 +25,6 @@ import org.apache.activemq.utils.MemorySize;
 
 /**
  * Implementation of a MessageReference
- *
- * @author <a href="mailto:tim.fox@jboss.com>Tim Fox</a>
  */
 public class MessageReferenceImpl implements MessageReference
 {

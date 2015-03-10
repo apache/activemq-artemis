@@ -23,10 +23,6 @@ import org.apache.activemq.core.config.Configuration;
 /**
  *
  * A MultiThreadRandomReattachTest
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTestBase
 {

@@ -31,8 +31,6 @@ import org.junit.Test;
 
 /**
  * Tests the delivery/receipt of a foreign message
- *
- * @author <a href="mailto:a.walker@base2group.com>Aaron Walker</a>
  */
 public class ForeignMessageTest extends MessageTestBase
 {

@@ -19,9 +19,6 @@ package org.apache.activemq.factory;
 import org.apache.activemq.dto.SecurityDTO;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public interface SecurityHandler
 {
    ActiveMQSecurityManager createSecurityManager(SecurityDTO securityDTO) throws Exception;

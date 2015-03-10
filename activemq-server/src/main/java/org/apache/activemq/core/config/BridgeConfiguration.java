@@ -22,10 +22,6 @@ import java.util.List;
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 
-/**
- * A BridgeConfiguration
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public final class BridgeConfiguration implements Serializable
 {
    private static final long serialVersionUID = -1057244274380572226L;

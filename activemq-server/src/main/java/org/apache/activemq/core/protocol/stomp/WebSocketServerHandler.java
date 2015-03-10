@@ -45,13 +45,6 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-
-/**
- * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
- * @author <a href="http://gleamynode.net/">Trustin Lee</a>
- * @author <a href="http://jmesnil.net/">Jeff Mesnil</a
- * @author <a href="mailto:nmaurer@redhat.com">Norman Maurer</a>
- */
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object>
 {
    private static final String WEBSOCKET_PATH = "/stomp";

@@ -20,13 +20,6 @@ import java.util.List;
 
 /**
  * To be called any time Discovery changes its list of nodes.
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author Clebert Suconic
- *
- * Created 17 Nov 2008 14:30:39
- *
- *
  */
 public interface DiscoveryListener
 {

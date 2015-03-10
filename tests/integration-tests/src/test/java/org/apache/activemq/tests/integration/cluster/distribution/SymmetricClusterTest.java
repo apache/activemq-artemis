@@ -27,13 +27,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
  * A SymmetricClusterTest
  *
  * Most of the cases are covered in OneWayTwoNodeClusterTest - we don't duplicate them all here
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mtaylor@redhat,com">Martyn Taylor</a>
- *
- * Created 3 Feb 2009 09:10:43
- *
- *
  */
 public class SymmetricClusterTest extends ClusterTestBase
 {

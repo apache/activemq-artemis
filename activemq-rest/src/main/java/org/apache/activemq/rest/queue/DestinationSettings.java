@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.rest.queue;
 
-/**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
- * @version $Revision: 1 $
- */
 public class DestinationSettings
 {
    protected boolean duplicatesAllowed;

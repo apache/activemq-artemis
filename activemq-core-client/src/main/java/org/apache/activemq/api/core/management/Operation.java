@@ -29,8 +29,6 @@ import javax.management.MBeanOperationInfo;
  * <p>
  * This annotation is used only for methods which can be invoked
  * through a GUI.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

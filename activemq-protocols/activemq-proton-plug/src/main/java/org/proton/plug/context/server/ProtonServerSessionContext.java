@@ -32,10 +32,6 @@ import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.context.ProtonTransactionHandler;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
-/**
- * @author Clebert Suconic
- */
-
 public class ProtonServerSessionContext extends AbstractProtonSessionContext
 {
 

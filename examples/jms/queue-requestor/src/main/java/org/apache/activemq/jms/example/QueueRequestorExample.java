@@ -30,8 +30,6 @@ import org.apache.activemq.common.example.ActiveMQExample;
 
 /**
  * A simple JMS example that shows how to use queues requestors.
- *
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
  */
 public class QueueRequestorExample extends ActiveMQExample
 {

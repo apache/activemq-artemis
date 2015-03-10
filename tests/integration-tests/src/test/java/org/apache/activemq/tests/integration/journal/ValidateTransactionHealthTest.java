@@ -35,11 +35,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- *
  * This test spawns a remote VM, as we want to "crash" the VM right after the journal is filled with data
- *
- * @author <a href="mailto:clebert.suconic@jboss.com">Clebert Suconic</a>
- *
  */
 public class ValidateTransactionHealthTest extends UnitTestCase
 {

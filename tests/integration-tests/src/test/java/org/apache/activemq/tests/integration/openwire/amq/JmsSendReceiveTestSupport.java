@@ -39,9 +39,6 @@ import org.junit.Test;
 
 /**
  * adapted from: org.apache.activemq.JmsSendReceiveTestSupport
- *
- * @author <a href="mailto:hgao@redhat.com">Howard Gao</a>
- *
  */
 public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implements MessageListener
 {

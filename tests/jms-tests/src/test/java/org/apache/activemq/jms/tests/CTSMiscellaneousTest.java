@@ -32,10 +32,6 @@ import org.junit.Test;
 
 /**
  * Safeguards for previously detected TCK failures.
- *
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- * @author <a href="mailto:tim.fox@jboss.org">Tim Fox</a>
- *
  */
 public class CTSMiscellaneousTest extends JMSTest
 {

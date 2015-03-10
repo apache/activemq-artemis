@@ -26,11 +26,6 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.utils.UUID;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
- *         Date: Oct 13, 2010
- *         Time: 2:44:02 PM
- */
 public class FileLockNodeManager extends NodeManager
 {
    private static final int LIVE_LOCK_POS = 1;

@@ -23,8 +23,6 @@ import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
 
 /**
  * A Validators.
- *
- * @author jmesnil
  */
 public final class Validators
 {

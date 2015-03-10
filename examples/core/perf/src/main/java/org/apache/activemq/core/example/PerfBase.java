@@ -45,10 +45,6 @@ import org.apache.activemq.utils.TokenBucketLimiterImpl;
 /**
  *
  * A PerfBase
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- *
  */
 public abstract class PerfBase
 {

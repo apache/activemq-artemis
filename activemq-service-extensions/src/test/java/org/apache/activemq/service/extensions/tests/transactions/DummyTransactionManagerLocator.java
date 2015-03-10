@@ -27,9 +27,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-/**
- * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
- */
 public class DummyTransactionManagerLocator implements TransactionManagerLocator,TransactionManager
 {
    @Override

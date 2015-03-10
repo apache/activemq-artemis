@@ -26,11 +26,6 @@ import java.io.ObjectOutputStream;
 import org.junit.Assert;
 
 
-/**
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- *
- *
- */
 public class VersionImplTest extends Assert
 {
    // Constants -----------------------------------------------------

@@ -36,9 +36,6 @@ import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- */
 public class AcknowledgementTest extends JMSTestCase
 {
    /**

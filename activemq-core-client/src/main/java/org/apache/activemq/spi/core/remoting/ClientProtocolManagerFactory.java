@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.spi.core.remoting;
 
-/**
- * @author Clebert Suconic
- */
 public interface ClientProtocolManagerFactory
 {
 

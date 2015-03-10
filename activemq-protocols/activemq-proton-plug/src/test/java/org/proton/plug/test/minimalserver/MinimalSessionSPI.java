@@ -32,10 +32,6 @@ import org.proton.plug.context.server.ProtonServerSessionContext;
 import org.proton.plug.SASLResult;
 import org.proton.plug.util.ProtonServerMessage;
 
-/**
- * @author Clebert Suconic
- */
-
 public class MinimalSessionSPI implements AMQPSessionCallback
 {
 

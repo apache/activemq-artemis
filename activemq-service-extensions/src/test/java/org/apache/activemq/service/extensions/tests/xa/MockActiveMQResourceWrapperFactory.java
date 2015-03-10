@@ -22,10 +22,6 @@ import java.util.Map;
 import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 
-/**
- * @author <a href="mailto:mtaylor@redhat.com">Martyn Taylor</a>
- */
-
 public class MockActiveMQResourceWrapperFactory implements ActiveMQXAResourceWrapperFactory
 {
    @Override

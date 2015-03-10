@@ -20,12 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.message.impl.MessageInternal;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- * @author <a href="mailto:jmesnil@redhat.com">Jeff Mesnil</a>
- * @author <a href="mailto:csuconic@redhat.com">Clebert Suconic</a>
- *
- */
 public class SessionSendLargeMessage extends PacketImpl
 {
 

@@ -18,13 +18,6 @@ package org.apache.activemq.utils;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- * A TokenBucketLimiterImpl
- *
- * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
- *
- */
 public class TokenBucketLimiterImpl implements TokenBucketLimiter
 {
    private final int rate;
